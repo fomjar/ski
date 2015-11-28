@@ -1,0 +1,27 @@
+#!/bin/sh
+cd ..
+
+function printUsage()
+{
+	echo "Usage: ./$0 [mid]"
+}
+
+mid=$1
+if [ "$mid" = "" ]; then
+	printUsage
+	exit 1
+fi
+
+mod=${PWD##*-}
+
+for f in $(find lib -type f -name "*.jar"); do
+	if [ "$cp" = "" ]; then
+		cp="$f"
+	else
+		cp="$cp:$f"
+	fi
+done
+
+opt="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8844"
+
+java $opt -cp $cp com.wtcrm.$mod.Main $mod-$mid 
