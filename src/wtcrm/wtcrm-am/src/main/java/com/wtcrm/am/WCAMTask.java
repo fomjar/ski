@@ -127,9 +127,7 @@ public class WCAMTask implements FjServerTask {
 	 * @param params
 	 */
 	private void processWechatCommon(FjServer server, FjMsg msg, Map<String, String> params) {
-		if (params.get("Content").equals("fuck!")) {
-			responseWechatRequest(server, msg, createWechatResponseBody(params, "fuck you too!"));
-		}
+		responseWechatRequest(server, msg, createWechatResponseBody(params, params.get("Content")));
 	}
 	
 	private static String createWechatResponseBody(Map<String, String> params, String content) {
