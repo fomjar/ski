@@ -59,7 +59,7 @@ public class FjReceiver extends FjLoopTask {
 			Socket conn = sock.accept();
 			logger.debug("here comes a connection from: " + conn.getInetAddress().getHostAddress() + ":" + conn.getPort());
 			int n = conn.getInputStream().read(buf);
-			if (0 < n) mq.offer(FjMsg.create(conn, new String(buf, 0, n)));
+			if (0 < n) mq.offer(FjMsg.create(new String(buf, 0, n)), conn);
 		} catch (IOException e) {logger.error("accept connection from port: " + port() + " failed", e);}
 	}
 

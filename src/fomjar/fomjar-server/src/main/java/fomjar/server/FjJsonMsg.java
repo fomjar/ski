@@ -1,15 +1,12 @@
 package fomjar.server;
 
-import java.net.Socket;
-
 import net.sf.json.JSONObject;
 
 public class FjJsonMsg extends FjMsg {
 	
 	private JSONObject json;
 	
-	public FjJsonMsg(Socket conn, Object json) {
-		super(conn);
+	public FjJsonMsg(Object json) {
 		this.json = JSONObject.fromObject(json);
 	}
 	

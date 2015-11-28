@@ -25,7 +25,7 @@ public class FjSender extends FjLoopTask {
 	public void perform() {
 		FjMsg msg = mq.poll();
 		if (null == msg) {
-			logger.error("failed to poll msg from queue");
+			logger.error("failed to poll message from queue");
 			return;
 		}
 		Socket sock = null;
@@ -63,24 +63,28 @@ public class FjSender extends FjLoopTask {
 				try {if (null != sock) sock.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
-		} else {
+		} else if (null != (sock = mq.pollConnection(msg))) {
 			try {
-				sock = msg.conn();
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
 				writer.write(msg.toString());
 				writer.flush();
 				logger.debug("send message successfully: " + msg);
-			} catch (IOException e) {logger.error("failed to reply the msg: " + msg, e);}
+			} catch (IOException e) {logger.error("failed to reply the message: " + msg, e);}
 			finally {
 				try {if (null != sock) sock.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
+		} else {
+			logger.error("can not find a connection to send for message: " + msg);
 		}
 	}
 	
 	public void send(FjMsg msg) {
-		msg.markSending();
-		mq.offer(msg);
+		send(msg, null);
+	}
+	
+	public void send(FjMsg msg, Socket conn) {
+		mq.offer(msg, conn);
 	}
 	
 }

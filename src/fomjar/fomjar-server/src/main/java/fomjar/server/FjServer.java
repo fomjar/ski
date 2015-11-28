@@ -1,6 +1,7 @@
 package fomjar.server;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,13 +12,11 @@ public class FjServer extends FjLoopTask {
 	private static final Logger logger = Logger.getLogger(FjServer.class);
 	private String name;
 	private FjMq mq;
-	private FjConnectionCache cache;
 	private List<FjServerTask> tasks;
 	
 	public FjServer(String name, FjMq mq) {
 		this.name = name;
 		this.mq = mq;
-		cache = new FjConnectionCache();
 		tasks = new LinkedList<FjServerTask>();
 	}
 	
@@ -29,10 +28,6 @@ public class FjServer extends FjLoopTask {
 		return mq;
 	}
 	
-	public FjConnectionCache cache() {
-		return cache;
-	}
-
 	public void addServerTask(FjServerTask task) {
 		if (null == task) throw new NullPointerException();
 		synchronized (tasks) {tasks.add(task);}
@@ -51,10 +46,10 @@ public class FjServer extends FjLoopTask {
 			}
 		}
 		
-		if (!msg.isSending() && !cache().has(msg)) {
-			try {if (null != msg.conn()) msg.conn().close();}
-			catch (IOException e) {e.printStackTrace();}
-		}
+		try {
+			Socket conn = mq.pollConnection(msg);
+			if (null != conn) conn.close();}
+		catch (IOException e) {e.printStackTrace();}
 	}
 	
 	public static interface FjServerTask {
