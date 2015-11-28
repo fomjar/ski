@@ -3,6 +3,7 @@ package com.wtcrm.am;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
@@ -15,6 +16,10 @@ import fomjar.server.FjToolkit;
 public class WCAMTask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCAMTask.class);
+	
+	public WCAMTask() {
+		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+	}
 
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
@@ -129,25 +134,25 @@ public class WCAMTask implements FjServerTask {
 	
 	private static String createWechatResponseBody(Map<String, String> params, String content) {
 		StringBuffer body = new StringBuffer();
-		body.append("<xml>\n");
-		body.append("<ToUserName><![CDATA[" + params.get("FromUserName") + "]]></ToUserName>\n");
-		body.append("<FromUserName><![CDATA[" + params.get("ToUserName") + "]]></FromUserName>\n");
-		body.append("<CreateTime>" + (System.currentTimeMillis() / 1000) + "</CreateTime>\n");
-		body.append("<MsgType><![CDATA[text]]></MsgType>\n");
-		body.append("<Content><![CDATA[" + content + "]]></Content>\n");
+		body.append("<xml>\r\n");
+		body.append("<ToUserName><![CDATA[" + params.get("FromUserName") + "]]></ToUserName>\r\n");
+		body.append("<FromUserName><![CDATA[" + params.get("ToUserName") + "]]></FromUserName>\r\n");
+		body.append("<CreateTime>" + (System.currentTimeMillis() / 1000) + "</CreateTime>\r\n");
+		body.append("<MsgType><![CDATA[text]]></MsgType>\r\n");
+		body.append("<Content><![CDATA[" + content + "]]></Content>\r\n");
 		body.append("</xml>");
 		return body.toString();
 	}
 	
 	private static void responseWechatRequest(FjServer server, FjMsg msg, String body) {
 		StringBuffer rsp = new StringBuffer();
-		rsp.append("HTTP/1.1 200 OK\n");
-		rsp.append("Server: fomjar server\n");
-		rsp.append("Date: " + new Date() + "\n");
-		rsp.append("Connection: Keep-Alive\n");
-		rsp.append("Content-Length: " + body.length() + "\n");
-		rsp.append("Content-Type: text/xml\n");
-		rsp.append("\n");
+		rsp.append("HTTP/1.1 200 OK\r\n");
+		rsp.append("Server: fomjar\r\n");
+		rsp.append("Date: " + new Date() + "\r\n");
+		rsp.append("Connection: Keep-Alive\r\n");
+		rsp.append("Content-Length: " + body.length() + "\r\n");
+		rsp.append("Content-Type: text/xml; charset=UTF-8\r\n");
+		rsp.append("\r\n");
 		if (null != body) rsp.append(body);
 		FjToolkit.getSender(server.name()).send(FjMsg.create(rsp.toString()), server.mq().pollConnection(msg));
 		logger.info("response wechat message: " + rsp.toString());
