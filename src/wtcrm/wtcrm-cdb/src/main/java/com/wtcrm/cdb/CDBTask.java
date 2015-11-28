@@ -133,7 +133,7 @@ public class CDBTask implements FjServerTask {
 		data.put("ts",  req.json().getString("ts"));
 		data.put("sid", req.json().getString("sid"));
 		data.put("rst", outparam);
-		FjToolkit.getSender(server.name()).send(FjMsg.create(req.conn(), data));
+		FjToolkit.getSender(server.name()).send(FjMsg.create(data));
 	}
 
 	@Override

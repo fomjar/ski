@@ -94,7 +94,7 @@ public class WCAMTask implements FjServerTask {
 	 * @param msg
 	 */
 	private void processWechatAccess(FjServer server, FjMsg msg, Map<String, String> params) {
-		responseWechatMessage(server, msg, params.get("echostr"));
+		responseWechatRequest(server, msg, params.get("echostr"));
 	}
 	
 	/**
@@ -123,7 +123,7 @@ public class WCAMTask implements FjServerTask {
 	 */
 	private void processWechatCommon(FjServer server, FjMsg msg, Map<String, String> params) {
 		if (params.get("Content").equals("fuck!")) {
-			responseWechatMessage(server, msg, createWechatResponseBody(params, "fuck you too!"));
+			responseWechatRequest(server, msg, createWechatResponseBody(params, "fuck you too!"));
 		}
 	}
 	
@@ -139,7 +139,7 @@ public class WCAMTask implements FjServerTask {
 		return body.toString();
 	}
 	
-	private static void responseWechatMessage(FjServer server, FjMsg msg, String body) {
+	private static void responseWechatRequest(FjServer server, FjMsg msg, String body) {
 		StringBuffer rsp = new StringBuffer();
 		rsp.append("HTTP/1.1 200 OK\n");
 		rsp.append("Server: fomjar server\n");
@@ -149,7 +149,7 @@ public class WCAMTask implements FjServerTask {
 		rsp.append("Content-Type: text/xml\n");
 		rsp.append("\n");
 		if (null != body) rsp.append(body);
-		FjToolkit.getSender(server.name()).send(FjMsg.create(msg.conn(), rsp.toString()));
+		FjToolkit.getSender(server.name()).send(FjMsg.create(rsp.toString()), server.mq().pollConnection(msg));
 		logger.info("response wechat message: " + rsp.toString());
 	}
 }
