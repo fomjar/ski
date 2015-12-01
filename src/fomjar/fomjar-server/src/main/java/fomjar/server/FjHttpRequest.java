@@ -4,7 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FjHttpRequest extends FjHttpMsg {
-
+	
+	private static final String TEMPLATE = "%s %s HTTP/1.1\r\n"
+			+ "Host: %s\r\n"
+			+ "Connection: Keep-Alive\r\n"
+			+ "User-Agent: fomjar\r\n"
+			+ "Accept: */*\r\n"
+			+ "\r\n"
+			+ "%s\r\n";
+	
+	public FjHttpRequest(String method, String url, String body) {
+		super(String.format(TEMPLATE, method, url.substring(url.indexOf("/", url.indexOf("//") + 2)), url.substring(url.indexOf("//") + 2, url.indexOf("/", url.indexOf("//") + 2)), null == body ? "" : body));
+	}
+	
 	public FjHttpRequest(String http) {
 		super(http);
 	}

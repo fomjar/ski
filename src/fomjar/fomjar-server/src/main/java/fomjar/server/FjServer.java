@@ -49,7 +49,7 @@ public class FjServer extends FjLoopTask {
 		try {
 			Socket conn = mq.pollConnection(msg);
 			if (null != conn) conn.close();
-		} catch (IOException e) {e.printStackTrace();}
+		} catch (IOException e) {logger.warn("error occurs when close connection for message: " + msg);}
 	}
 	
 	public static interface FjServerTask {

@@ -82,5 +82,4 @@ public class FjHttpMsg extends FjMsg {
 		sb.append(body);
 		return sb.toString();
 	}
-
 }

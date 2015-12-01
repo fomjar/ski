@@ -12,6 +12,7 @@ public class Main {
 		FjToolkit.loadConfig();
 		FjToolkit.startServer("wcam-1").addServerTask(new WCAMTask());
 		FjToolkit.startServer("tbam-1").addServerTask(new TBAMTask());
+		AccessTokenGuard.getInstance().start();
 	}
 
 }
