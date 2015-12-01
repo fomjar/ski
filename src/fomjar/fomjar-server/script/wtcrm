@@ -3,7 +3,7 @@ cd ..
 
 function printUsage()
 {
-	echo "Usage: ./$0 [mid]"
+	echo "Usage: $0 [mid]"
 }
 
 mid=$1

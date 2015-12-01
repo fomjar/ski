@@ -48,8 +48,8 @@ public class FjServer extends FjLoopTask {
 		
 		try {
 			Socket conn = mq.pollConnection(msg);
-			if (null != conn) conn.close();}
-		catch (IOException e) {e.printStackTrace();}
+			if (null != conn) conn.close();
+		} catch (IOException e) {e.printStackTrace();}
 	}
 	
 	public static interface FjServerTask {

@@ -1,12 +1,14 @@
 package com.wtcrm.am;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.net.Socket;
 import java.util.TimeZone;
+
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.FjHttpRequest;
+import fomjar.server.FjHttpResponse;
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
@@ -28,9 +30,9 @@ public class WCAMTask implements FjServerTask {
 				&& ((FjJsonMsg) msg).json().containsKey("tm")) {
 			logger.info("message comes from wtcrm server");
 			processWtcrm(server, (FjJsonMsg) msg);
-		} else if (msg.toString().contains(" /wechat")) {
+		} else if (msg instanceof FjHttpRequest) {
 			logger.info("message comes from wechat server");
-			processWechat(server, msg);
+			processWechat(server, (FjHttpRequest) msg);
 		} else {
 			logger.error("unrecognized message: " + msg);
 		}
@@ -40,46 +42,13 @@ public class WCAMTask implements FjServerTask {
 		
 	}
 	
-	public static Map<String, String> parseWechatParams(String data) {
-		String paramLine = data.substring(data.indexOf("?") + 1, data.indexOf(" HTTP"));
-		Map<String, String> params = new HashMap<String, String>();
-		for (String param : paramLine.split("&")) {
-			String k = param.split("=")[0];
-			String v = param.split("=")[1];
-			params.put(k, v);
-		}
-		int from = data.indexOf("<xml>");
-		if (-1 != from) {
-			from += 6;
-			int to = 0;
-			while (-1 != (to = data.indexOf(">", from))) {
-				String k = data.substring(from, to);
-				if (k.equals("/xml")) break;
-				
-				from = to + 1;
-				to = data.indexOf("</", from);
-				if (-1 == to) {
-					logger.error("invalid wechat message body: " + data);
-					break;
-				}
-				String v = data.substring(from, to);
-				if (v.startsWith("<![CDATA[")) v = v.substring(9, v.lastIndexOf("]]>"));
-				params.put(k, v);
-				
-				from = data.indexOf("<", to + 2) + 1;
-			}
-		}
-		return params;
-	}
-	
-	private void processWechat(FjServer server, FjMsg msg) {
-		Map<String, String> params = parseWechatParams(msg.toString());
-		if (params.containsKey("echostr")) {
+	private void processWechat(FjServer server, FjHttpRequest msg) {
+		if (msg.titleParams().containsKey("echostr")) {
 			logger.info("wechat access message");
-			processWechatAccess(server, msg, params);
+			processWechatAccess(server, msg);
 		} else {
 			logger.info("wechat common message");
-			processWechatCommon(server, msg, params);
+			processWechatCommon(server, msg);
 		}
 	}
 	
@@ -98,8 +67,8 @@ public class WCAMTask implements FjServerTask {
 	 * @param server
 	 * @param msg
 	 */
-	private void processWechatAccess(FjServer server, FjMsg msg, Map<String, String> params) {
-		responseWechatRequest(server, msg, params.get("echostr"));
+	private void processWechatAccess(FjServer server, FjHttpRequest msg) {
+		responseWechatRequest(server, server.mq().pollConnection(msg), "text/plain", msg.titleParam("echostr"));
 	}
 	
 	/**
@@ -124,35 +93,27 @@ public class WCAMTask implements FjServerTask {
 	 * 
 	 * @param server
 	 * @param msg
-	 * @param params
 	 */
-	private void processWechatCommon(FjServer server, FjMsg msg, Map<String, String> params) {
-		responseWechatRequest(server, msg, createWechatResponseBody(params, params.get("Content")));
+	private void processWechatCommon(FjServer server, FjHttpRequest msg) {
+		responseWechatRequest(server, server.mq().pollConnection(msg), "text/xml", createWechatResponseBody(msg, msg.bodyToJson().getString("Content")));
 	}
 	
-	private static String createWechatResponseBody(Map<String, String> params, String content) {
-		StringBuffer body = new StringBuffer();
-		body.append("<xml>\r\n");
-		body.append("<ToUserName><![CDATA[" + params.get("FromUserName") + "]]></ToUserName>\r\n");
-		body.append("<FromUserName><![CDATA[" + params.get("ToUserName") + "]]></FromUserName>\r\n");
-		body.append("<CreateTime>" + (System.currentTimeMillis() / 1000) + "</CreateTime>\r\n");
-		body.append("<MsgType><![CDATA[text]]></MsgType>\r\n");
-		body.append("<Content><![CDATA[" + content + "]]></Content>\r\n");
-		body.append("</xml>");
-		return body.toString();
-	}
-	
-	private static void responseWechatRequest(FjServer server, FjMsg msg, String body) {
-		StringBuffer rsp = new StringBuffer();
-		rsp.append("HTTP/1.1 200 OK\r\n");
-		rsp.append("Server: fomjar\r\n");
-		rsp.append("Date: " + new Date() + "\r\n");
-		rsp.append("Connection: Keep-Alive\r\n");
-		rsp.append("Content-Length: " + body.length() + "\r\n");
-		rsp.append("Content-Type: text/xml; charset=UTF-8\r\n");
-		rsp.append("\r\n");
-		if (null != body) rsp.append(body);
-		FjToolkit.getSender(server.name()).send(FjMsg.create(rsp.toString()), server.mq().pollConnection(msg));
+	private static void responseWechatRequest(FjServer server, Socket conn, String bodyType, String body) {
+		FjMsg rsp = new FjHttpResponse(bodyType, body);
+		FjToolkit.getSender(server.name()).send(rsp, conn);
 		logger.info("response wechat message: " + rsp.toString());
+	}
+	
+	private static final String TEMPLATE = "<xml>\r\n"
+			+ "<ToUserName><![CDATA[%s]]></ToUserName>\r\n"
+			+ "<FromUserName><![CDATA[%s]]></FromUserName>\r\n"
+			+ "<CreateTime>%d</CreateTime>\r\n"
+			+ "<MsgType><![CDATA[text]]></MsgType>\r\n"
+			+ "<Content><![CDATA[%s]]></Content>\r\n"
+			+ "</xml>";
+	
+	private static String createWechatResponseBody(FjHttpRequest msg, String content) {
+		JSONObject msgBody = msg.bodyToJson();
+		return String.format(TEMPLATE, msgBody.getString("FromUserName"), msgBody.getString("ToUserName"), System.currentTimeMillis() / 1000, content);
 	}
 }

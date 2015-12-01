@@ -3,9 +3,6 @@ package fomjar.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.json.JSONObject;
-import net.sf.json.xml.XMLSerializer;
-
 public class FjHttpRequest extends FjHttpMsg {
 
 	public FjHttpRequest(String http) {
@@ -17,7 +14,11 @@ public class FjHttpRequest extends FjHttpMsg {
 	}
 	
 	public String titleUrl() {
-		return title().substring(title().indexOf(" ") + 1, title().indexOf(" HTTP"));
+		return title().split(" ")[1];
+	}
+	
+	public String titleVersion() {
+		return title().split(" ")[2];
 	}
 	
 	public String titleParam(String key) {
@@ -35,11 +36,5 @@ public class FjHttpRequest extends FjHttpMsg {
 			}
 		}
 		return params;
-	}
-	
-	public JSONObject bodyToJson() {
-		if (body().trim().startsWith("<")) return JSONObject.fromObject(new XMLSerializer().read(body()));
-		else if (body().trim().startsWith("{")) return JSONObject.fromObject(body());
-		else return null;
 	}
 }

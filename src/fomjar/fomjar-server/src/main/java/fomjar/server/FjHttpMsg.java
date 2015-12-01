@@ -3,6 +3,9 @@ package fomjar.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+import net.sf.json.xml.XMLSerializer;
+
 public class FjHttpMsg extends FjMsg {
 	
 	private static final String ln = "\r\n";
@@ -15,6 +18,7 @@ public class FjHttpMsg extends FjMsg {
 		String[] lines = http.split(ln);
 		int phase = 0;
 		for (String line : lines) {
+			line = line.trim();
 			switch (phase) {
 			case 0:
 				phase++;
@@ -28,6 +32,7 @@ public class FjHttpMsg extends FjMsg {
 				if (null == head) head = new HashMap<String, String>();
 				String[] kvs = line.split(";");
 				for (String kv : kvs) {
+					kv = kv.trim();
 					String k = kv.substring(0, kv.indexOf(":")).trim();
 					String v = kv.substring(kv.indexOf(":") + 1).trim();
 					head.put(k, v);
@@ -58,6 +63,12 @@ public class FjHttpMsg extends FjMsg {
 	
 	public String body() {
 		return body.toString();
+	}
+	
+	public JSONObject bodyToJson() {
+		if (body().trim().startsWith("<")) return JSONObject.fromObject(new XMLSerializer().read(body()));
+		else if (body().trim().startsWith("{")) return JSONObject.fromObject(body());
+		else return null;
 	}
 
 	@Override
