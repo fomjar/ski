@@ -26,8 +26,7 @@ public class FjToolkit {
 		if (null == guard) {
 			long time = 10 * 1000L;
 			guard = new FjConfigGuard(time, time);
-		}
-		if (!guard.isRun()) {
+			guard.run();
 			Thread thread = new Thread(guard);
 			thread.setName("config-guard");
 			thread.start();
