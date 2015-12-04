@@ -1,4 +1,4 @@
-package com.wtcrm.am;
+package com.wtcrm.wcam;
 
 import org.apache.log4j.Logger;
 
@@ -62,13 +62,13 @@ public class AccessTokenGuard {
 				return;
 			}
 			token = rsp.json().getString("access_token");
-			setNextRetry(Long.parseLong(rsp.json().getString("expires_in")) * 1000);
+			setNextRetry(Long.parseLong(rsp.json().getString("expires_in")));
 			logger.info("got wechat access token successfully: " + rsp);
 		}
 		
-		public void setNextRetry(long milliSeconds) {
-			logger.info("will try again after " + milliSeconds + " milli seconds");
-			setInterval(milliSeconds);
+		public void setNextRetry(long seconds) {
+			logger.info("will try again after " + seconds + " seconds");
+			setInterval(seconds * 1000);
 		}
 	}
 }

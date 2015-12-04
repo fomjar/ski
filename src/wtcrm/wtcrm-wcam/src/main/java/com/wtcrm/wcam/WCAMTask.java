@@ -1,7 +1,6 @@
-package com.wtcrm.am;
+package com.wtcrm.wcam;
 
 import java.net.Socket;
-import java.util.TimeZone;
 
 import net.sf.json.JSONObject;
 
@@ -19,10 +18,6 @@ public class WCAMTask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCAMTask.class);
 	
-	public WCAMTask() {
-		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
-	}
-
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
 		if (msg instanceof FjJsonMsg

@@ -5,11 +5,11 @@
   <version>0.0.1</version>
   <packaging>pom</packaging>
   <modules>
-  	<module>wtcrm-am</module>
   	<module>wtcrm-cdb</module>
-  	<module>wtcrm-wa</module>
-  	<module>wtcrm-stub</module>
   	<module>wtcrm-fbbp</module>
+  	<module>wtcrm-stub</module>
+  	<module>wtcrm-wa</module>
+  	<module>wtcrm-wcam</module>
   </modules>
   <dependencies>
   	<dependency>

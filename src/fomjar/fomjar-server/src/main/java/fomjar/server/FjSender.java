@@ -44,7 +44,7 @@ public class FjSender extends FjLoopTask {
 		Socket sock = null;
 		if (msg instanceof FjJsonMsg && ((FjJsonMsg) msg).json().containsKey("ts")) {
 			String ts = ((FjJsonMsg) msg).json().getString("ts");
-			FjToolkit.FjAddress address = FjToolkit.getAddress(ts);
+			FjToolkit.FjAddress address = FjToolkit.getSlb().getAddress(ts);
 			if (null == address) {
 				logger.error("can not find an address with server name: " + ts);
 				return;
@@ -57,7 +57,7 @@ public class FjSender extends FjLoopTask {
 				logger.debug("send message successfully: " + msg);
 			} catch (IOException e) {
 				logger.error("failed to send the msg: " + msg + " with server name: " + ts, e);
-				List<FjToolkit.FjAddress> addresses = FjToolkit.getAddresses(ts);
+				List<FjToolkit.FjAddress> addresses = FjToolkit.getSlb().getAddresses(ts);
 				logger.error("now try other addresses with the same module category: " + addresses);
 				boolean isSuccess = false;
 				for (FjToolkit.FjAddress addr : addresses) {

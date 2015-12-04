@@ -19,12 +19,19 @@ public class FjToolkit {
 	
 	private static final Logger logger = Logger.getLogger(FjToolkit.class);
 	private static Properties server = null;
-	private static Properties address = null;
+	private static FjSlb slb = null;
+	private static FjConfigGuard guard = null;
 	
-	public static void loadConfig() {
-		PropertyConfigurator.configure("conf/log4j.conf");
-		server  = loadOneConfig("conf/server.conf");
-		address = loadOneConfig("conf/address.conf");
+	public static void startConfigGuard() {
+		if (null == guard) {
+			long time = 10 * 1000L;
+			guard = new FjConfigGuard(time, time);
+		}
+		if (!guard.isRun()) {
+			Thread thread = new Thread(guard);
+			thread.setName("config-guard");
+			thread.start();
+		}
 	}
 	
 	private static Properties loadOneConfig(String absolutePath) {
@@ -48,30 +55,12 @@ public class FjToolkit {
 		return server.getProperty(key);
 	}
 	
-	public static List<FjAddress> getAddresses(String namePrefix) {
-		if (null == address || null == namePrefix) return null;
-		Iterator<Object> i = address.keySet().iterator();
-		List<FjAddress> items = new LinkedList<FjAddress>();
-		while (i.hasNext()) {
-			String k = (String) i.next();
-			if (k.toLowerCase().startsWith(namePrefix.toLowerCase())) {
-				String v = address.getProperty(k);
-				if (!v.contains(",")) continue;
-				FjAddress item = new FjAddress();
-				item.moduleCategory = namePrefix;
-				item.host = v.split(",")[0].trim();
-				item.port = Integer.parseInt(v.split(",")[1].trim());
-				items.add(item);
-			}
-		}
-		return items;
+	public static FjSlb getSlb() {
+		return slb;
 	}
 	
-	public static FjAddress getAddress(String moduleCategory) {
-		List<FjAddress> addresses = getAddresses(moduleCategory);
-		if (null == addresses || 0 == addresses.size()) return null;
-		int i = new Random().nextInt() % addresses.size();
-		return addresses.get(i);
+	public static FjConfigGuard getConfigGuard() {
+		return guard;
 	}
 	
 	public static class FjAddress {
@@ -86,19 +75,73 @@ public class FjToolkit {
 		}
 	}
 	
+	public static class FjSlb {
+		
+		private Properties address;
+		
+		public FjSlb(Properties address) {
+			setAddresses(address);
+		}
+		
+		public void setAddresses(Properties address) {
+			this.address = address;
+		}
+		
+		public List<FjAddress> getAddresses(String namePrefix) {
+			if (null == address || null == namePrefix) return null;
+			Iterator<Object> i = address.keySet().iterator();
+			List<FjAddress> items = new LinkedList<FjAddress>();
+			while (i.hasNext()) {
+				String k = (String) i.next();
+				if (k.toLowerCase().startsWith(namePrefix.toLowerCase())) {
+					String v = address.getProperty(k);
+					if (!v.contains(",")) continue;
+					FjAddress item = new FjAddress();
+					item.moduleCategory = namePrefix;
+					item.host = v.split(",")[0].trim();
+					item.port = Integer.parseInt(v.split(",")[1].trim());
+					items.add(item);
+				}
+			}
+			return items;
+		}
+		
+		public FjAddress getAddress(String moduleCategory) {
+			List<FjAddress> addresses = getAddresses(moduleCategory);
+			if (null == addresses || 0 == addresses.size()) return null;
+			int i = new Random().nextInt() % addresses.size();
+			return addresses.get(i);
+		}
+	}
+	
+	public static class FjConfigGuard extends FjLoopTask {
+		
+		public FjConfigGuard(long delay, long interval) {
+			super(delay, interval);
+		}
+
+		@Override
+		public void perform() {
+			PropertyConfigurator.configure("conf/log4j.conf");
+			server  = loadOneConfig("conf/server.conf");
+			if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
+			else slb.setAddresses(loadOneConfig("conf/address.conf"));
+		}
+	}
+	
 	private static ExecutorService g_pool = null;
 	private static Map<String, FjServer>   g_server = null;
 	private static Map<String, FjReceiver> g_receiver = null;
 	private static Map<String, FjSender>   g_sender = null;
 	
 	/**
-	 * call {@link #loadConfig()} first, and then ensure got the address of given server 'name'
+	 * call {@link #startConfigGuard()} first, and then ensure got the address of given server 'name'
 	 * 
 	 * @param name
 	 * @return
 	 */
 	public static synchronized FjServer startServer(String name) {
-		FjAddress address = getAddress(name);
+		FjAddress address = getSlb().getAddress(name);
 		if (null == address) {
 			logger.error("there is no address info for server name: " + name);
 			return null;

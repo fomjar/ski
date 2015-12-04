@@ -5,22 +5,44 @@ import org.apache.log4j.Logger;
 public abstract class FjLoopTask implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(FjLoopTask.class);
+	private long delay;
 	private long interval;
 	private boolean isRun;
 	
 	public FjLoopTask() {
-		this(0l);
+		this(0l, 0l);
 	}
 	
-	public FjLoopTask(long interval) {
+	public FjLoopTask(long delay, long interval) {
+		this.delay = delay;
 		this.interval = interval;
 		isRun = false;
 	}
 	
+	/**
+	 * @return milliseconds
+	 */
+	public long getDelay() {
+		return delay;
+	}
+	
+	/**
+	 * @param delay in milliseconds
+	 */
+	public void setDelay(long delay) {
+		this.delay = delay;
+	}
+	
+	/**
+	 * @return milliseconds
+	 */
 	public long getInterval() {
 		return interval;
 	}
 
+	/**
+	 * @param interval in millisecond
+	 */
 	public void setInterval(long interval) {
 		this.interval = interval;
 	}

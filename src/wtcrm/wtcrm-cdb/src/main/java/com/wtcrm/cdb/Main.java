@@ -9,7 +9,7 @@ public class Main {
 	 * @param args[1] server port
 	 */
 	public static void main(String[] args) {
-		FjToolkit.loadConfig();
+		FjToolkit.startConfigGuard();
 		FjToolkit.startServer(args[0]).addServerTask(new CDBTask());
 	}
 
