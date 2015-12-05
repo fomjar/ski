@@ -12,5 +12,4 @@ public class Main {
 		FjToolkit.startConfigGuard();
 		FjToolkit.startServer(args[0]).addServerTask(new WATask());
 	}
-
 }

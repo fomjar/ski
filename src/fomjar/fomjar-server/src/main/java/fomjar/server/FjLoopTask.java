@@ -58,6 +58,8 @@ public abstract class FjLoopTask implements Runnable {
 	@Override
 	public void run() {
 		isRun = true;
+		try {Thread.sleep(getDelay());}
+		catch (InterruptedException e) {logger.warn("thread sleep interupted", e);}
 		while(isRun) {
 			long start = System.currentTimeMillis();
 			try {perform();}

@@ -29,4 +29,12 @@
                 </executions>
             </plugin>
         </plugins>
-    </build></project>
+    </build>
+    <dependencies>
+    	<dependency>
+    		<groupId>com.applitools</groupId>
+    		<artifactId>eyes-selenium-java</artifactId>
+    		<version>2.26</version>
+    	</dependency>
+    </dependencies>
+</project>

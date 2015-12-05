@@ -9,6 +9,7 @@
   	<module>wtcrm-fbbp</module>
   	<module>wtcrm-stub</module>
   	<module>wtcrm-wa</module>
+  	<module>wtcrm-wa-ae</module>
   	<module>wtcrm-wcam</module>
   </modules>
   <dependencies>

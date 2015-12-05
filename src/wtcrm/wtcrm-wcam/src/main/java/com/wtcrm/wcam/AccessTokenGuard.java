@@ -8,7 +8,7 @@ import fomjar.server.FjMsg;
 import fomjar.server.FjSender;
 import fomjar.server.FjToolkit;
 
-public class AccessTokenGuard {
+public class AccessTokenGuard extends FjLoopTask {
 
 	private static AccessTokenGuard instance = null;
 	public static AccessTokenGuard getInstance() {
@@ -18,57 +18,50 @@ public class AccessTokenGuard {
 	
 	private static final Logger logger = Logger.getLogger(AccessTokenGuard.class);
 	
-	private WCTokenTask wctask;
+	private static final String TEMPLATE = "https://api.weixin.qq.com/cgi-bin/token?grant_type=%s&appid=%s&secret=%s";
 	
-	private AccessTokenGuard() {
-		wctask = new WCTokenTask();
-	}
+	public String token;
 	
 	public void start() {
-		Thread wcThread = new Thread(wctask);
-		wcThread.setName("wc-token-guard");
+		if (isRun()) {
+			logger.warn("access-token-guard has already started");
+			return;
+		}
+		Thread wcThread = new Thread(this);
+		wcThread.setName("access-token-guard");
 		wcThread.start();
 	}
 	
-	public void stop() {
-		wctask.close();
+	public String getToken() {
+		return token;
 	}
 	
-	public String getWcToken() {
-		return wctask.token;
+	@Override
+	public void perform() {
+		token = null;
+		long defaultInterval = Long.parseLong(FjToolkit.getServerConfig("wcam.reload-token-interval"));
+		String url = String.format(TEMPLATE, FjToolkit.getServerConfig("wcam.grant"), FjToolkit.getServerConfig("wcam.appid"), FjToolkit.getServerConfig("wcam.secret"));
+		logger.debug("try to get wechat access token");
+		FjMsg msg = FjSender.sendHttpRequest("GET", url, null);
+		if (!(msg instanceof FjJsonMsg)) {
+			logger.error("invalid reponse message when get wechat access token: " + msg);
+			setNextRetryInterval(defaultInterval);
+			return;
+		}
+		FjJsonMsg rsp = (FjJsonMsg) msg;
+		if (!rsp.json().containsKey("access_token") || !rsp.json().containsKey("expires_in")) {
+			logger.error("failed to get wechat access token, error response: " + msg);
+			setNextRetryInterval(defaultInterval);
+			return;
+		}
+		token = rsp.json().getString("access_token");
+		setNextRetryInterval(Long.parseLong(rsp.json().getString("expires_in")));
+		logger.info("got wechat access token successfully: " + rsp);
 	}
 	
-	private class WCTokenTask extends FjLoopTask {
-		private static final String TEMPLATE = "https://api.weixin.qq.com/cgi-bin/token?grant_type=%s&appid=%s&secret=%s";
-		
-		public String token;
-		
-		@Override
-		public void perform() {
-			token = null;
-			long defaultRetry = Long.parseLong(FjToolkit.getServerConfig("wc.retry"));
-			String url = String.format(TEMPLATE, FjToolkit.getServerConfig("wc.grant"), FjToolkit.getServerConfig("wc.appid"), FjToolkit.getServerConfig("wc.secret"));
-			logger.debug("try to get wechat access token");
-			FjMsg msg = FjSender.sendHttpRequest("GET", url, null);
-			if (!(msg instanceof FjJsonMsg)) {
-				logger.error("invalid reponse message when get wechat access token: " + msg);
-				setNextRetry(defaultRetry);
-				return;
-			}
-			FjJsonMsg rsp = (FjJsonMsg) msg;
-			if (!rsp.json().containsKey("access_token") || !rsp.json().containsKey("expires_in")) {
-				logger.error("failed to get wechat access token, error response: " + msg);
-				setNextRetry(defaultRetry);
-				return;
-			}
-			token = rsp.json().getString("access_token");
-			setNextRetry(Long.parseLong(rsp.json().getString("expires_in")));
-			logger.info("got wechat access token successfully: " + rsp);
-		}
-		
-		public void setNextRetry(long seconds) {
-			logger.info("will try again after " + seconds + " seconds");
-			setInterval(seconds * 1000);
-		}
+	public void setNextRetryInterval(long seconds) {
+		logger.info("will try again after " + seconds + " seconds");
+		setInterval(seconds * 1000);
 	}
+	
 }

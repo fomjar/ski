@@ -3,16 +3,15 @@ cd ..
 
 function printUsage()
 {
-	echo "Usage: $0 [mid]"
+	echo "Usage: $0 [mod] [mid]"
 }
 
-mid=$1
-if [ "$mid" = "" ]; then
+mod=$1
+mid=$2
+if [ "$mod" = "" ] || [ "$mid" = "" ]; then
 	printUsage
 	exit 1
 fi
-
-mod=${PWD##*-}
 
 for f in $(find lib -type f -name "*.jar"); do
 	if [ "$cp" = "" ]; then

@@ -18,11 +18,15 @@ public class WCAMTask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCAMTask.class);
 	
+	public WCAMTask() {
+		AccessTokenGuard.getInstance().start();
+	}
+	
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
 		if (msg instanceof FjJsonMsg
-				&& ((FjJsonMsg) msg).json().containsKey("fm")
-				&& ((FjJsonMsg) msg).json().containsKey("tm")) {
+				&& ((FjJsonMsg) msg).json().containsKey("fs")
+				&& ((FjJsonMsg) msg).json().containsKey("ts")) {
 			logger.info("message comes from wtcrm server");
 			processWtcrm(server, (FjJsonMsg) msg);
 		} else if (msg instanceof FjHttpRequest) {

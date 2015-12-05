@@ -2,6 +2,7 @@ package fomjar.server;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -26,7 +27,8 @@ public class FjToolkit {
 		if (null == guard) {
 			long time = 10 * 1000L;
 			guard = new FjConfigGuard(time, time);
-			guard.run();
+			try {guard.perform();}
+			catch (Exception e) {logger.error("init load config failed!", e);}
 			Thread thread = new Thread(guard);
 			thread.setName("config-guard");
 			thread.start();
@@ -36,14 +38,13 @@ public class FjToolkit {
 	private static Properties loadOneConfig(String absolutePath) {
 		if (null == absolutePath) return null;
 		Properties p = new Properties();
-		FileInputStream fis = null;
+		InputStreamReader isr = null;
 		try {
-			fis = new FileInputStream(absolutePath);
-			p.load(fis);
-			logger.info("load config success! config content: " + p);
+			isr = new InputStreamReader(new FileInputStream(absolutePath), "utf-8");
+			p.load(isr);
 		} catch (IOException e) {logger.error("load config failed from path: " + absolutePath, e);}
 		finally {
-			try {if (null != fis) fis.close();}
+			try {if (null != isr) isr.close();}
 			catch (IOException e) {e.printStackTrace();}
 		}
 		return p;

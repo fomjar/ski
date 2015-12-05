@@ -11,7 +11,6 @@ public class Main {
 	public static void main(String[] args) {
 		FjToolkit.startConfigGuard();
 		FjToolkit.startServer("wcam-1").addServerTask(new WCAMTask());
-		AccessTokenGuard.getInstance().start();
 	}
 
 }
