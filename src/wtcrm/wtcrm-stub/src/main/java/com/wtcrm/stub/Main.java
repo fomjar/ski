@@ -8,8 +8,8 @@ import java.net.UnknownHostException;
 
 public class Main {
 	
-	private static final String SERVER_WCAM = "120.55.195.12";
-	private static final int    PORT_WCAM   = 80;
+//	private static final String SERVER_WCAM = "120.55.195.12";
+//	private static final int    PORT_WCAM   = 80;
 	
 	private static final String SERVER_WA   = "120.27.135.230";
 	private static final int    PORT_WA     = 3300;
@@ -29,8 +29,7 @@ public class Main {
 	}
 	
 	public static void main(String[] args) {
-//		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae\":\"ae.taobao.login\"}");
-		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae-cmd\":\"ae.taobao.order-list-new\"}");
+		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae-cmd\":\"ae.taobao.order-list-new\", \"ae-arg\":null}");
 	}
 
 }

@@ -1,18 +1,20 @@
 package com.wtcrm.wa.ae.taobao;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import com.wtcrm.wa.AE;
 
-import fomjar.server.FjJsonMsg;
 import fomjar.server.FjToolkit;
 
 public class Login implements AE {
 
 	@Override
-	public void execute(WebDriver driver) {
+	public void execute(WebDriver driver, JSONObject ae_arg) {
 		driver.get("https://login.taobao.com/member/login.jhtml");
 		driver.findElement(By.id("J_Quick2Static")).click(); // 账户密码登陆
 		WebElement we = driver.findElement(By.id("TPL_username_1"));
@@ -24,10 +26,17 @@ public class Login implements AE {
 		driver.findElement(By.id("TPL_password_1")).sendKeys(FjToolkit.getServerConfig("wa.taobao.password"));
 		driver.findElement(By.id("J_SubmitStatic")).click(); // 登陆
 	}
+	
 
 	@Override
-	public FjJsonMsg getResponse() {
-		return new FjJsonMsg("{retcode:0}");
+	public int code() {
+		return 0;
+	}
+
+
+	@Override
+	public JSONArray desc() {
+		return JSONArray.fromObject("[]");
 	}
 
 }

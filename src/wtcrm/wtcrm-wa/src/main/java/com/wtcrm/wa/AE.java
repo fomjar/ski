@@ -1,13 +1,20 @@
 package com.wtcrm.wa;
 
-import org.openqa.selenium.WebDriver;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
-import fomjar.server.FjJsonMsg;
+import org.openqa.selenium.WebDriver;
 
 public interface AE {
 	
-	void execute(WebDriver driver);
+	/**
+	 * 
+	 * @param driver
+	 * @param arg FjJsonMsg.json().getJSONObject("ae-arg")
+	 */
+	void execute(WebDriver driver, JSONObject ae_arg);
 	
-	FjJsonMsg getResponse();
-
+	int       code();
+	JSONArray desc();
+	
 }

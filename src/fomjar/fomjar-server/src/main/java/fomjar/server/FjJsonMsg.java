@@ -6,6 +6,10 @@ public class FjJsonMsg extends FjMsg {
 	
 	private JSONObject json;
 	
+	public FjJsonMsg() {
+		this("{}");
+	}
+	
 	public FjJsonMsg(Object json) {
 		this.json = JSONObject.fromObject(json);
 	}

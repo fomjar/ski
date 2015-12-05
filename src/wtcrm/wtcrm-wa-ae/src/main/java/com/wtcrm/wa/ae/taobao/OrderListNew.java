@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -14,18 +15,17 @@ import org.openqa.selenium.WebElement;
 
 import com.wtcrm.wa.AE;
 
-import fomjar.server.FjJsonMsg;
-
 public class OrderListNew implements AE {
 	
 	private static final Logger logger = Logger.getLogger(OrderListNew.class);
 	
-	private FjJsonMsg rsp;
+	private int ae_code = -1;
+	private JSONArray ae_desc;
 
 	@Override
-	public void execute(WebDriver driver) {
-		new Login().execute(driver);
-		new MySeller().execute(driver);
+	public void execute(WebDriver driver, JSONObject ae_arg) {
+		new Login().execute(driver, ae_arg);
+		new MySeller().execute(driver, ae_arg);
 		driver.findElement(By.linkText("发货")).click();
 		driver.findElement(By.className("J_TriggerAll")).click();
 		driver.findElement(By.className("logis:batchSend")).click();
@@ -40,12 +40,12 @@ public class OrderListNew implements AE {
 			String buyer_zip   = currentBuyerInfo[1].trim();
 			String buyer_name  = currentBuyerInfo[2].trim();
 			String buyer_tel   = currentBuyerInfo[3].trim();
-			String toid        = order_table.findElement(By.className("order-number")).getText().split("：")[1];
-			String tuid        = order_table.findElement(By.className("ww")).getText();
-			String fpid        = order_table.findElement(By.className("des")).findElement(By.className("desc")).getText();
-			String tp_name     = order_table.findElement(By.className("des")).findElement(By.tagName("a")).getText();
-			String tp_attr     = order_table.findElement(By.className("attr")).findElement(By.tagName("span")).getText();
-			String tp_count    = order_table.findElement(By.className("total")).findElement(By.tagName("em")).getText();
+			String toid        = order_table.findElement(By.className("order-number")).getText().split("：")[1].trim();
+			String tuid        = order_table.findElement(By.className("ww")).getText().trim();
+			String fpid        = order_table.findElement(By.className("des")).findElement(By.className("desc")).getText().split(":")[1].trim();
+			String tp_name     = order_table.findElement(By.className("des")).findElement(By.tagName("a")).getText().trim();
+			String tp_attr     = order_table.findElement(By.className("attr")).findElement(By.tagName("span")).getText().trim();
+			String tp_count    = order_table.findElement(By.className("total")).findElement(By.tagName("em")).getText().trim();
 			order.put("buyer-addr", buyer_addr);
 			order.put("buyer-zip",  buyer_zip);
 			order.put("buyer-name", buyer_name);
@@ -58,13 +58,19 @@ public class OrderListNew implements AE {
 			order.put("tp-count",   tp_count);
 			orders.add(order);
 		}
-		rsp = new FjJsonMsg("{\"ae-code\":0, \"ae-desc\":" + JSONArray.fromObject(orders) + "}");
+		ae_code = 0;
+		ae_desc = JSONArray.fromObject(orders);
+	}
+	
+	@Override
+	public int code() {
+		return ae_code;
 	}
 
 	@Override
-	public FjJsonMsg getResponse() {
-		logger.error(rsp);
-		return rsp;
+	public JSONArray desc() {
+		logger.error(ae_desc);
+		return ae_desc;
 	}
 
 }
