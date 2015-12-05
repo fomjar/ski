@@ -43,12 +43,12 @@ public class AEGuard extends FjLoopTask {
 		catch (InterruptedException e) {logger.warn("Thread sleep interupted", e);}
 	}
 	
-	public AE getAe(String aeName) {
+	public AE getAe(String ae_cmd) {
 		if (null == loader) {
 			logger.error("ae package is not available");
 			return null;
 		}
-		String className = FjToolkit.getServerConfig(aeName);
+		String className = FjToolkit.getServerConfig(ae_cmd);
 		try {
 			Class<?> clazz = loader.loadClass(className);
 			Object instance = clazz.newInstance();

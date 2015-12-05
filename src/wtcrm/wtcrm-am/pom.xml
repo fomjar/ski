@@ -5,8 +5,8 @@
     <artifactId>wtcrm</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>wtcrm-wcam</groupId>
-  <artifactId>wtcrm-wcam</artifactId>
+  <groupId>wtcrm-am</groupId>
+  <artifactId>wtcrm-am</artifactId>
     <build>
         <plugins>
             <plugin>

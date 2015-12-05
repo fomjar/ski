@@ -1,4 +1,4 @@
-package com.wtcrm.wcam;
+package com.wtcrm.am;
 
 import org.apache.log4j.Logger;
 

@@ -1,4 +1,4 @@
-package com.wtcrm.wcam;
+package com.wtcrm.am;
 
 import fomjar.server.FjToolkit;
 
@@ -10,7 +10,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		FjToolkit.startConfigGuard();
-		FjToolkit.startServer("wcam-1").addServerTask(new WCAMTask());
+		FjToolkit.startServer(args[0]).addServerTask(new WeChatTask());
 	}
 
 }

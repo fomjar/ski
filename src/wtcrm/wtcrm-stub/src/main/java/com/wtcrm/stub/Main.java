@@ -30,7 +30,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 //		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae\":\"ae.taobao.login\"}");
-		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae\":\"ae.taobao.order-list-new\"}");
+		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae-cmd\":\"ae.taobao.order-list-new\"}");
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.wtcrm.wcam;
+package com.wtcrm.am;
 
 import java.net.Socket;
 
@@ -14,11 +14,11 @@ import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjToolkit;
 
-public class WCAMTask implements FjServerTask {
+public class WeChatTask implements FjServerTask {
 	
-	private static final Logger logger = Logger.getLogger(WCAMTask.class);
+	private static final Logger logger = Logger.getLogger(WeChatTask.class);
 	
-	public WCAMTask() {
+	public WeChatTask() {
 		AccessTokenGuard.getInstance().start();
 	}
 	

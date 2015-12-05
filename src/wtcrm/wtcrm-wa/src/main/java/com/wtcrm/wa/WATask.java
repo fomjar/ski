@@ -32,19 +32,21 @@ public class WATask implements FjServerTask {
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
-		String aeName = req.json().getString("ae");
-		AE ae = AEGuard.getInstance().getAe(aeName);
+		String ae_cmd = req.json().getString("ae-cmd");
+		AE ae = AEGuard.getInstance().getAe(ae_cmd);
 		if (null == ae) {
-			logger.error("can not find an automation executor for ae name: " + aeName);
+			logger.error("can not find an automation executor for ae command: " + ae_cmd);
 			return;
 		}
 		try {ae.execute(driver);}
 		catch (Exception ee) {logger.warn("error occurs when execute web automation", ee);}
 		FjJsonMsg rsp = ae.getResponse();
-		rsp.json().put("fs", server.name());
-		rsp.json().put("ts", req.json().getString("fs"));
-		rsp.json().put("sid", req.json().getString("sid"));
-		FjToolkit.getSender(server.name()).send(rsp);
+		if (null != rsp) {
+			rsp.json().put("fs", server.name());
+			rsp.json().put("ts", req.json().getString("fs"));
+			rsp.json().put("sid", req.json().getString("sid"));
+			FjToolkit.getSender(server.name()).send(rsp);
+		}
 	}
 
 }
