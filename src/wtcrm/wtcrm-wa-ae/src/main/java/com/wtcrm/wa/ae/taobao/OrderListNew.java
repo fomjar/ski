@@ -27,13 +27,13 @@ public class OrderListNew implements AE {
 		new Login().execute(driver, ae_arg);
 		new MySeller().execute(driver, ae_arg);
 		driver.findElement(By.linkText("发货")).click();
-		try {driver.findElement(By.className("J_TriggerAll")).click();}
-		catch (NoSuchElementException e) {
+		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
+		catch (NoSuchElementException e) { // 没有订单
 			ae_code = 0;
 			ae_desc = null;
 			return;
 		}
-		driver.findElement(By.className("logis:batchSend")).click();
+		driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
 		List<WebElement> order_tables = driver.findElements(By.className("consign-detail"));
 		List<Map<String, String>> orders = new LinkedList<Map<String,String>>();
 		String[] currentBuyerInfo = null;
