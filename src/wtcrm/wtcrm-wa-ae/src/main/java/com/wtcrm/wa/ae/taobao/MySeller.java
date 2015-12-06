@@ -16,12 +16,12 @@ public class MySeller implements AE {
 
 	@Override
 	public int code() {
-		return 0;
+		return CODE_SUCCESS;
 	}
 
 	@Override
 	public JSONArray desc() {
-		return JSONArray.fromObject("[]");
+		return null;
 	}
 
 }

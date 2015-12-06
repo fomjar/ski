@@ -30,29 +30,29 @@ public class WATask implements FjServerTask {
 		if (!(msg instanceof FjJsonMsg)
 				|| !((FjJsonMsg) msg).json().containsKey("fs")
 				|| !((FjJsonMsg) msg).json().containsKey("ts")) {
-			logger.error("message does not come from wtcrm server, discard: " + msg);
+			logger.error("message not come from wtcrm server, discard: " + msg);
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
 		if (!req.json().containsKey("ae-cmd") || !req.json().containsKey("ae-arg")) {
 			logger.error("invalid ae request, request does not contain \"ae-cmd\" or \"ae-arg\" parameter: " + req);
-			response(server, req, -1, JSONArray.fromObject("[\"invalid ae request\"]"));
+			response(server, req, AE.CODE_INCORRECT_ARGUMENT, JSONArray.fromObject("[\"invalid ae request\"]"));
 			return;
 		}
 		String ae_cmd = req.json().getString("ae-cmd");
 		JSONObject ae_arg = req.json().getJSONObject("ae-arg");
 		AE ae = AEGuard.getInstance().getAe(ae_cmd);
 		if (null == ae) {
-			logger.error("can not find an automation executor for ae command: " + ae_cmd);
-			response(server, req, -1, JSONArray.fromObject("[\"can not find any ae for ae-cmd: " + ae_cmd + "\"]"));
+			logger.error("can not find an automation executor for ae-cmd: " + ae_cmd);
+			response(server, req, AE.CODE_AE_NOT_FOUND, JSONArray.fromObject("[\"can not find any ae for ae-cmd: " + ae_cmd + "\"]"));
 			return;
 		}
 		try {
 			ae.execute(driver, ae_arg);
 			response(server, req, ae.code(), ae.desc());
 		} catch (Exception e) {
-			logger.error("error occurs when execute ae: " + ae_cmd, e);
-			response(server, req, -1, JSONArray.fromObject("[\"unknown error during execute ae: " + ae_cmd + "\"]"));
+			logger.error("error occurs when execute ae-cmd: " + ae_cmd, e);
+			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONArray.fromObject("[\"unknown error during execute ae-cmd: " + ae_cmd + "\"]"));
 		}
 	}
 	

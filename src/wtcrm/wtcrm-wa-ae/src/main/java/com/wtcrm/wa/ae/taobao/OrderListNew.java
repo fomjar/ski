@@ -19,7 +19,7 @@ public class OrderListNew implements AE {
 	
 //	private static final Logger logger = Logger.getLogger(OrderListNew.class);
 	
-	private int ae_code = -1;
+	private int ae_code = CODE_UNKNOWN_ERROR;
 	private JSONArray ae_desc;
 
 	@Override
@@ -29,8 +29,8 @@ public class OrderListNew implements AE {
 		driver.findElement(By.linkText("发货")).click();
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
-			ae_code = 0;
-			ae_desc = null;
+			ae_code = CODE_TAOBAO_ORDER_NO_NEW;
+			ae_desc = JSONArray.fromObject("[\"no new order\"]");
 			return;
 		}
 		driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
@@ -65,7 +65,7 @@ public class OrderListNew implements AE {
 			order.put("tp-count",   tp_count);
 			orders.add(order);
 		}
-		ae_code = 0;
+		ae_code = CODE_SUCCESS;
 		ae_desc = JSONArray.fromObject(orders);
 	}
 	
