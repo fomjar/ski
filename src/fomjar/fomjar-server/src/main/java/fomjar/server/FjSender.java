@@ -44,34 +44,32 @@ public class FjSender extends FjLoopTask {
 		Socket sock = null;
 		if (msg instanceof FjJsonMsg && ((FjJsonMsg) msg).json().containsKey("ts")) {
 			String ts = ((FjJsonMsg) msg).json().getString("ts");
-			FjToolkit.FjAddress address = FjToolkit.getSlb().getAddress(ts);
-			if (null == address) {
+			FjToolkit.FjAddress addr0 = FjToolkit.getSlb().getAddress(ts);
+			if (null == addr0) {
 				logger.error("can not find an address with server name: " + ts);
 				return;
 			}
 			try {
-				sock = new Socket(address.host, address.port);
+				sock = new Socket(addr0.host, addr0.port);
 				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
 				writer.write(msg.toString());
 				writer.flush();
 				logger.debug("send message successfully: " + msg);
 			} catch (IOException e) {
-				logger.error("failed to send the msg: " + msg + " with server name: " + ts, e);
 				List<FjToolkit.FjAddress> addresses = FjToolkit.getSlb().getAddresses(ts);
-				logger.error("now try other addresses with the same module category: " + addresses);
 				boolean isSuccess = false;
 				for (FjToolkit.FjAddress addr : addresses) {
+					if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
 					try {
 						sock = new Socket(addr.host, addr.port);
 						BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
 						writer.write(msg.toString());
 						writer.flush();
 						isSuccess = true;
-						logger.error("try successfully of this address: " + addr);
 						break;
 					} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
 				}
-				if(!isSuccess) logger.error("there is no other available address");
+				if(!isSuccess) logger.error("send message failed: " + msg);
 			} finally {
 				try {if (null != sock) sock.close();}
 				catch (IOException e) {e.printStackTrace();}

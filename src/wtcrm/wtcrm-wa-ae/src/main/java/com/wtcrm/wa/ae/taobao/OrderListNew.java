@@ -24,8 +24,14 @@ public class OrderListNew implements AE {
 
 	@Override
 	public void execute(WebDriver driver, JSONObject ae_arg) {
-		new Login().execute(driver, ae_arg);
-		new MySeller().execute(driver, ae_arg);
+		AE login = new Login();
+		login.execute(driver, ae_arg);
+		if (CODE_SUCCESS != login.code()) {
+			ae_code = login.code();
+			ae_desc = login.desc();
+			return;
+		}
+		driver.get("https://myseller.taobao.com/seller_admin.htm");
 		driver.findElement(By.linkText("发货")).click();
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单

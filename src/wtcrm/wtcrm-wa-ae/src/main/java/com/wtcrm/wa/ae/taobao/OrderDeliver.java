@@ -32,7 +32,7 @@ public class OrderDeliver implements AE{
 			ae_desc = login.desc();
 			return;
 		}
-		new MySeller().execute(driver, ae_arg);
+		driver.get("https://myseller.taobao.com/seller_admin.htm");
 		driver.findElement(By.linkText("发货")).click();
 		List<WebElement> order_tables = null;
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}

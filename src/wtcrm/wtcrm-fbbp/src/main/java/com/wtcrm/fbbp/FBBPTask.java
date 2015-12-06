@@ -26,14 +26,20 @@ public class FBBPTask implements FjServerTask {
 		FjJsonMsg jmsg = (FjJsonMsg) msg;
 		if (jmsg.json().getString("fs").startsWith("wa"))       processWaMsg(server, jmsg);
 		else if (jmsg.json().getString("fs").startsWith("cdb")) processCdbMsg(server, jmsg);
+		else if (jmsg.json().getString("fs").startsWith("am"))  processAmMsg(server, jmsg);
 		else {logger.error("invalid wtcrm message, discard: " + jmsg);}
+	}
+	
+	private static void processAmMsg(FjServer server, FjJsonMsg msg) {
+		logger.error(msg);
 	}
 
 	private static void processWaMsg(FjServer server, FjJsonMsg msg) {
-		
+		logger.error(msg);
 	}
 	
 	private static void processCdbMsg(FjServer server, FjJsonMsg msg) {
+		logger.error(msg);
 	}
 
 }

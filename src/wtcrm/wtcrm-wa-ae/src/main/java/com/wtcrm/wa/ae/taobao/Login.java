@@ -29,14 +29,17 @@ public class Login implements AE {
 		driver.findElement(By.id("TPL_password_1")).clear(); // 密码
 		driver.findElement(By.id("TPL_password_1")).sendKeys(FjToolkit.getServerConfig("wa.taobao.password"));
 		driver.findElement(By.id("J_SubmitStatic")).click(); // 登陆
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		try {
-			driver.findElement(By.id("TPL_username_1")); // 存在账号输入框即说明用户名或密码错误
+			driver.findElement(By.id("TPL_username_1"));
 			ae_code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
 			ae_desc = JSONArray.fromObject("[\"username or password is incorrect\"]");
 			return;
-		} catch (NoSuchElementException e){}
-		ae_code = CODE_SUCCESS;
-		ae_desc = null;
+		} catch (NoSuchElementException e){
+			ae_code = CODE_SUCCESS;
+			ae_desc = null;
+		}
 	}
 	
 
