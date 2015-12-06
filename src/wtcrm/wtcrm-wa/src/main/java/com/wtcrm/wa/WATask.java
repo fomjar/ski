@@ -22,7 +22,6 @@ public class WATask implements FjServerTask {
 	public WATask() {
 		System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
 		driver = new InternetExplorerDriver();
-		driver.get("about:blank");
 		AEGuard.getInstance().start();
 	}
 

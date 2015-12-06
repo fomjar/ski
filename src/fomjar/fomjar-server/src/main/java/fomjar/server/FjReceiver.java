@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 public class FjReceiver extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjReceiver.class);
+	private static final int BUF_LEN = 1024 * 1024;
 	private FjMq mq;
 	private int port;
 	private ServerSocket sock;
@@ -18,14 +19,14 @@ public class FjReceiver extends FjLoopTask {
 		if (null == mq) throw new NullPointerException();
 		this.mq = mq;
 		sock = null;
-		buf = new byte[1024 * 1024];
+		buf = new byte[BUF_LEN];
 	}
 	
 	public FjReceiver(FjMq mq, int port) {
 		if (null == mq) throw new NullPointerException();
 		this.mq = mq;
 		sock = null;
-		buf = new byte[1024];
+		buf = new byte[BUF_LEN];
 		reset(port);
 	}
 	

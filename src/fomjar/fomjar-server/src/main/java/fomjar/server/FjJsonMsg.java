@@ -7,11 +7,12 @@ public class FjJsonMsg extends FjMsg {
 	private JSONObject json;
 	
 	public FjJsonMsg() {
-		this("{}");
+		this(null);
 	}
 	
 	public FjJsonMsg(Object json) {
-		this.json = JSONObject.fromObject(json);
+		if (null == json) this.json = new JSONObject();
+		else this.json = JSONObject.fromObject(json);
 	}
 	
 	public JSONObject json() {

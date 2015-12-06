@@ -12,11 +12,12 @@ import fomjar.server.FjToolkit;
 
 public class AEGuard extends FjLoopTask {
 	
-	public static AEGuard instance = null;
+	private static AEGuard instance = null;
 	public static AEGuard getInstance() {
 		if (null == instance) instance = new AEGuard();
 		return instance;
 	}
+	private AEGuard() {}
 	
 	private static final Logger logger = Logger.getLogger(AEGuard.class);
 	
@@ -27,9 +28,7 @@ public class AEGuard extends FjLoopTask {
 			logger.warn("ae-guard has already started");
 			return;
 		}
-		Thread thread = new Thread(this);
-		thread.setName("ae-guard");
-		thread.start();
+		new Thread(this, "ae-guard").start();
 	}
 	
 	@Override
@@ -38,9 +37,8 @@ public class AEGuard extends FjLoopTask {
 		try {loader = new URLClassLoader(new URL[]{new File(aepkg).toURI().toURL()});}
 		catch (MalformedURLException e) {logger.error("ae package is bad: " + aepkg, e);}
 		
-		long defaultInterval = Long.parseLong(FjToolkit.getServerConfig("wa.reload-ae-interval"));
-		try {Thread.sleep(defaultInterval * 1000L);}
-		catch (InterruptedException e) {logger.warn("Thread sleep interupted", e);}
+		long interval = Long.parseLong(FjToolkit.getServerConfig("wa.reload-ae-interval"));
+		setInterval(interval * 1000);
 	}
 	
 	public AE getAe(String ae_cmd) {

@@ -15,6 +15,7 @@ public class AccessTokenGuard extends FjLoopTask {
 		if (null == instance) instance = new AccessTokenGuard();
 		return instance;
 	}
+	private AccessTokenGuard() {}
 	
 	private static final Logger logger = Logger.getLogger(AccessTokenGuard.class);
 	
@@ -27,9 +28,7 @@ public class AccessTokenGuard extends FjLoopTask {
 			logger.warn("access-token-guard has already started");
 			return;
 		}
-		Thread wcThread = new Thread(this);
-		wcThread.setName("access-token-guard");
-		wcThread.start();
+		new Thread(this, "access-token-guard").start();
 	}
 	
 	public String getToken() {

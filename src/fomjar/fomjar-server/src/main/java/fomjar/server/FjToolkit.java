@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -29,9 +27,7 @@ public class FjToolkit {
 			guard = new FjConfigGuard(time, time);
 			try {guard.perform();}
 			catch (Exception e) {logger.error("init load config failed!", e);}
-			Thread thread = new Thread(guard);
-			thread.setName("config-guard");
-			thread.start();
+			new Thread(guard, "config-guard").start();
 		}
 	}
 	
@@ -129,7 +125,6 @@ public class FjToolkit {
 		}
 	}
 	
-	private static ExecutorService g_pool = null;
 	private static Map<String, FjServer>   g_server = null;
 	private static Map<String, FjReceiver> g_receiver = null;
 	private static Map<String, FjSender>   g_sender = null;
@@ -150,16 +145,15 @@ public class FjToolkit {
 		FjServer server = new FjServer(name, mq);
 		FjReceiver receiver = new FjReceiver(mq, address.port);
 		FjSender sender = new FjSender();
-		if (null == g_pool) g_pool = Executors.newCachedThreadPool();
-		g_pool.submit(sender);
-		g_pool.submit(server);
-		g_pool.submit(receiver);
+		new Thread(sender,   "fjsender-" + name).start();
+		new Thread(server,   "fjserver-" + name).start();
+		new Thread(receiver, "fjreceiver-" + name).start();
 		if (null == g_server) g_server = new HashMap<String, FjServer>();
 		if (null == g_receiver) g_receiver = new HashMap<String, FjReceiver>();
 		if (null == g_sender) g_sender = new HashMap<String, FjSender>();
+		g_sender.put(name, sender);
 		g_server.put(name, server);
 		g_receiver.put(name, receiver);
-		g_sender.put(name, sender);
 		logger.error("server: " + name + " started on address: " + address);
 		return server;
 	}
