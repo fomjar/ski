@@ -59,7 +59,7 @@ public class OrderDeliver implements AE{
 		driver.findElement(By.id("dummyTab")).findElement(By.tagName("a")).click(); // 无需物流
 		driver.findElement(By.id("logis:noLogis")).click(); // 确认
 		ae_code = CODE_SUCCESS;
-		ae_desc = null;
+		ae_desc = JSONArray.fromObject(null);
 	}
 
 	@Override

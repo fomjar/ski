@@ -40,7 +40,7 @@ public class ChangePassword implements AE {
 		driver.findElement(By.id("changePasswordButton")).click();
 		if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
 			ae_code = CODE_SUCCESS;
-			ae_desc = null;
+			ae_desc = JSONArray.fromObject(null);
 		} else { // 密码保存失败
 			ae_code = CODE_PSN_CHANGE_PASSWORD_FAILED;
 			ae_desc = JSONArray.fromObject("[\"" + driver.findElement(By.id("confirmPasswordFieldError")).getText() + "\"]");

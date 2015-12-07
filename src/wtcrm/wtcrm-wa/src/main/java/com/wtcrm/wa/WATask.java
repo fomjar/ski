@@ -26,7 +26,8 @@ public class WATask implements FjServerTask {
 	public void onMsg(FjServer server, FjMsg msg) {
 		if (!(msg instanceof FjJsonMsg)
 				|| !((FjJsonMsg) msg).json().containsKey("fs")
-				|| !((FjJsonMsg) msg).json().containsKey("ts")) {
+				|| !((FjJsonMsg) msg).json().containsKey("ts")
+				|| !((FjJsonMsg) msg).json().containsKey("sid")) {
 			logger.error("message not come from wtcrm server, discard: " + msg);
 			return;
 		}

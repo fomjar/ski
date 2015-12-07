@@ -1,39 +1,36 @@
 package com.wtcrm.fbbp;
 
-import java.util.HashMap;
-import java.util.Map;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjLoopTask;
-import fomjar.server.FjMsg;
 import fomjar.server.FjToolkit;
 
 public class OrderGuard extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(OrderGuard.class);
 	
-	private String name;
+	private String serverName;
 	
-	public OrderGuard(String name) {
+	public OrderGuard(String serverName) {
 		long time = Long.parseLong(FjToolkit.getServerConfig("fbbp.reload-order-interval"));
 		time *= 1000L;
 		setDelay(time);
 		setInterval(time);
-		this.name = name;
+		this.serverName = serverName;
 	}
 
 	@Override
 	public void perform() {
-		Map<String, String> msg_data = new HashMap<String, String>();
-		msg_data.put("fs", name);
-		msg_data.put("ts", "wa");
-		msg_data.put("sid", String.valueOf(System.currentTimeMillis()));
-		msg_data.put("ae-cmd", "ae.taobao.order-list-new");
-		msg_data.put("ae-arg", null);
-		FjMsg msg = new FjJsonMsg(msg_data);
-		FjToolkit.getSender(name).send(msg);
+		FjJsonMsg msg = new FjJsonMsg();
+		msg.json().put("fs", serverName);
+		msg.json().put("ts", "wa");
+		msg.json().put("sid", String.valueOf(System.currentTimeMillis()));
+		msg.json().put("ae-cmd", "ae.taobao.order-list-new");
+		msg.json().put("ae-arg", JSONObject.fromObject(null));
+		FjToolkit.getSender(serverName).send(msg);
 		logger.debug("send request to get latest order list: " + msg);
 	}
 	

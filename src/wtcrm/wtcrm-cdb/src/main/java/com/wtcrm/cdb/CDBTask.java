@@ -58,7 +58,8 @@ public class CDBTask implements FjServerTask {
 	public void onMsg(FjServer server, FjMsg msg) {
 		if (!(msg instanceof FjJsonMsg)
 				|| !((FjJsonMsg) msg).json().containsKey("fs")
-				|| !((FjJsonMsg) msg).json().containsKey("ts")) {
+				|| !((FjJsonMsg) msg).json().containsKey("ts")
+				|| !((FjJsonMsg) msg).json().containsKey("sid")) {
 			logger.error("message not come from wtcrm server, discard: " + msg);
 			return;
 		}
@@ -127,6 +128,7 @@ public class CDBTask implements FjServerTask {
 			sql = rs.getString(3);
 		} catch (SQLException e) {
 			logger.error("failed to get map of cmd: " + cdb_cmd, e);
+			return false;
 		} finally {
 			try {if (null != st) st.close();}
 			catch (SQLException e) {e.printStackTrace();}
@@ -142,7 +144,7 @@ public class CDBTask implements FjServerTask {
 		while (i.hasNext()) {
 			String k = i.next();
 			String v = cdb_arg.getString(k);
-			sql = sql.replace(k, v);
+			sql = sql.replace("$" + k, v);
 		}
 		logger.info("cmd: " + cdb_cmd +  " sql after preprocess: " + sql);
 	}
@@ -162,7 +164,7 @@ public class CDBTask implements FjServerTask {
 			}
 			return true;
 		} catch (SQLException e) {
-			logger.error("failed to process statement, cmd: " + cdb_cmd + ", mode: " + mod + ", sql: " + sql + ", out: " + outcount);
+			logger.error("failed to process statement, cmd: " + cdb_cmd + ", mode: " + mod + ", sql: " + sql + ", out: " + outcount, e);
 		} finally {
 			try {if (null != st) st.close();}
 			catch (SQLException e) {e.printStackTrace();}
@@ -181,7 +183,7 @@ public class CDBTask implements FjServerTask {
 			for (int i = 1; i <= outcount; i++) outparam.add(st.getString(i));
 			return true;
 		} catch (SQLException e) {
-			logger.error("failed to process statement, cmd: " + cdb_cmd + ", mode: " + mod + ", sql: " + sql + ", out: " + outcount);
+			logger.error("failed to process store procedure, cmd: " + cdb_cmd + ", mode: " + mod + ", sql: " + sql + ", out: " + outcount, e);
 		} finally {
 			try {if (null != st) st.close();}
 			catch (SQLException e) {e.printStackTrace();}

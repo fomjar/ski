@@ -38,7 +38,7 @@ public class Login implements AE {
 			return;
 		} catch (NoSuchElementException e){
 			ae_code = CODE_SUCCESS;
-			ae_desc = null;
+			ae_desc = JSONArray.fromObject(null);
 		}
 	}
 	

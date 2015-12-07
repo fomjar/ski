@@ -30,7 +30,7 @@ public class Verify implements AE {
 			ae_desc = JSONArray.fromObject("[\"psn account is inuse\"]");
 		} catch (NoSuchElementException e) { // 不存在设备绑定
 			ae_code = CODE_SUCCESS;
-			ae_desc = null;
+			ae_desc = JSONArray.fromObject(null);
 		}
 	}
 

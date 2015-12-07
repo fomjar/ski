@@ -26,7 +26,8 @@ public class WeChatTask implements FjServerTask {
 	public void onMsg(FjServer server, FjMsg msg) {
 		if (msg instanceof FjJsonMsg
 				&& ((FjJsonMsg) msg).json().containsKey("fs")
-				&& ((FjJsonMsg) msg).json().containsKey("ts")) {
+				&& ((FjJsonMsg) msg).json().containsKey("ts")
+				&& ((FjJsonMsg) msg).json().containsKey("sid")) {
 			logger.info("message comes from wtcrm server");
 			processWtcrm(server, (FjJsonMsg) msg);
 		} else if (msg instanceof FjHttpRequest) {

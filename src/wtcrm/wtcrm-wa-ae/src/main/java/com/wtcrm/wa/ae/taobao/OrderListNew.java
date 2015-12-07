@@ -1,6 +1,6 @@
 package com.wtcrm.wa.ae.taobao;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class OrderListNew implements AE {
 		List<Map<String, String>> orders = new LinkedList<Map<String,String>>();
 		String[] currentBuyerInfo = null;
 		for (WebElement order_table : order_tables) {
-			Map<String, String> order = new HashMap<String, String>();
+			Map<String, String> order = new LinkedHashMap<String, String>();
 			String buyerInfo   = order_table.findElement(By.tagName("span")).getText().trim();
 			if (0 != buyerInfo.length()) currentBuyerInfo = buyerInfo.split("，");
 			String buyer_addr  = currentBuyerInfo[0].trim();
@@ -58,17 +58,17 @@ public class OrderListNew implements AE {
 			String tp_attr     = order_table.findElement(By.className("attr")).findElement(By.tagName("span")).getText().trim();
 			String tp_price    = order_table.findElement(By.className("total")).findElement(By.tagName("span")).getText().trim().split(" ")[0].trim();
 			String tp_count    = order_table.findElement(By.className("total")).findElement(By.tagName("em")).getText().trim();
-			order.put("buyer-addr", buyer_addr);
-			order.put("buyer-zip",  buyer_zip);
-			order.put("buyer-name", buyer_name);
-			order.put("buyer-tel",  buyer_tel);
 			order.put("toid",       toid);
-			order.put("tuid",       tuid);
 			order.put("fpid",       fpid);
+			order.put("tuid",       tuid);
 			order.put("tp-name",    tp_name);
 			order.put("tp-attr",    tp_attr);
 			order.put("tp-price",   tp_price);
 			order.put("tp-count",   tp_count);
+			order.put("buyer-name", buyer_name);
+			order.put("buyer-tel",  buyer_tel);
+			order.put("buyer-addr", buyer_addr);
+			order.put("buyer-zip",  buyer_zip);
 			orders.add(order);
 		}
 		ae_code = CODE_SUCCESS;
