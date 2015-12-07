@@ -26,3 +26,4 @@ set opt=-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,ser
 start /b javaw %opt% -cp %cp% com.wtcrm.%mod%.Main %mod%-%mid%
 
 pause
+exit 0

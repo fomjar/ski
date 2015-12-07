@@ -17,11 +17,8 @@ public class WATask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WATask.class);
 	
-	private WebDriver driver;
-	
 	public WATask() {
 		System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
-		driver = new InternetExplorerDriver();
 		AEGuard.getInstance().start();
 	}
 
@@ -47,13 +44,17 @@ public class WATask implements FjServerTask {
 			response(server, req, AE.CODE_AE_NOT_FOUND, JSONArray.fromObject("[\"can not find any ae for ae-cmd: " + ae_cmd + "\"]"));
 			return;
 		}
+		WebDriver driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
 		try {
 			ae.execute(driver, ae_arg);
-			response(server, req, ae.code(), ae.desc());
 		} catch (Exception e) {
 			logger.error("error occurs when execute ae-cmd: " + ae_cmd, e);
 			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONArray.fromObject("[\"unknown error during execute ae-cmd: " + ae_cmd + "\"]"));
+			return;
+		} finally {
+			driver.quit();
 		}
+		response(server, req, ae.code(), ae.desc());
 	}
 	
 	private static void response(FjServer server, FjJsonMsg req, int ae_code, JSONArray ae_desc) {
