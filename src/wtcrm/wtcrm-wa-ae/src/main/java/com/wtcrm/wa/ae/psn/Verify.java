@@ -1,6 +1,5 @@
 package com.wtcrm.wa.ae.psn;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.openqa.selenium.By;
@@ -12,7 +11,7 @@ import com.wtcrm.wa.AE;
 public class Verify implements AE {
 	
 	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONArray ae_desc;
+	private JSONObject ae_desc;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject ae_arg) {
@@ -27,10 +26,10 @@ public class Verify implements AE {
 		try {
 			driver.findElement(By.id("device-0")); // 存在设备绑定
 			ae_code = CODE_PSN_ACCOUNT_INUSE;
-			ae_desc = JSONArray.fromObject("[\"psn account is inuse\"]");
+			ae_desc = JSONObject.fromObject("{\"ae-err\":\"psn account is inuse\"}");
 		} catch (NoSuchElementException e) { // 不存在设备绑定
 			ae_code = CODE_SUCCESS;
-			ae_desc = JSONArray.fromObject(null);
+			ae_desc = JSONObject.fromObject(null);
 		}
 	}
 
@@ -40,7 +39,7 @@ public class Verify implements AE {
 	}
 
 	@Override
-	public JSONArray desc() {
+	public JSONObject desc() {
 		return ae_desc;
 	}
 

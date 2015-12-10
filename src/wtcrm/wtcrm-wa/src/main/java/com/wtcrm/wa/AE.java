@@ -1,6 +1,5 @@
 package com.wtcrm.wa;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.openqa.selenium.WebDriver;
@@ -22,7 +21,7 @@ public interface AE {
 	/**
 	 * @return ae执行结果，如果有数据返回，则从此处返回
 	 */
-	JSONArray desc();
+	JSONObject desc();
 	
 	static final int CODE_SUCCESS                        = 0x00000000; // 成功
 	static final int CODE_AE_NOT_FOUND                   = 0x00000001; // 找不到对应的AE对象

@@ -1,6 +1,5 @@
 package com.wtcrm.wa.ae.taobao;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.openqa.selenium.By;
@@ -15,7 +14,7 @@ import fomjar.server.FjToolkit;
 public class Login implements AE {
 	
 	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONArray ae_desc;
+	private JSONObject ae_desc;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject ae_arg) {
@@ -34,11 +33,11 @@ public class Login implements AE {
 		try {
 			driver.findElement(By.id("TPL_username_1"));
 			ae_code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
-			ae_desc = JSONArray.fromObject("[\"username or password is incorrect\"]");
+			ae_desc = JSONObject.fromObject("{\"ae-err\":\"username or password is incorrect\"}");
 			return;
 		} catch (NoSuchElementException e){
 			ae_code = CODE_SUCCESS;
-			ae_desc = JSONArray.fromObject(null);
+			ae_desc = JSONObject.fromObject(null);
 		}
 	}
 	
@@ -49,7 +48,7 @@ public class Login implements AE {
 	}
 
 	@Override
-	public JSONArray desc() {
+	public JSONObject desc() {
 		return ae_desc;
 	}
 

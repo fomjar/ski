@@ -20,7 +20,7 @@ public class OrderListNew implements AE {
 //	private static final Logger logger = Logger.getLogger(OrderListNew.class);
 	
 	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONArray ae_desc;
+	private JSONObject ae_desc;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject ae_arg) {
@@ -36,7 +36,7 @@ public class OrderListNew implements AE {
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
 			ae_code = CODE_TAOBAO_ORDER_NO_NEW;
-			ae_desc = JSONArray.fromObject("[\"no new order\"]");
+			ae_desc = JSONObject.fromObject("{\"ae-err\":\"no new order\"}");
 			return;
 		}
 		driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
@@ -72,7 +72,8 @@ public class OrderListNew implements AE {
 			orders.add(order);
 		}
 		ae_code = CODE_SUCCESS;
-		ae_desc = JSONArray.fromObject(orders);
+		ae_desc = new JSONObject();
+		ae_desc.put("orders", JSONArray.fromObject(orders));
 	}
 	
 	@Override
@@ -81,7 +82,7 @@ public class OrderListNew implements AE {
 	}
 
 	@Override
-	public JSONArray desc() {
+	public JSONObject desc() {
 		return ae_desc;
 	}
 

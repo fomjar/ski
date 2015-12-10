@@ -1,6 +1,5 @@
 package com.wtcrm.wa.ae.psn;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.openqa.selenium.By;
@@ -11,13 +10,13 @@ import com.wtcrm.wa.AE;
 public class ChangePassword implements AE {
 	
 	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONArray ae_desc;
+	private JSONObject ae_desc;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject ae_arg) {
 		if (!ae_arg.containsKey("psnp-old") || !ae_arg.containsKey("psnp-new")) { // 参数没有新老密码
 			ae_code = CODE_INCORRECT_ARGUMENT;
-			ae_desc = JSONArray.fromObject("[\"no parameter: psnp-old or psnp-new\"]");
+			ae_desc = JSONObject.fromObject("{\"ae-err\":\"no parameter: psnp-old or psnp-new\"}");
 			return;
 		}
 		
@@ -40,10 +39,10 @@ public class ChangePassword implements AE {
 		driver.findElement(By.id("changePasswordButton")).click();
 		if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
 			ae_code = CODE_SUCCESS;
-			ae_desc = JSONArray.fromObject(null);
+			ae_desc = JSONObject.fromObject(null);
 		} else { // 密码保存失败
 			ae_code = CODE_PSN_CHANGE_PASSWORD_FAILED;
-			ae_desc = JSONArray.fromObject("[\"" + driver.findElement(By.id("confirmPasswordFieldError")).getText() + "\"]");
+			ae_desc = JSONObject.fromObject("{\"ae-err\":\"" + driver.findElement(By.id("confirmPasswordFieldError")).getText() + "\"}");
 		}
 	}
 
@@ -53,7 +52,7 @@ public class ChangePassword implements AE {
 	}
 
 	@Override
-	public JSONArray desc() {
+	public JSONObject desc() {
 		return ae_desc;
 	}
 

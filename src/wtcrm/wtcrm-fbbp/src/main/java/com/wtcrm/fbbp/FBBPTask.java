@@ -2,7 +2,7 @@ package com.wtcrm.fbbp;
 
 import org.apache.log4j.Logger;
 
-import com.wtcrm.fbbp.be.TaobaoOrderNew;
+import com.wtcrm.fbbp.be.TaobaoOrderListNew;
 
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
@@ -15,7 +15,7 @@ public class FBBPTask implements FjServerTask {
 	private BE be_taobao_order_new;
 	
 	public FBBPTask(String name) {
-		be_taobao_order_new = new TaobaoOrderNew(name);
+		be_taobao_order_new = new TaobaoOrderListNew(name);
 		new OrderGuard(name).start();
 	}
 
@@ -56,8 +56,7 @@ public class FBBPTask implements FjServerTask {
 		if (msg.json().getString("fs").startsWith("wa")) {
 			if (Constant.AE.CODE_SUCCESS == msg.json().getInt("ae-code")) {
 				if (msg.json().containsKey("ae-desc")
-						&& msg.json().getJSONArray("ae-desc").size() != 0
-						&& msg.json().getJSONArray("ae-desc").getJSONObject(0).containsKey("toid")) return be_taobao_order_new;
+						&& msg.json().getJSONObject("ae-desc").containsKey("orders")) return be_taobao_order_new;
 			} else {
 				logger.error("wa ae return error: " + msg);
 			}

@@ -2,8 +2,6 @@ package com.wtcrm.fbbp.be;
 
 import java.util.List;
 
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 
 import com.wtcrm.fbbp.BE;
@@ -11,13 +9,13 @@ import com.wtcrm.fbbp.BE;
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjToolkit;
 
-public class TaobaoOrderNew extends BE {
+public class TaobaoOrderListNew extends BE {
 	
-	public TaobaoOrderNew(String serverName) {
+	public TaobaoOrderListNew(String serverName) {
 		super(serverName);
 	}
 
-	private static final Logger logger = Logger.getLogger(TaobaoOrderNew.class);
+	private static final Logger logger = Logger.getLogger(TaobaoOrderListNew.class);
 
 	@Override
 	public boolean execute(FjJsonMsg msg, List<FjJsonMsg> msgs_ago) {
@@ -34,16 +32,13 @@ public class TaobaoOrderNew extends BE {
 	}
 	
 	private void processOrder(FjJsonMsg msg) {
-		for (Object order_obj : msg.json().getJSONArray("ae-desc")) {
-			JSONObject order = (JSONObject) order_obj;
-			FjJsonMsg msg_cdb = new FjJsonMsg();
-			msg_cdb.json().put("fs", getServerName());
-			msg_cdb.json().put("ts", "cdb");
-			msg_cdb.json().put("sid", msg.json().getString("sid"));
-			msg_cdb.json().put("cdb-cmd", "taobao-order-new");
-			msg_cdb.json().put("cdb-arg", order);
-			FjToolkit.getSender(getServerName()).send(msg_cdb);
-		}
+		FjJsonMsg msg_cdb = new FjJsonMsg();
+		msg_cdb.json().put("fs", getServerName());
+		msg_cdb.json().put("ts", "cdb");
+		msg_cdb.json().put("sid", msg.json().getString("sid"));
+		msg_cdb.json().put("cdb-cmd", "taobao-order-list-new");
+		msg_cdb.json().put("cdb-arg", msg.json().getJSONObject("ae-desc").getJSONArray("orders"));
+		FjToolkit.getSender(getServerName()).send(msg_cdb);
 	}
 
 }
