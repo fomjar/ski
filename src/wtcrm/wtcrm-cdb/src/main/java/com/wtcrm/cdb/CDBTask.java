@@ -90,7 +90,7 @@ public class CDBTask implements FjServerTask {
 			JSONObject arg = (JSONObject) arg_obj;
 			generateSql(cci, arg);
 			if (executeSql(cci)) response(server, req, CODE_SUCCESS, JSONArray.fromObject(cci.result));
-			else response(server, req, CODE_EXEC_CMD_FAILED, JSONArray.fromObject("[\"cmd: " + cci.cmd + " execute sql failed: " + cci.sql_use + "\"]"));
+			else response(server, req, CODE_EXEC_CMD_FAILED, JSONArray.fromObject("[\"cmd(" + cci.cmd + ") execute sql failed: " + cci.sql_use + "\"]"));
 		} else if (arg_obj instanceof JSONArray) {
 			boolean isSuccess = true;
 			JSONArray args = (JSONArray) arg_obj;
@@ -99,7 +99,7 @@ public class CDBTask implements FjServerTask {
 				JSONObject arg = (JSONObject) each_arg;
 				generateSql(cci, arg);
 				if (!executeSql(cci)) {
-					logger.error("cmd: " + cci.cmd + " execute sql failed: " + cci.sql_use);
+					logger.error("cmd(" + cci.cmd + ") execute sql failed: " + cci.sql_use);
 					isSuccess = false;
 				}
 				result.add(cci.result);
@@ -134,7 +134,7 @@ public class CDBTask implements FjServerTask {
 			cci.out = rs.getInt(2);
 			cci.sql_ori = rs.getString(3);
 		} catch (SQLException e) {
-			logger.error("failed to get map of cmd: " + cci.cmd, e);
+			logger.error("failed to get cmd info: " + cci.cmd, e);
 			return false;
 		} finally {
 			try {if (null != st) st.close();}
@@ -144,7 +144,7 @@ public class CDBTask implements FjServerTask {
 	}
 	
 	private static void generateSql(CdbCmdInfo cci, JSONObject arg) {
-		logger.info("cmd: " + cci.cmd +  " sql before preprocess: " + cci.sql_ori);
+		logger.info("cmd(" + cci.cmd +  ") sql-ori: " + cci.sql_ori);
 		if (null == arg) return;
 		
 		cci.sql_use = cci.sql_ori;
@@ -155,7 +155,7 @@ public class CDBTask implements FjServerTask {
 			String v = arg.getString(k);
 			cci.sql_use = cci.sql_use.replace("$" + k, v);
 		}
-		logger.info("cmd: " + cci.cmd +  " sql after preprocess: " + cci.sql_use);
+		logger.info("cmd(" + cci.cmd +  ") sql-use: " + cci.sql_use);
 	}
 	
 	private boolean executeSql(CdbCmdInfo cci) {
