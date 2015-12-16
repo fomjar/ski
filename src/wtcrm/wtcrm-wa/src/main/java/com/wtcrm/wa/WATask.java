@@ -44,15 +44,16 @@ public class WATask implements FjServerTask {
 			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{\"ae-err\":\"can not find any ae for ae-cmd: " + ae_cmd + "\"}"));
 			return;
 		}
-		WebDriver driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
+		WebDriver driver = null;
 		try {
+			driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
 			ae.execute(driver, ae_arg);
 		} catch (Exception e) {
 			logger.error("error occurs when execute ae-cmd: " + ae_cmd, e);
 			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{\"ae-err\":\"unknown error during execute ae-cmd: " + ae_cmd + "\"}"));
 			return;
 		} finally {
-			driver.quit();
+			if (null != driver) driver.quit();
 		}
 		response(server, req, ae.code(), ae.desc());
 	}

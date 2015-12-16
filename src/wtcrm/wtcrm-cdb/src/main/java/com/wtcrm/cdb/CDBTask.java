@@ -30,7 +30,7 @@ public class CDBTask implements FjServerTask {
 	private static final int CODE_CMD_NOT_REGISTERED     = 0x00001003;
 	private static final int CODE_CMD_MOD_INVALID        = 0x00001004;
 	private static final int CODE_EXEC_CMD_FAILED        = 0x00001005;
-	private static final int CODE_EXEC_CMD_PARTLY_FAILED = 0x00001005;
+	private static final int CODE_EXEC_CMD_PARTLY_FAILED = 0x00001006;
 	
 	private static final Logger logger = Logger.getLogger(CDBTask.class);
 	private static Connection conn = null;

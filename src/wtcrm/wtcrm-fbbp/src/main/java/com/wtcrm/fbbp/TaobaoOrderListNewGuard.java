@@ -8,22 +8,23 @@ import fomjar.server.FjJsonMsg;
 import fomjar.server.FjLoopTask;
 import fomjar.server.FjToolkit;
 
-public class OrderGuard extends FjLoopTask {
+public class TaobaoOrderListNewGuard extends FjLoopTask {
 	
-	private static final Logger logger = Logger.getLogger(OrderGuard.class);
+	private static final Logger logger = Logger.getLogger(TaobaoOrderListNewGuard.class);
 	
-	private String serverName;
+	private BE be;
 	
-	public OrderGuard(String serverName) {
+	public TaobaoOrderListNewGuard(BE be) {
 		long time = Long.parseLong(FjToolkit.getServerConfig("fbbp.reload-order-interval"));
 		time *= 1000L;
 		setDelay(time);
 		setInterval(time);
-		this.serverName = serverName;
+		this.be = be;
 	}
 
 	@Override
 	public void perform() {
+		String serverName = be.getServerName();
 		FjJsonMsg msg = new FjJsonMsg();
 		msg.json().put("fs", serverName);
 		msg.json().put("ts", "wa");
@@ -31,7 +32,8 @@ public class OrderGuard extends FjLoopTask {
 		msg.json().put("ae-cmd", "ae.taobao.order-list-new");
 		msg.json().put("ae-arg", JSONObject.fromObject(null));
 		FjToolkit.getSender(serverName).send(msg);
-		logger.debug("send request to get latest order list: " + msg);
+		be.openSession(msg.json().getString("sid"));
+		logger.debug("send request to get taobao new order list: " + msg);
 	}
 	
 	public void start() {

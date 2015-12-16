@@ -1,43 +1,73 @@
 package com.wtcrm.fbbp;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 import fomjar.server.FjJsonMsg;
 
 public abstract class BE {
 	
-	private Map<String, List<FjJsonMsg>> sessions;
+	private static final Logger logger = Logger.getLogger(BE.class);
+	
+	/**
+	 * 会话控制块，用于记录会话状态
+	 * 
+	 * @author fomja
+	 */
+	public static class SCB {
+		private String sid;
+		private int phase = -1;
+		private Map<String, String> data = new HashMap<String, String>();
+		
+		public String sid() {return sid;}
+		public int    currPhase() {return phase;}
+		public int    nextPhase() {return ++phase;}
+		public String getData(String key) {return data.get(key);}
+		public void   putData(String key, String value) {data.put(key, value);}
+	}
+	
+	private Map<String, SCB> scbs;
 	private String serverName;
 	
-	public BE(String serverName) {
+	public BE() {
+		scbs = new HashMap<String, SCB>();
+	}
+	
+	void setServerName(String serverName) {
 		this.serverName = serverName;
-		sessions = new HashMap<String, List<FjJsonMsg>>();
 	}
 	
-	public boolean match(FjJsonMsg msg) {
-		return sessions.containsKey(msg.json().getString("sid"));
+	public boolean hasSession(String sid) {
+		return scbs.containsKey(sid);
 	}
 	
-	public List<FjJsonMsg> getSession(String sid) {
-		if (null == sessions.get(sid)) sessions.put(sid, new ArrayList<FjJsonMsg>());
-		return sessions.get(sid);
+	public SCB getSession(String sid) {
+		return scbs.get(sid);
 	}
 	
-	public List<FjJsonMsg> removeSession(String sid) {
-		return sessions.remove(sid);
+	public SCB closeSession(String sid) {
+		logger.debug("close session: " + sid);
+		return scbs.remove(sid);
+	}
+	
+	public SCB openSession(String sid) {
+		logger.debug("open session: " + sid);
+		SCB scb = new SCB();
+		scb.sid = sid;
+		scbs.put(sid, scb);
+		return scb;
 	}
 	
 	/**
 	 * 执行具体业务
 	 * 
 	 * @param msg
-	 * @param msgs_ago
+	 * @param scb
 	 * @return 业务全流程结束返回true，未结束返回false
 	 */
-	public abstract boolean execute(FjJsonMsg msg, List<FjJsonMsg> msgs_ago);
+	public abstract boolean execute(SCB scb, FjJsonMsg msg);
 	
 	public String getServerName() {
 		return serverName;

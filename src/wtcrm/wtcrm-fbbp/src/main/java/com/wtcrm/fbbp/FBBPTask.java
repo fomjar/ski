@@ -12,11 +12,12 @@ import fomjar.server.FjServer.FjServerTask;
 public class FBBPTask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(FBBPTask.class);
-	private BE be_taobao_order_new;
+	private BE[] bes;
 	
 	public FBBPTask(String name) {
-		be_taobao_order_new = new TaobaoOrderListNew(name);
-		new OrderGuard(name).start();
+		bes = new BE[] {new TaobaoOrderListNew()};
+		for (BE be : bes) be.setServerName(name);
+		new TaobaoOrderListNewGuard(bes[0]).start();
 	}
 
 	@Override
@@ -29,39 +30,20 @@ public class FBBPTask implements FjServerTask {
 			return;
 		}
 		FjJsonMsg jmsg = (FjJsonMsg) msg;
-		BE be = null;
-		if (be_taobao_order_new.match(jmsg)) be = be_taobao_order_new; // 优先判断现存会话
-		else be = getBeWithNewSession(jmsg); // 这是业务执行器的一个新会话的开始
-		if (null == be) {
-			logger.error("can not find a be for this msg: " + jmsg);
-			return;
-		}
 		String sid = jmsg.json().getString("sid");
-		boolean end = false;
-		try {end = be.execute(jmsg, be.getSession(sid));}
-		catch (Exception e) {logger.error("error occurs when execute be for this msg: " + msg, e);}
-		if (end) {
-			be.removeSession(sid);
-			logger.info("session " + sid + " closed");
-		} else be.getSession(sid).add(jmsg);
-	}
-	
-	/**
-	 * 判断一个新的会话的消息应该用哪一个业务执行器执行
-	 * 
-	 * @param msg
-	 * @return
-	 */
-	private BE getBeWithNewSession(FjJsonMsg msg) {
-		if (msg.json().getString("fs").startsWith("wa")) {
-			if (Constant.AE.CODE_SUCCESS == msg.json().getInt("ae-code")) {
-				if (msg.json().containsKey("ae-desc")
-						&& msg.json().getJSONObject("ae-desc").containsKey("orders")) return be_taobao_order_new;
-			} else {
-				logger.error("wa ae return error: " + msg);
+		for (BE be : bes) {
+			if (be.hasSession(sid)) {
+				BE.SCB scb = be.getSession(sid);
+				scb.nextPhase();
+				boolean end = false;
+				try {end = be.execute(scb, jmsg);}
+				catch (Exception e) {logger.error("error occurs when execute be for this message: " + msg, e);}
+				if (end) {
+					be.closeSession(sid);
+					logger.info("session " + sid + " closed");
+				}
 			}
 		}
-		return null;
 	}
 
 }
