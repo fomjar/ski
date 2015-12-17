@@ -21,7 +21,7 @@ public class TaobaoOrderListNew extends BE {
 	public boolean execute(SCB scb, FjJsonMsg msg) {
 		switch (scb.currPhase()) {
 		case 0: // 查询订单结果
-			processOrder(msg);
+			processQueryResult(msg);
 			return false;
 		case 1: // 订单入库结果
 			logger.error("cdb process order result: " + msg);
@@ -32,13 +32,13 @@ public class TaobaoOrderListNew extends BE {
 		}
 	}
 	
-	private void processOrder(FjJsonMsg msg) {
+	private void processQueryResult(FjJsonMsg msg) {
 		FjJsonMsg msg_cdb = new FjJsonMsg();
 		msg_cdb.json().put("fs", getServerName());
 		msg_cdb.json().put("ts", "cdb");
 		msg_cdb.json().put("sid", msg.json().getString("sid"));
-		msg_cdb.json().put("cdb-cmd", "taobao-order-list-new");
-		msg_cdb.json().put("cdb-arg", msg.json().getJSONObject("ae-desc").getJSONArray("orders"));
+		msg_cdb.json().put("cmd", "taobao-order-list-new");
+		msg_cdb.json().put("arg", msg.json().getJSONObject("desc").getJSONArray("orders"));
 		FjToolkit.getSender(getServerName()).send(msg_cdb);
 		logger.debug("forward taobao order list from wa to cdb");
 	}

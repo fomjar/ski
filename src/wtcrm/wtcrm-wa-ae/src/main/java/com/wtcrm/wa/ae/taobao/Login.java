@@ -13,11 +13,11 @@ import fomjar.server.FjToolkit;
 
 public class Login implements AE {
 	
-	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONObject ae_desc;
+	private int        code = CODE_UNKNOWN_ERROR;
+	private JSONObject desc = null;
 
 	@Override
-	public void execute(WebDriver driver, JSONObject ae_arg) {
+	public void execute(WebDriver driver, JSONObject arg) {
 		driver.get("https://login.taobao.com/member/login.jhtml");
 		driver.findElement(By.id("J_Quick2Static")).click(); // 账户密码登陆
 		WebElement we = driver.findElement(By.id("TPL_username_1"));
@@ -32,24 +32,24 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("TPL_username_1"));
-			ae_code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"username or password is incorrect\"}");
+			code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
+			desc = JSONObject.fromObject("{\"error\":\"username or password is incorrect\"}");
 			return;
 		} catch (NoSuchElementException e){
-			ae_code = CODE_SUCCESS;
-			ae_desc = JSONObject.fromObject(null);
+			code = CODE_SUCCESS;
+			desc = JSONObject.fromObject(null);
 		}
 	}
 	
 
 	@Override
 	public int code() {
-		return ae_code;
+		return code;
 	}
 
 	@Override
 	public JSONObject desc() {
-		return ae_desc;
+		return desc;
 	}
 
 }

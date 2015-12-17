@@ -23,34 +23,27 @@ public class WATask implements FjServerTask {
 
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!(msg instanceof FjJsonMsg)
-				|| !((FjJsonMsg) msg).json().containsKey("fs")
-				|| !((FjJsonMsg) msg).json().containsKey("ts")
-				|| !((FjJsonMsg) msg).json().containsKey("sid")) {
-			logger.error("message not come from wtcrm server, discard: " + msg);
+		if (!FjToolkit.isLegalRequest(msg)) {
+			logger.error("illegal request: " + msg);
+			if (FjToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
-		if (!req.json().containsKey("ae-cmd") || !req.json().containsKey("ae-arg")) {
-			logger.error("invalid ae request, request does not contain \"ae-cmd\" or \"ae-arg\" parameter: " + req);
-			response(server, req, AE.CODE_INCORRECT_ARGUMENT, JSONObject.fromObject("{\"ae-err\":\"invalid ae request\"}"));
-			return;
-		}
-		String ae_cmd = req.json().getString("ae-cmd");
-		JSONObject ae_arg = req.json().getJSONObject("ae-arg");
-		AE ae = AEGuard.getInstance().getAe(ae_cmd);
+		String cmd = req.json().getString("cmd");
+		JSONObject arg = req.json().getJSONObject("arg");
+		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
-			logger.error("can not find an automation executor for ae-cmd: " + ae_cmd);
-			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{\"ae-err\":\"can not find any ae for ae-cmd: " + ae_cmd + "\"}"));
+			logger.error("can not find an automation executor for cmd: " + cmd);
+			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{\"error\":\"can not find any ae for cmd: " + cmd + "\"}"));
 			return;
 		}
 		WebDriver driver = null;
 		try {
 			driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
-			ae.execute(driver, ae_arg);
+			ae.execute(driver, arg);
 		} catch (Exception e) {
-			logger.error("error occurs when execute ae-cmd: " + ae_cmd, e);
-			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{\"ae-err\":\"unknown error during execute ae-cmd: " + ae_cmd + "\"}"));
+			logger.error("error occurs when execute cmd: " + cmd, e);
+			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{\"error\":\"unknown error during execute cmd: " + cmd + "\"}"));
 			return;
 		} finally {
 			if (null != driver) driver.quit();
@@ -58,13 +51,13 @@ public class WATask implements FjServerTask {
 		response(server, req, ae.code(), ae.desc());
 	}
 	
-	private static void response(FjServer server, FjJsonMsg req, int ae_code, JSONObject ae_desc) {
+	private static void response(FjServer server, FjJsonMsg req, int code, JSONObject desc) {
 		FjJsonMsg rsp = new FjJsonMsg();
 		rsp.json().put("fs", server.name());
 		rsp.json().put("ts", req.json().getString("fs"));
 		rsp.json().put("sid", req.json().getString("sid"));
-		rsp.json().put("ae-code", ae_code);
-		rsp.json().put("ae-desc", ae_desc);
+		rsp.json().put("code", code);
+		rsp.json().put("desc", desc);
 		FjToolkit.getSender(server.name()).send(rsp);
 	}
 }

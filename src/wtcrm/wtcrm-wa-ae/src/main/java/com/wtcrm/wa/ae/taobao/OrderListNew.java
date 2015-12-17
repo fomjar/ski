@@ -19,24 +19,24 @@ public class OrderListNew implements AE {
 	
 //	private static final Logger logger = Logger.getLogger(OrderListNew.class);
 	
-	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONObject ae_desc;
+	private int        code = CODE_UNKNOWN_ERROR;
+	private JSONObject desc = null;
 
 	@Override
-	public void execute(WebDriver driver, JSONObject ae_arg) {
+	public void execute(WebDriver driver, JSONObject arg) {
 		AE login = new Login();
-		login.execute(driver, ae_arg);
+		login.execute(driver, arg);
 		if (CODE_SUCCESS != login.code()) {
-			ae_code = login.code();
-			ae_desc = login.desc();
+			code = login.code();
+			desc = login.desc();
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
 		driver.findElement(By.linkText("发货")).click();
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
-			ae_code = CODE_TAOBAO_ORDER_NO_NEW;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"no new order\"}");
+			code = CODE_TAOBAO_ORDER_NO_NEW;
+			desc = JSONObject.fromObject("{\"error\":\"no new order\"}");
 			return;
 		}
 		driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
@@ -71,19 +71,19 @@ public class OrderListNew implements AE {
 			order.put("buyer-zip",  buyer_zip);
 			orders.add(order);
 		}
-		ae_code = CODE_SUCCESS;
-		ae_desc = new JSONObject();
-		ae_desc.put("orders", JSONArray.fromObject(orders));
+		code = CODE_SUCCESS;
+		desc = new JSONObject();
+		desc.put("orders", JSONArray.fromObject(orders));
 	}
 	
 	@Override
 	public int code() {
-		return ae_code;
+		return code;
 	}
 
 	@Override
 	public JSONObject desc() {
-		return ae_desc;
+		return desc;
 	}
 
 }

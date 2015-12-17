@@ -28,9 +28,9 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 		FjJsonMsg msg = new FjJsonMsg();
 		msg.json().put("fs", serverName);
 		msg.json().put("ts", "wa");
-		msg.json().put("sid", String.valueOf(System.currentTimeMillis()));
-		msg.json().put("ae-cmd", "ae.taobao.order-list-new");
-		msg.json().put("ae-arg", JSONObject.fromObject(null));
+		msg.json().put("sid", FjToolkit.newSid(serverName));
+		msg.json().put("cmd", "ae.taobao.order-list-new");
+		msg.json().put("arg", JSONObject.fromObject(null));
 		FjToolkit.getSender(serverName).send(msg);
 		be.openSession(msg.json().getString("sid"));
 		logger.debug("send request to get taobao new order list: " + msg);

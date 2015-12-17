@@ -183,4 +183,34 @@ public class FjToolkit {
 		if (null == g_sender) return null;
 		return g_sender.get(name);
 	}
+	
+	private static final Random random = new Random();
+	public static String newSid(String serverName) {
+		return Integer.toHexString(serverName.hashCode())
+				+ Integer.toHexString(Long.toHexString(System.currentTimeMillis()).hashCode())
+				+ Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
+	}
+	
+	public static boolean isLegalMsg(FjMsg msg) {
+		if (null == msg)                                  return false;
+		if (!(msg instanceof FjJsonMsg))                  return false;
+		if (!((FjJsonMsg) msg).json().containsKey("fs"))  return false;
+		if (!((FjJsonMsg) msg).json().containsKey("ts"))  return false;
+		if (!((FjJsonMsg) msg).json().containsKey("sid")) return false;
+		return true;
+	}
+	
+	public static boolean isLegalRequest(FjMsg msg) {
+		if (!isLegalMsg(msg)) return false;
+		if (!((FjJsonMsg) msg).json().containsKey("cmd")) return false;
+		if (!((FjJsonMsg) msg).json().containsKey("arg")) return false;
+		return true;
+	}
+
+	public static boolean isLegalResponse(FjMsg msg) {
+		if (!isLegalMsg(msg)) return false;
+		if (!((FjJsonMsg) msg).json().containsKey("code")) return false;
+		if (!((FjJsonMsg) msg).json().containsKey("desc")) return false;
+		return true;
+	}
 }

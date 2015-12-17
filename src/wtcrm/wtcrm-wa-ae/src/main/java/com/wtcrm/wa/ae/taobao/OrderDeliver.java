@@ -13,22 +13,22 @@ import com.wtcrm.wa.AE;
 
 public class OrderDeliver implements AE{
 	
-	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONObject ae_desc;
+	private int        code = CODE_UNKNOWN_ERROR;
+	private JSONObject desc = null;
 
 	@Override
-	public void execute(WebDriver driver, JSONObject ae_arg) {
-		if (!ae_arg.containsKey("toid")) { // 参数没有订单ID
-			ae_code = CODE_INCORRECT_ARGUMENT;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"no parameter: toid\"}");
+	public void execute(WebDriver driver, JSONObject arg) {
+		if (!arg.containsKey("toid")) { // 参数没有订单ID
+			code = CODE_ILLEGAL_MESSAGE;
+			desc = JSONObject.fromObject("{\"error\":\"no parameter: toid\"}");
 			return;
 		}
 		
 		AE login = new Login();
-		login.execute(driver, ae_arg);
+		login.execute(driver, arg);
 		if (CODE_SUCCESS != login.code()) {
-			ae_code = login.code();
-			ae_desc = login.desc();
+			code = login.code();
+			desc = login.desc();
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
@@ -36,11 +36,11 @@ public class OrderDeliver implements AE{
 		List<WebElement> order_tables = null;
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}
 		catch (NoSuchElementException e) { // 没有任何订单
-			ae_code = CODE_TAOBAO_ORDER_NOT_FOUND;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"can not find any orders\"}");
+			code = CODE_TAOBAO_ORDER_NOT_FOUND;
+			desc = JSONObject.fromObject("{\"error\":\"can not find any orders\"}");
 			return;
 		}
-		String toid = ae_arg.getString("toid");
+		String toid = arg.getString("toid");
 		WebElement deliver = null;
 		for (WebElement order_table : order_tables) {
 			String order_id = order_table.findElement(By.className("order-number")).getText().split("：")[1].trim();
@@ -50,25 +50,25 @@ public class OrderDeliver implements AE{
 			}
 		}
 		if (null == deliver) { // 没有找到对应订单
-			ae_code = CODE_TAOBAO_ORDER_NOT_FOUND;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"can not find such an order: " + toid + "\"}");
+			code = CODE_TAOBAO_ORDER_NOT_FOUND;
+			desc = JSONObject.fromObject("{\"error\":\"can not find such an order: " + toid + "\"}");
 			return;
 		}
 		deliver.click(); // 发货
 		driver.findElement(By.id("dummyTab")).findElement(By.tagName("a")).click(); // 无需物流
 		driver.findElement(By.id("logis:noLogis")).click(); // 确认
-		ae_code = CODE_SUCCESS;
-		ae_desc = JSONObject.fromObject(null);
+		code = CODE_SUCCESS;
+		desc = JSONObject.fromObject(null);
 	}
 
 	@Override
 	public int code() {
-		return ae_code;
+		return code;
 	}
 
 	@Override
 	public JSONObject desc() {
-		return ae_desc;
+		return desc;
 	}
 
 }

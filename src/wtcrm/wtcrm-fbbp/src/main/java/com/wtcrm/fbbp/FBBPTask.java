@@ -7,6 +7,7 @@ import com.wtcrm.fbbp.be.TaobaoOrderListNew;
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
+import fomjar.server.FjToolkit;
 import fomjar.server.FjServer.FjServerTask;
 
 public class FBBPTask implements FjServerTask {
@@ -22,11 +23,8 @@ public class FBBPTask implements FjServerTask {
 
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!(msg instanceof FjJsonMsg)
-				|| !((FjJsonMsg) msg).json().containsKey("fs")
-				|| !((FjJsonMsg) msg).json().containsKey("ts")
-				|| !((FjJsonMsg) msg).json().containsKey("sid")) {
-			logger.error("message not come from wtcrm server, discard: " + msg);
+		if (!FjToolkit.isLegalMsg(msg)) {
+			logger.error("illegal message, discard: " + msg);
 			return;
 		}
 		FjJsonMsg jmsg = (FjJsonMsg) msg;

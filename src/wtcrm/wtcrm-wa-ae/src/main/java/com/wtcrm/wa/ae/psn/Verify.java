@@ -10,37 +10,37 @@ import com.wtcrm.wa.AE;
 
 public class Verify implements AE {
 	
-	private int ae_code = CODE_UNKNOWN_ERROR;
-	private JSONObject ae_desc;
+	private int        code = CODE_UNKNOWN_ERROR;
+	private JSONObject desc = null;
 
 	@Override
-	public void execute(WebDriver driver, JSONObject ae_arg) {
+	public void execute(WebDriver driver, JSONObject arg) {
 		AE login = new Login();
-		login.execute(driver, ae_arg);
+		login.execute(driver, arg);
 		if (CODE_SUCCESS != login.code()) {
-			ae_code = login.code();
-			ae_desc = login.desc();
+			code = login.code();
+			desc = login.desc();
 			return;
 		}
 		driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/devices/device-list.action?category=psn&displayNavigation=false"); // 设备->PlayStation系统
 		try {
 			driver.findElement(By.id("device-0")); // 存在设备绑定
-			ae_code = CODE_PSN_ACCOUNT_INUSE;
-			ae_desc = JSONObject.fromObject("{\"ae-err\":\"psn account is inuse\"}");
+			code = CODE_PSN_ACCOUNT_INUSE;
+			desc = JSONObject.fromObject("{\"error\":\"psn account is inuse\"}");
 		} catch (NoSuchElementException e) { // 不存在设备绑定
-			ae_code = CODE_SUCCESS;
-			ae_desc = JSONObject.fromObject(null);
+			code = CODE_SUCCESS;
+			desc = JSONObject.fromObject(null);
 		}
 	}
 
 	@Override
 	public int code() {
-		return ae_code;
+		return code;
 	}
 
 	@Override
 	public JSONObject desc() {
-		return ae_desc;
+		return desc;
 	}
 
 }

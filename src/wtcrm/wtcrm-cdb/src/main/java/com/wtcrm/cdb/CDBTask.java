@@ -25,12 +25,12 @@ import fomjar.server.FjToolkit;
 public class CDBTask implements FjServerTask {
 	
 	private static final int CODE_SUCCESS                = 0x00000000;
-	private static final int CODE_INCORRECT_ARGUMENT     = 0x00001001;
 	private static final int CODE_DB_ABNORMAL            = 0x00001002;
 	private static final int CODE_CMD_NOT_REGISTERED     = 0x00001003;
 	private static final int CODE_CMD_MOD_INVALID        = 0x00001004;
 	private static final int CODE_EXEC_CMD_FAILED        = 0x00001005;
 	private static final int CODE_EXEC_CMD_PARTLY_FAILED = 0x00001006;
+	private static final int CODE_ILLEGAL_MESSAGE        = 0xfffffffe;
 	
 	private static final Logger logger = Logger.getLogger(CDBTask.class);
 	private static Connection conn = null;
@@ -59,38 +59,31 @@ public class CDBTask implements FjServerTask {
 	
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!(msg instanceof FjJsonMsg)
-				|| !((FjJsonMsg) msg).json().containsKey("fs")
-				|| !((FjJsonMsg) msg).json().containsKey("ts")
-				|| !((FjJsonMsg) msg).json().containsKey("sid")) {
-			logger.error("message not come from wtcrm server, discard: " + msg);
+		if (!FjToolkit.isLegalRequest(msg)) {
+			logger.error("illegal request: " + msg);
+			if (FjToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
-		if (!req.json().containsKey("cdb-cmd") || !req.json().containsKey("cdb-arg")) {
-			logger.error("invalid cdb request, request does not contain \"cdb-cmd\": " + req);
-			response(server, req, CODE_INCORRECT_ARGUMENT, JSONArray.fromObject("[\"invalid cdb request, must contain cdb-cmd and cdb-arg parameter\"]"));
-			return;
-		}
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
-				response(server, req, CODE_DB_ABNORMAL, JSONArray.fromObject("[\"db state abnormal\"]"));
+				response(server, req, CODE_DB_ABNORMAL, JSONObject.fromObject("{\"error\":\"db state abnormal\"}"));
 				return;
 			}
 		}
 		CdbCmdInfo cci = new CdbCmdInfo();
-		cci.cmd = req.json().getString("cdb-cmd");
+		cci.cmd = req.json().getString("cmd");
 		if (!getCmdInfo(cci)) {
-			response(server, req, CODE_CMD_NOT_REGISTERED, JSONArray.fromObject("[\"cdb-cmd is not registered\"]"));
+			response(server, req, CODE_CMD_NOT_REGISTERED, JSONObject.fromObject("{\"error\":\"cmd is not registered\"}"));
 			return;
 		}
-		Object arg_obj = req.json().get("cdb-arg");
+		Object arg_obj = req.json().get("arg");
 		if (arg_obj instanceof JSONObject) {
 			JSONObject arg = (JSONObject) arg_obj;
 			generateSql(cci, arg);
-			if (executeSql(cci)) response(server, req, CODE_SUCCESS, JSONArray.fromObject(cci.result));
-			else response(server, req, CODE_EXEC_CMD_FAILED, JSONArray.fromObject("[\"cmd(" + cci.cmd + ") execute sql failed: " + cci.sql_use + "\"]"));
+			if (executeSql(cci)) response(server, req, CODE_SUCCESS, JSONObject.fromObject("{\"array\":" + JSONArray.fromObject(cci.result) + "}"));
+			else response(server, req, CODE_EXEC_CMD_FAILED, JSONObject.fromObject("{\"error\":\"cmd(" + cci.cmd + ") execute sql failed: " + cci.sql_use + "\"}"));
 		} else if (arg_obj instanceof JSONArray) {
 			boolean isSuccess = true;
 			JSONArray args = (JSONArray) arg_obj;
@@ -104,20 +97,20 @@ public class CDBTask implements FjServerTask {
 				}
 				result.add(cci.result);
 			}
-			response(server, req, isSuccess ? CODE_SUCCESS : CODE_EXEC_CMD_PARTLY_FAILED, result);
+			response(server, req, isSuccess ? CODE_SUCCESS : CODE_EXEC_CMD_PARTLY_FAILED, JSONObject.fromObject("{\"array\":" + JSONArray.fromObject(result) + "}"));
 		} else {
-			logger.error("invalid cdb-arg object: " + arg_obj);
-			response(server, req, CODE_CMD_MOD_INVALID, JSONArray.fromObject("[\"invalid cdb-arg object\"]"));
+			logger.error("invalid arg object: " + arg_obj);
+			response(server, req, CODE_CMD_MOD_INVALID, JSONObject.fromObject("{\"error\":\"invalid cdb-arg object\"}"));
 		}
 	}
 	
-	private static void response(FjServer server, FjJsonMsg req, int cdb_code, JSONArray cdb_desc) {
+	private static void response(FjServer server, FjJsonMsg req, int code, JSONObject desc) {
 		FjJsonMsg rsp = new FjJsonMsg();
 		rsp.json().put("fs", server.name());
 		rsp.json().put("ts", req.json().getString("fs"));
 		rsp.json().put("sid", req.json().getString("sid"));
-		rsp.json().put("cdb-code", cdb_code);
-		rsp.json().put("cdb-desc", cdb_desc);
+		rsp.json().put("code", code);
+		rsp.json().put("desc", desc);
 		FjToolkit.getSender(server.name()).send(rsp);
 	}
 	

@@ -22,8 +22,8 @@ public abstract class BE {
 		private Map<String, String> data = new HashMap<String, String>();
 		
 		public String sid() {return sid;}
+		       void   nextPhase() {++phase;}
 		public int    currPhase() {return phase;}
-		public int    nextPhase() {return ++phase;}
 		public String getData(String key) {return data.get(key);}
 		public void   putData(String key, String value) {data.put(key, value);}
 	}
