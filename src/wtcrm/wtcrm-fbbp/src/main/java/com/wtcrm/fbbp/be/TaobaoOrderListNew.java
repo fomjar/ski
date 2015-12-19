@@ -3,6 +3,7 @@ package com.wtcrm.fbbp.be;
 import org.apache.log4j.Logger;
 
 import com.wtcrm.fbbp.BE;
+import com.wtcrm.fbbp.Constant;
 
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjToolkit;
@@ -24,15 +25,19 @@ public class TaobaoOrderListNew extends BE {
 			processQueryResult(msg);
 			return false;
 		case 1: // 订单入库结果
-			logger.error("cdb process order result: " + msg);
+			processStoreResult(msg);
 			return true;
 		default:
-			logger.error("business flow infer error for msg: " + msg);
+			logger.error("unexpected scb phase(" + scb.currPhase() + ") for msg: " + msg);
 			return true;
 		}
 	}
 	
 	private void processQueryResult(FjJsonMsg msg) {
+		if (Constant.AE.CODE_SUCCESS != msg.json().getInt("code")) {
+			logger.error("query new taobao order list failed, reason: " + msg.json().get("desc"));
+			return;
+		}
 		FjJsonMsg msg_cdb = new FjJsonMsg();
 		msg_cdb.json().put("fs", getServerName());
 		msg_cdb.json().put("ts", "cdb");
@@ -41,6 +46,14 @@ public class TaobaoOrderListNew extends BE {
 		msg_cdb.json().put("arg", msg.json().getJSONObject("desc").getJSONArray("orders"));
 		FjToolkit.getSender(getServerName()).send(msg_cdb);
 		logger.debug("forward taobao order list from wa to cdb");
+	}
+	
+	private void processStoreResult(FjJsonMsg msg) {
+		if (Constant.AE.CODE_SUCCESS != msg.json().getInt("code")) {
+			logger.error("store taobao new order list failed, reason: " + msg.json().get("desc"));
+			return;
+		}
+		logger.error("store taobao new order list success");
 	}
 
 }

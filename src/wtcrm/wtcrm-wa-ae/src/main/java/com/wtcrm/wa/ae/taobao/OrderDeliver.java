@@ -32,7 +32,11 @@ public class OrderDeliver implements AE{
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.linkText("发货")).click();
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		List<WebElement> order_tables = null;
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}
 		catch (NoSuchElementException e) { // 没有任何订单
@@ -55,6 +59,8 @@ public class OrderDeliver implements AE{
 			return;
 		}
 		deliver.click(); // 发货
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.id("dummyTab")).findElement(By.tagName("a")).click(); // 无需物流
 		driver.findElement(By.id("logis:noLogis")).click(); // 确认
 		code = CODE_SUCCESS;

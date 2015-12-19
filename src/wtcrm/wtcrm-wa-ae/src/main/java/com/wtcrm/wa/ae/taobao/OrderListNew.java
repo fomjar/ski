@@ -32,14 +32,22 @@ public class OrderListNew implements AE {
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.linkText("发货")).click();
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
 			code = CODE_TAOBAO_ORDER_NO_NEW;
 			desc = JSONObject.fromObject("{\"error\":\"no new order\"}");
 			return;
 		}
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		List<WebElement> order_tables = driver.findElements(By.className("consign-detail"));
 		List<Map<String, String>> orders = new LinkedList<Map<String,String>>();
 		String[] currentBuyerInfo = null;

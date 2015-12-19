@@ -15,12 +15,14 @@ public class Login implements AE {
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
-		driver.get("https://account.sonyentertainmentnetwork.com/login.action");
 		if (!arg.containsKey("psna") || !arg.containsKey("psnp")) { // 没有psn账号或密码
 			code = CODE_ILLEGAL_MESSAGE;
 			desc = JSONObject.fromObject("{\"error\":\"no parameter: psna or psnp\"}");
 			return;
 		}
+		driver.get("https://account.sonyentertainmentnetwork.com/login.action");
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.id("signInInput_SignInID")).clear();
 		driver.findElement(By.id("signInInput_SignInID")).sendKeys(arg.getString("psna")); // 账号
 		driver.findElement(By.id("signInInput_Password")).clear();

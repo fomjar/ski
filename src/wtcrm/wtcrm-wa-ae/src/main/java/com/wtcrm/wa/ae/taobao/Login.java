@@ -19,6 +19,8 @@ public class Login implements AE {
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
 		driver.get("https://login.taobao.com/member/login.jhtml");
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.id("J_Quick2Static")).click(); // 账户密码登陆
 		WebElement we = driver.findElement(By.id("TPL_username_1"));
 		if ("text".equals(we.getAttribute("type"))) { // 用户名需要输入

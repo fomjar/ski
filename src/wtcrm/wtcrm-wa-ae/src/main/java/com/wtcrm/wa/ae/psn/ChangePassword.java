@@ -30,6 +30,8 @@ public class ChangePassword implements AE {
 		String psnp_old = arg.getString("psnp-old");
 		String psnp_new = arg.getString("psnp-new");
 		driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
+		try {Thread.sleep(1000L);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.id("currentPasswordField")).clear();
 		driver.findElement(By.id("currentPasswordField")).sendKeys(psnp_old); // 旧密码
 		driver.findElement(By.id("changePasswordInput")).clear();

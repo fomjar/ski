@@ -1,8 +1,10 @@
-package com.wtcrm.fbbp;
+package com.wtcrm.fbbp.guard;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+
+import com.wtcrm.fbbp.BE;
 
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjLoopTask;
@@ -41,6 +43,6 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 			logger.warn("order-guard has already started");
 			return;
 		}
-		new Thread(this, "order-guard").start();
+		new Thread(this, "order-list-guard").start();
 	}
 }
