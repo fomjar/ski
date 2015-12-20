@@ -1,5 +1,5 @@
 delete from tbl_cmd_map where c_cmd = 'taobao-order-list-new';
-insert into tbl_cmd_map values('taobao-order-list-new', 'sp', 2, "sp_taobao_order_list_new(?, ?, '$toid', '$tuid'， '$pid', '$tp-name', '$tp-attr', $tp-price, $tp-count, '$tu-name', '$tu-tel', '$tu-addr', '$tu-zip')");
+insert into tbl_cmd_map values('taobao-order-list-new', 'sp', 2, "sp_taobao_order_list_new(?, ?, '$toid', '$tuid', '$pid', '$tp-name', '$tp-attr', $tp-price, $tp-count, '$tu-name', '$tu-tel', '$tu-addr', '$tu-zip')");
 
 drop procedure if exists sp_taobao_order_list_new;
 DELIMITER //
@@ -13,10 +13,10 @@ create procedure sp_taobao_order_list_new (
     in  in_c_tp_attr    varchar(64),
     in  in_i_tp_price   decimal(7, 2),
     in  in_i_tp_count   integer,
-    in  in_c_tu_name varchar(10),
-    in  in_c_tu_tel  varchar(20),
-    in  in_c_tu_addr varchar(100),
-    in  in_c_tu_zip  varchar(10)
+    in  in_c_tu_name    varchar(10),
+    in  in_c_tu_tel     varchar(20),
+    in  in_c_tu_addr    varchar(100),
+    in  in_c_tu_zip     varchar(10)
 )
 comment '新的淘宝订单'
 BEGIN
