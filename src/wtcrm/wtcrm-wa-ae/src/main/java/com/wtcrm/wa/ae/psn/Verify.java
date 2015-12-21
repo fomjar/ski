@@ -28,7 +28,7 @@ public class Verify implements AE {
 		try {
 			driver.findElement(By.id("device-0")); // 存在设备绑定
 			code = CODE_PSN_ACCOUNT_INUSE;
-			desc = JSONObject.fromObject("{\"error\":\"psn account is inuse\"}");
+			desc = JSONObject.fromObject("{'error':'psn account is inuse'}");
 		} catch (NoSuchElementException e) { // 不存在设备绑定
 			code = CODE_SUCCESS;
 			desc = JSONObject.fromObject(null);

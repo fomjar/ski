@@ -16,7 +16,7 @@ public class TaobaoOrderProcNewGuard extends FjLoopTask {
 	private BE be;
 	
 	public TaobaoOrderProcNewGuard(BE be) {
-		long time = Long.parseLong(FjToolkit.getServerConfig("fbbp.reproc-order-interval"));
+		long time = Long.parseLong(FjToolkit.getServerConfig("reproc-order-interval"));
 		time *= 1000L;
 		setDelay(time);
 		setInterval(time);

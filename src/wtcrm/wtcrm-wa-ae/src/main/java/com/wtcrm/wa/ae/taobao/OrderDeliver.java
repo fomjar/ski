@@ -20,7 +20,7 @@ public class OrderDeliver implements AE{
 	public void execute(WebDriver driver, JSONObject arg) {
 		if (!arg.containsKey("toid")) { // 参数没有订单ID
 			code = CODE_ILLEGAL_MESSAGE;
-			desc = JSONObject.fromObject("{\"error\":\"no parameter: toid\"}");
+			desc = JSONObject.fromObject("{'error':'no parameter: toid'}");
 			return;
 		}
 		
@@ -41,7 +41,7 @@ public class OrderDeliver implements AE{
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}
 		catch (NoSuchElementException e) { // 没有任何订单
 			code = CODE_TAOBAO_ORDER_NOT_FOUND;
-			desc = JSONObject.fromObject("{\"error\":\"can not find any orders\"}");
+			desc = JSONObject.fromObject("{'error':'can not find any orders'}");
 			return;
 		}
 		String toid = arg.getString("toid");
@@ -55,7 +55,7 @@ public class OrderDeliver implements AE{
 		}
 		if (null == deliver) { // 没有找到对应订单
 			code = CODE_TAOBAO_ORDER_NOT_FOUND;
-			desc = JSONObject.fromObject("{\"error\":\"can not find such an order: " + toid + "\"}");
+			desc = JSONObject.fromObject(String.format("{'error':'can not find such an order: %s'}", toid));
 			return;
 		}
 		deliver.click(); // 发货

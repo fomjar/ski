@@ -40,7 +40,7 @@ public class OrderListNew implements AE {
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
 			code = CODE_TAOBAO_ORDER_NO_NEW;
-			desc = JSONObject.fromObject("{\"error\":\"no new order\"}");
+			desc = JSONObject.fromObject("{'error':'no new order'}");
 			return;
 		}
 		try {Thread.sleep(1000L);}

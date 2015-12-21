@@ -9,8 +9,6 @@ import org.openqa.selenium.WebElement;
 
 import com.wtcrm.wa.AE;
 
-import fomjar.server.FjToolkit;
-
 public class Login implements AE {
 	
 	private int        code = CODE_UNKNOWN_ERROR;
@@ -25,17 +23,17 @@ public class Login implements AE {
 		WebElement we = driver.findElement(By.id("TPL_username_1"));
 		if ("text".equals(we.getAttribute("type"))) { // 用户名需要输入
 			driver.findElement(By.id("TPL_username_1")).clear(); // 用户名
-			driver.findElement(By.id("TPL_username_1")).sendKeys(FjToolkit.getServerConfig("wa.taobao.account"));
+			driver.findElement(By.id("TPL_username_1")).sendKeys(arg.getString("user"));
 		}
 		driver.findElement(By.id("TPL_password_1")).clear(); // 密码
-		driver.findElement(By.id("TPL_password_1")).sendKeys(FjToolkit.getServerConfig("wa.taobao.password"));
+		driver.findElement(By.id("TPL_password_1")).sendKeys(arg.getString("pass"));
 		driver.findElement(By.id("J_SubmitStatic")).click(); // 登陆
 		try {Thread.sleep(1000L);}
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("TPL_username_1"));
 			code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
-			desc = JSONObject.fromObject("{\"error\":\"username or password is incorrect\"}");
+			desc = JSONObject.fromObject("{'error':'username or password is incorrect'}");
 			return;
 		} catch (NoSuchElementException e){
 			code = CODE_SUCCESS;

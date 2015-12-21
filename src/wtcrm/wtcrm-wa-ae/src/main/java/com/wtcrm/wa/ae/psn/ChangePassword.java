@@ -14,9 +14,9 @@ public class ChangePassword implements AE {
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
-		if (!arg.containsKey("psnp-old") || !arg.containsKey("psnp-new")) { // 参数没有新老密码
+		if (!arg.containsKey("pass-old") || !arg.containsKey("pass-new")) { // 参数没有新老密码
 			code = CODE_ILLEGAL_MESSAGE;
-			desc = JSONObject.fromObject("{\"error\":\"no parameter: psnp-old or psnp-new\"}");
+			desc = JSONObject.fromObject("{'error':'no parameter: pass-old or pass-new'}");
 			return;
 		}
 		
@@ -44,7 +44,7 @@ public class ChangePassword implements AE {
 			desc = JSONObject.fromObject(null);
 		} else { // 密码保存失败
 			code = CODE_PSN_CHANGE_PASSWORD_FAILED;
-			desc = JSONObject.fromObject("{\"error\":\"" + driver.findElement(By.id("confirmPasswordFieldError")).getText() + "\"}");
+			desc = JSONObject.fromObject(String.format("{'error':'%s'}", driver.findElement(By.id("confirmPasswordFieldError")).getText()));
 		}
 	}
 
