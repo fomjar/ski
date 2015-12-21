@@ -1,0 +1,7 @@
+# 井号打头为注释
+# 1. 所有字段以一个或多个连续的井号分隔
+# 2. 格式：
+# [账户ID]#[用户名]#[密码]#[出生日期]
+
+0#mengxiangxi@funbox.com#mengxiangxi#1989/09/22
+1#dufengjia@funbox.com###dufengjia###1989/09/22
