@@ -3,25 +3,26 @@ package com.wtcrm.am;
 import org.apache.log4j.Logger;
 
 import fomjar.server.FjJsonMsg;
-import fomjar.server.FjLoopTask;
 import fomjar.server.FjMsg;
-import fomjar.server.FjSender;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
+import fomjar.util.FjLoopTask;
 
 public class AccessTokenGuard extends FjLoopTask {
-
-	private static AccessTokenGuard instance = null;
-	public static AccessTokenGuard getInstance() {
-		if (null == instance) instance = new AccessTokenGuard();
-		return instance;
-	}
-	private AccessTokenGuard() {}
 	
 	private static final Logger logger = Logger.getLogger(AccessTokenGuard.class);
 	
 	private static final String TEMPLATE = "https://api.weixin.qq.com/cgi-bin/token?grant_type=%s&appid=%s&secret=%s";
 	
+	private String serverName;
 	public String token;
+	
+	public AccessTokenGuard(String serverName) {
+		this.serverName = serverName;
+	}
+	
+	public String getServerName() {
+		return serverName;
+	}
 	
 	public void start() {
 		if (isRun()) {
@@ -38,10 +39,10 @@ public class AccessTokenGuard extends FjLoopTask {
 	@Override
 	public void perform() {
 		token = null;
-		long defaultInterval = Long.parseLong(FjToolkit.getServerConfig("wcam.reload-token-interval"));
-		String url = String.format(TEMPLATE, FjToolkit.getServerConfig("wcam.grant"), FjToolkit.getServerConfig("wcam.appid"), FjToolkit.getServerConfig("wcam.secret"));
+		long defaultInterval = Long.parseLong(FjServerToolkit.getServerConfig("wcam.reload-token-interval"));
+		String url = String.format(TEMPLATE, FjServerToolkit.getServerConfig("wcam.grant"), FjServerToolkit.getServerConfig("wcam.appid"), FjServerToolkit.getServerConfig("wcam.secret"));
 		logger.debug("try to get wechat access token");
-		FjMsg msg = FjSender.sendHttpRequest("GET", url, null);
+		FjMsg msg = FjServerToolkit.getSender(getServerName()).sendHttpRequest("GET", url, null);
 		if (!(msg instanceof FjJsonMsg)) {
 			logger.error("invalid reponse message when get wechat access token: " + msg);
 			setNextRetryInterval(defaultInterval);

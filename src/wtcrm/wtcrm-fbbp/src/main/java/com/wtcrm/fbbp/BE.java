@@ -39,6 +39,10 @@ public abstract class BE {
 		this.serverName = serverName;
 	}
 	
+	public String getServerName() {
+		return serverName;
+	}
+	
 	public boolean hasSession(String sid) {
 		return scbs.containsKey(sid);
 	}
@@ -68,9 +72,5 @@ public abstract class BE {
 	 * @return 业务全流程结束返回true，未结束返回false
 	 */
 	public abstract boolean execute(SCB scb, FjJsonMsg msg);
-	
-	public String getServerName() {
-		return serverName;
-	}
 	
 }

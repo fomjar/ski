@@ -6,7 +6,7 @@ import com.wtcrm.fbbp.BE;
 import com.wtcrm.fbbp.Constant;
 
 import fomjar.server.FjJsonMsg;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 
 /**
  * 淘宝订单查询和入库业务
@@ -44,7 +44,7 @@ public class TaobaoOrderListNew extends BE {
 		msg_cdb.json().put("sid", msg.json().getString("sid"));
 		msg_cdb.json().put("cmd", "taobao-order-list-new");
 		msg_cdb.json().put("arg", msg.json().getJSONObject("desc").getJSONArray("orders"));
-		FjToolkit.getSender(getServerName()).send(msg_cdb);
+		FjServerToolkit.getSender(getServerName()).send(msg_cdb);
 		logger.debug("forward taobao order list from wa to cdb");
 	}
 	

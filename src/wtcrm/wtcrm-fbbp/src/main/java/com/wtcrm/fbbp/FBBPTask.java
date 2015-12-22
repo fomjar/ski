@@ -8,7 +8,7 @@ import com.wtcrm.fbbp.guard.TaobaoOrderListNewGuard;
 import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServer.FjServerTask;
 
 public class FBBPTask implements FjServerTask {
@@ -24,7 +24,7 @@ public class FBBPTask implements FjServerTask {
 
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!FjToolkit.isLegalMsg(msg)) {
+		if (!FjServerToolkit.isLegalMsg(msg)) {
 			logger.error("illegal message, discard: " + msg);
 			return;
 		}

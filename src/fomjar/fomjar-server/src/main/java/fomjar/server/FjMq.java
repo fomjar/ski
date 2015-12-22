@@ -1,6 +1,6 @@
 package fomjar.server;
 
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -12,18 +12,18 @@ public class FjMq {
 	
 	private static final Logger logger = Logger.getLogger(FjMq.class);
 	private Queue<FjMsg> msgs;
-	private Map<FjMsg, Socket> conns;
+	private Map<FjMsg, SocketChannel> conns;
 	
 	public FjMq() {
 		msgs = new LinkedList<FjMsg>();
-		conns = new HashMap<FjMsg, Socket>();
+		conns = new HashMap<FjMsg, SocketChannel>();
 	}
 	
 	public void offer(FjMsg msg) {
 		offer(msg, null);
 	}
 	
-	public synchronized void offer(FjMsg msg, Socket conn) {
+	public synchronized void offer(FjMsg msg, SocketChannel conn) {
 		if (null == msg) {
 			logger.error("there is no need to offer a null message");
 			return;
@@ -47,7 +47,7 @@ public class FjMq {
 		return msg;
 	}
 	
-	public Socket pollConnection(FjMsg msg) {
+	public SocketChannel pollConnection(FjMsg msg) {
 		return conns.remove(msg);
 	}
 	

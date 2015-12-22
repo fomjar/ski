@@ -1,4 +1,4 @@
-package fomjar.server;
+package fomjar.util;
 
 import org.apache.log4j.Logger;
 
@@ -10,7 +10,11 @@ public abstract class FjLoopTask implements Runnable {
 	private boolean isRun;
 	
 	public FjLoopTask() {
-		this(0l, 0l);
+		this(0L, 0L);
+	}
+	
+	public FjLoopTask(long interval) {
+		this(0L, interval);
 	}
 	
 	public FjLoopTask(long delay, long interval) {

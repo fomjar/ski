@@ -10,7 +10,7 @@ import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 
 public class WATask implements FjServerTask {
 	
@@ -23,9 +23,9 @@ public class WATask implements FjServerTask {
 
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!FjToolkit.isLegalRequest(msg)) {
+		if (!FjServerToolkit.isLegalRequest(msg)) {
 			logger.error("illegal request: " + msg);
-			if (FjToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
+			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
@@ -58,6 +58,6 @@ public class WATask implements FjServerTask {
 		rsp.json().put("sid", req.json().getString("sid"));
 		rsp.json().put("code", code);
 		rsp.json().put("desc", desc);
-		FjToolkit.getSender(server.name()).send(rsp);
+		FjServerToolkit.getSender(server.name()).send(rsp);
 	}
 }

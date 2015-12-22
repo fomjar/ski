@@ -7,8 +7,8 @@ import net.sf.json.JSONObject;
 import com.wtcrm.fbbp.BE;
 
 import fomjar.server.FjJsonMsg;
-import fomjar.server.FjLoopTask;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
+import fomjar.util.FjLoopTask;
 
 public class TaobaoOrderProcNewGuard extends FjLoopTask {
 	
@@ -16,7 +16,7 @@ public class TaobaoOrderProcNewGuard extends FjLoopTask {
 	private BE be;
 	
 	public TaobaoOrderProcNewGuard(BE be) {
-		long time = Long.parseLong(FjToolkit.getServerConfig("reproc-order-interval"));
+		long time = Long.parseLong(FjServerToolkit.getServerConfig("reproc-order-interval"));
 		time *= 1000L;
 		setDelay(time);
 		setInterval(time);
@@ -29,10 +29,10 @@ public class TaobaoOrderProcNewGuard extends FjLoopTask {
 		FjJsonMsg msg = new FjJsonMsg();
 		msg.json().put("fs", serverName);
 		msg.json().put("ts", "cdb");
-		msg.json().put("sid", FjToolkit.newSid(serverName));
+		msg.json().put("sid", FjServerToolkit.newSid(serverName));
 		msg.json().put("cmd", "ae.taobao.order-proc-new");
 		msg.json().put("arg", JSONObject.fromObject(null));
-		FjToolkit.getSender(serverName).send(msg);
+		FjServerToolkit.getSender(serverName).send(msg);
 		be.openSession(msg.json().getString("sid"));
 		logger.debug("send request to get taobao new order list: " + msg);
 	}

@@ -7,8 +7,8 @@ import java.net.URLClassLoader;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjLoopTask;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
+import fomjar.util.FjLoopTask;
 
 public class AEGuard extends FjLoopTask {
 	
@@ -33,11 +33,11 @@ public class AEGuard extends FjLoopTask {
 	
 	@Override
 	public void perform() {
-		String aepkg = FjToolkit.getServerConfig("wa.ae-package");
+		String aepkg = FjServerToolkit.getServerConfig("wa.ae-package");
 		try {loader = new URLClassLoader(new URL[]{new File(aepkg).toURI().toURL()});}
 		catch (MalformedURLException e) {logger.error("ae package is bad: " + aepkg, e);}
 		
-		long interval = Long.parseLong(FjToolkit.getServerConfig("wa.reload-ae-interval"));
+		long interval = Long.parseLong(FjServerToolkit.getServerConfig("wa.reload-ae-interval"));
 		setInterval(interval * 1000);
 	}
 	
@@ -46,7 +46,7 @@ public class AEGuard extends FjLoopTask {
 			logger.error("ae package is not available");
 			return null;
 		}
-		String className = FjToolkit.getServerConfig(ae_cmd);
+		String className = FjServerToolkit.getServerConfig(ae_cmd);
 		try {
 			Class<?> clazz = loader.loadClass(className);
 			Object instance = clazz.newInstance();

@@ -1,13 +1,14 @@
 package fomjar.server;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.Socket;
+import java.net.InetSocketAddress;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
@@ -20,6 +21,8 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
+
+import fomjar.util.FjLoopTask;
 
 public class FjSender extends FjLoopTask {
 	
@@ -41,52 +44,51 @@ public class FjSender extends FjLoopTask {
 			logger.error("failed to poll message from queue");
 			return;
 		}
-		Socket sock = null;
-		if (msg instanceof FjJsonMsg && ((FjJsonMsg) msg).json().containsKey("ts")) {
+		SocketChannel conn = null;
+		if (FjServerToolkit.isLegalMsg(msg)) {
 			String ts = ((FjJsonMsg) msg).json().getString("ts");
-			FjToolkit.FjAddress addr0 = FjToolkit.getSlb().getAddress(ts);
+			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(ts);
 			if (null == addr0) {
 				logger.error("can not find an address with server name: " + ts);
 				return;
 			}
 			try {
-				sock = new Socket(addr0.host, addr0.port);
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
-				writer.write(msg.toString());
-				writer.flush();
+				conn = SocketChannel.open();
+				conn.bind(new InetSocketAddress(addr0.host, addr0.port));
+				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+				while (buf.hasRemaining()) conn.write(buf);
 				logger.debug("send message successfully: " + msg);
 			} catch (IOException e) {
-				List<FjToolkit.FjAddress> addresses = FjToolkit.getSlb().getAddresses(ts);
+				List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(ts);
 				boolean isSuccess = false;
-				for (FjToolkit.FjAddress addr : addresses) {
+				for (FjServerToolkit.FjAddress addr : addresses) {
 					if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
 					try {
-						sock = new Socket(addr.host, addr.port);
-						BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
-						writer.write(msg.toString());
-						writer.flush();
+						conn = SocketChannel.open();
+						conn.bind(new InetSocketAddress(addr0.host, addr0.port));
+						ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+						while (buf.hasRemaining()) conn.write(buf);
 						isSuccess = true;
 						break;
 					} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
 				}
 				if(!isSuccess) logger.error("send message failed: " + msg);
 			} finally {
-				try {if (null != sock) sock.close();}
+				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
-		} else if (null != (sock = mq.pollConnection(msg))) {
+		} else if (null != (conn = mq.pollConnection(msg))) {
 			try {
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream(), "UTF-8"));
-				writer.write(msg.toString());
-				writer.flush();
+				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+				while (buf.hasRemaining()) conn.write(buf);
 				logger.debug("send message successfully: " + msg);
 			} catch (IOException e) {logger.error("failed to reply the message: " + msg, e);}
 			finally {
-				try {if (null != sock) sock.close();}
+				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
 		} else {
-			logger.error("can not find a connection to send for message: " + msg);
+			logger.error("can not find a connection to send message: " + msg);
 		}
 	}
 	
@@ -94,11 +96,13 @@ public class FjSender extends FjLoopTask {
 		send(msg, null);
 	}
 	
-	public void send(FjMsg msg, Socket conn) {
+	public void send(FjMsg msg, SocketChannel conn) {
 		mq.offer(msg, conn);
 	}
-
-	public static FjMsg sendHttpRequest(String method, String url, String body) {
+	
+	private byte[] buf;
+	
+	public synchronized FjMsg sendHttpRequest(String method, String url, String body) {
 		HttpURLConnection conn = null;
 		FjMsg rsp = null;
 		try {
@@ -112,7 +116,7 @@ public class FjSender extends FjLoopTask {
 			os.write(req.toString().getBytes());
 			os.flush();
 			InputStream is = conn.getInputStream();
-			byte[] buf = new byte[1024 * 1024];
+			if (null == buf) buf = new byte[1024 * 1024];
 			int n = is.read(buf);
 			rsp = FjMsg.create(new String(buf, 0, n));
 		} catch (IOException e) {logger.error("error occurs when send http request to url: " + url, e);}

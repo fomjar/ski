@@ -1,6 +1,6 @@
 package com.wtcrm.am;
 
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 
 import net.sf.json.JSONObject;
 
@@ -12,14 +12,17 @@ import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 
 public class WeChatTask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WeChatTask.class);
 	
-	public WeChatTask() {
-		AccessTokenGuard.getInstance().start();
+	private AccessTokenGuard guard;
+	
+	public WeChatTask(String name) {
+		guard = new AccessTokenGuard(name);
+		guard.start();
 	}
 	
 	@Override
@@ -98,9 +101,9 @@ public class WeChatTask implements FjServerTask {
 		responseWechatRequest(server, server.mq().pollConnection(msg), "text/xml", createWechatResponseBody(msg, msg.bodyToJson().getString("Content")));
 	}
 	
-	private static void responseWechatRequest(FjServer server, Socket conn, String bodyType, String body) {
+	private static void responseWechatRequest(FjServer server, SocketChannel conn, String bodyType, String body) {
 		FjMsg rsp = new FjHttpResponse(bodyType, body);
-		FjToolkit.getSender(server.name()).send(rsp, conn);
+		FjServerToolkit.getSender(server.name()).send(rsp, conn);
 		logger.info("response wechat message: " + rsp.toString());
 	}
 	

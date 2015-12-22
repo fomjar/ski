@@ -1,6 +1,6 @@
 package com.wtcrm.wa;
 
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 
 public class Main {
 
@@ -9,7 +9,7 @@ public class Main {
 	 * @param args[1] server port
 	 */
 	public static void main(String[] args) {
-		FjToolkit.startConfigGuard();
-		FjToolkit.startServer(args[0]).addServerTask(new WATask());
+		FjServerToolkit.startConfigGuard();
+		FjServerToolkit.startServer(args[0]).addServerTask(new WATask());
 	}
 }

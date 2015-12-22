@@ -1,11 +1,13 @@
 package fomjar.server;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
+import fomjar.util.FjLoopTask;
 
 public class FjServer extends FjLoopTask {
 	
@@ -47,7 +49,7 @@ public class FjServer extends FjLoopTask {
 		}
 		
 		try {
-			Socket conn = mq.pollConnection(msg);
+			SocketChannel conn = mq.pollConnection(msg);
 			if (null != conn) conn.close();
 		} catch (IOException e) {logger.warn("error occurs when close connection for message: " + msg);}
 	}

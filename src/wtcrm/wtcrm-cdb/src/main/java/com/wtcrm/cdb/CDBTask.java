@@ -20,7 +20,7 @@ import fomjar.server.FjJsonMsg;
 import fomjar.server.FjMsg;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
-import fomjar.server.FjToolkit;
+import fomjar.server.FjServerToolkit;
 
 public class CDBTask implements FjServerTask {
 	
@@ -38,7 +38,7 @@ public class CDBTask implements FjServerTask {
 	private static boolean initConn() {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			conn = DriverManager.getConnection(FjToolkit.getServerConfig("db.url"));
+			conn = DriverManager.getConnection(FjServerToolkit.getServerConfig("db.url"));
 			return true;
 		} catch (ClassNotFoundException e) {
 			logger.error("load database driver failed", e);
@@ -59,9 +59,9 @@ public class CDBTask implements FjServerTask {
 	
 	@Override
 	public void onMsg(FjServer server, FjMsg msg) {
-		if (!FjToolkit.isLegalRequest(msg)) {
+		if (!FjServerToolkit.isLegalRequest(msg)) {
 			logger.error("illegal request: " + msg);
-			if (FjToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
+			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
 			return;
 		}
 		FjJsonMsg req = (FjJsonMsg) msg;
@@ -111,7 +111,7 @@ public class CDBTask implements FjServerTask {
 		rsp.json().put("sid", req.json().getString("sid"));
 		rsp.json().put("code", code);
 		rsp.json().put("desc", desc);
-		FjToolkit.getSender(server.name()).send(rsp);
+		FjServerToolkit.getSender(server.name()).send(rsp);
 	}
 	
 	private boolean getCmdInfo(CdbCmdInfo cci) {
