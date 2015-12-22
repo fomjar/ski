@@ -54,7 +54,7 @@ public class FjSender extends FjLoopTask {
 			}
 			try {
 				conn = SocketChannel.open();
-				conn.bind(new InetSocketAddress(addr0.host, addr0.port));
+				conn.connect(new InetSocketAddress(addr0.host, addr0.port));
 				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
 				while (buf.hasRemaining()) conn.write(buf);
 				logger.debug("send message successfully: " + msg);
@@ -65,14 +65,14 @@ public class FjSender extends FjLoopTask {
 					if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
 					try {
 						conn = SocketChannel.open();
-						conn.bind(new InetSocketAddress(addr0.host, addr0.port));
+						conn.connect(new InetSocketAddress(addr0.host, addr0.port));
 						ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
 						while (buf.hasRemaining()) conn.write(buf);
 						isSuccess = true;
 						break;
 					} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
 				}
-				if(!isSuccess) logger.error("send message failed: " + msg);
+				if(!isSuccess) logger.error("can not find an available address to send message: " + msg);
 			} finally {
 				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
@@ -88,7 +88,7 @@ public class FjSender extends FjLoopTask {
 				catch (IOException e) {e.printStackTrace();}
 			}
 		} else {
-			logger.error("can not find a connection to send message: " + msg);
+			logger.error("can not find an available address or connection to send message: " + msg);
 		}
 	}
 	

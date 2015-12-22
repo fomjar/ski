@@ -52,7 +52,13 @@ public abstract class BE {
 	}
 	
 	public SCB closeSession(String sid) {
+		if (!scbs.containsKey(sid)) {
+			logger.error("session not found: " + sid);
+			return null;
+		}
 		logger.debug("close session: " + sid);
+		SCB scb = scbs.get(sid);
+		scb.putData("time.close", String.valueOf(System.currentTimeMillis()));
 		return scbs.remove(sid);
 	}
 	
@@ -60,6 +66,7 @@ public abstract class BE {
 		logger.debug("open session: " + sid);
 		SCB scb = new SCB();
 		scb.sid = sid;
+		scb.putData("time.open", String.valueOf(System.currentTimeMillis()));
 		scbs.put(sid, scb);
 		return scb;
 	}

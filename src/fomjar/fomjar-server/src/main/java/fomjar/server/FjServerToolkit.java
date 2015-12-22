@@ -12,8 +12,8 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
-import fomjar.util.FjLog;
 import fomjar.util.FjLoopTask;
 
 public class FjServerToolkit {
@@ -116,7 +116,7 @@ public class FjServerToolkit {
 	public static class FjConfigGuard extends FjLoopTask {
 		@Override
 		public void perform() {
-			FjLog.loadLog();
+			PropertyConfigurator.configure("conf/log4j.conf");
 			server = loadOneConfig("conf/server.conf");
 			if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
 			else slb.setAddresses(loadOneConfig("conf/address.conf"));

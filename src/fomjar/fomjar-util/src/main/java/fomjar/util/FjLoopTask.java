@@ -1,10 +1,7 @@
 package fomjar.util;
 
-import org.apache.log4j.Logger;
-
 public abstract class FjLoopTask implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(FjLoopTask.class);
 	private long delay;
 	private long interval;
 	private boolean isRun;
@@ -63,17 +60,17 @@ public abstract class FjLoopTask implements Runnable {
 	public void run() {
 		isRun = true;
 		try {Thread.sleep(getDelay());}
-		catch (InterruptedException e) {logger.warn("thread sleep interupted", e);}
+		catch (InterruptedException e) {e.printStackTrace();}
 		while(isRun) {
 			long start = System.currentTimeMillis();
 			try {perform();}
-			catch (Exception e) {logger.error("perform task failed!", e);}
+			catch (Exception e) {e.printStackTrace();}
 			long end = System.currentTimeMillis();
 			long delta = end - start;
 			if (delta >= getInterval()) Thread.yield();
 			else {
 				try {Thread.sleep(getInterval() - delta);}
-				catch (InterruptedException e) {logger.warn("thread sleep interupted", e);}
+				catch (InterruptedException e) {e.printStackTrace();}
 			}
 		}
 	}
