@@ -8,13 +8,13 @@ import java.util.Queue;
 
 import org.apache.log4j.Logger;
 
-public class FjMq {
+public class FjMQ {
 	
-	private static final Logger logger = Logger.getLogger(FjMq.class);
+	private static final Logger logger = Logger.getLogger(FjMQ.class);
 	private Queue<FjMsg> msgs;
 	private Map<FjMsg, SocketChannel> conns;
 	
-	public FjMq() {
+	public FjMQ() {
 		msgs = new LinkedList<FjMsg>();
 		conns = new HashMap<FjMsg, SocketChannel>();
 	}
