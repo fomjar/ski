@@ -34,7 +34,7 @@ public class WATask implements FjServerTask {
 		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
 			logger.error("can not find an automation executor for cmd: " + cmd);
-			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{\"error\":\"can not find any ae for cmd: " + cmd + "\"}"));
+			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
 			return;
 		}
 		WebDriver driver = null;
@@ -43,7 +43,7 @@ public class WATask implements FjServerTask {
 			ae.execute(driver, arg);
 		} catch (Exception e) {
 			logger.error("error occurs when execute cmd: " + cmd, e);
-			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{\"error\":\"unknown error during execute cmd: " + cmd + "\"}"));
+			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{'error':'unknown error during execute cmd: " + cmd + "'}"));
 			return;
 		} finally {
 			if (null != driver) driver.quit();
