@@ -13,10 +13,10 @@ public class FjServer extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjServer.class);
 	private String name;
-	private FjMq mq;
+	private FjMQ mq;
 	private List<FjServerTask> tasks;
 	
-	public FjServer(String name, FjMq mq) {
+	public FjServer(String name, FjMQ mq) {
 		this.name = name;
 		this.mq = mq;
 		tasks = new LinkedList<FjServerTask>();
@@ -26,7 +26,7 @@ public class FjServer extends FjLoopTask {
 		return name;
 	}
 	
-	public FjMq mq() {
+	public FjMQ mq() {
 		return mq;
 	}
 	

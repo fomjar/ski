@@ -1,0 +1,26 @@
+#!/bin/sh
+cd ..
+
+function printUsage()
+{
+	echo "Usage: $0 [mod] [mid]"
+}
+
+mod=$1
+mid=$2
+if [ "$mod" = "" ] || [ "$mid" = "" ]; then
+	printUsage
+	exit 1
+fi
+
+for f in $(find lib -type f -name "*.jar"); do
+	if [ "$cp" = "" ]; then
+		cp="$f"
+	else
+		cp="$cp:$f"
+	fi
+done
+
+#opt="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8844"
+
+java $opt -cp $cp com.ski.$mod.Main $mod-$mid 

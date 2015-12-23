@@ -1,0 +1,22 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ski</groupId>
+  <artifactId>ski</artifactId>
+  <version>0.0.1</version>
+  <packaging>pom</packaging>
+  <modules>
+  	<module>ski-am</module>
+  	<module>ski-cdb</module>
+  	<module>ski-fbbp</module>
+  	<module>ski-stub</module>
+  	<module>ski-wa</module>
+  	<module>ski-wa-ae</module>
+  </modules>
+  <dependencies>
+  	<dependency>
+  		<groupId>fomjar-server</groupId>
+  		<artifactId>fomjar-server</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
+  </dependencies>
+</project>

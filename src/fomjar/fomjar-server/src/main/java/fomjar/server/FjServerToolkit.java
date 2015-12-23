@@ -139,7 +139,7 @@ public class FjServerToolkit {
 			logger.error("there is no address info for server name: " + name);
 			return null;
 		}
-		FjMq mq = new FjMq();
+		FjMQ mq = new FjMQ();
 		FjServer server = new FjServer(name, mq);
 		FjReceiver receiver = new FjReceiver(mq, address.port);
 		FjSender sender = new FjSender();

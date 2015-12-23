@@ -27,13 +27,13 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjSender.class);
-	private FjMq mq;
+	private FjMQ mq;
 	
 	public FjSender() {
-		mq = new FjMq();
+		mq = new FjMQ();
 	}
 
-	public FjMq mq() {
+	public FjMQ mq() {
 		return mq;
 	}
 
@@ -82,7 +82,7 @@ public class FjSender extends FjLoopTask {
 				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
 				while (buf.hasRemaining()) conn.write(buf);
 				logger.debug("send message successfully: " + msg);
-			} catch (IOException e) {logger.error("failed to reply the message: " + msg, e);}
+			} catch (IOException e) {logger.error("failed to reply message: " + msg, e);}
 			finally {
 				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
@@ -113,12 +113,12 @@ public class FjSender extends FjLoopTask {
 			conn.setDoInput(true);
 			conn.setDoOutput(true);
 			OutputStream os = conn.getOutputStream();
-			os.write(req.toString().getBytes());
+			os.write(req.toString().getBytes(Charset.forName("utf-8")));
 			os.flush();
 			InputStream is = conn.getInputStream();
 			if (null == buf) buf = new byte[1024 * 1024];
 			int n = is.read(buf);
-			rsp = FjMsg.create(new String(buf, 0, n));
+			rsp = FjMsg.create(new String(buf, 0, n, Charset.forName("utf-8")));
 		} catch (IOException e) {logger.error("error occurs when send http request to url: " + url, e);}
 		finally {if (null != conn) conn.disconnect();}
 		return rsp;
