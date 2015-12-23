@@ -43,7 +43,7 @@ public class WATask implements FjServerTask {
 			ae.execute(driver, arg);
 		} catch (Exception e) {
 			logger.error("error occurs when execute cmd: " + cmd, e);
-			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject("{'error':'unknown error during execute cmd: " + cmd + "'}"));
+			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject(String.format("{'error':'failed to execute cmd(%s): %s'}", cmd, e.getMessage())));
 			return;
 		} finally {
 			if (null != driver) driver.quit();

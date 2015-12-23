@@ -24,13 +24,13 @@ import fomjar.server.FjServerToolkit;
 
 public class CDBTask implements FjServerTask {
 	
-	private static final int CODE_SUCCESS                = 0x00000000;
-	private static final int CODE_DB_ABNORMAL            = 0x00001002;
-	private static final int CODE_CMD_NOT_REGISTERED     = 0x00001003;
-	private static final int CODE_CMD_MOD_INVALID        = 0x00001004;
-	private static final int CODE_EXEC_CMD_FAILED        = 0x00001005;
-	private static final int CODE_EXEC_CMD_PARTLY_FAILED = 0x00001006;
-	private static final int CODE_ILLEGAL_MESSAGE        = 0xfffffffe;
+	private static final int CODE_SUCCESS                   = 0x00000000;
+	private static final int CODE_DB_ABNORMAL               = 0x00001002;
+	private static final int CODE_CMD_NOT_REGISTERED        = 0x00001003;
+	private static final int CODE_CMD_MOD_INVALID           = 0x00001004;
+	private static final int CODE_EXEC_CMD_FAILED        	= 0x00001005;
+	private static final int CODE_EXEC_CMD_PARTLY_SUCCESS   = 0x00001006;
+	private static final int CODE_ILLEGAL_MESSAGE           = 0xfffffffe;
 	
 	private static final Logger logger = Logger.getLogger(CDBTask.class);
 	private static Connection conn = null;
@@ -55,6 +55,7 @@ public class CDBTask implements FjServerTask {
 		public String       sql_ori = null;
 		public String       sql_use = null;
 		public List<String> result  = null;
+		public String       err     = null;
 	}
 	
 	@Override
@@ -75,7 +76,7 @@ public class CDBTask implements FjServerTask {
 		CdbCmdInfo cci = new CdbCmdInfo();
 		cci.cmd = req.json().getString("cmd");
 		if (!getCmdInfo(cci)) {
-			response(server, req, CODE_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':'cmd is not registered'}"));
+			response(server, req, CODE_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':'cmd is not registered: " + cci.err + "'}"));
 			return;
 		}
 		Object arg_obj = req.json().get("arg");
@@ -83,7 +84,7 @@ public class CDBTask implements FjServerTask {
 			JSONObject arg = (JSONObject) arg_obj;
 			generateSql(cci, arg);
 			if (executeSql(cci)) response(server, req, CODE_SUCCESS, JSONObject.fromObject(String.format("{'array':%s}", JSONArray.fromObject(cci.result))));
-			else response(server, req, CODE_EXEC_CMD_FAILED, JSONObject.fromObject(String.format("{'error':'cmd(%s) execute sql failed: %s'}", cci.cmd, cci.sql_use)));
+			else response(server, req, CODE_EXEC_CMD_FAILED, JSONObject.fromObject(String.format("{'error':'cmd(%s) execute sql(%s) failed: %s'}", cci.cmd, cci.sql_use, cci.err)));
 		} else if (arg_obj instanceof JSONArray) {
 			boolean isSuccess = true;
 			JSONArray args = (JSONArray) arg_obj;
@@ -92,12 +93,12 @@ public class CDBTask implements FjServerTask {
 				JSONObject arg = (JSONObject) each_arg;
 				generateSql(cci, arg);
 				if (!executeSql(cci)) {
-					logger.error(String.format("cmd(%s) execute sql failed: %s", cci.cmd, cci.sql_use));
+					logger.error(String.format("cmd(%s) execute sql(%s) failed: %s", cci.cmd, cci.sql_use, cci.err));
 					isSuccess = false;
 				}
 				result.add(cci.result);
 			}
-			response(server, req, isSuccess ? CODE_SUCCESS : CODE_EXEC_CMD_PARTLY_FAILED, JSONObject.fromObject(String.format("{'array':%s}", JSONArray.fromObject(result))));
+			response(server, req, isSuccess ? CODE_SUCCESS : CODE_EXEC_CMD_PARTLY_SUCCESS, JSONObject.fromObject(String.format("{'array':%s}", JSONArray.fromObject(result))));
 		} else {
 			logger.error("invalid arg object: " + arg_obj);
 			response(server, req, CODE_CMD_MOD_INVALID, JSONObject.fromObject("{'error':'invalid arg object'}"));
@@ -128,6 +129,7 @@ public class CDBTask implements FjServerTask {
 			cci.sql_ori = rs.getString(3);
 		} catch (SQLException e) {
 			logger.error("failed to get cmd info: " + cci.cmd, e);
+			cci.err = e.getMessage();
 			return false;
 		} finally {
 			try {if (null != st) st.close();}
@@ -174,14 +176,15 @@ public class CDBTask implements FjServerTask {
 			} else {
 				st.execute(cci.sql_use);
 			}
-			return true;
 		} catch (SQLException e) {
 			logger.error(String.format("failed to process statement, cmd: %s, mode: %s, sql: %s, out: %s", cci.cmd, cci.mod, cci.sql_use, cci.out), e);
+			cci.err = e.getMessage();
+			return false;
 		} finally {
 			try {if (null != st) st.close();}
 			catch (SQLException e) {e.printStackTrace();}
 		}
-		return false;
+		return true;
 	}
 	
 	private boolean executeSp(CdbCmdInfo cci) {
@@ -196,13 +199,14 @@ public class CDBTask implements FjServerTask {
 			}
 			st.execute();
 			for (int i = 1; i <= cci.out; i++) cci.result.add(st.getString(i));
-			return true;
 		} catch (SQLException e) {
 			logger.error(String.format("failed to process store procedure, cmd: %s, mode: %s, sql: %s, out: %s", cci.cmd, cci.mod, cci.sql_use, cci.out), e);
+			cci.err = e.getMessage();
+			return false;
 		} finally {
 			try {if (null != st) st.close();}
 			catch (SQLException e) {e.printStackTrace();}
 		}
-		return false;
+		return true;
 	}
 }
