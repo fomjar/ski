@@ -3,17 +3,17 @@ package com.ski.fbbp.guard;
 import org.apache.log4j.Logger;
 
 import net.sf.json.JSONObject;
-import fomjar.server.FjBE;
-import fomjar.server.FjJsonMsg;
+import fomjar.server.FjJsonMessage;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.be.FjBusinessExecutor;
 import fomjar.util.FjLoopTask;
 
 public class TaobaoOrderProcNewGuard extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(TaobaoOrderProcNewGuard.class);
-	private FjBE be;
+	private FjBusinessExecutor be;
 	
-	public TaobaoOrderProcNewGuard(FjBE be) {
+	public TaobaoOrderProcNewGuard(FjBusinessExecutor be) {
 		long time = Long.parseLong(FjServerToolkit.getServerConfig("reproc-order-interval"));
 		time *= 1000L;
 		setDelay(time);
@@ -23,8 +23,8 @@ public class TaobaoOrderProcNewGuard extends FjLoopTask {
 
 	@Override
 	public void perform() {
-		String serverName = be.getServerName();
-		FjJsonMsg msg = new FjJsonMsg();
+		String serverName = be.getServer().name();
+		FjJsonMessage msg = new FjJsonMessage();
 		msg.json().put("fs", serverName);
 		msg.json().put("ts", "cdb");
 		msg.json().put("sid", FjServerToolkit.newSid(serverName));

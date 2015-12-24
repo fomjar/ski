@@ -20,25 +20,25 @@ public class FjReceiver extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjReceiver.class);
 	private static final int BUF_LEN = 1024 * 1024;
-	private FjMQ mq;
+	private FjMessageQueue mq;
 	private int port;
 	private ServerSocketChannel sock;
 	private ByteBuffer buf;
 	
-	public FjReceiver(FjMQ mq) {
+	public FjReceiver(FjMessageQueue mq) {
 		if (null == mq) throw new NullPointerException();
 		this.mq = mq;
 		buf = ByteBuffer.allocate(BUF_LEN);
 	}
 	
-	public FjReceiver(FjMQ mq, int port) {
+	public FjReceiver(FjMessageQueue mq, int port) {
 		if (null == mq) throw new NullPointerException();
 		this.mq = mq;
 		buf = ByteBuffer.allocate(BUF_LEN);
 		reset(port);
 	}
 	
-	public FjMQ mq() {
+	public FjMessageQueue mq() {
 		return mq;
 	}
 
@@ -80,7 +80,7 @@ public class FjReceiver extends FjLoopTask {
 					buf.clear();
 					int n = conn.read(buf);
 					buf.flip();
-					if (0 < n) mq.offer(FjMsg.create(Charset.forName("utf-8").decode(buf).toString()), conn);
+					if (0 < n) mq.offer(FjMessage.create(Charset.forName("utf-8").decode(buf).toString()), conn);
 				}
 			}
 			keys.clear();

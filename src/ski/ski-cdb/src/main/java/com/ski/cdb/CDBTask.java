@@ -16,8 +16,8 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMsg;
-import fomjar.server.FjMsg;
+import fomjar.server.FjJsonMessage;
+import fomjar.server.FjMessage;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
@@ -59,13 +59,13 @@ public class CDBTask implements FjServerTask {
 	}
 	
 	@Override
-	public void onMsg(FjServer server, FjMsg msg) {
+	public void onMsg(FjServer server, FjMessage msg) {
 		if (!FjServerToolkit.isLegalRequest(msg)) {
 			logger.error("illegal request: " + msg);
-			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{'error':'illegal request'}"));
+			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMessage) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{'error':'illegal request'}"));
 			return;
 		}
-		FjJsonMsg req = (FjJsonMsg) msg;
+		FjJsonMessage req = (FjJsonMessage) msg;
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
@@ -105,8 +105,8 @@ public class CDBTask implements FjServerTask {
 		}
 	}
 	
-	private static void response(FjServer server, FjJsonMsg req, int code, JSONObject desc) {
-		FjJsonMsg rsp = new FjJsonMsg();
+	private static void response(FjServer server, FjJsonMessage req, int code, JSONObject desc) {
+		FjJsonMessage rsp = new FjJsonMessage();
 		rsp.json().put("fs", server.name());
 		rsp.json().put("ts", req.json().getString("fs"));
 		rsp.json().put("sid", req.json().getString("sid"));

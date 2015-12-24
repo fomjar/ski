@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 
 import fomjar.server.FjHttpRequest;
 import fomjar.server.FjHttpResponse;
-import fomjar.server.FjJsonMsg;
-import fomjar.server.FjMsg;
+import fomjar.server.FjJsonMessage;
+import fomjar.server.FjMessage;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
@@ -26,13 +26,13 @@ public class WeChatTask implements FjServerTask {
 	}
 	
 	@Override
-	public void onMsg(FjServer server, FjMsg msg) {
-		if (msg instanceof FjJsonMsg
-				&& ((FjJsonMsg) msg).json().containsKey("fs")
-				&& ((FjJsonMsg) msg).json().containsKey("ts")
-				&& ((FjJsonMsg) msg).json().containsKey("sid")) {
+	public void onMsg(FjServer server, FjMessage msg) {
+		if (msg instanceof FjJsonMessage
+				&& ((FjJsonMessage) msg).json().containsKey("fs")
+				&& ((FjJsonMessage) msg).json().containsKey("ts")
+				&& ((FjJsonMessage) msg).json().containsKey("sid")) {
 			logger.info("message comes from wtcrm server");
-			processWtcrm(server, (FjJsonMsg) msg);
+			processWtcrm(server, (FjJsonMessage) msg);
 		} else if (msg instanceof FjHttpRequest) {
 			logger.info("message comes from wechat server");
 			processWechat(server, (FjHttpRequest) msg);
@@ -41,7 +41,7 @@ public class WeChatTask implements FjServerTask {
 		}
 	}
 	
-	private void processWtcrm(FjServer server, FjJsonMsg rsp) {
+	private void processWtcrm(FjServer server, FjJsonMessage rsp) {
 		
 	}
 	
@@ -102,7 +102,7 @@ public class WeChatTask implements FjServerTask {
 	}
 	
 	private static void responseWechatRequest(FjServer server, SocketChannel conn, String bodyType, String body) {
-		FjMsg rsp = new FjHttpResponse(bodyType, body);
+		FjMessage rsp = new FjHttpResponse(bodyType, body);
 		FjServerToolkit.getSender(server.name()).send(rsp, conn);
 		logger.info("response wechat message: " + rsp.toString());
 	}

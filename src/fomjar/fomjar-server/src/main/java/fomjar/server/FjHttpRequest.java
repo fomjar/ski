@@ -3,7 +3,7 @@ package fomjar.server;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FjHttpRequest extends FjHttpMsg {
+public class FjHttpRequest extends FjHttpMessage {
 	
 	private static final String TEMPLATE = "%s %s HTTP/1.1\r\n"
 			+ "Host: %s\r\n"

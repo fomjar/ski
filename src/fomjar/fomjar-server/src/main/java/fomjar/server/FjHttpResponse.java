@@ -2,7 +2,7 @@ package fomjar.server;
 
 import java.util.Date;
 
-public class FjHttpResponse extends FjHttpMsg {
+public class FjHttpResponse extends FjHttpMessage {
 	
 	private static final String TEMPLATE = "HTTP/1.1 200 OK\r\n"
 			+ "Connection: keep-alive\r\n"

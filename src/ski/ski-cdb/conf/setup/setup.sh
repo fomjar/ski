@@ -13,6 +13,6 @@ function check() {
 [ "sp" = "$1" ] && sqls=$(find sp -type f -name '*.sql'|sort)
 
 for sql in $sqls; do
-    mysql -uroot -ppanopasswd@520 -D wtcrm<$sql 1>/dev/null 2>&1
+    mysql -uroot -pski123 -D ski<$sql 1>/dev/null 2>&1
     check "setup $sql"
 done

@@ -139,7 +139,7 @@ public class FjServerToolkit {
 			logger.error("there is no address info for server name: " + name);
 			return null;
 		}
-		FjMQ mq = new FjMQ();
+		FjMessageQueue mq = new FjMessageQueue();
 		FjServer server = new FjServer(name, mq);
 		FjReceiver receiver = new FjReceiver(mq, address.port);
 		FjSender sender = new FjSender();
@@ -189,26 +189,26 @@ public class FjServerToolkit {
 				+ Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
 	}
 	
-	public static boolean isLegalMsg(FjMsg msg) {
+	public static boolean isLegalMsg(FjMessage msg) {
 		if (null == msg)                                  return false;
-		if (!(msg instanceof FjJsonMsg))                  return false;
-		if (!((FjJsonMsg) msg).json().containsKey("fs"))  return false;
-		if (!((FjJsonMsg) msg).json().containsKey("ts"))  return false;
-		if (!((FjJsonMsg) msg).json().containsKey("sid")) return false;
+		if (!(msg instanceof FjJsonMessage))                  return false;
+		if (!((FjJsonMessage) msg).json().containsKey("fs"))  return false;
+		if (!((FjJsonMessage) msg).json().containsKey("ts"))  return false;
+		if (!((FjJsonMessage) msg).json().containsKey("sid")) return false;
 		return true;
 	}
 	
-	public static boolean isLegalRequest(FjMsg msg) {
+	public static boolean isLegalRequest(FjMessage msg) {
 		if (!isLegalMsg(msg)) return false;
-		if (!((FjJsonMsg) msg).json().containsKey("cmd")) return false;
-		if (!((FjJsonMsg) msg).json().containsKey("arg")) return false;
+		if (!((FjJsonMessage) msg).json().containsKey("cmd")) return false;
+		if (!((FjJsonMessage) msg).json().containsKey("arg")) return false;
 		return true;
 	}
 
-	public static boolean isLegalResponse(FjMsg msg) {
+	public static boolean isLegalResponse(FjMessage msg) {
 		if (!isLegalMsg(msg)) return false;
-		if (!((FjJsonMsg) msg).json().containsKey("code")) return false;
-		if (!((FjJsonMsg) msg).json().containsKey("desc")) return false;
+		if (!((FjJsonMessage) msg).json().containsKey("code")) return false;
+		if (!((FjJsonMessage) msg).json().containsKey("desc")) return false;
 		return true;
 	}
 }

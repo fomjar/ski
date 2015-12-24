@@ -6,8 +6,8 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
-import fomjar.server.FjJsonMsg;
-import fomjar.server.FjMsg;
+import fomjar.server.FjJsonMessage;
+import fomjar.server.FjMessage;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
@@ -22,13 +22,13 @@ public class WATask implements FjServerTask {
 	}
 
 	@Override
-	public void onMsg(FjServer server, FjMsg msg) {
+	public void onMsg(FjServer server, FjMessage msg) {
 		if (!FjServerToolkit.isLegalRequest(msg)) {
 			logger.error("illegal request: " + msg);
-			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMsg) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
+			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMessage) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
 			return;
 		}
-		FjJsonMsg req = (FjJsonMsg) msg;
+		FjJsonMessage req = (FjJsonMessage) msg;
 		String cmd = req.json().getString("cmd");
 		JSONObject arg = req.json().getJSONObject("arg");
 		AE ae = AEGuard.getInstance().getAe(cmd);
@@ -51,8 +51,8 @@ public class WATask implements FjServerTask {
 		response(server, req, ae.code(), ae.desc());
 	}
 	
-	private static void response(FjServer server, FjJsonMsg req, int code, JSONObject desc) {
-		FjJsonMsg rsp = new FjJsonMsg();
+	private static void response(FjServer server, FjJsonMessage req, int code, JSONObject desc) {
+		FjJsonMessage rsp = new FjJsonMessage();
 		rsp.json().put("fs", server.name());
 		rsp.json().put("ts", req.json().getString("fs"));
 		rsp.json().put("sid", req.json().getString("sid"));

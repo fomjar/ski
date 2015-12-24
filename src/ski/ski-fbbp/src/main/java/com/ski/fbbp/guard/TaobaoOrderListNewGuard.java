@@ -4,18 +4,18 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjBE;
-import fomjar.server.FjJsonMsg;
+import fomjar.server.FjJsonMessage;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.be.FjBusinessExecutor;
 import fomjar.util.FjLoopTask;
 
 public class TaobaoOrderListNewGuard extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(TaobaoOrderListNewGuard.class);
 	
-	private FjBE be;
+	private FjBusinessExecutor be;
 	
-	public TaobaoOrderListNewGuard(FjBE be) {
+	public TaobaoOrderListNewGuard(FjBusinessExecutor be) {
 		long time = Long.parseLong(FjServerToolkit.getServerConfig("reload-order-interval"));
 		time *= 1000L;
 		setDelay(time);
@@ -25,8 +25,8 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 
 	@Override
 	public void perform() {
-		String serverName = be.getServerName();
-		FjJsonMsg msg = new FjJsonMsg();
+		String serverName = be.getServer().name();
+		FjJsonMessage msg = new FjJsonMessage();
 		msg.json().put("fs", serverName);
 		msg.json().put("ts", "wa");
 		msg.json().put("sid", FjServerToolkit.newSid(serverName));

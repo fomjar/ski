@@ -2,8 +2,8 @@ package com.ski.am;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMsg;
-import fomjar.server.FjMsg;
+import fomjar.server.FjJsonMessage;
+import fomjar.server.FjMessage;
 import fomjar.server.FjServerToolkit;
 import fomjar.util.FjLoopTask;
 
@@ -42,13 +42,13 @@ public class AccessTokenGuard extends FjLoopTask {
 		long defaultInterval = Long.parseLong(FjServerToolkit.getServerConfig("wcam.reload-token-interval"));
 		String url = String.format(TEMPLATE, FjServerToolkit.getServerConfig("wcam.grant"), FjServerToolkit.getServerConfig("wcam.appid"), FjServerToolkit.getServerConfig("wcam.secret"));
 		logger.debug("try to get wechat access token");
-		FjMsg msg = FjServerToolkit.getSender(getServerName()).sendHttpRequest("GET", url, null);
-		if (!(msg instanceof FjJsonMsg)) {
+		FjMessage msg = FjServerToolkit.getSender(getServerName()).sendHttpRequest("GET", url, null);
+		if (!(msg instanceof FjJsonMessage)) {
 			logger.error("invalid reponse message when get wechat access token: " + msg);
 			setNextRetryInterval(defaultInterval);
 			return;
 		}
-		FjJsonMsg rsp = (FjJsonMsg) msg;
+		FjJsonMessage rsp = (FjJsonMessage) msg;
 		if (!rsp.json().containsKey("access_token") || !rsp.json().containsKey("expires_in")) {
 			logger.error("failed to get wechat access token, error response: " + msg);
 			setNextRetryInterval(defaultInterval);

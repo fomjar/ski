@@ -13,10 +13,10 @@ public class FjServer extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjServer.class);
 	private String name;
-	private FjMQ mq;
+	private FjMessageQueue mq;
 	private List<FjServerTask> tasks;
 	
-	public FjServer(String name, FjMQ mq) {
+	public FjServer(String name, FjMessageQueue mq) {
 		this.name = name;
 		this.mq = mq;
 		tasks = new LinkedList<FjServerTask>();
@@ -26,7 +26,7 @@ public class FjServer extends FjLoopTask {
 		return name;
 	}
 	
-	public FjMQ mq() {
+	public FjMessageQueue mq() {
 		return mq;
 	}
 	
@@ -37,7 +37,7 @@ public class FjServer extends FjLoopTask {
 
 	@Override
 	public void perform() {
-		FjMsg msg = null;
+		FjMessage msg = null;
 		
 		while (null == (msg = mq.poll()));
 		
@@ -55,7 +55,7 @@ public class FjServer extends FjLoopTask {
 	}
 	
 	public static interface FjServerTask {
-		void onMsg(FjServer server, FjMsg msg);
+		void onMsg(FjServer server, FjMessage msg);
 	}
 
 }

@@ -27,26 +27,26 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(FjSender.class);
-	private FjMQ mq;
+	private FjMessageQueue mq;
 	
 	public FjSender() {
-		mq = new FjMQ();
+		mq = new FjMessageQueue();
 	}
 
-	public FjMQ mq() {
+	public FjMessageQueue mq() {
 		return mq;
 	}
 
 	@Override
 	public void perform() {
-		FjMsg msg = mq.poll();
+		FjMessage msg = mq.poll();
 		if (null == msg) {
 			logger.error("failed to poll message from queue");
 			return;
 		}
 		SocketChannel conn = null;
 		if (FjServerToolkit.isLegalMsg(msg)) {
-			String ts = ((FjJsonMsg) msg).json().getString("ts");
+			String ts = ((FjJsonMessage) msg).json().getString("ts");
 			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(ts);
 			if (null == addr0) {
 				logger.error("can not find an address with server name: " + ts);
@@ -92,19 +92,19 @@ public class FjSender extends FjLoopTask {
 		}
 	}
 	
-	public void send(FjMsg msg) {
+	public void send(FjMessage msg) {
 		send(msg, null);
 	}
 	
-	public void send(FjMsg msg, SocketChannel conn) {
+	public void send(FjMessage msg, SocketChannel conn) {
 		mq.offer(msg, conn);
 	}
 	
 	private byte[] buf;
 	
-	public synchronized FjMsg sendHttpRequest(String method, String url, String body) {
+	public synchronized FjMessage sendHttpRequest(String method, String url, String body) {
 		HttpURLConnection conn = null;
-		FjMsg rsp = null;
+		FjMessage rsp = null;
 		try {
 			FjHttpRequest req = new FjHttpRequest(method, url, body);
 			URL httpurl = new URL(url);
@@ -118,7 +118,7 @@ public class FjSender extends FjLoopTask {
 			InputStream is = conn.getInputStream();
 			if (null == buf) buf = new byte[1024 * 1024];
 			int n = is.read(buf);
-			rsp = FjMsg.create(new String(buf, 0, n, Charset.forName("utf-8")));
+			rsp = FjMessage.create(new String(buf, 0, n, Charset.forName("utf-8")));
 		} catch (IOException e) {logger.error("error occurs when send http request to url: " + url, e);}
 		finally {if (null != conn) conn.disconnect();}
 		return rsp;
