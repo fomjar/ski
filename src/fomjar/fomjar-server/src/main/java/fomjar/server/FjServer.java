@@ -37,25 +37,24 @@ public class FjServer extends FjLoopTask {
 
 	@Override
 	public void perform() {
-		FjMessage msg = null;
-		
-		while (null == (msg = mq.poll()));
+		FjMessageWrapper wrapper = null;
+		while (null == (wrapper = mq.poll()));
 		
 		synchronized (tasks) {
 			for (FjServerTask task : tasks) {
-				try {task.onMsg(this, msg);}
-				catch (Exception e) {logger.error("error occurs on message: " + msg, e);}
+				try {task.onMessage(this, wrapper);}
+				catch (Exception e) {logger.error("error occurs on message: " + wrapper.message(), e);}
 			}
 		}
 		
 		try {
-			SocketChannel conn = mq.pollConnection(msg);
+			SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
 			if (null != conn) conn.close();
-		} catch (IOException e) {logger.warn("error occurs when close connection for message: " + msg);}
+		} catch (IOException e) {logger.warn("error occurs when close connection for message: " + wrapper.message());}
 	}
 	
 	public static interface FjServerTask {
-		void onMsg(FjServer server, FjMessage msg);
+		void onMessage(FjServer server, FjMessageWrapper wrapper);
 	}
 
 }

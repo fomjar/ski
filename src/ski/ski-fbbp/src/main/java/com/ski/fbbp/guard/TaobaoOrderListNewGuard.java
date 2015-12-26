@@ -4,9 +4,13 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMessage;
+import com.ski.common.DSCP;
+
+import fomjar.server.FjMessageWrapper;
+import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.be.FjBusinessExecutor;
+import fomjar.server.msg.FjDSCPRequest;
 import fomjar.util.FjLoopTask;
 
 public class TaobaoOrderListNewGuard extends FjLoopTask {
@@ -16,7 +20,7 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 	private FjBusinessExecutor be;
 	
 	public TaobaoOrderListNewGuard(FjBusinessExecutor be) {
-		long time = Long.parseLong(FjServerToolkit.getServerConfig("reload-order-interval"));
+		long time = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
 		time *= 1000L;
 		setDelay(time);
 		setInterval(time);
@@ -26,22 +30,23 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 	@Override
 	public void perform() {
 		String serverName = be.getServer().name();
-		FjJsonMessage msg = new FjJsonMessage();
-		msg.json().put("fs", serverName);
-		msg.json().put("ts", "wa");
-		msg.json().put("sid", FjServerToolkit.newSid(serverName));
-		msg.json().put("cmd", "ae.taobao.order-list-new");
-		msg.json().put("arg", JSONObject.fromObject(String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.user"), FjServerToolkit.getServerConfig("taobao.pass"))));
-		FjServerToolkit.getSender(serverName).send(msg);
-		be.openSession(msg.json().getString("sid"));
-		logger.debug("send request to get taobao new order list: " + msg);
+		FjDSCPRequest req = new FjDSCPRequest();
+		req.json().put("fs",  serverName);
+		req.json().put("ts",  "wa");
+		req.json().put("sid", FjServerToolkit.newSid(serverName));
+		req.json().put("ssn", 0);
+		req.json().put("cmd", DSCP.CMD.TAOBAO_ORDER_LIST_NEW);
+		req.json().put("arg", JSONObject.fromObject(String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass"))));
+		FjMessageWrapper wrapper = FjServerToolkit.getSender(serverName).wrap(req).attach("observer", new FjSender.FjSenderObserver() {@Override public void onSuccess() {be.openSession(req.sid());}});
+		FjServerToolkit.getSender(serverName).send(wrapper);
+		logger.debug("send request to get taobao new order list: " + req);
 	}
 	
 	public void start() {
 		if (isRun()) {
-			logger.warn("order-guard has already started");
+			logger.warn("taobao-order-list-guard has already started");
 			return;
 		}
-		new Thread(this, "order-list-guard").start();
+		new Thread(this, "taobao-order-list-guard").start();
 	}
 }

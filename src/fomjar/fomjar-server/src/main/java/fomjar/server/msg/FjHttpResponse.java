@@ -1,4 +1,4 @@
-package fomjar.server;
+package fomjar.server.msg;
 
 import java.util.Date;
 

@@ -6,17 +6,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
+import com.ski.common.DSCP;
 import com.ski.wa.AE;
 
 public class Login implements AE {
 	
-	private int        code = CODE_UNKNOWN_ERROR;
+	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
 	private JSONObject desc = null;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
 		if (!arg.containsKey("user") || !arg.containsKey("pass")) { // 没有账号或密码
-			code = CODE_ILLEGAL_MESSAGE;
+			code = DSCP.CODE.SYSTEM_ILLEGAL_ARGUMENT;
 			desc = JSONObject.fromObject("{'error':'no parameter: user or pass'}");
 			return;
 		}
@@ -32,11 +33,11 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("signInInput_SignInID"));	// 账号输入框存在即说明用户名密码错误
-			code = CODE_PSN_LOGIN_ACCOUNT_INCORRECT;
+			code = DSCP.CODE.WA_AE_PSN_ACCOUNT_INCORRECT;
 			desc = JSONObject.fromObject("{'error':'user or pass is incorrect'}");
 			return;
 		} catch (NoSuchElementException e) {}
-		code = CODE_SUCCESS;
+		code = DSCP.CODE.SYSTEM_SUCCESS;
 		desc = JSONObject.fromObject(null);
 	}
 

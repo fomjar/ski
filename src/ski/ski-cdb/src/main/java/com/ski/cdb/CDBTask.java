@@ -16,21 +16,17 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMessage;
-import fomjar.server.FjMessage;
+import com.ski.common.DSCP;
+
+import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjDSCPRequest;
+import fomjar.server.msg.FjDSCPResponse;
+import fomjar.server.msg.FjMessage;
 
 public class CDBTask implements FjServerTask {
-	
-	private static final int CODE_SUCCESS                   = 0x00000000;
-	private static final int CODE_DB_ABNORMAL               = 0x00001002;
-	private static final int CODE_CMD_NOT_REGISTERED        = 0x00001003;
-	private static final int CODE_CMD_MOD_INVALID           = 0x00001004;
-	private static final int CODE_EXEC_CMD_FAILED        	= 0x00001005;
-	private static final int CODE_EXEC_CMD_PARTLY_SUCCESS   = 0x00001006;
-	private static final int CODE_ILLEGAL_MESSAGE           = 0xfffffffe;
 	
 	private static final Logger logger = Logger.getLogger(CDBTask.class);
 	private static Connection conn = null;
@@ -49,7 +45,8 @@ public class CDBTask implements FjServerTask {
 	}
 	
 	private static final class CdbCmdInfo {
-		public String       cmd     = null;
+		public int          cmd     = DSCP.CMD.SYSTEM_UNKNOWN_COMMAND;
+		public JSONObject   arg     = null;
 		public String       mod     = null;
 		public int          out     = 0;
 		public String       sql_ori = null;
@@ -59,67 +56,52 @@ public class CDBTask implements FjServerTask {
 	}
 	
 	@Override
-	public void onMsg(FjServer server, FjMessage msg) {
-		if (!FjServerToolkit.isLegalRequest(msg)) {
-			logger.error("illegal request: " + msg);
-			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMessage) msg, CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{'error':'illegal request'}"));
+	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+		FjMessage msg = wrapper.message();
+		if (!(msg instanceof FjDSCPRequest)) {
+			logger.error("illegal request, discard: " + msg);
 			return;
 		}
-		FjJsonMessage req = (FjJsonMessage) msg;
+		FjDSCPRequest req = (FjDSCPRequest) msg;
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
-				response(server, req, CODE_DB_ABNORMAL, JSONObject.fromObject("{'error':'db state abnormal'}"));
+				response(server.name(), req, DSCP.CODE.CDB_DB_STATE_ABNORMAL, JSONObject.fromObject("{'error':'db state abnormal'}"));
 				return;
 			}
 		}
 		CdbCmdInfo cci = new CdbCmdInfo();
-		cci.cmd = req.json().getString("cmd");
+		cci.cmd = req.cmd();
+		cci.arg = req.arg();
 		if (!getCmdInfo(cci)) {
-			response(server, req, CODE_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':'cmd is not registered: " + cci.err + "'}"));
+			logger.error("command is not registered: " + cci.cmd);
+			response(server.name(), req, DSCP.CODE.CDB_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':\"" + cci.err + "\"}"));
 			return;
 		}
-		Object arg_obj = req.json().get("arg");
-		if (arg_obj instanceof JSONObject) {
-			JSONObject arg = (JSONObject) arg_obj;
-			generateSql(cci, arg);
-			if (executeSql(cci)) response(server, req, CODE_SUCCESS, JSONObject.fromObject(String.format("{'array':%s}", JSONArray.fromObject(cci.result))));
-			else response(server, req, CODE_EXEC_CMD_FAILED, JSONObject.fromObject(String.format("{'error':'cmd(%s) execute sql(%s) failed: %s'}", cci.cmd, cci.sql_use, cci.err)));
-		} else if (arg_obj instanceof JSONArray) {
-			boolean isSuccess = true;
-			JSONArray args = (JSONArray) arg_obj;
-			JSONArray result = new JSONArray();
-			for (Object each_arg : args) {
-				JSONObject arg = (JSONObject) each_arg;
-				generateSql(cci, arg);
-				if (!executeSql(cci)) {
-					logger.error(String.format("cmd(%s) execute sql(%s) failed: %s", cci.cmd, cci.sql_use, cci.err));
-					isSuccess = false;
-				}
-				result.add(cci.result);
-			}
-			response(server, req, isSuccess ? CODE_SUCCESS : CODE_EXEC_CMD_PARTLY_SUCCESS, JSONObject.fromObject(String.format("{'array':%s}", JSONArray.fromObject(result))));
-		} else {
-			logger.error("invalid arg object: " + arg_obj);
-			response(server, req, CODE_CMD_MOD_INVALID, JSONObject.fromObject("{'error':'invalid arg object'}"));
+		generateSql(cci);
+		if (executeSql(cci)) response(server.name(), req, DSCP.CODE.SYSTEM_SUCCESS, JSONObject.fromObject(String.format("{'result':%s}", JSONArray.fromObject(cci.result))));
+		else {
+			logger.error(String.format("execute command(%d) failed for sql: %s", cci.cmd, cci.sql_use));
+			response(server.name(), req, DSCP.CODE.CDB_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"" + cci.err + "\"}")));
 		}
 	}
 	
-	private static void response(FjServer server, FjJsonMessage req, int code, JSONObject desc) {
-		FjJsonMessage rsp = new FjJsonMessage();
-		rsp.json().put("fs", server.name());
-		rsp.json().put("ts", req.json().getString("fs"));
-		rsp.json().put("sid", req.json().getString("sid"));
+	private static void response(String serverName, FjDSCPRequest req, int code, JSONObject desc) {
+		FjDSCPResponse rsp = new FjDSCPResponse();
+		rsp.json().put("fs",   serverName);
+		rsp.json().put("ts",   req.fs());
+		rsp.json().put("sid",  req.sid());
+		rsp.json().put("ssn",  req.ssn() + 1);
 		rsp.json().put("code", code);
 		rsp.json().put("desc", desc);
-		FjServerToolkit.getSender(server.name()).send(rsp);
+		FjServerToolkit.getSender(serverName).send(rsp);
 	}
 	
 	private boolean getCmdInfo(CdbCmdInfo cci) {
 		Statement st = null;
 		try {
 			st = conn.createStatement();
-			ResultSet rs = st.executeQuery("select c_mod, i_out, c_sql from tbl_cmd_map where c_cmd = '" + cci.cmd + "'");
+			ResultSet rs = st.executeQuery("select c_mod, i_out, c_sql from tbl_cmd_map where i_cmd = " + cci.cmd + "");
 			if (!rs.next()) {
 				logger.error("cmd is not registered: " + cci.cmd);
 				return false;
@@ -138,19 +120,17 @@ public class CDBTask implements FjServerTask {
 		return true;
 	}
 	
-	private static void generateSql(CdbCmdInfo cci, JSONObject arg) {
-		logger.info(String.format("cmd(%s) sql-ori: %s", cci.cmd, cci.sql_ori));
-		if (null == arg) return;
-		
+	private static void generateSql(CdbCmdInfo cci) {
+		logger.info(String.format("cmd(%d) sql-ori: %s", cci.cmd, cci.sql_ori));
 		cci.sql_use = cci.sql_ori;
 		@SuppressWarnings("unchecked")
-		Iterator<String> i = arg.keys();
+		Iterator<String> i = cci.arg.keys();
 		while (i.hasNext()) {
 			String k = i.next();
-			String v = arg.getString(k);
+			String v = cci.arg.getString(k);
 			cci.sql_use = cci.sql_use.replace("$" + k, v);
 		}
-		logger.info(String.format("cmd(%s) sql-use: %s", cci.cmd, cci.sql_use));
+		logger.info(String.format("cmd(%d) sql-use: %s", cci.cmd, cci.sql_use));
 	}
 	
 	private boolean executeSql(CdbCmdInfo cci) {

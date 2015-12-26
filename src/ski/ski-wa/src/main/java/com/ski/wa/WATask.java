@@ -6,11 +6,15 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
-import fomjar.server.FjJsonMessage;
-import fomjar.server.FjMessage;
+import com.ski.common.DSCP;
+
+import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjDSCPRequest;
+import fomjar.server.msg.FjDSCPResponse;
+import fomjar.server.msg.FjMessage;
 
 public class WATask implements FjServerTask {
 	
@@ -22,19 +26,19 @@ public class WATask implements FjServerTask {
 	}
 
 	@Override
-	public void onMsg(FjServer server, FjMessage msg) {
-		if (!FjServerToolkit.isLegalRequest(msg)) {
-			logger.error("illegal request: " + msg);
-			if (FjServerToolkit.isLegalMsg(msg)) response(server, (FjJsonMessage) msg, AE.CODE_ILLEGAL_MESSAGE, JSONObject.fromObject("{\"error\":\"illegal request\"}"));
+	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+		FjMessage msg = wrapper.message();
+		if (!(msg instanceof FjDSCPRequest)) {
+			logger.error("illegal request, discard: " + msg);
 			return;
 		}
-		FjJsonMessage req = (FjJsonMessage) msg;
-		String cmd = req.json().getString("cmd");
-		JSONObject arg = req.json().getJSONObject("arg");
+		FjDSCPRequest req = (FjDSCPRequest) msg;
+		int        cmd = req.cmd();
+		JSONObject arg = req.arg();
 		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
-			logger.error("can not find an automation executor for cmd: " + cmd);
-			response(server, req, AE.CODE_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
+			logger.error("can not find an AE for cmd: " + cmd);
+			response(server.name(), req, DSCP.CODE.WA_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
 			return;
 		}
 		WebDriver driver = null;
@@ -42,22 +46,23 @@ public class WATask implements FjServerTask {
 			driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
 			ae.execute(driver, arg);
 		} catch (Exception e) {
-			logger.error("error occurs when execute cmd: " + cmd, e);
-			response(server, req, AE.CODE_UNKNOWN_ERROR, JSONObject.fromObject(String.format("{'error':'failed to execute cmd(%s): %s'}", cmd, e.getMessage())));
+			logger.error("execute ae failed for cmd: " + cmd, e);
+			response(server.name(), req, DSCP.CODE.WA_AE_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':'execute ae failed for cmd(%s): %s'}", cmd, e.getMessage())));
 			return;
 		} finally {
 			if (null != driver) driver.quit();
 		}
-		response(server, req, ae.code(), ae.desc());
+		response(server.name(), req, ae.code(), ae.desc());
 	}
 	
-	private static void response(FjServer server, FjJsonMessage req, int code, JSONObject desc) {
-		FjJsonMessage rsp = new FjJsonMessage();
-		rsp.json().put("fs", server.name());
-		rsp.json().put("ts", req.json().getString("fs"));
-		rsp.json().put("sid", req.json().getString("sid"));
+	private static void response(String serverName, FjDSCPRequest req, int code, JSONObject desc) {
+		FjDSCPResponse rsp = new FjDSCPResponse();
+		rsp.json().put("fs",   serverName);
+		rsp.json().put("ts",   req.fs());
+		rsp.json().put("sid",  req.sid());
+		rsp.json().put("ssn",  req.ssn() + 1);
 		rsp.json().put("code", code);
 		rsp.json().put("desc", desc);
-		FjServerToolkit.getSender(server.name()).send(rsp);
+		FjServerToolkit.getSender(serverName).send(rsp);
 	}
 }

@@ -7,11 +7,12 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
+import com.ski.common.DSCP;
 import com.ski.wa.AE;
 
 public class Login implements AE {
 	
-	private int        code = CODE_UNKNOWN_ERROR;
+	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
 	private JSONObject desc = null;
 
 	@Override
@@ -32,11 +33,11 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("TPL_username_1"));
-			code = CODE_TAOBAO_LOGIN_ACCOUNT_INCORRECT;
+			code = DSCP.CODE.WA_AE_TAOBAO_ACCOUNT_INCORRECT;
 			desc = JSONObject.fromObject("{'error':'username or password is incorrect'}");
 			return;
 		} catch (NoSuchElementException e){
-			code = CODE_SUCCESS;
+			code = DSCP.CODE.SYSTEM_SUCCESS;
 			desc = JSONObject.fromObject(null);
 		}
 	}

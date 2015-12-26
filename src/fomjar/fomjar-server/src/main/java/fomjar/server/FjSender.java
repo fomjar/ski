@@ -22,6 +22,9 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.msg.FjDSCPMessage;
+import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjSender extends FjLoopTask {
@@ -39,17 +42,40 @@ public class FjSender extends FjLoopTask {
 
 	@Override
 	public void perform() {
-		FjMessage msg = mq.poll();
-		if (null == msg) {
+		FjMessageWrapper wrapper = mq.poll();
+		if (null == wrapper) {
 			logger.error("failed to poll message from queue");
 			return;
 		}
-		SocketChannel conn = null;
-		if (FjServerToolkit.isLegalMsg(msg)) {
-			String ts = ((FjJsonMessage) msg).json().getString("ts");
-			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(ts);
+		FjMessage msg = wrapper.message();
+		SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
+		FjSenderObserver observer = (FjSenderObserver) wrapper.attachment("observer");
+		if (null != conn) {
+			try {
+				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+				while (buf.hasRemaining()) conn.write(buf);
+				logger.debug("send message successfully: " + msg);
+				if (null != observer) observer.onSuccess();
+				return;
+			} catch (IOException e) {
+				logger.error("failed to send message through an exist connection: " + msg, e);
+				if (null != observer) observer.onFail();
+				return;
+			} finally {
+				try {if (null != conn) conn.close();}
+				catch (IOException e) {e.printStackTrace();}
+			}
+		} else if (msg instanceof FjDSCPMessage) {
+			FjDSCPMessage dmsg = (FjDSCPMessage) msg;
+			if (!dmsg.isValid()) {
+				logger.error("can not send an invalid dscp message: " + dmsg);
+				if (null != observer) observer.onFail();
+				return;
+			}
+			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(dmsg.ts());
 			if (null == addr0) {
-				logger.error("can not find an address with server name: " + ts);
+				logger.error("can not find an address with server name: " + dmsg.ts());
+				if (null != observer) observer.onFail();
 				return;
 			}
 			try {
@@ -58,8 +84,10 @@ public class FjSender extends FjLoopTask {
 				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
 				while (buf.hasRemaining()) conn.write(buf);
 				logger.debug("send message successfully: " + msg);
+				if (null != observer) observer.onSuccess();
+				return;
 			} catch (IOException e) {
-				List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(ts);
+				List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(dmsg.ts());
 				boolean isSuccess = false;
 				for (FjServerToolkit.FjAddress addr : addresses) {
 					if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
@@ -72,32 +100,32 @@ public class FjSender extends FjLoopTask {
 						break;
 					} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
 				}
-				if(!isSuccess) logger.error("can not find an available address to send message: " + msg);
+				if(isSuccess) { 
+					if (null != observer) observer.onSuccess();
+				} else {
+					logger.error("can not find an available address to send message: " + msg);
+					if (null != observer) observer.onFail();
+				}
+				return;
 			} finally {
 				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
-		} else if (null != (conn = mq.pollConnection(msg))) {
-			try {
-				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
-				while (buf.hasRemaining()) conn.write(buf);
-				logger.debug("send message successfully: " + msg);
-			} catch (IOException e) {logger.error("failed to reply message: " + msg, e);}
-			finally {
-				try {if (null != conn) conn.close();}
-				catch (IOException e) {e.printStackTrace();}
-			}
-		} else {
-			logger.error("can not find an available address or connection to send message: " + msg);
 		}
+		logger.error("there is no way to send message: " + msg);
+		if (null != observer) observer.onFail();
 	}
 	
+	public FjMessageWrapper wrap(FjMessage msg) {
+		return new FjMessageWrapper(msg);
+	}
+
 	public void send(FjMessage msg) {
-		send(msg, null);
+		send(wrap(msg));
 	}
 	
-	public void send(FjMessage msg, SocketChannel conn) {
-		mq.offer(msg, conn);
+	public void send(FjMessageWrapper wrapper) {
+		mq.offer(wrapper);
 	}
 	
 	private byte[] buf;
@@ -143,4 +171,10 @@ public class FjSender extends FjLoopTask {
 		@Override
 		public X509Certificate[] getAcceptedIssuers() {return null;}
 	}
+	
+	public static abstract class FjSenderObserver {
+		public void onSuccess() {}
+		public void onFail() {}
+	}
+	
 }

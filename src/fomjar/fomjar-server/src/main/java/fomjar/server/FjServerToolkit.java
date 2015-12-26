@@ -188,27 +188,5 @@ public class FjServerToolkit {
 				+ Integer.toHexString(Long.toHexString(System.currentTimeMillis()).hashCode())
 				+ Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
 	}
-	
-	public static boolean isLegalMsg(FjMessage msg) {
-		if (null == msg)                                  return false;
-		if (!(msg instanceof FjJsonMessage))                  return false;
-		if (!((FjJsonMessage) msg).json().containsKey("fs"))  return false;
-		if (!((FjJsonMessage) msg).json().containsKey("ts"))  return false;
-		if (!((FjJsonMessage) msg).json().containsKey("sid")) return false;
-		return true;
-	}
-	
-	public static boolean isLegalRequest(FjMessage msg) {
-		if (!isLegalMsg(msg)) return false;
-		if (!((FjJsonMessage) msg).json().containsKey("cmd")) return false;
-		if (!((FjJsonMessage) msg).json().containsKey("arg")) return false;
-		return true;
-	}
 
-	public static boolean isLegalResponse(FjMessage msg) {
-		if (!isLegalMsg(msg)) return false;
-		if (!((FjJsonMessage) msg).json().containsKey("code")) return false;
-		if (!((FjJsonMessage) msg).json().containsKey("desc")) return false;
-		return true;
-	}
 }

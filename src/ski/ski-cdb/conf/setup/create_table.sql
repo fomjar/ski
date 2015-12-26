@@ -1,7 +1,7 @@
 -- cdb命令映射表
 drop table if exists tbl_cmd_map;
 create table tbl_cmd_map (
-    c_cmd   varchar(255),
+    i_cmd   integer,
     c_mod   char(5),      -- st:执行sql语句 sp:执行存储过程
     i_out   tinyint,      -- 出参个数
     c_sql   varchar(255)  -- 格式：先出参，后入参，入参使用$打头，入参名称必须与消息中的参数名称完全相同

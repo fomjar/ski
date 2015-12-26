@@ -29,4 +29,12 @@
                 </executions>
             </plugin>
         </plugins>
-    </build></project>
+    </build>
+    <dependencies>
+    	<dependency>
+    		<groupId>ski-common</groupId>
+    		<artifactId>ski-common</artifactId>
+    		<version>0.0.1</version>
+    	</dependency>
+    </dependencies>
+</project>

@@ -1,4 +1,4 @@
-package fomjar.server;
+package fomjar.server.msg;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class FjHttpMessage extends FjMessage {
 	private Map<String, String> head;
 	private StringBuffer body;
 	
-	public FjHttpMessage(String http) {
+	FjHttpMessage(String http) {
 		String[] lines = http.split(ln);
 		int phase = 0;
 		for (String line : lines) {

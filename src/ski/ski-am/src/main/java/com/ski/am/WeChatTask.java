@@ -6,13 +6,14 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjHttpRequest;
-import fomjar.server.FjHttpResponse;
-import fomjar.server.FjJsonMessage;
-import fomjar.server.FjMessage;
+import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjDSCPMessage;
+import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
+import fomjar.server.msg.FjMessage;
 
 public class WeChatTask implements FjServerTask {
 	
@@ -26,32 +27,30 @@ public class WeChatTask implements FjServerTask {
 	}
 	
 	@Override
-	public void onMsg(FjServer server, FjMessage msg) {
-		if (msg instanceof FjJsonMessage
-				&& ((FjJsonMessage) msg).json().containsKey("fs")
-				&& ((FjJsonMessage) msg).json().containsKey("ts")
-				&& ((FjJsonMessage) msg).json().containsKey("sid")) {
-			logger.info("message comes from wtcrm server");
-			processWtcrm(server, (FjJsonMessage) msg);
+	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+		FjMessage msg = wrapper.message();
+		if (msg instanceof FjDSCPMessage) {
+			logger.info("message comes from SKI server");
+			processSKI(server.name(), (FjDSCPMessage) msg);
 		} else if (msg instanceof FjHttpRequest) {
 			logger.info("message comes from wechat server");
-			processWechat(server, (FjHttpRequest) msg);
+			processWechat(server.name(), (FjHttpRequest) msg, (SocketChannel) wrapper.attachment("conn"));
 		} else {
-			logger.error("unrecognized message: " + msg);
+			logger.error("invalid message, discard: " + msg);
 		}
 	}
 	
-	private void processWtcrm(FjServer server, FjJsonMessage rsp) {
+	private void processSKI(String serverName, FjDSCPMessage rsp) {
 		
 	}
 	
-	private void processWechat(FjServer server, FjHttpRequest msg) {
+	private void processWechat(String serverName, FjHttpRequest msg, SocketChannel conn) {
 		if (msg.titleParams().containsKey("echostr")) {
 			logger.info("wechat access message");
-			processWechatAccess(server, msg);
+			processWechatAccess(serverName, msg, conn);
 		} else {
 			logger.info("wechat common message");
-			processWechatCommon(server, msg);
+			processWechatCommon(serverName, msg, conn);
 		}
 	}
 	
@@ -70,8 +69,8 @@ public class WeChatTask implements FjServerTask {
 	 * @param server
 	 * @param msg
 	 */
-	private void processWechatAccess(FjServer server, FjHttpRequest msg) {
-		responseWechatRequest(server, server.mq().pollConnection(msg), "text/plain", msg.titleParam("echostr"));
+	private void processWechatAccess(String serverName, FjHttpRequest msg, SocketChannel conn) {
+		responseWechatRequest(serverName, conn, "text/plain", msg.titleParam("echostr"));
 	}
 	
 	/**
@@ -97,13 +96,14 @@ public class WeChatTask implements FjServerTask {
 	 * @param server
 	 * @param msg
 	 */
-	private void processWechatCommon(FjServer server, FjHttpRequest msg) {
-		responseWechatRequest(server, server.mq().pollConnection(msg), "text/xml", createWechatResponseBody(msg, msg.bodyToJson().getString("Content")));
+	private void processWechatCommon(String serverName, FjHttpRequest msg, SocketChannel conn) {
+		responseWechatRequest(serverName, conn, "text/xml", createWechatResponseBody(msg, msg.bodyToJson().getString("Content")));
 	}
 	
-	private static void responseWechatRequest(FjServer server, SocketChannel conn, String bodyType, String body) {
+	private static void responseWechatRequest(String serverName, SocketChannel conn, String bodyType, String body) {
 		FjMessage rsp = new FjHttpResponse(bodyType, body);
-		FjServerToolkit.getSender(server.name()).send(rsp, conn);
+		FjMessageWrapper wrapper = FjServerToolkit.getSender(serverName).wrap(rsp).attach("conn", conn);
+		FjServerToolkit.getSender(serverName).send(wrapper);
 		logger.info("response wechat message: " + rsp.toString());
 	}
 	

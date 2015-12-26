@@ -2,9 +2,9 @@ package com.ski.am;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMessage;
-import fomjar.server.FjMessage;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjJsonMessage;
+import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
 public class AccessTokenGuard extends FjLoopTask {

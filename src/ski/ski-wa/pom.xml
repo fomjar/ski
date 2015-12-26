@@ -36,5 +36,10 @@
     		<artifactId>eyes-selenium-java</artifactId>
     		<version>2.26</version>
     	</dependency>
+    	<dependency>
+    		<groupId>ski-common</groupId>
+    		<artifactId>ski-common</artifactId>
+    		<version>0.0.1</version>
+    	</dependency>
     </dependencies>
 </project>

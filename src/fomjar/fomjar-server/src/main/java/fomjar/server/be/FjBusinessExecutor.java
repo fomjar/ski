@@ -5,10 +5,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjJsonMessage;
-import fomjar.server.FjMessage;
 import fomjar.server.FjServer;
-import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjDSCPMessage;
 
 /**
  * 业务执行器，处理某一个业务流
@@ -19,32 +17,22 @@ public abstract class FjBusinessExecutor {
 	
 	private static final Logger logger = Logger.getLogger(FjBusinessExecutor.class);
 	
-	public static void dispatch(FjBusinessExecutor[] bes, FjMessage msg) throws SessionNotOpenException {
+	public static void dispatch(FjBusinessExecutor[] bes, FjDSCPMessage msg) throws SessionNotOpenException {
 		if (null == bes) {
 			logger.error("no available business executor to dispatch");
 			return;
 		}
-		if (!FjServerToolkit.isLegalMsg(msg)) {
-			logger.error("can not dispatch illegal message, discard: " + msg);
-			return;
-		}
-		FjJsonMessage jmsg = (FjJsonMessage) msg;
-		String sid = jmsg.json().getString("sid");
 		for (FjBusinessExecutor be : bes) {
-			if (be.containSession(sid)) {
-				FjBusinessExecutor.FjSCB scb = be.getSession(sid);
-				scb.nextPhase();
-				try {be.execute(scb, jmsg);}
-				catch (Exception e) {logger.error("error occurs when execute BE for message: " + jmsg, e);}
-				if (scb.isEnd()) {
-					be.closeSession(sid);
-					logger.info("session " + sid + " closed");
-				}
+			if (be.containSession(msg.sid())) {
+				FjBusinessExecutor.FjSCB scb = be.getSession(msg.sid());
+				try {be.execute(scb, msg);}
+				catch (Exception e) {logger.error("error occurs when execute BE for message: " + msg, e);}
+				if (scb.isEnd()) be.closeSession(msg.sid());
 				return;
 			}
 		}
-		logger.error("dispatch message failed for no BE is responsible for this message: " + jmsg);
-		throw new SessionNotOpenException(sid);
+		logger.error("dispatch message failed for no BE is responsible for this message: " + msg);
+		throw new SessionNotOpenException(msg.sid());
 	}
 	
 	/**
@@ -55,18 +43,22 @@ public abstract class FjBusinessExecutor {
 	public static class FjSCB {
 		
 		private String sid;
-		private int phase = -1;
-		private Map<String, String> data;
+		private Map<String, Object> data;
 		private boolean end = false;
 		
-		private FjSCB() {data = new HashMap<String, String>();}
+		private FjSCB() {data = new HashMap<String, Object>();}
 		
 		public  String  sid() {return sid;}
-		private void    nextPhase() {++phase;}
-		public  int     currPhase() {return phase;}
-		public  String  getData(String key) {return data.get(key);}
-		public  Map<String, String> getData() {return data;}
-		public  void    putData(String key, String value) {data.put(key, value);}
+		public  Object  get(String key)       {return data.get(key);}
+		public  String  getString(String key) {return (String) data.get(key);}
+		public  char    getChar(String key)   {return (char) data.get(key);}
+		public  short   getShort(String key)  {return (short) data.get(key);}
+		public  int     getInt(String key)    {return (int) data.get(key);}
+		public  long    getLong(String key)   {return (long) data.get(key);}
+		public  float   getFloat(String key)  {return (float) data.get(key);}
+		public  double  getDouble(String key) {return (double) data.get(key);}
+		public  Map<String, Object> getAll() {return data;}
+		public  void    put(String key, Object value) {data.put(key, value);}
 		public  void    end() {end = true;};
 		private boolean isEnd() {return end;}
 	}
@@ -93,14 +85,14 @@ public abstract class FjBusinessExecutor {
 		return scbs.get(sid);
 	}
 	
-	private FjSCB closeSession(String sid) {
+	public FjSCB closeSession(String sid) {
 		if (!scbs.containsKey(sid)) {
 			logger.error("session not found: " + sid);
 			return null;
 		}
 		logger.info("close session: " + sid);
 		FjSCB scb = scbs.remove(sid);
-		scb.putData("time.close", String.valueOf(System.currentTimeMillis()));
+		scb.put("time.close", System.currentTimeMillis());
 		return scb;
 	}
 	
@@ -108,7 +100,7 @@ public abstract class FjBusinessExecutor {
 		logger.info("open session: " + sid);
 		FjSCB scb = new FjSCB();
 		scb.sid = sid;
-		scb.putData("time.open", String.valueOf(System.currentTimeMillis()));
+		scb.put("time.open", System.currentTimeMillis());
 		scbs.put(sid, scb);
 		return scb;
 	}
@@ -120,6 +112,6 @@ public abstract class FjBusinessExecutor {
 	 * @param scb
 	 * @return 业务全流程结束返回true，未结束返回false
 	 */
-	public abstract void execute(FjSCB scb, FjJsonMessage msg);
+	public abstract void execute(FjSCB scb, FjDSCPMessage msg);
 	
 }
