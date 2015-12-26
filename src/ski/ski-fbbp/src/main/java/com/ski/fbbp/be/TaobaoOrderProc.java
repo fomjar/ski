@@ -60,10 +60,10 @@ public class TaobaoOrderProc extends FjBusinessExecutor {
 	
 	private void processStoreResult(FjSCB scb, FjDSCPResponse rsp) {
 		if (DSCP.CODE.SYSTEM_SUCCESS != rsp.code()) {
-			logger.error("store taobao new order list failed, reason: " + rsp.desc());
+			logger.error("store taobao new order failed, reason: " + rsp.desc());
 			return;
 		}
-		logger.error("store taobao new order list success");
+		logger.info("store taobao new order success: " + rsp);
 	}
 
 }
