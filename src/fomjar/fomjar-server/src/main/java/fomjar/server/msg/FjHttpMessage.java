@@ -12,10 +12,10 @@ public class FjHttpMessage extends FjMessage {
 	
 	private String title;
 	private Map<String, String> head;
-	private StringBuffer body;
+	private StringBuffer content;
 	
 	FjHttpMessage(String http) {
-		String[] lines = http.split(ln);
+		String[] lines = http.split("\n");
 		int phase = 0;
 		for (String line : lines) {
 			line = line.trim();
@@ -39,8 +39,8 @@ public class FjHttpMessage extends FjMessage {
 				}
 				break;
 			case 2:
-				if (null == body) body = new StringBuffer();
-				body.append(line + ln);
+				if (null == content) content = new StringBuffer();
+				content.append(line + ln);
 				break;
 			default:
 				break;
@@ -61,13 +61,17 @@ public class FjHttpMessage extends FjMessage {
 		return head;
 	}
 	
-	public String body() {
-		return body.toString();
+	public String content() {
+		if (null == content) return null;
+		
+		return content.toString();
 	}
 	
-	public JSONObject bodyToJson() {
-		if (body().trim().startsWith("<")) return JSONObject.fromObject(new XMLSerializer().read(body()));
-		else if (body().trim().startsWith("{")) return JSONObject.fromObject(body());
+	public JSONObject contentToJson() {
+		if (null == content()) return null;
+		
+		if (content().trim().startsWith("<")) return JSONObject.fromObject(new XMLSerializer().read(content()));
+		else if (content().trim().startsWith("{")) return JSONObject.fromObject(content());
 		else return null;
 	}
 
@@ -79,7 +83,7 @@ public class FjHttpMessage extends FjMessage {
 			sb.append(e.getKey() + ": " + e.getValue() + ln);
 		}
 		sb.append(ln);
-		sb.append(body);
+		sb.append(content);
 		return sb.toString();
 	}
 }

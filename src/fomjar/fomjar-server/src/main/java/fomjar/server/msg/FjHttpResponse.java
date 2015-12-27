@@ -14,8 +14,8 @@ public class FjHttpResponse extends FjHttpMessage {
 			+ "%s";
 			
 	
-	public FjHttpResponse(String bodyType, String body) {
-		super(String.format(TEMPLATE, new Date().toString(), bodyType, null == body ? 0 : body.length(), null == body ? "" : body));
+	public FjHttpResponse(String contentType, String content) {
+		super(String.format(TEMPLATE, new Date().toString(), contentType, null == content ? 0 : content.length(), null == content ? "" : content));
 	}
 
 	public FjHttpResponse(String http) {

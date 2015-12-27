@@ -9,12 +9,20 @@ public class FjHttpRequest extends FjHttpMessage {
 			+ "Host: %s\r\n"
 			+ "Connection: Keep-Alive\r\n"
 			+ "User-Agent: fomjar\r\n"
+			+ "Content-Type: %s\r\n"
+			+ "Content-Length: %d\r\n"
 			+ "Accept: */*\r\n"
 			+ "\r\n"
-			+ "%s\r\n";
+			+ "%s";
 	
-	public FjHttpRequest(String method, String url, String body) {
-		super(String.format(TEMPLATE, method, url.substring(url.indexOf("/", url.indexOf("//") + 2)), url.substring(url.indexOf("//") + 2, url.indexOf("/", url.indexOf("//") + 2)), null == body ? "" : body));
+	public FjHttpRequest(String method, String url, String bodyType, String body) {
+		super(String.format(TEMPLATE,
+				method,
+				url.substring(url.indexOf("/", url.indexOf("//") + 2)),
+				url.substring(url.indexOf("//") + 2, url.indexOf("/", url.indexOf("//") + 2)),
+				bodyType,
+				null == body ? 0 : body.length(),
+				null == body ? "" : body));
 	}
 	
 	public FjHttpRequest(String http) {

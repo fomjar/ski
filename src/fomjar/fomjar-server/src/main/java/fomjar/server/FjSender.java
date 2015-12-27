@@ -23,7 +23,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.log4j.Logger;
 
 import fomjar.server.msg.FjDSCPMessage;
-import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
@@ -115,13 +114,9 @@ public class FjSender extends FjLoopTask {
 		logger.error("there is no way to send message: " + msg);
 		if (null != observer) observer.onFail();
 	}
-	
-	public FjMessageWrapper wrap(FjMessage msg) {
-		return new FjMessageWrapper(msg);
-	}
 
 	public void send(FjMessage msg) {
-		send(wrap(msg));
+		send(new FjMessageWrapper(msg));
 	}
 	
 	public void send(FjMessageWrapper wrapper) {
@@ -130,19 +125,22 @@ public class FjSender extends FjLoopTask {
 	
 	private byte[] buf;
 	
-	public synchronized FjMessage sendHttpRequest(String method, String url, String body) {
+	public synchronized FjMessage sendHttpRequest(String method, String url, String content) {
 		HttpURLConnection conn = null;
 		FjMessage rsp = null;
 		try {
-			FjHttpRequest req = new FjHttpRequest(method, url, body);
 			URL httpurl = new URL(url);
 			if (url.startsWith("https")) {initSslContext();}
 			conn = (HttpURLConnection) httpurl.openConnection();
+			if (null != method) conn.setRequestMethod(method);
 			conn.setDoInput(true);
-			conn.setDoOutput(true);
-			OutputStream os = conn.getOutputStream();
-			os.write(req.toString().getBytes(Charset.forName("utf-8")));
-			os.flush();
+			if (null != content) {
+				conn.setDoOutput(true);
+				conn.setRequestProperty("Content-Length", String.valueOf(content.length()));
+				OutputStream os = conn.getOutputStream();
+				os.write(content.getBytes(Charset.forName("utf-8")));
+				os.flush();
+			}
 			InputStream is = conn.getInputStream();
 			if (null == buf) buf = new byte[1024 * 1024];
 			int n = is.read(buf);

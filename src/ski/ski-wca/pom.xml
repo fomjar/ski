@@ -5,8 +5,8 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>ski-am</groupId>
-  <artifactId>ski-am</artifactId>
+  <groupId>ski-wca</groupId>
+  <artifactId>ski-wca</artifactId>
     <build>
         <plugins>
             <plugin>

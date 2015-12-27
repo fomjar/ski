@@ -6,12 +6,12 @@
   <packaging>pom</packaging>
   <modules>
   	<module>ski-common</module>
-  	<module>ski-am</module>
-  	<module>ski-cdb</module>
+  	<module>ski-wca</module>
   	<module>ski-fbbp</module>
-  	<module>ski-stub</module>
+    <module>ski-cdb</module>
   	<module>ski-wa</module>
   	<module>ski-wa-ae</module>
+    <module>ski-stub</module>
   </modules>
   <dependencies>
   	<dependency>

@@ -1,4 +1,4 @@
-package com.ski.am;
+package com.ski.wca;
 
 import fomjar.server.FjServerToolkit;
 
@@ -10,7 +10,7 @@ public class Main {
 	 */
 	public static void main(String[] args) {
 		FjServerToolkit.startConfigGuard();
-		FjServerToolkit.startServer(args[0]).addServerTask(new WeChatTask(args[0]));
+		FjServerToolkit.startServer(args[0]).addServerTask(new WCATask(args[0]));
 	}
 
 }
