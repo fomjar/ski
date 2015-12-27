@@ -1,6 +1,6 @@
 package com.ski.fbbp;
 
-import com.ski.fbbp.be.TaobaoOrderProc;
+import com.ski.fbbp.be.ProcTaobaoOrder;
 import com.ski.fbbp.guard.TaobaoOrderListNewGuard;
 
 import fomjar.server.FjMessageWrapper;
@@ -16,7 +16,7 @@ public class FBBPTask implements FjServerTask {
 	private FjBusinessExecutor[] bes;
 	
 	public FBBPTask(FjServer server) {
-		bes = new FjBusinessExecutor[] {new TaobaoOrderProc(server)};
+		bes = new FjBusinessExecutor[] {new ProcTaobaoOrder(server)};
 		new TaobaoOrderListNewGuard(bes[0]).start();
 	}
 

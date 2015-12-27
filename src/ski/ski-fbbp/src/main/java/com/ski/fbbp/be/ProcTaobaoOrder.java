@@ -17,13 +17,13 @@ import fomjar.server.msg.FjDSCPResponse;
  * @author fomja
  *
  */
-public class TaobaoOrderProc extends FjBusinessExecutor {
+public class ProcTaobaoOrder extends FjBusinessExecutor {
 
-	public TaobaoOrderProc(FjServer server) {
+	public ProcTaobaoOrder(FjServer server) {
 		super(server);
 	}
 
-	private static final Logger logger = Logger.getLogger(TaobaoOrderProc.class);
+	private static final Logger logger = Logger.getLogger(ProcTaobaoOrder.class);
 
 	@Override
 	public void execute(FjSCB scb, FjDSCPMessage msg) {

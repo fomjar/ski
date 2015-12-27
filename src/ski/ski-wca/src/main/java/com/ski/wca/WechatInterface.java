@@ -2,6 +2,8 @@ package com.ski.wca;
 
 import java.nio.channels.SocketChannel;
 
+import com.ski.wca.guard.TokenGuard;
+
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjHttpRequest;
@@ -37,11 +39,9 @@ public class WechatInterface {
 	}
 	
 	private static final String URL_MENU_CREATE = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s";
-	public static FjJsonMessage menuCreate(String serverName) {
+	public static FjJsonMessage menuCreate(String serverName, String menu) {
 		String url = String.format(URL_MENU_CREATE, TokenGuard.getInstance().getToken());
-		String content = "{'button':[{'type':'click', 'name':'Test1', 'key':'test1'},{'type':'click', 'name':'Test2', 'key':'test2'},{'type':'click', 'name':'Test3', 'key':'test3'}]}";
-		content = content.replace("'", "\"");
-		return (FjJsonMessage) FjServerToolkit.getSender(serverName).sendHttpRequest("POST", url, content);
+		return (FjJsonMessage) FjServerToolkit.getSender(serverName).sendHttpRequest("POST", url, menu.replace("'", "\""));
 	}
 	
 	private static final String URL_MENU_DELETE = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s";
@@ -57,34 +57,6 @@ public class WechatInterface {
 			+ "<MsgType><![CDATA[%s]]></MsgType>\r\n"
 			+ "<Content><![CDATA[%s]]></Content>\r\n"
 			+ "</xml>";	
-	
-	/**
-	 * request:
-	 * <xml>
-	 * <ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
-	 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
-	 * <CreateTime>1448554450</CreateTime>
-	 * <MsgType><![CDATA[text]]></MsgType>
-	 * <Content><![CDATA[fuck]]></Content>
-	 * <MsgId>6221493989626260549</MsgId>
-	 * </xml>
-	 * 
-	 * response:
-	 * <xml>
-	 * <ToUserName><![CDATA[toUser]]></ToUserName>
-	 * <FromUserName><![CDATA[fromUser]]></FromUserName>
-	 * <CreateTime>12345678</CreateTime>
-	 * <MsgType><![CDATA[text]]></MsgType>
-	 * <Content><![CDATA[你好]]></Content>
-	 * </xml>
-	 * 
-	 * @param serverName
-	 * @param wrapper
-	 * @param to
-	 * @param from
-	 * @param messageType
-	 * @param message
-	 */
 	public static void responseMessage(String serverName, SocketChannel conn, String to, String from, String messageType, String message) {
 		String content = String.format(TEMPLATE_MESSAGE, to, from, System.currentTimeMillis() / 1000, messageType, message);
 		response(serverName, conn, "text/xml", content);

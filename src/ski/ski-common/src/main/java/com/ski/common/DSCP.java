@@ -4,13 +4,20 @@ public final class DSCP {
 	
 	public static final class CMD {
 		
-		public static final int TAOBAO_ORDER_LIST_NEW               = 0x00001000;
-		public static final int TAOBAO_ORDER_PROC_NEW               = 0x00001001;
-		public static final int TAOBAO_ORDER_DELIVER                = 0x00001002;
-		public static final int PSN_VERIFY                          = 0x00001100;
-		public static final int PSN_CHANGE_PASSWORD                 = 0x00001101;
+		public static final int TAOBAO_ORDER_LIST_NEW               = 0x00001000; // 淘宝订单查询
+		public static final int TAOBAO_ORDER_PROC_NEW               = 0x00001001; // 淘宝订单处理
+		public static final int TAOBAO_ORDER_DELIVER                = 0x00001002; // 淘宝订单发货
+		public static final int PSN_VERIFY                          = 0x00001100; // PSN校验帐户
+		public static final int PSN_CHANGE_PASSWORD                 = 0x00001101; // PSN修改密码
 		
-		public static final int SYSTEM_UNKNOWN_COMMAND              = 0xFFFFFFFF;
+		public static final int WECHAT_USER_SUBSCRIBE               = 0x00002000; // 微信用户订阅
+		public static final int WECHAT_USER_UNSUBSCRIBE             = 0x00002001; // 微信用户取消订阅
+		public static final int WECHAT_USER_LOCATION                = 0x00002002; // 微信用户上报位置
+		public static final int WECHAT_USER_CLICK                   = 0x00002003; // 微信用户点击菜单按钮
+		public static final int WECHAT_USER_VIEW                    = 0x00002004; // 微信用户点击菜单按钮跳转页面
+		public static final int WECHAT_SYSTEM_MENU_UPDATE           = 0x00002600; // 微信系统菜单更新
+		
+		public static final int SYSTEM_UNKNOWN_COMMAND              = 0xFFFFFFFF; // 未知命令
 		
 	}
 	

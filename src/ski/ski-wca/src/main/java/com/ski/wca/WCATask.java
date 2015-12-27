@@ -6,6 +6,9 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import com.ski.wca.guard.MenuGuard;
+import com.ski.wca.guard.TokenGuard;
+
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
@@ -17,10 +20,10 @@ public class WCATask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCATask.class);
 	
-	
 	public WCATask(String name) {
 		TokenGuard.getInstance().setServerName(name);
 		TokenGuard.getInstance().start();
+		new MenuGuard(name).start();
 	}
 	
 	@Override
@@ -38,8 +41,7 @@ public class WCATask implements FjServerTask {
 		}
 	}
 	
-	private void processSKI(String serverName, FjDSCPMessage rsp) {
-		
+	private void processSKI(String serverName, FjDSCPMessage msg) {
 	}
 	
 	private void processWechat(String serverName, FjMessageWrapper wrapper) {
@@ -65,15 +67,14 @@ public class WCATask implements FjServerTask {
 		String to       = json.getString("ToUserName");
 		String content  = json.getString("Content");
 		WechatInterface.responseMessage(serverName, (SocketChannel) wrapper.attachment("conn"), from, to, "text", content);
-		if ("menu_create".equals(content)) {
-			logger.error(WechatInterface.menuCreate(serverName));
-		}
-		if ("menu_delete".equals(content)) {
-			logger.error(WechatInterface.menuDelete(serverName));
-		}
 	}
 	
 	private void processWechatEvent(String serverName, FjMessageWrapper wrapper) {
-		
+		JSONObject json  = ((FjHttpRequest) wrapper.message()).contentToJson();
+		String from      = json.getString("FromUserName");
+		String to        = json.getString("ToUserName");
+		String event     = json.getString("Event");
+		String event_key = json.getString("EventKey");
+		if ("click".equalsIgnoreCase(event)) WechatInterface.responseMessage(serverName, (SocketChannel) wrapper.attachment("conn"), from, to, "text", "你TMD不要点" + event_key);
 	}
 }

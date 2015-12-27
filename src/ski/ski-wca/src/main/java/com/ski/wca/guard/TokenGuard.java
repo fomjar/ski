@@ -1,6 +1,8 @@
-package com.ski.wca;
+package com.ski.wca.guard;
 
 import org.apache.log4j.Logger;
+
+import com.ski.wca.WechatInterface;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjJsonMessage;
@@ -48,14 +50,14 @@ public class TokenGuard extends FjLoopTask {
 		token = null;
 		long defaultInterval = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
 		FjJsonMessage token_msg = WechatInterface.token(getServerName(), FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"));
-		if (!token_msg.json().containsKey("access_token") || !token_msg.json().containsKey("expires_in")) {
+		if (null == token_msg || !token_msg.json().containsKey("access_token") || !token_msg.json().containsKey("expires_in")) {
 			logger.error("get wechat access token failed: " + token_msg);
 			setNextRetryInterval(defaultInterval);
 			return;
 		}
 		token = token_msg.json().getString("access_token");
 		logger.info("get wechat access token successfully: " + token_msg);
-		setNextRetryInterval(Long.parseLong(token_msg.json().getString("expires_in")));
+		setNextRetryInterval(token_msg.json().getInt("expires_in"));
 	}
 	
 	public void setNextRetryInterval(long seconds) {

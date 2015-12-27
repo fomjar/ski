@@ -181,12 +181,5 @@ public class FjServerToolkit {
 		if (null == g_sender) return null;
 		return g_sender.get(name);
 	}
-	
-	private static final Random random = new Random();
-	public static String newSid(String serverName) {
-		return Integer.toHexString(serverName.hashCode())
-				+ Integer.toHexString(Long.toHexString(System.currentTimeMillis()).hashCode())
-				+ Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
-	}
 
 }

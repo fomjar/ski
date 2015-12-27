@@ -1,5 +1,7 @@
 package fomjar.server.msg;
 
+import java.util.Random;
+
 public class FjDSCPMessage extends FjJsonMessage {
 	
 	FjDSCPMessage(Object json) {super(json);}
@@ -15,6 +17,13 @@ public class FjDSCPMessage extends FjJsonMessage {
 		if (!json().containsKey("sid")) return false;
 		if (!json().containsKey("ssn")) return false;
 		return true;
+	}
+	
+	private static final Random random = new Random();
+	public static String newSid(String serverName) {
+		return Integer.toHexString(serverName.hashCode())
+				+ Integer.toHexString(Long.toHexString(System.currentTimeMillis()).hashCode())
+				+ Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
 	}
 	
 }
