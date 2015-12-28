@@ -6,9 +6,7 @@ public class FjJsonMessage extends FjMessage {
 	
 	private JSONObject json;
 	
-	public FjJsonMessage() {
-		this(null);
-	}
+	public FjJsonMessage() {this(null);}
 	
 	public FjJsonMessage(Object json) {
 		if (null == json) this.json = new JSONObject();

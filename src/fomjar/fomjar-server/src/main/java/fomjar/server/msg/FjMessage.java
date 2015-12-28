@@ -31,16 +31,11 @@ public abstract class FjMessage {
 				return jmsg;
 			}
 		}
-		return new FjMessage() {
-			@Override
-			public String toString() {
-				return data;
-			}
-		};
+		if (data.startsWith("<")) return new FjXmlMessage(data);
+		return new FjMessage() {@Override public String toString() {return data;}};
 	}
 	
-	public FjMessage() {
-	}
+	public FjMessage() {}
 	
 	@Override
 	public abstract String toString();

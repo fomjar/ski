@@ -66,7 +66,7 @@ public class WechatInterface {
 	private static final String URL_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
 	public static FjJsonMessage token(String appid, String secret) {
 		String url = String.format(URL_TOKEN, appid, secret);
-		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url, null));
+		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url));
 	}
 	
 	private static final String URL_MENU_CREATE = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s";
@@ -80,7 +80,7 @@ public class WechatInterface {
 	public static FjJsonMessage menuDelete(String serverName) throws WechatAuthorityException {
 		checkAuthority();
 		String url = String.format(URL_MENU_DELETE, TokenGuard.getInstance().token());
-		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url, null));
+		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url));
 	}
 	
 	

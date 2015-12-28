@@ -17,13 +17,17 @@ public class FjXmlMessage extends FjMessage {
 	
 	private Document xml;
 	
+	public FjXmlMessage() {this(null);}
+	
 	public FjXmlMessage(String xml) {
-		if (null == xml) throw new NullPointerException();
-		
-		InputStream is = new ByteArrayInputStream(xml.getBytes());
-		try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);}
-		catch (SAXException | IOException | ParserConfigurationException e) {e.printStackTrace();}
-		finally {try {is.close();} catch (IOException e) {}}
+		if (null == xml || 0 == xml.length()) {
+			try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();}
+			catch (ParserConfigurationException e) {e.printStackTrace();}
+		} else {
+			InputStream is = new ByteArrayInputStream(xml.getBytes());
+			try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);}
+			catch (SAXException | IOException | ParserConfigurationException e) {e.printStackTrace();}
+		}
 	}
 	
 	public Document xml() {

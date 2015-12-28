@@ -9,6 +9,8 @@ public class FjHttpRequest extends FjHttpMessage {
 	private String method;
 	private String url;
 	
+	public FjHttpRequest(String method, String url) {this(method, url, null);}
+	
 	public FjHttpRequest(String method, String url, String content) {
 		super(content);
 		this.method = method;

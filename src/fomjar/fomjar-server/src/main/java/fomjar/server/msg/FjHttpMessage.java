@@ -8,6 +8,8 @@ public class FjHttpMessage extends FjMessage {
 	
 	private String content;
 	
+	public FjHttpMessage() {this(null);}
+	
 	public FjHttpMessage(String content) {
 		if (null == content) content = "";
 		this.content = content;
