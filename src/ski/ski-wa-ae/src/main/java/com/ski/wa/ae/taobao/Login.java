@@ -20,14 +20,15 @@ public class Login implements AE {
 		driver.get("https://login.taobao.com/member/login.jhtml");
 		try {Thread.sleep(1000L);}
 		catch (InterruptedException e) {e.printStackTrace();}
-		driver.findElement(By.id("J_Quick2Static")).click(); // 账户密码登陆
-		WebElement we = driver.findElement(By.id("TPL_username_1"));
-		if ("text".equals(we.getAttribute("type"))) { // 用户名需要输入
-			driver.findElement(By.id("TPL_username_1")).clear(); // 用户名
-			driver.findElement(By.id("TPL_username_1")).sendKeys(arg.getString("user"));
+		// try {driver.findElement(By.id("J_Quick2Static")).click();} catch (NoSuchElementException e){} // 账户密码登陆
+		WebElement username = driver.findElement(By.id("TPL_username_1"));
+		if ("text".equals(username.getAttribute("type"))) { // 用户名需要输入
+			username.clear(); // 用户名
+			username.sendKeys(arg.getString("user"));
 		}
-		driver.findElement(By.id("TPL_password_1")).clear(); // 密码
-		driver.findElement(By.id("TPL_password_1")).sendKeys(arg.getString("pass"));
+		WebElement password = driver.findElement(By.id("TPL_password_1"));
+		password.clear(); // 密码
+		password.sendKeys(arg.getString("pass"));
 		driver.findElement(By.id("J_SubmitStatic")).click(); // 登陆
 		try {Thread.sleep(1000L);}
 		catch (InterruptedException e) {e.printStackTrace();}
