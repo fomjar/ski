@@ -41,7 +41,7 @@ public class TokenGuard extends FjLoopTask {
 		new Thread(this, "token-guard").start();
 	}
 	
-	public String getToken() {
+	public String token() {
 		return token;
 	}
 	
@@ -49,7 +49,7 @@ public class TokenGuard extends FjLoopTask {
 	public void perform() {
 		token = null;
 		long defaultInterval = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
-		FjJsonMessage token_msg = WechatInterface.token(getServerName(), FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"));
+		FjJsonMessage token_msg = WechatInterface.token(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"));
 		if (null == token_msg || !token_msg.json().containsKey("access_token") || !token_msg.json().containsKey("expires_in")) {
 			logger.error("get wechat access token failed: " + token_msg);
 			setNextRetryInterval(defaultInterval);

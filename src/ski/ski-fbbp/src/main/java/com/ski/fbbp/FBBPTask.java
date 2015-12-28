@@ -8,7 +8,7 @@ import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.be.FjBusinessExecutor;
 import fomjar.server.be.SessionNotOpenException;
-import fomjar.server.msg.FjDSCPMessage;
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
 
 public class FBBPTask implements FjServerTask {
@@ -23,8 +23,8 @@ public class FBBPTask implements FjServerTask {
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
-		if (msg instanceof FjDSCPMessage)
-			try {FjBusinessExecutor.dispatch(bes, (FjDSCPMessage) msg);}
+		if (msg instanceof FjDscpMessage)
+			try {FjBusinessExecutor.dispatch(bes, (FjDscpMessage) msg);}
 			catch (SessionNotOpenException e) {e.printStackTrace();}
 	}
 

@@ -7,9 +7,9 @@ import com.ski.common.DSCP;
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.be.FjBusinessExecutor;
-import fomjar.server.msg.FjDSCPMessage;
-import fomjar.server.msg.FjDSCPRequest;
-import fomjar.server.msg.FjDSCPResponse;
+import fomjar.server.msg.FjDscpMessage;
+import fomjar.server.msg.FjDscpRequest;
+import fomjar.server.msg.FjDscpResponse;
 
 /**
  * 淘宝订单查询和入库业务
@@ -26,13 +26,13 @@ public class ProcTaobaoOrder extends FjBusinessExecutor {
 	private static final Logger logger = Logger.getLogger(ProcTaobaoOrder.class);
 
 	@Override
-	public void execute(FjSCB scb, FjDSCPMessage msg) {
+	public void execute(FjSCB scb, FjDscpMessage msg) {
 		switch (msg.ssn()) {
 		case 1: // 网页侧查询订单结果
-			processQueryResult(scb, (FjDSCPResponse) msg);
+			processQueryResult(scb, (FjDscpResponse) msg);
 			break;
 		case 3: // 数据库预处理订单的结果
-			processStoreResult(scb, (FjDSCPResponse) msg);
+			processStoreResult(scb, (FjDscpResponse) msg);
 			scb.end();
 			break;
 		default:
@@ -42,12 +42,12 @@ public class ProcTaobaoOrder extends FjBusinessExecutor {
 		}
 	}
 	
-	private void processQueryResult(FjSCB scb, FjDSCPResponse rsp) {
+	private void processQueryResult(FjSCB scb, FjDscpResponse rsp) {
 		if (DSCP.CODE.SYSTEM_SUCCESS != rsp.code()) {
 			logger.error(String.format("query new taobao order list failed, code: %d, reason: %s", rsp.code(), rsp.desc()));
 			return;
 		}
-		FjDSCPRequest req_cdb = new FjDSCPRequest();
+		FjDscpRequest req_cdb = new FjDscpRequest();
 		req_cdb.json().put("fs",  getServer().name());
 		req_cdb.json().put("ts",  "cdb");
 		req_cdb.json().put("sid", rsp.sid());
@@ -58,7 +58,7 @@ public class ProcTaobaoOrder extends FjBusinessExecutor {
 		logger.debug("forward taobao order list new from wa to cdb");
 	}
 	
-	private void processStoreResult(FjSCB scb, FjDSCPResponse rsp) {
+	private void processStoreResult(FjSCB scb, FjDscpResponse rsp) {
 		if (DSCP.CODE.SYSTEM_SUCCESS != rsp.code()) {
 			logger.error("store taobao new order failed, reason: " + rsp.desc());
 			return;

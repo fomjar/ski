@@ -10,7 +10,7 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.be.FjBusinessExecutor;
-import fomjar.server.msg.FjDSCPRequest;
+import fomjar.server.msg.FjDscpRequest;
 import fomjar.util.FjLoopTask;
 
 public class TaobaoOrderListNewGuard extends FjLoopTask {
@@ -30,10 +30,10 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 	@Override
 	public void perform() {
 		String serverName = be.getServer().name();
-		FjDSCPRequest req = new FjDSCPRequest();
+		FjDscpRequest req = new FjDscpRequest();
 		req.json().put("fs",  serverName);
 		req.json().put("ts",  "wa");
-		req.json().put("sid", FjDSCPRequest.newSid(serverName));
+		req.json().put("sid", FjDscpRequest.newSid(serverName));
 		req.json().put("ssn", 0);
 		req.json().put("cmd", DSCP.CMD.TAOBAO_ORDER_LIST_NEW);
 		req.json().put("arg", JSONObject.fromObject(String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass"))));

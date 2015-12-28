@@ -5,7 +5,7 @@ import java.nio.channels.SocketChannel;
 import com.ski.wca.guard.TokenGuard;
 
 import fomjar.server.FjMessageWrapper;
-import fomjar.server.FjServerToolkit;
+import fomjar.server.FjSender;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
@@ -13,6 +13,37 @@ import fomjar.server.msg.FjJsonMessage;
 public class WechatInterface {
 	
 	// private static final Logger logger = Logger.getLogger(WechatInterface.class);
+	
+	public static class WechatAuthorityException extends Exception {
+
+		private static final long serialVersionUID = 6641226267444874372L;
+
+		public WechatAuthorityException() {
+			super();
+		}
+
+		public WechatAuthorityException(String message, Throwable cause,
+				boolean enableSuppression, boolean writableStackTrace) {
+			super(message, cause, enableSuppression, writableStackTrace);
+		}
+
+		public WechatAuthorityException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public WechatAuthorityException(String message) {
+			super(message);
+		}
+
+		public WechatAuthorityException(Throwable cause) {
+			super(cause);
+		}
+		
+	}
+	
+	private static void checkAuthority() throws WechatAuthorityException {
+		if (null == TokenGuard.getInstance().token()) throw new WechatAuthorityException("have no access token");
+	}
 	
 	/**
 	 * access message demo:
@@ -28,27 +59,30 @@ public class WechatInterface {
 	 * @param serverName
 	 * @param wrapper
 	 */
-	public static void access(String serverName, FjMessageWrapper wrapper) {
-		response(serverName, (SocketChannel) wrapper.attachment("conn"), "text/plain", ((FjHttpRequest) wrapper.message()).titleParam("echostr"));
+	public static void access(FjMessageWrapper wrapper) {
+		FjSender.sendHttpResponse(new FjHttpResponse(((FjHttpRequest) wrapper.message()).urlParameters().get("echostr")), (SocketChannel) wrapper.attachment("conn"));
 	}
 	
 	private static final String URL_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
-	public static FjJsonMessage token(String serverName, String appid, String secret) {
+	public static FjJsonMessage token(String appid, String secret) {
 		String url = String.format(URL_TOKEN, appid, secret);
-		return (FjJsonMessage) FjServerToolkit.getSender(serverName).sendHttpRequest("GET", url, null);
+		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url, null));
 	}
 	
 	private static final String URL_MENU_CREATE = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s";
-	public static FjJsonMessage menuCreate(String serverName, String menu) {
-		String url = String.format(URL_MENU_CREATE, TokenGuard.getInstance().getToken());
-		return (FjJsonMessage) FjServerToolkit.getSender(serverName).sendHttpRequest("POST", url, menu.replace("'", "\""));
+	public static FjJsonMessage menuCreate(String menu) throws WechatAuthorityException {
+		checkAuthority();
+		String url = String.format(URL_MENU_CREATE, TokenGuard.getInstance().token());
+		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, menu.replace("'", "\"")));
 	}
 	
 	private static final String URL_MENU_DELETE = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s";
-	public static FjJsonMessage menuDelete(String serverName) {
-		String url = String.format(URL_MENU_DELETE, TokenGuard.getInstance().getToken());
-		return (FjJsonMessage) FjServerToolkit.getSender(serverName).sendHttpRequest("GET", url, null);
+	public static FjJsonMessage menuDelete(String serverName) throws WechatAuthorityException {
+		checkAuthority();
+		String url = String.format(URL_MENU_DELETE, TokenGuard.getInstance().token());
+		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest("GET", url, null));
 	}
+	
 	
 	private static final String TEMPLATE_MESSAGE = "<xml>\r\n"
 			+ "<ToUserName><![CDATA[%s]]></ToUserName>\r\n"
@@ -57,13 +91,8 @@ public class WechatInterface {
 			+ "<MsgType><![CDATA[%s]]></MsgType>\r\n"
 			+ "<Content><![CDATA[%s]]></Content>\r\n"
 			+ "</xml>";	
-	public static void responseMessage(String serverName, SocketChannel conn, String to, String from, String messageType, String message) {
-		String content = String.format(TEMPLATE_MESSAGE, to, from, System.currentTimeMillis() / 1000, messageType, message);
-		response(serverName, conn, "text/xml", content);
-	}
-	
-	public static void response(String serverName, SocketChannel conn, String contentType, String content) {
-		FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(new FjHttpResponse(contentType, content)).attach("conn", conn));
+	public static String createMessage(String to, String from, String type, String content) {
+		return String.format(TEMPLATE_MESSAGE, to, from, System.currentTimeMillis() / 1000, type, content);
 	}
 
 }

@@ -1,5 +1,6 @@
 package fomjar.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,7 +23,9 @@ import javax.net.ssl.X509TrustManager;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.msg.FjDSCPMessage;
+import fomjar.server.msg.FjDscpMessage;
+import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
@@ -64,8 +67,8 @@ public class FjSender extends FjLoopTask {
 				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
-		} else if (msg instanceof FjDSCPMessage) {
-			FjDSCPMessage dmsg = (FjDSCPMessage) msg;
+		} else if (msg instanceof FjDscpMessage) {
+			FjDscpMessage dmsg = (FjDscpMessage) msg;
 			if (!dmsg.isValid()) {
 				logger.error("can not send an invalid dscp message: " + dmsg);
 				if (null != observer) observer.onFail();
@@ -123,31 +126,43 @@ public class FjSender extends FjLoopTask {
 		mq.offer(wrapper);
 	}
 	
-	private byte[] buf;
-	
-	public synchronized FjMessage sendHttpRequest(String method, String url, String content) {
+	public static FjMessage sendHttpRequest(FjHttpRequest req) {
 		HttpURLConnection conn = null;
 		FjMessage rsp = null;
 		try {
-			URL httpurl = new URL(url);
-			if (url.startsWith("https")) {initSslContext();}
+			URL httpurl = new URL(req.url());
+			if (req.url().startsWith("https")) {initSslContext();}
 			conn = (HttpURLConnection) httpurl.openConnection();
-			if (null != method) conn.setRequestMethod(method);
+			conn.setRequestMethod(req.method());
 			conn.setDoInput(true);
-			if (null != content) {
-				conn.setDoOutput(true);
-				conn.setRequestProperty("Content-Length", String.valueOf(content.length()));
-				OutputStream os = conn.getOutputStream();
-				os.write(content.getBytes(Charset.forName("utf-8")));
-				os.flush();
-			}
+			conn.setDoOutput(true);
+			conn.setRequestProperty("Content-Type",   req.contentType());
+			conn.setRequestProperty("Content-Length", String.valueOf(req.contentLength()));
+			OutputStream os = conn.getOutputStream();
+			os.write(req.content().getBytes(Charset.forName("utf-8")));
+			os.flush();
 			InputStream is = conn.getInputStream();
-			if (null == buf) buf = new byte[1024 * 1024];
-			int n = is.read(buf);
-			rsp = FjMessage.create(new String(buf, 0, n, Charset.forName("utf-8")));
-		} catch (IOException e) {logger.error("error occurs when send http request to url: " + url, e);}
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte[] buf = new byte[1024];
+			int n = -1;
+			while (0 < (n = is.read(buf))) baos.write(buf, 0, n);
+			rsp = FjMessage.create(baos.toString("utf-8"));
+		} catch (IOException e) {logger.error("error occurs when send http request to url: " + req.url(), e);}
 		finally {if (null != conn) conn.disconnect();}
 		return rsp;
+	}
+	
+	public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("HTTP/1.1 " + rsp.code() + " OK\r\n");
+		sb.append("Content-Type: "   + rsp.contentType() + "\r\n");
+		sb.append("Content-Length: " + rsp.contentLength() + "\r\n");
+		sb.append("\r\n");
+		sb.append(rsp.content());
+		ByteBuffer buf = ByteBuffer.wrap(sb.toString().getBytes(Charset.forName("utf-8")));
+		try {while(buf.hasRemaining()) conn.write(buf);}
+		catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
+		finally {if (null != conn) try {conn.close();} catch (IOException e) {}}
 	}
 	
 	private static SSLContext sslcontext = null;

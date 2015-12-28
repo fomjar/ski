@@ -22,8 +22,8 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.msg.FjDSCPRequest;
-import fomjar.server.msg.FjDSCPResponse;
+import fomjar.server.msg.FjDscpRequest;
+import fomjar.server.msg.FjDscpResponse;
 import fomjar.server.msg.FjMessage;
 
 public class CDBTask implements FjServerTask {
@@ -58,11 +58,11 @@ public class CDBTask implements FjServerTask {
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
-		if (!(msg instanceof FjDSCPRequest)) {
+		if (!(msg instanceof FjDscpRequest)) {
 			logger.error("illegal request, discard: " + msg);
 			return;
 		}
-		FjDSCPRequest req = (FjDSCPRequest) msg;
+		FjDscpRequest req = (FjDscpRequest) msg;
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
@@ -86,8 +86,8 @@ public class CDBTask implements FjServerTask {
 		}
 	}
 	
-	private static void response(String serverName, FjDSCPRequest req, int code, JSONObject desc) {
-		FjDSCPResponse rsp = new FjDSCPResponse();
+	private static void response(String serverName, FjDscpRequest req, int code, JSONObject desc) {
+		FjDscpResponse rsp = new FjDscpResponse();
 		rsp.json().put("fs",   serverName);
 		rsp.json().put("ts",   req.fs());
 		rsp.json().put("sid",  req.sid());

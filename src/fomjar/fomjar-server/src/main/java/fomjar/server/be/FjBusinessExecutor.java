@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import fomjar.server.FjServer;
-import fomjar.server.msg.FjDSCPMessage;
+import fomjar.server.msg.FjDscpMessage;
 
 /**
  * 业务执行器，处理某一个业务流
@@ -17,7 +17,7 @@ public abstract class FjBusinessExecutor {
 	
 	private static final Logger logger = Logger.getLogger(FjBusinessExecutor.class);
 	
-	public static void dispatch(FjBusinessExecutor[] bes, FjDSCPMessage msg) throws SessionNotOpenException {
+	public static void dispatch(FjBusinessExecutor[] bes, FjDscpMessage msg) throws SessionNotOpenException {
 		if (null == bes) {
 			logger.error("no available business executor to dispatch");
 			return;
@@ -112,6 +112,6 @@ public abstract class FjBusinessExecutor {
 	 * @param scb
 	 * @return 业务全流程结束返回true，未结束返回false
 	 */
-	public abstract void execute(FjSCB scb, FjDSCPMessage msg);
+	public abstract void execute(FjSCB scb, FjDscpMessage msg);
 	
 }
