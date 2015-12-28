@@ -2,9 +2,9 @@ package fomjar.server.msg;
 
 import java.util.Random;
 
-public class FjDSCPMessage extends FjJsonMessage {
+public class FjDscpMessage extends FjJsonMessage {
 	
-	FjDSCPMessage(Object json) {super(json);}
+	FjDscpMessage(Object json) {super(json);}
 	
 	public String fs()  {return json().getString("fs");}
 	public String ts()  {return json().getString("ts");}

@@ -2,10 +2,10 @@ package fomjar.server.msg;
 
 import net.sf.json.JSONObject;
 
-public class FjDSCPRequest extends FjDSCPMessage {
+public class FjDscpRequest extends FjDscpMessage {
 	
-	public FjDSCPRequest()            {this(null);}
-	public FjDSCPRequest(Object json) {super(json);}
+	public FjDscpRequest()            {this(null);}
+	public FjDscpRequest(Object json) {super(json);}
 
 	public int        cmd() {return json().getInt("cmd");}
 	public JSONObject arg() {return (JSONObject) json().get("arg");}
