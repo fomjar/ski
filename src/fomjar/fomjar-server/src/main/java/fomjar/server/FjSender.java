@@ -142,7 +142,7 @@ public class FjSender extends FjLoopTask {
 			os.write(req.content().getBytes(Charset.forName("utf-8")));
 			os.flush();
 			InputStream is = conn.getInputStream();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
 			byte[] buf = new byte[1024];
 			int n = -1;
 			while (0 < (n = is.read(buf))) baos.write(buf, 0, n);

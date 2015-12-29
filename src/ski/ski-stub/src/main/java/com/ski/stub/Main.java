@@ -30,7 +30,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		send(SERVER_WA, PORT_WA, "{\"fs\":\"stub-1\", \"ts\":\"wa\", \"sid\":\"12312312313\", \"ae-cmd\":\"ae.taobao.order-list-new\", \"ae-arg\":null}");
-		//System.out.println(new FjXmlMessage("<xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName><FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName><CreateTime>1451317679</CreateTime><MsgType><![CDATA[text]]></MsgType><Content><![CDATA[觉得基督教的家]]></Content><MsgId>6233361967813570396</MsgId></xml>"));
+		//System.out.println(JSONObject.fromObject("{'key':'<xml>asdasdf</xml>'}"));
 	}
 
 }

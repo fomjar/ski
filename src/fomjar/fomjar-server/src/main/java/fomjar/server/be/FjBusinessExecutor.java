@@ -51,14 +51,15 @@ public abstract class FjBusinessExecutor {
 		public  String  sid() {return sid;}
 		public  Object  get(String key)       {return data.get(key);}
 		public  String  getString(String key) {return (String) data.get(key);}
+		public  byte    getByte(String key)   {return (byte) data.get(key);}
 		public  char    getChar(String key)   {return (char) data.get(key);}
 		public  short   getShort(String key)  {return (short) data.get(key);}
 		public  int     getInt(String key)    {return (int) data.get(key);}
 		public  long    getLong(String key)   {return (long) data.get(key);}
 		public  float   getFloat(String key)  {return (float) data.get(key);}
 		public  double  getDouble(String key) {return (double) data.get(key);}
-		public  Map<String, Object> getAll() {return data;}
-		public  void    put(String key, Object value) {data.put(key, value);}
+		public  Map<String, Object> getAll()  {return data;}
+		public  FjSCB   put(String key, Object value) {data.put(key, value); return this;}
 		public  void    end() {end = true;};
 		private boolean isEnd() {return end;}
 	}

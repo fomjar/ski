@@ -36,7 +36,7 @@ public class FjXmlMessage extends FjMessage {
 
 	@Override
 	public String toString() {
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
 		try {new XMLSerializer(os, new OutputFormat(xml(), "utf-8", true)).serialize(xml());}
 		catch (IOException e) {e.printStackTrace();}
 		return os.toString();

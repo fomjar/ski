@@ -34,7 +34,7 @@ public class WATask implements FjServerTask {
 		}
 		FjDscpRequest req = (FjDscpRequest) msg;
 		int        cmd = req.cmd();
-		JSONObject arg = req.arg();
+		JSONObject arg = (JSONObject) req.arg();
 		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
 			logger.error("can not find an AE for cmd: " + cmd);

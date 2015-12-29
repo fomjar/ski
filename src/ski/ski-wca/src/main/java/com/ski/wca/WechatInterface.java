@@ -91,8 +91,8 @@ public class WechatInterface {
 			+ "<MsgType><![CDATA[%s]]></MsgType>\r\n"
 			+ "<Content><![CDATA[%s]]></Content>\r\n"
 			+ "</xml>";	
-	public static String createMessage(String to, String from, String type, String content) {
-		return String.format(TEMPLATE_MESSAGE, to, from, System.currentTimeMillis() / 1000, type, content);
+	public static String createMessage(String user_to, String user_from, String type, String content) {
+		return String.format(TEMPLATE_MESSAGE, user_to, user_from, System.currentTimeMillis() / 1000, type, content);
 	}
 
 }

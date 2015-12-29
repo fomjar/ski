@@ -72,7 +72,7 @@ public class CDBTask implements FjServerTask {
 		}
 		CdbCmdInfo cci = new CdbCmdInfo();
 		cci.cmd = req.cmd();
-		cci.arg = req.arg();
+		cci.arg = (JSONObject) req.arg();
 		if (!getCmdInfo(cci)) {
 			logger.error("command is not registered: " + cci.cmd);
 			response(server.name(), req, DSCP.CODE.CDB_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':\"" + cci.err + "\"}"));
