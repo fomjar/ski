@@ -14,35 +14,35 @@ public class WechatInterface {
 	
 	// private static final Logger logger = Logger.getLogger(WechatInterface.class);
 	
-	public static class WechatAuthorityException extends Exception {
+	public static class WechatPermissionDeniedException extends Exception {
 
 		private static final long serialVersionUID = 6641226267444874372L;
 
-		public WechatAuthorityException() {
+		public WechatPermissionDeniedException() {
 			super();
 		}
 
-		public WechatAuthorityException(String message, Throwable cause,
+		public WechatPermissionDeniedException(String message, Throwable cause,
 				boolean enableSuppression, boolean writableStackTrace) {
 			super(message, cause, enableSuppression, writableStackTrace);
 		}
 
-		public WechatAuthorityException(String message, Throwable cause) {
+		public WechatPermissionDeniedException(String message, Throwable cause) {
 			super(message, cause);
 		}
 
-		public WechatAuthorityException(String message) {
+		public WechatPermissionDeniedException(String message) {
 			super(message);
 		}
 
-		public WechatAuthorityException(Throwable cause) {
+		public WechatPermissionDeniedException(Throwable cause) {
 			super(cause);
 		}
 		
 	}
 	
-	private static void checkAuthority() throws WechatAuthorityException {
-		if (null == TokenGuard.getInstance().token()) throw new WechatAuthorityException("have no access token");
+	private static void checkWechatPermission() throws WechatPermissionDeniedException {
+		if (null == TokenGuard.getInstance().token()) throw new WechatPermissionDeniedException("havn't got access token yet");
 	}
 	
 	/**
@@ -70,15 +70,15 @@ public class WechatInterface {
 	}
 	
 	private static final String URL_MENU_CREATE = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s";
-	public static FjJsonMessage menuCreate(String menu) throws WechatAuthorityException {
-		checkAuthority();
+	public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
+		checkWechatPermission();
 		String url = String.format(URL_MENU_CREATE, TokenGuard.getInstance().token());
 		return sendRequest("POST", url, menu.replace("'", "\""));
 	}
 	
 	private static final String URL_MENU_DELETE = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s";
-	public static FjJsonMessage menuDelete(String serverName) throws WechatAuthorityException {
-		checkAuthority();
+	public static FjJsonMessage menuDelete(String serverName) throws WechatPermissionDeniedException {
+		checkWechatPermission();
 		String url = String.format(URL_MENU_DELETE, TokenGuard.getInstance().token());
 		return sendRequest("GET", url);
 	}

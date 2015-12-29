@@ -3,7 +3,7 @@ package com.ski.wca.guard;
 import org.apache.log4j.Logger;
 
 import com.ski.wca.WechatInterface;
-import com.ski.wca.WechatInterface.WechatAuthorityException;
+import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjJsonMessage;
@@ -39,7 +39,7 @@ public class MenuGuard extends FjLoopTask {
 		try {
 			if (null == menu || 0 == menu.length()) rsp = WechatInterface.menuDelete(getServerName());
 			else rsp = WechatInterface.menuCreate(menu);
-		} catch (WechatAuthorityException e) {logger.error(e);}
+		} catch (WechatPermissionDeniedException e) {logger.error(e);}
 		if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
 		else logger.error("menu update failed: " + rsp);
 		setNextRetryInterval(Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval")));
