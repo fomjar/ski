@@ -90,18 +90,56 @@ public class WCATask implements FjServerTask {
 				req.json().put("arg", event_key);
 			}
 		} else if ("location".equals(msg_type)) {
-			float x      = Float.parseFloat(xml.getElementsByTagName("Location_X").item(0).getTextContent());
-			float y      = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
-			int   scale  = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
+			float  x     = Float.parseFloat(xml.getElementsByTagName("Location_X").item(0).getTextContent());
+			float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
+			int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
 			String label = xml.getElementsByTagName("Label").item(0).getTextContent();
 			req.json().put("cmd", DSCP.CMD.WECHAT_USER_LOCATION);
 			req.json().put("arg", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
+		} else if ("image".equals(msg_type)) {
+			/**
+			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
+			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
+			 * <CreateTime>1451406148</CreateTime>
+			 * <MsgType><![CDATA[image]]></MsgType>
+			 * <PicUrl><![CDATA[http://mmbiz.qpic.cn/mmbiz/mOh7Zj68sT6BagSkm5VVdSY19Zqn2W32uAaJzADL46bzheBEXUKUaX0H2tsRLe2WXtSsj7tgSUj5wkDlkuuZBA/0]]></PicUrl>
+			 * <MsgId>6233741939275317091</MsgId>
+			 * <MediaId><![CDATA[m0136L5dVlQckJJUHFOSc1ZW757ZuVBhZAvvBr1kXV8DwBW3t-w7l3a8i4btf5yO]]></MediaId>
+			 * </xml>
+			 */
+		} else if ("voice".equals(msg_type)) {
+			/**
+			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
+			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
+			 * <CreateTime>1451406497</CreateTime>
+			 * <MsgType><![CDATA[voice]]></MsgType>
+			 * <MediaId><![CDATA[6IJxKBt0aUcsKSxTD9MHX9WV1sYnFkf0lAArZWWm_YZVRnF2OWGcQdvXOxcBwdom]]></MediaId>
+			 * <Format><![CDATA[amr]]></Format>
+			 * <MsgId>6233743438218903488</MsgId>
+			 * <Recognition><![CDATA[]]></Recognition>
+			 * </xml>
+			 */
+		} else if ("shortvideo".equals(msg_type)) {
+			/**
+			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
+			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
+			 * <CreateTime>1451406218</CreateTime>
+			 * <MsgType><![CDATA[shortvideo]]></MsgType>
+			 * <MediaId><![CDATA[UtzXqtCNJXMMzT7Wm3uCxB0xoYyXosqueheO05qaERJTMmOKQbBPQT3Pt9xVyC-4]]></MediaId>
+			 * <ThumbMediaId><![CDATA[NKm_Nl1889sucsIhojyebk9W-dcxPXjV4xPwObm2RgvoGgH21y6-X653AdZYFQc3]]></ThumbMediaId>
+			 * <MsgId>6233742239923027843</MsgId>
+			 * </xml>
+			 */
 		}
-		bes[0].openSession(req.sid())
-				.put("user_from", user_from)
-				.put("user_to", user_to)
-				.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续响应消息用
-		wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
-		FjServerToolkit.getSender(serverName).send(req);
+		if (req.isValid()) {
+			bes[0].openSession(req.sid())
+					.put("user_from", user_from)
+					.put("user_to", user_to)
+					.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
+			wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
+			FjServerToolkit.getSender(serverName).send(req);
+		} else {
+			logger.error("unsupport message, discard: " + wrapper.message());
+		}
 	}
 }

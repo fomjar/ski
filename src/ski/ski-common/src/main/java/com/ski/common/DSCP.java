@@ -16,6 +16,9 @@ public final class DSCP {
 		public static final int WECHAT_USER_CLICK                   = 0x00002003; // 微信用户点击菜单按钮
 		public static final int WECHAT_USER_VIEW                    = 0x00002004; // 微信用户点击菜单按钮跳转页面
 		public static final int WECHAT_USER_LOCATION                = 0x00002005; // 微信用户上报位置
+		public static final int WECHAT_USER_IMAGE                   = 0x00002006; // 微信用户上传图片
+		public static final int WECHAT_USER_VOICE                   = 0x00002007; // 微信用户发送语音
+		public static final int WECHAT_USER_SHORTVIDEO              = 0x00002008; // 微信用户上传小视频
 		public static final int WECHAT_SYSTEM_MENU_UPDATE           = 0x00002600; // 微信系统菜单更新
 		
 		public static final int SYSTEM_UNKNOWN_COMMAND              = 0xFFFFFFFF; // 未知命令
