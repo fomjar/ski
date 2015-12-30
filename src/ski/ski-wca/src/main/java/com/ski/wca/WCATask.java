@@ -72,8 +72,6 @@ public class WCATask implements FjServerTask {
 		FjDscpRequest req = new FjDscpRequest();
 		req.json().put("fs", serverName);
 		req.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
-		req.json().put("sid", FjDscpRequest.newSid(serverName));
-		req.json().put("ssn", 0);
 		if ("text".equals(msg_type))  {
 			content = xml.getElementsByTagName("Content").item(0).getTextContent();
 			req.json().put("cmd", DSCP.CMD.WECHAT_USER_TEXT);
@@ -136,22 +134,18 @@ public class WCATask implements FjServerTask {
 			 * </xml>
 			 */
 		}
-		if (req.isValid()) {
-			bes[0].openSession(req.sid())
-					.put("user_from", user_from)
-					.put("user_to", user_to)
-					.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
-			wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
-			FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
-				@Override
-				public void onFail() {
-					FjSCB scb = bes[0].closeSession(req.sid());
-					try {((SocketChannel) scb.get("conn")).close();}
-					catch (IOException e) {}
-				}
-			}));
-		} else {
-			logger.error("unsupport message, discard: " + wrapper.message());
-		}
+		bes[0].openSession(req.sid())
+				.put("user_from", user_from)
+				.put("user_to", user_to)
+				.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
+		wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
+		FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
+			@Override
+			public void onFail() {
+				FjSCB scb = bes[0].closeSession(req.sid());
+				try {((SocketChannel) scb.get("conn")).close();}
+				catch (IOException e) {}
+			}
+		}));
 	}
 }

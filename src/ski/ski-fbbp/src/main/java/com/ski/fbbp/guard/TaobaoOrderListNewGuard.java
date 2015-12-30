@@ -33,8 +33,6 @@ public class TaobaoOrderListNewGuard extends FjLoopTask {
 		FjDscpRequest req = new FjDscpRequest();
 		req.json().put("fs",  serverName);
 		req.json().put("ts",  "wa");
-		req.json().put("sid", FjDscpRequest.newSid(serverName));
-		req.json().put("ssn", 0);
 		req.json().put("cmd", DSCP.CMD.TAOBAO_ORDER_LIST_NEW);
 		req.json().put("arg", JSONObject.fromObject(String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass"))));
 		FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {@Override public void onSuccess() {be.openSession(req.sid());}}));

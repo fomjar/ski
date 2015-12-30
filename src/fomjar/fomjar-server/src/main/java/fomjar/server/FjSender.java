@@ -69,11 +69,6 @@ public class FjSender extends FjLoopTask {
 			}
 		} else if (msg instanceof FjDscpMessage) {
 			FjDscpMessage dmsg = (FjDscpMessage) msg;
-			if (!dmsg.isValid()) {
-				logger.error("can not send an invalid dscp message: " + dmsg);
-				if (null != observer) observer.onFail();
-				return;
-			}
 			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(dmsg.ts());
 			if (null == addr0) {
 				logger.error("can not find an address with server name: " + dmsg.ts());
