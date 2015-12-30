@@ -14,6 +14,14 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import fomjar.server.msg.FjDscpMessage;
+import fomjar.server.msg.FjDscpRequest;
+import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
+import fomjar.server.msg.FjJsonMessage;
+import fomjar.server.msg.FjMessage;
+import fomjar.server.msg.FjXmlMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjServerToolkit {
@@ -180,6 +188,38 @@ public class FjServerToolkit {
 	public static FjSender getSender(String name) {
 		if (null == g_sender) return null;
 		return g_sender.get(name);
+	}
+	
+	public static FjMessage createMessage(final String data) {
+		if (data.startsWith("GET")
+				|| data.startsWith("POST")
+				|| data.startsWith("HEAD")) {
+			String[] title = data.split("\r\n")[0].split(" ");
+			String content = data.contains("\r\n\r\n") ? data.split("\r\n\r\n")[1] : null;
+			return new FjHttpRequest(title[0], title[1], content);
+		}
+		if (data.startsWith("HTTP/")) {
+			int code = Integer.parseInt(data.split("\r\n")[0].split(" ")[1]);
+			String content = data.contains("\r\n\r\n") ? data.split("\r\n\r\n")[1] : null;
+			return new FjHttpResponse(code, content);
+		}
+		if (data.startsWith("{")) {
+			FjJsonMessage jmsg = new FjJsonMessage(data);
+			if (jmsg.json().containsKey("fs")
+					&& jmsg.json().containsKey("ts")
+					&& jmsg.json().containsKey("sid")
+					&& jmsg.json().containsKey("ssn")) {
+				if (jmsg.json().containsKey("cmd")
+						&& jmsg.json().containsKey("arg")) return new FjDscpRequest(data);
+				else if (jmsg.json().containsKey("code")
+						&& jmsg.json().containsKey("desc")) return new FjDscpResponse(data);
+				else return new FjDscpMessage(data);
+			} else {
+				return jmsg;
+			}
+		}
+		if (data.startsWith("<")) return new FjXmlMessage(data);
+		return new FjMessage() {@Override public String toString() {return data;}};
 	}
 
 }

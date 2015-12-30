@@ -4,7 +4,7 @@ import org.w3c.dom.Document;
 
 import net.sf.json.JSONObject;
 
-public class FjHttpMessage extends FjMessage {
+public class FjHttpMessage implements FjMessage {
 	
 	private String content;
 	

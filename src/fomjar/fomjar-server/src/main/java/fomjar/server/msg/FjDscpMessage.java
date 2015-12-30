@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class FjDscpMessage extends FjJsonMessage {
 	
-	FjDscpMessage(Object json) {super(json);}
+	public FjDscpMessage(Object json) {super(json);}
 	
 	public String fs()  {return json().getString("fs");}
 	public String ts()  {return json().getString("ts");}

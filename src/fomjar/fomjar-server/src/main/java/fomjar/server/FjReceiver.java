@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjReceiver extends FjLoopTask {
@@ -81,7 +80,7 @@ public class FjReceiver extends FjLoopTask {
 					buf.clear();
 					int n = conn.read(buf);
 					buf.flip();
-					if (0 < n) mq.offer(new FjMessageWrapper(FjMessage.create(Charset.forName("utf-8").decode(buf).toString())).attach("conn", conn));
+					if (0 < n) mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(Charset.forName("utf-8").decode(buf).toString())).attach("conn", conn));
 				}
 			}
 			keys.clear();

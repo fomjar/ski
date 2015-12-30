@@ -1,5 +1,8 @@
 package com.ski.wca;
 
+import java.io.IOException;
+import java.nio.channels.SocketChannel;
+
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -11,10 +14,12 @@ import com.ski.wca.guard.MenuGuard;
 import com.ski.wca.guard.TokenGuard;
 
 import fomjar.server.FjMessageWrapper;
+import fomjar.server.FjSender;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.be.FjBusinessExecutor;
+import fomjar.server.be.FjBusinessExecutor.FjSCB;
 import fomjar.server.be.SessionNotOpenException;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjDscpRequest;
@@ -137,7 +142,14 @@ public class WCATask implements FjServerTask {
 					.put("user_to", user_to)
 					.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
 			wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
-			FjServerToolkit.getSender(serverName).send(req);
+			FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
+				@Override
+				public void onFail() {
+					FjSCB scb = bes[0].closeSession(req.sid());
+					try {((SocketChannel) scb.get("conn")).close();}
+					catch (IOException e) {}
+				}
+			}));
 		} else {
 			logger.error("unsupport message, discard: " + wrapper.message());
 		}

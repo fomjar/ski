@@ -2,7 +2,7 @@ package fomjar.server.msg;
 
 import net.sf.json.JSONObject;
 
-public class FjJsonMessage extends FjMessage {
+public class FjJsonMessage implements FjMessage {
 	
 	private JSONObject json;
 	
@@ -14,13 +14,9 @@ public class FjJsonMessage extends FjMessage {
 		else this.json = JSONObject.fromObject(json);
 	}
 	
-	public JSONObject json() {
-		return json;
-	}
+	public JSONObject json() {return json;}
 	
 	@Override
-	public String toString() {
-		return json().toString();
-	}
+	public String toString() {return json().toString();}
 	
 }

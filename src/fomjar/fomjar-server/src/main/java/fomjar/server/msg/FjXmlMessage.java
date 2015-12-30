@@ -13,7 +13,7 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-public class FjXmlMessage extends FjMessage {
+public class FjXmlMessage implements FjMessage {
 	
 	private Document xml;
 	
@@ -30,9 +30,7 @@ public class FjXmlMessage extends FjMessage {
 		}
 	}
 	
-	public Document xml() {
-		return xml;
-	}
+	public Document xml() {return xml;}
 
 	@Override
 	public String toString() {
