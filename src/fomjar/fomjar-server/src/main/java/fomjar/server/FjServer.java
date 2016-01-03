@@ -22,13 +22,9 @@ public class FjServer extends FjLoopTask {
 		tasks = new LinkedList<FjServerTask>();
 	}
 	
-	public String name() {
-		return name;
-	}
+	public String name() {return name;}
 	
-	public FjMessageQueue mq() {
-		return mq;
-	}
+	public FjMessageQueue mq() {return mq;}
 	
 	public void addServerTask(FjServerTask task) {
 		if (null == task) throw new NullPointerException();

@@ -9,33 +9,33 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 import com.ski.common.DSCP;
-import com.ski.wca.be.DefaultBE;
 import com.ski.wca.guard.MenuGuard;
 import com.ski.wca.guard.TokenGuard;
+import com.ski.wca.sc.DefaultSessionController;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.be.FjBusinessExecutor;
-import fomjar.server.be.FjBusinessExecutor.FjSCB;
-import fomjar.server.be.SessionNotOpenException;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjDscpRequest;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjMessage;
+import fomjar.server.session.FjSessionController;
+import fomjar.server.session.FjSessionNotOpenException;
+import fomjar.server.session.FjSessionController.FjSCB;
 
 public class WCATask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCATask.class);
-	private FjBusinessExecutor[] bes;
+	private FjSessionController[] scs;
 	
 	public WCATask(String name) {
 		TokenGuard.getInstance().setServerName(name);
 		TokenGuard.getInstance().start();
 		new MenuGuard(name).start();
-		bes = new FjBusinessExecutor[] {new DefaultBE(FjServerToolkit.getServer(name))};
+		scs = new FjSessionController[] {new DefaultSessionController(FjServerToolkit.getServer(name))};
 	}
 	
 	@Override
@@ -49,8 +49,8 @@ public class WCATask implements FjServerTask {
 				logger.error("invalid http message, discard: " + msg);
 			}
 		} else if (msg instanceof FjDscpMessage) {
-			try {FjBusinessExecutor.dispatch(bes, (FjDscpMessage) msg);}
-			catch (SessionNotOpenException e) {logger.error(e);}
+			try {FjSessionController.dispatch(scs, (FjDscpMessage) msg);}
+			catch (FjSessionNotOpenException e) {logger.error(e);}
 		} else {
 			logger.error("invalid format message, discard: " + msg);
 		}
@@ -134,7 +134,7 @@ public class WCATask implements FjServerTask {
 			 * </xml>
 			 */
 		}
-		bes[0].openSession(req.sid())
+		scs[0].openSession(req.sid())
 				.put("user_from", user_from)
 				.put("user_to", user_to)
 				.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
@@ -142,7 +142,7 @@ public class WCATask implements FjServerTask {
 		FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
 			@Override
 			public void onFail() {
-				FjSCB scb = bes[0].closeSession(req.sid());
+				FjSCB scb = scs[0].closeSession(req.sid());
 				try {((SocketChannel) scb.get("conn")).close();}
 				catch (IOException e) {}
 			}

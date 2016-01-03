@@ -11,12 +11,11 @@ public class FjMessageWrapper {
 	private Map<String, Object> attachment;
 	
 	public FjMessageWrapper(FjMessage msg) {
+		if (null == msg) throw new NullPointerException();
 		this.msg = msg;
 	}
 	
-	public FjMessage message() {
-		return msg;
-	}
+	public FjMessage message() {return msg;}
 	
 	/**
 	 * 系统级附件：<br/>
@@ -50,14 +49,8 @@ public class FjMessageWrapper {
 		return this;
 	}
 	
-	public Object attachment(String key) {
-		if (null == attachment) return null;
-		
-		return attachment.get(key);
-	}
+	public Object attachment(String key) {return null == attachment ? null : attachment.get(key);}
 	
-	public Map<String, Object> attachments() {
-		return attachment;
-	}
+	public Map<String, Object> attachments() {return attachment;}
 	
 }

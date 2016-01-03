@@ -10,9 +10,7 @@ public class FjMessageQueue {
 	private static final Logger logger = Logger.getLogger(FjMessageQueue.class);
 	private Queue<FjMessageWrapper> wrappers;
 	
-	public FjMessageQueue() {
-		wrappers = new LinkedList<FjMessageWrapper>();
-	}
+	public FjMessageQueue() {wrappers = new LinkedList<FjMessageWrapper>();}
 	
 	public synchronized void offer(FjMessageWrapper wrapper) {
 		if (null == wrapper) throw new NullPointerException();
@@ -35,8 +33,6 @@ public class FjMessageQueue {
 		return wrapper;
 	}
 	
-	public int size() {
-		return wrappers.size();
-	}
+	public int size() {return wrappers.size();}
 	
 }

@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +20,7 @@ import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjMessage;
+import fomjar.server.msg.FjStringMessage;
 import fomjar.server.msg.FjXmlMessage;
 import fomjar.util.FjLoopTask;
 
@@ -62,59 +62,45 @@ public class FjServerToolkit {
 		return server.getProperty(key);
 	}
 	
-	public static FjSlb getSlb() {
-		return slb;
-	}
+	public static FjSlb getSlb() {return slb;}
 	
-	public static FjConfigGuard getConfigGuard() {
-		return guard;
-	}
+	public static FjConfigGuard getConfigGuard() {return guard;}
 	
 	public static class FjAddress {
 		
-		public String moduleCategory;
+		public String server;
 		public String host;
-		public int port;
+		public int    port;
 		
 		@Override
-		public String toString() {
-			return "[" + moduleCategory + ":" + host + ":" + port + "]";
-		}
+		public String toString() {return "[" + server + ":" + host + ":" + port + "]";}
 	}
 	
 	public static class FjSlb {
 		
 		private Properties address;
 		
-		public FjSlb(Properties address) {
-			setAddresses(address);
-		}
+		public FjSlb(Properties address) {setAddresses(address);}
 		
-		public void setAddresses(Properties address) {
-			this.address = address;
-		}
+		public void setAddresses(Properties address) {this.address = address;}
 		
 		public List<FjAddress> getAddresses(String namePrefix) {
 			if (null == address || null == namePrefix) return null;
-			Iterator<Object> i = address.keySet().iterator();
 			List<FjAddress> items = new LinkedList<FjAddress>();
-			while (i.hasNext()) {
-				String k = (String) i.next();
-				if (k.toLowerCase().startsWith(namePrefix.toLowerCase())) {
-					String v = address.getProperty(k);
-					if (!v.contains(",")) continue;
+			address.forEach((k, v)->{
+				if (((String) k).toLowerCase().startsWith(namePrefix.toLowerCase())) {
 					FjAddress item = new FjAddress();
-					item.moduleCategory = namePrefix;
-					item.host = v.split(",")[0].trim();
-					item.port = Integer.parseInt(v.split(",")[1].trim());
+					item.server = namePrefix;
+					item.host = ((String) v).split(",")[0].trim();
+					item.port = Integer.parseInt(((String) v).split(",")[1].trim());
 					items.add(item);
 				}
-			}
+			});
 			return items;
 		}
 		
-		public FjAddress getAddress(String moduleCategory) {
-			List<FjAddress> addresses = getAddresses(moduleCategory);
+		public FjAddress getAddress(String server) {
+			List<FjAddress> addresses = getAddresses(server);
 			if (null == addresses || 0 == addresses.size()) return null;
 			int i = new Random().nextInt() % addresses.size();
 			return addresses.get(i);
@@ -180,17 +166,11 @@ public class FjServerToolkit {
 		return server;
 	}
 	
-	public static FjServer getServer(String name) {
-		if (null == g_server) return null;
-		return g_server.get(name);
-	}
+	public static FjServer getServer(String name) {return null == g_server ? null : g_server.get(name);}
 	
-	public static FjSender getSender(String name) {
-		if (null == g_sender) return null;
-		return g_sender.get(name);
-	}
+	public static FjSender getSender(String name) {return null == g_sender ? null : g_sender.get(name);}
 	
-	public static FjMessage createMessage(final String data) {
+	public static FjMessage createMessage(String data) {
 		if (data.startsWith("GET")
 				|| data.startsWith("POST")
 				|| data.startsWith("HEAD")) {
@@ -219,7 +199,7 @@ public class FjServerToolkit {
 			}
 		}
 		if (data.startsWith("<")) return new FjXmlMessage(data);
-		return new FjMessage() {@Override public String toString() {return data;}};
+		return new FjStringMessage(data);
 	}
 
 }

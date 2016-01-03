@@ -1,4 +1,4 @@
-package com.ski.fbbp.be;
+package com.ski.fbbp.sc;
 
 import org.apache.log4j.Logger;
 
@@ -6,10 +6,10 @@ import com.ski.common.DSCP;
 
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.be.FjBusinessExecutor;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjDscpRequest;
 import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.session.FjSessionController;
 
 /**
  * 淘宝订单查询和入库业务
@@ -17,7 +17,7 @@ import fomjar.server.msg.FjDscpResponse;
  * @author fomja
  *
  */
-public class ProcTaobaoOrder extends FjBusinessExecutor {
+public class ProcTaobaoOrder extends FjSessionController {
 
 	public ProcTaobaoOrder(FjServer server) {
 		super(server);
@@ -26,7 +26,7 @@ public class ProcTaobaoOrder extends FjBusinessExecutor {
 	private static final Logger logger = Logger.getLogger(ProcTaobaoOrder.class);
 
 	@Override
-	public void execute(FjSCB scb, FjDscpMessage msg) {
+	public void onSession(FjSCB scb, FjDscpMessage msg) {
 		switch (msg.ssn()) {
 		case 1: // 网页侧查询订单结果
 			processQueryResult(scb, (FjDscpResponse) msg);

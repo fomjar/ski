@@ -1,4 +1,4 @@
-package com.ski.fbbp.be;
+package com.ski.fbbp.sc;
 
 import org.apache.log4j.Logger;
 
@@ -6,12 +6,12 @@ import com.ski.common.DSCP;
 
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.be.FjBusinessExecutor;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjDscpRequest;
 import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.session.FjSessionController;
 
-public class ProcWechat extends FjBusinessExecutor {
+public class ProcWechat extends FjSessionController {
 	
 	private static final Logger logger = Logger.getLogger(ProcWechat.class);
 
@@ -20,7 +20,7 @@ public class ProcWechat extends FjBusinessExecutor {
 	}
 
 	@Override
-	public void execute(FjSCB scb, FjDscpMessage msg) {
+	public void onSession(FjSCB scb, FjDscpMessage msg) {
 		logger.info("wechat report a message: " + msg);
 		switch (msg.ssn()) {
 		case 0:

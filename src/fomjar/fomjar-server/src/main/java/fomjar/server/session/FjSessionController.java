@@ -1,4 +1,4 @@
-package fomjar.server.be;
+package fomjar.server.session;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,26 +13,26 @@ import fomjar.server.msg.FjDscpMessage;
  * 
  * @author fomja
  */
-public abstract class FjBusinessExecutor {
+public abstract class FjSessionController {
 	
-	private static final Logger logger = Logger.getLogger(FjBusinessExecutor.class);
+	private static final Logger logger = Logger.getLogger(FjSessionController.class);
 	
-	public static void dispatch(FjBusinessExecutor[] bes, FjDscpMessage msg) throws SessionNotOpenException {
-		if (null == bes) {
+	public static void dispatch(FjSessionController[] scs, FjDscpMessage msg) throws FjSessionNotOpenException {
+		if (null == scs) {
 			logger.error("no available business executor to dispatch");
 			return;
 		}
-		for (FjBusinessExecutor be : bes) {
-			if (be.containSession(msg.sid())) {
-				FjBusinessExecutor.FjSCB scb = be.getSession(msg.sid());
-				try {be.execute(scb, msg);}
+		for (FjSessionController sc : scs) {
+			if (sc.containSession(msg.sid())) {
+				FjSessionController.FjSCB scb = sc.getSession(msg.sid());
+				try {sc.onSession(scb, msg);}
 				catch (Exception e) {logger.error("error occurs when execute BE for message: " + msg, e);}
-				if (scb.isEnd()) be.closeSession(msg.sid());
+				if (scb.isEnd()) sc.closeSession(msg.sid());
 				return;
 			}
 		}
-		logger.error("dispatch message failed for no BE is responsible for this message: " + msg);
-		throw new SessionNotOpenException(msg.sid());
+		logger.error("dispatch message failed for no session controller is responsible for this message: " + msg);
+		throw new FjSessionNotOpenException(msg.sid());
 	}
 	
 	/**
@@ -67,24 +67,18 @@ public abstract class FjBusinessExecutor {
 	private Map<String, FjSCB> scbs;
 	private FjServer server;
 	
-	public FjBusinessExecutor(FjServer server) {
+	public FjSessionController(FjServer server) {
 		if (null == server) throw new NullPointerException();
 		
 		this.server = server;
 		scbs = new HashMap<String, FjSCB>();
 	}
 	
-	public FjServer getServer() {
-		return server;
-	}
+	public FjServer getServer() {return server;}
 	
-	private boolean containSession(String sid) {
-		return scbs.containsKey(sid);
-	}
+	private boolean containSession(String sid) {return scbs.containsKey(sid);}
 	
-	private FjSCB getSession(String sid) {
-		return scbs.get(sid);
-	}
+	private FjSCB getSession(String sid) {return scbs.get(sid);}
 	
 	public FjSCB closeSession(String sid) {
 		if (!scbs.containsKey(sid)) {
@@ -107,12 +101,11 @@ public abstract class FjBusinessExecutor {
 	}
 	
 	/**
-	 * 执行具体业务
+	 * 执行具体会话
 	 * 
-	 * @param msg
 	 * @param scb
-	 * @return 业务全流程结束返回true，未结束返回false
+	 * @param msg
 	 */
-	public abstract void execute(FjSCB scb, FjDscpMessage msg);
+	public abstract void onSession(FjSCB scb, FjDscpMessage msg);
 	
 }

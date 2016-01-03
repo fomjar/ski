@@ -1,4 +1,4 @@
-package com.ski.wca.be;
+package com.ski.wca.sc;
 
 import java.nio.channels.SocketChannel;
 
@@ -7,20 +7,20 @@ import org.apache.log4j.Logger;
 import com.ski.wca.WechatInterface;
 
 import fomjar.server.FjServer;
-import fomjar.server.be.FjBusinessExecutor;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.session.FjSessionController;
 
-public class DefaultBE extends FjBusinessExecutor {
+public class DefaultSessionController extends FjSessionController {
 	
-	private static final Logger logger = Logger.getLogger(DefaultBE.class);
+	private static final Logger logger = Logger.getLogger(DefaultSessionController.class);
 
-	public DefaultBE(FjServer server) {
+	public DefaultSessionController(FjServer server) {
 		super(server);
 	}
 
 	@Override
-	public void execute(FjSCB scb, FjDscpMessage msg) {
+	public void onSession(FjSCB scb, FjDscpMessage msg) {
 		String        user_from = scb.getString("user_from");
 		String        user_to   = scb.getString("user_to");
 		String        content   = ((FjDscpResponse) msg).desc().toString();

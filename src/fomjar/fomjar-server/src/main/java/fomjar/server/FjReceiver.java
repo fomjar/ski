@@ -38,13 +38,9 @@ public class FjReceiver extends FjLoopTask {
 		reset(port);
 	}
 	
-	public FjMessageQueue mq() {
-		return mq;
-	}
+	public FjMessageQueue mq() {return mq;}
 
-	public int port() {
-		return port;
-	}
+	public int port() {return port;}
 	
 	public void reset(int port) {
 		try {if (null != sock) sock.close();}

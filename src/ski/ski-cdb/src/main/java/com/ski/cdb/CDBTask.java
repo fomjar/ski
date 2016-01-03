@@ -66,7 +66,7 @@ public class CDBTask implements FjServerTask {
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
-				response(server.name(), req, DSCP.CODE.CDB_DB_STATE_ABNORMAL, JSONObject.fromObject("{'error':'db state abnormal'}"));
+				response(server.name(), req, DSCP.CODE.CDB_DB_STATE_ABNORMAL, "{'error':'db state abnormal'}");
 				return;
 			}
 		}
@@ -75,18 +75,18 @@ public class CDBTask implements FjServerTask {
 		cci.arg = (JSONObject) req.arg();
 		if (!getCmdInfo(cci)) {
 			logger.error("command is not registered: " + cci.cmd);
-			response(server.name(), req, DSCP.CODE.CDB_CMD_NOT_REGISTERED, JSONObject.fromObject("{'error':\"" + cci.err + "\"}"));
+			response(server.name(), req, DSCP.CODE.CDB_CMD_NOT_REGISTERED, "{'error':\"" + cci.err + "\"}");
 			return;
 		}
 		generateSql(cci);
-		if (executeSql(cci)) response(server.name(), req, DSCP.CODE.SYSTEM_SUCCESS, JSONObject.fromObject(String.format("{'result':%s}", JSONArray.fromObject(cci.result))));
+		if (executeSql(cci)) response(server.name(), req, DSCP.CODE.SYSTEM_SUCCESS, String.format("{'result':%s}", JSONArray.fromObject(cci.result)));
 		else {
 			logger.error(String.format("execute command(%d) failed for sql: %s", cci.cmd, cci.sql_use));
-			response(server.name(), req, DSCP.CODE.CDB_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"" + cci.err + "\"}")));
+			response(server.name(), req, DSCP.CODE.CDB_EXECUTE_FAILED, String.format("{'error':\"" + cci.err + "\"}"));
 		}
 	}
 	
-	private static void response(String serverName, FjDscpRequest req, int code, JSONObject desc) {
+	private static void response(String serverName, FjDscpRequest req, int code, String desc) {
 		FjDscpResponse rsp = new FjDscpResponse();
 		rsp.json().put("fs",   serverName);
 		rsp.json().put("ts",   req.fs());
