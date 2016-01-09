@@ -16,16 +16,16 @@ public class OrderListNew implements AE {
 	
 //	private static final Logger logger = Logger.getLogger(OrderListNew.class);
 	
-	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
-	private JSONObject desc = null;
+	private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
+	private JSONObject arg = null;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
 		AE login = new Login();
 		login.execute(driver, arg);
-		if (DSCP.CODE.SYSTEM_SUCCESS != login.code()) {
-			code = login.code();
-			desc = login.desc();
+		if (DSCP.CMD.ERROR_SYSTEM_SUCCESS != login.cmd()) {
+			cmd = login.cmd();
+			this.arg = login.arg();
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
@@ -36,8 +36,8 @@ public class OrderListNew implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
-			code = DSCP.CODE.WA_AE_TAOBAO_ORDER_NO_NEW;
-			desc = JSONObject.fromObject("{'error':'no new order'}");
+			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NO_NEW;
+			this.arg = JSONObject.fromObject("{'error':'no new order'}");
 			return;
 		}
 		try {Thread.sleep(1000L);}
@@ -64,31 +64,31 @@ public class OrderListNew implements AE {
 			String tp_price = order_table.findElement(By.className("total")).findElement(By.tagName("span")).getText().trim().split(" ")[0].trim();
 			String tp_count	= order_table.findElement(By.className("total")).findElement(By.tagName("em")).getText().trim();
 			
-			desc = new JSONObject();
-			desc.put("toid",     toid);
-			desc.put("tuid",     tuid);
-			desc.put("pid",      pid);
-			desc.put("tp-name",  tp_name);
-			desc.put("tp-attr",  tp_attr);
-			desc.put("tp-price", tp_price);
-			desc.put("tp-count", tp_count);
-			desc.put("tu-name",  tu_name);
-			desc.put("tu-tel",   tu_tel);
-			desc.put("tu-addr",  tu_addr);
-			desc.put("tu-zip",   tu_zip);
-			code = DSCP.CODE.SYSTEM_SUCCESS;
+			cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
+			this.arg = new JSONObject();
+			this.arg.put("toid",     toid);
+			this.arg.put("tuid",     tuid);
+			this.arg.put("pid",      pid);
+			this.arg.put("tp-name",  tp_name);
+			this.arg.put("tp-attr",  tp_attr);
+			this.arg.put("tp-price", tp_price);
+			this.arg.put("tp-count", tp_count);
+			this.arg.put("tu-name",  tu_name);
+			this.arg.put("tu-tel",   tu_tel);
+			this.arg.put("tu-addr",  tu_addr);
+			this.arg.put("tu-zip",   tu_zip);
 			return;
 		}
 	}
 	
 	@Override
-	public int code() {
-		return code;
+	public int cmd() {
+		return cmd;
 	}
 
 	@Override
-	public JSONObject desc() {
-		return desc;
+	public JSONObject arg() {
+		return arg;
 	}
 
 }

@@ -50,6 +50,7 @@ public class FjReceiver extends FjLoopTask {
 			sock.configureBlocking(false);
 			sock.bind(new InetSocketAddress(port));
 			if (null == selector) selector = Selector.open();
+			else selector.wakeup();
 			sock.register(selector, SelectionKey.OP_ACCEPT);
 			this.port = port;
 		} catch (IOException e) {
@@ -62,25 +63,33 @@ public class FjReceiver extends FjLoopTask {
 	public void perform() {
 		try {
 			int key_num = selector.select();
-			if (key_num <= 0) return;
-			Set<SelectionKey> keys = selector.selectedKeys();
-			for (SelectionKey key : keys) {
-				if (key.isAcceptable()) {
-					SocketChannel conn = ((ServerSocketChannel) key.channel()).accept();
-					logger.debug("here comes a connection from: " + conn.getRemoteAddress());
-					conn.configureBlocking(false);
-					conn.register(selector, SelectionKey.OP_READ);
-				} else if (key.isReadable()) {
-					key.cancel();
-					SocketChannel conn = (SocketChannel) key.channel();
-					buf.clear();
-					int n = conn.read(buf);
-					buf.flip();
-					if (0 < n) mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(Charset.forName("utf-8").decode(buf).toString())).attach("conn", conn));
-				}
+			if (key_num <= 0) {
+				try {Thread.sleep(100L);}
+				catch (InterruptedException e) {e.printStackTrace();}
+				return;
 			}
+		} catch (IOException e) {e.printStackTrace();}
+			Set<SelectionKey> keys = selector.selectedKeys();
+			keys.forEach((key)->{
+				try {
+					if (key.isAcceptable()) {
+						SocketChannel conn = ((ServerSocketChannel) key.channel()).accept();
+						logger.debug("here comes a connection from: " + conn.getRemoteAddress());
+						conn.configureBlocking(false);
+						conn.register(selector, SelectionKey.OP_READ);
+					} else if (key.isReadable()) {
+						SocketChannel conn = (SocketChannel) key.channel();
+						if (port() != conn.socket().getLocalPort()) return;
+						
+						key.cancel();
+						buf.clear();
+						int n = conn.read(buf);
+						buf.flip();
+						if (0 < n) mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(Charset.forName("utf-8").decode(buf).toString())).attach("conn", conn));
+					}
+				} catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
+			});
 			keys.clear();
-		} catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
 	}
 
 }

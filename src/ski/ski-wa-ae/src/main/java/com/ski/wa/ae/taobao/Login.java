@@ -12,11 +12,16 @@ import com.ski.wa.AE;
 
 public class Login implements AE {
 	
-	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
-	private JSONObject desc = null;
+	private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
+	private JSONObject arg = null;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
+		if (!arg.containsKey("user") || !arg.containsKey("pass")) {
+			cmd = DSCP.CMD.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+			return;
+		}
+		
 		driver.get("https://login.taobao.com/member/login.jhtml");
 		try {Thread.sleep(1000L);}
 		catch (InterruptedException e) {e.printStackTrace();}
@@ -34,24 +39,23 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("TPL_username_1"));
-			code = DSCP.CODE.WA_AE_TAOBAO_ACCOUNT_INCORRECT;
-			desc = JSONObject.fromObject("{'error':'username or password is incorrect'}");
+			cmd = DSCP.CMD.ERROR_TAOBAO_ACCOUNT_INCORRECT;
+			this.arg = JSONObject.fromObject("{'error':'username or password is incorrect'}");
 			return;
 		} catch (NoSuchElementException e){
-			code = DSCP.CODE.SYSTEM_SUCCESS;
-			desc = JSONObject.fromObject(null);
+			cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
 		}
 	}
 	
 
 	@Override
-	public int code() {
-		return code;
+	public int cmd() {
+		return cmd;
 	}
 
 	@Override
-	public JSONObject desc() {
-		return desc;
+	public JSONObject arg() {
+		return arg;
 	}
 
 }

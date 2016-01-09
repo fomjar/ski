@@ -12,8 +12,7 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.msg.FjDscpRequest;
-import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
 
 public class WATask implements FjServerTask {
@@ -28,17 +27,17 @@ public class WATask implements FjServerTask {
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
-		if (!(msg instanceof FjDscpRequest)) {
-			logger.error("illegal request, discard: " + msg);
+		if (!(msg instanceof FjDscpMessage)) {
+			logger.error("unsupported format message: " + msg);
 			return;
 		}
-		FjDscpRequest req = (FjDscpRequest) msg;
+		FjDscpMessage req = (FjDscpMessage) msg;
 		int        cmd = req.cmd();
 		JSONObject arg = (JSONObject) req.arg();
 		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
 			logger.error("can not find an AE for cmd: " + cmd);
-			response(server.name(), req, DSCP.CODE.WA_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
+			response(server.name(), req, DSCP.CMD.ERROR_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
 			return;
 		}
 		WebDriver driver = null;
@@ -47,22 +46,21 @@ public class WATask implements FjServerTask {
 			ae.execute(driver, arg);
 		} catch (Exception e) {
 			logger.error("execute ae failed for cmd: " + cmd, e);
-			response(server.name(), req, DSCP.CODE.WA_AE_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"execute ae failed for cmd(%s): %s\"}", cmd, e.getMessage())));
+			response(server.name(), req, DSCP.CMD.ERROR_AE_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"execute ae failed for cmd(%s): %s\"}", cmd, e.getMessage())));
 			return;
 		} finally {
 			if (null != driver) driver.quit();
 		}
-		response(server.name(), req, ae.code(), ae.desc());
+		response(server.name(), req, ae.cmd(), ae.arg());
 	}
 	
-	private static void response(String serverName, FjDscpRequest req, int code, JSONObject desc) {
-		FjDscpResponse rsp = new FjDscpResponse();
-		rsp.json().put("fs",   serverName);
-		rsp.json().put("ts",   req.fs());
-		rsp.json().put("sid",  req.sid());
-		rsp.json().put("ssn",  req.ssn() + 1);
-		rsp.json().put("code", code);
-		rsp.json().put("desc", desc);
+	private static void response(String serverName, FjDscpMessage req, int cmd, JSONObject arg) {
+		FjDscpMessage rsp = new FjDscpMessage();
+		rsp.json().put("fs",  serverName);
+		rsp.json().put("ts",  req.fs());
+		rsp.json().put("sid", req.sid());
+		rsp.json().put("cmd", cmd);
+		rsp.json().put("arg", arg);
 		FjServerToolkit.getSender(serverName).send(rsp);
 	}
 }

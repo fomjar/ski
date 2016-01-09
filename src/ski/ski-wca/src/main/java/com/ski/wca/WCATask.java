@@ -1,6 +1,5 @@
 package com.ski.wca;
 
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 import net.sf.json.JSONObject;
@@ -9,96 +8,93 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 import com.ski.common.DSCP;
+import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
+import com.ski.wca.guard.CustomServiceGuard;
 import com.ski.wca.guard.MenuGuard;
 import com.ski.wca.guard.TokenGuard;
-import com.ski.wca.sc.DefaultSessionController;
 
 import fomjar.server.FjMessageWrapper;
-import fomjar.server.FjSender;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjDscpRequest;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjMessage;
-import fomjar.server.session.FjSessionController;
-import fomjar.server.session.FjSessionNotOpenException;
-import fomjar.server.session.FjSessionController.FjSCB;
 
 public class WCATask implements FjServerTask {
 	
 	private static final Logger logger = Logger.getLogger(WCATask.class);
-	private FjSessionController[] scs;
 	
 	public WCATask(String name) {
 		TokenGuard.getInstance().setServerName(name);
 		TokenGuard.getInstance().start();
-		new MenuGuard(name).start();
-		scs = new FjSessionController[] {new DefaultSessionController(FjServerToolkit.getServer(name))};
+		new MenuGuard().start();
+		new CustomServiceGuard().start();
 	}
 	
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
 		if (msg instanceof FjHttpRequest) {
-			if (((FjHttpRequest) msg).url().startsWith("/wechat")) {
-				logger.info("message comes from wechat server");
-				processWechat(server.name(), wrapper);
-			} else {
-				logger.error("invalid http message, discard: " + msg);
-			}
+			FjHttpRequest hmsg = (FjHttpRequest) msg;
+			if (hmsg.url().startsWith("/wechat")) processWechat(server.name(), wrapper);
+			else logger.error("unsupported http message: " + hmsg.url());
 		} else if (msg instanceof FjDscpMessage) {
-			try {FjSessionController.dispatch(scs, (FjDscpMessage) msg);}
-			catch (FjSessionNotOpenException e) {logger.error(e);}
+			processSKI(server.name(), wrapper);
 		} else {
-			logger.error("invalid format message, discard: " + msg);
+			logger.error("unsupported format message: " + msg);
 		}
 	}
 	
 	private void processWechat(String serverName, FjMessageWrapper wrapper) {
 		if (((FjHttpRequest) wrapper.message()).urlParameters().containsKey("echostr")) {
-			logger.info("response access message");
 			WechatInterface.access(wrapper);
+			logger.info("wechat access");
 			return;
 		}
 		Element xml      = ((FjHttpRequest) wrapper.message()).contentToXml().getDocumentElement();
 		String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent();
 		String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent();
+		// 第一时间给微信响应
+//		WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
+		WechatInterface.sendXmlResponse(user_to, user_from, "<a href=\"http://www.pan-o.cn:8080/wcweb?cmd=00200001&user=123&account=456\">刺客信条</a>", (SocketChannel) wrapper.attachment("conn"));
+		
+		FjDscpMessage req = new FjDscpMessage();
+		req.json().put("fs", serverName);
+		req.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
+		req.json().put("sid", user_from);
+		
+		JSONObject arg = new JSONObject();
+		arg.put("user", user_from);
+		
 		String content   = null;
 		String event     = null;
 		String event_key = null;
-		String msg_type   = xml.getElementsByTagName("MsgType").item(0).getTextContent();
-		FjDscpRequest req = new FjDscpRequest();
-		req.json().put("fs", serverName);
-		req.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
+		String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent();
 		if ("text".equals(msg_type))  {
 			content = xml.getElementsByTagName("Content").item(0).getTextContent();
-			req.json().put("cmd", DSCP.CMD.WECHAT_USER_TEXT);
-			req.json().put("arg", content);
+			req.json().put("cmd", DSCP.CMD.USER_REQUEST);
+			arg.put("content", content);
 		} else if ("event".equals(msg_type)) {
 			event     = xml.getElementsByTagName("Event").item(0).getTextContent();
 			event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent();
 			if ("subscribe".equals(event)) {
-				req.json().put("cmd", DSCP.CMD.WECHAT_USER_SUBSCRIBE);
-				req.json().put("arg", user_from);
+				req.json().put("cmd", DSCP.CMD.USER_SUBSCRIBE);
 			} else if ("unsubscribe".equals(event)) {
-				req.json().put("cmd", DSCP.CMD.WECHAT_USER_UNSUBSCRIBE);
-				req.json().put("arg", user_from);
+				req.json().put("cmd", DSCP.CMD.USER_UNSUBSCRIBE);
 			} else if ("CLICK".equals(event)) {
-				req.json().put("cmd", DSCP.CMD.WECHAT_USER_CLICK);
-				req.json().put("arg", event_key);
+				req.json().put("cmd", Integer.parseInt(event_key, 16));
 			} else if ("VIEW".equals(event)) {
-				req.json().put("cmd", DSCP.CMD.WECHAT_USER_VIEW);
-				req.json().put("arg", event_key);
+				req.json().put("cmd", DSCP.CMD.USER_GOTO);
+				arg.put("content", event_key);
 			}
 		} else if ("location".equals(msg_type)) {
 			float  x     = Float.parseFloat(xml.getElementsByTagName("Location_X").item(0).getTextContent());
 			float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
 			int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
 			String label = xml.getElementsByTagName("Label").item(0).getTextContent();
-			req.json().put("cmd", DSCP.CMD.WECHAT_USER_LOCATION);
-			req.json().put("arg", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
+			req.json().put("cmd", DSCP.CMD.USER_GOTO);
+			arg.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
 		} else if ("image".equals(msg_type)) {
 			/**
 			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
@@ -134,18 +130,17 @@ public class WCATask implements FjServerTask {
 			 * </xml>
 			 */
 		}
-		scs[0].openSession(req.sid())
-				.put("user_from", user_from)
-				.put("user_to", user_to)
-				.put("conn", wrapper.attachment("conn")); // 将消息附属连接存到会话控制块缓存中，后续应答消息用
-		wrapper.attach("conn", null); // 清除连接，防止平台将其关闭
-		FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
-			@Override
-			public void onFail() {
-				FjSCB scb = scs[0].closeSession(req.sid());
-				try {((SocketChannel) scb.get("conn")).close();}
-				catch (IOException e) {}
-			}
-		}));
+		req.json().put("arg", arg);
+		FjServerToolkit.getSender(serverName).send(req); // 用户行为上报业务
+	}
+	
+	private void processSKI(String serverName, FjMessageWrapper wrapper) {
+		FjDscpMessage req = (FjDscpMessage) wrapper.message();
+		switch (req.cmd()) {
+		case DSCP.CMD.USER_RESPONSE: // 响应用户
+			try {WechatInterface.customSendTextMessage(((JSONObject) req.arg()).getString("user"), ((JSONObject) req.arg()).getString("content"));}
+			catch (WechatPermissionDeniedException e) {logger.error("send custom service message failed: " + req, e);}
+			break;
+		}
 	}
 }

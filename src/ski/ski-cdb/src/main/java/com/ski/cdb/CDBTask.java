@@ -22,8 +22,7 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
-import fomjar.server.msg.FjDscpRequest;
-import fomjar.server.msg.FjDscpResponse;
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
 
 public class CDBTask implements FjServerTask {
@@ -58,15 +57,15 @@ public class CDBTask implements FjServerTask {
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
-		if (!(msg instanceof FjDscpRequest)) {
-			logger.error("illegal request, discard: " + msg);
+		if (!(msg instanceof FjDscpMessage)) {
+			logger.error("illegal message, discard: " + msg);
 			return;
 		}
-		FjDscpRequest req = (FjDscpRequest) msg;
+		FjDscpMessage req = (FjDscpMessage) msg;
 		if (null == conn) {
 			if (!initConn()) {
 				logger.error("init databse connection failed, server works abnormally");
-				response(server.name(), req, DSCP.CODE.CDB_DB_STATE_ABNORMAL, "{'error':'db state abnormal'}");
+				response(server.name(), req, DSCP.CMD.ERROR_DB_STATE_ABNORMAL, "{'error':'db state abnormal'}");
 				return;
 			}
 		}
@@ -75,25 +74,24 @@ public class CDBTask implements FjServerTask {
 		cci.arg = (JSONObject) req.arg();
 		if (!getCmdInfo(cci)) {
 			logger.error("command is not registered: " + cci.cmd);
-			response(server.name(), req, DSCP.CODE.CDB_CMD_NOT_REGISTERED, "{'error':\"" + cci.err + "\"}");
+			response(server.name(), req, DSCP.CMD.ERROR_SYSTEM_ILLEGAL_COMMAND, "{'error':\"" + cci.err + "\"}");
 			return;
 		}
 		generateSql(cci);
-		if (executeSql(cci)) response(server.name(), req, DSCP.CODE.SYSTEM_SUCCESS, String.format("{'result':%s}", JSONArray.fromObject(cci.result)));
+		if (executeSql(cci)) response(server.name(), req, req.cmd(), String.format("{'result':%s}", JSONArray.fromObject(cci.result)));
 		else {
 			logger.error(String.format("execute command(%d) failed for sql: %s", cci.cmd, cci.sql_use));
-			response(server.name(), req, DSCP.CODE.CDB_EXECUTE_FAILED, String.format("{'error':\"" + cci.err + "\"}"));
+			response(server.name(), req, DSCP.CMD.ERROR_DB_OPERATE_FAILED, String.format("{'error':\"" + cci.err + "\"}"));
 		}
 	}
 	
-	private static void response(String serverName, FjDscpRequest req, int code, String desc) {
-		FjDscpResponse rsp = new FjDscpResponse();
-		rsp.json().put("fs",   serverName);
-		rsp.json().put("ts",   req.fs());
-		rsp.json().put("sid",  req.sid());
-		rsp.json().put("ssn",  req.ssn() + 1);
-		rsp.json().put("code", code);
-		rsp.json().put("desc", desc);
+	private static void response(String serverName, FjDscpMessage req, int cmd, String arg) {
+		FjDscpMessage rsp = new FjDscpMessage();
+		rsp.json().put("fs",  serverName);
+		rsp.json().put("ts",  req.fs());
+		rsp.json().put("sid", req.sid());
+		rsp.json().put("cmd", cmd);
+		rsp.json().put("arg", arg);
 		FjServerToolkit.getSender(serverName).send(rsp);
 	}
 	
@@ -130,9 +128,10 @@ public class CDBTask implements FjServerTask {
 			String v = cci.arg.getString(k);
 			cci.sql_use = cci.sql_use.replace("$" + k, v);
 		}
+		cci.sql_use = cci.sql_use.replaceAll("\\$\\w+", "null");
 		logger.info(String.format("cmd(%d) sql-use: %s", cci.cmd, cci.sql_use));
 	}
-	
+
 	private boolean executeSql(CdbCmdInfo cci) {
 		if (cci.mod.equalsIgnoreCase("st")) return executeSt(cci);
 		if (cci.mod.equalsIgnoreCase("sp")) return executeSp(cci);

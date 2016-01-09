@@ -1,5 +1,7 @@
 package fomjar.server.msg;
 
+import java.nio.charset.Charset;
+
 import org.w3c.dom.Document;
 
 import net.sf.json.JSONObject;
@@ -15,9 +17,10 @@ public class FjHttpMessage implements FjMessage {
 		this.content = content;
 	}
 	
-	public int contentLength() {return content.length();}
+	public int contentLength() {return content.getBytes(Charset.forName("utf-8")).length;}
 	
 	public String contentType() {
+		if (content.startsWith("<html>") || content.startsWith("<HTML>")) return "text/html";
 		if (content.startsWith("<")) return "text/xml";
 		if (content.startsWith("{")) return "application/json";
 		return "text/plain";

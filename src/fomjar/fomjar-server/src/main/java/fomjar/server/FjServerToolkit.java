@@ -14,8 +14,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjDscpRequest;
-import fomjar.server.msg.FjDscpResponse;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
@@ -175,7 +173,8 @@ public class FjServerToolkit {
 				|| data.startsWith("POST")
 				|| data.startsWith("HEAD")) {
 			String[] title = data.split("\r\n")[0].split(" ");
-			String content = data.contains("\r\n\r\n") ? data.split("\r\n\r\n")[1] : null;
+			String content = null;
+			if (data.contains("\r\n\r\n") && 1 < data.split("\r\n\r\n").length) content = data.split("\r\n\r\n")[1];
 			return new FjHttpRequest(title[0], title[1], content);
 		}
 		if (data.startsWith("HTTP/")) {
@@ -188,15 +187,10 @@ public class FjServerToolkit {
 			if (jmsg.json().containsKey("fs")
 					&& jmsg.json().containsKey("ts")
 					&& jmsg.json().containsKey("sid")
-					&& jmsg.json().containsKey("ssn")) {
-				if (jmsg.json().containsKey("cmd")
-						&& jmsg.json().containsKey("arg")) return new FjDscpRequest(data);
-				else if (jmsg.json().containsKey("code")
-						&& jmsg.json().containsKey("desc")) return new FjDscpResponse(data);
-				else return new FjDscpMessage(data);
-			} else {
-				return jmsg;
-			}
+					&& jmsg.json().containsKey("cmd")
+					&& jmsg.json().containsKey("arg"))
+				 return new FjDscpMessage(data);
+			else return jmsg;
 		}
 		if (data.startsWith("<")) return new FjXmlMessage(data);
 		return new FjStringMessage(data);

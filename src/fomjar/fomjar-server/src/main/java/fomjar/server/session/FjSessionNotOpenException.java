@@ -11,6 +11,6 @@ public class FjSessionNotOpenException extends Exception {
 	public String getSid() {return sid;}
 
 	@Override
-	public String getMessage() {return "session(" + getSid() + ") is not opened";}
+	public String getMessage() {return "session has never opened: " + getSid() ;}
 	
 }

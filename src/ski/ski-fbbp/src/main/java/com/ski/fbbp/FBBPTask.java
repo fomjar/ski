@@ -1,8 +1,13 @@
 package com.ski.fbbp;
 
-import com.ski.fbbp.guard.TaobaoOrderListNewGuard;
-import com.ski.fbbp.sc.ProcTaobaoOrder;
-import com.ski.fbbp.sc.ProcWechat;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import com.ski.common.DSCP;
+import com.ski.fbbp.guard.TaobaoOrderGuard;
+import com.ski.fbbp.session.SessionReturn;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -14,22 +19,34 @@ import fomjar.server.session.FjSessionNotOpenException;
 
 public class FBBPTask implements FjServerTask {
 	
-	private FjSessionController[] scs;
+	private static final Logger logger = Logger.getLogger(FBBPTask.class);
+	
+	private List<FjSessionController> scs;
+	private FjSessionController       scReturn;
 	
 	public FBBPTask(FjServer server) {
-		scs = new FjSessionController[] {new ProcTaobaoOrder(server), new ProcWechat(server)};
-		new TaobaoOrderListNewGuard(scs[0]).start();
+		scs = new LinkedList<FjSessionController>();
+		scs.add(scReturn = new SessionReturn());
+		new TaobaoOrderGuard(server.name()).start();
 	}
 
 	@Override
 	public void onMessage(FjServer server, FjMessageWrapper wrapper) {
 		FjMessage msg = wrapper.message();
 		if (msg instanceof FjDscpMessage) {
-			if (((FjDscpMessage) msg).fs().startsWith("wca")
-					&& 0 == ((FjDscpMessage) msg).ssn()) scs[1].openSession(((FjDscpMessage) msg).sid());
-			
-			try {FjSessionController.dispatch(scs, (FjDscpMessage) msg);}
-			catch (FjSessionNotOpenException e) {e.printStackTrace();}
+			FjDscpMessage dmsg = (FjDscpMessage) msg;
+			try {FjSessionController.dispatch(server, scs, dmsg);} // 通用会话消息
+			catch (FjSessionNotOpenException e) {
+				// 新会话开始
+				if (DSCP.CMD.ECOM_RETURN_APPLY == dmsg.cmd()
+						|| DSCP.CMD.ECOM_RETURN_SPECIFY == dmsg.cmd()) { // 退货
+					scReturn.openSession(dmsg.sid());
+				}
+				try {FjSessionController.dispatch(server, scs, dmsg);}
+				catch (FjSessionNotOpenException e1) {logger.error("dispatch failed for message: " + msg, e);}
+			}
+		} else {
+			logger.error("unsupported format message: " + msg);
 		}
 	}
 

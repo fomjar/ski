@@ -60,27 +60,64 @@ public class WechatInterface {
 	 * @param wrapper
 	 */
 	public static void access(FjMessageWrapper wrapper) {
-		FjSender.sendHttpResponse(new FjHttpResponse(((FjHttpRequest) wrapper.message()).urlParameters().get("echostr")), (SocketChannel) wrapper.attachment("conn"));
+		sendResponse(((FjHttpRequest) wrapper.message()).urlParameters().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
 	}
 	
-	private static final String URL_TOKEN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s";
 	public static FjJsonMessage token(String appid, String secret) {
-		String url = String.format(URL_TOKEN, appid, secret);
+		String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret);
 		return sendRequest("GET", url);
 	}
 	
-	private static final String URL_MENU_CREATE = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=%s";
 	public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
 		checkWechatPermission();
-		String url = String.format(URL_MENU_CREATE, TokenGuard.getInstance().token());
-		return sendRequest("POST", url, menu.replace("'", "\""));
+		String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + TokenGuard.getInstance().token();
+		return sendRequest("POST", url, menu);
 	}
 	
-	private static final String URL_MENU_DELETE = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=%s";
-	public static FjJsonMessage menuDelete(String serverName) throws WechatPermissionDeniedException {
+	public static FjJsonMessage menuDelete() throws WechatPermissionDeniedException {
 		checkWechatPermission();
-		String url = String.format(URL_MENU_DELETE, TokenGuard.getInstance().token());
+		String url = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=" + TokenGuard.getInstance().token();
 		return sendRequest("GET", url);
+	}
+	
+	public static FjJsonMessage customServiceAdd(String kfaccount) throws WechatPermissionDeniedException {
+		checkWechatPermission();
+		String url = "https://api.weixin.qq.com/customservice/kfaccount/add?access_token=" + TokenGuard.getInstance().token();
+		return sendRequest("POST", url, kfaccount);
+	}
+	
+	public static FjJsonMessage customServiceUpdate(String kfaccount) throws WechatPermissionDeniedException {
+		checkWechatPermission();
+		String url = "https://api.weixin.qq.com/customservice/kfaccount/update?access_token=" + TokenGuard.getInstance().token();
+		return sendRequest("POST", url, kfaccount);
+	}
+	
+	public static FjJsonMessage customServiceDel(String kfaccount) throws WechatPermissionDeniedException {
+		checkWechatPermission();
+		String url = "https://api.weixin.qq.com/customservice/kfaccount/del?access_token=" + TokenGuard.getInstance().token();
+		return sendRequest("GET", url, kfaccount);
+	}
+	
+	public static FjJsonMessage customServiceGet() throws WechatPermissionDeniedException {
+		checkWechatPermission();
+		String url = "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token=" + TokenGuard.getInstance().token();
+		return sendRequest("GET", url);
+	}
+	
+	private static final String TEMPLATE_CUSTOM_TEXT_MESSAGE =
+			  "{\r\n"
+			+ "    \"touser\":\"%s\",\r\n"
+			+ "    \"msgtype\":\"text\",\r\n"
+			+ "    \"text\":\r\n"
+			+ "    {\r\n"
+			+ "         \"content\":\"%s\"\r\n"
+			+ "    }\r\n"
+			+ "}";
+	public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException {
+		checkWechatPermission();
+		String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + TokenGuard.getInstance().token();
+		String msg_content = String.format(TEMPLATE_CUSTOM_TEXT_MESSAGE, user_to, content);
+		return sendRequest("POST", url, msg_content);
 	}
 	
 	public static FjJsonMessage sendRequest(String method, String url) {
@@ -91,24 +128,24 @@ public class WechatInterface {
 		return (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, content));
 	}
 	
-	public static void sendResponse(String user_from, String user_to, SocketChannel conn) {
-		FjSender.sendHttpResponse(new FjHttpResponse(WechatInterface.createTextMessage(user_from, user_to, null)), conn);
+	public static void sendResponse(String content, SocketChannel conn) {
+		FjSender.sendHttpResponse(new FjHttpResponse(content), conn);
+	}
+		
+	public static void sendXmlResponse(String user_from, String user_to, String content, SocketChannel conn) {
+		sendResponse(WechatInterface.createXmlMessage(user_from, user_to, content), conn);
 	}
 	
-	public static void sendResponse(String user_from, String user_to, String content, SocketChannel conn) {
-		FjSender.sendHttpResponse(new FjHttpResponse(WechatInterface.createTextMessage(user_from, user_to, content)), conn);
-	}
-	
-	private static final String TEMPLATE_TEXT_MESSAGE = "<xml>\r\n"
-			+ "<FromUserName><![CDATA[%s]]></FromUserName>\r\n"
-			+ "<ToUserName><![CDATA[%s]]></ToUserName>\r\n"
-			+ "<CreateTime>%d</CreateTime>\r\n"
-			+ "<MsgType><![CDATA[text]]></MsgType>\r\n"
-			+ "<Content><![CDATA[%s]]></Content>\r\n"
+	private static final String TEMPLATE_XML_MESSAGE =
+			  "<xml>\r\n"
+			+ "    <FromUserName><![CDATA[%s]]></FromUserName>\r\n"
+			+ "    <ToUserName><![CDATA[%s]]></ToUserName>\r\n"
+			+ "    <CreateTime>%d</CreateTime>\r\n"
+			+ "    <MsgType><![CDATA[text]]></MsgType>\r\n"
+			+ "    <Content><![CDATA[%s]]></Content>\r\n"
 			+ "</xml>";	
-	private static String createTextMessage(String user_from, String user_to, String content) {
-		if (null == content) content = "";
-		return String.format(TEMPLATE_TEXT_MESSAGE, user_from, user_to, System.currentTimeMillis() / 1000, content);
+	private static String createXmlMessage(String user_from, String user_to, String content) {
+		return String.format(TEMPLATE_XML_MESSAGE, user_from, user_to, System.currentTimeMillis() / 1000, content);
 	}
 	
 }

@@ -11,14 +11,14 @@ import com.ski.wa.AE;
 
 public class Login implements AE {
 	
-	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
-	private JSONObject desc = null;
+	private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
+	private JSONObject arg = null;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
 		if (!arg.containsKey("user") || !arg.containsKey("pass")) { // 没有账号或密码
-			code = DSCP.CODE.SYSTEM_ILLEGAL_ARGUMENT;
-			desc = JSONObject.fromObject("{'error':'no parameter: user or pass'}");
+			cmd = DSCP.CMD.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+			this.arg = JSONObject.fromObject("{'error':'no parameter: user or pass'}");
 			return;
 		}
 		driver.get("https://account.sonyentertainmentnetwork.com/login.action");
@@ -33,22 +33,21 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("signInInput_SignInID"));	// 账号输入框存在即说明用户名密码错误
-			code = DSCP.CODE.WA_AE_PSN_ACCOUNT_INCORRECT;
-			desc = JSONObject.fromObject("{'error':'user or pass is incorrect'}");
+			cmd = DSCP.CMD.ERROR_PSN_ACCOUNT_INCORRECT;
+			this.arg = JSONObject.fromObject("{'error':'user or pass is incorrect'}");
 			return;
 		} catch (NoSuchElementException e) {}
-		code = DSCP.CODE.SYSTEM_SUCCESS;
-		desc = JSONObject.fromObject(null);
+		cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
 	}
 
 	@Override
-	public int code() {
-		return code;
+	public int cmd() {
+		return cmd;
 	}
 
 	@Override
-	public JSONObject desc() {
-		return desc;
+	public JSONObject arg() {
+		return arg;
 	}
 
 }

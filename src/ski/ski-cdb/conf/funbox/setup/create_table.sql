@@ -4,7 +4,7 @@ create table tbl_cmd_map (
     i_cmd   integer,
     c_mod   char(5),      -- st:执行sql语句 sp:执行存储过程
     i_out   tinyint,      -- 出参个数
-    c_sql   varchar(255)  -- 格式：先出参，后入参，入参使用$打头，入参名称必须与消息中的参数名称完全相同
+    c_sql   varchar(255)  -- 格式：先出参，后入参，出参以英文的?代替，入参使用$打头，入参名称必须与消息中的参数名称完全相同
 );
 
 -- 平台账户信息
@@ -94,7 +94,7 @@ create table tbl_order_product (
     i_caid  integer,        -- 渠道账户ID
     i_state tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-确认收货 3-申请退款 4-退款成功
     i_price decimal(7, 2),  -- 产品单价
-    i_count integer,        -- 产品数量
+    i_count integer         -- 产品数量
 );
 
 -- 平台账户流水
@@ -115,9 +115,9 @@ create table tbl_channel_account (
     c_user      varchar(32),    -- 用户名
     i_channel   tinyint,        -- 渠道：0-淘宝 1-微信
     c_nick      varchar(32),    -- 昵称
-    i_gender    tinyint,        -- 性别
+    i_gender    tinyint,        -- 性别：0-男 1-女 2-人妖
     c_mobile    varchar(20),    -- 电话
     c_address   varchar(100),   -- 地址
     c_zipcode   varchar(10),    -- 邮编
-    t_birth     date,           -- 生日
+    t_birth     date            -- 生日
 );

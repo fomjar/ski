@@ -7,7 +7,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-        	<directory>../script</directory>
+        	<directory>../../fomjar/fomjar-server/bin</directory>
             <outputDirectory>${project.artifactId}/bin</outputDirectory>
         </fileSet>
         <fileSet>

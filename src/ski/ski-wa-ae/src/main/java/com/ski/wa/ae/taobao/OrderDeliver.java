@@ -14,22 +14,22 @@ import com.ski.wa.AE;
 
 public class OrderDeliver implements AE{
 	
-	private int        code = DSCP.CODE.SYSTEM_UNKNOWN_ERROR;
-	private JSONObject desc = null;
+	private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
+	private JSONObject arg = null;
 
 	@Override
 	public void execute(WebDriver driver, JSONObject arg) {
 		if (!arg.containsKey("toid")) { // 参数没有订单ID
-			code = DSCP.CODE.SYSTEM_ILLEGAL_ARGUMENT;
-			desc = JSONObject.fromObject("{'error':'no parameter: toid'}");
+			cmd = DSCP.CMD.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+			this.arg = JSONObject.fromObject("{'error':'no parameter: toid'}");
 			return;
 		}
 		
 		AE login = new Login();
 		login.execute(driver, arg);
-		if (DSCP.CODE.SYSTEM_SUCCESS != login.code()) {
-			code = login.code();
-			desc = login.desc();
+		if (DSCP.CMD.ERROR_SYSTEM_SUCCESS != login.cmd()) {
+			cmd = login.cmd();
+			this.arg = login.arg();
 			return;
 		}
 		driver.get("https://myseller.taobao.com/seller_admin.htm");
@@ -41,8 +41,8 @@ public class OrderDeliver implements AE{
 		List<WebElement> order_tables = null;
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}
 		catch (NoSuchElementException e) { // 没有任何订单
-			code = DSCP.CODE.WA_AE_TAOBAO_ORDER_NOT_FOUND;
-			desc = JSONObject.fromObject("{'error':'can not find any orders'}");
+			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NOT_FOUND;
+			this.arg = JSONObject.fromObject("{'error':'can not find any orders'}");
 			return;
 		}
 		String toid = arg.getString("toid");
@@ -55,8 +55,8 @@ public class OrderDeliver implements AE{
 			}
 		}
 		if (null == deliver) { // 没有找到对应订单
-			code = DSCP.CODE.WA_AE_TAOBAO_ORDER_NOT_FOUND;
-			desc = JSONObject.fromObject(String.format("{'error':'can not find such an order: %s'}", toid));
+			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NOT_FOUND;
+			this.arg = JSONObject.fromObject(String.format("{'error':'can not find such an order: %s'}", toid));
 			return;
 		}
 		deliver.click(); // 发货
@@ -64,18 +64,18 @@ public class OrderDeliver implements AE{
 		catch (InterruptedException e) {e.printStackTrace();}
 		driver.findElement(By.id("dummyTab")).findElement(By.tagName("a")).click(); // 无需物流
 		driver.findElement(By.id("logis:noLogis")).click(); // 确认
-		code = DSCP.CODE.SYSTEM_SUCCESS;
-		desc = JSONObject.fromObject(null);
+		cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
+		this.arg = JSONObject.fromObject(null);
 	}
 
 	@Override
-	public int code() {
-		return code;
+	public int cmd() {
+		return cmd;
 	}
 
 	@Override
-	public JSONObject desc() {
-		return desc;
+	public JSONObject arg() {
+		return arg;
 	}
 
 }

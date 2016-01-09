@@ -13,15 +13,8 @@ public class MenuGuard extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(MenuGuard.class);
 	
-	private String serverName;
-	
-	public MenuGuard(String serverName) {
-		this.serverName = serverName;
+	public MenuGuard() {
 		setDelay(10 * 1000L);
-	}
-	
-	public String getServerName() {
-		return serverName;
 	}
 	
 	public void start() {
@@ -37,7 +30,7 @@ public class MenuGuard extends FjLoopTask {
 		String menu = FjServerToolkit.getServerConfig("wca.menu");
 		FjJsonMessage rsp = null;
 		try {
-			if (null == menu || 0 == menu.length()) rsp = WechatInterface.menuDelete(getServerName());
+			if (null == menu || 0 == menu.length()) rsp = WechatInterface.menuDelete();
 			else rsp = WechatInterface.menuCreate(menu);
 		} catch (WechatPermissionDeniedException e) {logger.error(e);}
 		if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");

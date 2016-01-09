@@ -52,65 +52,56 @@ public class FjSender extends FjLoopTask {
 		FjMessage msg = wrapper.message();
 		SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
 		FjSenderObserver observer = (FjSenderObserver) wrapper.attachment("observer");
+		boolean isSuccess = false;
 		if (null != conn) {
 			try {
 				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
 				while (buf.hasRemaining()) conn.write(buf);
-				logger.debug("send message successfully: " + msg);
-				if (null != observer) observer.onSuccess();
-				return;
-			} catch (IOException e) {
-				logger.error("failed to send message through an exist connection: " + msg, e);
-				if (null != observer) observer.onFail();
-				return;
-			} finally {
+				isSuccess = true;
+			} catch (IOException e) {logger.error("failed to send message through an exist connection: " + msg, e);}
+			finally {
 				try {if (null != conn) conn.close();}
 				catch (IOException e) {e.printStackTrace();}
 			}
 		} else if (msg instanceof FjDscpMessage) {
 			FjDscpMessage dmsg = (FjDscpMessage) msg;
 			FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(dmsg.ts());
-			if (null == addr0) {
-				logger.error("can not find an address with server name: " + dmsg.ts());
-				if (null != observer) observer.onFail();
-				return;
-			}
-			try {
-				conn = SocketChannel.open();
-				conn.connect(new InetSocketAddress(addr0.host, addr0.port));
-				ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
-				while (buf.hasRemaining()) conn.write(buf);
-				logger.debug("send message successfully: " + msg);
-				if (null != observer) observer.onSuccess();
-				return;
-			} catch (IOException e) {
-				List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(dmsg.ts());
-				boolean isSuccess = false;
-				for (FjServerToolkit.FjAddress addr : addresses) {
-					if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
-					try {
-						conn = SocketChannel.open();
-						conn.connect(new InetSocketAddress(addr0.host, addr0.port));
-						ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
-						while (buf.hasRemaining()) conn.write(buf);
-						isSuccess = true;
-						break;
-					} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
+			if (null == addr0) logger.error("can not find an address with server name: " + dmsg.ts());
+			else {
+				try {
+					conn = SocketChannel.open();
+					conn.connect(new InetSocketAddress(addr0.host, addr0.port));
+					ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+					while (buf.hasRemaining()) conn.write(buf);
+					isSuccess = true;
+				} catch (IOException e) {
+					List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(dmsg.ts());
+					for (FjServerToolkit.FjAddress addr : addresses) {
+						if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
+						try {
+							conn = SocketChannel.open();
+							conn.connect(new InetSocketAddress(addr0.host, addr0.port));
+							ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
+							while (buf.hasRemaining()) conn.write(buf);
+							isSuccess = true;
+							break;
+						} catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
+					}
+				} finally {
+					try {if (null != conn) conn.close();}
+					catch (IOException e) {e.printStackTrace();}
 				}
-				if(isSuccess) { 
-					if (null != observer) observer.onSuccess();
-				} else {
-					logger.error("can not find an available address to send message: " + msg);
-					if (null != observer) observer.onFail();
-				}
-				return;
-			} finally {
-				try {if (null != conn) conn.close();}
-				catch (IOException e) {e.printStackTrace();}
 			}
+		} else logger.error("unsupported format message: " + msg);
+		if (isSuccess) {
+			logger.debug("send message success: " + msg);
+			try {if (null != observer) observer.onSuccess();}
+			catch (Exception e) {e.printStackTrace();}
+		} else {
+			logger.error("send message failed:" + msg);
+			try {if (null != observer) observer.onFail();}
+			catch (Exception e) {e.printStackTrace();}
 		}
-		logger.error("there is no way to send message: " + msg);
-		if (null != observer) observer.onFail();
 	}
 
 	public void send(FjMessage msg) {
@@ -150,7 +141,7 @@ public class FjSender extends FjLoopTask {
 	public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("HTTP/1.1 " + rsp.code() + " OK\r\n");
-		sb.append("Content-Type: "   + rsp.contentType() + "\r\n");
+		sb.append("Content-Type: "   + rsp.contentType() + "; charset=utf-8\r\n");
 		sb.append("Content-Length: " + rsp.contentLength() + "\r\n");
 		sb.append("\r\n");
 		sb.append(rsp.content());

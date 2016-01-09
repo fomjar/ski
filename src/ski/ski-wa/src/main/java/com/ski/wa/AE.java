@@ -14,13 +14,13 @@ public interface AE {
 	void execute(WebDriver driver, JSONObject arg);
 	
 	/**
-	 * @return ae执行情况，0表示成功，但不一定有结果返回
+	 * @return ae执行情况
 	 */
-	int code();
+	int cmd();
 	
 	/**
 	 * @return ae执行结果，如果有数据返回，则从此处返回
 	 */
-	JSONObject desc();
+	JSONObject arg();
 	
 }
