@@ -4,7 +4,7 @@ public final class DSCP {
 	
 	public static final class CMD {
 		
-		//////////////////////////// 命令字 ////////////////////////////
+		//////////////////////////// 指令字 ////////////////////////////
 		// 用户指令
 		public static final int USER_RESPONSE                       = 0x00000100; // 用户响应
 		public static final int USER_REQUEST                        = 0x00000101; // 用户请求
@@ -13,10 +13,12 @@ public final class DSCP {
 		public static final int USER_GOTO                           = 0x00000104; // 用户跳转
 		public static final int USER_LOCATION                       = 0x00000105; // 用户位置
 		// 电商指令
-		public static final int ECOM_ORDER_APPLY                    = 0x00000300; // 订单申请（新的）
-		public static final int ECOM_ORDER_QUERY                    = 0x00000301; // 订单查询（老的）
-		public static final int ECOM_RETURN_APPLY                   = 0x00000320; // 退货申请
-		public static final int ECOM_RETURN_SPECIFY                 = 0x00000321; // 退货指定（具体目标对象）
+		// APPLY
+		public static final int ECOM_APPLY_ORDER                    = 0x00000300; // 申请订单
+		public static final int ECOM_APPLY_RETURN                   = 0x00000301; // 申请退货
+		// SPECIFY
+		public static final int ECOM_SPECIFY_ORDER                  = 0x00000400; // 指定订单
+		public static final int ECOM_SPECIFY_RETURN                 = 0x00000401; // 指定退货
 		// 系统指令
 		public static final int SYSTEM_UNKNOWN_COMMAND              = 0x0FFFFFFF; // 未知命令
 		

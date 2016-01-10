@@ -70,9 +70,9 @@ create table tbl_game (
 -- 产品
 drop table if exists tbl_product;
 create table tbl_product (
-    i_pid       integer,    -- 产品ID
-    i_type      integer,    -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
-    i_specific  integer     -- 特定对象，如游戏ID等
+    i_pid   integer,    -- 产品ID
+    i_type  integer,    -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
+    i_inst  integer     -- 实例类型，如游戏ID等
 );
 
 -- 订单
@@ -88,13 +88,20 @@ create table tbl_order (
 -- 订单产品信息
 drop table if exists tbl_order_product;
 create table tbl_order_product (
-    i_poid  integer,        -- 平台订单ID
-    i_pid   integer,        -- 产品ID
-    i_inst  integer,        -- 具体分配的产品的实例ID，针对游戏租赁类产品则为分配的游戏账户ID
-    i_caid  integer,        -- 渠道账户ID
-    i_state tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-确认收货 3-申请退款 4-退款成功
-    i_price decimal(7, 2),  -- 产品单价
-    i_count integer         -- 产品数量
+    i_poid          integer,        -- 平台订单ID
+    i_pid           integer,        -- 产品ID
+    c_name          varchar(64),    -- 名称
+    i_price         decimal(7, 2),  -- 单价
+    i_count         integer         -- 数量
+    i_state         tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货
+    c_take_code     varchar(64),    -- 提取码
+    i_take_inst     integer,        -- 提货实例，如游戏账户ID
+    t_return_apply  datetime,       -- 退货申请时间
+    t_return_done   datetime,       -- 退货完成时间
+    i_refund        decimal(7, 2)   -- 退款金额
+    c_reserve1      varchar(64),    -- 保留信息1
+    c_reserve2      varchar(64),    -- 保留信息2
+    c_reserve3      varchar(64)     -- 保留信息3
 );
 
 -- 平台账户流水

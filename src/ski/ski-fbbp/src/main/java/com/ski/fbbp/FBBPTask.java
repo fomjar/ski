@@ -38,8 +38,8 @@ public class FBBPTask implements FjServerTask {
 			try {FjSessionController.dispatch(server, scs, dmsg);} // 通用会话消息
 			catch (FjSessionNotOpenException e) {
 				// 新会话开始
-				if (DSCP.CMD.ECOM_RETURN_APPLY == dmsg.cmd()
-						|| DSCP.CMD.ECOM_RETURN_SPECIFY == dmsg.cmd()) { // 退货
+				if (DSCP.CMD.ECOM_APPLY_RETURN == dmsg.cmd()
+						|| DSCP.CMD.ECOM_SPECIFY_RETURN == dmsg.cmd()) { // 退货
 					scReturn.openSession(dmsg.sid());
 				}
 				try {FjSessionController.dispatch(server, scs, dmsg);}

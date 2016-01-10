@@ -19,9 +19,12 @@ public class SessionReturn extends FjSessionController {
 	@Override
 	public void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
 		switch (msg.cmd()) {
-		case DSCP.CMD.ECOM_RETURN_APPLY:
-			logger.info("ECOM_RETURN_APPLY");
+		case DSCP.CMD.ECOM_APPLY_RETURN:
+			logger.info("ECOM_APPLY_RETURN - " + scb.sid());
 			processReturnApply(server.name(), scb, msg);
+			break;
+		case DSCP.CMD.ECOM_SPECIFY_RETURN:
+			logger.info("ECOM_SPECIFY_RETURN");
 			break;
 		}
 	}
