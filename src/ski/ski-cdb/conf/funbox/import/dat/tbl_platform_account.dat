@@ -1,0 +1,8 @@
+# 井号打头为注释
+# 1. 所有字段以“|”符号分隔
+# 2. 字段首尾的空格将被忽略
+# 3. 字段中不能含有双引号
+#【格式】
+# 平台账户ID | 用户名      | 密码     | 姓名   | 手机        | 邮箱                   | 出生日期
+  0          | mengxiangxi | password | 孟祥熙 | 12345678901 | mengxiangxi@funbox.com | 1989/09/22
+  1          | dufengjia   | password | 杜逢佳 | 12345678901 | dufengjia@funbox.com   | 1989/09/22

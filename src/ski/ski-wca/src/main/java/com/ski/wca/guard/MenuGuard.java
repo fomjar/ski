@@ -27,15 +27,19 @@ public class MenuGuard extends FjLoopTask {
 	
 	@Override
 	public void perform() {
-		String menu = FjServerToolkit.getServerConfig("wca.menu");
+		setNextRetryInterval(Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload.interval")));
+		
+		boolean menu_switch = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload.switch"));
+		if (!menu_switch) return;
+		
+		String  menu_content = FjServerToolkit.getServerConfig("wca.menu.content");
 		FjJsonMessage rsp = null;
 		try {
-			if (null == menu || 0 == menu.length()) rsp = WechatInterface.menuDelete();
-			else rsp = WechatInterface.menuCreate(menu);
+			if (null == menu_content || 0 == menu_content.length()) rsp = WechatInterface.menuDelete();
+			else rsp = WechatInterface.menuCreate(menu_content);
 		} catch (WechatPermissionDeniedException e) {logger.error(e);}
 		if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
 		else logger.error("menu update failed: " + rsp);
-		setNextRetryInterval(Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval")));
 	}
 	
 	public void setNextRetryInterval(long seconds) {

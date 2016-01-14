@@ -8,8 +8,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 import com.ski.common.DSCP;
-import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
-import com.ski.wca.guard.CustomServiceGuard;
+import com.ski.wca.WechatInterface.WechatInterfaceException;
 import com.ski.wca.guard.MenuGuard;
 import com.ski.wca.guard.TokenGuard;
 
@@ -19,6 +18,7 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjMessage;
 
 public class WCATask implements FjServerTask {
@@ -29,7 +29,6 @@ public class WCATask implements FjServerTask {
 		TokenGuard.getInstance().setServerName(name);
 		TokenGuard.getInstance().start();
 		new MenuGuard().start();
-		new CustomServiceGuard().start();
 	}
 	
 	@Override
@@ -54,10 +53,9 @@ public class WCATask implements FjServerTask {
 		}
 		Element xml      = ((FjHttpRequest) wrapper.message()).contentToXml().getDocumentElement();
 		String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent();
-		String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent();
+		// String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent();
 		// 第一时间给微信响应
-//		WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
-		WechatInterface.sendXmlResponse(user_to, user_from, "<a href=\"http://www.pan-o.cn:8080/wcweb?cmd=00200001&user=123&account=456\">刺客信条</a>", (SocketChannel) wrapper.attachment("conn"));
+		WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
 		
 		FjDscpMessage req = new FjDscpMessage();
 		req.json().put("fs", serverName);
@@ -138,8 +136,14 @@ public class WCATask implements FjServerTask {
 		FjDscpMessage req = (FjDscpMessage) wrapper.message();
 		switch (req.cmd()) {
 		case DSCP.CMD.USER_RESPONSE: // 响应用户
-			try {WechatInterface.customSendTextMessage(((JSONObject) req.arg()).getString("user"), ((JSONObject) req.arg()).getString("content"));}
-			catch (WechatPermissionDeniedException e) {logger.error("send custom service message failed: " + req, e);}
+			logger.info("USER_RESPONSE - " + req.sid());
+			try {
+				String user    = ((JSONObject) req.arg()).getString("user");
+				String content = ((JSONObject) req.arg()).getString("content");
+				FjJsonMessage rsp = WechatInterface.customSendTextMessage(user, content);
+				if (0 != rsp.json().getInt("errcode")) logger.error("send custom service message failed: " + rsp);
+				else logger.debug(String.format("send custom service message success: user=%s, content=%s", user, content));
+			} catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + req, e);}
 			break;
 		}
 	}

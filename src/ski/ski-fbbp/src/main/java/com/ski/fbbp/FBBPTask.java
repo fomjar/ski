@@ -43,7 +43,7 @@ public class FBBPTask implements FjServerTask {
 					scReturn.openSession(dmsg.sid());
 				}
 				try {FjSessionController.dispatch(server, scs, dmsg);}
-				catch (FjSessionNotOpenException e1) {logger.error("dispatch failed for message: " + msg, e);}
+				catch (FjSessionNotOpenException e1) {logger.error("dispatch failed for message: " + msg, e1);}
 			}
 		} else {
 			logger.error("unsupported format message: " + msg);

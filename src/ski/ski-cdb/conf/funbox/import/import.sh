@@ -30,6 +30,56 @@ function executeSql() {
 end
 }
 
+function import_tbl_platform_account() {
+    cd dat
+    lines=$(readValidLines tbl_platform_account.dat)
+    echo "$lines"|while read line; do
+        executeSql "insert into tbl_platform_account  values($(wordat 1 $line), \"$(wordat 2 $line)\", \"$(wordat 3 $line)\", \"$(wordat 4 $line)\", \"$(wordat 5 $line)\", \"$(wordat 6 $line)\", now(), \"$(wordat 8 $line)\")" 1>/dev/null 2>&1
+        check "import tbl_platform_account $(wordat 2 $line)"
+    done
+    cd ..
+}
+
+function import_tbl_platform_account_relationship() {
+    cd dat
+    lines=$(readValidLines tbl_platform_account_relationship.dat)
+    echo "$lines"|while read line; do
+        executeSql "insert into tbl_platform_account_relationship  values($(wordat 1 $line), $(wordat 2 $line))" 1>/dev/null 2>&1
+        check "import tbl_platform_account_relationship $(wordat 1 $line)"
+    done
+    cd ..
+}
+
+function import_tbl_game_account() {
+    cd dat
+    lines=$(readValidLines tbl_game_account.dat)
+    echo "$lines"|while read line; do
+        executeSql "insert into tbl_game_account  values($(wordat 1 $line), \"$(wordat 2 $line)\", \"$(wordat 3 $line)\", \"$(wordat 4 $line)\", \"$(wordat 5 $line)\")" 1>/dev/null 2>&1
+        check "import tbl_game_account $(wordat 2 $line)"
+    done
+    cd ..
+}
+
+function import_tbl_game_account_rent() {
+    cd dat
+    lines=$(readValidLines tbl_game_account_rent.dat)
+    echo "$lines"|while read line; do
+        executeSql "insert into tbl_game_account_rent  values($(wordat 1 $line), 0)" 1>/dev/null 2>&1
+        check "import tbl_game_account_rent $(wordat 1 $line)"
+    done
+    cd ..
+}
+
+function import_tbl_game_account_game() {
+    cd dat
+    lines=$(readValidLines tbl_game_account_game.dat)
+    echo "$lines"|while read line; do
+        executeSql "insert into tbl_game_account_game  values($(wordat 1 $line), $(wordat 2 $line))" 1>/dev/null 2>&1
+        check "import tbl_game_account_game $(wordat 1 $line)"
+    done
+    cd ..
+}
+
 cd dat
 
 lines=$(readValidLines account.dat)

@@ -1,8 +1,0 @@
-# 井号打头为注释
-# 1. 所有字段以“|”符号分隔
-# 2. 字段首尾的空格将被忽略
-# 3. 字段中不能含有双引号
-#【格式】
-# 账户ID | 用户名                 | 密码        | 出生日期
-  0      | mengxiangxi@funbox.com | mengxiangxi | 1989/09/22
-  1      | dufengjia@funbox.com   | dufengjia   | 1989/09/22

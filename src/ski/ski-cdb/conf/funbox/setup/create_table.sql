@@ -32,8 +32,9 @@ drop table if exists tbl_game_account;
 create table tbl_game_account (
     i_gaid      integer,        -- 游戏账户ID
     c_user      varchar(32),    -- 用户名
-    c_pass      varchar(32),    -- 密码
-    c_pass_temp varchar(32)     -- 临时密码
+    c_pass_cur  varchar(32),    -- 当前密码
+    c_pass_a    varchar(32),    -- 密码A
+    c_pass_b    varchar(32)     -- 密码B
 );
 
 -- 游戏账户租赁状态
@@ -92,7 +93,6 @@ create table tbl_order_product (
     i_pid           integer,        -- 产品ID
     c_name          varchar(64),    -- 名称
     i_price         decimal(7, 2),  -- 单价
-    i_count         integer         -- 数量
     i_state         tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货
     c_take_code     varchar(64),    -- 提取码
     i_take_inst     integer,        -- 提货实例，如游戏账户ID

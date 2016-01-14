@@ -53,14 +53,14 @@ public abstract class FjSessionController {
 			logger.error("session not found: " + sid);
 			return null;
 		}
-		logger.info("close session: " + sid);
+		logger.info("session close: " + sid);
 		FjSCB scb = scbs.remove(sid);
 		scb.put("time.close", System.currentTimeMillis());
 		return scb;
 	}
 	
 	public FjSCB openSession(String sid) {
-		logger.info("open session: " + sid);
+		logger.info("session open: " + sid);
 		FjSCB scb = new FjSCB(sid);
 		scb.put("time.open", System.currentTimeMillis());
 		scbs.put(sid, scb);

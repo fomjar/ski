@@ -14,7 +14,34 @@ public class WechatInterface {
 	
 	// private static final Logger logger = Logger.getLogger(WechatInterface.class);
 	
-	public static class WechatPermissionDeniedException extends Exception {
+	public static class WechatInterfaceException extends Exception {
+		
+		private static final long serialVersionUID = 3844740117616582893L;
+
+		public WechatInterfaceException() {
+			super();
+		}
+
+		public WechatInterfaceException(String message, Throwable cause,
+				boolean enableSuppression, boolean writableStackTrace) {
+			super(message, cause, enableSuppression, writableStackTrace);
+		}
+
+		public WechatInterfaceException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public WechatInterfaceException(String message) {
+			super(message);
+		}
+
+		public WechatInterfaceException(Throwable cause) {
+			super(cause);
+		}
+		
+	}
+	
+	public static class WechatPermissionDeniedException extends WechatInterfaceException {
 
 		private static final long serialVersionUID = 6641226267444874372L;
 
@@ -41,8 +68,43 @@ public class WechatInterface {
 		
 	}
 	
+	public static class WechatCustomServiceException extends WechatInterfaceException {
+
+		private static final long serialVersionUID = -8302791326146427719L;
+
+		public WechatCustomServiceException() {
+			super();
+		}
+
+		public WechatCustomServiceException(String message,
+				Throwable cause, boolean enableSuppression,
+				boolean writableStackTrace) {
+			super(message, cause, enableSuppression, writableStackTrace);
+		}
+
+		public WechatCustomServiceException(String message,
+				Throwable cause) {
+			super(message, cause);
+		}
+
+		public WechatCustomServiceException(String message) {
+			super(message);
+		}
+
+		public WechatCustomServiceException(Throwable cause) {
+			super(cause);
+		}
+		
+	}
+	
 	private static void checkWechatPermission() throws WechatPermissionDeniedException {
 		if (null == TokenGuard.getInstance().token()) throw new WechatPermissionDeniedException("havn't got access token yet");
+	}
+	
+	private static void checkWechatCustomService() throws WechatPermissionDeniedException, WechatCustomServiceException {
+		FjJsonMessage rsp = customServiceGet();
+		if (!rsp.json().containsKey("kf_list"))  throw new WechatCustomServiceException("custom service is unavailable");
+		if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
 	}
 	
 	/**
@@ -113,8 +175,9 @@ public class WechatInterface {
 			+ "         \"content\":\"%s\"\r\n"
 			+ "    }\r\n"
 			+ "}";
-	public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException {
+	public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
 		checkWechatPermission();
+		checkWechatCustomService();
 		String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + TokenGuard.getInstance().token();
 		String msg_content = String.format(TEMPLATE_CUSTOM_TEXT_MESSAGE, user_to, content);
 		return sendRequest("POST", url, msg_content);
