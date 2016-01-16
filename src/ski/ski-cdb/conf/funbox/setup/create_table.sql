@@ -23,8 +23,8 @@ create table tbl_platform_account (
 -- 平台账户拥有的游戏账户
 drop table if exists tbl_platform_account_relationship;
 create table tbl_platform_account_relationship (
-    i_paid  integer,    -- 平台账户ID
-    i_caid  integer     -- 渠道账户ID
+    i_paid  integer,        -- 平台账户ID
+    c_caid      varchar(64) -- 渠道账户ID
 );
 
 -- 游戏账户
@@ -79,50 +79,51 @@ create table tbl_product (
 -- 订单
 drop table if exists tbl_order;
 create table tbl_order (
-    i_poid      integer,    -- 平台订单ID
-    i_coid      integer,    -- 渠道订单ID
-    i_channel   tinyint,    -- 渠道类型：0-淘宝 1-微信 2-京东
-    i_caid      integer,    -- 渠道账户ID
-    t_place     datetime    -- 下单时间
+    i_poid      integer,        -- 平台订单ID
+    i_coid      integer,        -- 渠道订单ID
+    i_channel   tinyint,        -- 渠道类型：0-淘宝 1-微信 2-京东
+    c_caid      varchar(64),    -- 渠道账户ID
+    t_place     datetime        -- 下单时间
 );
 
 -- 订单产品信息
 drop table if exists tbl_order_product;
 create table tbl_order_product (
-    i_poid          integer,        -- 平台订单ID
-    i_pid           integer,        -- 产品ID
-    c_name          varchar(64),    -- 名称
-    i_price         decimal(7, 2),  -- 单价
-    i_state         tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货
-    c_take_code     varchar(64),    -- 提取码
-    i_take_inst     integer,        -- 提货实例，如游戏账户ID
-    t_return_apply  datetime,       -- 退货申请时间
-    t_return_done   datetime,       -- 退货完成时间
-    i_refund        decimal(7, 2)   -- 退款金额
-    c_reserve1      varchar(64),    -- 保留信息1
-    c_reserve2      varchar(64),    -- 保留信息2
-    c_reserve3      varchar(64)     -- 保留信息3
+    i_poid              integer,        -- 平台订单ID
+    i_pid               integer,        -- 产品ID
+    i_type              integer,        -- 实例类型
+    c_name              varchar(64),    -- 名称
+    i_price             decimal(7, 2),  -- 单价
+    i_state             tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货
+    c_take_code         varchar(64),    -- 提取码
+    i_take_inst         integer,        -- 提货实例，如游戏账户ID
+    t_return_apply      datetime,       -- 退货申请时间
+    t_return_done       datetime,       -- 退货完成时间
+    i_refund            decimal(7, 2)   -- 退款金额
+    c_reserve1          varchar(64),    -- 保留信息1
+    c_reserve2          varchar(64),    -- 保留信息2
+    c_reserve3          varchar(64)     -- 保留信息3
 );
 
 -- 平台账户流水
 drop table if exists tbl_journal_game_account;
 create table tbl_journal_game_account (
-    i_gaid          integer,    -- 游戏账号
-    i_caid          integer,    -- 渠道账户ID
-    t_change        datetime,   -- 变化时间
-    i_state_before  tinyint,    -- 变化前的状态
-    i_state_after   tinyint,    -- 变化后的状态
-    i_cause         tinyint     -- 成因：0-用户操作 1-系统操作 2-人工维护操作
+    i_gaid          integer,        -- 游戏账号
+    c_caid          varchar(64),    -- 渠道账户ID
+    t_change        datetime,       -- 变化时间
+    i_state_before  tinyint,        -- 变化前的状态
+    i_state_after   tinyint,        -- 变化后的状态
+    i_cause         tinyint         -- 成因：0-用户操作 1-系统操作 2-人工维护操作
 );
 
 -- 渠道账户信息
 drop table if exists tbl_channel_account;
 create table tbl_channel_account (
-    i_caid      integer,        -- 渠道账户ID
+    c_caid      varchar(64),    -- 渠道账户ID
     c_user      varchar(32),    -- 用户名
     i_channel   tinyint,        -- 渠道：0-淘宝 1-微信
     c_nick      varchar(32),    -- 昵称
-    i_gender    tinyint,        -- 性别：0-男 1-女 2-人妖
+    i_gender    tinyint,        -- 性别：0-女 1-男 2-人妖
     c_mobile    varchar(20),    -- 电话
     c_address   varchar(100),   -- 地址
     c_zipcode   varchar(10),    -- 邮编

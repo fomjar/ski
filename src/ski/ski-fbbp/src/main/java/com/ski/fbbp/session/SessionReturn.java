@@ -21,37 +21,42 @@ public class SessionReturn extends FjSessionController {
 		switch (msg.cmd()) {
 		case DSCP.CMD.ECOM_APPLY_RETURN:
 			logger.info("ECOM_APPLY_RETURN - " + scb.sid());
-			processReturnApply(server.name(), scb, msg);
+			processApplyReturn(server.name(), scb, msg);
 			break;
 		case DSCP.CMD.ECOM_SPECIFY_RETURN:
 			logger.info("ECOM_SPECIFY_RETURN - " + scb.sid());
-			processReturnSpecify(server.name(), scb, msg);
+			processSpecifyReturn(server.name(), scb, msg);
 			break;
 		}
 	}
 	
-	private static void processReturnApply(String serverName, FjSCB scb, FjDscpMessage msg) {
+	private static void processApplyReturn(String serverName, FjSCB scb, FjDscpMessage msg) {
 		if (msg.fs().startsWith("wca")) { // 请求来自WCA，向CDB请求产品详单
-			JSONObject arg = new JSONObject();
-			arg.put("user", ((JSONObject) msg.arg()).getString("user"));
-			arg.put("content", FjServerToolkit.getServerConfig("wechat.response.accept"));
-			FjDscpMessage msg_wca = new FjDscpMessage();
-			msg_wca.json().put("fs",  serverName);
-			msg_wca.json().put("ts",  msg.fs());
-			msg_wca.json().put("sid", msg.sid());
-			msg_wca.json().put("cmd", DSCP.CMD.USER_RESPONSE);
-			String url = "http://www.pan-o.cn:8080/wcweb?cmd=%s&user=%s&content=%s";
-			url = String.format(url, Integer.toHexString(DSCP.CMD.ECOM_SPECIFY_RETURN), ((JSONObject) msg.arg()).getString("user"), "test");
-			arg.put("content", "<a href='" + url + "'>《刺客信条：兄弟会》</a>\n价格：84.8美元\n起租时间：2016/01/14 00:49\n退租时间：2016/01/14 01:49\n费用: 12元");
-			msg_wca.json().put("arg", arg);
-			FjServerToolkit.getSender(serverName).send(msg_wca);
+		    scb.put("caid", ((JSONObject) msg.arg()).getString("user"));
+		    
+			FjDscpMessage msg_cdb = new FjDscpMessage();
+			msg_cdb.json().put("fs",  serverName);
+			msg_cdb.json().put("ts",  "cdb");
+			msg_cdb.json().put("sid", scb.sid());
+			msg_cdb.json().put("cmd", DSCP.CMD.ECOM_APPLY_RETURN);
+			msg_cdb.json().put("arg", String.format("{'c_caid':\"%s\"}", ((JSONObject) msg.arg()).getString("user")));
+			FjServerToolkit.getSender(serverName).send(msg_cdb);
 		} else if (msg.fs().startsWith("cdb")) { // 请求来自CDB，转发产品详单至WCA
-			
+		    FjDscpMessage msg_wca = new FjDscpMessage();
+		    msg_wca.json().put("fs",  serverName);
+		    msg_wca.json().put("ts",  "wca");
+		    msg_wca.json().put("sid", scb.sid());
+		    msg_wca.json().put("cmd", DSCP.CMD.USER_RESPONSE);
+		    JSONObject arg = new JSONObject();
+		    arg.put("user",    scb.getString("caid"));
+		    arg.put("content", msg.arg().toString());
+		    msg_wca.json().put("arg", arg);
+		    FjServerToolkit.getSender(serverName).send(msg_wca);
+			scb.end();
 		}
 	}
 	
-	private static void processReturnSpecify(String serverName, FjSCB scb, FjDscpMessage msg) {
-		scb.end();
+	private static void processSpecifyReturn(String serverName, FjSCB scb, FjDscpMessage msg) {
 	}
 
 }

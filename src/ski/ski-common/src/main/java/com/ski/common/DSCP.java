@@ -19,6 +19,9 @@ public final class DSCP {
 		// SPECIFY
 		public static final int ECOM_SPECIFY_ORDER                  = 0x00000400; // 指定订单
 		public static final int ECOM_SPECIFY_RETURN                 = 0x00000401; // 指定退货
+		// FINISH
+		public static final int ECOM_FINISH_ORDER                   = 0x00000500; // 完成订单
+		public static final int ECOM_FINISH_RETURN                  = 0x00000501; // 完成退货
 		// 系统指令
 		public static final int SYSTEM_UNKNOWN_COMMAND              = 0x0FFFFFFF; // 未知命令
 		
