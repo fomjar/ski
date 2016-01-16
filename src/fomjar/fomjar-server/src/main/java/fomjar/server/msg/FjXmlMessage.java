@@ -14,30 +14,30 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class FjXmlMessage implements FjMessage {
-	
-	private Document xml;
-	
-	public FjXmlMessage() {this(null);}
-	
-	public FjXmlMessage(String xml) {
-		if (null == xml || 0 == xml.length()) {
-			try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();}
-			catch (ParserConfigurationException e) {e.printStackTrace();}
-		} else {
-			InputStream is = new ByteArrayInputStream(xml.getBytes());
-			try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);}
-			catch (SAXException | IOException | ParserConfigurationException e) {e.printStackTrace();}
-		}
-	}
-	
-	public Document xml() {return xml;}
+    
+    private Document xml;
+    
+    public FjXmlMessage() {this(null);}
+    
+    public FjXmlMessage(String xml) {
+        if (null == xml || 0 == xml.length()) {
+            try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();}
+            catch (ParserConfigurationException e) {e.printStackTrace();}
+        } else {
+            InputStream is = new ByteArrayInputStream(xml.getBytes());
+            try {this.xml = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);}
+            catch (SAXException | IOException | ParserConfigurationException e) {e.printStackTrace();}
+        }
+    }
+    
+    public Document xml() {return xml;}
 
-	@Override
-	public String toString() {
-		ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
-		try {new XMLSerializer(os, new OutputFormat(xml(), "utf-8", true)).serialize(xml());}
-		catch (IOException e) {e.printStackTrace();}
-		return os.toString();
-	}
+    @Override
+    public String toString() {
+        ByteArrayOutputStream os = new ByteArrayOutputStream(1024);
+        try {new XMLSerializer(os, new OutputFormat(xml(), "utf-8", true)).serialize(xml());}
+        catch (IOException e) {e.printStackTrace();}
+        return os.toString();
+    }
 
 }

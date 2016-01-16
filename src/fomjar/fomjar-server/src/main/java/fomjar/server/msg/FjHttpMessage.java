@@ -7,31 +7,31 @@ import org.w3c.dom.Document;
 import net.sf.json.JSONObject;
 
 public class FjHttpMessage implements FjMessage {
-	
-	private String content;
-	
-	public FjHttpMessage() {this(null);}
-	
-	public FjHttpMessage(String content) {
-		if (null == content) content = "";
-		this.content = content;
-	}
-	
-	public int contentLength() {return content.getBytes(Charset.forName("utf-8")).length;}
-	
-	public String contentType() {
-		if (content.startsWith("<html>") || content.startsWith("<HTML>")) return "text/html";
-		if (content.startsWith("<")) return "text/xml";
-		if (content.startsWith("{")) return "application/json";
-		return "text/plain";
-	}
-	
-	public String content() {return content;}
-	
-	public JSONObject contentToJson() {return new FjJsonMessage(content()).json();}
-	
-	public Document   contentToXml() {return new FjXmlMessage(content()).xml();}
+    
+    private String content;
+    
+    public FjHttpMessage() {this(null);}
+    
+    public FjHttpMessage(String content) {
+        if (null == content) content = "";
+        this.content = content;
+    }
+    
+    public int contentLength() {return content.getBytes(Charset.forName("utf-8")).length;}
+    
+    public String contentType() {
+        if (content.startsWith("<html>") || content.startsWith("<HTML>")) return "text/html";
+        if (content.startsWith("<")) return "text/xml";
+        if (content.startsWith("{")) return "application/json";
+        return "text/plain";
+    }
+    
+    public String content() {return content;}
+    
+    public JSONObject contentToJson() {return new FjJsonMessage(content()).json();}
+    
+    public Document   contentToXml() {return new FjXmlMessage(content()).xml();}
 
-	@Override
-	public String toString() {return content();}
+    @Override
+    public String toString() {return content();}
 }
