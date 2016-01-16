@@ -41,7 +41,7 @@ public class OrderDeliver implements AE{
 		List<WebElement> order_tables = null;
 		try {order_tables = driver.findElements(By.className("j_expressTbody"));}
 		catch (NoSuchElementException e) { // 没有任何订单
-			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NOT_FOUND;
+			cmd = DSCP.CMD.ERROR_WEB_TAOBAO_ORDER_NOT_FOUND;
 			this.arg = JSONObject.fromObject("{'error':'can not find any orders'}");
 			return;
 		}
@@ -55,7 +55,7 @@ public class OrderDeliver implements AE{
 			}
 		}
 		if (null == deliver) { // 没有找到对应订单
-			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NOT_FOUND;
+			cmd = DSCP.CMD.ERROR_WEB_TAOBAO_ORDER_NOT_FOUND;
 			this.arg = JSONObject.fromObject(String.format("{'error':'can not find such an order: %s'}", toid));
 			return;
 		}

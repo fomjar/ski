@@ -7,10 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 import net.sf.json.JSON;
@@ -76,7 +75,11 @@ public class CDBTask implements FjServerTask {
 		cci.cmd = req.cmd();
 		cci.arg = (JSON) req.arg();
 		cci.err = null;
-		logger.info(String.format("COMMAND - 0x%s", Integer.toHexString(cci.cmd)));
+		{
+    		String cmd = Integer.toHexString(cci.cmd);
+    		while (8 > cmd.length()) cmd = "0" + cmd;
+    		logger.info(String.format("COMMAND - 0x%s", cmd));
+		}
 		
 		getCmdInfo(conn, cci);
 		if (null != cci.err) {
@@ -86,14 +89,14 @@ public class CDBTask implements FjServerTask {
 		}
 		generateSql(cci);
 		executeSql(conn, cci);
-		if (null == cci.err) response(server.name(), req, req.cmd(), String.format("{'result':%s}", JSONArray.fromObject(cci.result)));
+		if (null == cci.err) response(server.name(), req, req.cmd(), JSONArray.fromObject(cci.result));
 		else {
 			logger.error("execute sql failed: " + cci.err);
 			response(server.name(), req, DSCP.CMD.ERROR_DB_OPERATE_FAILED, String.format("{'error':\"" + cci.err + "\"}"));
 		}
 	}
 	
-	private static void response(String serverName, FjDscpMessage req, int cmd, String arg) {
+	private static void response(String serverName, FjDscpMessage req, int cmd, Object arg) {
 		FjDscpMessage rsp = new FjDscpMessage();
 		rsp.json().put("fs",  serverName);
 		rsp.json().put("ts",  req.fs());
@@ -128,25 +131,16 @@ public class CDBTask implements FjServerTask {
 	@SuppressWarnings("unchecked")
 	private static void generateSql(CdbCmdInfo cci) {
 		logger.debug(String.format("cmd(%d) sql-ori: %s", cci.cmd, cci.sql_ori));
-		BinaryOperator<Object> func_reduce = (result, entry)->{
-			if (result instanceof Map.Entry<?, ?>) { // first iterator
-				Object k0 = ((Map.Entry<Object, Object>) result).getKey();
-				Object v0 = ((Map.Entry<Object, Object>) result).getValue();
-				result = cci.sql_ori.replace("$" + k0.toString(), v0.toString());
-			}
-			Object k = ((Map.Entry<Object, Object>) entry).getKey();
-			Object v = ((Map.Entry<Object, Object>) entry).getValue();
-			result = result.toString().replace("$" + k.toString(), v.toString());
-			return result;
-		};
-		
 		if (!cci.arg.isArray()) { // single argument: JSONObject
-			JSONObject arg_obj = (JSONObject) cci.arg;
-			String sql_use = (String) arg_obj.entrySet()
-					.stream()
-					.reduce(func_reduce)
-					.get();
-			sql_use = sql_use.replaceAll("\\$\\w+", "null");
+		    JSONObject arg_obj = (JSONObject) cci.arg;
+		    String sql_use = cci.sql_ori;
+			Iterator<String> ki = arg_obj.keys();
+			while (ki.hasNext()) {
+			    String k = ki.next();
+			    String v = arg_obj.getString(k);
+			    sql_use = sql_use.replace("$" + k, v);
+			}
+            sql_use = sql_use.replaceAll("\\$\\w+", "null");
 			cci.sql_use = new LinkedList<String>();
 			cci.sql_use.add(sql_use);
 			logger.debug(String.format("cmd(%d) sql-use: %s", cci.cmd, sql_use));
@@ -156,11 +150,14 @@ public class CDBTask implements FjServerTask {
 					.stream()
 					.map((arg)->{
 						JSONObject arg_obj = (JSONObject) arg;
-						String sql_use = (String) arg_obj.entrySet()
-								.stream()
-								.reduce(func_reduce)
-								.get();
-						sql_use = sql_use.replaceAll("\\$\\w+", "null");
+			            String sql_use = cci.sql_ori;
+			            Iterator<String> ki = arg_obj.keys();
+			            while (ki.hasNext()) {
+			                String k = ki.next();
+			                String v = arg_obj.getString(k);
+			                sql_use = sql_use.replace("$" + k, v);
+			            }
+			            sql_use = sql_use.replaceAll("\\$\\w+", "null");
 						logger.debug(String.format("cmd(%d) sql-use: %s", cci.cmd, sql_use));
 						return sql_use;
 					})

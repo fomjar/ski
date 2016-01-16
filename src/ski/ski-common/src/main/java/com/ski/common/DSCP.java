@@ -31,10 +31,10 @@ public final class DSCP {
 		public static final int ERROR_SYSTEM_SUCCESS                  = 0xF0000001; // 成功
 		public static final int ERROR_SYSTEM_ILLEGAL_COMMAND          = 0xF0000002; // 非法指令
 		public static final int ERROR_SYSTEM_ILLEGAL_ARGUMENT         = 0xF0000003; // 非法参数
-		// 数据库错误码
+		// DB
 		public static final int ERROR_DB_STATE_ABNORMAL               = 0xF0000100; // 数据库状态异常
 		public static final int ERROR_DB_OPERATE_FAILED               = 0xF0000101; // 数据库操作失败
-		// WEB错误码
+		// WEB
 		public static final int ERROR_WEB_AE_NOT_FOUND                = 0xF0002000; // 找不到对应的AE对象
 		public static final int ERROR_WEB_AE_EXECUTE_FAILED           = 0xF0002001; // AE执行失败
 		public static final int ERROR_WEB_TAOBAO_ACCOUNT_INCORRECT    = 0xF0002010; // 淘宝登陆用户名或密码错误

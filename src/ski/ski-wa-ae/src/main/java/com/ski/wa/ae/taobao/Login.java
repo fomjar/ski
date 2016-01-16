@@ -39,7 +39,7 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("TPL_username_1"));
-			cmd = DSCP.CMD.ERROR_TAOBAO_ACCOUNT_INCORRECT;
+			cmd = DSCP.CMD.ERROR_WEB_TAOBAO_ACCOUNT_INCORRECT;
 			this.arg = JSONObject.fromObject("{'error':'username or password is incorrect'}");
 			return;
 		} catch (NoSuchElementException e){

@@ -46,7 +46,7 @@ public class ChangePassword implements AE {
 		if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
 			cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
 		} else { // 密码保存失败
-			cmd = DSCP.CMD.ERROR_PSN_CHANGE_PASSWORD_FAILED;
+			cmd = DSCP.CMD.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
 			this.arg = JSONObject.fromObject(String.format("{'error':'%s'}", driver.findElement(By.id("confirmPasswordFieldError")).getText()));
 		}
 	}

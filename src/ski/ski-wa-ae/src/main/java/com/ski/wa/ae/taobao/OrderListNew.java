@@ -36,7 +36,7 @@ public class OrderListNew implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
 		catch (NoSuchElementException e) { // 没有订单
-			cmd = DSCP.CMD.ERROR_TAOBAO_ORDER_NO_NEW;
+			cmd = DSCP.CMD.ERROR_WEB_TAOBAO_ORDER_NO_NEW;
 			this.arg = JSONObject.fromObject("{'error':'no new order'}");
 			return;
 		}

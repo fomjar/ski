@@ -28,7 +28,7 @@ public class Verify implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("device-0")); // 存在设备绑定
-			cmd = DSCP.CMD.ERROR_PSN_ACCOUNT_INUSE;
+			cmd = DSCP.CMD.ERROR_WEB_PSN_ACCOUNT_INUSE;
 			this.arg = JSONObject.fromObject("{'error':'psn account is inuse'}");
 		} catch (NoSuchElementException e) { // 不存在设备绑定
 			cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;

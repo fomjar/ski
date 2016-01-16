@@ -33,7 +33,7 @@ public class Login implements AE {
 		catch (InterruptedException e) {e.printStackTrace();}
 		try {
 			driver.findElement(By.id("signInInput_SignInID"));	// 账号输入框存在即说明用户名密码错误
-			cmd = DSCP.CMD.ERROR_PSN_ACCOUNT_INCORRECT;
+			cmd = DSCP.CMD.ERROR_WEB_PSN_ACCOUNT_INCORRECT;
 			this.arg = JSONObject.fromObject("{'error':'user or pass is incorrect'}");
 			return;
 		} catch (NoSuchElementException e) {}

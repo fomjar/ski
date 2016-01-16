@@ -70,6 +70,7 @@ public class WCATask implements FjServerTask {
 		String event_key = null;
 		String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent();
 		if ("text".equals(msg_type))  {
+		    logger.info("USER_REQUEST - wechat:" + user_from);
 			content = xml.getElementsByTagName("Content").item(0).getTextContent();
 			req.json().put("cmd", DSCP.CMD.USER_REQUEST);
 			arg.put("content", content);
@@ -77,23 +78,29 @@ public class WCATask implements FjServerTask {
 			event     = xml.getElementsByTagName("Event").item(0).getTextContent();
 			event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent();
 			if ("subscribe".equals(event)) {
+	            logger.info("USER_SUBSCRIBE - wechat:" + user_from);
 				req.json().put("cmd", DSCP.CMD.USER_SUBSCRIBE);
 			} else if ("unsubscribe".equals(event)) {
+                logger.info("USER_UNSUBSCRIBE - wechat:" + user_from);
 				req.json().put("cmd", DSCP.CMD.USER_UNSUBSCRIBE);
 			} else if ("CLICK".equals(event)) {
+                logger.info(String.format("USER_COMMAND - wechat:%s:0x%s", user_from, event_key));
 				req.json().put("cmd", Integer.parseInt(event_key, 16));
 			} else if ("VIEW".equals(event)) {
+                logger.info("USER_GOTO - wechat:" + user_from);
 				req.json().put("cmd", DSCP.CMD.USER_GOTO);
 				arg.put("content", event_key);
 			}
 		} else if ("location".equals(msg_type)) {
+            logger.info("USER_LOCATION - wechat:" + user_from);
 			float  x     = Float.parseFloat(xml.getElementsByTagName("Location_X").item(0).getTextContent());
 			float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
 			int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
 			String label = xml.getElementsByTagName("Label").item(0).getTextContent();
-			req.json().put("cmd", DSCP.CMD.USER_GOTO);
+			req.json().put("cmd", DSCP.CMD.USER_LOCATION);
 			arg.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
 		} else if ("image".equals(msg_type)) {
+            logger.info("USER_IMAGE - wechat:" + user_from);
 			/**
 			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
 			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
@@ -105,6 +112,7 @@ public class WCATask implements FjServerTask {
 			 * </xml>
 			 */
 		} else if ("voice".equals(msg_type)) {
+            logger.info("USER_VOICE - wechat:" + user_from);
 			/**
 			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
 			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
@@ -117,6 +125,7 @@ public class WCATask implements FjServerTask {
 			 * </xml>
 			 */
 		} else if ("shortvideo".equals(msg_type)) {
+            logger.info("USER_SHORTVIDEO - wechat:" + user_from);
 			/**
 			 * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
 			 * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>

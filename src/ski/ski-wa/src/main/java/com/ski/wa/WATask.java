@@ -37,7 +37,7 @@ public class WATask implements FjServerTask {
 		AE ae = AEGuard.getInstance().getAe(cmd);
 		if (null == ae) {
 			logger.error("can not find an AE for cmd: " + cmd);
-			response(server.name(), req, DSCP.CMD.ERROR_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
+			response(server.name(), req, DSCP.CMD.ERROR_WEB_AE_NOT_FOUND, JSONObject.fromObject("{'error':'can not find any ae for cmd: " + cmd + "'}"));
 			return;
 		}
 		WebDriver driver = null;
@@ -46,7 +46,7 @@ public class WATask implements FjServerTask {
 			ae.execute(driver, arg);
 		} catch (Exception e) {
 			logger.error("execute ae failed for cmd: " + cmd, e);
-			response(server.name(), req, DSCP.CMD.ERROR_AE_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"execute ae failed for cmd(%s): %s\"}", cmd, e.getMessage())));
+			response(server.name(), req, DSCP.CMD.ERROR_WEB_AE_EXECUTE_FAILED, JSONObject.fromObject(String.format("{'error':\"execute ae failed for cmd(%s): %s\"}", cmd, e.getMessage())));
 			return;
 		} finally {
 			if (null != driver) driver.quit();
