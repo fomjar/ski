@@ -82,7 +82,7 @@ public class CDBTask implements FjServerTask {
         {
             String cmd = Integer.toHexString(cci.cmd);
             while (8 > cmd.length()) cmd = "0" + cmd;
-            logger.info(String.format("COMMAND - 0x%s", cmd));
+            logger.info(String.format("COMMAND - %s:%s:0x%s", req.fs(), req.sid(), cmd));
         }
         
         if (!checkConnection()) {

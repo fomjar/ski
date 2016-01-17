@@ -18,8 +18,8 @@ public class FjSessionMonitor extends FjLoopTask {
     
     FjSessionMonitor(Map<String, FjSCB> scbs) {
         this.scbs = scbs;
-        setTimeoutToMark(2 * 60 * 60L);
-        setTimeoutToRemove(24 * 60 * 60L);
+        setTimeoutToMark  ( 2 * 60 * 60 * 1000L);
+        setTimeoutToRemove(24 * 60 * 60 * 1000L);
         setInterval(10 * 1000L);
     }
     
