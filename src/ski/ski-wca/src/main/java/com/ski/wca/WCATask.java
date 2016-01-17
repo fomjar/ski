@@ -154,7 +154,9 @@ public class WCATask implements FjServerTask {
             } catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + req, e);}
             break;
         default: // forward report
-            logger.info(String.format("USER_COMMAND     - %s:%s", req.fs(), req.sid()));
+            String cmd = Integer.toHexString(req.cmd());
+            while (8 > cmd.length()) cmd = "0" + cmd;
+            logger.info(String.format("USER_COMMAND     - %s:%s:0x%s", req.fs(), req.sid(), cmd));
             FjDscpMessage msg = new FjDscpMessage(req.json());
             msg.json().put("fs", serverName);
             msg.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));

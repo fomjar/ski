@@ -66,7 +66,7 @@ public class SessionReturn extends FjSessionController {
             msg_wca.json().put("arg", arg);
             FjServerToolkit.getSender(serverName).send(msg_wca);
             
-            scb.put("return.phase", PHASE_SPECIFY);
+            scb.end();
         }
     }
     
