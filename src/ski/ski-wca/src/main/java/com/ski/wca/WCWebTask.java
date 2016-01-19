@@ -35,7 +35,7 @@ public class WCWebTask implements FjServerTask {
     
     private void process(String serverName, FjMessageWrapper wrapper) {
         FjHttpRequest       hmsg = (FjHttpRequest) wrapper.message();
-        SocketChannel       conn = (SocketChannel) wrapper.attachment("conn");
+        final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
         Map<String, String> arg  = hmsg.urlParameters();
         
         if (!arg.containsKey("cmd") && !arg.containsKey("user")) {

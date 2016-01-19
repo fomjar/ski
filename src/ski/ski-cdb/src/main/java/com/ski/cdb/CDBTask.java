@@ -86,7 +86,7 @@ public class CDBTask implements FjServerTask {
         }
         
         if (!checkConnection()) {
-            response(server.name(), req, DSCP.CMD.ERROR_DB_STATE_ABNORMAL, "{'error':'database state abnormal'}");
+            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", DSCP.CMD.ERROR_DB_STATE_ABNORMAL));
             return;
         }
         
@@ -94,25 +94,25 @@ public class CDBTask implements FjServerTask {
         getCmdInfo(conn, cci);
         if (null != cci.err) {
             logger.error("get command info failed: " + cci.err);
-            response(server.name(), req, DSCP.CMD.ERROR_SYSTEM_ILLEGAL_COMMAND, "{'error':\"" + cci.err + "\"}");
+            response(server.name(), req, String.format("{'code':%d, 'error':\"%s\"}", DSCP.CMD.ERROR_SYSTEM_ILLEGAL_COMMAND, cci.err));
             return;
         }
         generateSql(cci);
         executeSql(conn, cci);
         if (null != cci.err) {
             logger.error("execute sql failed: " + cci.err);
-            response(server.name(), req, DSCP.CMD.ERROR_DB_OPERATE_FAILED, String.format("{'error':\"" + cci.err + "\"}"));
+            response(server.name(), req, String.format("{'code':%d, 'error':\"%s\"}", DSCP.CMD.ERROR_DB_OPERATE_FAILED, cci.err));
             return;
         }
-        response(server.name(), req, req.cmd(), JSONArray.fromObject(cci.result));
+        response(server.name(), req, JSONArray.fromObject(cci.result));
     }
     
-    private static void response(String serverName, FjDscpMessage req, int cmd, Object arg) {
+    private static void response(String serverName, FjDscpMessage req, Object arg) {
         FjDscpMessage rsp = new FjDscpMessage();
         rsp.json().put("fs",  serverName);
         rsp.json().put("ts",  req.fs());
         rsp.json().put("sid", req.sid());
-        rsp.json().put("cmd", cmd);
+        rsp.json().put("cmd", req.cmd());
         rsp.json().put("arg", arg);
         FjServerToolkit.getSender(serverName).send(rsp);
     }
@@ -177,8 +177,11 @@ public class CDBTask implements FjServerTask {
     }
 
     private static void executeSql(Connection conn, CdbCmdInfo cci) {
-        if (cci.mod.equalsIgnoreCase("st")) executeSt(conn, cci);
-        if (cci.mod.equalsIgnoreCase("sp")) executeSp(conn, cci);
+        switch (cci.mod.toLowerCase()) {
+        case "sp": executeSp(conn, cci); break;
+        case "st": executeSt(conn, cci); break;
+        default: cci.err = "command mod is not supported: " + cci.mod; break;
+        }
     }
     
     private static void executeSt(Connection conn, CdbCmdInfo cci) {

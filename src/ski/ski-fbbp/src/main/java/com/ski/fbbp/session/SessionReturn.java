@@ -18,31 +18,23 @@ public class SessionReturn extends FjSessionController {
     
     private static final Logger logger = Logger.getLogger(SessionReturn.class);
     
-    private static final int PHASE_APPLY   = 0;
-    private static final int PHASE_SPECIFY = 1;
-    private static final int PHASE_FINISH  = 2;
-
     @Override
     public void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
-        if (!scb.has("return.phase")) {
-            if (DSCP.CMD.ECOM_APPLY_RETURN   == msg.cmd()) scb.put("return.phase", PHASE_APPLY);
-            if (DSCP.CMD.ECOM_SPECIFY_RETURN == msg.cmd()) scb.put("return.phase", PHASE_SPECIFY);
-        }
-        switch (scb.getInteger("return.phase")) {
-            case PHASE_APPLY:
+        switch (msg.cmd()) {
+            case DSCP.CMD.ECOM_APPLY_RETURN:
                 logger.info(String.format("ECOM_APPLY_RETURN   - %s:%s", msg.fs(), scb.sid()));
-                processPhaseApply  (server.name(), scb, msg);
+                processApply  (server.name(), scb, msg);
                 break;
-            case PHASE_SPECIFY:
+            case DSCP.CMD.ECOM_SPECIFY_RETURN:
                 logger.info(String.format("ECOM_SPECIFY_RETURN - %s:%s", msg.fs(), scb.sid()));
-                processPhaseSpecify(server.name(), scb, msg);
+                processSpecify(server.name(), scb, msg);
                 break;
-            case PHASE_FINISH:
+            case DSCP.CMD.ECOM_FINISH_RETURN:
                 break;
         }
     }
     
-    private static void processPhaseApply(String serverName, FjSCB scb, FjDscpMessage msg) {
+    private static void processApply(String serverName, FjSCB scb, FjDscpMessage msg) {
         if (msg.fs().startsWith("wca")) { // 请求来自WCA，向CDB请求产品详单
             scb.put("caid", ((JSONObject) msg.arg()).getString("user"));
             
@@ -70,9 +62,21 @@ public class SessionReturn extends FjSessionController {
         }
     }
     
-    private static void processPhaseSpecify(String serverName, FjSCB scb, FjDscpMessage msg) {
+    private static void processSpecify(String serverName, FjSCB scb, FjDscpMessage msg) {
         if (msg.fs().startsWith("wca")) {
-            logger.info("[test] msg=" + msg);
+            JSONObject arg = new JSONObject();
+            arg.put("c_caid", ((JSONObject) msg.arg()).getString("user"));
+            arg.put("i_pid",  Integer.parseInt(((JSONObject) msg.arg()).getString("content"), 16));
+            
+            FjDscpMessage msg_cdb = new FjDscpMessage();
+            msg_cdb.json().put("fs",  serverName);
+            msg_cdb.json().put("ts",  "cdb");
+            msg_cdb.json().put("sid", scb.sid());
+            msg_cdb.json().put("cmd", DSCP.CMD.ECOM_SPECIFY_RETURN);
+            msg_cdb.json().put("arg", arg);
+            FjServerToolkit.getSender(serverName).send(msg_cdb);
+        } else if (msg.fs().startsWith("cdb")) {
+            logger.info("[TEST] message = " + msg);
             scb.end();
         }
     }
@@ -88,11 +92,12 @@ public class SessionReturn extends FjSessionController {
                     address.port,
                     scb.getString("caid"),
                     Integer.toHexString(DSCP.CMD.ECOM_SPECIFY_RETURN),
-                    product[0]);
-            content.append(String.format("<a href='%s'>%s</a>%s\r\n",
+                    product[1]);
+            content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
                     url,
-                    product[1],
-                    product[2]));
+                    product[2],
+                    0 == Integer.parseInt(product[0], 16) ? "A类" : "B类",
+                    product[3]));
         }
         return content.toString();
     }
