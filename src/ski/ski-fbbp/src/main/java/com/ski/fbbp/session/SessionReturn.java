@@ -82,7 +82,7 @@ public class SessionReturn extends FjSessionController {
     }
 
     private static String createUserResponseContent4Apply(FjSCB scb, FjDscpMessage msg) {
-        StringBuffer content = new StringBuffer();
+        StringBuffer content = new StringBuffer("【游戏清单】\n\n");
         String[] products = ((JSONArray) ((JSONArray) msg.arg()).get(0)).getString(2).split("\n");
         for (String productString : products) {
             String[] product = productString.split("\t");
