@@ -10,14 +10,14 @@ import com.ski.wa.AE;
 
 public class ChangePassword implements AE {
     
-    private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
-    private JSONObject arg = null;
+    private int     code = DSCP.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject arg) {
         if (!arg.containsKey("pass-old") || !arg.containsKey("pass-new")) { // 参数没有新老密码
-            cmd = DSCP.CMD.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
-            this.arg = JSONObject.fromObject("{'error':'no parameter: pass-old or pass-new'}");
+            code = DSCP.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+            desc = "no parameter: pass-old or pass-new";
             return;
         }
         
@@ -26,9 +26,9 @@ public class ChangePassword implements AE {
         login_arg.put("user", arg.getString("user"));
         login_arg.put("pass", arg.getString("pass"));
         login.execute(driver, login_arg);
-        if (DSCP.CMD.ERROR_SYSTEM_SUCCESS != login.cmd()) {
-            cmd = login.cmd();
-            this.arg = login.arg();
+        if (DSCP.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
+            code = login.code();
+            desc = login.desc();
             return;
         }
         String psnp_old = arg.getString("psnp-old");
@@ -44,21 +44,21 @@ public class ChangePassword implements AE {
         driver.findElement(By.id("confirmPasswordField")).sendKeys(psnp_new); // 重复新密码
         driver.findElement(By.id("changePasswordButton")).click();
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
-            cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
+            code = DSCP.CODE.ERROR_SYSTEM_SUCCESS;
         } else { // 密码保存失败
-            cmd = DSCP.CMD.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
-            this.arg = JSONObject.fromObject(String.format("{'error':'%s'}", driver.findElement(By.id("confirmPasswordFieldError")).getText()));
+            code = DSCP.CODE.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
+            desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();
         }
     }
 
     @Override
-    public int cmd() {
-        return cmd;
+    public int code() {
+        return code;
     }
 
     @Override
-    public JSONObject arg() {
-        return arg;
+    public String desc() {
+        return desc.toString();
     }
 
 }

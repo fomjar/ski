@@ -11,16 +11,16 @@ public interface AE {
      * @param driver
      * @param arg FjJsonMsg.json().getJSONObject("arg")
      */
-    void execute(WebDriver driver, JSONObject arg);
+    void   execute(WebDriver driver, JSONObject arg);
     
     /**
      * @return ae执行情况
      */
-    int cmd();
+    int    code();
     
     /**
      * @return ae执行结果，如果有数据返回，则从此处返回
      */
-    JSONObject arg();
+    String desc();
     
 }

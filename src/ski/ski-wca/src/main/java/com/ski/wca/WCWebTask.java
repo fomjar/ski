@@ -26,10 +26,10 @@ public class WCWebTask implements FjServerTask {
         FjMessage msg = wrapper.message();
         if (msg instanceof FjHttpRequest) {
             FjHttpRequest hmsg = (FjHttpRequest) msg;
-            if (hmsg.url().startsWith("/wcweb")) process(server.name(), wrapper);
-            else logger.error("unsupported http message: " + hmsg.url());
+            if (hmsg.url().startsWith("/" + server.name())) process(server.name(), wrapper);
+            else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
         } else {
-            logger.error("unsupported format message: " + msg);
+            logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
     }
     

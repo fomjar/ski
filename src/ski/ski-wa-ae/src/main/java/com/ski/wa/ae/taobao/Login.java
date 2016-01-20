@@ -12,13 +12,13 @@ import com.ski.wa.AE;
 
 public class Login implements AE {
     
-    private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
-    private JSONObject arg = null;
+    private int     code = DSCP.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject arg) {
         if (!arg.containsKey("user") || !arg.containsKey("pass")) {
-            cmd = DSCP.CMD.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+            code = DSCP.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
             return;
         }
         
@@ -39,23 +39,23 @@ public class Login implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("TPL_username_1"));
-            cmd = DSCP.CMD.ERROR_WEB_TAOBAO_ACCOUNT_INCORRECT;
-            this.arg = JSONObject.fromObject("{'error':'username or password is incorrect'}");
+            code = DSCP.CODE.ERROR_WEB_TAOBAO_ACCOUNT_INCORRECT;
+            desc = "username or password is incorrect";
             return;
         } catch (NoSuchElementException e){
-            cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
+            code = DSCP.CODE.ERROR_SYSTEM_SUCCESS;
         }
     }
     
 
     @Override
-    public int cmd() {
-        return cmd;
+    public int code() {
+        return code;
     }
 
     @Override
-    public JSONObject arg() {
-        return arg;
+    public String desc() {
+        return desc;
     }
 
 }

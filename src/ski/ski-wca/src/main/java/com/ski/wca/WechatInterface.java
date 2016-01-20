@@ -2,6 +2,8 @@ package com.ski.wca;
 
 import java.nio.channels.SocketChannel;
 
+import org.apache.log4j.Logger;
+
 import com.ski.wca.monitor.TokenMonitor;
 
 import fomjar.server.FjMessageWrapper;
@@ -12,7 +14,7 @@ import fomjar.server.msg.FjJsonMessage;
 
 public class WechatInterface {
     
-    // private static final Logger logger = Logger.getLogger(WechatInterface.class);
+    private static final Logger logger = Logger.getLogger(WechatInterface.class);
     
     public static class WechatInterfaceException extends Exception {
         
@@ -103,7 +105,7 @@ public class WechatInterface {
     
     private static void checkWechatCustomService() throws WechatPermissionDeniedException, WechatCustomServiceException {
         FjJsonMessage rsp = customServiceGet();
-        if (!rsp.json().containsKey("kf_list"))  throw new WechatCustomServiceException("custom service is unavailable");
+        if (!rsp.json().containsKey("kf_list"))  logger.warn("custom service maybe unavailable");
         if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
     }
     

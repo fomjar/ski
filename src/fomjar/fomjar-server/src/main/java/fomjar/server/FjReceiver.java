@@ -87,7 +87,10 @@ public class FjReceiver extends FjLoopTask {
                         buf.flip();
                         String data = Charset.forName("utf-8").decode(buf).toString();
                         logger.debug("read raw data is: " + data);
-                        if (0 < n) mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data)).attach("conn", conn));
+                        if (0 < n)
+                            mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
+                                    .attach("conn", conn)
+                                    .attach("raw", data));
                     }
                 } catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
             });

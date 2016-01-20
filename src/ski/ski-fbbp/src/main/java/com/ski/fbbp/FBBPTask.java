@@ -46,7 +46,7 @@ public class FBBPTask implements FjServerTask {
                 catch (FjSessionNotOpenException e1) {logger.error("dispatch failed for message: " + msg, e1);}
             }
         } else {
-            logger.error("unsupported format message: " + msg);
+            logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
     }
 

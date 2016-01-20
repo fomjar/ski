@@ -11,16 +11,16 @@ import com.ski.wa.AE;
 
 public class Verify implements AE {
     
-    private int        cmd = DSCP.CMD.ERROR_SYSTEM_UNKNOWN_ERROR;
-    private JSONObject arg = null;
+    private int     code = DSCP.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject arg) {
         AE login = new Login();
         login.execute(driver, arg);
-        if (DSCP.CMD.ERROR_SYSTEM_SUCCESS != login.cmd()) {
-            cmd = login.cmd();
-            this.arg = login.arg();
+        if (DSCP.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
+            code = login.code();
+            desc = login.desc();
             return;
         }
         driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/devices/device-list.action?category=psn&displayNavigation=false"); // 设备->PlayStation系统
@@ -28,21 +28,21 @@ public class Verify implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("device-0")); // 存在设备绑定
-            cmd = DSCP.CMD.ERROR_WEB_PSN_ACCOUNT_INUSE;
-            this.arg = JSONObject.fromObject("{'error':'psn account is inuse'}");
+            code = DSCP.CODE.ERROR_WEB_PSN_ACCOUNT_INUSE;
+            desc = "psn account is inuse";
         } catch (NoSuchElementException e) { // 不存在设备绑定
-            cmd = DSCP.CMD.ERROR_SYSTEM_SUCCESS;
+            code = DSCP.CODE.ERROR_SYSTEM_SUCCESS;
         }
     }
 
     @Override
-    public int cmd() {
-        return cmd;
+    public int code() {
+        return code;
     }
 
     @Override
-    public JSONObject arg() {
-        return arg;
+    public String desc() {
+        return desc;
     }
 
 }

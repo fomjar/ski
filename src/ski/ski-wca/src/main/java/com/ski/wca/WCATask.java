@@ -36,11 +36,11 @@ public class WCATask implements FjServerTask {
         if (msg instanceof FjHttpRequest) {
             FjHttpRequest hmsg = (FjHttpRequest) msg;
             if (hmsg.url().startsWith("/wechat")) processWechat(server.name(), wrapper);
-            else logger.error("unsupported http message: " + hmsg.url());
+            else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
         } else if (msg instanceof FjDscpMessage) {
             processSKI(server.name(), wrapper);
         } else {
-            logger.error("unsupported format message: " + msg);
+            logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
     }
     
@@ -146,8 +146,8 @@ public class WCATask implements FjServerTask {
         case DSCP.CMD.USER_RESPONSE: // 响应用户
             logger.info(String.format("USER_RESPONSE    - %s:%s", req.fs(), req.sid()));
             try {
-                String user    = ((JSONObject) req.arg()).getString("user");
-                String content = ((JSONObject) req.arg()).getString("content");
+                String user    = req.argToJsonObject().getString("user");
+                String content = req.argToJsonObject().getString("content");
                 FjJsonMessage rsp = WechatInterface.customSendTextMessage(user, content);
                 if (0 != rsp.json().getInt("errcode")) logger.error("send custom service message failed: " + rsp);
                 else logger.debug(String.format("send custom service message success: user=%s, content=%s", user, content));

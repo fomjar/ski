@@ -91,7 +91,7 @@ drop table if exists tbl_order_product;
 create table tbl_order_product (
     i_poid              integer,        -- 平台订单ID
     i_pid               integer,        -- 产品ID
-    i_prod_type         integer,        -- 实例类型
+    i_prod_type         integer,        -- 产品类型
     c_prod_name         varchar(64),    -- 名称
     i_prod_price        decimal(7, 2),  -- 单价
     i_state             tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货

@@ -13,10 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 
 import com.ski.common.DSCP;
@@ -27,11 +23,75 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class CDBTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(CDBTask.class);
     private static Connection conn = null;
+
+    private static final class CdbCmdInfo {
+        public int                cmd     = DSCP.CMD.SYSTEM_UNKNOWN_COMMAND;
+        public JSON               arg     = null;
+        public String             mod     = null;
+        public int                out     = 0;
+        public String             sql_ori = null;
+        public List<String>       sql_use = null;
+        public List<List<String>> result  = null;
+        public String             err     = null;
+    }
+    
+    @Override
+    public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+        FjMessage msg = wrapper.message();
+        if (!(msg instanceof FjDscpMessage)) {
+            logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
+            return;
+        }
+        
+        FjDscpMessage req = (FjDscpMessage) msg;
+        CdbCmdInfo cci = new CdbCmdInfo();
+        cci.cmd = req.cmd();
+        cci.arg = req.argToJson();
+        {
+            String cmd = Integer.toHexString(cci.cmd);
+            while (8 > cmd.length()) cmd = "0" + cmd;
+            logger.info(String.format("COMMAND - %s:%s:0x%s", req.fs(), req.sid(), cmd));
+        }
+        
+        if (!checkConnection()) {
+            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", DSCP.CODE.ERROR_DB_STATE_ABNORMAL));
+            return;
+        }
+        
+        cci.err = null;
+        getCmdInfo(conn, cci);
+        if (null != cci.err) {
+            logger.error("get command info failed: " + cci.err);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", DSCP.CODE.ERROR_SYSTEM_ILLEGAL_COMMAND, cci.err));
+            return;
+        }
+        generateSql(cci);
+        executeSql(conn, cci);
+        if (null != cci.err) {
+            logger.error("execute sql failed: " + cci.err);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", DSCP.CODE.ERROR_DB_OPERATE_FAILED, cci.err));
+            return;
+        }
+        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", DSCP.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(cci.result).toString()));
+    }
+    
+    private static void response(String serverName, FjDscpMessage req, Object arg) {
+        FjDscpMessage rsp = new FjDscpMessage();
+        rsp.json().put("fs",  serverName);
+        rsp.json().put("ts",  req.fs());
+        rsp.json().put("sid", req.sid());
+        rsp.json().put("cmd", req.cmd());
+        rsp.json().put("arg", arg);
+        FjServerToolkit.getSender(serverName).send(rsp);
+    }
     
     private static boolean checkConnection() {
         if (null != conn) {
@@ -55,67 +115,7 @@ public class CDBTask implements FjServerTask {
         logger.error("open database connection failed");
         return false;
     }
-    
-    private static final class CdbCmdInfo {
-        public int                cmd     = DSCP.CMD.SYSTEM_UNKNOWN_COMMAND;
-        public JSON               arg     = null;
-        public String             mod     = null;
-        public int                out     = 0;
-        public String             sql_ori = null;
-        public List<String>       sql_use = null;
-        public List<List<String>> result  = null;
-        public String             err     = null;
-    }
-    
-    @Override
-    public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-        FjMessage msg = wrapper.message();
-        if (!(msg instanceof FjDscpMessage)) {
-            logger.error("illegal message, discard: " + msg);
-            return;
-        }
-        
-        FjDscpMessage req = (FjDscpMessage) msg;
-        CdbCmdInfo cci = new CdbCmdInfo();
-        cci.cmd = req.cmd();
-        cci.arg = (JSON) req.arg();
-        {
-            String cmd = Integer.toHexString(cci.cmd);
-            while (8 > cmd.length()) cmd = "0" + cmd;
-            logger.info(String.format("COMMAND - %s:%s:0x%s", req.fs(), req.sid(), cmd));
-        }
-        
-        if (!checkConnection()) {
-            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", DSCP.CMD.ERROR_DB_STATE_ABNORMAL));
-            return;
-        }
-        
-        cci.err = null;
-        getCmdInfo(conn, cci);
-        if (null != cci.err) {
-            logger.error("get command info failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'error':\"%s\"}", DSCP.CMD.ERROR_SYSTEM_ILLEGAL_COMMAND, cci.err));
-            return;
-        }
-        generateSql(cci);
-        executeSql(conn, cci);
-        if (null != cci.err) {
-            logger.error("execute sql failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'error':\"%s\"}", DSCP.CMD.ERROR_DB_OPERATE_FAILED, cci.err));
-            return;
-        }
-        response(server.name(), req, JSONArray.fromObject(cci.result));
-    }
-    
-    private static void response(String serverName, FjDscpMessage req, Object arg) {
-        FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",  serverName);
-        rsp.json().put("ts",  req.fs());
-        rsp.json().put("sid", req.sid());
-        rsp.json().put("cmd", req.cmd());
-        rsp.json().put("arg", arg);
-        FjServerToolkit.getSender(serverName).send(rsp);
-    }
+
     
     private static void getCmdInfo(Connection conn, CdbCmdInfo cci) {
         Statement st = null;
@@ -151,7 +151,7 @@ public class CDBTask implements FjServerTask {
                 String v = arg_obj.getString(k);
                 sql_use = sql_use.replace("$" + k, v);
             }
-            sql_use = sql_use.replaceAll("\\$\\w+", "null");
+            sql_use = sql_use.replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null");
             cci.sql_use = new LinkedList<String>();
             cci.sql_use.add(sql_use);
             logger.debug(String.format("cmd(%d) sql-use: %s", cci.cmd, sql_use));
@@ -235,5 +235,9 @@ public class CDBTask implements FjServerTask {
                 catch (SQLException e) {}
             }
         });
+    }
+    
+    public static void main(String[] args) {
+        System.out.println("'$askdjf iefj \"$kdf $ksdjflks".replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null"));
     }
 }
