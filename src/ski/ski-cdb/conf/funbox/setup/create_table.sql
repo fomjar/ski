@@ -47,8 +47,8 @@ create table tbl_game_account_rent (
 -- 游戏账户下的游戏
 drop table if exists tbl_game_account_game;
 create table tbl_game_account_game (
-    i_gaid  integer,    -- 游戏账户ID
-    i_gid   integer     -- 游戏ID
+    i_gid   integer,    -- 游戏ID
+    i_gaid  integer     -- 游戏账户ID
 );
 
 -- 游戏信息表
@@ -71,9 +71,9 @@ create table tbl_game (
 -- 产品
 drop table if exists tbl_product;
 create table tbl_product (
-    i_pid   integer,    -- 产品ID
-    i_type  integer,    -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
-    i_inst  integer     -- 实例类型，如游戏ID等
+    i_pid       integer,    -- 产品ID
+    i_prod_type integer,    -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
+    i_inst_type integer     -- 实例类型，如游戏ID等
 );
 
 -- 订单
@@ -91,12 +91,13 @@ drop table if exists tbl_order_product;
 create table tbl_order_product (
     i_poid              integer,        -- 平台订单ID
     i_pid               integer,        -- 产品ID
-    i_type              integer,        -- 实例类型
-    c_name              varchar(64),    -- 名称
-    i_price             decimal(7, 2),  -- 单价
+    i_prod_type         integer,        -- 实例类型
+    c_prod_name         varchar(64),    -- 名称
+    i_prod_price        decimal(7, 2),  -- 单价
     i_state             tinyint,        -- 订单产品状态：0-未发货 1-已发货 2-已提货 3-已退货
-    c_take_code         varchar(64),    -- 提取码
-    i_take_inst         integer,        -- 提货实例，如游戏账户ID
+    c_take_info         varchar(64),    -- 提取信息
+    i_inst_type         integer,        -- 实例类型，如游戏ID
+    i_inst_id           integer,        -- 实例ID，如游戏账户ID
     t_return_apply      datetime,       -- 退货申请时间
     t_return_done       datetime,       -- 退货完成时间
     i_refund            decimal(7, 2),  -- 退款金额
