@@ -9,7 +9,7 @@ public interface AE {
     /**
      * 
      * @param driver
-     * @param arg FjJsonMsg.json().getJSONObject("arg")
+     * @param arg fomjar.server.msg.FjDscpMessage.arg()
      */
     void   execute(WebDriver driver, JSONObject arg);
     

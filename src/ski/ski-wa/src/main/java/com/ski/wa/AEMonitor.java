@@ -66,7 +66,7 @@ public class AEMonitor extends FjLoopTask {
                 return null;
             }
             return (AE) instance;
-        } catch (ReflectiveOperationException e) {logger.error("error occurs when load ae class: " + className);}
+        } catch (Exception e) {logger.error("error occurs when load ae class: " + className, e);}
         return null;
     }
 

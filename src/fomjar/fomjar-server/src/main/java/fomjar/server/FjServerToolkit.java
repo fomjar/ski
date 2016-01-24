@@ -30,9 +30,8 @@ public class FjServerToolkit {
     private static FjConfigMonitor config_monitor = null;
     
     public static void startConfigMonitor() {
-        if (null == config_monitor) {
-            config_monitor = new FjConfigMonitor();
-        }
+        if (null == config_monitor) config_monitor = new FjConfigMonitor();
+        
         long inteval = 10;
         config_monitor.setDelay(inteval * 1000);
         config_monitor.setInterval(inteval * 1000L);
@@ -108,10 +107,14 @@ public class FjServerToolkit {
     public static class FjConfigMonitor extends FjLoopTask {
         @Override
         public void perform() {
-            PropertyConfigurator.configure("conf/log4j.conf");
-            server = loadOneConfig("conf/server.conf");
-            if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
-            else slb.setAddresses(loadOneConfig("conf/address.conf"));
+            try {PropertyConfigurator.configure("conf/log4j.conf");}
+            catch (Exception e) {logger.error("load config failed: ", e);}
+            try {server = loadOneConfig("conf/server.conf");}
+            catch (Exception e) {logger.error("load config failed: ", e);}
+            try {
+                if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
+                else slb.setAddresses(loadOneConfig("conf/address.conf"));
+            } catch (Exception e) {logger.error("load config failed: ", e);}
         }
     }
     

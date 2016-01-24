@@ -3,6 +3,7 @@ package com.ski.common;
 public final class DSCP {
     
     //////////////////////////// 指令字 ////////////////////////////
+    // 注意：指令定义必须要符合协议规范
     public static final class CMD {
         
         // 用户指令
@@ -22,6 +23,8 @@ public final class DSCP {
         // FINISH
         public static final int ECOM_FINISH_ORDER       = 0x00000500; // 完成订单
         public static final int ECOM_FINISH_RETURN      = 0x00000501; // 完成退货
+        // UPDATE
+        public static final int ECOM_UPDATE_ACCOUNT     = 0x00000600; // 更新账户
         // 系统指令
         public static final int SYSTEM_UNKNOWN_COMMAND  = 0xFFFFFFFF; // 未知命令
     }

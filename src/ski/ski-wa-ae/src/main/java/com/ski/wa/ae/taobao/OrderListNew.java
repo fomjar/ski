@@ -40,8 +40,6 @@ public class OrderListNew implements AE {
             desc = "no new order";
             return;
         }
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
         driver.findElement(By.className("logis:batchSend")).click(); // 批量发货
         try {Thread.sleep(1000L);}
         catch (InterruptedException e) {e.printStackTrace();}
