@@ -12,7 +12,7 @@ BEGIN
     select convert(in_string USING utf8) into in_string_tmp;
     select concat(out_b_infor,in_string_tmp) into out_b_infor;
     select concat(out_b_infor,in_c_separator) into out_b_infor;
-    /*´òÓ¡µ±Ç°µÄout_c_descÖÁÆÁÄ»*/
+    /*æ‰“å°å½“å‰çš„out_c_descè‡³å±å¹•*/
     select out_b_infor;
     
     set out_c_code="0";
