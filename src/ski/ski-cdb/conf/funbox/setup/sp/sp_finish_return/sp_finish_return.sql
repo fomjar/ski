@@ -1,9 +1,9 @@
-delete from tbl_cmd_map where c_cmd = 'sp_specify_return';
-insert into tbl_cmd_map values((conv(00000401, 16, 10) + 0), 'sp', 2, "sp_specify_return(?,?,$i_inst_id,'$c_caid')");
+delete from tbl_cmd_map where c_cmd = 'sp_finish_return';
+insert into tbl_cmd_map values((conv(00000501, 16, 10) + 0), 'sp', 2, "sp_finish_return(?,?,$i_inst_id,'$c_caid')");
 
-drop procedure if exists sp_specify_return;
+drop procedure if exists sp_finish_return;
 DELIMITER //
-create procedure sp_specify_return (
+create procedure sp_finish_return (
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
     in    in_i_inst_id           integer,
@@ -41,30 +41,32 @@ label_pro:BEGIN
     select concat(out_c_desc,"From i_rent ") into out_c_desc;
     select convert(i_case_status USING ascii) into out_c_desc_temp;
     select concat(out_c_desc,out_c_desc_temp) into out_c_desc;
-    select out_c_desc;
+
     /*-------------------------------------------------------------*/
     
     case i_case_status  
 
         /*A已租B待租*/
         when 10 then 
-            call sp_update_to_ANotRentBNotRent(i_state_after,out_c_desc,i_gaid_temp); 
-            select out_c_desc;
-            set i_change_fsm = 1;
-            
+            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
         /*A已租B已租*/
         when 11 then   
-            call sp_update_to_ANotRentBAlreadyRent(i_state_after,out_c_desc,i_gaid_temp); 
-            select out_c_desc;
+            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
+        when 22 then 
+            call sp_update_to_AForRentBForRent(i_state_after,out_c_desc,i_gaid_temp); 
             set i_change_fsm = 1;
+            
+        when 21 then  
+            call sp_update_to_AForRentBAlreadyRent(i_state_after,out_c_desc,i_gaid_temp); 
+            set i_change_fsm = 1;  
             
         /*异常待检查*/
         when 6 then   
-          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
+            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
           
         /*异常账号*/
         when 7 then   
-          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
+            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
            
         else   
           set out_i_code = 0;
@@ -75,11 +77,10 @@ label_pro:BEGIN
     select out_c_desc;
     select i_change_fsm;
     select out_i_code;
-  
     
     if out_i_code = 0 then
         if i_change_fsm = 1 then 
-            call sp_update_tbl_journal_game_account(i_gaid_temp,in_c_caid,NOW(),i_case_status,i_state_after,1);
+            call sp_update_tbl_journal_game_account(i_gaid_temp,in_i_caid,NOW(),i_case_status,i_state_after,1);
         end if;
         commit;
     else
