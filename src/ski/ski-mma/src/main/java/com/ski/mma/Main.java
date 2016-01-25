@@ -1,4 +1,4 @@
-package com.ski.omc;
+package com.ski.mma;
 
 import fomjar.server.FjServerToolkit;
 
@@ -6,7 +6,7 @@ public class Main {
     
     public static void main(String[] args) {
         FjServerToolkit.startConfigMonitor();
-        FjServerToolkit.startServer(args[0]).addServerTask(new OmcTask());
+        FjServerToolkit.startServer("mma-sm").addServerTask(new MmaSmTask());
     }
 
 }

@@ -15,7 +15,7 @@
                     <!-- not append assembly id in release file name -->
                     <appendAssemblyId>false</appendAssemblyId>
                     <descriptors>
-                        <descriptor>../package.xml</descriptor>
+                        <descriptor>../../fomjar/fomjar-server/package.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>

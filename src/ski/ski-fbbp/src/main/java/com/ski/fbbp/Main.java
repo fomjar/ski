@@ -10,7 +10,7 @@ public class Main {
      */
     public static void main(String[] args) {
         FjServerToolkit.startConfigMonitor();
-        FjServerToolkit.startServer(args[0]).addServerTask(new FBBPTask(FjServerToolkit.getServer(args[0])));
+        FjServerToolkit.startServer(args[0]).addServerTask(new FbbpTask(FjServerToolkit.getServer(args[0])));
     }
 
 }

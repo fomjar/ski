@@ -5,20 +5,8 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>ski-cdb</groupId>
-  <artifactId>ski-cdb</artifactId>
-  <dependencies>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>5.1.37</version>
-    </dependency>
-    <dependency>
-    	<groupId>ski-common</groupId>
-    	<artifactId>ski-common</artifactId>
-    	<version>0.0.1</version>
-    </dependency>
-  </dependencies>
+  <groupId>ski-mma</groupId>
+  <artifactId>ski-mma</artifactId>
     <build>
         <plugins>
             <plugin>
@@ -42,4 +30,11 @@
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+    	<dependency>
+    		<groupId>ski-common</groupId>
+    		<artifactId>ski-common</artifactId>
+    		<version>0.0.1</version>
+    	</dependency>
+    </dependencies>
 </project>
