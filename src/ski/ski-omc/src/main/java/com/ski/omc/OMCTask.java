@@ -7,9 +7,9 @@ import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.msg.FjDscpMessage;
 
-public class OMCTask implements FjServerTask {
+public class OmcTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(OMCTask.class);
+    private static final Logger logger = Logger.getLogger(OmcTask.class);
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

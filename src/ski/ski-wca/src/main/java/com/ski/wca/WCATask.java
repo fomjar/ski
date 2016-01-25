@@ -21,11 +21,11 @@ import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjMessage;
 
-public class WCATask implements FjServerTask {
+public class WcaTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(WCATask.class);
+    private static final Logger logger = Logger.getLogger(WcaTask.class);
     
-    public WCATask(String name) {
+    public WcaTask(String name) {
         TokenMonitor.getInstance().start();
         new MenuMonitor().start();
     }
@@ -141,23 +141,23 @@ public class WCATask implements FjServerTask {
     }
     
     private void processSKI(String serverName, FjMessageWrapper wrapper) {
-        FjDscpMessage req = (FjDscpMessage) wrapper.message();
-        switch (req.cmd()) {
+        FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
+        switch (dmsg.cmd()) {
         case DSCP.CMD.USER_RESPONSE: // 响应用户
-            logger.info(String.format("USER_RESPONSE    - %s:%s", req.fs(), req.sid()));
+            logger.info(String.format("USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
             try {
-                String user    = req.argToJsonObject().getString("user");
-                String content = req.argToJsonObject().getString("content");
+                String user    = dmsg.argToJsonObject().getString("user");
+                String content = dmsg.argToJsonObject().getString("content");
                 FjJsonMessage rsp = WechatInterface.customSendTextMessage(user, content);
                 if (0 != rsp.json().getInt("errcode")) logger.error("send custom service message failed: " + rsp);
                 else logger.debug(String.format("send custom service message success: user=%s, content=%s", user, content));
-            } catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + req, e);}
+            } catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + dmsg, e);}
             break;
         default: // forward report
-            String cmd = Integer.toHexString(req.cmd());
+            String cmd = Integer.toHexString(dmsg.cmd());
             while (8 > cmd.length()) cmd = "0" + cmd;
-            logger.info(String.format("USER_COMMAND     - %s:%s:0x%s", req.fs(), req.sid(), cmd));
-            FjDscpMessage msg = new FjDscpMessage(req.json());
+            logger.info(String.format("USER_COMMAND     - %s:%s:0x%s", dmsg.fs(), dmsg.sid(), cmd));
+            FjDscpMessage msg = new FjDscpMessage(dmsg.json());
             msg.json().put("fs", serverName);
             msg.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
             FjServerToolkit.getSender(serverName).send(msg);

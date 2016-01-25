@@ -17,14 +17,14 @@ import fomjar.server.msg.FjMessage;
 import fomjar.server.session.FjSessionController;
 import fomjar.server.session.FjSessionNotOpenException;
 
-public class FBBPTask implements FjServerTask {
+public class FbbpTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(FBBPTask.class);
+    private static final Logger logger = Logger.getLogger(FbbpTask.class);
     
     private List<FjSessionController> scs;
     private FjSessionController       scReturn;
     
-    public FBBPTask(FjServer server) {
+    public FbbpTask(FjServer server) {
         scs = new LinkedList<FjSessionController>();
         scs.add(scReturn = new SessionReturn());
         new OrderMonitor(server.name()).start();

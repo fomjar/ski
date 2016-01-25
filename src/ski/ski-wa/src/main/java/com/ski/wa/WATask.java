@@ -15,11 +15,11 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
 
-public class WATask implements FjServerTask {
+public class WaTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(WATask.class);
+    private static final Logger logger = Logger.getLogger(WaTask.class);
     
-    public WATask() {
+    public WaTask() {
         System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
         AEMonitor.getInstance().start();
     }

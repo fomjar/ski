@@ -27,9 +27,9 @@ import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-public class CDBTask implements FjServerTask {
+public class CdbTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(CDBTask.class);
+    private static final Logger logger = Logger.getLogger(CdbTask.class);
     private static Connection conn = null;
 
     private static final class CdbCmdInfo {
@@ -236,8 +236,5 @@ public class CDBTask implements FjServerTask {
             }
         });
     }
-    
-    public static void main(String[] args) {
-        System.out.println("'$askdjf iefj \"$kdf $ksdjflks".replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null"));
-    }
+
 }

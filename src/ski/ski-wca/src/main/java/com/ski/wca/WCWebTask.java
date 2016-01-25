@@ -17,9 +17,9 @@ import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjMessage;
 
-public class WCWebTask implements FjServerTask {
+public class WcWebTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(WCWebTask.class);
+    private static final Logger logger = Logger.getLogger(WcWebTask.class);
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -43,6 +43,10 @@ public class WCWebTask implements FjServerTask {
             FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wcweb.error"), "非法参数")), conn);
             return;
         }
+        
+        String cmdhex = arg.get("cmd");
+        while (8 > cmdhex.length()) cmdhex = "0" + cmdhex;
+        logger.info(String.format("USER_COMMAND     - wechat:%s:0x%s", arg.get("user"), cmdhex));
         
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",  serverName);
