@@ -44,7 +44,7 @@ public class FjSCB {
     public  void    end()     {data.put("end", true);}
     
     boolean isEnd()   {return getBoolean("end");}
-    void next(FjMessage msg) {
+    void prepare(FjMessage msg) {
         put("ssn", ssn() + 1);
         data.put("msg." + ssn(), msg);
     }

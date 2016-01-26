@@ -17,7 +17,14 @@ public class SessionReturn extends FjSessionController {
     private static final Logger logger = Logger.getLogger(SessionReturn.class);
     
     @Override
-    public void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
+    protected boolean matchFirst(FjDscpMessage msg) {
+        if (DSCP.CMD.ECOM_APPLY_RETURN   == msg.cmd()) return true;
+        if (DSCP.CMD.ECOM_SPECIFY_RETURN == msg.cmd()) return true;
+        return false;
+    }
+
+    @Override
+    protected void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
         switch (msg.cmd()) {
             case DSCP.CMD.ECOM_APPLY_RETURN:
                 logger.info(String.format("ECOM_APPLY_RETURN   - %s:%s", msg.fs(), scb.sid()));
