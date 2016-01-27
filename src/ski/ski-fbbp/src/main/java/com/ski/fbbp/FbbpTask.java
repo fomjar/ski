@@ -22,22 +22,23 @@ public class FbbpTask implements FjServerTask {
     
     private List<FjSessionController> scs;
     
-    public FbbpTask(FjServer server) {
+    public FbbpTask(String serverName) {
         scs = new LinkedList<FjSessionController>();
         scs.add(new SessionReturn());
-        new OrderMonitor(server.name()).start();
+        new OrderMonitor(serverName).start();
     }
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
-        if (msg instanceof FjDscpMessage) {
-            FjDscpMessage dmsg = (FjDscpMessage) msg;
-            try {FjSessionController.dispatch(server, scs, dmsg);} // 通用会话消息
-            catch (FjSessionNotMatchException e) {logger.error("dispatch failed for message: " + msg, e);}
-        } else {
+        if (!(msg instanceof FjDscpMessage)) {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
+            return;
         }
+        
+        FjDscpMessage dmsg = (FjDscpMessage) msg;
+        try {FjSessionController.dispatch(server, scs, dmsg);} // 通用会话消息
+        catch (FjSessionNotMatchException e) {logger.error("dispatch failed for message: " + msg, e);}
     }
 
 }

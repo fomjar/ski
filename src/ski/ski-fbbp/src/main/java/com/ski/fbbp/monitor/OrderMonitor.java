@@ -30,7 +30,6 @@ public class OrderMonitor extends FjLoopTask {
         req.json().put("cmd", DSCP.CMD.ECOM_APPLY_ORDER);
         req.json().put("arg", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
         FjServerToolkit.getSender(serverName).send(req);
-        logger.debug("send request to get taobao new order list: " + req);
     }
     
     public void start() {

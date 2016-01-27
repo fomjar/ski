@@ -49,7 +49,7 @@ public class FjServerToolkit {
         } catch (IOException e) {logger.error("load config failed from path: " + absolutePath, e);}
         finally {
             try {if (null != isr) isr.close();}
-            catch (IOException e) {e.printStackTrace();}
+            catch (IOException e) {}
         }
         return p;
     }
@@ -108,13 +108,12 @@ public class FjServerToolkit {
         @Override
         public void perform() {
             try {PropertyConfigurator.configure("conf/log4j.conf");}
-            catch (Exception e) {logger.error("load config failed: ", e);}
-            try {server = loadOneConfig("conf/server.conf");}
-            catch (Exception e) {logger.error("load config failed: ", e);}
-            try {
-                if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
-                else slb.setAddresses(loadOneConfig("conf/address.conf"));
-            } catch (Exception e) {logger.error("load config failed: ", e);}
+            catch (Exception e) {logger.error("load config failed", e);}
+            
+            server = loadOneConfig("conf/server.conf");
+            
+            if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
+            else slb.setAddresses(loadOneConfig("conf/address.conf"));
         }
     }
     

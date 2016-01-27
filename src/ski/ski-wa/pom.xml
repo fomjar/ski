@@ -31,11 +31,11 @@
         </plugins>
     </build>
     <dependencies>
-    	<dependency>
-    		<groupId>com.applitools</groupId>
-    		<artifactId>eyes-selenium-java</artifactId>
-    		<version>2.26</version>
-    	</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>2.49.1</version>
+		</dependency>
     	<dependency>
     		<groupId>ski-common</groupId>
     		<artifactId>ski-common</artifactId>

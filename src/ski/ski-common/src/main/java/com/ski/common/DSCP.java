@@ -23,6 +23,8 @@ public final class DSCP {
         // FINISH
         public static final int ECOM_FINISH_ORDER       = 0x00000500; // 完成订单
         public static final int ECOM_FINISH_RETURN      = 0x00000501; // 完成退货
+        // VERIFY
+        public static final int ECOM_VERIFY_ACCOUNT     = 0x00000600; // 验证账户
         // UPDATE
         public static final int ECOM_UPDATE_ACCOUNT     = 0x00000600; // 更新账户
         // 系统指令

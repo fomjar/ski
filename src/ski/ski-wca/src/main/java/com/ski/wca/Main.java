@@ -9,7 +9,7 @@ public class Main {
      */
     public static void main(String[] args) {
         FjServerToolkit.startConfigMonitor();
-        FjServerToolkit.startServer(args[0]).addServerTask(new WcaTask(args[0]));
+        FjServerToolkit.startServer("wca").addServerTask(new WcaTask(args[0]));
         FjServerToolkit.startServer("wcweb").addServerTask(new WcWebTask());
     }
 

@@ -22,6 +22,18 @@ import net.sf.json.JSONObject;
 public class MmaSmTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(MmaSmTask.class);
+    
+    private TaobaoClient client;
+    private OpenSmsSendvercodeRequest request;
+    private SendVerCodeRequest svcr;
+    
+    public MmaSmTask() {
+        client  = new DefaultTaobaoClient("http://gw.api.taobao.com/router/rest",
+                FjServerToolkit.getServerConfig("sm.key"),
+                FjServerToolkit.getServerConfig("sm.secret"));
+        request = new OpenSmsSendvercodeRequest();
+        svcr    = new SendVerCodeRequest();
+    }
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper){
@@ -45,15 +57,10 @@ public class MmaSmTask implements FjServerTask {
         }
     }
     
-    private static void sendShortMessage(JSONObject arg) {
+    private void sendShortMessage(JSONObject arg) {
         String    phone       = arg.getString("phone");
         JSONArray context_arg = arg.getJSONArray("context");
         
-        TaobaoClient client = new DefaultTaobaoClient("http://gw.api.taobao.com/router/rest",
-                FjServerToolkit.getServerConfig("sm.key"),
-                FjServerToolkit.getServerConfig("sm.secret"));
-        OpenSmsSendvercodeRequest req = new OpenSmsSendvercodeRequest();
-        SendVerCodeRequest svcr = new SendVerCodeRequest();
         svcr.setTemplateId(Long.parseLong(FjServerToolkit.getServerConfig("sm.template")));
         svcr.setSignatureId(Long.parseLong(FjServerToolkit.getServerConfig("sm.signature")));
         svcr.setDeviceId(phone);
@@ -63,9 +70,9 @@ public class MmaSmTask implements FjServerTask {
         String context = FjServerToolkit.getServerConfig("sm.context");
         context = String.format(context, context_arg.toArray());
         svcr.setContext(context);
-        req.setSendVerCodeRequest(svcr);
+        request.setSendVerCodeRequest(svcr);
         try {
-            OpenSmsSendvercodeResponse rsp = client.execute(req);
+            OpenSmsSendvercodeResponse rsp = client.execute(request);
             logger.debug(String.format("send user(%s) response: %s", phone, context));
             logger.info(rsp.getBody());
         } catch (ApiException e) {
