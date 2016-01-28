@@ -36,14 +36,14 @@ public class FjSCB {
     public float   getFloat   (String key) {return (float)   data.get(key);}
     public double  getDouble  (String key) {return (double)  data.get(key);}
     public boolean has        (String key) {return data.containsKey(key);}
-    public FjSCB   put(String key, Object value)  {data.put(key, value); return this;}
     public Object  remove     (String key) {return data.remove(key);}
+    public FjSCB   put        (String key, Object value) {data.put(key, value); return this;}
 
-    public  String  sid()     {return getString("sid");}
-    public  int     ssn()     {return getInteger("ssn");}
-    public  void    end()     {data.put("end", true);}
+    public String  sid() {return getString("sid");}
+    public int     ssn() {return getInteger("ssn");}
+    public void    end() {data.put("end", true);}
     
-    boolean isEnd()   {return getBoolean("end");}
+    boolean isEnd() {return getBoolean("end");}
     void prepare(FjMessage msg) {
         put("ssn", ssn() + 1);
         data.put("msg." + ssn(), msg);
