@@ -23,12 +23,6 @@ public class FjSessionMonitor extends FjLoopTask {
         setInterval(10 * 1000L);
     }
     
-    public void setTimeoutToMark(long timeInMillisecond)   {this.timeoutToMark = timeInMillisecond;}
-    public long getTimeoutToMark() {return timeoutToMark;}
-    
-    public void setTimeoutToRemove(long timeInMillisecond) {this.timeoutToRemove = timeInMillisecond;}
-    public long getTimeoutToRemove() {return timeoutToRemove;}
-    
     public void start() {
         if (isRun()) {
             logger.warn("fjsession-monitor has already started");
@@ -63,5 +57,11 @@ public class FjSessionMonitor extends FjLoopTask {
                     scbs.remove(sid);
         }
     }
+    
+    public void setTimeoutToMark(long timeInMillisecond)   {this.timeoutToMark = timeInMillisecond;}
+    public long getTimeoutToMark() {return timeoutToMark;}
+    
+    public void setTimeoutToRemove(long timeInMillisecond) {this.timeoutToRemove = timeInMillisecond;}
+    public long getTimeoutToRemove() {return timeoutToRemove;}
 
 }

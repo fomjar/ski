@@ -33,28 +33,32 @@ public class TokenMonitor extends FjLoopTask {
         new Thread(this, "token-monitor").start();
     }
     
-    public String token() {
-        return token;
-    }
-    
     @Override
     public void perform() {
         token = null;
-        long defaultInterval = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
         FjJsonMessage token_msg = WechatInterface.token(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"));
         if (null == token_msg || !token_msg.json().containsKey("access_token") || !token_msg.json().containsKey("expires_in")) {
             logger.error("get wechat access token failed: " + token_msg);
-            setNextRetryInterval(defaultInterval);
+            resetInterval();
             return;
         }
         token = token_msg.json().getString("access_token");
         logger.info("get wechat access token successfully: " + token_msg);
-        setNextRetryInterval(token_msg.json().getInt("expires_in"));
+        setInterval(token_msg.json().getInt("expires_in"));
     }
     
-    public void setNextRetryInterval(long seconds) {
-        logger.debug("will try again after " + seconds + " seconds");
-        setInterval(seconds * 1000);
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        setInterval(second);
     }
     
+    @Override
+    public void setInterval(long second) {
+        logger.debug("will try again after " + second + " seconds");
+        super.setInterval(second * 1000);
+    }
+    
+    public String token() {
+        return token;
+    }
 }

@@ -15,21 +15,9 @@ public class OrderMonitor extends FjLoopTask {
     private String serverName;
     
     public OrderMonitor(String serverName) {
-        long time = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
-        time *= 1000L;
-        setDelay(time);
-        setInterval(time);
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        setDelay(second * 1000);
         this.serverName = serverName;
-    }
-
-    @Override
-    public void perform() {
-        FjDscpMessage req = new FjDscpMessage();
-        req.json().put("fs",  serverName);
-        req.json().put("ts",  "wa");
-        req.json().put("cmd", DSCP.CMD.ECOM_APPLY_ORDER);
-        req.json().put("arg", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
-        FjServerToolkit.getSender(serverName).send(req);
     }
     
     public void start() {
@@ -38,5 +26,27 @@ public class OrderMonitor extends FjLoopTask {
             return;
         }
         new Thread(this, "order-monitor").start();
+    }
+
+    @Override
+    public void perform() {
+        resetInterval();
+        FjDscpMessage req = new FjDscpMessage();
+        req.json().put("fs",  serverName);
+        req.json().put("ts",  "wa");
+        req.json().put("cmd", DSCP.CMD.ECOM_APPLY_ORDER);
+        req.json().put("arg", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
+        FjServerToolkit.getSender(serverName).send(req);
+    }
+    
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        setInterval(second);
+    }
+    
+    @Override
+    public void setInterval(long second) {
+        logger.debug("will try again after " + second + " seconds");
+        super.setInterval(second * 1000);
     }
 }

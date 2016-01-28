@@ -41,8 +41,8 @@ public abstract class FjLoopTask implements Runnable {
         return interval;
     }
 
-    public void setInterval(long timeInMillisecond) {
-        this.interval = timeInMillisecond;
+    public void setInterval(long millisecond) {
+        this.interval = millisecond;
     }
 
     public boolean isRun() {

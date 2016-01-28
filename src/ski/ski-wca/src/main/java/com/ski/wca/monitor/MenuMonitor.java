@@ -27,7 +27,7 @@ public class MenuMonitor extends FjLoopTask {
     
     @Override
     public void perform() {
-        setNextRetryInterval(Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload.interval")));
+        resetInterval();
         
         boolean menu_switch = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload.switch"));
         if (!menu_switch) return;
@@ -42,8 +42,14 @@ public class MenuMonitor extends FjLoopTask {
         else logger.error("menu update failed: " + rsp);
     }
     
-    public void setNextRetryInterval(long seconds) {
-        logger.debug("will try again after " + seconds + " seconds");
-        setInterval(seconds * 1000);
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        setInterval(second);
+    }
+    
+    @Override
+    public void setInterval(long second) {
+        logger.debug("will try again after " + second + " seconds");
+        super.setInterval(second * 1000);
     }
 }

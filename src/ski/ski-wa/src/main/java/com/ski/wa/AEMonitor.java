@@ -19,10 +19,6 @@ public class AEMonitor extends FjLoopTask {
     }
     private AEMonitor() {}
     
-    private static final Logger logger = Logger.getLogger(AEMonitor.class);
-    
-    private ClassLoader loader;
-    
     public void start() {
         if (isRun()) {
             logger.warn("ae-monitor has already started");
@@ -31,8 +27,13 @@ public class AEMonitor extends FjLoopTask {
         new Thread(this, "ae-monitor").start();
     }
     
+    private static final Logger logger = Logger.getLogger(AEMonitor.class);
+    
+    private ClassLoader loader;
+    
     @Override
     public void perform() {
+        resetInterval();
         String aedir = FjServerToolkit.getServerConfig("wa.ae.directory");
         File faedir = new File(aedir);
         if (!faedir.isDirectory()) {
@@ -45,9 +46,17 @@ public class AEMonitor extends FjLoopTask {
             for (int i = 0; i < faes.length; i++) urls[i] = faes[i].toURI().toURL();
             loader = new URLClassLoader(urls);
         } catch (MalformedURLException e) {logger.error("some ae package is bad", e);}
-        
-        long interval = Long.parseLong(FjServerToolkit.getServerConfig("wa.ae.reload-interval"));
-        setInterval(interval * 1000);
+    }
+
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        setInterval(second);
+    }
+    
+    @Override
+    public void setInterval(long second) {
+        logger.debug("will try again after " + second + " seconds");
+        super.setInterval(second * 1000);
     }
     
     public AE getAe(int cmd) {
@@ -69,5 +78,4 @@ public class AEMonitor extends FjLoopTask {
         } catch (Exception e) {logger.error("error occurs when load ae class: " + className, e);}
         return null;
     }
-
 }

@@ -32,9 +32,6 @@ public class FjServerToolkit {
     public static void startConfigMonitor() {
         if (null == config_monitor) config_monitor = new FjConfigMonitor();
         
-        long inteval = 10;
-        config_monitor.setDelay(inteval * 1000);
-        config_monitor.setInterval(inteval * 1000L);
         config_monitor.perform();
         if (!config_monitor.isRun()) new Thread(config_monitor, "fjconfig-monitor").start();
     }
@@ -105,6 +102,13 @@ public class FjServerToolkit {
     }
     
     public static class FjConfigMonitor extends FjLoopTask {
+        
+        public FjConfigMonitor() {
+            long inteval = 10;
+            config_monitor.setDelay(inteval * 1000);
+            config_monitor.setInterval(inteval * 1000);
+        }
+        
         @Override
         public void perform() {
             try {PropertyConfigurator.configure("conf/log4j.conf");}
