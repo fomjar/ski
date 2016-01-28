@@ -20,7 +20,7 @@ create table tbl_platform_account (
     t_birth     date            -- 出生日期
 );
 
--- 平台账户拥有的游戏账户
+-- 平台账户与渠道账户的关系
 drop table if exists tbl_platform_account_relationship;
 create table tbl_platform_account_relationship (
     i_paid  integer,        -- 平台账户ID
