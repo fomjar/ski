@@ -14,11 +14,11 @@ BEGIN
   SELECT 
      DATE_FORMAT(NOW(), '%Y%m%d%H%i') INTO currentDate ;-- 订单形式：前缀+年月日时分+流水号,如：SH20130110100900005      
       
-  SELECT IFNULL(i_poid, '') INTO oldOrderNo     
+  SELECT IFNULL(c_poid, '') INTO oldOrderNo     
   FROM tbl_order     
-  WHERE SUBSTRING(i_poid, 3, 12) = currentDate     
-    AND SUBSTRING(i_poid, 1, 2) = orderNamePre
-  ORDER BY CONVERT(SUBSTRING(i_poid, -5), DECIMAL) DESC LIMIT 1 ; -- 有多条时只显示离现在最近的一条  
+  WHERE SUBSTRING(c_poid, 3, 12) = currentDate     
+    AND SUBSTRING(c_poid, 1, 2) = orderNamePre
+  ORDER BY CONVERT(SUBSTRING(c_poid, -5), DECIMAL) DESC LIMIT 1 ; -- 有多条时只显示离现在最近的一条  
      
   select  oldOrderNo;
   
@@ -30,6 +30,9 @@ BEGIN
     CONCAT(orderNamePre, currentDate,  LPAD((maxNo + 1), 5, '0')) INTO newOrderNo ; -- LPAD((maxNo + 1), 5, '0')：如果不足5位，将用0填充左边     
     
   SELECT     
-    newOrderNo ;    
+    newOrderNo ; 
+
+     set out_i_code= 0;
+     set out_c_desc = "CODE_SUCCESS";       
 END //  
 DELIMITER ; 
