@@ -16,7 +16,8 @@ CREATE PROCEDURE `ski`.`sp_apply_sale`(
     in    in_c_take_info         varchar(64)
 )
 BEGIN
-    declare new_c_poid  varchar(64);
+    declare new_c_poid      varchar(64);
+    declare new_c_takeInfo  varchar(64);
     declare i_gaid_tmp integer default 0;
     declare i integer default 0; 
     declare i_gid_tmp  integer default 0;
@@ -41,11 +42,14 @@ BEGIN
         /*sp_get_accout获取游戏类型的游戏账户信息*/
         call sp_get_accout(out_i_code,out_c_desc,i_gaid_tmp,i_gid_tmp,in_i_prod_type);
         set i_error = i_error + out_i_code;
-        select  i_error,out_i_code;
-        select i,i_gaid_tmp;
+        select  i,i_gaid_tmp,i_error,out_i_code;
+        call sp_generate_takInfo(out_i_code,out_c_desc,new_c_poid,i_gaid_tmp,new_c_takeInfo);
+        select  i,i_gaid_tmp,i_error,out_i_code,new_c_takeInfo;
         /*insert到tbl_order_product中*/
-        call sp_insert_tbl_order_product(out_i_code,out_c_desc,new_c_poid,i_pid_tmp,in_i_prod_type,in_c_name_cns,in_i_prod_price,0,in_c_take_info,i_gid_tmp,i_gaid_tmp);
+        call sp_insert_tbl_order_product(out_i_code,out_c_desc,new_c_poid,i_pid_tmp,in_i_prod_type,in_c_name_cns,in_i_prod_price,0,new_c_takeInfo,i_gid_tmp,i_gaid_tmp);
         set i_error = i_error + out_i_code;
+        
+        /*入库以后修改I_RENT状态*/
         if in_i_prod_type = 0 then 
             /*更新A类游戏状态为22*/
             call  sp_update_to_ANotRent(out_i_code,out_c_desc,i_gaid_tmp);
@@ -57,7 +61,7 @@ BEGIN
         end if;
         set i=i+1;  
     end while;  
-    select i_error;
+    select i_error; -- 打印出ERROR信息至屏幕
     IF i_error<>0 THEN  
         SELECT "RollBack";
         ROLLBACK;  

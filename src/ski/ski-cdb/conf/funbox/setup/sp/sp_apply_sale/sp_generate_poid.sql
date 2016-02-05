@@ -32,7 +32,7 @@ BEGIN
   SELECT     
     newOrderNo ; 
 
-     set out_i_code= 0;
-     set out_c_desc = "CODE_SUCCESS";       
+   set out_i_code= 0;
+   set out_c_desc = "CODE_SUCCESS";       
 END //  
 DELIMITER ; 
