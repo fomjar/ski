@@ -12,8 +12,7 @@ CREATE PROCEDURE `ski`.`sp_apply_sale`(
     in    in_i_prod_price        decimal(7, 2),
     in    in_i_prod_num          integer,
     in    in_c_name_cns          varchar(64),
-    in    in_i_prod_type         integer,
-    in    in_c_take_info         varchar(64)
+    in    in_i_prod_type         integer
 )
 BEGIN
     declare new_c_poid      varchar(64);
@@ -43,6 +42,7 @@ BEGIN
         call sp_get_accout(out_i_code,out_c_desc,i_gaid_tmp,i_gid_tmp,in_i_prod_type);
         set i_error = i_error + out_i_code;
         select  i,i_gaid_tmp,i_error,out_i_code;
+        /*生成提货码，根据订单号和游戏账户ID生产唯一*/
         call sp_generate_takInfo(out_i_code,out_c_desc,new_c_poid,i_gaid_tmp,new_c_takeInfo);
         select  i,i_gaid_tmp,i_error,out_i_code,new_c_takeInfo;
         /*insert到tbl_order_product中*/
