@@ -6,8 +6,8 @@ CREATE PROCEDURE `ski`.`sp_specify_sale`(
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
     inout inout_c_take_info      varchar(64),
-    out   out_c_user             varchar(32),    -- ç”¨æˆ·å
-    out   out_c_pass_cur         varchar(32),    -- å½“å‰å¯†ç 
+    out   out_c_user             varchar(32),    -- ÓÃ»§Ãû
+    out   out_c_pass_cur         varchar(32),    -- µ±Ç°ÃÜÂë
     in    in_i_coid              integer,
     in    in_c_caid              varchar(64),
     in    in_c_name_cns          varchar(64),
@@ -15,9 +15,11 @@ CREATE PROCEDURE `ski`.`sp_specify_sale`(
 )
 BEGIN
         declare c_take_info_tmp varchar(64);
-        declare i_error int;
+        declare i_gaid_tmp integer;
+        declare i_error integer;
         START TRANSACTION;  
         select inout_c_take_info;
+        /*Èç¹ûÌá»õÂëÊÇ¿ÕµÄ£¬ÔòÊÇÉú³ÉÌá»õÂëÁ÷³Ì£¬·ñÔòÊÇÌá»õÁ÷³Ì*/
         if isnull (inout_c_take_info) then
         
             select tbl_order_product.c_take_info
@@ -32,26 +34,28 @@ BEGIN
              if isnull(c_take_info_tmp) then
                 set i_error = 1;
              else
-               call sp_update_order_to_Send(out_i_code,out_c_desc,c_take_info_tmp); 
+               call sp_update_order_to_Send(out_i_code,out_c_desc,inout_c_take_info,i_gaid_tmp,in_i_prod_type); 
              end if;
              
              set i_error = i_error + out_i_code; 
-             /*å‘è´§åæ›´æ”¹è®¢å•çŠ¶æ€*/
+             /*·¢»õºó¸ü¸Ä¶©µ¥×´Ì¬*/
             select i_error;
 
          else
          
-             select tbl_game_account.c_user,tbl_game_account.c_pass_cur
-                into out_c_user,out_c_pass_cur
+             select tbl_game_account.c_user,tbl_game_account.c_pass_cur,tbl_game_account.i_gaid
+                into out_c_user,out_c_pass_cur,i_gaid_tmp
                 from tbl_game_account inner join tbl_order_product 
                 where  tbl_order_product.i_inst_id = tbl_game_account.i_gaid
                 and tbl_order_product.c_take_info = inout_c_take_info
                 and tbl_order_product.i_state = 1;
+                /*´òÓ¡³öÕËºÅµÄºÍÃÜÂë*/
                 select out_c_user , out_c_pass_cur;
+
                 if isnull(out_c_user) then
                     set i_error = i_error + 1;
                 else
-                     call sp_update_order_to_Sale(out_i_code,out_c_desc,inout_c_take_info); 
+                     call sp_update_order_to_Sale(out_i_code,out_c_desc,inout_c_take_info,i_gaid_tmp,in_i_prod_type); 
                 end if;
 
          end if;

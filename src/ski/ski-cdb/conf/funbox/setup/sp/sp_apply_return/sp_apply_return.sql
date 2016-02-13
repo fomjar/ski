@@ -7,13 +7,7 @@ CREATE PROCEDURE `ski`.`sp_apply_return`(
     out out_c_code               varchar(32),
     out out_c_desc               blob,
     inout out_b_infor            MEDIUMBLOB,
-    in    in_c_caid              varchar(64),
-    in    in_i_channel           integer,
-    in    in_i_coid              integer,
-    in    t_place                datetime,
-    in    c_prod_name             varchar(64), 
-    in    i_prod_type         integer,        -- 产品类型
-    in    i_prod_price        decimal(7, 2),  -- 单价
+    in    in_c_caid              varchar(64)
 )  
 BEGIN  
    declare i_poid_tmp integer default 0;

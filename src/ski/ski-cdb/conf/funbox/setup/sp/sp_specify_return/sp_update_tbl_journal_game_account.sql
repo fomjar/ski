@@ -1,13 +1,13 @@
-/*æ›´æ–°tbl_journal_game_accountè¡¨*/
+/*¸üĞÂtbl_journal_game_account±í*/
 DELIMITER // 
 DROP PROCEDURE IF EXISTS `ski`.`sp_update_tbl_journal_game_account` //
 CREATE PROCEDURE `ski`.`sp_update_tbl_journal_game_account`(
-    in i_gaid          integer,    -- æ¸¸æˆè´¦å·
-    in in_c_caid       varchar(64),    -- æ¸ é“è´¦æˆ·ID
-    in t_change        datetime,   -- å˜åŒ–æ—¶é—´
-    in i_state_before  tinyint,    -- å˜åŒ–å‰çš„çŠ¶æ€
-    in i_state_after   tinyint,    -- å˜åŒ–åçš„çŠ¶æ€
-    in i_cause         tinyint     -- æˆå› ï¼š0-ç”¨æˆ·æ“ä½œ 1-ç³»ç»Ÿæ“ä½œ 2-äººå·¥ç»´æŠ¤æ“ä½œ
+    in i_gaid          integer,    -- ÓÎÏ·ÕËºÅ
+    in in_c_caid       varchar(64),    -- ÇşµÀÕË»§ID
+    in t_change        datetime,   -- ±ä»¯Ê±¼ä
+    in i_state_before  tinyint,    -- ±ä»¯Ç°µÄ×´Ì¬
+    in i_state_after   tinyint,    -- ±ä»¯ºóµÄ×´Ì¬
+    in i_cause         tinyint     -- ³ÉÒò£º0-ÓÃ»§²Ù×÷ 1-ÏµÍ³²Ù×÷ 2-ÈË¹¤Î¬»¤²Ù×÷
 )
 BEGIN
 

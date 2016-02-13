@@ -9,7 +9,7 @@ CREATE PROCEDURE `ski`.`sp_get_accout`(
 )
 label_pro:BEGIN
    select in_i_prod_type;
-  /*å¦‚æœæ˜¯Aç±»è´¦æˆ·å‡ºç§Ÿ*/
+  /*Èç¹ûÊÇAÀàÕË»§³ö×â*/
      if in_i_prod_type = 0 then
         select IFNULL(tbl_game_account_game.i_gaid,0)
             into i_gaid_tmp
@@ -19,9 +19,9 @@ label_pro:BEGIN
             and (tbl_game_account_game.i_gaid = tbl_game_account_rent.i_gaid)
             and (tbl_game_account_rent.i_rent = 1)
             and (tbl_game_account_game.i_gaid = tbl_journal_game_account.i_gaid) 
-            order by tbl_journal_game_account.t_change  asc limit 1; -- æœ‰å¤šæ¡æ—¶åªæ˜¾ç¤ºç¦»ç°åœ¨æœ€è¿‘çš„ä¸€æ¡  
+            order by tbl_journal_game_account.t_change  asc limit 1; -- ÓĞ¶àÌõÊ±Ö»ÏÔÊ¾ÀëÏÖÔÚ×î½üµÄÒ»Ìõ  
             
-       /*å½“æ²¡æœ‰01çŠ¶æ€çš„è´¦æˆ·æ—¶å€™å¯»æ‰¾00çŠ¶æ€çš„ç”¨æˆ·*/ 
+       /*µ±Ã»ÓĞ01×´Ì¬µÄÕË»§Ê±ºòÑ°ÕÒ00×´Ì¬µÄÓÃ»§*/ 
         if ISNULL(i_gaid_tmp) then  
                 select IFNULL(tbl_game_account_game.i_gaid,0)
                     into i_gaid_tmp
@@ -35,7 +35,7 @@ label_pro:BEGIN
         
   
         
-     /*å¦‚æœæ˜¯Bç±»è´¦æˆ·å‡ºç§Ÿ*/
+     /*Èç¹ûÊÇBÀàÕË»§³ö×â*/
      elseif in_i_prod_type = 1 then 
      
         select IFNULL(tbl_game_account_game.i_gaid,0)
@@ -46,9 +46,9 @@ label_pro:BEGIN
             and (tbl_game_account_game.i_gaid = tbl_game_account_rent.i_gaid)
             and (tbl_game_account_rent.i_rent = 10)
             and (tbl_game_account_game.i_gaid = tbl_journal_game_account.i_gaid)
-            order by tbl_journal_game_account.t_change  asc limit 1; -- æœ‰å¤šæ¡æ—¶åªæ˜¾ç¤ºç¦»ç°åœ¨æœ€è¿‘çš„ä¸€æ¡  
+            order by tbl_journal_game_account.t_change  asc limit 1; -- ÓĞ¶àÌõÊ±Ö»ÏÔÊ¾ÀëÏÖÔÚ×î½üµÄÒ»Ìõ  
             
-       /*å½“æ²¡æœ‰01çŠ¶æ€çš„è´¦æˆ·æ—¶å€™å¯»æ‰¾00çŠ¶æ€çš„ç”¨æˆ·*/ 
+       /*µ±Ã»ÓĞ01×´Ì¬µÄÕË»§Ê±ºòÑ°ÕÒ00×´Ì¬µÄÓÃ»§*/ 
         if ISNULL(i_gaid_tmp) then  
                 select IFNULL(tbl_game_account_game.i_gaid,0)
                     into i_gaid_tmp

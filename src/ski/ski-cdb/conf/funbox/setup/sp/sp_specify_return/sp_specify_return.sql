@@ -9,19 +9,19 @@ create procedure sp_specify_return (
     in    in_i_inst_id           integer,
     in    in_c_caid              varchar(64)
 )
-comment 'æ–°çš„æ¸¸æˆè´¦æˆ·è®¢å•'
+comment 'ĞÂµÄÓÎÏ·ÕË»§¶©µ¥'
 label_pro:BEGIN
     declare i_case_status   integer;
     declare i_state_after   integer DEFAULT 0;
     declare out_c_desc_temp varchar(32);
     declare i_gaid_temp     integer  DEFAULT 0;
     declare i_change_fsm    integer DEFAULT 0;
-    /*ä½¿ç”¨äº‹åŠ¡ï¼Œå¦‚æœä¸­é—´å‡ºé”™æ¢å¤æ‰€æœ‰æ“ä½œ*/
+    /*Ê¹ÓÃÊÂÎñ£¬Èç¹ûÖĞ¼ä³ö´í»Ö¸´ËùÓĞ²Ù×÷*/
     START TRANSACTION; 
-    /*åˆå§‹åŒ–å‡ºå‚*/
+    /*³õÊ¼»¯³ö²Î*/
     set out_c_desc = '';
     set out_i_code = 0;
-    /*æ ¡éªŒCAIDå’Œin_i_inst_id*/
+    /*Ğ£ÑéCAIDºÍin_i_inst_id*/
     call sp_get_gaid_by_caid(out_i_code,out_c_desc,i_gaid_temp,in_c_caid);
     select in_i_inst_id,in_c_caid;
     if i_gaid_temp <> in_i_inst_id then
@@ -36,42 +36,42 @@ label_pro:BEGIN
         where i_gaid = in_i_inst_id;
       
     select i_case_status;
-    /*-------------------------------------------------------------*/ 
-    /*æ‰“å°çŠ¶æ€è‡³å‰ç«¯ï¼Œç”¨äºåç»­é€»è¾‘è·Ÿè¸ª*/
+    /*------------------------------------------------------------- 
+    ´òÓ¡×´Ì¬ÖÁÇ°¶Ë£¬ÓÃÓÚºóĞøÂß¼­¸ú×Ù
     select concat(out_c_desc,"From i_rent ") into out_c_desc;
     select convert(i_case_status USING ascii) into out_c_desc_temp;
     select concat(out_c_desc,out_c_desc_temp) into out_c_desc;
     select out_c_desc;
-    /*-------------------------------------------------------------*/
+    -------------------------------------------------------------*/
     
     case i_case_status  
 
-        /*Aå·²ç§ŸBå¾…ç§Ÿ*/
+        /*AÒÑ×âB´ı×â*/
         when 10 then 
-            call sp_update_to_ANotRentBNotRent(i_state_after,out_c_desc,i_gaid_temp); 
+            call sp_update_to_ANotRentBNotRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
             select out_c_desc;
             set i_change_fsm = 1;
             
-        /*Aå·²ç§ŸBå·²ç§Ÿ*/
+        /*AÒÑ×âBÒÑ×â*/
         when 11 then   
-            call sp_update_to_ANotRentBAlreadyRent(i_state_after,out_c_desc,i_gaid_temp); 
+            call sp_update_to_ANotRentBAlreadyRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
             select out_c_desc;
             set i_change_fsm = 1;
             
-        /*å¼‚å¸¸å¾…æ£€æŸ¥*/
+        /*Òì³£´ı¼ì²é*/
         when 6 then   
-          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // æ•°æ®åº“è´¦æˆ·å¼‚å¸¸çŠ¶æ€*/
+          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // Êı¾İ¿âÕË»§Òì³£×´Ì¬*/
           
-        /*å¼‚å¸¸è´¦å·*/
+        /*Òì³£ÕËºÅ*/
         when 7 then   
-          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // æ•°æ®åº“è´¦æˆ·å¼‚å¸¸çŠ¶æ€*/
+          set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // Êı¾İ¿âÕË»§Òì³£×´Ì¬*/
            
         else   
           set out_i_code = 0;
           
     end case;  
     
-    /*æ‰“å°å½“å‰çš„out_c_descè‡³å±å¹•*/
+    /*´òÓ¡µ±Ç°µÄout_c_descÖÁÆÁÄ»*/
     select out_c_desc;
     select i_change_fsm;
     select out_i_code;

@@ -3,15 +3,15 @@ DROP PROCEDURE IF EXISTS `ski`.`sp_insert_tbl_order_product` //
 CREATE PROCEDURE `ski`.`sp_insert_tbl_order_product`(
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
-    in   in_c_poid              varchar(64),    -- å¹³å°è®¢å•ID
-    in   in_i_pid               integer,        -- äº§å“ID
-    in   in_i_prod_type         integer,        -- å®ä¾‹ç±»å‹
-    in   in_c_prod_name         varchar(64),    -- åç§°
-    in   in_i_prod_price        decimal(7, 2),  -- å•ä»·
-    in   in_i_state             tinyint,        -- è®¢å•äº§å“çŠ¶æ€ï¼š0-æœªå‘è´§ 1-å·²å‘è´§ 2-å·²æè´§ 3-å·²é€€è´§
-    in   in_c_take_info         varchar(64),    -- æå–ä¿¡æ¯
-    in   in_i_inst_type         integer,        -- å®ä¾‹ç±»å‹ï¼Œå¦‚æ¸¸æˆID
-    in   in_i_inst_id           integer         -- å®ä¾‹IDï¼Œå¦‚æ¸¸æˆè´¦æˆ·ID
+    in   in_c_poid              varchar(64),    -- Æ½Ì¨¶©µ¥ID
+    in   in_i_pid               integer,        -- ²úÆ·ID
+    in   in_i_prod_type         integer,        -- ÊµÀıÀàĞÍ
+    in   in_c_prod_name         varchar(64),    -- Ãû³Æ
+    in   in_i_prod_price        decimal(7, 2),  -- µ¥¼Û
+    in   in_i_state             tinyint,        -- ¶©µ¥²úÆ·×´Ì¬£º0-Î´·¢»õ 1-ÒÑ·¢»õ 2-ÒÑÌá»õ 3-ÒÑÍË»õ
+    in   in_c_take_info         varchar(64),    -- ÌáÈ¡ĞÅÏ¢
+    in   in_i_inst_type         integer,        -- ÊµÀıÀàĞÍ£¬ÈçÓÎÏ·ID
+    in   in_i_inst_id           integer         -- ÊµÀıID£¬ÈçÓÎÏ·ÕË»§ID
 )
 BEGIN
   

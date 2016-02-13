@@ -22,6 +22,7 @@ BEGIN
     declare i_gid_tmp  integer default 0;
     declare i_pid_tmp  integer default 0;
     declare i_error    BIGINT default 0;
+    declare i_state_after integer default 0;
     select i_error;
     set out_i_code = 0;
     
@@ -37,31 +38,34 @@ BEGIN
     set i_error = i_error + out_i_code;
     select i_error;
     select in_i_prod_num;
+    
     while i < in_i_prod_num do  
-        /*sp_get_accoutèŽ·å–æ¸¸æˆç±»åž‹çš„æ¸¸æˆè´¦æˆ·ä¿¡æ¯*/
+        /*sp_get_accout»ñÈ¡ÓÎÏ·ÀàÐÍµÄÓÎÏ·ÕË»§ÐÅÏ¢*/
         call sp_get_accout(out_i_code,out_c_desc,i_gaid_tmp,i_gid_tmp,in_i_prod_type);
         set i_error = i_error + out_i_code;
         select  i,i_gaid_tmp,i_error,out_i_code;
-        /*ç”Ÿæˆæè´§ç ï¼Œæ ¹æ®è®¢å•å·å’Œæ¸¸æˆè´¦æˆ·IDç”Ÿäº§å”¯ä¸€*/
+        /*Éú³ÉÌá»õÂë£¬¸ù¾Ý¶©µ¥ºÅºÍÓÎÏ·ÕË»§IDÉú²úÎ¨Ò»*/
         call sp_generate_takInfo(out_i_code,out_c_desc,new_c_poid,i_gaid_tmp,new_c_takeInfo);
         select  i,i_gaid_tmp,i_error,out_i_code,new_c_takeInfo;
-        /*insertåˆ°tbl_order_productä¸­*/
+        /*insertµ½tbl_order_productÖÐ*/
         call sp_insert_tbl_order_product(out_i_code,out_c_desc,new_c_poid,i_pid_tmp,in_i_prod_type,in_c_name_cns,in_i_prod_price,0,new_c_takeInfo,i_gid_tmp,i_gaid_tmp);
         set i_error = i_error + out_i_code;
         
-        /*å…¥åº“ä»¥åŽä¿®æ”¹I_RENTçŠ¶æ€*/
+        /*Èë¿âÒÔºóÐÞ¸ÄI_RENT×´Ì¬*/
         if in_i_prod_type = 0 then 
-            /*æ›´æ–°Aç±»æ¸¸æˆçŠ¶æ€ä¸º22*/
-            call  sp_update_to_ANotRent(out_i_code,out_c_desc,i_gaid_tmp);
+            /*¸üÐÂAÀàÓÎÏ·×´Ì¬Îª²»¿É³öÊÛ×´Ì¬£¬ÒòÎª´ËÊ±¸ÃÕËºÅÒÑ¾­±»·ÖÅä³öÈ¥*/
+            call  sp_update_to_ANotRent(out_i_code,out_c_desc,i_state_after,i_gaid_tmp);
             set i_error = i_error + out_i_code;
+        /*¸üÐÂBÀàÓÎÏ·Èë¿âÊ±ºò¼´ÎªÒÑ¾­ÊÛ³ö*/    
         elseif  in_i_prod_type = 1 then 
-            /*æ›´æ–°Bç±»æ¸¸æˆçŠ¶æ€ä¸º22*/
-            call  sp_update_to_BNotRent(out_i_code,out_c_desc,i_gaid_tmp);
+            call  sp_update_to_BAlreadyRent(out_i_code,out_c_desc,i_state_after,i_gaid_tmp);
             set i_error = i_error + out_i_code;
+        
         end if;
+        
         set i=i+1;  
     end while;  
-    select i_error; -- æ‰“å°å‡ºERRORä¿¡æ¯è‡³å±å¹•
+    select i_error; -- ´òÓ¡³öERRORÐÅÏ¢ÖÁÆÁÄ»
     IF i_error<>0 THEN  
         SELECT "RollBack";
         ROLLBACK;  
