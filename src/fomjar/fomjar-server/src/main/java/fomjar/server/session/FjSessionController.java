@@ -10,9 +10,9 @@ import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 
 /**
- * 业务执行器，处理某一个业务流
+ * 会话控制器，控制会话的打开、关闭以及分发
  * 
- * @author fomja
+ * @author fomjar
  */
 public abstract class FjSessionController {
     
@@ -42,6 +42,9 @@ public abstract class FjSessionController {
     private Map<String, FjSCB> scbs;
     private FjSessionMonitor   monitor;
     
+    /**
+     * 创建一个空白的会话控制器
+     */
     public FjSessionController() {
         scbs = new HashMap<String, FjSCB>();
         monitor = new FjSessionMonitor(scbs);
@@ -92,7 +95,7 @@ public abstract class FjSessionController {
     protected abstract boolean matchFirst(FjDscpMessage msg);
     
     /**
-     * 执行具体会话
+     * 处理具体的会话
      * 
      * @param server
      * @param scb
