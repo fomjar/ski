@@ -10,7 +10,7 @@ import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 
 /**
- * 会话控制器，控制会话的打开、关闭以及分发
+ * 会话控制器。负责会话的打开、关闭以及分发
  * 
  * @author fomjar
  */
@@ -18,6 +18,19 @@ public abstract class FjSessionController {
     
     private static final Logger logger = Logger.getLogger(FjSessionController.class);
     
+    /**
+     * <p>
+     * 分发新的消息至符合的会话控制器中，多个会话控制器符合则均会处理此消息。
+     * </p>
+     * <p>
+     * 如果没有会话控制器能够匹配到此消息，则抛出{@link FjSessionNotMatchException}异常。
+     * </p>
+     * 
+     * @param server 消息来源服务器
+     * @param scs 待匹配的会话控制器
+     * @param msg 待分发的消息
+     * @throws FjSessionNotMatchException 如果没有会话控制器能够匹配此消息
+     */
     public static void dispatch(FjServer server, List<FjSessionController> scs, FjDscpMessage msg) throws FjSessionNotMatchException {
         if (null == scs || scs.isEmpty()) throw new FjSessionNotMatchException(msg.sid());
         
