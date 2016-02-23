@@ -1,10 +1,22 @@
 package com.ski.comm;
 
+/**
+ * 通用定义。
+ * 
+ * @author fomjar
+ */
 public final class COMM {
     
-    //////////////////////////// ISIS ////////////////////////////
-    // 互联网服务指令集，Internet Service Instruction Set
-    // 注意：指令定义必须要符合协议规范
+    /**
+     * <p>
+     * ISIS - 互联网服务指令集，Internet Service Instruction Set
+     * </p>
+     * <p>
+     * 注意：指令定义必须要符合协议规范
+     * </p>
+     * 
+     * @author fomjar
+     */
     public static final class ISIS {
         // 用户指令
         public static final int INST_USER_RESPONSE      = 0x00000100; // 用户响应
@@ -27,7 +39,11 @@ public final class COMM {
         public static final int INST_SYS_UNKNOWN    = 0xFFFFFFFF; // 未知命令
     }
     
-    //////////////////////////// 错误码 ////////////////////////////
+    /**
+     * 结果码定义
+     * 
+     * @author fomjar
+     */
     public static final class CODE {
         
         // 系统错误码
