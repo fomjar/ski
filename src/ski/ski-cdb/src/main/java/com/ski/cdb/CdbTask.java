@@ -33,7 +33,7 @@ public class CdbTask implements FjServerTask {
     private static Connection conn = null;
 
     private static final class CdbInstInfo {
-        public int                inst    = COMM.ISIS.INST_SYS_UNKNOWN_INSTRUCTION;
+        public int                inst    = COMM.ISIS.INST_SYS_UNKNOWN_INST;
         public JSON               args    = null;
         public String             mode    = null;
         public int                out     = 0;

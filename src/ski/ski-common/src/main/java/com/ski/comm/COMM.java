@@ -35,8 +35,8 @@ public final class COMM {
         public static final int INST_ECOM_VERIFY_ACCOUNT    = 0x00000600; // 验证账户
         public static final int INST_ECOM_UPDATE_ACCOUNT    = 0x00000600; // 更新账户
         // 系统指令
-        public static final int INST_SYS_HEART_BEAT = 0xF0000000; // 心跳
-        public static final int INST_SYS_UNKNOWN    = 0xFFFFFFFF; // 未知命令
+        public static final int INST_SYS_HEART_BEAT     = 0xF0000000; // 心跳
+        public static final int INST_SYS_UNKNOWN_INST   = 0xFFFFFFFF; // 未知命令
     }
     
     /**

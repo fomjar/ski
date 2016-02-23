@@ -156,7 +156,7 @@ public class WcaTask implements FjServerTask {
         default: // forward report
             String inst = Integer.toHexString(dmsg.inst());
             while (8 > inst.length()) inst = "0" + inst;
-            logger.info(String.format("INST_USER_COMMAND     - %s:%s:0x%s", dmsg.fs(), dmsg.sid(), inst));
+            logger.info(String.format("INST_USER_INSTRUCTION - %s:%s:0x%s", dmsg.fs(), dmsg.sid(), inst));
             FjDscpMessage msg = new FjDscpMessage(dmsg.json());
             msg.json().put("fs", serverName);
             msg.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
