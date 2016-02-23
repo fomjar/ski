@@ -105,8 +105,8 @@ public class FjServerToolkit {
         
         public FjConfigMonitor() {
             long inteval = 10;
-            config_monitor.setDelay(inteval * 1000);
-            config_monitor.setInterval(inteval * 1000);
+            setDelay(inteval * 1000);
+            setInterval(inteval * 1000);
         }
         
         @Override

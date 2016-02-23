@@ -43,7 +43,7 @@ public class MenuMonitor extends FjLoopTask {
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload.interval"));
         setInterval(second);
     }
     

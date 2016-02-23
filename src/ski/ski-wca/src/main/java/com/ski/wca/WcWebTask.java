@@ -38,6 +38,12 @@ public class WcWebTask implements FjServerTask {
         final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
         Map<String, String> arg  = hmsg.urlParameters();
         
+        if (null == arg || arg.isEmpty()) {
+            logger.error("bad request: " + hmsg.url());
+            FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wcweb.error"), "非法参数")), conn);
+            return;
+        }
+        
         if (!arg.containsKey("cmd") && !arg.containsKey("user")) {
             logger.error("bad request: " + hmsg.url());
             FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wcweb.error"), "非法参数")), conn);

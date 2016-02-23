@@ -25,7 +25,7 @@ public class WcaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WcaTask.class);
     
-    public WcaTask(String name) {
+    public WcaTask() {
         TokenMonitor.getInstance().start();
         new MenuMonitor().start();
     }
