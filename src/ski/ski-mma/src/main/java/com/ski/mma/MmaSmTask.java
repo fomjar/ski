@@ -2,7 +2,7 @@ package com.ski.mma;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.DSCP;
+import com.ski.comm.COMM;
 import com.taobao.api.ApiException;
 import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
@@ -44,22 +44,22 @@ public class MmaSmTask implements FjServerTask {
         }
         
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        switch (dmsg.cmd()) {
-        case DSCP.CMD.USER_RESPONSE:
-            logger.info(String.format("USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
-            sendShortMessage(dmsg.argToJsonObject());
+        switch (dmsg.inst()) {
+        case COMM.ISIS.INST_USER_RESPONSE:
+            logger.info(String.format("INST_USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
+            sendShortMessage(dmsg.argsToJsonObject());
             break;
         default:
-            String cmd = Integer.toHexString(dmsg.cmd());
-            while (8 > cmd.length()) cmd = "0" + cmd;
-            logger.error("unsupported command: 0x" + cmd);
+            String inst = Integer.toHexString(dmsg.inst());
+            while (8 > inst.length()) inst = "0" + inst;
+            logger.error("unsupported instruct: 0x" + inst);
             break;
         }
     }
     
-    private void sendShortMessage(JSONObject arg) {
-        String    phone       = arg.getString("phone");
-        JSONArray context_arg = arg.getJSONArray("context");
+    private void sendShortMessage(JSONObject args) {
+        String    phone       = args.getString("phone");
+        JSONArray context_arg = args.getJSONArray("context");
         
         svcr.setTemplateId(Long.parseLong(FjServerToolkit.getServerConfig("sm.template")));
         svcr.setSignatureId(Long.parseLong(FjServerToolkit.getServerConfig("sm.signature")));

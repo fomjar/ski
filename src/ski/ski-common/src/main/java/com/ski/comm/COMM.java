@@ -1,34 +1,30 @@
-package com.ski.common;
+package com.ski.comm;
 
-public final class DSCP {
+public final class COMM {
     
-    //////////////////////////// 指令字 ////////////////////////////
+    //////////////////////////// ISIS ////////////////////////////
+    // 互联网服务指令集，Internet Service Instruction Set
     // 注意：指令定义必须要符合协议规范
-    public static final class CMD {
-        
+    public static final class ISIS {
         // 用户指令
-        public static final int USER_RESPONSE           = 0x00000100; // 用户响应
-        public static final int USER_REQUEST            = 0x00000101; // 用户请求
-        public static final int USER_SUBSCRIBE          = 0x00000102; // 用户订阅/关注
-        public static final int USER_UNSUBSCRIBE        = 0x00000103; // 用户取消订阅/取消关注
-        public static final int USER_GOTO               = 0x00000104; // 用户跳转
-        public static final int USER_LOCATION           = 0x00000105; // 用户位置
+        public static final int INST_USER_RESPONSE      = 0x00000100; // 用户响应
+        public static final int INST_USER_REQUEST       = 0x00000101; // 用户请求
+        public static final int INST_USER_SUBSCRIBE     = 0x00000102; // 用户订阅/关注
+        public static final int INST_USER_UNSUBSCRIBE   = 0x00000103; // 用户取消订阅/取消关注
+        public static final int INST_USER_GOTO          = 0x00000104; // 用户跳转
+        public static final int INST_USER_LOCATION      = 0x00000105; // 用户位置
         // 电商指令
-        // APPLY
-        public static final int ECOM_APPLY_ORDER        = 0x00000300; // 申请订单
-        public static final int ECOM_APPLY_RETURN       = 0x00000301; // 申请退货
-        // SPECIFY
-        public static final int ECOM_SPECIFY_ORDER      = 0x00000400; // 指定订单
-        public static final int ECOM_SPECIFY_RETURN     = 0x00000401; // 指定退货
-        // FINISH
-        public static final int ECOM_FINISH_ORDER       = 0x00000500; // 完成订单
-        public static final int ECOM_FINISH_RETURN      = 0x00000501; // 完成退货
-        // VERIFY
-        public static final int ECOM_VERIFY_ACCOUNT     = 0x00000600; // 验证账户
-        // UPDATE
-        public static final int ECOM_UPDATE_ACCOUNT     = 0x00000600; // 更新账户
+        public static final int INST_ECOM_QUERY_ORDER       = 0x00000300; // 查询订单
+        public static final int INST_ECOM_QUERY_RETURN      = 0x00000301; // 查询退货
+        public static final int INST_ECOM_APPLY_ORDER       = 0x00000400; // 申请订单
+        public static final int INST_ECOM_APPLY_RETURN      = 0x00000401; // 申请退货
+        public static final int INST_ECOM_FINISH_ORDER      = 0x00000500; // 完成订单
+        public static final int INST_ECOM_FINISH_RETURN     = 0x00000501; // 完成退货
+        public static final int INST_ECOM_VERIFY_ACCOUNT    = 0x00000600; // 验证账户
+        public static final int INST_ECOM_UPDATE_ACCOUNT    = 0x00000600; // 更新账户
         // 系统指令
-        public static final int SYSTEM_UNKNOWN_COMMAND  = 0xFFFFFFFF; // 未知命令
+        public static final int INST_SYS_HEART_BEAT = 0xF0000000; // 心跳
+        public static final int INST_SYS_UNKNOWN    = 0xFFFFFFFF; // 未知命令
     }
     
     //////////////////////////// 错误码 ////////////////////////////
@@ -37,7 +33,7 @@ public final class DSCP {
         // 系统错误码
         public static final int ERROR_SYSTEM_UNKNOWN_ERROR              = 0xFFFFFFFF; // 未知错误
         public static final int ERROR_SYSTEM_SUCCESS                    = 0x00000000; // 成功
-        public static final int ERROR_SYSTEM_ILLEGAL_COMMAND            = 0x00000002; // 非法指令
+        public static final int ERROR_SYSTEM_ILLEGAL_INSTRUCTION            = 0x00000002; // 非法指令
         public static final int ERROR_SYSTEM_ILLEGAL_ARGUMENT           = 0x00000003; // 非法参数
         // DB
         public static final int ERROR_DB_STATE_ABNORMAL                 = 0x00000100; // 数据库状态异常

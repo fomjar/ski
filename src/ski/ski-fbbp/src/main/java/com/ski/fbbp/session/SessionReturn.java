@@ -2,7 +2,7 @@ package com.ski.fbbp.session;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.DSCP;
+import com.ski.comm.COMM;
 
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
@@ -18,49 +18,49 @@ public class SessionReturn extends FjSessionController {
     
     @Override
     protected boolean matchFirst(FjDscpMessage msg) {
-        if (DSCP.CMD.ECOM_APPLY_RETURN   == msg.cmd()) return true;
-        if (DSCP.CMD.ECOM_SPECIFY_RETURN == msg.cmd()) return true;
+        if (COMM.ISIS.INST_ECOM_QUERY_RETURN   == msg.inst()) return true;
+        if (COMM.ISIS.INST_ECOM_APPLY_RETURN == msg.inst()) return true;
         return false;
     }
 
     @Override
     protected void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
-        switch (msg.cmd()) {
-            case DSCP.CMD.ECOM_APPLY_RETURN:
-                logger.info(String.format("ECOM_APPLY_RETURN   - %s:%s", msg.fs(), scb.sid()));
+        switch (msg.inst()) {
+            case COMM.ISIS.INST_ECOM_QUERY_RETURN:
+                logger.info(String.format("INST_ECOM_APPLY_RETURN   - %s:%s", msg.fs(), scb.sid()));
                 processApply  (server.name(), scb, msg);
                 break;
-            case DSCP.CMD.ECOM_SPECIFY_RETURN:
-                logger.info(String.format("ECOM_SPECIFY_RETURN - %s:%s", msg.fs(), scb.sid()));
+            case COMM.ISIS.INST_ECOM_APPLY_RETURN:
+                logger.info(String.format("INST_ECOM_SPECIFY_RETURN - %s:%s", msg.fs(), scb.sid()));
                 processSpecify(server.name(), scb, msg);
                 break;
-            case DSCP.CMD.ECOM_FINISH_RETURN:
+            case COMM.ISIS.INST_ECOM_FINISH_RETURN:
                 break;
         }
     }
     
     private static void processApply(String serverName, FjSCB scb, FjDscpMessage msg) {
         if (msg.fs().startsWith("wca")) { // 请求来自WCA，向CDB请求产品详单
-            scb.put("caid", msg.argToJsonObject().getString("user"));
+            scb.put("caid", msg.argsToJsonObject().getString("user"));
             
             FjDscpMessage msg_cdb = new FjDscpMessage();
-            msg_cdb.json().put("fs",  serverName);
-            msg_cdb.json().put("ts",  "cdb");
-            msg_cdb.json().put("sid", scb.sid());
-            msg_cdb.json().put("cmd", DSCP.CMD.ECOM_APPLY_RETURN);
-            msg_cdb.json().put("arg", String.format("{'c_caid':\"%s\"}", msg.argToJsonObject().getString("user")));
+            msg_cdb.json().put("fs",   serverName);
+            msg_cdb.json().put("ts",   "cdb");
+            msg_cdb.json().put("sid",  scb.sid());
+            msg_cdb.json().put("inst", COMM.ISIS.INST_ECOM_QUERY_RETURN);
+            msg_cdb.json().put("args", String.format("{'c_caid':\"%s\"}", msg.argsToJsonObject().getString("user")));
             FjServerToolkit.getSender(serverName).send(msg_cdb);
         } else if (msg.fs().startsWith("cdb")) { // 请求来自CDB，转发产品详单至WCA
-            JSONObject arg = new JSONObject();
-            arg.put("user",    scb.getString("caid"));
-            arg.put("content", createUserResponseContent4Apply(scb, msg));
+            JSONObject args = new JSONObject();
+            args.put("user",    scb.getString("caid"));
+            args.put("content", createUserResponseContent4Apply(scb, msg));
             
             FjDscpMessage msg_wca = new FjDscpMessage();
-            msg_wca.json().put("fs",  serverName);
-            msg_wca.json().put("ts",  "wca");
-            msg_wca.json().put("sid", scb.sid());
-            msg_wca.json().put("cmd", DSCP.CMD.USER_RESPONSE);
-            msg_wca.json().put("arg", arg);
+            msg_wca.json().put("fs",   serverName);
+            msg_wca.json().put("ts",   "wca");
+            msg_wca.json().put("sid",  scb.sid());
+            msg_wca.json().put("inst", COMM.ISIS.INST_USER_RESPONSE);
+            msg_wca.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_wca);
             
             scb.end();
@@ -69,40 +69,40 @@ public class SessionReturn extends FjSessionController {
     
     private static void processSpecify(String serverName, FjSCB scb, FjDscpMessage msg) {
         if (msg.fs().startsWith("wca")) {
-            scb.put("caid", msg.argToJsonObject().getString("user"));
+            scb.put("caid", msg.argsToJsonObject().getString("user"));
             
-            JSONObject arg = new JSONObject();
-            arg.put("c_caid",    msg.argToJsonObject().getString("user"));
-            arg.put("i_inst_id", Integer.parseInt(msg.argToJsonObject().getString("content"), 16));
+            JSONObject args = new JSONObject();
+            args.put("c_caid",    msg.argsToJsonObject().getString("user"));
+            args.put("i_inst_id", Integer.parseInt(msg.argsToJsonObject().getString("content"), 16));
             
             FjDscpMessage msg_cdb = new FjDscpMessage();
-            msg_cdb.json().put("fs",  serverName);
-            msg_cdb.json().put("ts",  "cdb");
-            msg_cdb.json().put("sid", scb.sid());
-            msg_cdb.json().put("cmd", DSCP.CMD.ECOM_SPECIFY_RETURN);
-            msg_cdb.json().put("arg", arg);
+            msg_cdb.json().put("fs",   serverName);
+            msg_cdb.json().put("ts",   "cdb");
+            msg_cdb.json().put("sid",  scb.sid());
+            msg_cdb.json().put("inst", COMM.ISIS.INST_ECOM_APPLY_RETURN);
+            msg_cdb.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_cdb);
         } else if (msg.fs().startsWith("cdb")) {
-            JSONObject arg = new JSONObject();
-            arg.put("user",    scb.getString("caid"));
-            arg.put("content", msg.arg().toString().replace("\"", "'").replace("[", "").replace("]", ""));
+            JSONObject args = new JSONObject();
+            args.put("user",    scb.getString("caid"));
+            args.put("content", msg.args().toString().replace("\"", "'").replace("[", "").replace("]", ""));
             
             FjDscpMessage msg_wca = new FjDscpMessage();
-            msg_wca.json().put("fs",  serverName);
-            msg_wca.json().put("ts",  "wca");
-            msg_wca.json().put("sid", scb.sid());
-            msg_wca.json().put("cmd", DSCP.CMD.USER_RESPONSE);
-            msg_wca.json().put("arg", arg);
+            msg_wca.json().put("fs",   serverName);
+            msg_wca.json().put("ts",   "wca");
+            msg_wca.json().put("sid",  scb.sid());
+            msg_wca.json().put("inst", COMM.ISIS.INST_USER_RESPONSE);
+            msg_wca.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_wca);
         }
     }
 
     private static String createUserResponseContent4Apply(FjSCB scb, FjDscpMessage msg) {
         StringBuffer content = new StringBuffer("【游戏清单】\n\n");
-        int    code = msg.argToJsonObject().getInt("code");
-        if (DSCP.CODE.ERROR_SYSTEM_SUCCESS != code) return "database operate failed";
+        int    code = msg.argsToJsonObject().getInt("code");
+        if (COMM.CODE.ERROR_SYSTEM_SUCCESS != code) return "database operate failed";
         
-        String[] products = msg.argToJsonObject().getJSONArray("desc").getJSONArray(0).getString(2).split("\n");
+        String[] products = msg.argsToJsonObject().getJSONArray("desc").getJSONArray(0).getString(2).split("\n");
         for (String productString : products) {
             String[] product = productString.split("\t");
             /**
@@ -112,11 +112,11 @@ public class SessionReturn extends FjSessionController {
              * product[3] = game account
              */
             FjAddress address = FjServerToolkit.getSlb().getAddress("wcweb");
-            String url = String.format("http://%s:%d/wcweb?user=%s&cmd=%s&content=%s", 
+            String url = String.format("http://%s:%d/wcweb?user=%s&inst=%s&content=%s", 
                     address.host,
                     address.port,
                     scb.getString("caid"),
-                    Integer.toHexString(DSCP.CMD.ECOM_SPECIFY_RETURN),
+                    Integer.toHexString(COMM.ISIS.INST_ECOM_APPLY_RETURN),
                     product[1]);
             content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
                     url,

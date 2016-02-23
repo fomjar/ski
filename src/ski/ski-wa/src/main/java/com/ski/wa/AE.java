@@ -9,9 +9,9 @@ public interface AE {
     /**
      * 
      * @param driver
-     * @param arg fomjar.server.msg.FjDscpMessage.arg()
+     * @param args fomjar.server.msg.FjDscpMessage.args()
      */
-    void   execute(WebDriver driver, JSONObject arg);
+    void   execute(WebDriver driver, JSONObject args);
     
     /**
      * @return ae执行情况

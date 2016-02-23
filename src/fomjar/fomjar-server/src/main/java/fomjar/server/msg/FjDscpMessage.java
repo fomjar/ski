@@ -17,11 +17,11 @@ import net.sf.json.JSONObject;
  * </p>
  * <p>
  * DSCP协议的五个关键字段：
- * <li>FS  -- 来源服务器</li>
- * <li>TS  -- 到达服务器</li>
- * <li>SID -- 会话ID，整型</li>
- * <li>CMD -- 消息指令，整型</li>
- * <li>ARG -- 指令参数，字符串、JSON对象、JSON数组</li>
+ * <li>FS   -- 来源服务器</li>
+ * <li>TS   -- 到达服务器</li>
+ * <li>SID  -- 会话ID，整型</li>
+ * <li>INST -- 消息指令，整型</li>
+ * <li>ARGS -- 指令参数，字符串、JSON对象、JSON数组</li>
  * </p>
  * 
  * @author fomjar
@@ -42,11 +42,11 @@ public class FjDscpMessage extends FjJsonMessage {
      */
     public FjDscpMessage(Object json) {
         super(json);
-        if (!json().containsKey("fs"))  json().put("fs",  null);
-        if (!json().containsKey("ts"))  json().put("ts",  null);
-        if (!json().containsKey("sid")) json().put("sid", newSid());
-        if (!json().containsKey("cmd")) json().put("cmd", -1);
-        if (!json().containsKey("arg")) json().put("arg", null);
+        if (!json().containsKey("fs"))   json().put("fs",  null);
+        if (!json().containsKey("ts"))   json().put("ts",  null);
+        if (!json().containsKey("sid"))  json().put("sid", newSid());
+        if (!json().containsKey("inst")) json().put("inst", -1);
+        if (!json().containsKey("args")) json().put("args", null);
     }
     
     /** @return DSCP下的FS字段 */
@@ -55,16 +55,16 @@ public class FjDscpMessage extends FjJsonMessage {
     public String       ts()                {return json().getString("ts");}
     /** @return DSCP下的SID字段 */
     public String       sid()               {return json().getString("sid");}
-    /** @return DSCP下的CMD字段 */
-    public int          cmd()               {return json().getInt("cmd");}
-    /** @return DSCP下的ARG字段 */
-    public Object       arg()               {return json().get("arg");}
-    /** @return ARG字段转JSON格式 */
-    public JSON         argToJson()         {return (JSON) json().get("arg");}
-    /** @return ARG字段转JSON对象格式 */
-    public JSONObject   argToJsonObject()   {return json().getJSONObject("arg");}
-    /** @return ARG字段转JSON数组格式 */
-    public JSONArray    argToJsonArray()    {return json().getJSONArray("arg");}
+    /** @return DSCP下的INST字段 */
+    public int          inst()               {return json().getInt("inst");}
+    /** @return DSCP下的ARGS字段 */
+    public Object       args()               {return json().get("args");}
+    /** @return ARGS字段转JSON格式 */
+    public JSON         argsToJson()         {return (JSON) json().get("args");}
+    /** @return ARGS字段转JSON对象格式 */
+    public JSONObject   argsToJsonObject()   {return json().getJSONObject("args");}
+    /** @return ARGS字段转JSON数组格式 */
+    public JSONArray    argsToJsonArray()    {return json().getJSONArray("args");}
     
     private static final Random random = new Random();
     /** @return 随机生成SID字段 */

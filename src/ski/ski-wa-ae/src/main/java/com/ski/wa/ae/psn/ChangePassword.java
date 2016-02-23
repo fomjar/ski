@@ -5,34 +5,34 @@ import net.sf.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import com.ski.common.DSCP;
+import com.ski.comm.COMM;
 import com.ski.wa.AE;
 
 public class ChangePassword implements AE {
     
-    private int     code = DSCP.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private int     code = COMM.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
-    public void execute(WebDriver driver, JSONObject arg) {
-        if (!arg.containsKey("pass-old") || !arg.containsKey("pass-new")) { // 参数没有新老密码
-            code = DSCP.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+    public void execute(WebDriver driver, JSONObject args) {
+        if (!args.containsKey("pass-old") || !args.containsKey("pass-new")) { // 参数没有新老密码
+            code = COMM.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
             desc = "no parameter: pass-old or pass-new";
             return;
         }
         
         AE login = new Login();
-        JSONObject login_arg = new JSONObject();
-        login_arg.put("user", arg.getString("user"));
-        login_arg.put("pass", arg.getString("pass"));
-        login.execute(driver, login_arg);
-        if (DSCP.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
+        JSONObject login_args = new JSONObject();
+        login_args.put("user", args.getString("user"));
+        login_args.put("pass", args.getString("pass"));
+        login.execute(driver, login_args);
+        if (COMM.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
         }
-        String psnp_old = arg.getString("psnp-old");
-        String psnp_new = arg.getString("psnp-new");
+        String psnp_old = args.getString("psnp-old");
+        String psnp_new = args.getString("psnp-new");
         driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
         try {Thread.sleep(1000L);}
         catch (InterruptedException e) {e.printStackTrace();}
@@ -44,9 +44,9 @@ public class ChangePassword implements AE {
         driver.findElement(By.id("confirmPasswordField")).sendKeys(psnp_new); // 重复新密码
         driver.findElement(By.id("changePasswordButton")).click();
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
-            code = DSCP.CODE.ERROR_SYSTEM_SUCCESS;
+            code = COMM.CODE.ERROR_SYSTEM_SUCCESS;
         } else { // 密码保存失败
-            code = DSCP.CODE.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
+            code = COMM.CODE.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
             desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();
         }
     }

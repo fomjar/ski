@@ -59,14 +59,14 @@ public class AEMonitor extends FjLoopTask {
         super.setInterval(second * 1000);
     }
     
-    public AE getAe(int cmd) {
+    public AE getAe(int inst) {
         if (null == loader) {
             logger.error("ae package is not available");
             return null;
         }
-        String cmd_str = Integer.toHexString(cmd).toUpperCase();
-        while (8 > cmd_str.length()) cmd_str = "0" + cmd_str;
-        String className = FjServerToolkit.getServerConfig("ae.0x" + cmd_str);
+        String inst_str = Integer.toHexString(inst).toUpperCase();
+        while (8 > inst_str.length()) inst_str = "0" + inst_str;
+        String className = FjServerToolkit.getServerConfig("ae.0x" + inst_str);
         try {
             Class<?> clazz = loader.loadClass(className);
             Object instance = clazz.newInstance();

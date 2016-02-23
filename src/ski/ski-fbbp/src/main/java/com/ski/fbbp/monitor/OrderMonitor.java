@@ -2,7 +2,7 @@ package com.ski.fbbp.monitor;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.DSCP;
+import com.ski.comm.COMM;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
@@ -32,10 +32,10 @@ public class OrderMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         FjDscpMessage req = new FjDscpMessage();
-        req.json().put("fs",  serverName);
-        req.json().put("ts",  "wa");
-        req.json().put("cmd", DSCP.CMD.ECOM_APPLY_ORDER);
-        req.json().put("arg", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
+        req.json().put("fs",   serverName);
+        req.json().put("ts",   "wa");
+        req.json().put("inst", COMM.ISIS.INST_ECOM_QUERY_ORDER);
+        req.json().put("args", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
         FjServerToolkit.getSender(serverName).send(req);
     }
     

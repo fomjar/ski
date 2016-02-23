@@ -23,7 +23,7 @@ import fomjar.server.FjServerToolkit;
 public class UiSender extends JFrame {
 
     private static final long serialVersionUID = 1695489211182536137L;
-    private static final String DEFAULT_MESSAGE = "{\"fs\":\"stub\", \"ts\": \"wa\", \"sid\":\"00000000\", \"cmd\":768, \"arg\":null}";
+    private static final String DEFAULT_MESSAGE = "{\"fs\":\"stub\", \"ts\": \"wa\", \"sid\":\"00000000\", \"inst\":768, \"args\":null}";
     private FjSender  sender;
     private JTextArea jta_input;
     private JTextArea jta_output;

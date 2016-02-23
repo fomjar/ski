@@ -193,8 +193,8 @@ public class FjServerToolkit {
             if (jmsg.json().containsKey("fs")
                     && jmsg.json().containsKey("ts")
                     && jmsg.json().containsKey("sid")
-                    && jmsg.json().containsKey("cmd")
-                    && jmsg.json().containsKey("arg"))
+                    && jmsg.json().containsKey("inst")
+                    && jmsg.json().containsKey("args"))
                  return new FjDscpMessage(data);
             else return jmsg;
         }

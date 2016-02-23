@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.DSCP;
+import com.ski.comm.COMM;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -32,10 +32,10 @@ public class CdbTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(CdbTask.class);
     private static Connection conn = null;
 
-    private static final class CdbCmdInfo {
-        public int                cmd     = DSCP.CMD.SYSTEM_UNKNOWN_COMMAND;
-        public JSON               arg     = null;
-        public String             mod     = null;
+    private static final class CdbInstInfo {
+        public int                inst    = COMM.ISIS.INST_SYS_UNKNOWN_INSTRUCTION;
+        public JSON               args    = null;
+        public String             mode    = null;
         public int                out     = 0;
         public String             sql_ori = null;
         public List<String>       sql_use = null;
@@ -52,44 +52,44 @@ public class CdbTask implements FjServerTask {
         }
         
         FjDscpMessage req = (FjDscpMessage) msg;
-        CdbCmdInfo cci = new CdbCmdInfo();
-        cci.cmd = req.cmd();
-        cci.arg = req.argToJson();
+        CdbInstInfo cci = new CdbInstInfo();
+        cci.inst = req.inst();
+        cci.args = req.argsToJson();
         {
-            String cmd = Integer.toHexString(cci.cmd);
-            while (8 > cmd.length()) cmd = "0" + cmd;
-            logger.info(String.format("COMMAND - %s:%s:0x%s", req.fs(), req.sid(), cmd));
+            String inststring = Integer.toHexString(cci.inst);
+            while (8 > inststring.length()) inststring = "0" + inststring;
+            logger.info(String.format("INSTRUCTION - %s:%s:0x%s", req.fs(), req.sid(), inststring));
         }
         
         if (!checkConnection()) {
-            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", DSCP.CODE.ERROR_DB_STATE_ABNORMAL));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", COMM.CODE.ERROR_DB_STATE_ABNORMAL));
             return;
         }
         
         cci.err = null;
-        getCmdInfo(conn, cci);
+        getInstInfo(conn, cci);
         if (null != cci.err) {
-            logger.error("get command info failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", DSCP.CODE.ERROR_SYSTEM_ILLEGAL_COMMAND, cci.err));
+            logger.error("get instruction info failed: " + cci.err);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", COMM.CODE.ERROR_SYSTEM_ILLEGAL_INSTRUCTION, cci.err));
             return;
         }
         generateSql(cci);
         executeSql(conn, cci);
         if (null != cci.err) {
             logger.error("execute sql failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", DSCP.CODE.ERROR_DB_OPERATE_FAILED, cci.err));
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", COMM.CODE.ERROR_DB_OPERATE_FAILED, cci.err));
             return;
         }
-        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", DSCP.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(cci.result).toString()));
+        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", COMM.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(cci.result).toString()));
     }
     
-    private static void response(String serverName, FjDscpMessage req, Object arg) {
+    private static void response(String serverName, FjDscpMessage req, Object args) {
         FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",  serverName);
-        rsp.json().put("ts",  req.fs());
-        rsp.json().put("sid", req.sid());
-        rsp.json().put("cmd", req.cmd());
-        rsp.json().put("arg", arg);
+        rsp.json().put("fs",   serverName);
+        rsp.json().put("ts",   req.fs());
+        rsp.json().put("sid",  req.sid());
+        rsp.json().put("inst", req.inst());
+        rsp.json().put("args", args);
         FjServerToolkit.getSender(serverName).send(rsp);
     }
     
@@ -117,21 +117,21 @@ public class CdbTask implements FjServerTask {
     }
 
     
-    private static void getCmdInfo(Connection conn, CdbCmdInfo cci) {
+    private static void getInstInfo(Connection conn, CdbInstInfo cci) {
         Statement st = null;
         try {
             st = conn.createStatement();
-            ResultSet rs = st.executeQuery("select c_mod, i_out, c_sql from tbl_cmd_map where i_cmd = " + cci.cmd + "");
+            ResultSet rs = st.executeQuery("select c_mod, i_out, c_sql from tbl_cmd_map where i_cmd = " + cci.inst + "");
             if (!rs.next()) {
-                cci.err = "command is not registered: " + cci.cmd;
+                cci.err = "instruction is not registered: " + cci.inst;
                 logger.error(cci.err);
                 return;
             }
-            cci.mod = rs.getString(1);
+            cci.mode = rs.getString(1);
             cci.out = rs.getInt(2);
             cci.sql_ori = rs.getString(3);
         } catch (SQLException e) {
-            logger.error("failed to get command info: " + cci.cmd, e);
+            logger.error("failed to get instruction info: " + cci.inst, e);
             cci.err = e.getMessage();
         } finally {
             try {if (null != st) st.close();}
@@ -140,10 +140,10 @@ public class CdbTask implements FjServerTask {
     }
     
     @SuppressWarnings("unchecked")
-    private static void generateSql(CdbCmdInfo cci) {
-        logger.debug(String.format("cmd(%d) sql-ori: %s", cci.cmd, cci.sql_ori));
-        if (!cci.arg.isArray()) { // single argument: JSONObject
-            JSONObject arg_obj = (JSONObject) cci.arg;
+    private static void generateSql(CdbInstInfo cci) {
+        logger.debug(String.format("inst(%d) sql-ori: %s", cci.inst, cci.sql_ori));
+        if (!cci.args.isArray()) { // single argument: JSONObject
+            JSONObject arg_obj = (JSONObject) cci.args;
             String sql_use = cci.sql_ori;
             Iterator<String> ki = arg_obj.keys();
             while (ki.hasNext()) {
@@ -154,37 +154,37 @@ public class CdbTask implements FjServerTask {
             sql_use = sql_use.replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null");
             cci.sql_use = new LinkedList<String>();
             cci.sql_use.add(sql_use);
-            logger.debug(String.format("cmd(%d) sql-use: %s", cci.cmd, sql_use));
+            logger.debug(String.format("inst(%d) sql-use: %s", cci.inst, sql_use));
         } else { // JSONArray
-            JSONArray arg_arr = (JSONArray) cci.arg;
-            cci.sql_use = (List<String>) arg_arr
+            JSONArray args_arr = (JSONArray) cci.args;
+            cci.sql_use = (List<String>) args_arr
                     .stream()
-                    .map((arg)->{
-                        JSONObject arg_obj = (JSONObject) arg;
+                    .map((args)->{
+                        JSONObject args_obj = (JSONObject) args;
                         String sql_use = cci.sql_ori;
-                        Iterator<String> ki = arg_obj.keys();
+                        Iterator<String> ki = args_obj.keys();
                         while (ki.hasNext()) {
                             String k = ki.next();
-                            String v = arg_obj.getString(k);
+                            String v = args_obj.getString(k);
                             sql_use = sql_use.replace("$" + k, v);
                         }
                         sql_use = sql_use.replaceAll("\\$\\w+", "null");
-                        logger.debug(String.format("cmd(%d) sql-use: %s", cci.cmd, sql_use));
+                        logger.debug(String.format("inst(%d) sql-use: %s", cci.inst, sql_use));
                         return sql_use;
                     })
                     .collect(Collectors.toList());
         }
     }
 
-    private static void executeSql(Connection conn, CdbCmdInfo cci) {
-        switch (cci.mod.toLowerCase()) {
+    private static void executeSql(Connection conn, CdbInstInfo cci) {
+        switch (cci.mode.toLowerCase()) {
         case "sp": executeSp(conn, cci); break;
         case "st": executeSt(conn, cci); break;
-        default: cci.err = "command mod is not supported: " + cci.mod; break;
+        default: cci.err = "instruction execute mode is not supported: " + cci.mode; break;
         }
     }
     
-    private static void executeSt(Connection conn, CdbCmdInfo cci) {
+    private static void executeSt(Connection conn, CdbInstInfo cci) {
         if (null != cci.result) cci.result.clear();
         
         cci.sql_use.forEach((sql_use)->{
@@ -202,7 +202,7 @@ public class CdbTask implements FjServerTask {
                     st.execute(sql_use);
                 }
             } catch (SQLException e) {
-                logger.error(String.format("failed to process statement, cmd: %d, mod: %s, out: %d, sql: %s", cci.cmd, cci.mod, cci.out, cci.sql_use), e);
+                logger.error(String.format("failed to process statement, inst: %d, mode: %s, out: %d, sql: %s", cci.inst, cci.mode, cci.out, cci.sql_use), e);
                 cci.err = e.getMessage();
             } finally {
                 try {if (null != st) st.close();}
@@ -211,7 +211,7 @@ public class CdbTask implements FjServerTask {
         });
     }
     
-    private static void executeSp(Connection conn, CdbCmdInfo cci) {
+    private static void executeSp(Connection conn, CdbInstInfo cci) {
         if (null != cci.result) cci.result.clear();
         
         cci.sql_use.forEach((sql_use)->{
@@ -228,7 +228,7 @@ public class CdbTask implements FjServerTask {
                     cci.result.add(result1);
                 }
             } catch (SQLException e) {
-                logger.error(String.format("failed to process store procedure, cmd: %d, mod: %s, out: %d, sql: %s", cci.cmd, cci.mod, cci.out, cci.sql_use), e);
+                logger.error(String.format("failed to process store procedure, inst: %d, mode: %s, out: %d, sql: %s", cci.inst, cci.mode, cci.out, cci.sql_use), e);
                 cci.err = e.getMessage();
             } finally {
                 try {if (null != st) st.close();}
