@@ -1,12 +1,12 @@
-package com.ski.fbbp;
+package com.ski.game;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.ski.fbbp.monitor.OrderMonitor;
-import com.ski.fbbp.session.SessionReturn;
+import com.ski.game.monitor.OrderMonitor;
+import com.ski.game.session.SessionReturn;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -16,13 +16,13 @@ import fomjar.server.msg.FjMessage;
 import fomjar.server.session.FjSessionController;
 import fomjar.server.session.FjSessionNotMatchException;
 
-public class FbbpTask implements FjServerTask {
+public class GameTask implements FjServerTask {
     
-    private static final Logger logger = Logger.getLogger(FbbpTask.class);
+    private static final Logger logger = Logger.getLogger(GameTask.class);
     
     private List<FjSessionController> scs;
     
-    public FbbpTask(String serverName) {
+    public GameTask(String serverName) {
         scs = new LinkedList<FjSessionController>();
         scs.add(new SessionReturn());
         new OrderMonitor(serverName).start();
