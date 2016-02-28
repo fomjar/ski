@@ -34,8 +34,6 @@ public class SessionReturn extends FjSessionController {
                 logger.info(String.format("INST_ECOM_SPECIFY_RETURN - %s:%s", msg.fs(), scb.sid()));
                 processSpecify(server.name(), scb, msg);
                 break;
-            case SkiCommon.ISIS.INST_ECOM_FINISH_RETURN:
-                break;
         }
     }
     
@@ -100,7 +98,7 @@ public class SessionReturn extends FjSessionController {
     private static String createUserResponseContent4Apply(FjSCB scb, FjDscpMessage msg) {
         StringBuffer content = new StringBuffer("【游戏清单】\n\n");
         int    code = msg.argsToJsonObject().getInt("code");
-        if (SkiCommon.CODE.ERROR_SYSTEM_SUCCESS != code) return "database operate failed";
+        if (SkiCommon.CODE.CODE_SYS_SUCCESS != code) return "database operate failed";
         
         String[] products = msg.argsToJsonObject().getJSONArray("desc").getJSONArray(0).getString(2).split("\n");
         for (String productString : products) {

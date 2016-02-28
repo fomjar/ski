@@ -11,14 +11,14 @@ import com.ski.wa.AE;
 
 public class Verify implements AE {
     
-    private int     code = SkiCommon.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         AE login = new Login();
         login.execute(driver, args);
-        if (SkiCommon.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
+        if (SkiCommon.CODE.CODE_SYS_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
@@ -28,10 +28,10 @@ public class Verify implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("device-0")); // 存在设备绑定
-            code = SkiCommon.CODE.ERROR_WEB_PSN_ACCOUNT_INUSE;
+            code = SkiCommon.CODE.CODE_WEB_PSN_ACCOUNT_INUSE;
             desc = "psn account is inuse";
         } catch (NoSuchElementException e) { // 不存在设备绑定
-            code = SkiCommon.CODE.ERROR_SYSTEM_SUCCESS;
+            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
         }
     }
 

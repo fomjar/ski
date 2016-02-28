@@ -62,7 +62,7 @@ public class CdbTask implements FjServerTask {
         }
         
         if (!checkConnection()) {
-            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", SkiCommon.CODE.ERROR_DB_STATE_ABNORMAL));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", SkiCommon.CODE.CODE_DB_STATE_ABNORMAL));
             return;
         }
         
@@ -70,17 +70,17 @@ public class CdbTask implements FjServerTask {
         getInstInfo(conn, inst);
         if (null != inst.error) {
             logger.error("get instruction info failed: " + inst.error);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.ERROR_SYSTEM_ILLEGAL_INSTRUCTION, inst.error));
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, inst.error));
             return;
         }
         generateSql(inst);
         executeSql(conn, inst);
         if (null != inst.error) {
             logger.error("execute sql failed: " + inst.error);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.ERROR_DB_OPERATE_FAILED, inst.error));
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.CODE_DB_OPERATE_FAILED, inst.error));
             return;
         }
-        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", SkiCommon.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(inst.result).toString()));
+        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", SkiCommon.CODE.CODE_SYS_SUCCESS, JSONArray.fromObject(inst.result).toString()));
     }
     
     private static void response(String serverName, FjDscpMessage req, Object args) {
