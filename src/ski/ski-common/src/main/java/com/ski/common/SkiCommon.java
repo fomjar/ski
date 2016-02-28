@@ -1,11 +1,11 @@
-package com.ski.comm;
+package com.ski.common;
 
 /**
  * 通用定义。
  * 
  * @author fomjar
  */
-public final class COMM {
+public final class SkiCommon {
     
     /**
      * <p>

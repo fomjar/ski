@@ -6,18 +6,18 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 import com.ski.wa.AE;
 
 public class Login implements AE {
     
-    private int     code = COMM.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private int     code = SkiCommon.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         if (!args.containsKey("user") || !args.containsKey("pass")) { // 没有账号或密码
-            code = COMM.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+            code = SkiCommon.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
             desc = "no parameter: user or pass";
             return;
         }
@@ -33,11 +33,11 @@ public class Login implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("signInInput_SignInID"));    // 账号输入框存在即说明用户名密码错误
-            code = COMM.CODE.ERROR_WEB_PSN_ACCOUNT_INCORRECT;
+            code = SkiCommon.CODE.ERROR_WEB_PSN_ACCOUNT_INCORRECT;
             desc = "user or pass is incorrect";
             return;
         } catch (NoSuchElementException e) {}
-        code = COMM.CODE.ERROR_SYSTEM_SUCCESS;
+        code = SkiCommon.CODE.ERROR_SYSTEM_SUCCESS;
     }
 
     @Override

@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -41,7 +41,7 @@ public class WaTask implements FjServerTask {
         AE ae = AEMonitor.getInstance().getAe(inst);
         if (null == ae) {
             logger.error("can not find an AE for instuction: 0x" + inststring);
-            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%s'}", COMM.CODE.ERROR_WEB_AE_NOT_FOUND, inststring));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%s'}", SkiCommon.CODE.ERROR_WEB_AE_NOT_FOUND, inststring));
             return;
         }
         WebDriver driver = null;
@@ -50,7 +50,7 @@ public class WaTask implements FjServerTask {
             ae.execute(driver, args);
         } catch (Exception e) {
             logger.error("execute ae failed for instuction: 0x" + inststring, e);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"execute ae failed for instuction(0x%s): %s\"}", COMM.CODE.ERROR_WEB_AE_EXECUTE_FAILED, inststring, e.getMessage()));
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"execute ae failed for instuction(0x%s): %s\"}", SkiCommon.CODE.ERROR_WEB_AE_EXECUTE_FAILED, inststring, e.getMessage()));
             return;
         } finally {
             if (null != driver) driver.quit();

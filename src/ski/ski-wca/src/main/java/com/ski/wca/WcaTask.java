@@ -7,7 +7,7 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 import com.ski.wca.WechatInterface.WechatInterfaceException;
 import com.ski.wca.monitor.MenuMonitor;
 import com.ski.wca.monitor.TokenMonitor;
@@ -71,23 +71,23 @@ public class WcaTask implements FjServerTask {
         if ("text".equals(msg_type))  {
             logger.info("INST_USER_REQUEST     - wechat:" + user_from);
             content = xml.getElementsByTagName("Content").item(0).getTextContent();
-            req.json().put("inst", COMM.ISIS.INST_USER_REQUEST);
+            req.json().put("inst", SkiCommon.ISIS.INST_USER_REQUEST);
             args.put("content", content);
         } else if ("event".equals(msg_type)) {
             event     = xml.getElementsByTagName("Event").item(0).getTextContent();
             event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent();
             if ("subscribe".equals(event)) {
                 logger.info("INST_USER_SUBSCRIBE   - wechat:" + user_from);
-                req.json().put("inst", COMM.ISIS.INST_USER_SUBSCRIBE);
+                req.json().put("inst", SkiCommon.ISIS.INST_USER_SUBSCRIBE);
             } else if ("unsubscribe".equals(event)) {
                 logger.info("INST_USER_UNSUBSCRIBE - wechat:" + user_from);
-                req.json().put("inst", COMM.ISIS.INST_USER_UNSUBSCRIBE);
+                req.json().put("inst", SkiCommon.ISIS.INST_USER_UNSUBSCRIBE);
             } else if ("CLICK".equals(event)) {
                 logger.info(String.format("INST_USER_INSTRUCTION - wechat:%s:0x%s", user_from, event_key));
                 req.json().put("inst", Integer.parseInt(event_key, 16));
             } else if ("VIEW".equals(event)) {
                 logger.info("INST_USER_GOTO - wechat:" + user_from);
-                req.json().put("inst", COMM.ISIS.INST_USER_GOTO);
+                req.json().put("inst", SkiCommon.ISIS.INST_USER_GOTO);
                 args.put("content", event_key);
             }
         } else if ("location".equals(msg_type)) {
@@ -96,7 +96,7 @@ public class WcaTask implements FjServerTask {
             float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
             int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
             String label = xml.getElementsByTagName("Label").item(0).getTextContent();
-            req.json().put("inst", COMM.ISIS.INST_USER_LOCATION);
+            req.json().put("inst", SkiCommon.ISIS.INST_USER_LOCATION);
             args.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
         } else if ("image".equals(msg_type)) {
             logger.info("INST_USER_IMAGE       - wechat:" + user_from);
@@ -143,7 +143,7 @@ public class WcaTask implements FjServerTask {
     private void processSKI(String serverName, FjMessageWrapper wrapper) {
         FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
         switch (dmsg.inst()) {
-        case COMM.ISIS.INST_USER_RESPONSE: // 响应用户
+        case SkiCommon.ISIS.INST_USER_RESPONSE: // 响应用户
             logger.info(String.format("INST_USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
             try {
                 String user    = dmsg.argsToJsonObject().getString("user");

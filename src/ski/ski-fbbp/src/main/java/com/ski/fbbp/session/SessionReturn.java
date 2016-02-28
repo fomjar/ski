@@ -2,7 +2,7 @@ package com.ski.fbbp.session;
 
 import org.apache.log4j.Logger;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
@@ -18,23 +18,23 @@ public class SessionReturn extends FjSessionController {
     
     @Override
     protected boolean matchFirst(FjDscpMessage msg) {
-        if (COMM.ISIS.INST_ECOM_QUERY_RETURN   == msg.inst()) return true;
-        if (COMM.ISIS.INST_ECOM_APPLY_RETURN == msg.inst()) return true;
+        if (SkiCommon.ISIS.INST_ECOM_QUERY_RETURN   == msg.inst()) return true;
+        if (SkiCommon.ISIS.INST_ECOM_APPLY_RETURN == msg.inst()) return true;
         return false;
     }
 
     @Override
     protected void onSession(FjServer server, FjSCB scb, FjDscpMessage msg) {
         switch (msg.inst()) {
-            case COMM.ISIS.INST_ECOM_QUERY_RETURN:
+            case SkiCommon.ISIS.INST_ECOM_QUERY_RETURN:
                 logger.info(String.format("INST_ECOM_APPLY_RETURN   - %s:%s", msg.fs(), scb.sid()));
                 processApply  (server.name(), scb, msg);
                 break;
-            case COMM.ISIS.INST_ECOM_APPLY_RETURN:
+            case SkiCommon.ISIS.INST_ECOM_APPLY_RETURN:
                 logger.info(String.format("INST_ECOM_SPECIFY_RETURN - %s:%s", msg.fs(), scb.sid()));
                 processSpecify(server.name(), scb, msg);
                 break;
-            case COMM.ISIS.INST_ECOM_FINISH_RETURN:
+            case SkiCommon.ISIS.INST_ECOM_FINISH_RETURN:
                 break;
         }
     }
@@ -47,7 +47,7 @@ public class SessionReturn extends FjSessionController {
             msg_cdb.json().put("fs",   serverName);
             msg_cdb.json().put("ts",   "cdb");
             msg_cdb.json().put("sid",  scb.sid());
-            msg_cdb.json().put("inst", COMM.ISIS.INST_ECOM_QUERY_RETURN);
+            msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_RETURN);
             msg_cdb.json().put("args", String.format("{'c_caid':\"%s\"}", msg.argsToJsonObject().getString("user")));
             FjServerToolkit.getSender(serverName).send(msg_cdb);
         } else if (msg.fs().startsWith("cdb")) { // 请求来自CDB，转发产品详单至WCA
@@ -59,7 +59,7 @@ public class SessionReturn extends FjSessionController {
             msg_wca.json().put("fs",   serverName);
             msg_wca.json().put("ts",   "wca");
             msg_wca.json().put("sid",  scb.sid());
-            msg_wca.json().put("inst", COMM.ISIS.INST_USER_RESPONSE);
+            msg_wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
             msg_wca.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_wca);
             
@@ -79,7 +79,7 @@ public class SessionReturn extends FjSessionController {
             msg_cdb.json().put("fs",   serverName);
             msg_cdb.json().put("ts",   "cdb");
             msg_cdb.json().put("sid",  scb.sid());
-            msg_cdb.json().put("inst", COMM.ISIS.INST_ECOM_APPLY_RETURN);
+            msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_APPLY_RETURN);
             msg_cdb.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_cdb);
         } else if (msg.fs().startsWith("cdb")) {
@@ -91,7 +91,7 @@ public class SessionReturn extends FjSessionController {
             msg_wca.json().put("fs",   serverName);
             msg_wca.json().put("ts",   "wca");
             msg_wca.json().put("sid",  scb.sid());
-            msg_wca.json().put("inst", COMM.ISIS.INST_USER_RESPONSE);
+            msg_wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
             msg_wca.json().put("args", args);
             FjServerToolkit.getSender(serverName).send(msg_wca);
         }
@@ -100,7 +100,7 @@ public class SessionReturn extends FjSessionController {
     private static String createUserResponseContent4Apply(FjSCB scb, FjDscpMessage msg) {
         StringBuffer content = new StringBuffer("【游戏清单】\n\n");
         int    code = msg.argsToJsonObject().getInt("code");
-        if (COMM.CODE.ERROR_SYSTEM_SUCCESS != code) return "database operate failed";
+        if (SkiCommon.CODE.ERROR_SYSTEM_SUCCESS != code) return "database operate failed";
         
         String[] products = msg.argsToJsonObject().getJSONArray("desc").getJSONArray(0).getString(2).split("\n");
         for (String productString : products) {
@@ -116,7 +116,7 @@ public class SessionReturn extends FjSessionController {
                     address.host,
                     address.port,
                     scb.getString("caid"),
-                    Integer.toHexString(COMM.ISIS.INST_ECOM_APPLY_RETURN),
+                    Integer.toHexString(SkiCommon.ISIS.INST_ECOM_APPLY_RETURN),
                     product[1]);
             content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
                     url,

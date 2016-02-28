@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -32,15 +32,15 @@ public class CdbTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(CdbTask.class);
     private static Connection conn = null;
 
-    private static final class CdbInstInfo {
-        public int                inst    = COMM.ISIS.INST_SYS_UNKNOWN_INST;
+    private static final class InstInfo {
+        public int                inst    = SkiCommon.ISIS.INST_SYS_UNKNOWN_INST;
         public JSON               args    = null;
         public String             mode    = null;
         public int                out     = 0;
         public String             sql_ori = null;
         public List<String>       sql_use = null;
         public List<List<String>> result  = null;
-        public String             err     = null;
+        public String             error   = null;
     }
     
     @Override
@@ -52,35 +52,35 @@ public class CdbTask implements FjServerTask {
         }
         
         FjDscpMessage req = (FjDscpMessage) msg;
-        CdbInstInfo cci = new CdbInstInfo();
-        cci.inst = req.inst();
-        cci.args = req.argsToJson();
+        InstInfo inst = new InstInfo();
+        inst.inst = req.inst();
+        inst.args = req.argsToJson();
         {
-            String inststring = Integer.toHexString(cci.inst);
+            String inststring = Integer.toHexString(inst.inst);
             while (8 > inststring.length()) inststring = "0" + inststring;
             logger.info(String.format("INSTRUCTION - %s:%s:0x%s", req.fs(), req.sid(), inststring));
         }
         
         if (!checkConnection()) {
-            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", COMM.CODE.ERROR_DB_STATE_ABNORMAL));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", SkiCommon.CODE.ERROR_DB_STATE_ABNORMAL));
             return;
         }
         
-        cci.err = null;
-        getInstInfo(conn, cci);
-        if (null != cci.err) {
-            logger.error("get instruction info failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", COMM.CODE.ERROR_SYSTEM_ILLEGAL_INSTRUCTION, cci.err));
+        inst.error = null;
+        getInstInfo(conn, inst);
+        if (null != inst.error) {
+            logger.error("get instruction info failed: " + inst.error);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.ERROR_SYSTEM_ILLEGAL_INSTRUCTION, inst.error));
             return;
         }
-        generateSql(cci);
-        executeSql(conn, cci);
-        if (null != cci.err) {
-            logger.error("execute sql failed: " + cci.err);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", COMM.CODE.ERROR_DB_OPERATE_FAILED, cci.err));
+        generateSql(inst);
+        executeSql(conn, inst);
+        if (null != inst.error) {
+            logger.error("execute sql failed: " + inst.error);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.ERROR_DB_OPERATE_FAILED, inst.error));
             return;
         }
-        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", COMM.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(cci.result).toString()));
+        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", SkiCommon.CODE.ERROR_SYSTEM_SUCCESS, JSONArray.fromObject(inst.result).toString()));
     }
     
     private static void response(String serverName, FjDscpMessage req, Object args) {
@@ -117,22 +117,22 @@ public class CdbTask implements FjServerTask {
     }
 
     
-    private static void getInstInfo(Connection conn, CdbInstInfo cci) {
+    private static void getInstInfo(Connection conn, InstInfo inst) {
         Statement st = null;
         try {
             st = conn.createStatement();
-            ResultSet rs = st.executeQuery("select c_mod, i_out, c_sql from tbl_cmd_map where i_cmd = " + cci.inst + "");
+            ResultSet rs = st.executeQuery("select c_mode, i_out, c_sql from tbl_instruction where i_inst = " + inst.inst);
             if (!rs.next()) {
-                cci.err = "instruction is not registered: " + cci.inst;
-                logger.error(cci.err);
+                inst.error = "instruction is not registered: " + inst.inst;
+                logger.error(inst.error);
                 return;
             }
-            cci.mode = rs.getString(1);
-            cci.out = rs.getInt(2);
-            cci.sql_ori = rs.getString(3);
+            inst.mode = rs.getString(1);
+            inst.out = rs.getInt(2);
+            inst.sql_ori = rs.getString(3);
         } catch (SQLException e) {
-            logger.error("failed to get instruction info: " + cci.inst, e);
-            cci.err = e.getMessage();
+            logger.error("failed to get instruction info: " + inst.inst, e);
+            inst.error = e.getMessage();
         } finally {
             try {if (null != st) st.close();}
             catch (SQLException e) {e.printStackTrace();}
@@ -140,11 +140,11 @@ public class CdbTask implements FjServerTask {
     }
     
     @SuppressWarnings("unchecked")
-    private static void generateSql(CdbInstInfo cci) {
-        logger.debug(String.format("inst(%d) sql-ori: %s", cci.inst, cci.sql_ori));
-        if (!cci.args.isArray()) { // single argument: JSONObject
-            JSONObject arg_obj = (JSONObject) cci.args;
-            String sql_use = cci.sql_ori;
+    private static void generateSql(InstInfo inst) {
+        logger.debug(String.format("inst(%d) sql-ori: %s", inst.inst, inst.sql_ori));
+        if (!inst.args.isArray()) { // single argument: JSONObject
+            JSONObject arg_obj = (JSONObject) inst.args;
+            String sql_use = inst.sql_ori;
             Iterator<String> ki = arg_obj.keys();
             while (ki.hasNext()) {
                 String k = ki.next();
@@ -152,16 +152,16 @@ public class CdbTask implements FjServerTask {
                 sql_use = sql_use.replace("$" + k, v);
             }
             sql_use = sql_use.replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null");
-            cci.sql_use = new LinkedList<String>();
-            cci.sql_use.add(sql_use);
-            logger.debug(String.format("inst(%d) sql-use: %s", cci.inst, sql_use));
+            inst.sql_use = new LinkedList<String>();
+            inst.sql_use.add(sql_use);
+            logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
         } else { // JSONArray
-            JSONArray args_arr = (JSONArray) cci.args;
-            cci.sql_use = (List<String>) args_arr
+            JSONArray args_arr = (JSONArray) inst.args;
+            inst.sql_use = (List<String>) args_arr
                     .stream()
                     .map((args)->{
                         JSONObject args_obj = (JSONObject) args;
-                        String sql_use = cci.sql_ori;
+                        String sql_use = inst.sql_ori;
                         Iterator<String> ki = args_obj.keys();
                         while (ki.hasNext()) {
                             String k = ki.next();
@@ -169,41 +169,41 @@ public class CdbTask implements FjServerTask {
                             sql_use = sql_use.replace("$" + k, v);
                         }
                         sql_use = sql_use.replaceAll("\\$\\w+", "null");
-                        logger.debug(String.format("inst(%d) sql-use: %s", cci.inst, sql_use));
+                        logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
                         return sql_use;
                     })
                     .collect(Collectors.toList());
         }
     }
 
-    private static void executeSql(Connection conn, CdbInstInfo cci) {
-        switch (cci.mode.toLowerCase()) {
-        case "sp": executeSp(conn, cci); break;
-        case "st": executeSt(conn, cci); break;
-        default: cci.err = "instruction execute mode is not supported: " + cci.mode; break;
+    private static void executeSql(Connection conn, InstInfo inst) {
+        switch (inst.mode.toLowerCase()) {
+        case "sp": executeSp(conn, inst); break;
+        case "st": executeSt(conn, inst); break;
+        default: inst.error = "instruction execute mode is not supported: " + inst.mode; break;
         }
     }
     
-    private static void executeSt(Connection conn, CdbInstInfo cci) {
-        if (null != cci.result) cci.result.clear();
+    private static void executeSt(Connection conn, InstInfo inst) {
+        if (null != inst.result) inst.result.clear();
         
-        cci.sql_use.forEach((sql_use)->{
+        inst.sql_use.forEach((sql_use)->{
             Statement st = null;
             try {
                 st = conn.createStatement();
-                if (0 < cci.out) {
+                if (0 < inst.out) {
                     ResultSet rs = st.executeQuery(sql_use);
-                    if (null == cci.result) cci.result = new LinkedList<List<String>>();
+                    if (null == inst.result) inst.result = new LinkedList<List<String>>();
                     List<String> result1 = new LinkedList<String>();
                     while (rs.next())
-                        for (int i = 1; i <= cci.out; i++) result1.add(rs.getString(i));
-                    cci.result.add(result1);
+                        for (int i = 1; i <= inst.out; i++) result1.add(rs.getString(i));
+                    inst.result.add(result1);
                 } else {
                     st.execute(sql_use);
                 }
             } catch (SQLException e) {
-                logger.error(String.format("failed to process statement, inst: %d, mode: %s, out: %d, sql: %s", cci.inst, cci.mode, cci.out, cci.sql_use), e);
-                cci.err = e.getMessage();
+                logger.error(String.format("failed to process statement, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
+                inst.error = e.getMessage();
             } finally {
                 try {if (null != st) st.close();}
                 catch (SQLException e) {e.printStackTrace();}
@@ -211,25 +211,25 @@ public class CdbTask implements FjServerTask {
         });
     }
     
-    private static void executeSp(Connection conn, CdbInstInfo cci) {
-        if (null != cci.result) cci.result.clear();
+    private static void executeSp(Connection conn, InstInfo inst) {
+        if (null != inst.result) inst.result.clear();
         
-        cci.sql_use.forEach((sql_use)->{
+        inst.sql_use.forEach((sql_use)->{
             CallableStatement st = null;
             try {
                 st = conn.prepareCall("call " + sql_use + ";");
-                if (0 < cci.out)
-                    for (int i = 1; i <= cci.out; i++) st.registerOutParameter(i, Types.VARCHAR); 
+                if (0 < inst.out)
+                    for (int i = 1; i <= inst.out; i++) st.registerOutParameter(i, Types.VARCHAR); 
                 st.execute();
-                if (0 < cci.out) {
-                    if (null == cci.result) cci.result = new LinkedList<List<String>>();
+                if (0 < inst.out) {
+                    if (null == inst.result) inst.result = new LinkedList<List<String>>();
                     List<String> result1 = new LinkedList<String>();
-                    for (int i = 1; i <= cci.out; i++) result1.add(new String(st.getBytes(i), Charset.forName("utf-8")));
-                    cci.result.add(result1);
+                    for (int i = 1; i <= inst.out; i++) result1.add(new String(st.getBytes(i), Charset.forName("utf-8")));
+                    inst.result.add(result1);
                 }
             } catch (SQLException e) {
-                logger.error(String.format("failed to process store procedure, inst: %d, mode: %s, out: %d, sql: %s", cci.inst, cci.mode, cci.out, cci.sql_use), e);
-                cci.err = e.getMessage();
+                logger.error(String.format("failed to process store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
+                inst.error = e.getMessage();
             } finally {
                 try {if (null != st) st.close();}
                 catch (SQLException e) {}

@@ -5,18 +5,18 @@ import net.sf.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
-import com.ski.comm.COMM;
+import com.ski.common.SkiCommon;
 import com.ski.wa.AE;
 
 public class ChangePassword implements AE {
     
-    private int     code = COMM.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
+    private int     code = SkiCommon.CODE.ERROR_SYSTEM_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         if (!args.containsKey("pass-old") || !args.containsKey("pass-new")) { // 参数没有新老密码
-            code = COMM.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
+            code = SkiCommon.CODE.ERROR_SYSTEM_ILLEGAL_ARGUMENT;
             desc = "no parameter: pass-old or pass-new";
             return;
         }
@@ -26,7 +26,7 @@ public class ChangePassword implements AE {
         login_args.put("user", args.getString("user"));
         login_args.put("pass", args.getString("pass"));
         login.execute(driver, login_args);
-        if (COMM.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
+        if (SkiCommon.CODE.ERROR_SYSTEM_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
@@ -44,9 +44,9 @@ public class ChangePassword implements AE {
         driver.findElement(By.id("confirmPasswordField")).sendKeys(psnp_new); // 重复新密码
         driver.findElement(By.id("changePasswordButton")).click();
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
-            code = COMM.CODE.ERROR_SYSTEM_SUCCESS;
+            code = SkiCommon.CODE.ERROR_SYSTEM_SUCCESS;
         } else { // 密码保存失败
-            code = COMM.CODE.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
+            code = SkiCommon.CODE.ERROR_WEB_PSN_CHANGE_PASSWORD_FAILED;
             desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();
         }
     }
