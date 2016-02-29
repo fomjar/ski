@@ -16,7 +16,6 @@ import fomjar.server.msg.FjMessage;
  * 系统缓存清单：
  * <table border="1px">
  * <tr><td>键</td><td>值</td><td>类型</td></tr>
- * <tr><td>end</td><td>是否结束</td><td>{@link boolean}</td></tr>
  * <tr><td>sid</td><td>会话ID</td><td>{@link String}</td></tr>
  * <tr><td>ssn</td><td>当前会话序列号</td><td>{@link int}</td></tr>
  * <tr><td>msg.ssn</td><td>对应ssn的消息</td><td>{@link FjMessage}</td></tr>
@@ -27,11 +26,11 @@ import fomjar.server.msg.FjMessage;
  * 
  * @author fomjar
  */
-public class FjSCB {
+public class FjSessionContext {
     
     private Map<String, Object> data;
     
-    FjSCB(String sid) {
+    FjSessionContext(String sid) {
         data = new HashMap<String, Object>();
         data.put("end", false);
         data.put("sid", sid);
@@ -65,7 +64,7 @@ public class FjSCB {
     /** 删除给定索引的缓存 */
     public Object  remove     (String key) {return data.remove(key);}
     /** 存入一个键值对到缓存中 */
-    public FjSCB   put        (String key, Object value) {data.put(key, value); return this;}
+    public FjSessionContext   put        (String key, Object value) {data.put(key, value); return this;}
 
     /** @return 该会话的会话ID */
     public String  sid() {return getString("sid");}
@@ -75,10 +74,7 @@ public class FjSCB {
      * @return 该会话的序列号
      */
     public int     ssn() {return getInteger("ssn");}
-    /** 结束此会话 */
-    public void    end() {data.put("end", true);}
     
-    boolean isEnd() {return getBoolean("end");}
     void prepare(FjMessage msg) {
         put("ssn", ssn() + 1);
         data.put("msg." + ssn(), msg);
