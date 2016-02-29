@@ -55,7 +55,7 @@ public class FjSessionGraph {
         FjSessionNode curr = node_cur.get(msg.sid());
         FjSessionNode next = null;
         // 可能的头节点
-        if (null == curr) next = heads.get(msg.sid());
+        if (null == curr) next = heads.get(msg.inst());
         // 可能的非头节点
         else next = curr.next(msg.inst());
         

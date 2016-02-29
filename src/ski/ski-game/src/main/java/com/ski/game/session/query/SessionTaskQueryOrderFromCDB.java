@@ -13,6 +13,11 @@ import fomjar.server.session.FjSessionContext;
 import fomjar.server.session.FjSessionTask;
 import net.sf.json.JSONObject;
 
+/**
+ * 请求来自CDB，转发产品详单至WCA
+ * 
+ * @author fomjar
+ */
 public class SessionTaskQueryOrderFromCDB implements FjSessionTask {
     
     private static final Logger logger = Logger.getLogger(SessionTaskQueryOrderFromCDB.class);
@@ -21,7 +26,7 @@ public class SessionTaskQueryOrderFromCDB implements FjSessionTask {
     public void onSession(FjServer server, FjSessionContext context, FjMessageWrapper wrapper) {
         String serverName = server.name();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        if (msg.fs().startsWith("cdb")) { // 请求来自CDB，转发产品详单至WCA
+        if (!msg.fs().startsWith("cdb")) {
             logger.error("invalid message, not come from cdb: " + msg);
             return;
         }

@@ -1,8 +1,8 @@
 package com.ski.game;
 
 import com.ski.game.monitor.OrderMonitor;
-import com.ski.game.session.logic.GameSessionGraphLogic;
-import com.ski.game.session.query.GameSessionGraphQuery;
+import com.ski.game.session.GameSessionGraphLogic;
+import com.ski.game.session.GameSessionGraphQuery;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;

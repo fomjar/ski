@@ -20,7 +20,7 @@ public class SessionTaskApplyOrderFromCDB implements FjSessionTask {
     public void onSession(FjServer server, FjSessionContext context, FjMessageWrapper wrapper) {
         String serverName = server.name();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        if (msg.fs().startsWith("cdb")) {
+        if (!msg.fs().startsWith("cdb")) {
             logger.error("invalid message, not come from cdb: " + msg);
             return;
         }

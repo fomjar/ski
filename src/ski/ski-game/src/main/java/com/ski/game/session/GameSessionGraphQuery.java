@@ -1,6 +1,8 @@
-package com.ski.game.session.query;
+package com.ski.game.session;
 
 import com.ski.common.SkiCommon;
+import com.ski.game.session.query.SessionTaskQueryOrderFromCDB;
+import com.ski.game.session.query.SessionTaskQueryOrderFromWCA;
 
 import fomjar.server.session.FjSessionGraph;
 

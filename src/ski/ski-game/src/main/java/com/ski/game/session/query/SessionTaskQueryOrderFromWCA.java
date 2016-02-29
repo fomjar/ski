@@ -11,6 +11,11 @@ import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.session.FjSessionContext;
 import fomjar.server.session.FjSessionTask;
 
+/**
+ * 请求来自WCA，向CDB请求产品详单
+ * 
+ * @author fomjar
+ */
 public class SessionTaskQueryOrderFromWCA implements FjSessionTask {
     
     private static final Logger logger = Logger.getLogger(SessionTaskQueryOrderFromWCA.class);
@@ -19,7 +24,7 @@ public class SessionTaskQueryOrderFromWCA implements FjSessionTask {
     public void onSession(FjServer server, FjSessionContext context, FjMessageWrapper wrapper) {
         String serverName = server.name();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        if (msg.fs().startsWith("wca")) { // 请求来自WCA，向CDB请求产品详单
+        if (!msg.fs().startsWith("wca")) {
             logger.error("invalid message, not come from wca: " + msg);
             return;
         }

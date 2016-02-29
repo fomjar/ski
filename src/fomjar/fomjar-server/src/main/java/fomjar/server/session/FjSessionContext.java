@@ -32,7 +32,6 @@ public class FjSessionContext {
     
     FjSessionContext(String sid) {
         data = new HashMap<String, Object>();
-        data.put("end", false);
         data.put("sid", sid);
         data.put("ssn", -1);
     }
