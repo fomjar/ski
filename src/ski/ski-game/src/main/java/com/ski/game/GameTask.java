@@ -15,7 +15,6 @@ public class GameTask implements FjServerTask {
     public GameTask(String serverName) {
         new OrderMonitor(serverName).start();
         graph = new GameSessionGraph();
-        graph.prepare();
     }
 
     @Override

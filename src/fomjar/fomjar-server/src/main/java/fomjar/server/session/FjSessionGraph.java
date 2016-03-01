@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -16,12 +15,19 @@ public class FjSessionGraph {
     
     private static final Logger logger = Logger.getLogger(FjSessionGraph.class);
     
-    private Set<FjSessionNode>              nodes;
-    private Map<Integer, FjSessionNode>     heads;
-    private Map<String, FjSessionPath>      paths;
+    private Set<FjSessionNode>          nodes;
+    private Map<Integer, FjSessionNode> heads;
+    private Map<String,  FjSessionPath> paths;
     
     public FjSessionGraph() {
         paths = new HashMap<String, FjSessionPath>();
+    }
+    
+    public FjSessionNode createHeadNode(int inst, FjSessionTask task) {
+        FjSessionNode head = createNode(inst, task);
+        if (null == heads) heads = new HashMap<Integer, FjSessionNode>();
+        heads.put(inst, head);
+        return head;
     }
     
     public FjSessionNode createNode(int inst, FjSessionTask task) {
@@ -31,17 +37,14 @@ public class FjSessionGraph {
         return node;
     }
     
-    public void prepare() {
-        if (null == nodes || nodes.isEmpty()) throw new IllegalStateException("graph has no node");
-        
-        heads = nodes.stream()
-                .filter((node)->{return !node.hasPrev();})
-                .collect(Collectors.toMap((node)->{return node.getInst();}, (node)->{return node;}));
-        
-        if (null == heads || heads.isEmpty()) throw new IllegalStateException("no head node for graph");
+    public FjSessionNode getHeadNode(int inst) {
+        if (null == heads) return null;
+        return heads.get(inst);
     }
     
-    public Map<Integer, FjSessionNode> getHeads() {return heads;}
+    public Map<Integer, FjSessionNode> getHeadNode() {return heads;}
+    
+    public Set<FjSessionNode> getNode() {return nodes;}
     
     public void dispatch(FjServer server, FjMessageWrapper wrapper) {
         if (!(wrapper.message() instanceof FjDscpMessage)) {
@@ -56,7 +59,7 @@ public class FjSessionGraph {
         if (null != path) curr = path.getLast().getNext(msg.inst());
         // new
         else {
-            curr = heads.get(msg.inst());
+            curr = getHeadNode(msg.inst());
             if (null == curr) { // not match
                 logger.error("message not match this graph: " + msg);
                 return;

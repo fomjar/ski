@@ -6877,8 +6877,8 @@
 									"containerExtending": false,
 									"left": 0,
 									"top": 0,
-									"width": 801,
-									"height": 2985,
+									"width": 793,
+									"height": 3233,
 									"autoResize": false,
 									"nameLabel": {
 										"$ref": "AAAAAAFSF4tC80DlC0Q="
@@ -7054,7 +7054,7 @@
 											"left": 124,
 											"top": 80,
 											"width": 1,
-											"height": 2881,
+											"height": 3137,
 											"autoResize": false
 										}
 									],
@@ -7070,7 +7070,7 @@
 									"left": 88,
 									"top": 40,
 									"width": 72.736328125,
-									"height": 2921,
+									"height": 3177,
 									"autoResize": false,
 									"stereotypeDisplay": "label",
 									"showVisibility": true,
@@ -7252,7 +7252,7 @@
 											"left": 260,
 											"top": 80,
 											"width": 1,
-											"height": 2881,
+											"height": 3137,
 											"autoResize": false
 										}
 									],
@@ -7268,7 +7268,7 @@
 									"left": 224,
 									"top": 40,
 									"width": 72.736328125,
-									"height": 2921,
+									"height": 3177,
 									"autoResize": false,
 									"stereotypeDisplay": "label",
 									"showVisibility": true,
@@ -7450,7 +7450,7 @@
 											"left": 396,
 											"top": 80,
 											"width": 1,
-											"height": 2883,
+											"height": 3137,
 											"autoResize": false
 										}
 									],
@@ -7466,7 +7466,7 @@
 									"left": 360,
 									"top": 40,
 									"width": 72.736328125,
-									"height": 2923,
+									"height": 3177,
 									"autoResize": false,
 									"stereotypeDisplay": "label",
 									"showVisibility": true,
@@ -7648,7 +7648,7 @@
 											"left": 532,
 											"top": 80,
 											"width": 1,
-											"height": 2881,
+											"height": 3137,
 											"autoResize": false
 										}
 									],
@@ -7664,7 +7664,7 @@
 									"left": 496,
 									"top": 40,
 									"width": 72.736328125,
-									"height": 2921,
+									"height": 3177,
 									"autoResize": false,
 									"stereotypeDisplay": "label",
 									"showVisibility": true,
@@ -7846,7 +7846,7 @@
 											"left": 668,
 											"top": 80,
 											"width": 1,
-											"height": 2881,
+											"height": 3137,
 											"autoResize": false
 										}
 									],
@@ -7862,7 +7862,7 @@
 									"left": 632,
 									"top": 40,
 									"width": 72.736328125,
-									"height": 2921,
+									"height": 3177,
 									"autoResize": false,
 									"stereotypeDisplay": "label",
 									"showVisibility": true,
@@ -8084,7 +8084,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "2 : 【查询订单】",
+											"text": "2 : 【申请退货】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -11386,173 +11386,6 @@
 								},
 								{
 									"_type": "UMLSeqMessageView",
-									"_id": "AAAAAAFSJyB+P1jlKsw=",
-									"_parent": {
-										"$ref": "AAAAAAFSF4tC8EDjh4U="
-									},
-									"model": {
-										"$ref": "AAAAAAFSJyB+P1jku5A="
-									},
-									"subViews": [
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyB+P1jm/5g=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyB+P1jku5A="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 396,
-											"top": 1264,
-											"width": 129.29541015625,
-											"height": 13,
-											"autoResize": false,
-											"alpha": 1.5707963267948966,
-											"distance": 10,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"text": "22 : 【验证账户】多次",
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyB+P1jnDIY=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyB+P1jku5A="
-											},
-											"visible": false,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 460,
-											"top": 1249,
-											"width": 0,
-											"height": 13,
-											"autoResize": false,
-											"alpha": 1.5707963267948966,
-											"distance": 25,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyB+P1joMAo=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyB+P1jku5A="
-											},
-											"visible": false,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 460,
-											"top": 1284,
-											"width": 0,
-											"height": 13,
-											"autoResize": false,
-											"alpha": -1.5707963267948966,
-											"distance": 10,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "UMLActivationView",
-											"_id": "AAAAAAFSJyB+P1jp/Ug=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyB+P1jlKsw="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyB+P1jku5A="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 525,
-											"top": 1280,
-											"width": 14,
-											"height": 29,
-											"autoResize": false
-										}
-									],
-									"visible": true,
-									"enabled": true,
-									"lineColor": "#000000",
-									"fillColor": "#ffffff",
-									"fontColor": "#000000",
-									"font": "Arial;13;0",
-									"showShadow": true,
-									"containerChangeable": false,
-									"containerExtending": false,
-									"head": {
-										"$ref": "AAAAAAFSF4u73EFYvEc="
-									},
-									"tail": {
-										"$ref": "AAAAAAFSF4ujI0E4qQs="
-									},
-									"lineStyle": 0,
-									"points": "396:1280;525:1280",
-									"nameLabel": {
-										"$ref": "AAAAAAFSJyB+P1jm/5g="
-									},
-									"stereotypeLabel": {
-										"$ref": "AAAAAAFSJyB+P1jnDIY="
-									},
-									"propertyLabel": {
-										"$ref": "AAAAAAFSJyB+P1joMAo="
-									},
-									"activation": {
-										"$ref": "AAAAAAFSJyB+P1jp/Ug="
-									},
-									"showProperty": true,
-									"showType": true
-								},
-								{
-									"_type": "UMLSeqMessageView",
 									"_id": "AAAAAAFSJxiweVf7ves=",
 									"_parent": {
 										"$ref": "AAAAAAFSF4tC8EDjh4U="
@@ -11591,7 +11424,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "23 : 展示退货提示",
+											"text": "22 : 展示退货提示",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -11720,173 +11553,6 @@
 								},
 								{
 									"_type": "UMLSeqMessageView",
-									"_id": "AAAAAAFSJyDDb1j7ppA=",
-									"_parent": {
-										"$ref": "AAAAAAFSF4tC8EDjh4U="
-									},
-									"model": {
-										"$ref": "AAAAAAFSJyDDb1j6jxA="
-									},
-									"subViews": [
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyDDb1j8NHM=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyDDb1j6jxA="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 513,
-											"top": 1339,
-											"width": 116.29541015625,
-											"height": 13,
-											"autoResize": false,
-											"alpha": 1.5707963267948966,
-											"distance": 10,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"text": "24 : 验证账户可用性",
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyDDcFj98wQ=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyDDb1j6jxA="
-											},
-											"visible": false,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 586,
-											"top": 1339,
-											"width": 0,
-											"height": 13,
-											"autoResize": false,
-											"alpha": 1.5707963267948966,
-											"distance": 25,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "EdgeLabelView",
-											"_id": "AAAAAAFSJyDDcFj+PyM=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyDDb1j6jxA="
-											},
-											"visible": false,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 552,
-											"top": 1340,
-											"width": 0,
-											"height": 13,
-											"autoResize": false,
-											"alpha": -1.5707963267948966,
-											"distance": 10,
-											"hostEdge": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"edgePosition": 1,
-											"underline": false,
-											"horizontalAlignment": 2,
-											"verticalAlignment": 5
-										},
-										{
-											"_type": "UMLActivationView",
-											"_id": "AAAAAAFSJyDDcFj/5QU=",
-											"_parent": {
-												"$ref": "AAAAAAFSJyDDb1j7ppA="
-											},
-											"model": {
-												"$ref": "AAAAAAFSJyDDb1j6jxA="
-											},
-											"visible": true,
-											"enabled": true,
-											"lineColor": "#000000",
-											"fillColor": "#ffffff",
-											"fontColor": "#000000",
-											"font": "Arial;13;0",
-											"showShadow": true,
-											"containerChangeable": false,
-											"containerExtending": false,
-											"left": 525,
-											"top": 1356,
-											"width": 14,
-											"height": 29,
-											"autoResize": false
-										}
-									],
-									"visible": true,
-									"enabled": true,
-									"lineColor": "#000000",
-									"fillColor": "#ffffff",
-									"fontColor": "#000000",
-									"font": "Arial;13;0",
-									"showShadow": true,
-									"containerChangeable": false,
-									"containerExtending": false,
-									"head": {
-										"$ref": "AAAAAAFSF4u73EFYvEc="
-									},
-									"tail": {
-										"$ref": "AAAAAAFSF4u73EFYvEc="
-									},
-									"lineStyle": 0,
-									"points": "532:1336;562:1336;562:1356;538:1356",
-									"nameLabel": {
-										"$ref": "AAAAAAFSJyDDb1j8NHM="
-									},
-									"stereotypeLabel": {
-										"$ref": "AAAAAAFSJyDDcFj98wQ="
-									},
-									"propertyLabel": {
-										"$ref": "AAAAAAFSJyDDcFj+PyM="
-									},
-									"activation": {
-										"$ref": "AAAAAAFSJyDDcFj/5QU="
-									},
-									"showProperty": true,
-									"showType": true
-								},
-								{
-									"_type": "UMLSeqMessageView",
 									"_id": "AAAAAAFSJxzdf1hUB4E=",
 									"_parent": {
 										"$ref": "AAAAAAFSF4tC8EDjh4U="
@@ -11914,7 +11580,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 79,
-											"top": 1363,
+											"top": 1355,
 											"width": 168.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -11925,7 +11591,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "25 : 用户执行账户解绑等动作",
+											"text": "23 : 用户执行账户解绑等动作",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -11948,7 +11614,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 178,
-											"top": 1363,
+											"top": 1355,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -11981,7 +11647,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 144,
-											"top": 1364,
+											"top": 1356,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12014,7 +11680,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 117,
-											"top": 1380,
+											"top": 1372,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12036,7 +11702,7 @@
 										"$ref": "AAAAAAFSF4tROED4X7c="
 									},
 									"lineStyle": 0,
-									"points": "124:1360;154:1360;154:1380;130:1380",
+									"points": "124:1352;154:1352;154:1372;130:1372",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJxzdf1hV5F8="
 									},
@@ -12048,6 +11714,674 @@
 									},
 									"activation": {
 										"$ref": "AAAAAAFSJxzdf1hYExM="
+									},
+									"showProperty": true,
+									"showType": true
+								},
+								{
+									"_type": "UMLSeqMessageView",
+									"_id": "AAAAAAFTMr0tNJ1eAo4=",
+									"_parent": {
+										"$ref": "AAAAAAFSF4tC8EDjh4U="
+									},
+									"model": {
+										"$ref": "AAAAAAFTMr0tM51dnoE="
+									},
+									"subViews": [
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr0tNJ1fhgA=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr0tM51dnoE="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 150,
+											"top": 1408,
+											"width": 77.29541015625,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"text": "24 : 确认解绑",
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr0tNJ1gxrY=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr0tM51dnoE="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 188,
+											"top": 1393,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 25,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr0tNJ1h6lI=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr0tM51dnoE="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 188,
+											"top": 1428,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": -1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "UMLActivationView",
+											"_id": "AAAAAAFTMr0tNJ1ivnk=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr0tNJ1eAo4="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr0tM51dnoE="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 253,
+											"top": 1424,
+											"width": 14,
+											"height": 29,
+											"autoResize": false
+										}
+									],
+									"visible": true,
+									"enabled": true,
+									"lineColor": "#000000",
+									"fillColor": "#ffffff",
+									"fontColor": "#000000",
+									"font": "Arial;13;0",
+									"showShadow": true,
+									"containerChangeable": false,
+									"containerExtending": false,
+									"head": {
+										"$ref": "AAAAAAFSF4uFAUEYIrc="
+									},
+									"tail": {
+										"$ref": "AAAAAAFSF4tROED4X7c="
+									},
+									"lineStyle": 0,
+									"points": "124:1424;253:1424",
+									"nameLabel": {
+										"$ref": "AAAAAAFTMr0tNJ1fhgA="
+									},
+									"stereotypeLabel": {
+										"$ref": "AAAAAAFTMr0tNJ1gxrY="
+									},
+									"propertyLabel": {
+										"$ref": "AAAAAAFTMr0tNJ1h6lI="
+									},
+									"activation": {
+										"$ref": "AAAAAAFTMr0tNJ1ivnk="
+									},
+									"showProperty": true,
+									"showType": true
+								},
+								{
+									"_type": "UMLSeqMessageView",
+									"_id": "AAAAAAFTMr11Up10YwA=",
+									"_parent": {
+										"$ref": "AAAAAAFSF4tC8EDjh4U="
+									},
+									"model": {
+										"$ref": "AAAAAAFTMr11Up1zuxM="
+									},
+									"subViews": [
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr11Up11tyk=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr11Up1zuxM="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 234,
+											"top": 1465,
+											"width": 181.29541015625,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"text": "25 : 【用户请求】确认解绑信息",
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr11Up124SM=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr11Up1zuxM="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 324,
+											"top": 1450,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 25,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFTMr11Up13NlQ=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr11Up1zuxM="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 324,
+											"top": 1485,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": -1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "UMLActivationView",
+											"_id": "AAAAAAFTMr11Up14IJo=",
+											"_parent": {
+												"$ref": "AAAAAAFTMr11Up10YwA="
+											},
+											"model": {
+												"$ref": "AAAAAAFTMr11Up1zuxM="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 389,
+											"top": 1481,
+											"width": 14,
+											"height": 29,
+											"autoResize": false
+										}
+									],
+									"visible": true,
+									"enabled": true,
+									"lineColor": "#000000",
+									"fillColor": "#ffffff",
+									"fontColor": "#000000",
+									"font": "Arial;13;0",
+									"showShadow": true,
+									"containerChangeable": false,
+									"containerExtending": false,
+									"head": {
+										"$ref": "AAAAAAFSF4ujI0E4qQs="
+									},
+									"tail": {
+										"$ref": "AAAAAAFSF4uFAUEYIrc="
+									},
+									"lineStyle": 0,
+									"points": "260:1481;389:1481",
+									"nameLabel": {
+										"$ref": "AAAAAAFTMr11Up11tyk="
+									},
+									"stereotypeLabel": {
+										"$ref": "AAAAAAFTMr11Up124SM="
+									},
+									"propertyLabel": {
+										"$ref": "AAAAAAFTMr11Up13NlQ="
+									},
+									"activation": {
+										"$ref": "AAAAAAFTMr11Up14IJo="
+									},
+									"showProperty": true,
+									"showType": true
+								},
+								{
+									"_type": "UMLSeqMessageView",
+									"_id": "AAAAAAFSJyB+P1jlKsw=",
+									"_parent": {
+										"$ref": "AAAAAAFSF4tC8EDjh4U="
+									},
+									"model": {
+										"$ref": "AAAAAAFSJyB+P1jku5A="
+									},
+									"subViews": [
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyB+P1jm/5g=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyB+P1jku5A="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 409,
+											"top": 1520,
+											"width": 103.29541015625,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"text": "26 : 【验证账户】",
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyB+P1jnDIY=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyB+P1jku5A="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 460,
+											"top": 1505,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 25,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyB+P1joMAo=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyB+P1jku5A="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 460,
+											"top": 1540,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": -1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "UMLActivationView",
+											"_id": "AAAAAAFSJyB+P1jp/Ug=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyB+P1jlKsw="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyB+P1jku5A="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 525,
+											"top": 1536,
+											"width": 14,
+											"height": 29,
+											"autoResize": false
+										}
+									],
+									"visible": true,
+									"enabled": true,
+									"lineColor": "#000000",
+									"fillColor": "#ffffff",
+									"fontColor": "#000000",
+									"font": "Arial;13;0",
+									"showShadow": true,
+									"containerChangeable": false,
+									"containerExtending": false,
+									"head": {
+										"$ref": "AAAAAAFSF4u73EFYvEc="
+									},
+									"tail": {
+										"$ref": "AAAAAAFSF4ujI0E4qQs="
+									},
+									"lineStyle": 0,
+									"points": "396:1536;525:1536",
+									"nameLabel": {
+										"$ref": "AAAAAAFSJyB+P1jm/5g="
+									},
+									"stereotypeLabel": {
+										"$ref": "AAAAAAFSJyB+P1jnDIY="
+									},
+									"propertyLabel": {
+										"$ref": "AAAAAAFSJyB+P1joMAo="
+									},
+									"activation": {
+										"$ref": "AAAAAAFSJyB+P1jp/Ug="
+									},
+									"showProperty": true,
+									"showType": true
+								},
+								{
+									"_type": "UMLSeqMessageView",
+									"_id": "AAAAAAFSJyDDb1j7ppA=",
+									"_parent": {
+										"$ref": "AAAAAAFSF4tC8EDjh4U="
+									},
+									"model": {
+										"$ref": "AAAAAAFSJyDDb1j6jxA="
+									},
+									"subViews": [
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyDDb1j8NHM=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyDDb1j6jxA="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 513,
+											"top": 1595,
+											"width": 116.29541015625,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"text": "27 : 验证账户可用性",
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyDDcFj98wQ=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyDDb1j6jxA="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 586,
+											"top": 1595,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": 1.5707963267948966,
+											"distance": 25,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "EdgeLabelView",
+											"_id": "AAAAAAFSJyDDcFj+PyM=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyDDb1j6jxA="
+											},
+											"visible": false,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 552,
+											"top": 1596,
+											"width": 0,
+											"height": 13,
+											"autoResize": false,
+											"alpha": -1.5707963267948966,
+											"distance": 10,
+											"hostEdge": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"edgePosition": 1,
+											"underline": false,
+											"horizontalAlignment": 2,
+											"verticalAlignment": 5
+										},
+										{
+											"_type": "UMLActivationView",
+											"_id": "AAAAAAFSJyDDcFj/5QU=",
+											"_parent": {
+												"$ref": "AAAAAAFSJyDDb1j7ppA="
+											},
+											"model": {
+												"$ref": "AAAAAAFSJyDDb1j6jxA="
+											},
+											"visible": true,
+											"enabled": true,
+											"lineColor": "#000000",
+											"fillColor": "#ffffff",
+											"fontColor": "#000000",
+											"font": "Arial;13;0",
+											"showShadow": true,
+											"containerChangeable": false,
+											"containerExtending": false,
+											"left": 525,
+											"top": 1612,
+											"width": 14,
+											"height": 29,
+											"autoResize": false
+										}
+									],
+									"visible": true,
+									"enabled": true,
+									"lineColor": "#000000",
+									"fillColor": "#ffffff",
+									"fontColor": "#000000",
+									"font": "Arial;13;0",
+									"showShadow": true,
+									"containerChangeable": false,
+									"containerExtending": false,
+									"head": {
+										"$ref": "AAAAAAFSF4u73EFYvEc="
+									},
+									"tail": {
+										"$ref": "AAAAAAFSF4u73EFYvEc="
+									},
+									"lineStyle": 0,
+									"points": "532:1592;562:1592;562:1612;538:1612",
+									"nameLabel": {
+										"$ref": "AAAAAAFSJyDDb1j8NHM="
+									},
+									"stereotypeLabel": {
+										"$ref": "AAAAAAFSJyDDcFj98wQ="
+									},
+									"propertyLabel": {
+										"$ref": "AAAAAAFSJyDDcFj+PyM="
+									},
+									"activation": {
+										"$ref": "AAAAAAFSJyDDcFj/5QU="
 									},
 									"showProperty": true,
 									"showType": true
@@ -12081,7 +12415,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 415,
-											"top": 1412,
+											"top": 1668,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -12092,7 +12426,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "26 : 【验证账户】",
+											"text": "28 : 【验证账户】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12115,7 +12449,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 466,
-											"top": 1427,
+											"top": 1683,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12148,7 +12482,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 467,
-											"top": 1392,
+											"top": 1648,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12181,7 +12515,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 1408,
+											"top": 1664,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12203,7 +12537,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:1408;402:1408",
+									"points": "532:1664;402:1664",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyJ/NlkVPoI="
 									},
@@ -12248,7 +12582,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 477,
-											"top": 1448,
+											"top": 1704,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -12259,7 +12593,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "27 : 【查询账户】",
+											"text": "29 : 【查询账户】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12282,7 +12616,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 1433,
+											"top": 1689,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12315,7 +12649,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 1468,
+											"top": 1724,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12348,7 +12682,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 1464,
+											"top": 1720,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12370,7 +12704,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:1464;661:1464",
+									"points": "396:1720;661:1720",
 									"nameLabel": {
 										"$ref": "AAAAAAFTKDF+Y5eeVDc="
 									},
@@ -12415,7 +12749,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 656,
-											"top": 1515,
+											"top": 1771,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -12426,7 +12760,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "28 : 获取账户信息",
+											"text": "30 : 获取账户信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12449,7 +12783,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 722,
-											"top": 1515,
+											"top": 1771,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12482,7 +12816,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 688,
-											"top": 1516,
+											"top": 1772,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12515,7 +12849,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 1532,
+											"top": 1788,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12537,7 +12871,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:1512;698:1512;698:1532;674:1532",
+									"points": "668:1768;698:1768;698:1788;674:1788",
 									"nameLabel": {
 										"$ref": "AAAAAAFTKDHYdJe1vaQ="
 									},
@@ -12582,7 +12916,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 444,
-											"top": 1588,
+											"top": 1844,
 											"width": 181.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -12593,7 +12927,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "29 : 【查询账户】携带包括密码",
+											"text": "31 : 【查询账户】携带包括密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12616,7 +12950,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 534,
-											"top": 1603,
+											"top": 1859,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12649,7 +12983,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 535,
-											"top": 1568,
+											"top": 1824,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12682,7 +13016,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 1584,
+											"top": 1840,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12704,7 +13038,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:1584;402:1584",
+									"points": "668:1840;402:1840",
 									"nameLabel": {
 										"$ref": "AAAAAAFTKDIJ8ZfLtvg="
 									},
@@ -12749,7 +13083,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 366,
-											"top": 1624,
+											"top": 1880,
 											"width": 189.96630859375,
 											"height": 13,
 											"autoResize": false,
@@ -12760,7 +13094,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "30 : 【更新账户】生成新的A密码",
+											"text": "32 : 【更新账户】生成新的A密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12783,7 +13117,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 1609,
+											"top": 1865,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12816,7 +13150,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 1644,
+											"top": 1900,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12849,7 +13183,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 1640,
+											"top": 1896,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -12871,7 +13205,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:1640;525:1640",
+									"points": "396:1896;525:1896",
 									"nameLabel": {
 										"$ref": "AAAAAAFSF7lezkUpnq4="
 									},
@@ -12916,7 +13250,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 516,
-											"top": 1699,
+											"top": 1955,
 											"width": 111.96630859375,
 											"height": 13,
 											"autoResize": false,
@@ -12927,7 +13261,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "31 : 更新新的A密码",
+											"text": "33 : 更新新的A密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -12950,7 +13284,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 586,
-											"top": 1699,
+											"top": 1955,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -12983,7 +13317,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 552,
-											"top": 1700,
+											"top": 1956,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13016,7 +13350,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 1716,
+											"top": 1972,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13038,7 +13372,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:1696;562:1696;562:1716;538:1716",
+									"points": "532:1952;562:1952;562:1972;538:1972",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJxwye1g9JT4="
 									},
@@ -13083,7 +13417,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 372,
-											"top": 1770,
+											"top": 2026,
 											"width": 189.96630859375,
 											"height": 13,
 											"autoResize": false,
@@ -13094,7 +13428,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "32 : 【更新账户】携带新的A密码",
+											"text": "34 : 【更新账户】携带新的A密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13117,7 +13451,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 466,
-											"top": 1787,
+											"top": 2043,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13150,7 +13484,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 467,
-											"top": 1752,
+											"top": 2008,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13183,7 +13517,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 1768,
+											"top": 2024,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13205,7 +13539,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:1768;402:1768",
+									"points": "532:2024;402:2024",
 									"nameLabel": {
 										"$ref": "AAAAAAFSF44q8UHtR58="
 									},
@@ -13250,7 +13584,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 434,
-											"top": 1808,
+											"top": 2064,
 											"width": 189.96630859375,
 											"height": 13,
 											"autoResize": false,
@@ -13261,7 +13595,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "33 : 【更新账户】携带新的A密码",
+											"text": "35 : 【更新账户】携带新的A密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13284,7 +13618,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 1793,
+											"top": 2049,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13317,7 +13651,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 1828,
+											"top": 2084,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13350,7 +13684,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 1824,
+											"top": 2080,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13372,7 +13706,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:1824;661:1824",
+									"points": "396:2080;661:2080",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyRerlmAdKQ="
 									},
@@ -13417,7 +13751,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 656,
-											"top": 1883,
+											"top": 2139,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -13428,7 +13762,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "34 : 更新账户密码",
+											"text": "36 : 更新账户密码",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13451,7 +13785,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 722,
-											"top": 1883,
+											"top": 2139,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13484,7 +13818,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 688,
-											"top": 1884,
+											"top": 2140,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13517,7 +13851,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 1900,
+											"top": 2156,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13539,7 +13873,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:1880;698:1880;698:1900;674:1900",
+									"points": "668:2136;698:2136;698:2156;674:2156",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyXlplmX+kU="
 									},
@@ -13584,7 +13918,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 483,
-											"top": 1956,
+											"top": 2212,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -13595,7 +13929,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "35 : 【更新账户】",
+											"text": "37 : 【更新账户】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13618,7 +13952,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 534,
-											"top": 1971,
+											"top": 2227,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13651,7 +13985,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 535,
-											"top": 1936,
+											"top": 2192,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13684,7 +14018,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 1952,
+											"top": 2208,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13706,7 +14040,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:1952;402:1952",
+									"points": "668:2208;402:2208",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyalFlmte7Y="
 									},
@@ -13751,7 +14085,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 477,
-											"top": 1992,
+											"top": 2248,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -13762,7 +14096,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "36 : 【申请退货】",
+											"text": "38 : 【申请退货】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13785,7 +14119,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 1977,
+											"top": 2233,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13818,7 +14152,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 528,
-											"top": 2012,
+											"top": 2268,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13851,7 +14185,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 2008,
+											"top": 2264,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -13873,7 +14207,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2008;661:2008",
+									"points": "396:2264;661:2264",
 									"nameLabel": {
 										"$ref": "AAAAAAFSLAcpnLU3shM="
 									},
@@ -13918,7 +14252,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 623,
-											"top": 2059,
+											"top": 2315,
 											"width": 168.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -13929,7 +14263,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "37 : 解锁账户，补充订单信息",
+											"text": "39 : 解锁账户，补充订单信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -13952,7 +14286,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 722,
-											"top": 2059,
+											"top": 2315,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -13985,7 +14319,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 688,
-											"top": 2060,
+											"top": 2316,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14018,7 +14352,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 661,
-											"top": 2076,
+											"top": 2332,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14040,7 +14374,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:2056;698:2056;698:2076;674:2076",
+									"points": "668:2312;698:2312;698:2332;674:2332",
 									"nameLabel": {
 										"$ref": "AAAAAAFSLAjambVQv44="
 									},
@@ -14085,7 +14419,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 483,
-											"top": 2132,
+											"top": 2388,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14096,7 +14430,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "38 : 【申请退货】",
+											"text": "40 : 【申请退货】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14119,7 +14453,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 534,
-											"top": 2147,
+											"top": 2403,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14152,7 +14486,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 535,
-											"top": 2112,
+											"top": 2368,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14185,7 +14519,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 2128,
+											"top": 2384,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14207,7 +14541,7 @@
 										"$ref": "AAAAAAFSF4vYEUF4zrw="
 									},
 									"lineStyle": 0,
-									"points": "668:2128;402:2128",
+									"points": "668:2384;402:2384",
 									"nameLabel": {
 										"$ref": "AAAAAAFSLAkrULVnizU="
 									},
@@ -14252,7 +14586,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 409,
-											"top": 2168,
+											"top": 2424,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14263,7 +14597,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "39 : 【申请转账】",
+											"text": "41 : 【申请转账】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14286,7 +14620,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 2153,
+											"top": 2409,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14319,7 +14653,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 2188,
+											"top": 2444,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14352,7 +14686,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 2184,
+											"top": 2440,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14374,7 +14708,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2184;525:2184",
+									"points": "396:2440;525:2440",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJydTbVnFw2s="
 									},
@@ -14419,7 +14753,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 487,
-											"top": 2235,
+											"top": 2491,
 											"width": 168.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14430,7 +14764,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "40 : 获取转账目标账户的信息",
+											"text": "42 : 获取转账目标账户的信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14453,7 +14787,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 586,
-											"top": 2235,
+											"top": 2491,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14486,7 +14820,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 552,
-											"top": 2236,
+											"top": 2492,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14519,7 +14853,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 2252,
+											"top": 2508,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14541,7 +14875,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:2232;562:2232;562:2252;538:2252",
+									"points": "532:2488;562:2488;562:2508;538:2508",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyfg61nbqr0="
 									},
@@ -14586,7 +14920,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 415,
-											"top": 2308,
+											"top": 2564,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14597,7 +14931,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "41 : 【申请转账】",
+											"text": "43 : 【申请转账】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14620,7 +14954,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 466,
-											"top": 2323,
+											"top": 2579,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14653,7 +14987,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 467,
-											"top": 2288,
+											"top": 2544,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14686,7 +15020,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 2304,
+											"top": 2560,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14708,7 +15042,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:2304;402:2304",
+									"points": "532:2560;402:2560",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJyiWjVnz5Yk="
 									},
@@ -14753,7 +15087,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 279,
-											"top": 2364,
+											"top": 2620,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14764,7 +15098,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "42 : 【用户响应】",
+											"text": "44 : 【用户响应】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14787,7 +15121,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 330,
-											"top": 2379,
+											"top": 2635,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14820,7 +15154,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 331,
-											"top": 2344,
+											"top": 2600,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14853,7 +15187,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 253,
-											"top": 2360,
+											"top": 2616,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -14875,7 +15209,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2360;266:2360",
+									"points": "396:2616;266:2616",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJy8cw1qQK1c="
 									},
@@ -14920,7 +15254,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 130,
-											"top": 2420,
+											"top": 2676,
 											"width": 129.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -14931,7 +15265,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "43 : 展示目标账户信息",
+											"text": "45 : 展示目标账户信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -14954,7 +15288,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 194,
-											"top": 2435,
+											"top": 2691,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -14987,7 +15321,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 195,
-											"top": 2400,
+											"top": 2656,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15020,7 +15354,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 117,
-											"top": 2416,
+											"top": 2672,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15042,7 +15376,7 @@
 										"$ref": "AAAAAAFSF4uFAUEYIrc="
 									},
 									"lineStyle": 0,
-									"points": "260:2416;130:2416",
+									"points": "260:2672;130:2672",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzBgu1qm8GA="
 									},
@@ -15087,7 +15421,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 137,
-											"top": 2456,
+											"top": 2712,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15098,7 +15432,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "44 : 确认执行转账",
+											"text": "46 : 确认执行转账",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15121,7 +15455,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 188,
-											"top": 2441,
+											"top": 2697,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15154,7 +15488,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 188,
-											"top": 2476,
+											"top": 2732,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15187,7 +15521,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 253,
-											"top": 2472,
+											"top": 2728,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15209,7 +15543,7 @@
 										"$ref": "AAAAAAFSF4tROED4X7c="
 									},
 									"lineStyle": 0,
-									"points": "124:2472;253:2472",
+									"points": "124:2728;253:2728",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzCjklq8uJk="
 									},
@@ -15254,7 +15588,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 221,
-											"top": 2512,
+											"top": 2768,
 											"width": 207.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15265,7 +15599,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "45 : 【申请转账】携带对方账户信息",
+											"text": "47 : 【申请转账】携带对方账户信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15288,7 +15622,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 324,
-											"top": 2497,
+											"top": 2753,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15321,7 +15655,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 324,
-											"top": 2532,
+											"top": 2788,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15354,7 +15688,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 2528,
+											"top": 2784,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15376,7 +15710,7 @@
 										"$ref": "AAAAAAFSF4uFAUEYIrc="
 									},
 									"lineStyle": 0,
-									"points": "260:2528;389:2528",
+									"points": "260:2784;389:2784",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzDzk1rTPfU="
 									},
@@ -15421,7 +15755,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 357,
-											"top": 2568,
+											"top": 2824,
 											"width": 207.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15432,7 +15766,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "46 : 【申请转账】携带对方账户信息",
+											"text": "48 : 【申请转账】携带对方账户信息",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15455,7 +15789,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 2553,
+											"top": 2809,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15488,7 +15822,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 460,
-											"top": 2588,
+											"top": 2844,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15521,7 +15855,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 2584,
+											"top": 2840,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15543,7 +15877,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2584;525:2584",
+									"points": "396:2840;525:2840",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzFfo1sLq/o="
 									},
@@ -15588,7 +15922,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 514,
-											"top": 2643,
+											"top": 2899,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15599,7 +15933,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "47 : 执行转账动作",
+											"text": "49 : 执行转账动作",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15622,7 +15956,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 586,
-											"top": 2643,
+											"top": 2899,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15655,7 +15989,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 552,
-											"top": 2644,
+											"top": 2900,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15688,7 +16022,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 525,
-											"top": 2660,
+											"top": 2916,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15710,7 +16044,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:2640;562:2640;562:2660;538:2660",
+									"points": "532:2896;562:2896;562:2916;538:2916",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzHdklsktw8="
 									},
@@ -15755,7 +16089,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 415,
-											"top": 2716,
+											"top": 2972,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15766,7 +16100,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "48 : 【申请转账】",
+											"text": "50 : 【申请转账】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15789,7 +16123,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 466,
-											"top": 2731,
+											"top": 2987,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15822,7 +16156,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 467,
-											"top": 2696,
+											"top": 2952,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15855,7 +16189,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 2712,
+											"top": 2968,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -15877,7 +16211,7 @@
 										"$ref": "AAAAAAFSF4u73EFYvEc="
 									},
 									"lineStyle": 0,
-									"points": "532:2712;402:2712",
+									"points": "532:2968;402:2968",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzILA1s6x6Y="
 									},
@@ -15922,7 +16256,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 384,
-											"top": 2771,
+											"top": 3027,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -15933,7 +16267,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "49 : 生成退货结果",
+											"text": "51 : 生成退货结果",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -15956,7 +16290,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 450,
-											"top": 2771,
+											"top": 3027,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -15989,7 +16323,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 416,
-											"top": 2772,
+											"top": 3028,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -16022,7 +16356,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 389,
-											"top": 2788,
+											"top": 3044,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -16044,7 +16378,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2768;426:2768;426:2788;402:2788",
+									"points": "396:3024;426:3024;426:3044;402:3044",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzKJdVtwdRE="
 									},
@@ -16089,7 +16423,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 279,
-											"top": 2844,
+											"top": 3100,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -16100,7 +16434,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "50 : 【用户响应】",
+											"text": "52 : 【用户响应】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -16123,7 +16457,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 330,
-											"top": 2859,
+											"top": 3115,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -16156,7 +16490,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 331,
-											"top": 2824,
+											"top": 3080,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -16189,7 +16523,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 253,
-											"top": 2840,
+											"top": 3096,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -16211,7 +16545,7 @@
 										"$ref": "AAAAAAFSF4ujI0E4qQs="
 									},
 									"lineStyle": 0,
-									"points": "396:2840;266:2840",
+									"points": "396:3096;266:3096",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzNZ8lu6M0Q="
 									},
@@ -16256,7 +16590,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 143,
-											"top": 2900,
+											"top": 3156,
 											"width": 103.29541015625,
 											"height": 13,
 											"autoResize": false,
@@ -16267,7 +16601,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "51 : 展示退货结果",
+											"text": "53 : 展示退货结果",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -16290,7 +16624,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 194,
-											"top": 2915,
+											"top": 3171,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -16323,7 +16657,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 195,
-											"top": 2880,
+											"top": 3136,
 											"width": 0,
 											"height": 13,
 											"autoResize": false,
@@ -16356,7 +16690,7 @@
 											"containerChangeable": false,
 											"containerExtending": false,
 											"left": 117,
-											"top": 2896,
+											"top": 3152,
 											"width": 14,
 											"height": 29,
 											"autoResize": false
@@ -16378,7 +16712,7 @@
 										"$ref": "AAAAAAFSF4uFAUEYIrc="
 									},
 									"lineStyle": 0,
-									"points": "260:2896;130:2896",
+									"points": "260:3152;130:3152",
 									"nameLabel": {
 										"$ref": "AAAAAAFSJzOM4lvQm10="
 									},
@@ -16426,7 +16760,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFSF4tC8EDiI7s="
 							},
-							"name": "【查询订单】",
+							"name": "【申请退货】",
 							"source": {
 								"$ref": "AAAAAAFSF4uE/0ERUVo="
 							},
@@ -16762,23 +17096,6 @@
 						},
 						{
 							"_type": "UMLMessage",
-							"_id": "AAAAAAFSJyB+P1jku5A=",
-							"_parent": {
-								"$ref": "AAAAAAFSF4tC8EDiI7s="
-							},
-							"name": "【验证账户】多次",
-							"source": {
-								"$ref": "AAAAAAFSF4ujI0ExVtU="
-							},
-							"target": {
-								"$ref": "AAAAAAFSF4u73EFRMVQ="
-							},
-							"visibility": "public",
-							"messageSort": "synchCall",
-							"isConcurrentIteration": false
-						},
-						{
-							"_type": "UMLMessage",
 							"_id": "AAAAAAFSJxiweVf6cc8=",
 							"_parent": {
 								"$ref": "AAAAAAFSF4tC8EDiI7s="
@@ -16796,23 +17113,6 @@
 						},
 						{
 							"_type": "UMLMessage",
-							"_id": "AAAAAAFSJyDDb1j6jxA=",
-							"_parent": {
-								"$ref": "AAAAAAFSF4tC8EDiI7s="
-							},
-							"name": "验证账户可用性",
-							"source": {
-								"$ref": "AAAAAAFSF4u73EFRMVQ="
-							},
-							"target": {
-								"$ref": "AAAAAAFSF4u73EFRMVQ="
-							},
-							"visibility": "public",
-							"messageSort": "synchCall",
-							"isConcurrentIteration": false
-						},
-						{
-							"_type": "UMLMessage",
 							"_id": "AAAAAAFSJxzdf1hT+Ts=",
 							"_parent": {
 								"$ref": "AAAAAAFSF4tC8EDiI7s="
@@ -16823,6 +17123,74 @@
 							},
 							"target": {
 								"$ref": "AAAAAAFSF4tRNkDxhsY="
+							},
+							"visibility": "public",
+							"messageSort": "synchCall",
+							"isConcurrentIteration": false
+						},
+						{
+							"_type": "UMLMessage",
+							"_id": "AAAAAAFTMr0tM51dnoE=",
+							"_parent": {
+								"$ref": "AAAAAAFSF4tC8EDiI7s="
+							},
+							"name": "确认解绑",
+							"source": {
+								"$ref": "AAAAAAFSF4tRNkDxhsY="
+							},
+							"target": {
+								"$ref": "AAAAAAFSF4uE/0ERUVo="
+							},
+							"visibility": "public",
+							"messageSort": "synchCall",
+							"isConcurrentIteration": false
+						},
+						{
+							"_type": "UMLMessage",
+							"_id": "AAAAAAFTMr11Up1zuxM=",
+							"_parent": {
+								"$ref": "AAAAAAFSF4tC8EDiI7s="
+							},
+							"name": "【用户请求】确认解绑信息",
+							"source": {
+								"$ref": "AAAAAAFSF4uE/0ERUVo="
+							},
+							"target": {
+								"$ref": "AAAAAAFSF4ujI0ExVtU="
+							},
+							"visibility": "public",
+							"messageSort": "synchCall",
+							"isConcurrentIteration": false
+						},
+						{
+							"_type": "UMLMessage",
+							"_id": "AAAAAAFSJyB+P1jku5A=",
+							"_parent": {
+								"$ref": "AAAAAAFSF4tC8EDiI7s="
+							},
+							"name": "【验证账户】",
+							"source": {
+								"$ref": "AAAAAAFSF4ujI0ExVtU="
+							},
+							"target": {
+								"$ref": "AAAAAAFSF4u73EFRMVQ="
+							},
+							"visibility": "public",
+							"messageSort": "synchCall",
+							"isConcurrentIteration": false
+						},
+						{
+							"_type": "UMLMessage",
+							"_id": "AAAAAAFSJyDDb1j6jxA=",
+							"_parent": {
+								"$ref": "AAAAAAFSF4tC8EDiI7s="
+							},
+							"name": "验证账户可用性",
+							"source": {
+								"$ref": "AAAAAAFSF4u73EFRMVQ="
+							},
+							"target": {
+								"$ref": "AAAAAAFSF4u73EFRMVQ="
 							},
 							"visibility": "public",
 							"messageSort": "synchCall",
@@ -18621,7 +18989,7 @@
 											},
 											"edgePosition": 1,
 											"underline": false,
-											"text": "2 : 【查询订单】",
+											"text": "2 : 【申请退货】",
 											"horizontalAlignment": 2,
 											"verticalAlignment": 5
 										},
@@ -24291,7 +24659,7 @@
 							"_parent": {
 								"$ref": "AAAAAAFSJz7okVwAEBo="
 							},
-							"name": "【查询订单】",
+							"name": "【申请退货】",
 							"source": {
 								"$ref": "AAAAAAFSJ0AuJ1ww+jU="
 							},
