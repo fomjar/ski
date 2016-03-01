@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjMessage;
 
@@ -18,6 +19,7 @@ import fomjar.server.msg.FjMessage;
  * <tr><td>键</td><td>值</td><td>类型</td></tr>
  * <tr><td>sid</td><td>会话ID</td><td>{@link String}</td></tr>
  * <tr><td>ssn</td><td>当前会话序列号</td><td>{@link int}</td></tr>
+ * <tr><td>server</td><td>服务器名称</td><td>{@link String}</td></tr>
  * <tr><td>msg.ssn</td><td>对应ssn的消息</td><td>{@link FjMessage}</td></tr>
  * <tr><td>time.open</td><td>会话打开时间（单位毫秒）</td><td>{@link long}</td></tr>
  * <tr><td>time.close</td><td>会话关闭时间（单位毫秒）</td><td>{@link long}</td></tr>
@@ -65,18 +67,22 @@ public class FjSessionContext {
     /** 存入一个键值对到缓存中 */
     public FjSessionContext   put        (String key, Object value) {data.put(key, value); return this;}
 
+    
     /** @return 该会话的会话ID */
-    public String  sid() {return getString("sid");}
+    public String  sid()    {return getString("sid");}
     /**
      * 随着同一个会话中涉及的消息数增多，序列号也会逐渐增加。正常情况下，序列号初始为-1，每收到一个消息，序列号+1
      * 
      * @return 该会话的序列号
      */
-    public int     ssn() {return getInteger("ssn");}
+    public int     ssn()    {return getInteger("ssn");}
+    public String  server() {return getString("server");}
     
-    void prepare(FjMessage msg) {
+    void prepare(FjServer server, FjMessage msg) {
+        put("server", server.name());
+        
         put("ssn", ssn() + 1);
-        data.put("msg." + ssn(), msg);
+        put("msg." + ssn(), msg);
     }
     
     /** 根据会话序列号获取其对应的消息 */

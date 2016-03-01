@@ -18,19 +18,17 @@ public class FjSessionGraph {
     
     private Set<FjSessionNode>              nodes;
     private Map<Integer, FjSessionNode>     heads;
-    private Map<String, FjSessionContext>   contexts;
-    private Map<String, FjSessionNode>      node_cur;
+    private Map<String, FjSessionPath>      paths;
     
     public FjSessionGraph() {
-        contexts  = new HashMap<String, FjSessionContext>();
-        node_cur = new HashMap<String, FjSessionNode>();
+        paths = new HashMap<String, FjSessionPath>();
     }
     
     public FjSessionNode createNode(int inst, FjSessionTask task) {
-        FjSessionNode n = new FjSessionNode(inst, task);
+        FjSessionNode node = new FjSessionNode(inst, task);
         if (null == nodes) nodes = new HashSet<FjSessionNode>();
-        nodes.add(n);
-        return n;
+        nodes.add(node);
+        return node;
     }
     
     public void prepare() {
@@ -38,12 +36,12 @@ public class FjSessionGraph {
         
         heads = nodes.stream()
                 .filter((node)->{return !node.hasPrev();})
-                .collect(Collectors.toMap((node)->{return node.inst();}, (node)->{return node;}));
+                .collect(Collectors.toMap((node)->{return node.getInst();}, (node)->{return node;}));
         
         if (null == heads || heads.isEmpty()) throw new IllegalStateException("no head node for graph");
     }
     
-    public Map<Integer, FjSessionNode> heads() {return heads;}
+    public Map<Integer, FjSessionNode> getHeads() {return heads;}
     
     public void dispatch(FjServer server, FjMessageWrapper wrapper) {
         if (!(wrapper.message() instanceof FjDscpMessage)) {
@@ -51,55 +49,37 @@ public class FjSessionGraph {
             return;
         }
         
-        FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        FjSessionNode curr = node_cur.get(msg.sid());
-        FjSessionNode next = null;
-        // 可能的头节点
-        if (null == curr) next = heads.get(msg.inst());
-        // 可能的非头节点
-        else next = curr.next(msg.inst());
-        
-        if (null != next) { // 匹配到了
-            FjSessionContext context = contexts.get(msg.sid());
-            if (null == context) context = openSession(msg.sid()); // 会话流程打开
-            
-            context.prepare(msg);
-            try {next.task().onSession(server, context, wrapper);}
-            catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
-            
-            if (!next.hasNext()) { // 会话流程结束
-                closeSession(msg.sid()); // 会话流程关闭
-                node_cur.remove(msg.sid());
-            } else { // 会话还有流程继续
-                node_cur.put(msg.sid(), next);
+        FjDscpMessage msg  = (FjDscpMessage) wrapper.message();
+        FjSessionPath path = paths.get(msg.sid());
+        FjSessionNode curr = null;
+        // old
+        if (null != path) curr = path.getLast().getNext(msg.inst());
+        // new
+        else {
+            curr = heads.get(msg.inst());
+            if (null == curr) { // not match
+                logger.error("message not match this graph: " + msg);
+                return;
             }
-        } else { // 没有匹配到节点
-            // logger.error("message does not match this graph: " + msg);
+            // match
+            path = new FjSessionPath(this, msg.sid());
+            paths.put(msg.sid(), path);
         }
+        path.append(curr);
+        path.context().prepare(server, msg);
+        // execute task
+        try {curr.getTask().onSession(path, wrapper);}
+        catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
+        // no next, end
+        if (!curr.hasNext()) path.close();
     }
     
-    private FjSessionContext openSession(String sid) {
-        if (contexts.containsKey("sid")) {
-            logger.error("session already open: " + sid);
-            return contexts.get(sid);
+    void close(String sid) {
+        if (null == paths || !paths.containsKey(sid)) {
+            logger.error("session path not opened: " + sid);
+            return;
         }
-        logger.info("session open: " + sid);
-        FjSessionContext context = new FjSessionContext(sid);
-        context.put("time.open", System.currentTimeMillis());
-        synchronized (contexts) {contexts.put(sid, context);}
-        return context;
-    }
-    
-    private FjSessionContext closeSession(String sid) {
-        if (!contexts.containsKey(sid)) {
-            logger.error("session not found: " + sid);
-            return null;
-        }
-        logger.info("session close: " + sid);
-        FjSessionContext context = null;
-        synchronized (contexts) {context = contexts.remove(sid);}
-        context.put("time.close", System.currentTimeMillis());
-        return context;
+        paths.remove(sid);
     }
     
 }

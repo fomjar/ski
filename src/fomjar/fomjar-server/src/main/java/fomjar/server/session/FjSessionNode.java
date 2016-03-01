@@ -7,6 +7,7 @@ public class FjSessionNode {
     
     private int inst;
     private FjSessionTask task;
+    
     private Map<Integer, FjSessionNode> node_prev;
     private Map<Integer, FjSessionNode> node_next;
     
@@ -17,35 +18,47 @@ public class FjSessionNode {
         this.task = task;
     }
     
-    public int              inst() {return inst;}
-    public FjSessionTask    task() {return task;}
+    public int              getInst() {return inst;}
+    public FjSessionTask    getTask() {return task;}
     
-    public FjSessionNode prev(int inst) {
+    public FjSessionNode getPrev(int inst) {
         if (null == node_prev) return null;
         return node_prev.get(inst);
     }
     
-    public Map<Integer, FjSessionNode> prev() {return node_prev;}
+    public Map<Integer, FjSessionNode> getPrev() {return node_prev;}
     
-    public FjSessionNode next(int inst) {
+    public FjSessionNode getNext(int inst) {
         if (null == node_next) return null;
         return node_next.get(inst);
     }
     
-    public Map<Integer, FjSessionNode> next() {return node_next;}
+    public Map<Integer, FjSessionNode> getNext() {return node_next;}
     
-    public void addPrev(FjSessionNode prev) {
+    public FjSessionNode addPrev(FjSessionNode... prevs) {
+        if (null == prevs || 0 == prevs.length) throw new NullPointerException();
+        
         if (null == this.node_prev) this.node_prev = new HashMap<Integer, FjSessionNode>();
-        this.node_prev.put(prev.inst(), prev);
-        if (null == prev.node_next) prev.node_next = new HashMap<Integer, FjSessionNode>();
-        prev.node_next.put(this.inst(), this);
+        for (FjSessionNode prev : prevs) {
+            this.node_prev.put(prev.getInst(), prev);
+            if (null == prev.node_next) prev.node_next = new HashMap<Integer, FjSessionNode>();
+            prev.node_next.put(this.getInst(), this);
+        }
+        
+        return this;
     }
     
-    public void addNext(FjSessionNode next) {
+    public FjSessionNode addNext(FjSessionNode... nexts) {
+        if (null == nexts || 0 == nexts.length) throw new NullPointerException();
+        
         if (null == this.node_next) this.node_next = new HashMap<Integer, FjSessionNode>();
-        this.node_next.put(next.inst(), next);
-        if (null == next.node_prev) next.node_prev = new HashMap<Integer, FjSessionNode>();
-        next.node_prev.put(this.inst(), this);
+        for (FjSessionNode next : nexts) {
+            this.node_next.put(next.getInst(), next);
+            if (null == next.node_prev) next.node_prev = new HashMap<Integer, FjSessionNode>();
+            next.node_prev.put(this.getInst(), this);
+        }
+        
+        return this;
     }
     
     public boolean hasPrev() {return null != node_prev && !node_prev.isEmpty();}
