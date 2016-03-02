@@ -23,8 +23,8 @@ create table tbl_platform_account (
 -- 平台账户与渠道账户的关系
 drop table if exists tbl_platform_account_relationship;
 create table tbl_platform_account_relationship (
-    i_paid  integer,        -- 平台账户ID
-    c_caid      varchar(64) -- 渠道账户ID
+    i_paid      integer,        -- 平台账户ID
+    c_caid      varchar(64)     -- 渠道账户ID
 );
 
 -- 游戏账户
@@ -79,7 +79,7 @@ create table tbl_product (
 -- 订单
 drop table if exists tbl_order;
 create table tbl_order (
-    i_poid      integer,        -- 平台订单ID
+    c_poid      varchar(64),    -- 平台订单ID
     i_coid      integer,        -- 渠道订单ID
     i_channel   tinyint,        -- 渠道类型：0-淘宝 1-微信 2-京东
     c_caid      varchar(64),    -- 渠道账户ID
@@ -89,7 +89,7 @@ create table tbl_order (
 -- 订单产品信息
 drop table if exists tbl_order_product;
 create table tbl_order_product (
-    i_poid              integer,        -- 平台订单ID
+    c_poid              varchar(64),    -- 平台订单ID
     i_pid               integer,        -- 产品ID
     i_prod_type         integer,        -- 产品类型
     c_prod_name         varchar(64),    -- 名称
@@ -130,3 +130,6 @@ create table tbl_channel_account (
     c_zipcode   varchar(10),    -- 邮编
     t_birth     date            -- 生日
 );
+
+
+
