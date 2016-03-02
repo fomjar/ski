@@ -17,13 +17,13 @@ public class SessionTaskApplyOrderFromCDB implements FjSessionTask {
     private static final Logger logger = Logger.getLogger(SessionTaskApplyOrderFromCDB.class);
 
     @Override
-    public void onSession(FjSessionPath path, FjMessageWrapper wrapper) {
+    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
         FjSessionContext context = path.context();
         String server = context.server();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         if (!msg.fs().startsWith("cdb")) {
             logger.error("invalid message, not come from cdb: " + msg);
-            return;
+            return false;
         }
         
         JSONObject args = new JSONObject();
@@ -37,6 +37,8 @@ public class SessionTaskApplyOrderFromCDB implements FjSessionTask {
         msg_wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
         msg_wca.json().put("args", args);
         FjServerToolkit.getSender(server).send(msg_wca);
+        
+        return true;
      }
 
 }

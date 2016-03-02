@@ -68,13 +68,16 @@ public class FjSessionGraph {
             path = new FjSessionPath(this, msg.sid());
             paths.put(msg.sid(), path);
         }
-        path.append(curr);
         path.context().prepare(server, msg);
+        boolean isSuccess = false;
         // execute task
-        try {curr.getTask().onSession(path, wrapper);}
+        try {isSuccess = curr.getTask().onSession(path, wrapper);}
         catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
+        // infer result
+        if (isSuccess) path.append(curr);
+        else logger.error("on session failed for message: " + msg);
         // no next, end
-        if (!curr.hasNext()) path.close();
+        if (paths.containsKey(msg.sid()) && !curr.hasNext()) path.close();
     }
     
     void close(String sid) {

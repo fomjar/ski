@@ -21,13 +21,13 @@ public class SessionTaskQueryOrderFromUser implements FjSessionTask {
     private static final Logger logger = Logger.getLogger(SessionTaskQueryOrderFromUser.class);
 
     @Override
-    public void onSession(FjSessionPath path, FjMessageWrapper wrapper) {
+    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
         FjSessionContext context = path.context();
         String server = context.server();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         if (!msg.fs().startsWith("wca")) {
             logger.error("invalid message, not come from wca: " + msg);
-            return;
+            return false;
         }
         
         context.put("caid", msg.argsToJsonObject().getString("user"));
@@ -39,6 +39,8 @@ public class SessionTaskQueryOrderFromUser implements FjSessionTask {
         msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_RETURN);
         msg_cdb.json().put("args", String.format("{'c_caid':\"%s\"}", msg.argsToJsonObject().getString("user")));
         FjServerToolkit.getSender(server).send(msg_cdb);
+        
+        return true;
     }
 
 }

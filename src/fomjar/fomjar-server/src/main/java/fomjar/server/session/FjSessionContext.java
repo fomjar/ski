@@ -23,6 +23,7 @@ import fomjar.server.msg.FjMessage;
  * <tr><td>msg.ssn</td><td>对应ssn的消息</td><td>{@link FjMessage}</td></tr>
  * <tr><td>time.open</td><td>会话打开时间（单位毫秒）</td><td>{@link long}</td></tr>
  * <tr><td>time.close</td><td>会话关闭时间（单位毫秒）</td><td>{@link long}</td></tr>
+ * <tr><td>business.type</td><td>会话的业务类型，取值为某些指令</td><td>{@link int}</td></tr>
  * </table>
  * </p>
  * 

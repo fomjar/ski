@@ -4,6 +4,6 @@ import fomjar.server.FjMessageWrapper;
 
 public interface FjSessionTask {
 
-    void onSession(FjSessionPath path, FjMessageWrapper wrapper);
+    boolean onSession(FjSessionPath path, FjMessageWrapper wrapper);
     
 }
