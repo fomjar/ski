@@ -1,9 +1,9 @@
-delete from tbl_cmd_map where c_cmd = 'sp_specify_return';
-insert into tbl_cmd_map values((conv(00000401, 16, 10) + 0), 'sp', 2, "sp_specify_return(?,?,$i_inst_id,'$c_caid')");
+delete from tbl_instruction where i_inst = (conv(00002201, 16, 10) + 0);
+insert into tbl_instruction values((conv(00002201, 16, 10) + 0), 'sp', 2, "sp_lock_account_return(?,?,$i_inst_id,'$c_caid')");
 
-drop procedure if exists sp_specify_return;
+drop procedure if exists sp_lock_account_return;
 DELIMITER //
-create procedure sp_specify_return (
+create procedure sp_lock_account_return (
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
     in    in_i_inst_id           integer,
@@ -23,6 +23,7 @@ label_pro:BEGIN
     set out_i_code = 0;
     /*校验CAID和in_i_inst_id*/
     call sp_get_gaid_by_caid(out_i_code,out_c_desc,i_gaid_temp,in_c_caid);
+    
     select in_i_inst_id,in_c_caid;
     if i_gaid_temp <> in_i_inst_id then
        select conv(F0000102, 16, 10) into out_i_code;
@@ -31,9 +32,10 @@ label_pro:BEGIN
        leave label_pro;
     end if;
     
-    select i_rent into i_case_status
-        from  tbl_game_account_rent 
-        where i_gaid = in_i_inst_id;
+    select i_rent 
+      into i_case_status
+      from tbl_game_account_rent 
+     where i_gaid = in_i_inst_id;
       
     select i_case_status;
     /*------------------------------------------------------------- 
@@ -44,7 +46,7 @@ label_pro:BEGIN
     select out_c_desc;
     -------------------------------------------------------------*/
     
-    case i_case_status  
+     case i_case_status  
 
         /*A已租B待租*/
         when 10 then 

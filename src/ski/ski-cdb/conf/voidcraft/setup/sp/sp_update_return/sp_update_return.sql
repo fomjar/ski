@@ -1,5 +1,5 @@
-delete from tbl_cmd_map where i_cmd = (conv(00000601, 16, 10) + 0);
-insert into tbl_cmd_map values((conv(00000601, 16, 10) + 0), 'sp', 2, "sp_update_return(?, ?, $'c_user', $'in_c_pass_cur', $'in_c_pass_a', $'in_c_pass_b')");
+delete from tbl_cmd_map where i_cmd = (conv(00002401, 16, 10) + 0);
+insert into tbl_cmd_map values((conv(00002401, 16, 10) + 0), 'sp', 2, "sp_update_return(?, ?, $'c_user', $'in_c_pass_cur', $'in_c_pass_a', $'in_c_pass_b')");
 DELIMITER // 
 DROP PROCEDURE IF EXISTS `ski`.`sp_update_return` //
 CREATE PROCEDURE `ski`.`sp_update_return`(
