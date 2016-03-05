@@ -27,27 +27,23 @@ BEGIN
     if out_i_code = 0 then 
 
         if isnotnull(in_c_pass_a) then
-            update tbl_game_account set c_pass_a=in_c_pass_a  where c_user = in_c_user;
+            update tbl_game_account 
+               set c_pass_a=in_c_pass_a  
+             where c_user = in_c_user;
         end if;
         
         if isnotnull(in_c_pass_b) then
-            update tbl_game_account set c_pass_b=in_c_pass_b  where c_user = in_c_user;
+            update tbl_game_account 
+               set c_pass_b=in_c_pass_b  
+             where c_user = in_c_user;
         end if;
         
         if isnotnull(in_c_pass_cur) then
-            update tbl_game_account set c_pass_cur=in_c_pass_cur  where c_user = in_c_user;
+            update tbl_game_account 
+               set c_pass_cur=in_c_pass_cur  
+             where c_user = in_c_user;
         end if;
         
-        /*´òÓ¡³öÃÜÂëÇĞ»»¹ì¼£*/
-        select concat(out_c_desc,'update username') into out_c_desc;
-        select concat(out_c_desc,in_c_user) into out_c_desc;
-        select concat(out_c_desc, "passwd to a" )into out_c_desc;
-        select concat(out_c_desc,in_c_pass_a) into out_c_desc;
-        select concat(out_c_desc, "passwd to b" )into out_c_desc;
-        select concat(out_c_desc,in_c_pass_b) into out_c_desc;
-        select concat(out_c_desc, "passwd to cur" )into out_c_desc;
-        select concat(out_c_desc,in_c_pass_cur) into out_c_desc;
-        select out_c_desc;
     end if;
 
 END //  

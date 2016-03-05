@@ -17,16 +17,15 @@ INSERT INTO tbl_game_account_game( i_gaid,i_gid ) VALUES (3,1);
 INSERT INTO tbl_game(i_gid,c_name_cns) VALUES (1,"刺客信条1");
 INSERT INTO tbl_game(i_gid,c_name_cns) VALUES (2,"GTA罪恶都市");
 
-INSERT INTO tbl_order(i_poid,c_caid ) VALUES (100,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
+INSERT INTO tbl_order(c_poid,c_caid ) VALUES (100,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
 
-INSERT INTO tbl_order_product(i_poid,i_inst_id,i_prod_type,i_pid) VALUES (100,1,0,1);
-INSERT INTO tbl_order_product(i_poid,i_inst_id,i_prod_type,i_pid) VALUES (101,2,1,2);
-INSERT INTO tbl_order_product(i_poid,i_inst_id,i_prod_type,i_pid) VALUES (102,3,1,3);
+INSERT INTO tbl_order_product(c_poid,i_inst_id,i_prod_type,i_pid) VALUES (100,1,0,1);
+INSERT INTO tbl_order_product(c_poid,i_inst_id,i_prod_type,i_pid) VALUES (101,2,1,2);
+INSERT INTO tbl_order_product(c_poid,i_inst_id,i_prod_type,i_pid) VALUES (102,3,1,3);
 
 
-set x4 ='';
-call sp_query_product_by_coid(@x1,@x2,@x4,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
-sp_query_product_by_coid(?, ?, ?, 'oRojEwPTK3o2cYrLsXuuX-FuypBM')
+set @x4 ='';
+call sp_query_return(@x1,@x2,@x4,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
 select @x4;
 
 /*----------------测试状态机锁定用户-----------------------*/
@@ -38,7 +37,7 @@ INSERT INTO tbl_game_account_rent(i_gaid,i_rent) VALUES (3,21);
 
 update tbl_game_account_rent set i_rent=10  where i_gaid =1;
 
-call sp_specify_return(@x1,@x2,1,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
+call sp_lock_account_return(@x1,@x2,1,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
 call sp_specify_return(@x1,@x2,"zhaoqiang2",1);
 call sp_specify_return(@x1,@x2,"zhaoqiang3",1);
 
