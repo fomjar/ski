@@ -55,32 +55,36 @@ public class FjSessionGraph {
         FjDscpMessage msg  = (FjDscpMessage) wrapper.message();
         FjSessionPath path = paths.get(msg.sid());
         FjSessionNode curr = null;
-        // old
-        if (null != path) curr = path.getLast().getNext(msg.inst());
-        // new
-        else {
-            curr = getHeadNode(msg.inst());
-            if (null == curr) { // not match
-                logger.error("message not match this graph: " + msg);
-                return;
+        // match old
+        if (null != path) curr = path.getCurrent().getNext(msg.inst());
+        // match new
+        else curr = getHeadNode(msg.inst());
+        // not match
+        if (null == curr) {
+            logger.error("message not match this graph: " + msg);
+            if (null != path) {
+                logger.error("close path: " + msg.sid());
+                path.close();
             }
-            // match
-            path = new FjSessionPath(this, msg.sid());
-            paths.put(msg.sid(), path);
+            return;
         }
+        // new path
+        if (null == path) path = new FjSessionPath(this, msg.sid());
         path.context().prepare(server, msg);
         boolean isSuccess = false;
         // execute task
         try {isSuccess = curr.getTask().onSession(path, wrapper);}
         catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
         // infer result
-        if (isSuccess) path.append(curr);
-        else logger.error("on session failed for message: " + msg);
-        // no next, end
-        if (paths.containsKey(msg.sid()) && !curr.hasNext()) path.close();
+        if (isSuccess) {
+            if (!paths.containsKey(msg.sid())) paths.put(msg.sid(), path);
+            path.append(curr);
+            // no next, end
+            if (!curr.hasNext()) path.close();
+        } else logger.error("on session failed for message: " + msg);
     }
     
-    void close(String sid) {
+    void closePath(String sid) {
         if (null == paths || !paths.containsKey(sid)) {
             logger.error("session path not opened: " + sid);
             return;

@@ -39,13 +39,14 @@ public final class SkiCommon {
         public static final int INST_USER_LOCATION      = 0x00001006;
         
         //////////////////////////////// 电商指令 ////////////////////////////////
+        // QUERY
         /** 查询账户 */
         public static final int INST_ECOM_QUERY_ACCOUNT     = 0x00002001;
         /** 查询订单 */
         public static final int INST_ECOM_QUERY_ORDER       = 0x00002002;
         /** 查询退货单 */
         public static final int INST_ECOM_QUERY_RETURN      = 0x00002003;
-        
+        // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;
         /** 申请发货 */
@@ -56,13 +57,13 @@ public final class SkiCommon {
         public static final int INST_ECOM_APPLY_RETURN      = 0x00002104;
         /** 申请转账，包含对方账户是确认转账，否则只获取对方账户信息并生成转账提示 */
         public static final int INST_ECOM_APPLY_TRANSFER    = 0x00002105;
-        
+        // LOCK
         /** 锁定账户，锁定后无法变更数据 */
         public static final int INST_ECOM_LOCK_ACCOUNT      = 0x00002201;
-        
+        // VERIFY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_VERIFY_ACCOUNT    = 0x00002301;
-        
+        // UPDATE
         /** 更新账户 */
         public static final int INST_ECOM_UPDATE_ACCOUNT    = 0x00002401;
         /** 更新/创建订单 */

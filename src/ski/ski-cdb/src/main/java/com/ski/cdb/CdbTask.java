@@ -223,9 +223,13 @@ public class CdbTask implements FjServerTask {
                 st.execute();
                 if (0 < inst.out) {
                     if (null == inst.result) inst.result = new LinkedList<List<String>>();
-                    List<String> result1 = new LinkedList<String>();
-                    for (int i = 1; i <= inst.out; i++) result1.add(new String(st.getBytes(i), Charset.forName("utf-8")));
-                    inst.result.add(result1);
+                    List<String> result = new LinkedList<String>();
+                    for (int i = 1; i <= inst.out; i++) {
+                        byte[] data = st.getBytes(i);
+                        if (null == data) result.add(null);
+                        else result.add(new String(data, Charset.forName("utf-8")));
+                    }
+                    inst.result.add(result);
                 }
             } catch (SQLException e) {
                 logger.error(String.format("failed to process store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);

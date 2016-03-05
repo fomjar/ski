@@ -64,7 +64,7 @@ public class FjSessionPath {
         }
         logger.info("session close: " + context.sid());
         context.put("time.close", System.currentTimeMillis());
-        graph.close(context.sid());
+        graph.closePath(context.sid());
         return context;
     }
     
