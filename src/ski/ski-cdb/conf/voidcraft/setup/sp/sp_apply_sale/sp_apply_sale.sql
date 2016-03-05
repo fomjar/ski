@@ -1,8 +1,8 @@
 delete from tbl_cmd_map where i_cmd = (conv(00000300, 16, 10) + 0);
-insert into tbl_cmd_map values((conv(00000300, 16, 10) + 0), 'sp', 2, "sp_apply_sale(?, ?, $'c_user', $'in_c_pass_cur', $'in_c_pass_a', $'in_c_pass_b')");
+insert into tbl_cmd_map values((conv(00000300, 16, 10) + 0), 'sp', 2, "sp_update_order(?, ?,$i_coid, $i_channel, $'c_caid', $'t_place',$i_prod_price,$i_prod_num,$'c_name_cns',$i_prod_type)");
 DELIMITER // 
-DROP PROCEDURE IF EXISTS `ski`.`sp_apply_sale` //
-CREATE PROCEDURE `ski`.`sp_apply_sale`(
+DROP PROCEDURE IF EXISTS `ski`.`sp_update_order` //
+CREATE PROCEDURE `ski`.`sp_update_order`(
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
     in    in_i_coid              integer,
@@ -26,8 +26,16 @@ BEGIN
     select i_error;
     set out_i_code = 0;
     
-    select i_gid into i_gid_tmp from tbl_game where c_name_cns =  in_c_name_cns;
-    select i_pid into i_pid_tmp from tbl_product where i_inst_type = i_gid_tmp;
+    select i_gid 
+      into i_gid_tmp 
+      from tbl_game 
+     where c_name_cns =  in_c_name_cns;
+     
+    select i_pid 
+      into i_pid_tmp 
+      from tbl_product 
+     where i_inst_type = i_gid_tmp;
+     
     select i_gid_tmp,i_pid_tmp;
     call sp_generate_poid(out_i_code,out_c_desc,new_c_poid);
     set i_error = i_error + out_i_code;
