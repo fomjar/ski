@@ -30,6 +30,7 @@ public class SessionTaskLockAccountFromCDB implements FjSessionTask {
         @SuppressWarnings("unchecked")
         Map<String, String> account = (Map<String, String>) context.get("account");
         JSONObject args2wa = new JSONObject();
+        args2wa.put("user", account.get("user"));
         args2wa.put("pass.old", account.get("pass.current"));
         args2wa.put("pass.new", account.get("pass.a"));
         FjDscpMessage msg2wa = new FjDscpMessage();

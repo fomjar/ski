@@ -1,5 +1,7 @@
 package com.ski.game.session;
 
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.ski.common.SkiCommon;
@@ -25,6 +27,11 @@ public class SessionTaskUpdateAccountFromCDB implements FjSessionTask {
             logger.error("invalid message, not come from wa: " + msg);
             return false;
         }
+        
+        @SuppressWarnings("unchecked")
+        Map<String, String> account = (Map<String, String>) context.get("account");
+        account.put("pass.current", account.get("pass.a"));
+        
         String user = context.getString("user");
         JSONObject args2wca = new JSONObject();
         args2wca.put("user", user);
