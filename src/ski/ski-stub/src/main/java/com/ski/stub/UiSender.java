@@ -1,8 +1,6 @@
 package com.ski.stub;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -39,11 +37,8 @@ public class UiSender extends JFrame {
                         new JScrollPane(jta_output = new JTextArea())),
                 BorderLayout.CENTER);
         getContentPane().add(jbt_send = new JButton("SEND"), BorderLayout.SOUTH);
-        jbt_send.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sender.send(FjServerToolkit.createMessage(jta_input.getText()));
-            }
+        jbt_send.addActionListener((e)->{
+            sender.send(FjServerToolkit.createMessage(jta_input.getText()));
         });
         ((JComponent) jta_input.getParent().getParent()).setBorder(BorderFactory.createTitledBorder("INPUT"));
         ((JComponent) jta_output.getParent().getParent()).setBorder(BorderFactory.createTitledBorder("OUTPUT"));

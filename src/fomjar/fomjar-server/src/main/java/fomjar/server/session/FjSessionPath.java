@@ -34,8 +34,6 @@ public class FjSessionPath {
         return nodes.getLast();
     }
     
-    public FjSessionNode getCurrent() {return getLast();}
-    
     public FjSessionNode get(int index) {
         if (null == nodes || nodes.isEmpty()) return null;
         return nodes.get(index);

@@ -32,7 +32,7 @@ public class SessionTaskUpdateAccountFromWA implements FjSessionTask {
         Map<String, String> account = (Map<String, String>) context.get("account");
         JSONObject args2cdb = new JSONObject();
         args2cdb.put("user", account.get("user"));
-        args2cdb.put("pass.current", account.get("pass.a"));
+        args2cdb.put("pass", account.get("pass.a"));
         FjDscpMessage msg2cdb = new FjDscpMessage();
         msg2cdb.json().put("fs",   server);
         msg2cdb.json().put("ts",   "cdb");

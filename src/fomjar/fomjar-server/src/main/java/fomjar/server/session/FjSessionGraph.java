@@ -56,7 +56,7 @@ public class FjSessionGraph {
         FjSessionPath path = paths.get(msg.sid());
         FjSessionNode curr = null;
         // match old
-        if (null != path) curr = path.getCurrent().getNext(msg.inst());
+        if (null != path) curr = path.getLast().getNext(msg.inst());
         // match new
         else curr = getHeadNode(msg.inst());
         // not match

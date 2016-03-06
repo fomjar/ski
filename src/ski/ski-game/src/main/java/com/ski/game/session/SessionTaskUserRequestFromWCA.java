@@ -31,8 +31,8 @@ public class SessionTaskUserRequestFromWCA implements FjSessionTask {
         switch (context.getInteger("business.type")) {
         case SkiCommon.ISIS.INST_ECOM_APPLY_RETURN:
             switch (content.toLowerCase()) {
-            case "notuse":
-                processEnsureNotuse(context);
+            case "da":
+                processEnsureDeactive(context);
                 break;
             default:
                 logger.error("unrecognized user request: " + content);
@@ -46,7 +46,7 @@ public class SessionTaskUserRequestFromWCA implements FjSessionTask {
         return true;
     }
     
-    private static void processEnsureNotuse(FjSessionContext context) {
+    private static void processEnsureDeactive(FjSessionContext context) {
         @SuppressWarnings("unchecked")
         Map<String, String> account = (Map<String, String>) context.get("account");
         JSONObject args2wa = new JSONObject();
