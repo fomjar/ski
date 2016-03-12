@@ -37,13 +37,13 @@ INSERT INTO tbl_game_account_rent(i_gaid,i_rent) VALUES (3,21);
 
 update tbl_game_account_rent set i_rent=10  where i_gaid =1;
 
-call sp_lock_account_return(@x1,@x2,1,"oRojEwPTK3o2cYrLsXuuX-FuypBM");
-call sp_specify_return(@x1,@x2,"zhaoqiang2",1);
-call sp_specify_return(@x1,@x2,"zhaoqiang3",1);
+call sp_lock_account_return(@x1,@x2,1,'oRojEwPTK3o2cYrLsXuuX-FuypBM');
 
-call sp_unlock_a_account_by_username(@x1,@x2,"zhaoqiang1",1);
-call sp_unlock_a_account_by_username(@x1,@x2,"zhaoqiang2",1);
-call sp_unlock_a_account_by_username(@x1,@x2,"zhaoqiang3",1);
+call sp_update_return(@x1,@x2,'zhaoqiang1','cur',"","");
+
+call sp_unlock_account_return(@x1,@x2,1,'oRojEwPTK3o2cYrLsXuuX-FuypBM');
+call sp_unlock_account_return(@x1,@x2,"zhaoqiang2",1);
+call sp_unlock_account_return(@x1,@x2,"zhaoqiang3",1);
 
 /*测试生产流水号用例*/
 call sp_generate_poid(@x1,@x2,@x3);
