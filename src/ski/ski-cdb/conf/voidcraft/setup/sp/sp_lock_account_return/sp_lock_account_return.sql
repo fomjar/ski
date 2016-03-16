@@ -1,9 +1,9 @@
-delete from tbl_cmd_map where c_cmd = 'sp_finish_return';
-insert into tbl_cmd_map values((conv(00000501, 16, 10) + 0), 'sp', 2, "sp_finish_return(?,?,$i_inst_id,'$c_caid')");
+delete from tbl_instruction where i_inst = (conv(00002201, 16, 10) + 0);
+insert into tbl_instruction values((conv(00002201, 16, 10) + 0), 'sp', 2, "sp_lock_account_return(?,?,$i_inst_id,'$c_caid')");
 
-drop procedure if exists sp_finish_return;
+drop procedure if exists sp_lock_account_return;
 DELIMITER //
-create procedure sp_finish_return (
+create procedure sp_lock_account_return (
     out   out_i_code             BIGINT,
     inout out_c_desc             blob,
     in    in_i_inst_id           integer,
@@ -23,6 +23,7 @@ label_pro:BEGIN
     set out_i_code = 0;
     /*校验CAID和in_i_inst_id*/
     call sp_get_gaid_by_caid(out_i_code,out_c_desc,i_gaid_temp,in_c_caid);
+    
     select in_i_inst_id,in_c_caid;
     if i_gaid_temp <> in_i_inst_id then
        select conv(F0000102, 16, 10) into out_i_code;
@@ -31,34 +32,33 @@ label_pro:BEGIN
        leave label_pro;
     end if;
     
-    select i_rent into i_case_status
-        from  tbl_game_account_rent 
-        where i_gaid = in_i_inst_id;
+    select i_rent 
+      into i_case_status
+      from tbl_game_account_rent 
+     where i_gaid = in_i_inst_id;
       
-    select i_case_status;
-    /*-------------------------------------------------------------*/ 
-    /*打印状态至前端，用于后续逻辑跟踪*/
+    select i_case_status,i_gaid_temp;
+    /*------------------------------------------------------------- 
+    打印状态至前端，用于后续逻辑跟踪
     select concat(out_c_desc,"From i_rent ") into out_c_desc;
     select convert(i_case_status USING ascii) into out_c_desc_temp;
     select concat(out_c_desc,out_c_desc_temp) into out_c_desc;
-
-    /*-------------------------------------------------------------*/
+    select out_c_desc;
+    -------------------------------------------------------------*/
     
-    case i_case_status  
+     case i_case_status  
 
         /*A已租B待租*/
         when 10 then 
-            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
-        /*A已租B已租*/
-        when 11 then   
-            set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
-        when 22 then 
-            call sp_update_to_AForRentBForRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
+            call sp_update_to_ANotRentBNotRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
+            select out_c_desc;
             set i_change_fsm = 1;
             
-        when 21 then  
-            call sp_update_to_AForRentBAlreadyRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
-            set i_change_fsm = 1;  
+        /*A已租B已租*/
+        when 11 then   
+            call sp_update_to_ANotRentBAlreadyRent(out_i_code,out_c_desc,i_state_after,i_gaid_temp); 
+            select out_c_desc;
+            set i_change_fsm = 1;
             
         /*异常待检查*/
         when 6 then   
@@ -69,7 +69,7 @@ label_pro:BEGIN
             set out_i_code = 4026532098;/*ERROR_DB_OPERATE_FAILED = 0xF0000102; // 数据库账户异常状态*/
            
         else   
-          set out_i_code = 0;
+            set out_i_code = 0;
           
     end case;  
     
@@ -77,10 +77,11 @@ label_pro:BEGIN
     select out_c_desc;
     select i_change_fsm;
     select out_i_code;
+  
     
     if out_i_code = 0 then
         if i_change_fsm = 1 then 
-            call sp_update_tbl_journal_game_account(i_gaid_temp,in_i_caid,NOW(),i_case_status,i_state_after,1);
+            call sp_update_tbl_journal_game_account(i_gaid_temp,in_c_caid,NOW(),i_case_status,i_state_after,1);
         end if;
         commit;
     else
