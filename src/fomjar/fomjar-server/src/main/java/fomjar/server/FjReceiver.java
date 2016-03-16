@@ -1,7 +1,9 @@
 package fomjar.server;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -12,6 +14,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import fomjar.util.FjFixedTask;
 import fomjar.util.FjLoopTask;
 
 public class FjReceiver extends FjLoopTask {
@@ -96,5 +99,28 @@ public class FjReceiver extends FjLoopTask {
             });
             keys.clear();
     }
-
+    
+    public static InputStream receive(int port, long timeout) throws IOException {
+        ServerSocket server = new ServerSocket(port);
+        InputStreamWrapper isw = new InputStreamWrapper();
+        new FjFixedTask(timeout) {
+            @Override
+            public void perform() {
+                try {isw.is = server.accept().getInputStream();}
+                catch (IOException e) {logger.error("receive data from port: " + port + " failed", e);}
+            }
+            @Override
+            protected void onTimeOut() {
+                logger.error("receive data from port " + port + " timeout for " + timeout + "milliseconds");
+                try {server.close();}
+                catch (IOException e) {e.printStackTrace();}
+            }
+        }.run();
+        return isw.is;
+    }
+    
+    private static class InputStreamWrapper {
+        public InputStream is = null;
+    }
+    
 }

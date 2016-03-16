@@ -99,6 +99,17 @@ public class WechatInterface {
         
     }
     
+    private static String host = "api.weixin.qq.com";
+    
+    public static void setHost(String host) {
+        logger.info(String.format("host has changed from %s to %s", WechatInterface.host, host));
+        WechatInterface.host = host;
+    }
+    
+    public static String host() {
+        return host;
+    }
+    
     private static void checkWechatPermission() throws WechatPermissionDeniedException {
         if (null == TokenMonitor.getInstance().token()) throw new WechatPermissionDeniedException("havn't got access token yet");
     }
@@ -128,43 +139,43 @@ public class WechatInterface {
     }
     
     public static FjJsonMessage token(String appid, String secret) {
-        String url = String.format("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", appid, secret);
+        String url = String.format("https://%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", host(), appid, secret);
         return sendRequest("GET", url);
     }
     
     public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("POST", url, menu);
     }
     
     public static FjJsonMessage menuDelete() throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/cgi-bin/menu/delete?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url);
     }
     
     public static FjJsonMessage customServiceAdd(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/customservice/kfaccount/add?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("POST", url, kfaccount);
     }
     
     public static FjJsonMessage customServiceUpdate(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/customservice/kfaccount/update?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("POST", url, kfaccount);
     }
     
     public static FjJsonMessage customServiceDel(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/customservice/kfaccount/del?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url, kfaccount);
     }
     
     public static FjJsonMessage customServiceGet() throws WechatPermissionDeniedException {
         checkWechatPermission();
-        String url = "https://api.weixin.qq.com/cgi-bin/customservice/getkflist?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url);
     }
     
@@ -180,7 +191,7 @@ public class WechatInterface {
     public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
-        String url = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=" + TokenMonitor.getInstance().token();
+        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), TokenMonitor.getInstance().token());
         String msg_content = String.format(TEMPLATE_CUSTOM_TEXT_MESSAGE, user_to, content);
         return sendRequest("POST", url, msg_content);
     }

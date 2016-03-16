@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
-import fomjar.server.msg.FjMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjSender extends FjLoopTask {

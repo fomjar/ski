@@ -7,6 +7,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
 import fomjar.server.FjServer;
@@ -15,7 +16,6 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
-import fomjar.server.msg.FjMessage;
 
 public class WcWebTask implements FjServerTask {
     

@@ -12,6 +12,7 @@ import com.ski.wca.WechatInterface.WechatInterfaceException;
 import com.ski.wca.monitor.MenuMonitor;
 import com.ski.wca.monitor.TokenMonitor;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
@@ -19,7 +20,6 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
-import fomjar.server.msg.FjMessage;
 
 public class WcaTask implements FjServerTask {
     

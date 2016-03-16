@@ -13,6 +13,8 @@ import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import fomjar.server.FjMessage;
+
 /**
  * XML格式消息。数据访问参见{@link #xml()}方法
  * 

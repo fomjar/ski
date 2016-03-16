@@ -1,5 +1,7 @@
 package fomjar.server.msg;
 
+import fomjar.server.FjMessage;
+
 /**
  * 字符串消息
  * 

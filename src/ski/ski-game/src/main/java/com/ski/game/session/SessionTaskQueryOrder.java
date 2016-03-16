@@ -14,37 +14,49 @@ import fomjar.server.session.FjSessionTask;
 import net.sf.json.JSONObject;
 
 /**
- * 请求来自CDB，转发产品详单至WCA
+ * 请求来自WCA，向CDB请求产品详单
  * 
  * @author fomjar
  */
-public class SessionTaskQueryOrderFromCDB implements FjSessionTask {
+public class SessionTaskQueryOrder implements FjSessionTask {
     
-    private static final Logger logger = Logger.getLogger(SessionTaskQueryOrderFromCDB.class);
+    private static final Logger logger = Logger.getLogger(SessionTaskQueryOrder.class);
 
     @Override
     public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
         FjSessionContext context = path.context();
         String server = context.server();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        if (!msg.fs().startsWith("cdb")) {
-            logger.error("invalid message, not come from cdb: " + msg);
+        if (msg.fs().startsWith("wca")) {
+            context.put("caid", msg.argsToJsonObject().getString("user"));
+            
+            FjDscpMessage msg_cdb = new FjDscpMessage();
+            msg_cdb.json().put("fs",   server);
+            msg_cdb.json().put("ts",   "cdb");
+            msg_cdb.json().put("sid",  context.sid());
+            msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_RETURN);
+            msg_cdb.json().put("args", String.format("{'c_caid':\"%s\"}", msg.argsToJsonObject().getString("user")));
+            FjServerToolkit.getSender(server).send(msg_cdb);
+            
+            return true;
+        } else if (msg.fs().startsWith("cdb")) {
+            JSONObject args = new JSONObject();
+            args.put("user",    context.getString("caid"));
+            args.put("content", createUserResponseContent4Apply(context, msg));
+            
+            FjDscpMessage msg_wca = new FjDscpMessage();
+            msg_wca.json().put("fs",   server);
+            msg_wca.json().put("ts",   "wca");
+            msg_wca.json().put("sid",  context.sid());
+            msg_wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
+            msg_wca.json().put("args", args);
+            FjServerToolkit.getSender(server).send(msg_wca);
+            
+            return true;
+        } else {
+            logger.error("invalid message, unsupported from: " + msg);
             return false;
         }
-        
-        JSONObject args = new JSONObject();
-        args.put("user",    context.getString("caid"));
-        args.put("content", createUserResponseContent4Apply(context, msg));
-        
-        FjDscpMessage msg_wca = new FjDscpMessage();
-        msg_wca.json().put("fs",   server);
-        msg_wca.json().put("ts",   "wca");
-        msg_wca.json().put("sid",  context.sid());
-        msg_wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
-        msg_wca.json().put("args", args);
-        FjServerToolkit.getSender(server).send(msg_wca);
-        
-        return true;
     }
 
     private static String createUserResponseContent4Apply(FjSessionContext scb, FjDscpMessage msg) {

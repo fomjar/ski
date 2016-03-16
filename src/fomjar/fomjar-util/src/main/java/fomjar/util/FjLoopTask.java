@@ -5,7 +5,7 @@ package fomjar.util;
  * 
  * @author fomjar
  */
-public abstract class FjLoopTask implements Runnable {
+public abstract class FjLoopTask implements FjTask {
 
     private long delay;
     private long interval;
@@ -84,12 +84,16 @@ public abstract class FjLoopTask implements Runnable {
     @Override
     public void run() {
         isRun = true;
+        
         try {Thread.sleep(getDelay());}
         catch (InterruptedException e) {e.printStackTrace();}
+        
         while(isRun) {
             long start = System.currentTimeMillis();
+            
             try {perform();}
             catch (Exception e) {e.printStackTrace();}
+            
             long end = System.currentTimeMillis();
             long delta = end - start;
             if (delta >= getInterval()) Thread.yield();
@@ -99,10 +103,4 @@ public abstract class FjLoopTask implements Runnable {
             }
         }
     }
-    
-    /**
-     * 具体执行的任务内容
-     */
-    public abstract void perform();
-    
 }

@@ -17,7 +17,6 @@ import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
-import fomjar.server.msg.FjMessage;
 import fomjar.server.msg.FjStringMessage;
 import fomjar.server.msg.FjXmlMessage;
 import fomjar.util.FjLoopTask;

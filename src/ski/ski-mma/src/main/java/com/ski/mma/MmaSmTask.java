@@ -10,12 +10,12 @@ import com.taobao.api.request.OpenSmsSendvercodeRequest;
 import com.taobao.api.request.OpenSmsSendvercodeRequest.SendVerCodeRequest;
 import com.taobao.api.response.OpenSmsSendvercodeResponse;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjMessage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 

@@ -4,6 +4,7 @@ import java.nio.charset.Charset;
 
 import org.w3c.dom.Document;
 
+import fomjar.server.FjMessage;
 import net.sf.json.JSONObject;
 
 public class FjHttpMessage implements FjMessage {

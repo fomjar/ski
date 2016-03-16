@@ -8,12 +8,12 @@ import org.openqa.selenium.ie.InternetExplorerDriver;
 
 import com.ski.common.SkiCommon;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjMessage;
 
 public class WaTask implements FjServerTask {
     

@@ -18,12 +18,6 @@ public final class SkiCommon {
      * @author fomjar
      */
     public static final class ISIS {
-        //////////////////////////////// 系统指令 ////////////////////////////////
-        /** 未知指令 */
-        public static final int INST_SYS_UNKNOWN_INST   = 0xFFFFFFFF;
-        /** 系统ping */
-        public static final int INST_SYS_PING           = 0x00000001;
-        
         //////////////////////////////// 用户指令 ////////////////////////////////
         /** 发往用户的响应 */
         public static final int INST_USER_RESPONSE      = 0x00001001;

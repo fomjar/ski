@@ -3,8 +3,6 @@ package fomjar.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import fomjar.server.msg.FjMessage;
-
 public class FjMessageWrapper {
     
     private FjMessage msg;

@@ -17,12 +17,13 @@ import org.apache.log4j.Logger;
 
 import com.ski.common.SkiCommon;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjMessage;
+import fomjar.server.msg.FjISIS;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -33,7 +34,7 @@ public class CdbTask implements FjServerTask {
     private static Connection conn = null;
 
     private static final class InstInfo {
-        public int                inst    = SkiCommon.ISIS.INST_SYS_UNKNOWN_INST;
+        public int                inst    = FjISIS.INST_SYS_UNKNOWN_INST;
         public JSON               args    = null;
         public String             mode    = null;
         public int                out     = 0;

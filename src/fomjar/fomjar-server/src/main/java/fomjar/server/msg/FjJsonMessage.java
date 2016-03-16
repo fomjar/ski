@@ -1,5 +1,6 @@
 package fomjar.server.msg;
 
+import fomjar.server.FjMessage;
 import net.sf.json.JSONObject;
 
 /**

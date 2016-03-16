@@ -1,4 +1,4 @@
-package fomjar.server.msg;
+package fomjar.server;
 
 /**
  * 消息抽象。所有以fomjar-server库为基础的服务器间通讯消息均以字符串

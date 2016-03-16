@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
-import fomjar.server.msg.FjMessage;
 
 /**
  * <p>

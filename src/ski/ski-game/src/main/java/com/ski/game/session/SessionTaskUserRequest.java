@@ -13,21 +13,17 @@ import fomjar.server.session.FjSessionPath;
 import fomjar.server.session.FjSessionTask;
 import net.sf.json.JSONObject;
 
-public class SessionTaskUserRequestFromWCA implements FjSessionTask {
+public class SessionTaskUserRequest implements FjSessionTask {
     
-    private static final Logger logger = Logger.getLogger(SessionTaskUserRequestFromWCA.class);
+    private static final Logger logger = Logger.getLogger(SessionTaskUserRequest.class);
     
     @Override
     public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
         FjSessionContext context = path.context();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
-        if (!msg.fs().startsWith("wca")) {
-            logger.error("invalid message, not come from wca: " + msg);
-            return false;
-        }
-        
         JSONObject args = msg.argsToJsonObject();
         String content = args.getString("content");
+        
         switch (context.getInteger("business.type")) {
         case SkiCommon.ISIS.INST_ECOM_APPLY_RETURN:
             switch (content.toLowerCase()) {
