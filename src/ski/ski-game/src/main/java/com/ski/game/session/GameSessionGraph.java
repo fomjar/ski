@@ -34,6 +34,7 @@ public class GameSessionGraph extends FjSessionGraph {
         .append(                                            createNode(SkiCommon.ISIS.INST_ECOM_APPLY_TRANSFER, apply_transfer))
         .append(                                                createNode(SkiCommon.ISIS.INST_ECOM_APPLY_TRANSFER, apply_transfer))
         .append(                                                    createNode(SkiCommon.ISIS.INST_ECOM_APPLY_TRANSFER, apply_transfer));
+        
     }
 
 }

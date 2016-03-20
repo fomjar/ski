@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
+import fomjar.util.FjLoopTask;
 
 public class FjSessionGraph {
     
@@ -18,9 +19,12 @@ public class FjSessionGraph {
     private Set<FjSessionNode>          nodes;
     private Map<Integer, FjSessionNode> heads;
     private Map<String,  FjSessionPath> paths;
+    private FjSessionMonitor            monitor;
     
     public FjSessionGraph() {
         paths = new HashMap<String, FjSessionPath>();
+        monitor = new FjSessionMonitor();
+        new Thread(monitor, "fjsession-monitor").start();
     }
     
     public FjSessionNode createHeadNode(int inst, FjSessionTask task) {
@@ -77,7 +81,9 @@ public class FjSessionGraph {
         catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
         // infer result
         if (isSuccess) {
-            if (!paths.containsKey(msg.sid())) paths.put(msg.sid(), path);
+            if (!paths.containsKey(msg.sid())) {
+                synchronized (paths) {paths.put(msg.sid(), path);}
+            }
             path.append(curr);
             // no next, end
             if (!curr.hasNext()) path.close();
@@ -85,11 +91,51 @@ public class FjSessionGraph {
     }
     
     void closePath(String sid) {
-        if (null == paths || !paths.containsKey(sid)) {
+        if (!paths.containsKey(sid)) {
             logger.error("session path not opened: " + sid);
             return;
         }
-        paths.remove(sid);
+        synchronized(paths) {paths.remove(sid);}
     }
     
+    public FjSessionMonitor getMonitor() {
+        return monitor;
+    }
+    
+    public class FjSessionMonitor extends FjLoopTask {
+        
+        private static final long INTERVAL = 1000L * 60 * 1;
+        
+        private long timeout;
+        
+        public FjSessionMonitor() {
+            super(INTERVAL, INTERVAL);
+            timeout  = 1000L * 60 * 10;
+        }
+        
+        public long getTimeout() {
+            return timeout;
+        }
+
+        public void setTimeout(long timeout) {
+            this.timeout = timeout;
+        }
+
+        @Override
+        public void perform() {
+            Map<String, FjSessionPath> pathcopy = new HashMap<String, FjSessionPath>(paths);
+            pathcopy.values().forEach((path)->{
+                if (path.isClosed()) {
+                    logger.warn("session close incomplete: " + path.sid());
+                    closePath(path.sid());
+                } else {
+                    if (timeout <= System.currentTimeMillis() - path.context().getLong("time.open")) {
+                        logger.info("session timeout: " + path.sid());
+                        path.close();
+                    }
+                }
+            });
+        }
+        
+    }
 }

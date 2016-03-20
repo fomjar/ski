@@ -51,12 +51,20 @@ public class FjSessionPath {
         context.put("time.open", System.currentTimeMillis());
     }
     
+    public boolean isClosed() {
+        if (null == context) {
+            logger.error("session never opened");
+            return true;
+        }
+        return context.has("time.close");
+    }
+    
     public FjSessionContext close() {
         if (null == context) {
-            logger.error("session never opend");
+            logger.error("session never opened");
             return null;
         }
-        if (context.has("time.close")) {
+        if (isClosed()) {
             logger.error("session already closed: " + context.sid());
             return context;
         }
@@ -65,5 +73,4 @@ public class FjSessionPath {
         graph.closePath(context.sid());
         return context;
     }
-    
 }

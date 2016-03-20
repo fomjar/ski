@@ -91,7 +91,7 @@ public class FjSender extends FjLoopTask {
                     catch (IOException e) {e.printStackTrace();}
                 }
             }
-        } else logger.error("unsupported format message: " + msg);
+        } else logger.error(String.format("unsupported format message, class: %s, content: %s", msg.getClass().getName(), msg));
         if (isSuccess) {
             logger.debug("send message success: " + msg);
             try {if (null != observer) observer.onSuccess();}
