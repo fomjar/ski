@@ -123,7 +123,9 @@ public class FjSessionGraph {
 
         @Override
         public void perform() {
-            Map<String, FjSessionPath> pathcopy = new HashMap<String, FjSessionPath>(paths);
+            Map<String, FjSessionPath> pathcopy;
+            synchronized(paths) {pathcopy = new HashMap<String, FjSessionPath>(paths);}
+            
             pathcopy.values().forEach((path)->{
                 if (path.isClosed()) {
                     logger.warn("session close incomplete: " + path.sid());
