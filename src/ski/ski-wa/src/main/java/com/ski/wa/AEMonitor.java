@@ -49,7 +49,7 @@ public class AEMonitor extends FjLoopTask {
     }
 
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wa.ae.reload-interval"));
         setInterval(second);
     }
     
