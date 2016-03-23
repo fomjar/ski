@@ -16,6 +16,6 @@ begin
         call sp_query_order_by_user(code, desc, user, type);
     end if;
 
-    select convert(desc using utf8) into desc;
+    set desc = convert(desc using utf8);
 end //
 DELIMITER ;
