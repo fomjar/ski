@@ -11,7 +11,6 @@ import java.sql.Types;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -24,7 +23,6 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjISIS;
-import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -34,14 +32,14 @@ public class CdbTask implements FjServerTask {
     private static Connection conn = null;
 
     private static final class InstInfo {
-        public int                inst    = FjISIS.INST_SYS_UNKNOWN_INST;
-        public JSON               args    = null;
-        public String             mode    = null;
-        public int                out     = 0;
-        public String             sql_ori = null;
-        public List<String>       sql_use = null;
-        public List<List<String>> result  = null;
-        public String             error   = null;
+        public int          inst    = FjISIS.INST_SYS_UNKNOWN_INST;
+        public JSONObject   args    = null;
+        public String       mode    = null;
+        public int          out     = 0;
+        public String       sql_ori = null;
+        public String       sql_use = null;
+        public int          code    = SkiCommon.CODE.CODE_SYS_SUCCESS;
+        public String       desc    = null;
     }
     
     @Override
@@ -55,7 +53,7 @@ public class CdbTask implements FjServerTask {
         FjDscpMessage req = (FjDscpMessage) msg;
         InstInfo inst = new InstInfo();
         inst.inst = req.inst();
-        inst.args = req.argsToJson();
+        inst.args = req.argsToJsonObject();
         {
             String inststring = Integer.toHexString(inst.inst);
             while (8 > inststring.length()) inststring = "0" + inststring;
@@ -63,34 +61,28 @@ public class CdbTask implements FjServerTask {
         }
         
         if (!checkConnection()) {
-            response(server.name(), req, String.format("{'code':%d, 'desc':'database state abnormal'}", SkiCommon.CODE.CODE_DB_STATE_ABNORMAL));
+            response(server.name(), req, inst);
             return;
         }
         
-        inst.error = null;
         getInstInfo(conn, inst);
-        if (null != inst.error) {
-            logger.error("get instruction info failed: " + inst.error);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, inst.error));
+        if (SkiCommon.CODE.CODE_SYS_SUCCESS != inst.code) {
+            logger.error("get instruction info failed: " + inst.desc);
+            response(server.name(), req, inst);
             return;
         }
         generateSql(inst);
         executeSql(conn, inst);
-        if (null != inst.error) {
-            logger.error("execute sql failed: " + inst.error);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"%s\"}", SkiCommon.CODE.CODE_DB_OPERATE_FAILED, inst.error));
-            return;
-        }
-        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", SkiCommon.CODE.CODE_SYS_SUCCESS, JSONArray.fromObject(inst.result).toString()));
+        response(server.name(), req, inst);
     }
     
-    private static void response(String serverName, FjDscpMessage req, Object args) {
+    private static void response(String serverName, FjDscpMessage req, InstInfo inst) {
         FjDscpMessage rsp = new FjDscpMessage();
         rsp.json().put("fs",   serverName);
         rsp.json().put("ts",   req.fs());
         rsp.json().put("sid",  req.sid());
         rsp.json().put("inst", req.inst());
-        rsp.json().put("args", args);
+        rsp.json().put("args", String.format("{'code':%d, 'desc':\"%s\"}", inst.code, inst.desc));
         FjServerToolkit.getSender(serverName).send(rsp);
     }
     
@@ -124,122 +116,107 @@ public class CdbTask implements FjServerTask {
             st = conn.createStatement();
             ResultSet rs = st.executeQuery("select c_mode, i_out, c_sql from tbl_instruction where i_inst = " + inst.inst);
             if (!rs.next()) {
-                inst.error = "instruction is not registered: " + inst.inst;
-                logger.error(inst.error);
+                inst.code = SkiCommon.CODE.CODE_SYS_ILLEGAL_INST;
+                inst.desc = "instruction is not registered: " + inst.inst;
+                logger.error(inst.desc);
                 return;
             }
             inst.mode = rs.getString(1);
             inst.out = rs.getInt(2);
             inst.sql_ori = rs.getString(3);
+            
+            if ("sp".equalsIgnoreCase(inst.mode) && 2 > inst.out) {
+                inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+                inst.desc = "invalid store procedure, out parameter count must be larger than 1: " + inst.sql_ori;
+                logger.error(inst.desc);
+                return;
+            }
         } catch (SQLException e) {
+            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.desc = e.getMessage();
             logger.error("failed to get instruction info: " + inst.inst, e);
-            inst.error = e.getMessage();
         } finally {
             try {if (null != st) st.close();}
             catch (SQLException e) {e.printStackTrace();}
         }
     }
     
-    @SuppressWarnings("unchecked")
     private static void generateSql(InstInfo inst) {
         logger.debug(String.format("inst(%d) sql-ori: %s", inst.inst, inst.sql_ori));
-        if (!inst.args.isArray()) { // single argument: JSONObject
-            JSONObject arg_obj = (JSONObject) inst.args;
-            String sql_use = inst.sql_ori;
-            Iterator<String> ki = arg_obj.keys();
-            while (ki.hasNext()) {
-                String k = ki.next();
-                String v = arg_obj.getString(k);
-                sql_use = sql_use.replace("$" + k, v);
-            }
-            sql_use = sql_use.replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null");
-            inst.sql_use = new LinkedList<String>();
-            inst.sql_use.add(sql_use);
-            logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
-        } else { // JSONArray
-            JSONArray args_arr = (JSONArray) inst.args;
-            inst.sql_use = (List<String>) args_arr
-                    .stream()
-                    .map((args)->{
-                        JSONObject args_obj = (JSONObject) args;
-                        String sql_use = inst.sql_ori;
-                        Iterator<String> ki = args_obj.keys();
-                        while (ki.hasNext()) {
-                            String k = ki.next();
-                            String v = args_obj.getString(k);
-                            sql_use = sql_use.replace("$" + k, v);
-                        }
-                        sql_use = sql_use.replaceAll("\\$\\w+", "null");
-                        logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
-                        return sql_use;
-                    })
-                    .collect(Collectors.toList());
+        String sql_use = inst.sql_ori;
+        @SuppressWarnings("unchecked")
+        Iterator<String> ki = inst.args.keys();
+        while (ki.hasNext()) {
+            String k = ki.next();
+            String v = inst.args.getString(k);
+            sql_use = sql_use.replace("$" + k, v);
         }
+        sql_use = sql_use.replaceAll("[\\'|\\\"]*\\$\\w+[\\'|\\\"]*", "null");
+        inst.sql_use = sql_use;
+        logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
     }
 
     private static void executeSql(Connection conn, InstInfo inst) {
         switch (inst.mode.toLowerCase()) {
         case "sp": executeSp(conn, inst); break;
         case "st": executeSt(conn, inst); break;
-        default: inst.error = "instruction execute mode is not supported: " + inst.mode; break;
+        default:
+            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.desc = "instruction execute mode is not supported: " + inst.mode;
+            break;
         }
     }
     
     private static void executeSt(Connection conn, InstInfo inst) {
-        if (null != inst.result) inst.result.clear();
-        
-        inst.sql_use.forEach((sql_use)->{
-            Statement st = null;
-            try {
-                st = conn.createStatement();
-                if (0 < inst.out) {
-                    ResultSet rs = st.executeQuery(sql_use);
-                    if (null == inst.result) inst.result = new LinkedList<List<String>>();
-                    List<String> result1 = new LinkedList<String>();
-                    while (rs.next())
-                        for (int i = 1; i <= inst.out; i++) result1.add(rs.getString(i));
-                    inst.result.add(result1);
-                } else {
-                    st.execute(sql_use);
-                }
-            } catch (SQLException e) {
-                logger.error(String.format("failed to process statement, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
-                inst.error = e.getMessage();
-            } finally {
-                try {if (null != st) st.close();}
-                catch (SQLException e) {e.printStackTrace();}
+        Statement st = null;
+        try {
+            st = conn.createStatement();
+            if (0 < inst.out) {
+                ResultSet rs = st.executeQuery(inst.sql_use);
+                
+                List<String> desc = new LinkedList<String>();
+                while (rs.next())
+                    for (int i = 1; i <= inst.out; i++) desc.add(rs.getString(i));
+                inst.desc = JSONArray.fromObject(desc).toString();
+            } else {
+                st.execute(inst.sql_use);
             }
-        });
+            inst.code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+        } catch (SQLException e) {
+            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.desc = e.getMessage();
+            logger.error(String.format("failed to execute statement, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
+        } finally {
+            try {if (null != st) st.close();}
+            catch (SQLException e) {e.printStackTrace();}
+        }
     }
     
     private static void executeSp(Connection conn, InstInfo inst) {
-        if (null != inst.result) inst.result.clear();
-        
-        inst.sql_use.forEach((sql_use)->{
-            CallableStatement st = null;
-            try {
-                st = conn.prepareCall("call " + sql_use + ";");
-                if (0 < inst.out)
-                    for (int i = 1; i <= inst.out; i++) st.registerOutParameter(i, Types.VARCHAR); 
-                st.execute();
-                if (0 < inst.out) {
-                    if (null == inst.result) inst.result = new LinkedList<List<String>>();
-                    List<String> result = new LinkedList<String>();
-                    for (int i = 1; i <= inst.out; i++) {
-                        byte[] data = st.getBytes(i);
-                        if (null == data) result.add(null);
-                        else result.add(new String(data, Charset.forName("utf-8")));
-                    }
-                    inst.result.add(result);
-                }
-            } catch (SQLException e) {
-                logger.error(String.format("failed to process store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
-                inst.error = e.getMessage();
-            } finally {
-                try {if (null != st) st.close();}
-                catch (SQLException e) {}
+        CallableStatement st = null;
+        try {
+            st = conn.prepareCall("call " + inst.sql_use + ";");                
+            st.registerOutParameter(1, Types.INTEGER);
+            st.registerOutParameter(2, Types.VARCHAR);
+            for (int i = 3; i <= inst.out; i++) st.registerOutParameter(i, Types.VARCHAR); 
+            st.execute();
+            
+            inst.code = st.getInt(1);
+            List<String> desc = new LinkedList<String>();
+            for (int i = 2; i <= inst.out; i++) {
+                byte[] data = st.getBytes(i);
+                if (null == data) desc.add(null);
+                else desc.add(new String(data, Charset.forName("utf-8")));
             }
-        });
+            inst.desc = JSONArray.fromObject(desc).toString();
+        } catch (SQLException e) {
+            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.desc = e.getMessage();
+            logger.error(String.format("failed to execute store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
+        } finally {
+            try {if (null != st) st.close();}
+            catch (SQLException e) {}
+        }
     }
 
 }

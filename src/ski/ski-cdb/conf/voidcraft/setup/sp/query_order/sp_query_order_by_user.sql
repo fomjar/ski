@@ -1,8 +1,8 @@
-DELIMITER // 
-drop procedure if exists `ski`.`sp_query_order_by_user` //   
-create procedure `ski`.`sp_query_order_by_user`(
-    out code    integer,
-    out desc    mediumblob,
+delimiter // 
+drop procedure if exists sp_query_order_by_user //   
+create procedure sp_query_order_by_user (
+    out i_code  integer,
+    out c_desc  mediumblob,
     in  user    varchar(64),
     in  type    varchar(16)
 )  
@@ -26,23 +26,23 @@ begin
                          where o.c_poid = p.c_poid
                            and p.i_inst_id = ga.i_gaid
                            and o.c_caid = user;
-    /* Òì³£´¦Àí */
+    /* å¼‚å¸¸å¤„ç† */
     declare continue handler for sqlstate '02000' set done = 1;
 
-    /* ´ò¿ªÓÎ±ê */
+    /* æ‰“å¼€æ¸¸æ ‡ */
     open rs;  
-    /* Öğ¸öÈ¡³öµ±Ç°¼ÇÂ¼i_gaidÖµ*/
+    /* é€ä¸ªå–å‡ºå½“å‰è®°å½•i_gaidå€¼*/
     fetch rs into i_prod_type, i_pid, i_inst_type, i_inst_id, i_gaid, c_user, c_pass_cur, c_pass_a, c_pass_b;
-    /* ±éÀúÊı¾İ±í */
+    /* éå†æ•°æ®è¡¨ */
     repeat
-        if desc is null then
-            set desc = '';
+        if c_desc is null then
+            set c_desc = '';
         else
-            set desc = concat(desc, '\n');
+            set c_desc = concat(c_desc, '\n');
         end if;
 
-        set desc = concat(
-                desc,
+        set c_desc = concat(
+                c_desc,
                 conv(i_prod_type, 10, 16),
                 '\t',
                 conv(i_pid, 10, 16),
@@ -59,14 +59,14 @@ begin
                 '\t',
                 c_pass_a,
                 '\t',
-                c_pass_b,
+                c_pass_b
         );
 
     fetch rs into i_prod_type, i_pid, i_inst_type, i_inst_id, i_gaid, c_user, c_pass_cur, c_pass_a, c_pass_b;
     until done end repeat;
-    /* ¹Ø±ÕÓÎ±ê */
+    /* å…³é—­æ¸¸æ ‡ */
     close rs;
 
-    set code=0;
+    set i_code=0;
 end //  
-DELIMITER ; 
+delimiter ; 

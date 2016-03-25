@@ -64,7 +64,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
         int    code = msg.argsToJsonObject().getInt("code");
         if (SkiCommon.CODE.CODE_SYS_SUCCESS != code) return "database operate failed";
         
-        String[] products = msg.argsToJsonObject().getJSONArray("desc").getJSONArray(0).getString(2).split("\n");
+        String[] products = msg.argsToJsonObject().getJSONArray("desc").toString().split("\n");
         for (String productString : products) {
             String[] product = productString.split("\t");
             /**
