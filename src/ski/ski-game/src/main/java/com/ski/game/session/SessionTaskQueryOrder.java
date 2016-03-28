@@ -61,7 +61,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
 
     private static String createUserResponseContent4Apply(FjSessionContext scb, FjDscpMessage msg) {
         StringBuffer content = new StringBuffer("【游戏清单】\n\n");
-        int    code = msg.argsToJsonObject().getInt("code");
+        int code = msg.argsToJsonObject().getInt("code");
         if (SkiCommon.CODE.CODE_SYS_SUCCESS != code) return "database operate failed";
         
         String[] products = msg.argsToJsonObject().getJSONArray("desc").toString().split("\n");

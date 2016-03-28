@@ -82,7 +82,10 @@ public class CdbTask implements FjServerTask {
         rsp.json().put("ts",   req.fs());
         rsp.json().put("sid",  req.sid());
         rsp.json().put("inst", req.inst());
-        rsp.json().put("args", String.format("{'code':%d, 'desc':\"%s\"}", inst.code, inst.desc));
+        JSONObject args = new JSONObject();
+        args.put("code", inst.code);
+        args.put("desc", inst.desc);
+        rsp.json().put("args", args);
         FjServerToolkit.getSender(serverName).send(rsp);
     }
     
