@@ -41,7 +41,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
             return true;
         } else if (msg.fs().startsWith("cdb")) {
             JSONObject args = new JSONObject();
-            args.put("user",    context.getString("caid"));
+            args.put("user",    context.getString("user"));
             args.put("content", createUserResponseContent4Apply(context, msg));
             
             FjDscpMessage msg_wca = new FjDscpMessage();
@@ -59,32 +59,36 @@ public class SessionTaskQueryOrder implements FjSessionTask {
         }
     }
 
-    private static String createUserResponseContent4Apply(FjSessionContext scb, FjDscpMessage msg) {
+    private static String createUserResponseContent4Apply(FjSessionContext context, FjDscpMessage msg) {
         StringBuffer content = new StringBuffer("【游戏清单】\n\n");
         int code = msg.argsToJsonObject().getInt("code");
         if (SkiCommon.CODE.CODE_SYS_SUCCESS != code) return "database operate failed";
         
-        String[] products = msg.argsToJsonObject().getJSONArray("desc").toString().split("\n");
+        String[] products = msg.argsToJsonObject().getJSONArray("desc").get(0).toString().split("\n");
         for (String productString : products) {
             String[] product = productString.split("\t");
             /**
-             * product[0] = product type
-             * product[1] = instance id
+             * product[0] = pid
+             * product[1] = product type
              * product[2] = product name
-             * product[3] = game account
+             * product[3] = product inst
+             * product[4] = user name
+             * product[5] = password current
+             * product[6] = password a
+             * product[7] = password b
              */
             FjAddress address = FjServerToolkit.getSlb().getAddress("wcweb");
             String url = String.format("http://%s:%d/wcweb?user=%s&inst=%s&content=%s", 
                     address.host,
                     address.port,
-                    scb.getString("caid"),
+                    context.getString("user"),
                     Integer.toHexString(SkiCommon.ISIS.INST_ECOM_APPLY_RETURN),
                     product[1]);
             content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
                     url,
                     product[2],
-                    0 == Integer.parseInt(product[0], 16) ? "A类" : "B类",
-                    product[3]));
+                    0 == Integer.parseInt(product[1], 16) ? "A类" : "B类",
+                    product[4]));
         }
         return content.toString();
     }
