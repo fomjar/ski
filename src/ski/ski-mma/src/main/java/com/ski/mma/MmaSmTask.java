@@ -50,9 +50,7 @@ public class MmaSmTask implements FjServerTask {
             sendShortMessage(dmsg.argsToJsonObject());
             break;
         default:
-            String inst = Integer.toHexString(dmsg.inst());
-            while (8 > inst.length()) inst = "0" + inst;
-            logger.error("unsupported instruct: 0x" + inst);
+            logger.error(String.format("unsupported instruct: 0x%08X", dmsg.inst()));
             break;
         }
     }

@@ -73,4 +73,18 @@ public class FjSessionPath {
         graph.closePath(context.sid());
         return context;
     }
+    
+    @Override
+    public String toString() {
+        if (null == nodes || nodes.isEmpty()) return null;
+        
+        StringBuffer sb = new StringBuffer();
+        for (FjSessionNode node : nodes) {
+            String s = String.format("0x%08X", node.getInst());
+            if (0 == sb.length()) sb.append(s);
+            else sb.append("->" + s);
+        }
+        return sb.toString();
+    }
+    
 }

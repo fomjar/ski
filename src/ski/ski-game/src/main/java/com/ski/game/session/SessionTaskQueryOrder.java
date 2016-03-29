@@ -40,6 +40,11 @@ public class SessionTaskQueryOrder implements FjSessionTask {
             
             return true;
         } else if (msg.fs().startsWith("cdb")) {
+            if (!context.has("user")) {
+                logger.error("query order request not come from user side, no user data cached in context, can not forward query data");
+                return false;
+            }
+            
             JSONObject args = new JSONObject();
             args.put("user",    context.getString("user"));
             args.put("content", createUserResponseContent4Apply(context, msg));
@@ -78,7 +83,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
              * product[7] = password b
              */
             FjAddress address = FjServerToolkit.getSlb().getAddress("wcweb");
-            String url = String.format("http://%s:%d/wcweb?user=%s&inst=%s&content=%s", 
+            String url = String.format("http://%s:%d/wcweb?user=%s&inst=%s&account=%s", 
                     address.host,
                     address.port,
                     context.getString("user"),

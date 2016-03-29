@@ -116,8 +116,8 @@ public class WechatInterface {
     
     private static void checkWechatCustomService() throws WechatPermissionDeniedException, WechatCustomServiceException {
         FjJsonMessage rsp = customServiceGet();
-        if (!rsp.json().containsKey("kf_list"))  logger.warn("custom service maybe unavailable");
-        if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
+        if (!rsp.json().containsKey("kf_list")) logger.warn("custom service maybe unavailable");
+        else if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
     }
     
     /**

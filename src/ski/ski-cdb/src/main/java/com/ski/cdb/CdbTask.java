@@ -54,11 +54,7 @@ public class CdbTask implements FjServerTask {
         InstInfo inst = new InstInfo();
         inst.inst = req.inst();
         inst.args = req.argsToJsonObject();
-        {
-            String inststring = Integer.toHexString(inst.inst);
-            while (8 > inststring.length()) inststring = "0" + inststring;
-            logger.info(String.format("INSTRUCTION - %s:%s:0x%s", req.fs(), req.sid(), inststring));
-        }
+        logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), req.inst()));
         
         if (!checkConnection()) {
             response(server.name(), req, inst);
@@ -87,6 +83,7 @@ public class CdbTask implements FjServerTask {
         args.put("desc", inst.desc);
         rsp.json().put("args", args);
         FjServerToolkit.getSender(serverName).send(rsp);
+        logger.debug("response message: " + rsp);
     }
     
     private static boolean checkConnection() {

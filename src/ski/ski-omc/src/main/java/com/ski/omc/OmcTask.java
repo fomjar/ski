@@ -13,13 +13,11 @@ public class OmcTask implements FjServerTask {
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-        String inst = Integer.toHexString(((FjDscpMessage) wrapper.message()).inst());
-        while (8 > inst.length()) inst = "0" + inst;
-        logger.info(String.format("fs: %10s ts: %10s sid: %40s inst: 0x%s", 
+        logger.info(String.format("fs: %10s ts: %10s sid: %40s inst: 0x%08X", 
                 ((FjDscpMessage) wrapper.message()).fs(),
                 ((FjDscpMessage) wrapper.message()).ts(),
                 ((FjDscpMessage) wrapper.message()).sid(),
-                inst));
+                ((FjDscpMessage) wrapper.message()).inst()));
     }
 
 }

@@ -64,9 +64,7 @@ public class AEMonitor extends FjLoopTask {
             logger.error("ae package is not available");
             return null;
         }
-        String inst_str = Integer.toHexString(inst).toUpperCase();
-        while (8 > inst_str.length()) inst_str = "0" + inst_str;
-        String className = FjServerToolkit.getServerConfig("ae.0x" + inst_str);
+        String className = FjServerToolkit.getServerConfig(String.format("ae.0x%08X", inst));
         try {
             Class<?> clazz = loader.loadClass(className);
             Object instance = clazz.newInstance();

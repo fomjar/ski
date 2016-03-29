@@ -59,17 +59,18 @@ public class FjSessionGraph {
         FjDscpMessage msg  = (FjDscpMessage) wrapper.message();
         FjSessionPath path = paths.get(msg.sid());
         FjSessionNode curr = null;
-        // match old
+        // match old path
         if (null != path) curr = path.getLast().getNext(msg.inst());
-        // match new
+        // match new path
         else curr = getHeadNode(msg.inst());
         // not match
         if (null == curr) {
-            logger.error("message not match this graph: " + msg);
-            if (null != path) {
-                logger.error("close path: " + msg.sid());
+            logger.warn(String.format("message not match graph(%s): %s", path.sid(), msg));
+            if (null != path) { // old path, close and dispatch again, will try the head node
                 path.close();
-            }
+                logger.warn("try to dispatch again");
+                dispatch(server, wrapper);
+            } // else, new path, just drop
             return;
         }
         // new path
@@ -87,14 +88,16 @@ public class FjSessionGraph {
             path.append(curr);
             // no next, end
             if (!curr.hasNext()) path.close();
-        } else logger.error("on session failed for message: " + msg);
+        } else {
+            logger.error("on session failed for message: " + msg);
+            if (!path.isClosed()) path.close();
+        }
     }
     
     void closePath(String sid) {
-        if (!paths.containsKey(sid)) {
-            logger.error("session path not opened: " + sid);
-            return;
-        }
+        if (!paths.containsKey(sid))  return;
+        
+        logger.info(String.format("close path(%s): %s", sid, paths.get(sid)));
         synchronized(paths) {paths.remove(sid);}
     }
     

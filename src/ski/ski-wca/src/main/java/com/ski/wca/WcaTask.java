@@ -138,6 +138,7 @@ public class WcaTask implements FjServerTask {
         }
         req.json().put("args", args);
         FjServerToolkit.getSender(serverName).send(req); // 用户行为上报业务
+        logger.debug("report message from wechat server: " + req);
     }
     
     private void processSKI(String serverName, FjMessageWrapper wrapper) {
@@ -154,13 +155,12 @@ public class WcaTask implements FjServerTask {
             } catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + dmsg, e);}
             break;
         default: // forward report
-            String inst = Integer.toHexString(dmsg.inst());
-            while (8 > inst.length()) inst = "0" + inst;
-            logger.info(String.format("INST_USER_INSTRUCTION - %s:%s:0x%s", dmsg.fs(), dmsg.sid(), inst));
+            logger.info(String.format("INST_USER_INSTRUCTION - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
             FjDscpMessage msg = new FjDscpMessage(dmsg.json());
             msg.json().put("fs", serverName);
             msg.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
             FjServerToolkit.getSender(serverName).send(msg);
+            logger.debug("report message from anywhere: " + msg);
             break;
         }
     }

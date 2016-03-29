@@ -34,14 +34,12 @@ public class WaTask implements FjServerTask {
         FjDscpMessage req = (FjDscpMessage) msg;
         int        inst = req.inst();
         JSONObject args = req.argsToJsonObject();
-        String     inststring = Integer.toHexString(inst);
-        while (8 > inststring.length()) inststring = "0" + inststring;
-        logger.info(String.format("INSTRUCTION - %s:%s:0x%s", req.fs(), req.sid(), inststring));
+        logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), inst));
         
         AE ae = AEMonitor.getInstance().getAe(inst);
         if (null == ae) {
-            logger.error("can not find an AE for instuction: 0x" + inststring);
-            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%s'}", SkiCommon.CODE.CODE_WEB_AE_NOT_FOUND, inststring));
+            logger.error(String.format("can not find an AE for instuction: 0x%08X", inst));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%08X'}", SkiCommon.CODE.CODE_WEB_AE_NOT_FOUND, inst));
             return;
         }
         WebDriver driver = null;
@@ -49,8 +47,8 @@ public class WaTask implements FjServerTask {
             driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
             ae.execute(driver, args);
         } catch (Exception e) {
-            logger.error("execute ae failed for instuction: 0x" + inststring, e);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"execute ae failed for instuction(0x%s): %s\"}", SkiCommon.CODE.CODE_WEB_AE_EXECUTE_FAILED, inststring, e.getMessage()));
+            logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
+            response(server.name(), req, String.format("{'code':%d, 'desc':\"execute ae failed for instuction(0x%08X): %s\"}", SkiCommon.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, e.getMessage()));
             return;
         } finally {
             if (null != driver) driver.quit();
@@ -69,5 +67,6 @@ public class WaTask implements FjServerTask {
         rsp.json().put("inst", req.inst());
         rsp.json().put("args", args);
         FjServerToolkit.getSender(serverName).send(rsp);
+        logger.debug("response message: " + rsp);
     }
 }
