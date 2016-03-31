@@ -102,6 +102,9 @@ public class FjSessionGraph {
         if (path.isEmpty()) node = getHead(inst);
         else                node = path.getLast().getNext(inst);
         
+        // prepare before execute session task
+        context.prepSession(server, msg);
+        
         // no any match
         if (null == node) {
             closeSession(sid);
@@ -118,8 +121,6 @@ public class FjSessionGraph {
             return;
         }
         
-        // prepare before execute session task
-        context.prepSession(server, msg);
         path.append(node);
         
         // execute session task
@@ -128,6 +129,7 @@ public class FjSessionGraph {
         catch (Exception e) {logger.error("on session failed for message: " + msg, e);}
         
         context.postSession(isSuccess);
+        
         if (isSuccess) { // success, check if complete
             if (!node.hasNext()) closeSession(sid);
         } else { // fail, roll back
@@ -138,8 +140,8 @@ public class FjSessionGraph {
     
     private boolean isSessionOpened(String sid) {return contexts.containsKey(sid);}
     
-    private FjSessionContext openSession(String sid) {
-        logger.info(String.format("session open: %s", sid));
+    private void openSession(String sid) {
+        logger.info(String.format("session open : %s", sid));
         
         if (!contexts.containsKey(sid)) {
             synchronized(contexts) {
@@ -150,24 +152,19 @@ public class FjSessionGraph {
         }
         if (!paths.containsKey(sid))
             synchronized(paths) {paths.put(sid, new FjSessionPath(this, sid));}
-        
-        return contexts.get(sid);
     }
     
-    private FjSessionContext closeSession(String sid) {
-        logger.info(String.format("session close: sid=%s, path=%s", sid, paths.get(sid)));
+    private void closeSession(String sid) {
+        logger.info(String.format("session close: %s, path: %s", sid, paths.get(sid)));
 
         if (contexts.containsKey(sid)) {
             synchronized(contexts)   {
                 FjSessionContext context = contexts.remove(sid);
                 context.put("time.close", System.currentTimeMillis());
-                return context;
             }
         }
         if (paths.containsKey(sid))
             synchronized(paths)     {paths.remove(sid);}
-        
-        return null;
     }
     
     public class FjSessionMonitor extends FjLoopTask {
