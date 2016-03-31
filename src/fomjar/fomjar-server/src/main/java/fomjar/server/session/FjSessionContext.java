@@ -79,11 +79,16 @@ public class FjSessionContext {
     public int     ssn()    {return getInteger("ssn");}
     public String  server() {return getString("server");}
     
-    void prepare(FjServer server, FjMessage msg) {
+    void prepSession(FjServer server, FjMessage msg) {
         put("server", server.name());
         
         put("ssn", ssn() + 1);
         put("msg." + ssn(), msg);
+    }
+    
+    void postSession(boolean isSuccess) {
+        String result = isSuccess ? "s" : "f";
+        put("msg." + ssn() + "." + result, remove("msg." + ssn()));
     }
     
     /** 根据会话序列号获取其对应的消息 */

@@ -71,7 +71,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
              * product[7] = password b
              */
             FjAddress address = FjServerToolkit.getSlb().getAddress("wcweb");
-            String url = String.format("http://%s:%d/wcweb?user=%s&inst=%s&account=%s", 
+            String url = String.format("http://%s:%d/ski-wsi?sid=%s&inst=%s&account=%s", 
                     address.host,
                     address.port,
                     context.getString("user"),

@@ -9,17 +9,11 @@ public abstract class FjFixedTask implements FjTask {
     
     private long time;
     
-    public FjFixedTask() {
-        this(Long.MAX_VALUE);
-    }
+    public FjFixedTask() {this(Long.MAX_VALUE);}
     
-    public FjFixedTask(long time) {
-        this.time = time;
-    }
+    public FjFixedTask(long time) {this.time = time;}
     
-    public long getFixedTime() {
-        return time;
-    }
+    public long getFixedTime() {return time;}
 
     @Override
     public void run() {

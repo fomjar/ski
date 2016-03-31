@@ -17,7 +17,8 @@ public class GameSessionGraph extends FjSessionGraph {
         FjSessionTask verify_account = new SessionTaskVerifyAccount();
         FjSessionTask apply_transfer = new SessionTaskApplyTransfer();
         
-        FjSessionTask mismatch       = new SessionTaskMismatch();
+        FjSessionTask task_mismatch  = new SessionTaskMismatch();
+        FjSessionTask task_timeout   = new SessionTaskTimeout();
         
                 createHeadNode(SkiCommon.ISIS.INST_ECOM_QUERY_ORDER, query_order)
         .append(    createNode(SkiCommon.ISIS.INST_ECOM_QUERY_ORDER, query_order));
@@ -37,8 +38,8 @@ public class GameSessionGraph extends FjSessionGraph {
         .append(                                                createNode(SkiCommon.ISIS.INST_ECOM_APPLY_TRANSFER, apply_transfer))
         .append(                                                    createNode(SkiCommon.ISIS.INST_ECOM_APPLY_TRANSFER, apply_transfer));
         
-        setMismatchTask(mismatch);
-        
+        setMismatchTask(task_mismatch);
+        setTimeoutTask(task_timeout);
     }
 
 }
