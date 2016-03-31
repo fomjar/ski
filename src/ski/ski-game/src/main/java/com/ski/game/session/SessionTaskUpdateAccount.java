@@ -19,8 +19,7 @@ public class SessionTaskUpdateAccount implements FjSessionTask {
     private static final Logger logger = Logger.getLogger(SessionTaskUpdateAccount.class);
 
     @Override
-    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
-        FjSessionContext context = path.context();
+    public boolean onSession(FjSessionContext context, FjSessionPath path, FjMessageWrapper wrapper) {
         String server = context.server();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         

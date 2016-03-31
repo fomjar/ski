@@ -2,8 +2,10 @@ package fomjar.server.session;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -16,14 +18,17 @@ public class FjSessionGraph {
     
     private static final Logger logger = Logger.getLogger(FjSessionGraph.class);
     
-    private Set<FjSessionNode>          nodes;
-    private Map<Integer, FjSessionNode> heads;
-    private Map<String,  FjSessionPath> paths;
-    private FjSessionMonitor            monitor;
+    private Map<String,  FjSessionPath>     paths;
+    private Map<String,  FjSessionContext>  contexts;
+    private Set<FjSessionNode>              nodes;
+    private Map<Integer, FjSessionNode>     heads;
+    private FjSessionTask[]     mismatch;
+    private FjSessionMonitor    monitor;
     
     public FjSessionGraph() {
-        paths = new HashMap<String, FjSessionPath>();
-        monitor = new FjSessionMonitor();
+        paths       = new HashMap<String, FjSessionPath>();
+        contexts    = new HashMap<String, FjSessionContext>();
+        monitor     = new FjSessionMonitor();
         new Thread(monitor, "fjsession-monitor").start();
     }
     
@@ -33,6 +38,8 @@ public class FjSessionGraph {
         heads.put(inst, head);
         return head;
     }
+    
+    public void setMismatchTask(FjSessionTask... mismatch) {this.mismatch = mismatch;}
     
     public FjSessionNode createNode(int inst, FjSessionTask task) {
         FjSessionNode node = new FjSessionNode(inst, task);
@@ -56,54 +63,89 @@ public class FjSessionGraph {
             return;
         }
         
-        FjDscpMessage msg  = (FjDscpMessage) wrapper.message();
-        FjSessionPath path = paths.get(msg.sid());
-        FjSessionNode curr = null;
-        // match old path
-        if (null != path) curr = path.getLast().getNext(msg.inst());
-        // match new path
-        else curr = getHeadNode(msg.inst());
-        // not match
-        if (null == curr) {
-            logger.warn(String.format("message not match graph(%s): %s", path.sid(), msg));
-            if (null != path) { // old path, close and dispatch again, will try the head node
-                path.close();
-                logger.warn("try to dispatch again");
+        
+        FjDscpMessage       msg     = (FjDscpMessage) wrapper.message();
+        String              sid     = msg.sid();
+        int                 inst    = msg.inst();
+        FjSessionContext    context = null;
+        FjSessionPath       path    = null;
+        FjSessionNode       node    = null;
+        
+        if (!isOpened(sid)) open(sid);
+        
+        path    = paths.get(msg.sid());
+        context = contexts.get(msg.sid());
+        
+        if (path.isEmpty()) node = getHeadNode(inst);
+        else                node = path.getLast().getNext(inst);
+        
+        if (null == node) {
+            logger.error(String.format("message mismatch graph, sid=%s, inst=0x%08X", sid, inst));
+            if (!path.isEmpty()) {
+                logger.warn("try dispatch again");
+                close(sid);
                 dispatch(server, wrapper);
-            } // else, new path, just drop
+            } else {
+                logger.warn("do mismatch process");
+                if (null != mismatch) {
+                    for (FjSessionTask task : mismatch) {
+                        try {task.onSession(context, path, wrapper);}
+                        catch (Exception e) {logger.error("on mismatch session failed for message: " + msg, e);}
+                    }
+                }
+            }
             return;
         }
-        // new path
-        if (null == path) path = new FjSessionPath(this, msg.sid());
-        path.context().prepare(server, msg);
-        boolean isSuccess = false;
-        // execute task
-        try {isSuccess = curr.getTask().onSession(path, wrapper);}
-        catch (Exception e) {logger.error("error occurs when process session for message: " + msg, e);}
-        // infer result
-        if (isSuccess) {
-            if (!paths.containsKey(msg.sid())) {
-                synchronized (paths) {paths.put(msg.sid(), path);}
-            }
-            path.append(curr);
-            // no next, end
-            if (!curr.hasNext()) path.close();
-        } else {
-            logger.error("on session failed for message: " + msg);
-            if (!path.isClosed()) path.close();
-        }
-    }
-    
-    void closePath(String sid) {
-        if (!paths.containsKey(sid))  return;
         
-        logger.info(String.format("close path(%s): %s", sid, paths.get(sid)));
-        synchronized(paths) {paths.remove(sid);}
+        context.prepare(server, msg);
+        path.append(node);
+        
+        boolean isSuccess = false;
+        try {isSuccess = node.getTask().onSession(context, path, wrapper);}
+        catch (Exception e) {logger.error("on session failed for message: " + msg, e);}
+        
+        if (isSuccess) if (!node.hasNext()) close(sid);
+        else {
+            logger.error("on session failed for message: " + msg);
+            path.removeLast();
+        }
+
     }
     
-    public FjSessionMonitor getMonitor() {
-        return monitor;
+    public boolean isOpened(String sid) {return contexts.containsKey(sid);}
+    
+    private FjSessionContext open(String sid) {
+        logger.info(String.format("session open: %s", sid));
+        
+        if (!paths.containsKey(sid))
+            synchronized(paths) {paths.put(sid, new FjSessionPath(this, sid));}
+        if (!contexts.containsKey(sid)) {
+            synchronized(contexts) {
+                FjSessionContext context = new FjSessionContext(sid);
+                context.put("time.open", System.currentTimeMillis());
+                contexts.put(sid, context);
+            }
+        }
+        return contexts.get(sid);
     }
+    
+    public FjSessionContext close(String sid) {
+        logger.info(String.format("session close: sid=%s, path=%s", sid, paths.get(sid)));
+
+        if (paths.containsKey(sid))
+            synchronized(paths)     {paths.remove(sid);}
+        if (contexts.containsKey(sid)) {
+            synchronized(contexts)   {
+                FjSessionContext context = contexts.remove(sid);
+                context.put("time.close", System.currentTimeMillis());
+                return context;
+            }
+        }
+        
+        return null;
+    }
+    
+    public FjSessionMonitor getMonitor() {return monitor;}
     
     public class FjSessionMonitor extends FjLoopTask {
         
@@ -126,20 +168,23 @@ public class FjSessionGraph {
 
         @Override
         public void perform() {
-            Map<String, FjSessionPath> pathcopy;
-            synchronized(paths) {pathcopy = new HashMap<String, FjSessionPath>(paths);}
-            
-            pathcopy.values().forEach((path)->{
-                if (path.isClosed()) {
-                    logger.warn("session close incomplete: " + path.sid());
-                    closePath(path.sid());
-                } else {
-                    if (timeout <= System.currentTimeMillis() - path.context().getLong("time.open")) {
-                        logger.info("session timeout: " + path.sid());
-                        path.close();
-                    }
+            List<String> toremove = null;
+            synchronized(contexts) {
+                toremove = contexts.entrySet()
+                        .stream()
+                        .filter((entry)->{
+                            FjSessionContext context = entry.getValue();
+                            return timeout <= System.currentTimeMillis() - context.getLong("time.open"); 
+                        }).map((entry)->{
+                            return entry.getKey();
+                        }).collect(Collectors.toList());
+            }
+            if (null != toremove) {
+                for (String sid : toremove) {
+                    logger.warn("session timeout: " + sid);
+                    FjSessionGraph.this.close(sid);
                 }
-            });
+            }
         }
         
     }

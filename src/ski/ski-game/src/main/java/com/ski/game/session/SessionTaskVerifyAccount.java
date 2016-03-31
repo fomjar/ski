@@ -15,8 +15,7 @@ import net.sf.json.JSONObject;
 public class SessionTaskVerifyAccount implements FjSessionTask {
     
     @Override
-    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
-        FjSessionContext context = path.context();
+    public boolean onSession(FjSessionContext context, FjSessionPath path, FjMessageWrapper wrapper) {
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         
         @SuppressWarnings("unchecked")

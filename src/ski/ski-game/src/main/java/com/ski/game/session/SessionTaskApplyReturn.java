@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ski.common.SkiCommon;
+import com.ski.game.GameToolkit;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServerToolkit;
@@ -19,8 +20,7 @@ public class SessionTaskApplyReturn implements FjSessionTask {
     private static final Logger logger = Logger.getLogger(SessionTaskApplyReturn.class);
 
     @Override
-    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
-        FjSessionContext context = path.context();
+    public boolean onSession(FjSessionContext context, FjSessionPath path, FjMessageWrapper wrapper) {
         String server = context.server();
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         
@@ -31,6 +31,10 @@ public class SessionTaskApplyReturn implements FjSessionTask {
             JSONObject args = msg.argsToJsonObject();
             if (!args.has("user")) {
                 logger.error("invalid message for no 'user' argument: " + msg);
+                return false;
+            }
+            if (context.has("user") && !args.has("account")) {
+                GameToolkit.sendUserResponse(server, msg.sid(), context.getString("user"), "请选择指定链接进行退货");
                 return false;
             }
             String user = args.getString("user");
@@ -76,5 +80,5 @@ public class SessionTaskApplyReturn implements FjSessionTask {
             logger.error("invalid message, unsupported from: " + msg);
             return false;
         }
-     }
+    }
 }

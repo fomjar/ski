@@ -20,6 +20,7 @@ public class FjSessionNode {
     
     public int              getInst() {return inst;}
     public FjSessionTask    getTask() {return task;}
+    void setInst(int inst) {this.inst = inst;}
     
     public FjSessionNode getPrev(int inst) {
         if (null == node_prev) return null;

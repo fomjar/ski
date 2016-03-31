@@ -18,8 +18,7 @@ public class SessionTaskUserRequest implements FjSessionTask {
     private static final Logger logger = Logger.getLogger(SessionTaskUserRequest.class);
     
     @Override
-    public boolean onSession(FjSessionPath path, FjMessageWrapper wrapper) {
-        FjSessionContext context = path.context();
+    public boolean onSession(FjSessionContext context, FjSessionPath path, FjMessageWrapper wrapper) {
         FjDscpMessage msg = (FjDscpMessage) wrapper.message();
         JSONObject args = msg.argsToJsonObject();
         String content = args.getString("content");
