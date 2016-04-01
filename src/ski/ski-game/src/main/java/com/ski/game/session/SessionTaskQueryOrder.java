@@ -33,7 +33,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
             msg_cdb.json().put("fs",   server);
             msg_cdb.json().put("ts",   "cdb");
             msg_cdb.json().put("sid",  context.sid());
-            msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_RETURN);
+            msg_cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_ORDER);
             msg_cdb.json().put("args", String.format("{'c_caid':\"%s\"}", msg.argsToJsonObject().getString("user")));
             FjServerToolkit.getSender(server).send(msg_cdb);
             
@@ -71,12 +71,13 @@ public class SessionTaskQueryOrder implements FjSessionTask {
              * product[7] = password b
              */
             FjAddress address = FjServerToolkit.getSlb().getAddress("wcweb");
-            String url = String.format("http://%s:%d/ski-wsi?sid=%s&inst=%s&account=%s", 
+            String url = String.format("http://%s:%d/ski-wsi?sid=%s&inst=%s&user=%s&account=%s", 
                     address.host,
                     address.port,
                     context.getString("user"),
                     Integer.toHexString(SkiCommon.ISIS.INST_ECOM_APPLY_RETURN),
-                    product[1]);
+                    context.getString("user"),
+                    product[3]);
             content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
                     url,
                     product[2],
