@@ -51,13 +51,13 @@ public final class SkiCommon {
         public static final int INST_ECOM_APPLY_TRANSFER    = 0x00002105;
         // LOCK
         /** 锁定账户，锁定后无法变更数据 */
-        public static final int INST_ECOM_LOCK_ACCOUNT      = 0x00002201;
+        public static final int INST_ECOM_LOCK_INSTANCE      = 0x00002201;
         // VERIFY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_VERIFY_ACCOUNT    = 0x00002301;
         // UPDATE
         /** 更新账户 */
-        public static final int INST_ECOM_UPDATE_ACCOUNT    = 0x00002401;
+        public static final int INST_ECOM_UPDATE_INSTANCE    = 0x00002401;
         /** 更新/创建订单 */
         public static final int INST_ECOM_UPDATE_ORDER      = 0x00002402;
     }

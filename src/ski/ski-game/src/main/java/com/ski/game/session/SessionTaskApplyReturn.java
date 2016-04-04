@@ -37,23 +37,22 @@ public class SessionTaskApplyReturn implements FjSessionTask {
             String user = args.getString("user");
             context.put("business.type", SkiCommon.ISIS.INST_ECOM_APPLY_RETURN);
             context.put("user", user);
-            if (args.has("account")) {
-                String account = args.getString("account");
-                context.put("account", account);
+            if (args.has("instance")) {
+                String instance = args.getString("instance");
+                context.put("instance", instance);
                 
                 JSONObject args2cdb = new JSONObject();
                 args2cdb.put("user", user);
-                args2cdb.put("account", account);
+                args2cdb.put("instance", instance);
                 FjDscpMessage msg2cdb = new FjDscpMessage();
                 msg2cdb.json().put("fs",   server);
                 msg2cdb.json().put("ts",   "cdb");
                 msg2cdb.json().put("sid",  context.sid());
-                msg2cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_LOCK_ACCOUNT);
+                msg2cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_LOCK_INSTANCE);
                 msg2cdb.json().put("args", args2cdb);
                 FjServerToolkit.getSender(server).send(msg2cdb);
             } else {
                 JSONObject args2cdb = new JSONObject();
-                args2cdb.put("type", "return");
                 args2cdb.put("user", user);
                 FjDscpMessage msg2cdb = new FjDscpMessage();
                 msg2cdb.json().put("fs",   server);

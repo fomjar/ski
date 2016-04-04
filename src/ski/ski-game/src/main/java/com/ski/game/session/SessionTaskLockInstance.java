@@ -14,9 +14,9 @@ import fomjar.server.session.FjSessionPath;
 import fomjar.server.session.FjSessionTask;
 import net.sf.json.JSONObject;
 
-public class SessionTaskLockAccount implements FjSessionTask {
+public class SessionTaskLockInstance implements FjSessionTask {
     
-    private static final Logger logger = Logger.getLogger(SessionTaskLockAccount.class);
+    private static final Logger logger = Logger.getLogger(SessionTaskLockInstance.class);
 
     @Override
     public boolean onSession(FjSessionContext context, FjSessionPath path, FjMessageWrapper wrapper) {
@@ -35,7 +35,7 @@ public class SessionTaskLockAccount implements FjSessionTask {
             msg2wa.json().put("fs",   server);
             msg2wa.json().put("ts",   "wa");
             msg2wa.json().put("sid",  context.sid());
-            msg2wa.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_ACCOUNT);
+            msg2wa.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_INSTANCE);
             msg2wa.json().put("args", args2wa);
             FjServerToolkit.getSender(server).send(msg2wa);
             

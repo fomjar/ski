@@ -1,13 +1,12 @@
 delete from tbl_instruction where i_inst = (conv(00002002, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002002, 16, 10) + 0), 'sp', 2, "sp_query_order(?, ?, '$user', '$type')");
+insert into tbl_instruction values((conv(00002002, 16, 10) + 0), 'sp', 2, "sp_query_order(?, ?, '$user')");
 
 delimiter //
 drop procedure if exists sp_query_order // 
 create procedure sp_query_order (
     out i_code  integer,
     out c_desc  mediumblob,
-    in  user    varchar(64), -- null：所有用户；其他：指定用户caid
-    in  type    varchar(16)  -- all/null：所有订单；nodeliver：未发货；deliver：已发货的订单
+    in  user    varchar(64) -- null：所有用户；其他：指定用户caid
 )
 begin
     if user is null then

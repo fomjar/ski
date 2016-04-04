@@ -33,7 +33,7 @@ create table tbl_game_account (
     i_pid       integer,        -- 对应产品ID
     i_gaid      integer,        -- 游戏账户ID，对应产品实例
     c_user      varchar(32),    -- 用户名
-    c_pass_cur  varchar(32),    -- 当前密码
+    c_pass_curr varchar(32),    -- 当前密码
     c_pass_a    varchar(32),    -- 密码A
     c_pass_b    varchar(32)     -- 密码B
 );
@@ -42,7 +42,7 @@ create table tbl_game_account (
 drop table if exists tbl_game_account_rent;
 create table tbl_game_account_rent (
     i_gaid  integer,    -- 游戏账户ID
-    i_rent  tinyint     -- 租赁状态
+    i_rent  tinyint     -- 租赁状态: 0-未租，1<<4-A已租，1<<5-A锁定，1-B已租，1<<1-B锁定
 );
 
 -- 游戏账户下的游戏
