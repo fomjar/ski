@@ -38,11 +38,24 @@ create table tbl_game_account (
     c_pass_b    varchar(32)     -- 密码B
 );
 
--- 游戏账户租赁状态
-drop table if exists tbl_game_account_rent;
-create table tbl_game_account_rent (
-    i_gaid  integer,    -- 游戏账户ID
-    i_rent  tinyint     -- 租赁状态: 0-未租，1<<4-A已租，1<<5-A锁定，1-B已租，1<<1-B锁定
+-- 当前租赁状态
+drop table if exists tbl_rent;
+create table tbl_rent (
+    c_caid      varchar(64),    -- 渠道账户账户ID
+    i_prod_type integer,        -- 产品类型
+    i_prod_inst integer,        -- 产品实例
+    i_state     tinyint         -- 租赁状态: 0-未租，1-已租，2-锁定，3-已退
+);
+
+-- 平台账户流水
+drop table if exists tbl_rent_history;
+create table tbl_rent_history (
+    c_caid          varchar(64),    -- 渠道账户ID
+    i_prod_type     integer,        -- 产品类型
+    i_prod_inst     integer,        -- 产品实例
+    i_state_before  tinyint,        -- 变化前的状态
+    i_state_after   tinyint         -- 变化后的状态
+    t_change        datetime,       -- 变化时间
 );
 
 -- 游戏账户下的游戏
@@ -104,17 +117,6 @@ create table tbl_order_product (
     c_reserve1          varchar(64),    -- 保留信息1
     c_reserve2          varchar(64),    -- 保留信息2
     c_reserve3          varchar(64)     -- 保留信息3
-);
-
--- 平台账户流水
-drop table if exists tbl_journal_game_account;
-create table tbl_journal_game_account (
-    i_gaid          integer,        -- 游戏账号
-    c_caid          varchar(64),    -- 渠道账户ID
-    t_change        datetime,       -- 变化时间
-    i_state_before  tinyint,        -- 变化前的状态
-    i_state_after   tinyint,        -- 变化后的状态
-    i_cause         tinyint         -- 成因：0-用户操作 1-系统操作 2-人工维护操作
 );
 
 -- 渠道账户信息

@@ -97,7 +97,7 @@ public class SessionTaskQueryOrder implements FjSessionTask {
 
     @SuppressWarnings("unchecked")
     private static String createContent(FjSessionContext context) {
-        StringBuffer content = new StringBuffer("【产品清单】\n\n");
+        StringBuffer content = new StringBuffer("【" + I18N.zh(I18N.PRODUCT_LIST) + "】\n\n");
         
         FjAddress addr = FjServerToolkit.getSlb().getAddress("wsi");
         String    user = context.getString("user");
@@ -109,10 +109,17 @@ public class SessionTaskQueryOrder implements FjSessionTask {
                     Integer.toHexString(SkiCommon.ISIS.INST_ECOM_APPLY_RETURN),
                     user,
                     product.get("prod.inst"));
-            content.append(String.format("<a href='%s'>《%s》</a>\n账号(%s)：%s\n\n",
+            String type = null;
+            switch (Integer.parseInt(product.get("prod.type"), 16)) {
+                case 0: type = I18N.zh(I18N.TYPE_A); break;
+                case 1: type = I18N.zh(I18N.TYPE_B); break;
+                default: type = I18N.zh(I18N.UNKNOWN); break;
+            }
+            content.append(String.format("<a href='%s'>《%s》</a>\n%s(%s)：%s\n\n",
                     url,
                     product.get("prod.name"),
-                    0 == Integer.parseInt(product.get("prod.type"), 16) ? "A类" : "B类",
+                    I18N.zh(I18N.ACCOUNT),
+                    type,
                     product.get("user")));
         }
         return content.toString();

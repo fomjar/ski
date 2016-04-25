@@ -1,5 +1,8 @@
 package com.ski.game.session;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.log4j.Logger;
 
 import com.ski.common.SkiCommon;
@@ -30,16 +33,23 @@ public class SessionTaskApplyReturn implements FjSessionTask {
                 return false;
             }
             // 重复查询
-            if (context.has("user") && !args.has("account")) {
-                GameToolkit.sendUserResponse(server, msg.sid(), context.getString("user"), "请选择指定链接进行退货");
+            if (context.has("products") && !args.has("instance")) {
+                GameToolkit.sendUserResponse(server, msg.sid(), context.getString("user"), I18N.zh(I18N.REQUIRE_INSTANCE));
                 return false;
             }
             String user = args.getString("user");
-            context.put("business.type", SkiCommon.ISIS.INST_ECOM_APPLY_RETURN);
             context.put("user", user);
+            context.put("business.type", SkiCommon.ISIS.INST_ECOM_APPLY_RETURN);
             if (args.has("instance")) {
                 String instance = args.getString("instance");
-                context.put("instance", instance);
+                @SuppressWarnings("unchecked")
+                List<Map<String, String>> products = (List<Map<String, String>>)context.get("products");
+                for (Map<String, String> product : products) {
+                    if (instance.equals(product.get("prod.inst"))) {
+                        context.put("product", product);
+                        break;
+                    }
+                }
                 
                 JSONObject args2cdb = new JSONObject();
                 args2cdb.put("user", user);
@@ -67,7 +77,7 @@ public class SessionTaskApplyReturn implements FjSessionTask {
         // from db side, means finish
         if (msg.fs().startsWith("cdb")) {
             JSONObject args2wa = new JSONObject();
-            args2wa.put("user",  context.getString("alipay.user"));
+            args2wa.put("user",  context.getString("user.alipay"));
             args2wa.put("money", context.get("money.rest"));
             FjDscpMessage msg2wa = new FjDscpMessage();
             msg2wa.json().put("fs",   server);
