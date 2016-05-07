@@ -1,5 +1,5 @@
-delete from tbl_cmd_map where c_cmd = 'sp_apply_return';
-insert into tbl_cmd_map values((conv(00002104, 16, 10) + 0), 'sp', 2, "sp_apply_return(?,?,$i_inst_id,'$c_caid')");
+delete from tbl_instruction where c_cmd = 'sp_apply_return';
+insert into tbl_instruction values((conv(00002104, 16, 10) + 0), 'sp', 2, "sp_apply_return(?,?,$i_inst_id,'$c_caid')");
 
 drop procedure if exists sp_apply_return;
 DELIMITER //

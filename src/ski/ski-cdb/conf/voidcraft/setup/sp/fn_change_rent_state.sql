@@ -33,7 +33,15 @@ begin
 
     set i_state_after = state;
 
-    insert into tbl_rent_history values(
+    insert into tbl_rent_history (
+        c_caid,
+        i_prod_type,
+        i_prod_inst,
+        i_state_before,
+        i_state_after,
+        t_change
+    )
+    values (
         user,
         prod_type,
         prod_inst,

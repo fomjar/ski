@@ -30,12 +30,13 @@ create table tbl_platform_account_relationship (
 -- 游戏账户
 drop table if exists tbl_game_account;
 create table tbl_game_account (
-    i_pid       integer,        -- 对应产品ID
+    i_gid       integer,        -- 对应游戏ID
     i_gaid      integer,        -- 游戏账户ID，对应产品实例
     c_user      varchar(32),    -- 用户名
-    c_pass_curr varchar(32),    -- 当前密码
     c_pass_a    varchar(32),    -- 密码A
-    c_pass_b    varchar(32)     -- 密码B
+    c_pass_b    varchar(32),    -- 密码B
+    c_pass_curr varchar(32),    -- 当前密码
+    t_birth     date            -- 出生日期
 );
 
 -- 当前租赁状态
@@ -54,15 +55,8 @@ create table tbl_rent_history (
     i_prod_type     integer,        -- 产品类型
     i_prod_inst     integer,        -- 产品实例
     i_state_before  tinyint,        -- 变化前的状态
-    i_state_after   tinyint         -- 变化后的状态
-    t_change        datetime,       -- 变化时间
-);
-
--- 游戏账户下的游戏
-drop table if exists tbl_game_account_game;
-create table tbl_game_account_game (
-    i_gaid  integer,    -- 游戏账户ID，对应产品实例
-    i_gid   integer     -- 游戏ID
+    i_state_after   tinyint,        -- 变化后的状态
+    t_change        datetime        -- 变化时间
 );
 
 -- 游戏信息表
@@ -73,21 +67,18 @@ create table tbl_game (
     c_country       varchar(32),    -- 国家
     c_url_icon      varchar(128),   -- 图标URL
     c_url_poster    varchar(128),   -- 海报URL
-    c_url_price     varchar(128),   -- 询价网址
     c_url_buy       varchar(128),   -- 采购网址
     t_sale          date,           -- 发售日期
-    c_name_cns      varchar(64),    -- 简体中文名
-    c_name_cnt      varchar(64),    -- 繁体中文名
-    c_name_en       varchar(64),    -- 英文名
-    c_name_ori      varchar(64)     -- 原始名
+    c_name_zh       varchar(64),    -- 中文名
+    c_name_en       varchar(64)    -- 英文名
 );
 
 -- 产品
 drop table if exists tbl_product;
 create table tbl_product (
-    i_pid       integer,        -- 产品ID
-    i_prod_type integer,        -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
-    c_prod_name varchar(64)     -- 产品名称
+    i_pid       integer,    -- 产品ID
+    i_prod_type integer,    -- 产品类型：0-PS4游戏A租赁 1-PS4游戏B租赁 2-PS4游戏出售 3-PS4主机租赁 4-PS4主机出售
+    i_prod_inst integer     -- 产品实例，比如游戏ID
 );
 
 -- 订单

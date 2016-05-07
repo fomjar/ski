@@ -30,5 +30,20 @@ public class FjHttpRequest extends FjHttpMessage {
         for (String param : params) result.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
         return result;
     }
-    
+
+    @Override
+    public String toString() {
+        String requesturl = null;
+        if (url().contains("//")) requesturl = url().substring(url().substring(url().indexOf("//") + 2).indexOf("/"));
+        else requesturl = url();
+        return String.format("%s %s HTTP/1.1\r\n"
+                + "Content-Type: %s\r\n"
+                + "Content-Length: %d\r\n"
+                + "\r\n"
+                + "%s",
+                method(), requesturl,
+                contentType(),
+                contentLength(),
+                null == content() ? "" : content());
+    }
 }

@@ -14,24 +14,28 @@ public class FjHttpMessage implements FjMessage {
     public FjHttpMessage() {this(null);}
     
     public FjHttpMessage(String content) {
-        if (null == content) content = "";
         this.content = content;
     }
     
-    public int contentLength() {return content.getBytes(Charset.forName("utf-8")).length;}
+    public int contentLength() {
+        if (null == content) return 0;
+        
+        return content.getBytes(Charset.forName("utf-8")).length;
+    }
     
     public String contentType() {
+        if (null == content) return "text/plain";
         if (content.startsWith("<html>") || content.startsWith("<HTML>")) return "text/html";
         if (content.startsWith("<")) return "text/xml";
         if (content.startsWith("{")) return "application/json";
         return "text/plain";
     }
     
-    public String content() {return content;}
+    public String       content()       {return content;}
     
-    public JSONObject contentToJson() {return new FjJsonMessage(content()).json();}
+    public JSONObject   contentToJson() {return new FjJsonMessage(content()).json();}
     
-    public Document   contentToXml() {return new FjXmlMessage(content()).xml();}
+    public Document     contentToXml()  {return new FjXmlMessage(content()).xml();}
 
     @Override
     public String toString() {return content();}

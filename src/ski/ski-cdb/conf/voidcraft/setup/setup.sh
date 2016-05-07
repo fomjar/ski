@@ -13,6 +13,6 @@ function check() {
 [ "sp" = "$1" ] && sqls=$(find sp -type f -name '*.sql'|sort)
 
 for sql in $sqls; do
-    mysql -uroot -pski123 -D ski<$sql 1>/dev/null 2>&1
+    ../../../../../../service/mysql/bin/mysql -uski -pski -D ski<$sql
     check "setup $sql"
 done

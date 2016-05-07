@@ -14,5 +14,18 @@ public class FjHttpResponse extends FjHttpMessage {
     }
     
     public int code() {return code;}
-
+    
+    @Override
+    public String toString() {
+        return String.format("HTTP/1.1 %d OK\r\n"
+                + "Server: fjserver/0.1\r\n"
+                + "Content-Type: %s\r\n"
+                + "Content-Length: %d\r\n"
+                + "\r\n"
+                + "%s",
+                code(),
+                contentType(),
+                contentLength(),
+                null == content() ? "" : content());
+    }
 }

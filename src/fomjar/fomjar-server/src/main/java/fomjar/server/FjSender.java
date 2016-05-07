@@ -138,13 +138,7 @@ public class FjSender extends FjLoopTask {
     }
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("HTTP/1.1 " + rsp.code() + " OK\r\n");
-        sb.append("Content-Type: "   + rsp.contentType() + "; charset=utf-8\r\n");
-        sb.append("Content-Length: " + rsp.contentLength() + "\r\n");
-        sb.append("\r\n");
-        sb.append(rsp.content());
-        ByteBuffer buf = ByteBuffer.wrap(sb.toString().getBytes(Charset.forName("utf-8")));
+        ByteBuffer buf = ByteBuffer.wrap(rsp.toString().getBytes(Charset.forName("utf-8")));
         try {while(buf.hasRemaining()) conn.write(buf);}
         catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
         finally {if (null != conn) try {conn.close();} catch (IOException e) {}}
