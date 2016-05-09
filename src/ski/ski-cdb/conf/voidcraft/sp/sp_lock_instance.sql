@@ -39,7 +39,7 @@ begin
             set i_code = -2;
             set c_desc = "instance can not lock now";
         else
-            fn_change_rent_state(user, prod_type, prod_inst, 2);
+            select fn_change_rent_state(user, prod_type, prod_inst, 2);
             set i_code = 0;
             set c_desc = null;
         end if;

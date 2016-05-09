@@ -50,7 +50,10 @@ public class TabPaneBase extends JPanel {
         submit.setContentAreaFilled(false);
         submit.addActionListener(action->{
             try {submit();}
-            catch (Exception e) {e.printStackTrace();}
+            catch (Exception e) {
+                e.printStackTrace();
+                setStatus(e.getMessage());
+            }
         });
         submitcontainer = new JPanel();
         submitcontainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));

@@ -20,7 +20,7 @@ begin
           into i_pid
           from tbl_product;
 
-        set i_pid := i_pid + 1;
+        set i_pid = i_pid + 1;
 
         insert into tbl_product (
             i_pid,

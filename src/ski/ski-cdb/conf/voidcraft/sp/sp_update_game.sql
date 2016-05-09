@@ -26,7 +26,7 @@ begin
           into i_gid
           from tbl_game;
 
-        set i_gid := i_gid + 1;
+        set i_gid = i_gid + 1;
 
         insert into tbl_game (
             i_gid,

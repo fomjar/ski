@@ -2,10 +2,10 @@
 delimiter //
 drop function if exists fn_change_rent_state // 
 create function fn_change_rent_state (
-    in user         varchar(64),    -- 待修改实例所属用户
-    in prod_type    integer,        -- 待修改的产品类型
-    in prod_inst    integer,        -- 待修改的产品实例
-    in state        tinyint         -- 目标状态
+    user         varchar(64),    -- 待修改实例所属用户
+    prod_type    integer,        -- 待修改的产品类型
+    prod_inst    integer,        -- 待修改的产品实例
+    state        tinyint         -- 目标状态
 )
 returns integer
 begin

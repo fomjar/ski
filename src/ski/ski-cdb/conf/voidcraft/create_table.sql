@@ -70,7 +70,7 @@ create table tbl_game (
     c_url_buy       varchar(128),   -- 采购网址
     t_sale          date,           -- 发售日期
     c_name_zh       varchar(64),    -- 中文名
-    c_name_en       varchar(64)    -- 英文名
+    c_name_en       varchar(64)     -- 英文名
 );
 
 -- 产品

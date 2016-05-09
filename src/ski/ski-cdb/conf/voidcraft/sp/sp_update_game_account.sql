@@ -20,15 +20,15 @@ begin
     declare i_count integer default -1;
 
     if gid is null then
-        set i_code := conv(00000002, 16, 10) + 0;
-        set c_desc := 'illegal args, gid must be not null';
+        set i_code = conv(00000002, 16, 10) + 0;
+        set c_desc = 'illegal args, gid must be not null';
     else
         if gaid is null then
             select max(i_gaid)
               into i_gaid
               from tbl_game_account;
 
-            set i_gaid := i_gaid + 1;
+            set i_gaid = i_gaid + 1;
 
             insert into tbl_game_account (
                 i_gid,

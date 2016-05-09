@@ -1,6 +1,7 @@
 package com.ski.wsi;
 
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -14,11 +15,18 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
+import fomjar.util.FjLoopTask;
 import net.sf.json.JSONObject;
 
 public class WsiTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WsiTask.class);
+    
+    private Map<String, FjMessageWrapper> cache;
+    
+    public WsiTask() {
+        cache = new HashMap<String, FjMessageWrapper>();
+    }
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -76,6 +84,21 @@ public class WsiTask implements FjServerTask {
         }));
         
         logger.debug(req);
+    }
+    
+    private class CacheMonitor extends FjLoopTask {
+        
+        private static final long INTEVAL = 1000L * 3;
+        
+        public CacheMonitor() {
+            setDelay(INTEVAL);
+            setInterval(INTEVAL);
+        }
+        
+        @Override
+        public void perform() {
+        }
+        
     }
     
 }

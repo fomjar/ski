@@ -35,9 +35,13 @@ public final class SkiCommon {
         //////////////////////////////// 电商指令 ////////////////////////////////
         // QUERY
         /** 查询账户 */
-        public static final int INST_ECOM_QUERY_ACCOUNT     = 0x00002001;
+        public static final int INST_ECOM_QUERY_ACCOUNT         = 0x00002001;
         /** 查询订单 */
-        public static final int INST_ECOM_QUERY_ORDER       = 0x00002002;
+        public static final int INST_ECOM_QUERY_ORDER           = 0x00002002;
+        /** 查询游戏 */
+        public static final int INST_ECOM_QUERY_GAME            = 0x00002003;
+        /** 查询游戏账号 */
+        public static final int INST_ECOM_QUERY_GAME_ACCOUNT    = 0x00002004;
         // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;

@@ -15,7 +15,7 @@ public class TabRecordGame extends TabPaneBase {
         addField(CommonUI.createPanelLabelField("图      标  (URL)"));
         addField(CommonUI.createPanelLabelField("海      报  (URL)"));
         addField(CommonUI.createPanelLabelField("采      购  (URL)"));
-        addField(CommonUI.createPanelLabelField("发售  日期  (yyyy/mm/dd)"));
+        addField(CommonUI.createPanelLabelField("发售  日期  (yyyy-mm-dd)"));
         addField(CommonUI.createPanelLabelField("简体中文名  (字符串)"));
         addField(CommonUI.createPanelLabelField("英  文  名  (字符串)"));
     }
@@ -42,7 +42,7 @@ public class TabRecordGame extends TabPaneBase {
         String name_en      = getFieldToField(8).getText();
         if (0 < name_en.length())       args.put("name_en",     name_en);
         
-        String response = Service.sendSubmit(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
+        String response = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
         setStatus(response.replaceAll("<[^>]+>", ""));
     }
 
