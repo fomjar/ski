@@ -16,19 +16,27 @@ create procedure sp_update_game_account (
     in  birth       date            -- 出生日期
 )
 begin
-    declare i_gaid  integer default -1;
-    declare i_count integer default -1;
+    declare di_gaid     integer default -1;
+    declare di_count    integer default -1;
 
     if gid is null then
         set i_code = conv(00000002, 16, 10) + 0;
         set c_desc = 'illegal args, gid must be not null';
     else
         if gaid is null then
-            select max(i_gaid)
-              into i_gaid
+            select count(1)
+              into di_count
               from tbl_game_account;
 
-            set i_gaid = i_gaid + 1;
+            if di_count = 0 then
+                set di_gaid = 1;
+            else
+                select max(i_gaid)
+                  into di_gaid
+                  from tbl_game_account;
+
+                set di_gaid = di_gaid + 1;
+            end if;
 
             insert into tbl_game_account (
                 i_gid,
@@ -41,7 +49,7 @@ begin
             )
             values (
                 gid,
-                gaid,
+                di_gaid,
                 user,
                 pass_a,
                 pass_b,
@@ -50,12 +58,12 @@ begin
             );
         else
             select count(1)
-              into i_count
+              into di_count
               from tbl_game_account
              where i_gid = gid
                and i_gaid = gaid;
 
-            if i_count <= 0 then
+            if di_count <= 0 then
                 insert into tbl_game_account (
                     i_gid,
                     i_gaid,

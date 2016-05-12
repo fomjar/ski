@@ -2,6 +2,7 @@ package com.ski.stub;
 
 import com.ski.common.SkiCommon;
 
+import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class TabRecordGame extends TabPaneBase {
@@ -9,7 +10,7 @@ public class TabRecordGame extends TabPaneBase {
     private static final long serialVersionUID = -5672971309710316580L;
     
     public TabRecordGame() {
-        addField(CommonUI.createPanelLabelField("G       ID  (十六进制)"));
+        addField(CommonUI.createPanelLabelField("G       ID  (十六进制/自动生成)"));
         addField(CommonUI.createPanelLabelCombo("平      台  (字符串)", new String[] {"PS4", "XBOX ONE", "PS3", "XBOX 360"}));
         addField(CommonUI.createPanelLabelCombo("国      家  (字符串)", new String[] {"美国", "日本", "韩国", "中国"}));
         addField(CommonUI.createPanelLabelField("图      标  (URL)"));
@@ -42,8 +43,10 @@ public class TabRecordGame extends TabPaneBase {
         String name_en      = getFieldToField(8).getText();
         if (0 < name_en.length())       args.put("name_en",     name_en);
         
-        String response = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
-        setStatus(response.replaceAll("<[^>]+>", ""));
+        FjDscpMessage rsp = null;
+        if (Service.isResponseSuccess(rsp = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args)))
+            setStatus("操作成功");
+        else setStatus(rsp.args().toString());
     }
 
 }

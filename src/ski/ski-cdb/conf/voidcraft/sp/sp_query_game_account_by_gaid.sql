@@ -19,7 +19,8 @@ begin
                         select ga.i_gaid, ga.c_user, ga.c_pass_a, ga.c_pass_b, ga.c_pass_curr, ga.t_birth
                           from tbl_game_account
                          where ga.i_gid  = gid
-                           and ga.i_gaid = gaid;
+                           and ga.i_gaid = gaid
+                         order by ga.i_gid, ga.i_gaid;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 
@@ -28,30 +29,28 @@ begin
     /* 逐个取出当前记录i_gaid值*/
     fetch rs into i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
     /* 遍历数据表 */
-    repeat
-        if c_desc is null then
-            set c_desc = '';
-        else
-            set c_desc = concat(c_desc, '\n');
+    while (done = 0) do
+        if c_desc is null then set c_desc = '';
+        else set c_desc = concat(c_desc, '\n');
         end if;
 
         set c_desc = concat(
                 c_desc,
                 conv(i_gaid, 10, 16),
                 '\t',
-                c_user,
+                ifnull(c_user, ''),
                 '\t',
-                c_pass_a,
+                ifnull(c_pass_a, ''),
                 '\t',
-                c_pass_b,
+                ifnull(c_pass_b, ''),
                 '\t',
-                c_pass_curr,
+                ifnull(c_pass_curr, ''),
                 '\t',
-                t_birth
+                ifnull(t_birth, '')
         );
 
-    fetch rs into i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
-    until done end repeat;
+        fetch rs into i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
+    end while;
     /* 关闭游标 */
     close rs;
 

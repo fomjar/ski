@@ -86,6 +86,10 @@ public class TabPaneBase extends JPanel {
     
     protected void submit() {};
     
+    public void enableSubmit() {submit.setEnabled(true);}
+    
+    public void disableSubmit() {submit.setEnabled(false);}
+    
     public void setStatus(String text) {status.setText("当前：" + text);}
     
     public JComponent getField(int index) {return (JComponent) ((JPanel)fieldpane.getComponent(index)).getComponent(1);}

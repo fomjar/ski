@@ -2,9 +2,13 @@ package com.ski.wsi;
 
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import com.ski.common.SkiCommon;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -15,6 +19,7 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
+import fomjar.server.msg.FjJsonMessage;
 import fomjar.util.FjLoopTask;
 import net.sf.json.JSONObject;
 
@@ -22,10 +27,11 @@ public class WsiTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WsiTask.class);
     
-    private Map<String, FjMessageWrapper> cache;
+    private Map<String, CacheConn> cache;
     
     public WsiTask() {
-        cache = new HashMap<String, FjMessageWrapper>();
+        cache = new HashMap<String, CacheConn>();
+        new Thread(new CacheMonitor(), "cache").start();
     }
     
     @Override
@@ -35,6 +41,12 @@ public class WsiTask implements FjServerTask {
             FjHttpRequest hmsg = (FjHttpRequest) msg;
             if (hmsg.url().startsWith("/ski-wsi")) process(server.name(), wrapper);
             else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
+        } else if (msg instanceof FjDscpMessage) {
+            if (!cache.containsKey(((FjDscpMessage) msg).sid())) {
+                logger.warn("no request cached for this response: " + msg);
+                return;
+            }
+            responseDscpMessage((FjDscpMessage) msg);
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
@@ -48,8 +60,8 @@ public class WsiTask implements FjServerTask {
         if (null != urlargs) args.putAll(urlargs);
         
         if (null == args || !args.has("inst")) {
-            logger.error("bad request: " + hmsg.url());
-            FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wsi.error"), "非法参数")), conn);
+            logger.error("bad request: " + hmsg);
+            responseSimple(serverName, SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, "没有指令", conn);
             return;
         }
         
@@ -60,35 +72,50 @@ public class WsiTask implements FjServerTask {
         else {
             try {inst = Integer.parseInt(instobj.toString(), 16);}
             catch (NumberFormatException e) {
-                logger.error("bad request: " + hmsg.url());
-                FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wsi.error"), "非法指令")), conn);
+                logger.error("bad request: " + hmsg);
+                responseSimple(serverName, SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, "非法指令", conn);
                 return;
             }
         }
         
-        logger.info(String.format("%s:0x%08X", report, inst));
+        logger.info(String.format("[ REPORT ] %s:0x%08X", report, inst));
         
-        FjDscpMessage req = new FjDscpMessage();
-        req.json().put("fs",   serverName);
-        req.json().put("ts",   report);
-        if (args.has("sid")) req.json().put("sid",  args.remove("sid").toString());
-        req.json().put("inst", inst);
-        req.json().put("args", JSONObject.fromObject(args));
+        FjDscpMessage newreq = new FjDscpMessage();
+        newreq.json().put("fs",   serverName);
+        newreq.json().put("ts",   report);
+        if (args.has("sid")) newreq.json().put("sid",  args.remove("sid").toString());
+        newreq.json().put("inst", inst);
+        newreq.json().put("args", JSONObject.fromObject(args));
+        
+        synchronized (cache) {cache.put(newreq.sid(), new CacheConn(conn));}
         wrapper.attach("conn", null); // 清除连接缓存 防止被服务器自动释放
-        // 请求上报业务
-        FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(req).attach("observer", new FjSender.FjSenderObserver() {
-            @Override
-            public void onSuccess() {FjSender.sendHttpResponse(new FjHttpResponse(FjServerToolkit.getServerConfig("wsi.accept")), conn);}
-            @Override
-            public void onFail() {FjSender.sendHttpResponse(new FjHttpResponse(String.format(FjServerToolkit.getServerConfig("wsi.error"), "请求失败")), conn);}
-        }));
         
-        logger.debug(req);
+        // 请求上报业务
+        FjServerToolkit.getSender(serverName).send(newreq);
+        
+        logger.debug(newreq);
+    }
+    
+    private void responseDscpMessage(FjDscpMessage rsp) {
+        logger.info(String.format("[RESPONSE] %s:0x%08X", rsp.fs(), rsp.inst()));
+        synchronized (cache) {
+            SocketChannel conn = (SocketChannel) cache.remove(rsp.sid()).conn;
+            FjSender.sendHttpResponse(new FjHttpResponse(rsp.toString()), conn);
+        }
+    }
+    
+    private static void responseSimple(String serverName,  int code, String desc, SocketChannel conn) {
+        logger.info(String.format("[RESPONSE] %s:0x%08X:%s", serverName, code, desc));
+        JSONObject args = new JSONObject();
+        args.put("code", code);
+        args.put("desc", desc);
+        FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(new FjJsonMessage(args)).attach("conn", conn));
     }
     
     private class CacheMonitor extends FjLoopTask {
         
-        private static final long INTEVAL = 1000L * 3;
+        private static final long INTEVAL = 1000L * 1;
+        private static final long TIMEOUT = 1000L * 10;
         
         public CacheMonitor() {
             setDelay(INTEVAL);
@@ -97,8 +124,32 @@ public class WsiTask implements FjServerTask {
         
         @Override
         public void perform() {
+            synchronized (cache) {
+                List<String> toremove = new LinkedList<String>();
+                cache.forEach((sid, cc)->{
+                    long time = System.currentTimeMillis() - cc.timestamp;
+                    if (time >= TIMEOUT) {
+                        logger.error("remove cache: " + sid + " for timeout: " + time);
+                        toremove.add(sid);
+                    }
+                });
+                toremove.forEach(sid->{
+                    try {cache.remove(sid).conn.close();}
+                    catch (Exception e) {e.printStackTrace();}
+                });
+            }
         }
+    }
+    
+    private static class CacheConn {
         
+        public long timestamp;
+        public SocketChannel conn;
+        
+        public CacheConn(SocketChannel conn) {
+            timestamp = System.currentTimeMillis();
+            this.conn = conn;
+        }
     }
     
 }

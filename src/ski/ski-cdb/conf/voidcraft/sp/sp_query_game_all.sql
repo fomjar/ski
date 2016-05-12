@@ -18,7 +18,8 @@ begin
     declare done            integer default 0;
     declare rs              cursor for
                             select g.i_gid, g.c_platform, g.c_country, g.c_url_icon, g.c_url_poster, g.c_url_buy, g.t_sale, g.c_name_zh, g.c_name_en
-                              from tbl_game g;
+                              from tbl_game g
+                             order by g.i_gid;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 
@@ -27,36 +28,34 @@ begin
     /* 逐个取出当前记录i_gaid值*/
     fetch rs into i_gid, c_platform, c_country, c_url_icon, c_url_poster, c_url_buy, t_sale, c_name_zh, c_name_en;
     /* 遍历数据表 */
-    repeat
-        if c_desc is null then
-            set c_desc = '';
-        else
-            set c_desc = concat(c_desc, '\n');
+    while (done = 0) do
+        if c_desc is null then set c_desc = '';
+        else set c_desc = concat(c_desc, '\n');
         end if;
 
         set c_desc = concat(
                 c_desc,
                 conv(i_gid, 10, 16),
                 '\t',
-                c_platform,
+                ifnull(c_platform, ''),
                 '\t',
-                c_country,
+                ifnull(c_country, ''),
                 '\t',
-                c_url_icon,
+                ifnull(c_url_icon, ''),
                 '\t',
-                c_url_poster,
+                ifnull(c_url_poster, ''),
                 '\t',
-                c_url_buy,
+                ifnull(c_url_buy, ''),
                 '\t',
-                t_sale,
+                ifnull(t_sale, ''),
                 '\t',
-                c_name_zh,
+                ifnull(c_name_zh, ''),
                 '\t',
-                c_name_en
+                ifnull(c_name_en, '')
         );
 
-    fetch rs into i_gid, c_platform, c_country, c_url_icon, c_url_poster, c_url_buy, t_sale, c_name_zh, c_name_en;
-    until done end repeat;
+        fetch rs into i_gid, c_platform, c_country, c_url_icon, c_url_poster, c_url_buy, t_sale, c_name_zh, c_name_en;
+    end while;
     /* 关闭游标 */
     close rs;
 

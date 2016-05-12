@@ -30,11 +30,9 @@ begin
     /* 逐个取出当前记录i_gaid值*/
     fetch rs into i_pid, i_prod_type, c_prod_name, i_prod_inst, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
     /* 遍历数据表 */
-    repeat
-        if c_desc is null then
-            set c_desc = '';
-        else
-            set c_desc = concat(c_desc, '\n');
+    while (done = 0) do
+        if c_desc is null then set c_desc = '';
+        else set c_desc = concat(c_desc, '\n');
         end if;
 
         set c_desc = concat(
@@ -59,8 +57,8 @@ begin
 
         );
 
-    fetch rs into i_pid, i_prod_type, c_prod_name, i_prod_inst, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
-    until done end repeat;
+        fetch rs into i_pid, i_prod_type, c_prod_name, i_prod_inst, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
+    end while;
     /* 关闭游标 */
     close rs;
 

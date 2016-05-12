@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv(00002201, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002201, 16, 10) + 0), 'sp', 2, "sp_lock_instance(?, ?, '$instance')");
+insert into tbl_instruction values((conv(00002201, 16, 10) + 0), 'sp', 2, "sp_lock_instance(?, ?, '$user', $prod_type, $prod_inst)");
 
 -- 锁定产品实例
 delimiter //

@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv(00002004, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002004, 16, 10) + 0), 'sp', 2, "sp_query_game_account(?, ?, '$gid', '$gaid')");
+insert into tbl_instruction values((conv(00002004, 16, 10) + 0), 'sp', 2, "sp_query_game_account(?, ?, $gid, $gaid)");
 
 -- 查询游戏
 delimiter //

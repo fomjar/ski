@@ -43,7 +43,7 @@ public class CommonUI {
         JLabel jlabel = new JLabel(label);
         jlabel.setFont(getCommonFont());
         jlabel.setBorder(BorderFactory.createEmptyBorder(0, PADDING, 0, PADDING));
-        jlabel.setPreferredSize(new Dimension(200, 0));
+        jlabel.setPreferredSize(new Dimension(240, 0));
         return jlabel;
     }
     

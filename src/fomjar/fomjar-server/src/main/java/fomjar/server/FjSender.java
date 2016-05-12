@@ -50,13 +50,10 @@ public class FjSender extends FjLoopTask {
         }
         FjMessage msg = wrapper.message();
         SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
-        FjSenderObserver observer = (FjSenderObserver) wrapper.attachment("observer");
-        boolean isSuccess = false;
         if (null != conn) {
             try {
                 ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
                 while (buf.hasRemaining()) conn.write(buf);
-                isSuccess = true;
             } catch (IOException e) {logger.error("failed to send message through an exist connection: " + msg, e);}
             finally {
                 try {if (null != conn) conn.close();}
@@ -72,7 +69,6 @@ public class FjSender extends FjLoopTask {
                     conn.connect(new InetSocketAddress(addr0.host, addr0.port));
                     ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
                     while (buf.hasRemaining()) conn.write(buf);
-                    isSuccess = true;
                 } catch (IOException e) {
                     List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(dmsg.ts());
                     for (FjServerToolkit.FjAddress addr : addresses) {
@@ -82,7 +78,6 @@ public class FjSender extends FjLoopTask {
                             conn.connect(new InetSocketAddress(addr0.host, addr0.port));
                             ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
                             while (buf.hasRemaining()) conn.write(buf);
-                            isSuccess = true;
                             break;
                         } catch (IOException e1) {logger.warn("try failed of this address: " + addr);}
                     }
@@ -92,15 +87,6 @@ public class FjSender extends FjLoopTask {
                 }
             }
         } else logger.error(String.format("unsupported format message, class: %s, content: %s", msg.getClass().getName(), msg));
-        if (isSuccess) {
-            logger.debug("send message success: " + msg);
-            try {if (null != observer) observer.onSuccess();}
-            catch (Exception e) {e.printStackTrace();}
-        } else {
-            logger.error("send message failed:" + msg);
-            try {if (null != observer) observer.onFail();}
-            catch (Exception e) {e.printStackTrace();}
-        }
     }
 
     public void send(FjMessage msg) {
@@ -163,10 +149,4 @@ public class FjSender extends FjLoopTask {
         @Override
         public X509Certificate[] getAcceptedIssuers() {return null;}
     }
-    
-    public static abstract class FjSenderObserver {
-        public void onSuccess() {}
-        public void onFail() {}
-    }
-    
 }

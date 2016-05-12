@@ -8,11 +8,13 @@ function check() {
         echo "[fail   ] $action"
     fi
 }
+mysql=../../../../../service/mysql/bin/mysql
 
 [ "" = "$1" ]   && sqls=$(find .  -type f -name '*.sql'|sort)
 [ "sp" = "$1" ] && sqls=$(find sp -type f -name '*.sql'|sort)
 
 for sql in $sqls; do
-    ../../../../../service/mysql/bin/mysql -uski -pski -D ski<$sql
+    $mysql -uski -pski -Dski<$sql
     check "setup $sql"
 done
+

@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv(00002403, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002403, 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, '$platform', '$country', '$url_icon', '$url_poster', '$url_buy', '$sale', '$name_cn', '$name_en')");
+insert into tbl_instruction values((conv(00002403, 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, '$platform', '$country', '$url_icon', '$url_poster', '$url_buy', '$sale', '$name_zh', '$name_en')");
 
 -- 更新游戏
 delimiter //
@@ -18,15 +18,23 @@ create procedure sp_update_game (
     in  name_en     varchar(64)     -- 英文名
 )
 begin
-    declare i_gid   integer default -1;
-    declare i_count integer default -1;
+    declare di_gid      integer default -1;
+    declare di_count    integer default -1;
 
     if gid is null then
-        select max(i_gid)
-          into i_gid
+        select count(1)
+          into di_count
           from tbl_game;
 
-        set i_gid = i_gid + 1;
+        if di_count = 0 then
+            set di_gid = 1;
+        else
+            select max(i_gid)
+              into di_gid
+              from tbl_game;
+
+            set di_gid = di_gid + 1;
+        end if;
 
         insert into tbl_game (
             i_gid,
@@ -40,7 +48,7 @@ begin
             c_name_en
         )
         values (
-            i_gid,
+            di_gid,
             platform,
             country,
             url_icon,
@@ -52,11 +60,11 @@ begin
         );
     else
         select count(1)
-          into i_count
+          into di_count
           from tbl_game
          where i_gid = gid;
 
-        if i_count <= 0 then
+        if di_count <= 0 then
             insert into tbl_game (
                 i_gid,
                 c_platform,
@@ -69,7 +77,7 @@ begin
                 c_name_en
             )
             values (
-                i_gid,
+                gid,
                 platform,
                 country,
                 url_icon,

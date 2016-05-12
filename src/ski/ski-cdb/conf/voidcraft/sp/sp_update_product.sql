@@ -12,15 +12,23 @@ create procedure sp_update_product (
     in  prod_inst   integer     -- 产品实例，比如游戏ID
 )
 begin
-    declare i_pid   integer default -1;
-    declare i_count integer default -1;
+    declare di_pid      integer default -1;
+    declare di_count    integer default -1;
 
     if pid is null then
-        select max(i_pid)
-          into i_pid
+        select count(1)
+          into di_count
           from tbl_product;
 
-        set i_pid = i_pid + 1;
+        if di_count = 0 then
+            set di_pid = 1;
+        else
+            select max(i_pid)
+              into di_pid
+              from tbl_product;
+
+            set di_pid = di_pid + 1;
+        end if;
 
         insert into tbl_product (
             i_pid,
@@ -28,17 +36,17 @@ begin
             i_prod_inst
         )
         values (
-            pid,
+            di_pid,
             prod_type,
             prod_inst
         );
     else
         select count(1)
-          into i_count
+          into di_count
           from tbl_product
          where i_pid = pid;
 
-        if i_count <= 0 then
+        if di_count <= 0 then
             insert into tbl_product (
                 i_pid,
                 i_prod_type,

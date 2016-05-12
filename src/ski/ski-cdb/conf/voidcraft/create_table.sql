@@ -42,9 +42,9 @@ create table tbl_game_account (
 -- 当前租赁状态
 drop table if exists tbl_rent;
 create table tbl_rent (
-    c_caid      varchar(64),    -- 渠道账户账户ID
     i_prod_type integer,        -- 产品类型
     i_prod_inst integer,        -- 产品实例
+    c_caid      varchar(64),    -- 渠道账户账户ID
     i_state     tinyint         -- 租赁状态: 0-未租，1-已租，2-锁定，3-已退
 );
 

@@ -10,7 +10,11 @@ public class FjMessageWrapper {
     
     public FjMessageWrapper(FjMessage msg) {
         if (null == msg) throw new NullPointerException();
+        
         this.msg = msg;
+        
+        attachment = new HashMap<String, Object>();
+        attach("timestamp", System.currentTimeMillis());
     }
     
     public FjMessage message() {return msg;}
@@ -24,14 +28,14 @@ public class FjMessageWrapper {
      *     <td>function</td>
      *   </tr>
      *   <tr>
+     *     <td>timestamp</td>
+     *     <td>long</td>
+     *     <td>生成时间戳(单位：毫秒)</td>
+     *   </tr>
+     *   <tr>
      *     <td>conn</td>
      *     <td>{@link java.nio.channels.SocketChannel}</td>
      *     <td>指定消息发送通道</td>
-     *   </tr>
-     *   <tr>
-     *     <td>observer</td>
-     *     <td>{@link fomjar.server.FjSender.FjSenderObserver}</td>
-     *     <td>发送过程的观察者</td>
      *   </tr>
      * <table>
      * 
@@ -42,7 +46,6 @@ public class FjMessageWrapper {
     public FjMessageWrapper attach(String key, Object value) {
         if (null == key) throw new NullPointerException();
         
-        if (null == attachment) attachment = new HashMap<String, Object>();
         attachment.put(key, value);
         return this;
     }
