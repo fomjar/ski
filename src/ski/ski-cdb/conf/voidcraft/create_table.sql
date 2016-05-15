@@ -40,20 +40,18 @@ create table tbl_game_account (
 );
 
 -- 当前租赁状态
-drop table if exists tbl_rent;
-create table tbl_rent (
-    i_prod_type integer,        -- 产品类型
-    i_prod_inst integer,        -- 产品实例
-    c_caid      varchar(64),    -- 渠道账户账户ID
-    i_state     tinyint         -- 租赁状态: 0-未租，1-已租，2-锁定，3-已退
+drop table if exists tbl_game_account_rent;
+create table tbl_game_account_rent(
+    i_gaid  integer,        -- 游戏账号ID
+    c_caid  varchar(64),    -- 渠道账户账户ID
+    i_state tinyint         -- 租赁状态: 0-未租，1-已租，2-锁定，3-已退
 );
 
 -- 平台账户流水
-drop table if exists tbl_rent_history;
-create table tbl_rent_history (
+drop table if exists tbl_game_account_rent_history;
+create table tbl_game_account_rent_history (
+    i_gaid          integer,        -- 游戏账号ID
     c_caid          varchar(64),    -- 渠道账户ID
-    i_prod_type     integer,        -- 产品类型
-    i_prod_inst     integer,        -- 产品实例
     i_state_before  tinyint,        -- 变化前的状态
     i_state_after   tinyint,        -- 变化后的状态
     t_change        datetime        -- 变化时间
@@ -118,7 +116,7 @@ create table tbl_channel_account (
     i_channel   tinyint,        -- 渠道：0-淘宝 1-微信
     c_nick      varchar(32),    -- 昵称
     i_gender    tinyint,        -- 性别：0-女 1-男 2-人妖
-    c_mobile    varchar(20),    -- 电话
+    c_phone     varchar(20),    -- 电话
     c_address   varchar(100),   -- 地址
     c_zipcode   varchar(10),    -- 邮编
     t_birth     date            -- 生日

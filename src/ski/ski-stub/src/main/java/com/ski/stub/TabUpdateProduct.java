@@ -7,11 +7,11 @@ import com.ski.common.SkiCommon;
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
-public class TabRecordProduct extends TabPaneBase {
+public class TabUpdateProduct extends TabPaneBase {
 
     private static final long serialVersionUID = 4478338967110972515L;
     
-    public TabRecordProduct() {
+    public TabUpdateProduct() {
         addField(CommonUI.createPanelLabelField("P       ID  (自动生成/自动生成)"));
         addField(CommonUI.createPanelLabelCombo("产品  类型  (整数)", new String[] {"PS4游戏A租赁", "PS4游戏B租赁", "PS4主机租赁", "PS4主机出售"}));
         addField(CommonUI.createPanelLabelCombo("实      例  (整数)", new String[] {}));
@@ -23,8 +23,8 @@ public class TabRecordProduct extends TabPaneBase {
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>)getFieldToCombo(2).getModel();
         model.removeAllElements();
         
-        if (!Service.map_games.isEmpty()) {
-            Service.map_games.forEach((gid, description)->{
+        if (!Service.map_game.isEmpty()) {
+            Service.map_game.forEach((gid, description)->{
                 model.addElement(String.format("0x%08X - %s", gid, description));
             });
             if (0 < model.getSize()) {

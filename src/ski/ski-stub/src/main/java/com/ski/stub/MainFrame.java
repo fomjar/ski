@@ -33,9 +33,11 @@ public class MainFrame extends JFrame {
             }
         });
         
-        tabs.add("录入游戏", new TabRecordGame());
-        tabs.add("录入账号", new TabRecordAccount());
-        tabs.add("创建产品", new TabRecordProduct());
+        tabs.add("更新游戏", new TabUpdateGame());
+        tabs.add("更新游戏账户", new TabUpdateGameAccount());
+        tabs.add("更新产品", new TabUpdateProduct());
+        tabs.add("更新渠道账户", new TabUpdateChannelAccount());
+        tabs.add("更新游戏账户租赁", new TabUpdateGameAccountRent());
     }
 
 }

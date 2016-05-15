@@ -11,11 +11,11 @@ import com.ski.common.SkiCommon;
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
-public class TabRecordAccount extends TabPaneBase {
+public class TabUpdateGameAccount extends TabPaneBase {
 
     private static final long serialVersionUID = 4478338967110972515L;
     
-    public TabRecordAccount() {
+    public TabUpdateGameAccount() {
         addField(CommonUI.createPanelLabelCombo("G       ID  ", new String[] {}));
         addField(CommonUI.createPanelLabelField("GA      ID  (十六进制/自动生成)"));
         addField(CommonUI.createPanelLabelField("用  户  名  (字符串)"));
@@ -43,8 +43,8 @@ public class TabRecordAccount extends TabPaneBase {
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>)getFieldToCombo(0).getModel();
         model.removeAllElements();
         
-        if (!Service.map_games.isEmpty()) {
-            Service.map_games.forEach((gid, description)->{
+        if (!Service.map_game.isEmpty()) {
+            Service.map_game.forEach((gid, description)->{
                 model.addElement(String.format("0x%08X - %s", gid, description));
             });
             if (0 < model.getSize()) {

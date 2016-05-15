@@ -46,8 +46,7 @@ begin
                 c_pass_b,
                 c_pass_curr,
                 t_birth
-            )
-            values (
+            ) values (
                 gid,
                 di_gaid,
                 user,
@@ -72,8 +71,7 @@ begin
                     c_pass_b,
                     c_pass_curr,
                     t_birth
-                )
-                values (
+                ) values (
                     gid,
                     gaid,
                     user,

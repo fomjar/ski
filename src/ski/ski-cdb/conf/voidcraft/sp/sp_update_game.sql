@@ -46,8 +46,7 @@ begin
             t_sale,
             c_name_zh,
             c_name_en
-        )
-        values (
+        ) values (
             di_gid,
             platform,
             country,
@@ -75,8 +74,7 @@ begin
                 t_sale,
                 c_name_zh,
                 c_name_en
-            )
-            values (
+            ) values (
                 gid,
                 platform,
                 country,

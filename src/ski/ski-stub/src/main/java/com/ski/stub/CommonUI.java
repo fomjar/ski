@@ -3,6 +3,8 @@ package com.ski.stub;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -24,6 +26,10 @@ public class CommonUI {
         JLabel      jlabel = createLabel(label);
         JTextField  jfield = new JTextField(field);
         jfield.setFont(getCommonFont());
+        jfield.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {jfield.selectAll();}
+        });
         
         jpanel.add(jlabel, BorderLayout.WEST);
         jpanel.add(jfield, BorderLayout.CENTER);

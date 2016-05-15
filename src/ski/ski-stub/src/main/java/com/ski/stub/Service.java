@@ -17,8 +17,9 @@ public class Service {
     
     public static String getWsiUrl() {return URL_SKI_WSI;}
     
-    public static final Map<Integer, String>                map_games       = new LinkedHashMap<Integer, String>();
-    public static final Map<Integer, Map<Integer, String>>  map_accounts    = new LinkedHashMap<Integer, Map<Integer, String>>();
+    public static final Map<Integer, String>                map_game            = new LinkedHashMap<Integer, String>();
+    public static final Map<Integer, Map<Integer, String>>  map_game_account    = new LinkedHashMap<Integer, Map<Integer, String>>();
+    public static final Map<String, String>                 map_channel_account = new LinkedHashMap<String, String>();
     
     public static FjMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();
@@ -46,13 +47,13 @@ public class Service {
     }
     
     public static void updateGames() {
-        Service.map_games.clear();
+        Service.map_game.clear();
         String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_GAME, null));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
                 String[] fields = line.split("\t");
-                Service.map_games.put(Integer.parseInt(fields[0], 16), fields[7] + "(" + fields[8] + ")");
+                Service.map_game.put(Integer.parseInt(fields[0], 16), fields[7] + "(" + fields[8] + ")");
             }
         }
     }

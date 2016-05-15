@@ -5,11 +5,11 @@ import com.ski.common.SkiCommon;
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
-public class TabRecordGame extends TabPaneBase {
+public class TabUpdateGame extends TabPaneBase {
 
     private static final long serialVersionUID = -5672971309710316580L;
     
-    public TabRecordGame() {
+    public TabUpdateGame() {
         addField(CommonUI.createPanelLabelField("G       ID  (十六进制/自动生成)"));
         addField(CommonUI.createPanelLabelCombo("平      台  (字符串)", new String[] {"PS4", "XBOX ONE", "PS3", "XBOX 360"}));
         addField(CommonUI.createPanelLabelCombo("国      家  (字符串)", new String[] {"美国", "日本", "韩国", "中国"}));

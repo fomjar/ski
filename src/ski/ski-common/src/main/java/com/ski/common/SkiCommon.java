@@ -42,6 +42,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_QUERY_GAME            = 0x00002003;
         /** 查询游戏账号 */
         public static final int INST_ECOM_QUERY_GAME_ACCOUNT    = 0x00002004;
+        /** 查询游戏账号 */
+        public static final int INST_ECOM_QUERY_CHANNEL_ACCOUNT = 0x00002005;
         // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;
@@ -61,15 +63,19 @@ public final class SkiCommon {
         public static final int INST_ECOM_VERIFY_ACCOUNT    = 0x00002301;
         // UPDATE
         /** 更新账户 */
-        public static final int INST_ECOM_UPDATE_INSTANCE       = 0x00002401;
+        public static final int INST_ECOM_UPDATE_INSTANCE           = 0x00002401;
         /** 更新订单 */
-        public static final int INST_ECOM_UPDATE_ORDER          = 0x00002402;
+        public static final int INST_ECOM_UPDATE_ORDER              = 0x00002402;
         /** 更新游戏 */
-        public static final int INST_ECOM_UPDATE_GAME           = 0x00002403;
+        public static final int INST_ECOM_UPDATE_GAME               = 0x00002403;
         /** 更新账号 */
-        public static final int INST_ECOM_UPDATE_GAME_ACCOUNT   = 0x00002404;
+        public static final int INST_ECOM_UPDATE_GAME_ACCOUNT       = 0x00002404;
         /** 更新产品 */
-        public static final int INST_ECOM_UPDATE_PRODUCT        = 0x00002405;
+        public static final int INST_ECOM_UPDATE_PRODUCT            = 0x00002405;
+        /** 更新租赁 */
+        public static final int INST_ECOM_UPDATE_GAME_ACCOUNT_RENT  = 0x00002406;
+        /** 更新渠道账户 */
+        public static final int INST_ECOM_UPDATE_CHANNEL_ACCOUNT    = 0x00002407;
     }
     
     /**

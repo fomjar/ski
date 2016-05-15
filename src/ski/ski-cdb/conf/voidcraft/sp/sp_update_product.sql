@@ -34,8 +34,7 @@ begin
             i_pid,
             i_prod_type,
             i_prod_inst
-        )
-        values (
+        ) values (
             di_pid,
             prod_type,
             prod_inst
@@ -51,8 +50,7 @@ begin
                 i_pid,
                 i_prod_type,
                 i_prod_inst
-            )
-            values (
+            ) values (
                 pid,
                 prod_type,
                 prod_inst
