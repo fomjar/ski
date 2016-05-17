@@ -98,5 +98,5 @@ public class TabPaneBase extends JPanel {
     
     @SuppressWarnings("unchecked")
     public JComboBox<String> getFieldToCombo(int index) {return (JComboBox<String>) getField(index);}
-
+    
 }

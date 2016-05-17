@@ -38,6 +38,7 @@ public class MainFrame extends JFrame {
         tabs.add("更新产品", new TabUpdateProduct());
         tabs.add("更新渠道账户", new TabUpdateChannelAccount());
         tabs.add("更新游戏账户租赁", new TabUpdateGameAccountRent());
+        tabs.add("通用消息接口", new TabCMI());
     }
 
 }

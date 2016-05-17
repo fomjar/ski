@@ -10,7 +10,11 @@ import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.TitledBorder;
 
 public class CommonUI {
     
@@ -64,6 +68,30 @@ public class CommonUI {
         jpanel.add(jcombo, BorderLayout.CENTER);
         
         return jpanel;
+    }
+    
+    public static JTextField createPaneTitleField(String title) {
+        JTextField jtf = new JTextField();
+        jtf.setFont(getCommonFont());
+        jtf.setBorder(BorderFactory.createTitledBorder(jtf.getBorder(), title));
+        ((TitledBorder) jtf.getBorder()).setTitleFont(getCommonFont());
+        jtf.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
+        return jtf;
+    }
+    
+    public static JScrollPane createPaneTitleArea(String title, boolean editable) {
+        JTextArea jta = new JTextArea();
+        jta.setFont(getCommonFont());
+        jta.setLineWrap(true);
+        jta.setEditable(editable);
+        
+        JScrollPane jsp = new JScrollPane(jta);
+        jsp.setBorder(BorderFactory.createTitledBorder(jsp.getBorder(), title));
+        ((TitledBorder) jsp.getBorder()).setTitleFont(getCommonFont());
+        jsp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        
+        return jsp;
     }
 
 }
