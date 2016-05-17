@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs);
         
-        tabs.setFont(CommonUI.getCommonFont());
+        tabs.setFont(CommonUI.getCommonFont().deriveFont(12.0f));
         tabs.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {

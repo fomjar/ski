@@ -56,7 +56,9 @@ public class TabPaneBase extends JPanel {
             }
         });
         submitcontainer = new JPanel();
-        submitcontainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
+        submitcontainer.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
+        submitcontainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 32));
+        submitcontainer.setPreferredSize(new Dimension(0, 32));
         submitcontainer.setLayout(new BorderLayout());
         submitcontainer.add(submit, BorderLayout.CENTER);
         
@@ -66,6 +68,10 @@ public class TabPaneBase extends JPanel {
         status.setOpaque(true);
         status.setForeground(Color.gray);
         status.setBackground(Color.lightGray);
+        status.getInsets().top      = 0;
+        status.getInsets().left     = 0;
+        status.getInsets().bottom   = 0;
+        status.getInsets().right    = 0;
         statuscontainer = new JPanel();
         statuscontainer.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
         statuscontainer.setBorder(BorderFactory.createLineBorder(Color.gray));

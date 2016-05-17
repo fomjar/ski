@@ -19,7 +19,8 @@ import javax.swing.border.TitledBorder;
 public class CommonUI {
     
     private static final int    PADDING = 8;
-    private static final Font   FONT    = new Font("黑体", Font.PLAIN, 12);
+    private static final Font   FONT    = new Font("黑体", Font.PLAIN, 14);
+    private static final int    HEIGHT  = 24;
     
     public static Font getCommonFont() {return FONT;}
     
@@ -30,6 +31,7 @@ public class CommonUI {
         JLabel      jlabel = createLabel(label);
         JTextField  jfield = new JTextField(field);
         jfield.setFont(getCommonFont());
+        jfield.setPreferredSize(new Dimension(0, HEIGHT));
         jfield.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {jfield.selectAll();}
@@ -43,7 +45,7 @@ public class CommonUI {
     
     private static JPanel createPanel() {
         JPanel jpanel = new JPanel();
-        jpanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
+        jpanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, HEIGHT));
         jpanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, PADDING));
         jpanel.setLayout(new BorderLayout());
         return jpanel;
@@ -62,6 +64,7 @@ public class CommonUI {
         JLabel              jlabel = createLabel(label);
         JComboBox<String>   jcombo = new JComboBox<String>(combo);
         jcombo.setFont(getCommonFont());
+        jcombo.setPreferredSize(new Dimension(0, HEIGHT));
         jcombo.setEditable(false);
         
         jpanel.add(jlabel, BorderLayout.WEST);
