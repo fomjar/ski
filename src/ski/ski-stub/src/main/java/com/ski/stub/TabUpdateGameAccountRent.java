@@ -1,5 +1,8 @@
 package com.ski.stub;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+
 import javax.swing.DefaultComboBoxModel;
 
 import com.ski.common.SkiCommon;
@@ -12,43 +15,95 @@ public class TabUpdateGameAccountRent extends TabPaneBase {
     private static final long serialVersionUID = 4478338967110972515L;
     
     public TabUpdateGameAccountRent() {
-        addField(CommonUI.createPanelLabelField("P       ID  (自动生成/自动生成)"));
-        addField(CommonUI.createPanelLabelCombo("产品  类型  (整数)", new String[] {"PS4游戏A租赁", "PS4游戏B租赁", "PS4主机租赁", "PS4主机出售"}));
-        addField(CommonUI.createPanelLabelCombo("实      例  (整数)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("P       ID  (整数)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("GA      ID  (整数)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("CA      ID  (字符串)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("租赁  状态  (整数)", new String[] {"0 - 空闲", "1 - 租用", "2 - 锁定"}));
+        getFieldToCombo(0).addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (ItemEvent.DESELECTED == e.getStateChange()) return;
+                
+                int gid = Integer.parseInt(getFieldToCombo(0).getSelectedItem().toString().split(" ")[0].split("x")[1], 16);
+                Service.updateGameAccount(gid);
+                
+                DefaultComboBoxModel<String> model_gaid = (DefaultComboBoxModel<String>)getFieldToCombo(1).getModel();
+                model_gaid.removeAllElements();
+                
+                if (!Service.map_game_account.isEmpty()) {
+                    Service.map_game_account.forEach((gaid, description)->{
+                        model_gaid.addElement(String.format("0x%08X - %s", gaid, description));
+                    });
+                    if (0 < model_gaid.getSize()) {
+                        getFieldToCombo(1).setEnabled(true);
+                    } else {
+                        getFieldToCombo(1).setEnabled(false);
+                    }
+                }
+                
+                if (Service.list_product.isEmpty()
+                        || Service.map_game_account.isEmpty()
+                        || Service.map_channel_account.isEmpty()) {
+                    disableSubmit();
+                } else enableSubmit();
+            }
+        });
     }
 
     @Override
     protected void update() {
-        Service.updateGames();
-        DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>)getFieldToCombo(2).getModel();
-        model.removeAllElements();
+        Service.updateProduct();
+        Service.updateChannelAccount();
         
-        if (!Service.map_game.isEmpty()) {
-            Service.map_game.forEach((gid, description)->{
-                model.addElement(String.format("0x%08X - %s", gid, description));
+        DefaultComboBoxModel<String> model_pid = (DefaultComboBoxModel<String>)getFieldToCombo(0).getModel();
+        model_pid.removeAllElements();
+        
+        if (!Service.list_product.isEmpty()) {
+            Service.list_product.forEach((pid)->{
+                model_pid.addElement(String.format("0x%08X", pid));
             });
-            if (0 < model.getSize()) {
-                getFieldToCombo(2).setEnabled(true);
-                enableSubmit();
+            if (0 < model_pid.getSize()) {
+                getFieldToCombo(0).setEnabled(true);
+            } else {
+                getFieldToCombo(0).setEnabled(false);
             }
-        } else {
-            getFieldToCombo(2).setEnabled(false);
-            disableSubmit();
         }
+        
+        DefaultComboBoxModel<String> model_caid = (DefaultComboBoxModel<String>)getFieldToCombo(2).getModel();
+        model_caid.removeAllElements();
+        
+        if (!Service.map_channel_account.isEmpty()) {
+            Service.map_channel_account.forEach((caid, description)->{
+                model_caid.addElement(String.format("%s - %s", caid, description));
+            });
+            if (0 < model_caid.getSize()) {
+                getFieldToCombo(2).setEnabled(true);
+            } else {
+                getFieldToCombo(2).setEnabled(false);
+            }
+        }
+        
+        if (Service.list_product.isEmpty()
+                || Service.map_game_account.isEmpty()
+                || Service.map_channel_account.isEmpty()) {
+            disableSubmit();
+        } else enableSubmit();
     }
 
     @Override
     protected void submit() {
         JSONObject args = new JSONObject();
-        String pid          = getFieldToField(0).getText();
-        if (0 < pid.length())   args.put("pid", pid);
-        int    prod_type    = getFieldToCombo(1).getSelectedIndex();
-        args.put("prod_type",   prod_type);
-        String prod_inst    = getFieldToCombo(2).getSelectedItem().toString().split(" ")[0].split("x")[1];
-        args.put("prod_inst",   Integer.parseInt(prod_inst, 16));
+        String pid          = getFieldToCombo(0).getSelectedItem().toString().split(" ")[0].split("x")[1];
+        args.put("pid",     Integer.parseInt(pid, 16));
+        String gaid         = getFieldToCombo(1).getSelectedItem().toString().split(" ")[0].split("x")[1];
+        args.put("gaid",    Integer.parseInt(gaid, 16));
+        String caid         = getFieldToCombo(2).getSelectedItem().toString().split(" ")[0];
+        args.put("caid",    caid);
+        String state        = getFieldToCombo(3).getSelectedItem().toString().split(" ")[0];
+        args.put("state",   Integer.parseInt(state, 16));
         
         FjDscpMessage rsp = null;
-        if (Service.isResponseSuccess(rsp = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_PRODUCT, args)))
+        if (Service.isResponseSuccess(rsp = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_RENT, args)))
             setStatus("操作成功");
         else setStatus(rsp.args().toString());
     }

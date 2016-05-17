@@ -13,13 +13,13 @@ public class TabUpdateProduct extends TabPaneBase {
     
     public TabUpdateProduct() {
         addField(CommonUI.createPanelLabelField("P       ID  (自动生成/自动生成)"));
-        addField(CommonUI.createPanelLabelCombo("产品  类型  (整数)", new String[] {"PS4游戏A租赁", "PS4游戏B租赁", "PS4主机租赁", "PS4主机出售"}));
+        addField(CommonUI.createPanelLabelCombo("产品  类型  (整数)", new String[] {"0 - PS4游戏A租赁", "1 - PS4游戏B租赁", "2 - PS4主机租赁", "3 - PS4主机出售"}));
         addField(CommonUI.createPanelLabelCombo("实      例  (整数)", new String[] {}));
     }
 
     @Override
     protected void update() {
-        Service.updateGames();
+        Service.updateGame();
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>)getFieldToCombo(2).getModel();
         model.removeAllElements();
         
@@ -42,8 +42,8 @@ public class TabUpdateProduct extends TabPaneBase {
         JSONObject args = new JSONObject();
         String pid          = getFieldToField(0).getText();
         if (0 < pid.length())   args.put("pid", pid);
-        int    prod_type    = getFieldToCombo(1).getSelectedIndex();
-        args.put("prod_type",   prod_type);
+        String prod_type    = getFieldToCombo(1).getSelectedItem().toString().split(" ")[0];
+        args.put("prod_type",   Integer.parseInt(prod_type, 16));
         String prod_inst    = getFieldToCombo(2).getSelectedItem().toString().split(" ")[0].split("x")[1];
         args.put("prod_inst",   Integer.parseInt(prod_inst, 16));
         

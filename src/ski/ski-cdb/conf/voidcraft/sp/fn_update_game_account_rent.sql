@@ -2,9 +2,10 @@
 delimiter //
 drop function if exists fn_update_game_account_rent // 
 create function fn_update_game_account_rent (
-    gaid    integer,    -- 游戏账户ID
-    caid    integer,    -- 渠道账户ID
-    state   tinyint     -- 目标状态
+    pid     integer,        -- 产品ID
+    gaid    integer,        -- 游戏账户ID
+    caid    varchar(64),    -- 渠道账户ID
+    state   tinyint         -- 目标状态
 )
 returns integer
 begin
@@ -16,7 +17,8 @@ begin
     select count(1)
       into di_count
       from tbl_game_account_rent
-     where i_gaid = gaid;
+     where i_pid = pid
+       and i_gaid = gaid;
 
     if di_count = 0 then
         return -1;
@@ -26,7 +28,8 @@ begin
         select distinct c_caid
           into dc_caid
           from tbl_game_account_rent
-         where i_gaid = gaid;
+         where i_pid = pid
+           and i_gaid = gaid;
     else
         set dc_caid = caid;
     end if;
@@ -34,17 +37,20 @@ begin
     select i_state
       into di_state_before
       from tbl_game_account_rent
-     where i_gaid = gaid;
+     where i_pid = pid
+       and i_gaid = gaid;
 
     set di_state_after = state;
 
     insert into tbl_game_account_rent_history (
+        i_pid,
         i_gaid,
         c_caid,
         i_state_before,
         i_state_after,
         t_change
     ) values (
+        pid,
         gaid,
         dc_caid,
         di_state_before,
@@ -55,7 +61,8 @@ begin
     update tbl_game_account_rent
        set i_state = state
        and c_caid = dc_caid
-     where i_gaid = gaid;
+     where i_pid = pid
+       and i_gaid = gaid;
 
     return 0;
 end //

@@ -39,7 +39,7 @@ public class TabUpdateGameAccount extends TabPaneBase {
     
     @Override
     protected void update() {
-        Service.updateGames();
+        Service.updateGame();
         DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>)getFieldToCombo(0).getModel();
         model.removeAllElements();
         

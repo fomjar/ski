@@ -16,7 +16,7 @@ begin
     declare done        integer default 0;
     declare rs          cursor for
                         select ga.i_gaid, ga.c_user, ga.c_pass_a, ga.c_pass_b, ga.c_pass_curr, ga.t_birth
-                          from tbl_game_account
+                          from tbl_game_account ga
                          where ga.i_gid = gid
                          order by ga.i_gid, ga.i_gaid;
     /* 异常处理 */

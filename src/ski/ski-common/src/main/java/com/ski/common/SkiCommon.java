@@ -44,6 +44,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_QUERY_GAME_ACCOUNT    = 0x00002004;
         /** 查询游戏账号 */
         public static final int INST_ECOM_QUERY_CHANNEL_ACCOUNT = 0x00002005;
+        /** 查询产品 */
+        public static final int INST_ECOM_QUERY_PRODUCT         = 0x00002006;
         // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;

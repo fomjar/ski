@@ -42,14 +42,16 @@ create table tbl_game_account (
 -- 当前租赁状态
 drop table if exists tbl_game_account_rent;
 create table tbl_game_account_rent(
+    i_pid   integer,        -- 产品ID
     i_gaid  integer,        -- 游戏账号ID
     c_caid  varchar(64),    -- 渠道账户账户ID
-    i_state tinyint         -- 租赁状态: 0-未租，1-已租，2-锁定，3-已退
+    i_state tinyint         -- 租赁状态: 0-空闲，1-租用，2-锁定
 );
 
 -- 平台账户流水
 drop table if exists tbl_game_account_rent_history;
 create table tbl_game_account_rent_history (
+    i_pid           integer,        -- 产品ID
     i_gaid          integer,        -- 游戏账号ID
     c_caid          varchar(64),    -- 渠道账户ID
     i_state_before  tinyint,        -- 变化前的状态

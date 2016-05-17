@@ -10,7 +10,7 @@ create procedure sp_query_channel_account (
     in  caid    varchar(64)     -- null：所有账号；非空：指定账号
 )
 begin
-    if gaid is null then
+    if caid is null then
         call sp_query_channel_account_all(i_code, c_desc);
     else
         call sp_query_channel_account_by_caid(i_code, c_desc, caid);
