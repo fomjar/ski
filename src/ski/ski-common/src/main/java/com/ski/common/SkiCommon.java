@@ -102,7 +102,6 @@ public final class SkiCommon {
         public static final int CODE_WEB_TAOBAO_ORDER_NO_NEW           = 0x00002012; // 没有新的淘宝订单
         public static final int CODE_WEB_TAOBAO_ORDER_NOT_FOUND        = 0x00002013; // 没有找到指定订单
         public static final int CODE_WEB_PSN_ACCOUNT_INCORRECT         = 0x00002031; // PSN登陆用户名或密码错误
-        public static final int CODE_WEB_PSN_ACCOUNT_INUSE             = 0x00002032; // PNS账号被占用
         public static final int CODE_WEB_PSN_CHANGE_PASSWORD_FAILED    = 0x00002033; // PSN修改密码失败
     }
 

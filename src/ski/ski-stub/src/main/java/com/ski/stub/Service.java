@@ -9,7 +9,6 @@ import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
 import com.ski.stub.bean.BeanProduct;
 
-import fomjar.server.FjMessage;
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
@@ -26,23 +25,15 @@ public class Service {
     public static final Map<Integer, BeanGameAccount>       map_game_account    = new LinkedHashMap<Integer, BeanGameAccount>();
     public static final Map<Integer, BeanChannelAccount>    map_channel_account = new LinkedHashMap<Integer, BeanChannelAccount>();
     
-    public static FjMessage send(String report, int inst, JSONObject args) {
+    public static FjDscpMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();
         
         args.put("report", report);
         args.put("inst", inst);
         FjHttpRequest req = new FjHttpRequest("POST", URL_SKI_WSI, args.toString());
-        return FjSender.sendHttpRequest(req);
-    }
-    
-    public static FjDscpMessage send(int inst) {
-        return send(inst, null);
-    }
-    
-    public static FjDscpMessage send(int inst, JSONObject args) {
-        FjMessage rsp = send("cdb", inst, args);
+        FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
         System.out.println(rsp);
-        return (FjDscpMessage) rsp;
+        return rsp;
     }
     
     public static boolean isResponseSuccess(FjDscpMessage rsp) {
@@ -51,7 +42,7 @@ public class Service {
         else return false;
     }
     
-    public static String getResponseString(FjDscpMessage rsp) {
+    public static String getResponseStringFromCDB(FjDscpMessage rsp) {
         if (null == rsp) return null;
         
         JSONObject args = rsp.argsToJsonObject();
@@ -61,7 +52,7 @@ public class Service {
     
     public static void updateGame() {
         Service.map_game.clear();
-        String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_GAME));
+        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME, null));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
@@ -73,7 +64,7 @@ public class Service {
     
     public static void updateProduct() {
         Service.map_product.clear();
-        String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_PRODUCT));
+        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_PRODUCT, null));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
@@ -87,7 +78,7 @@ public class Service {
         Service.map_game_account.clear();
         JSONObject args = new JSONObject();
         args.put("gid", gid);
-        String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, args));
+        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, args));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
@@ -99,7 +90,7 @@ public class Service {
     
     public static void updateChannelAccount() {
         Service.map_channel_account.clear();
-        String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT));
+        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, null));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {

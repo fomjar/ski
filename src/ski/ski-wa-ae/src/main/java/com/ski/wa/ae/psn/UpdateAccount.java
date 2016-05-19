@@ -8,16 +8,16 @@ import com.ski.wa.AE;
 
 import net.sf.json.JSONObject;
 
-public class ChangePassword implements AE {
+public class UpdateAccount implements AE {
     
     private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
-        if (!args.containsKey("user") || !args.containsKey("pass") || !args.containsKey("pass_new")) { // 参数没有新老密码
+        if (!args.containsKey("user") || !args.containsKey("pass")) { // 参数没有新老密码
             code = SkiCommon.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "no parameter: user or pass or pass_new";
+            desc = "no parameter: user or pass";
             return;
         }
         
@@ -35,6 +35,12 @@ public class ChangePassword implements AE {
             desc = login.desc();
             return;
         }
+        
+        if (!args.has("pass_new")) {
+            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            desc = "login success";
+            return;
+        }
        
         String psnp_old = args.getString("pass");
         String psnp_new = args.getString("pass_new");
@@ -49,6 +55,7 @@ public class ChangePassword implements AE {
         
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
             code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            desc = "update new password success";
         } else { // 密码保存失败
             code = SkiCommon.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
             desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();

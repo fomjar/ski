@@ -76,7 +76,7 @@ public class TabUpdateGameAccount extends TabPaneBase {
         if (0 < birth.length())         args.put("birth",   birth);
         
         FjDscpMessage rsp = null;
-        if (Service.isResponseSuccess(rsp = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args)))
+        if (Service.isResponseSuccess(rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args)))
             setStatus("操作成功");
         else setStatus(rsp.args().toString());
     }

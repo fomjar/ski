@@ -48,7 +48,7 @@ public class TabUpdateProduct extends TabPaneBase {
         args.put("prod_inst",   Integer.parseInt(prod_inst, 16));
         
         FjDscpMessage rsp = null;
-        if (Service.isResponseSuccess(rsp = Service.send(SkiCommon.ISIS.INST_ECOM_UPDATE_PRODUCT, args)))
+        if (Service.isResponseSuccess(rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PRODUCT, args)))
             setStatus("操作成功");
         else setStatus(rsp.args().toString());
     }

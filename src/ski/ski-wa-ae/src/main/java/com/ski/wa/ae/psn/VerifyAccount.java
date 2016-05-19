@@ -9,7 +9,7 @@ import org.openqa.selenium.WebDriver;
 import com.ski.common.SkiCommon;
 import com.ski.wa.AE;
 
-public class Verify implements AE {
+public class VerifyAccount implements AE {
     
     private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
@@ -28,10 +28,11 @@ public class Verify implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("device-0")); // 存在设备绑定
-            code = SkiCommon.CODE.CODE_WEB_PSN_ACCOUNT_INUSE;
-            desc = "psn account is inuse";
+            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            desc = "psn account is binded";
         } catch (NoSuchElementException e) { // 不存在设备绑定
             code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            desc = "psn account is unbinded";
         }
     }
 

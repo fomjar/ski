@@ -10,7 +10,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.ski.common.SkiCommon;
 import com.ski.stub.bean.BeanGameAccount;
+
+import fomjar.server.msg.FjDscpMessage;
+import net.sf.json.JSONObject;
 
 public class TabGameAccountOperate extends TabPaneBase {
 
@@ -26,6 +30,7 @@ public class TabGameAccountOperate extends TabPaneBase {
         addField(CommonUI.createPanelLabelCombo("GA      ID", new String[] {}));
         addField(detail = CommonUI.createPanelTitleArea("响应消息", false));
         addField(select = CommonUI.createPanelRadioButton("选择想要执行的操作", new String[] {
+                "在PlayStation网站上创建此游戏账号",
                 "修改此游戏账号的当前密码为A密码",
                 "修改此游戏账号的当前密码为B密码",
                 "验证此游戏账号是否存在已绑定的设备"}));
@@ -112,17 +117,42 @@ public class TabGameAccountOperate extends TabPaneBase {
     @Override
     protected void submit() {
         if (((JRadioButton)select.getComponent(0)).isSelected()) {
+            setStatus("操作成功");
+        } else if (((JRadioButton)select.getComponent(1)).isSelected()) {
             if (current.c_pass_a.equals(current.c_pass_curr)) setStatus("此游戏账号的当前密码已经是A密码");
             else {
-                setStatus("操作成功");
-            }
-        } else if (((JRadioButton)select.getComponent(1)).isSelected()) {
-            if (current.c_pass_b.equals(current.c_pass_curr)) setStatus("此游戏账号的当前密码已经是B密码");
-            else {
-                setStatus("操作成功");
+                JSONObject args = new JSONObject();
+                args.put("user",        current.c_user);
+                args.put("pass",        current.c_pass_curr);
+                args.put("pass_new",    current.c_pass_a);
+                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                result.setText(rsp.args().toString());
+                
+                if (Service.isResponseSuccess(rsp)) setStatus("操作成功");
+                else setStatus(rsp.args().toString());
             }
         } else if (((JRadioButton)select.getComponent(2)).isSelected()) {
+            if (current.c_pass_b.equals(current.c_pass_curr)) setStatus("此游戏账号的当前密码已经是B密码");
+            else {
+                JSONObject args = new JSONObject();
+                args.put("user",        current.c_user);
+                args.put("pass",        current.c_pass_curr);
+                args.put("pass_new",    current.c_pass_b);
+                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                result.setText(rsp.args().toString());
+                
+                if (Service.isResponseSuccess(rsp)) setStatus("操作成功");
+                else setStatus(rsp.args().toString());
+            }
+        } else if (((JRadioButton)select.getComponent(3)).isSelected()) {
+            JSONObject args = new JSONObject();
+            args.put("user",        current.c_user);
+            args.put("pass",        current.c_pass_curr);
+            FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_VERIFY_ACCOUNT, args);
+            result.setText(rsp.args().toString());
             
+            if (Service.isResponseSuccess(rsp)) setStatus("操作成功");
+            else setStatus(rsp.args().toString());
         } else {
             setStatus("请先选择一项操作再执行提交");
         }
