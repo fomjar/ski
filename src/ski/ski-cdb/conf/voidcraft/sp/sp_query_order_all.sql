@@ -21,7 +21,7 @@ begin
                           from tbl_order o, tbl_order_product p, tbl_game_account ga
                          where o.c_poid = p.c_poid
                            and p.i_pid = ga.i_pid;
-                        -- and o.c_caid = user; for query by user
+                        -- and o.i_caid = user; for query by user
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 

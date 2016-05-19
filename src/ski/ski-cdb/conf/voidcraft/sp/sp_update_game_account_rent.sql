@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv(00002406, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002406, 16, 10) + 0), 'sp', 2, "sp_update_game_account_rent(?, ?, $pid, $gaid, '$caid', $state)");
+insert into tbl_instruction values((conv(00002406, 16, 10) + 0), 'sp', 2, "sp_update_game_account_rent(?, ?, $pid, $gaid, $caid, $state)");
 
 -- 更新产品
 delimiter //
@@ -7,10 +7,10 @@ drop procedure if exists sp_update_game_account_rent //
 create procedure sp_update_game_account_rent (
     out i_code  integer,
     out c_desc  mediumblob,
-    in  pid     integer,        -- 产品ID
-    in  gaid    integer,        -- 游戏账号ID
-    in  caid    varchar(64),    -- 渠道账户账户ID
-    in  state   tinyint         -- 租赁状态: 0-空闲，1-租用，2-锁定
+    in  pid     integer,    -- 产品ID
+    in  gaid    integer,    -- 游戏账号ID
+    in  caid    integer,    -- 渠道账户账户ID
+    in  state   tinyint     -- 租赁状态: 0-空闲，1-租用，2-锁定
 )
 begin
     declare di_count    integer default -1;
@@ -25,7 +25,7 @@ begin
         insert into tbl_game_account_rent (
             i_pid,
             i_gaid,
-            c_caid,
+            i_caid,
             i_state
         ) values (
             pid,

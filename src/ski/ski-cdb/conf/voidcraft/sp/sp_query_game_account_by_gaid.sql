@@ -7,6 +7,7 @@ create procedure sp_query_game_account_by_gaid (
     in  gaid    integer     -- 游戏账号ID
 )  
 begin
+    declare i_gid       integer     default -1;
     declare i_gaid      integer     default -1;
     declare c_user      varchar(32) default null;
     declare c_pass_a    varchar(32) default null;
@@ -16,7 +17,7 @@ begin
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select ga.i_gaid, ga.c_user, ga.c_pass_a, ga.c_pass_b, ga.c_pass_curr, ga.t_birth
+                        select ga.i_gid, ga.i_gaid, ga.c_user, ga.c_pass_a, ga.c_pass_b, ga.c_pass_curr, ga.t_birth
                           from tbl_game_account ga
                          where ga.i_gid  = gid
                            and ga.i_gaid = gaid
@@ -27,7 +28,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
+    fetch rs into i_gid, i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -36,6 +37,8 @@ begin
 
         set c_desc = concat(
                 c_desc,
+                conv(i_gid, 10, 16),
+                '\t',
                 conv(i_gaid, 10, 16),
                 '\t',
                 ifnull(c_user, ''),
@@ -49,7 +52,7 @@ begin
                 ifnull(t_birth, '')
         );
 
-        fetch rs into i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
+        fetch rs into i_gid, i_gaid, c_user, c_pass_a, c_pass_b, c_pass_curr, t_birth;
     end while;
     /* 关闭游标 */
     close rs;

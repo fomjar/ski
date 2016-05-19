@@ -24,8 +24,8 @@ public class TabUpdateProduct extends TabPaneBase {
         model.removeAllElements();
         
         if (!Service.map_game.isEmpty()) {
-            Service.map_game.forEach((gid, description)->{
-                model.addElement(String.format("0x%08X - %s", gid, description));
+            Service.map_game.forEach((gid, game)->{
+                model.addElement(String.format("0x%08X - %s(%s)", gid, game.c_name_zh, game.c_name_en));
             });
             if (0 < model.getSize()) {
                 getFieldToCombo(2).setEnabled(true);

@@ -3,7 +3,7 @@ drop procedure if exists sp_query_order_by_user //
 create procedure sp_query_order_by_user (
     out i_code  integer,
     out c_desc  mediumblob,
-    in  user    varchar(64)
+    in  caid    integer
 )  
 begin
     declare i_pid       integer     default -1;
@@ -22,7 +22,7 @@ begin
                           from tbl_order o, tbl_order_product p, tbl_game_account ga
                          where o.c_poid = p.c_poid
                            and p.i_pid = ga.i_pid
-                           and o.c_caid = user;
+                           and o.i_caid = user;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 

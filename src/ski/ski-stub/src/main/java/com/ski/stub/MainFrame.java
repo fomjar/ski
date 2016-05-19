@@ -15,7 +15,7 @@ public class MainFrame extends JFrame {
     
     public MainFrame() {
         setTitle("SKI-STUB [" + Service.getWsiUrl() + ']');
-        setSize(600, 600);
+        setSize(800, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
@@ -38,6 +38,7 @@ public class MainFrame extends JFrame {
         tabs.add("更新产品", new TabUpdateProduct());
         tabs.add("更新渠道账户", new TabUpdateChannelAccount());
         tabs.add("更新游戏账户租赁", new TabUpdateGameAccountRent());
+        tabs.add("游戏账户操作", new TabGameAccountOperate());
         tabs.add("通用消息接口", new TabCMI());
     }
 

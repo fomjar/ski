@@ -5,7 +5,7 @@ create procedure sp_query_channel_account_all (
     out c_desc  mediumblob
 )  
 begin
-    declare c_caid      varchar(64)     default null;
+    declare i_caid      integer         default null;
     declare c_user      varchar(32)     default null;
     declare i_channel   tinyint         default -1;
     declare c_nick      varchar(32)     default null;
@@ -17,9 +17,9 @@ begin
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select ca.c_caid, ca.c_user, ca.i_channel, ca.c_nick, ca.i_gender, ca.c_phone, ca.c_address, ca.c_zipcode, ca.t_birth
+                        select ca.i_caid, ca.c_user, ca.i_channel, ca.c_nick, ca.i_gender, ca.c_phone, ca.c_address, ca.c_zipcode, ca.t_birth
                           from tbl_channel_account ca
-                         order by ca.c_caid;
+                         order by ca.i_caid;
 
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
@@ -27,7 +27,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into c_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
+    fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -36,7 +36,7 @@ begin
 
         set c_desc = concat(
                 c_desc,
-                ifnull(c_caid, ''),
+                conv(i_caid, 10, 16),
                 '\t',
                 ifnull(c_user, ''),
                 '\t',
@@ -55,7 +55,7 @@ begin
                 ifnull(t_birth, '')
         );
 
-        fetch rs into c_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
+        fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
     end while;
     /* 关闭游标 */
     close rs;

@@ -1,12 +1,12 @@
 package com.ski.wa.ae.psn;
 
-import net.sf.json.JSONObject;
-
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
 import com.ski.common.SkiCommon;
 import com.ski.wa.AE;
+
+import net.sf.json.JSONObject;
 
 public class ChangePassword implements AE {
     
@@ -15,11 +15,15 @@ public class ChangePassword implements AE {
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
-        if (!args.containsKey("pass-old") || !args.containsKey("pass-new")) { // 参数没有新老密码
+        if (!args.containsKey("user") || !args.containsKey("pass") || !args.containsKey("pass_new")) { // 参数没有新老密码
             code = SkiCommon.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "no parameter: pass-old or pass-new";
+            desc = "no parameter: user or pass or pass_new";
             return;
         }
+        
+        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
+        try {Thread.sleep(1000L);}
+        catch (InterruptedException e) {e.printStackTrace();}
         
         AE login = new Login();
         JSONObject login_args = new JSONObject();
@@ -31,18 +35,18 @@ public class ChangePassword implements AE {
             desc = login.desc();
             return;
         }
-        String psnp_old = args.getString("psnp-old");
-        String psnp_new = args.getString("psnp-new");
-        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
+       
+        String psnp_old = args.getString("pass");
+        String psnp_new = args.getString("pass_new");
+
         driver.findElement(By.id("currentPasswordField")).clear();
         driver.findElement(By.id("currentPasswordField")).sendKeys(psnp_old); // 旧密码
-        driver.findElement(By.id("changePasswordInput")).clear();
-        driver.findElement(By.id("changePasswordInput")).sendKeys(psnp_new);  // 新密码
+        driver.findElement(By.id("changePasswordInput")).click();
+        driver.findElement(By.name("password")).sendKeys(psnp_new);  // 新密码
         driver.findElement(By.id("confirmPasswordField")).clear();
         driver.findElement(By.id("confirmPasswordField")).sendKeys(psnp_new); // 重复新密码
         driver.findElement(By.id("changePasswordButton")).click();
+        
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
             code = SkiCommon.CODE.CODE_SYS_SUCCESS;
         } else { // 密码保存失败

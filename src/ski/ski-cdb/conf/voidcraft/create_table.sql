@@ -23,8 +23,8 @@ create table tbl_platform_account (
 -- 平台账户与渠道账户的关系
 drop table if exists tbl_platform_account_relationship;
 create table tbl_platform_account_relationship (
-    i_paid      integer,        -- 平台账户ID
-    c_caid      varchar(64)     -- 渠道账户ID
+    i_paid      integer,    -- 平台账户ID
+    i_caid      integer     -- 渠道账户ID
 );
 
 -- 游戏账户
@@ -42,21 +42,21 @@ create table tbl_game_account (
 -- 当前租赁状态
 drop table if exists tbl_game_account_rent;
 create table tbl_game_account_rent(
-    i_pid   integer,        -- 产品ID
-    i_gaid  integer,        -- 游戏账号ID
-    c_caid  varchar(64),    -- 渠道账户账户ID
-    i_state tinyint         -- 租赁状态: 0-空闲，1-租用，2-锁定
+    i_pid   integer,    -- 产品ID
+    i_gaid  integer,    -- 游戏账号ID
+    i_caid  integer,    -- 渠道账户账户ID
+    i_state tinyint     -- 租赁状态: 0-空闲，1-租用，2-锁定
 );
 
 -- 平台账户流水
 drop table if exists tbl_game_account_rent_history;
 create table tbl_game_account_rent_history (
-    i_pid           integer,        -- 产品ID
-    i_gaid          integer,        -- 游戏账号ID
-    c_caid          varchar(64),    -- 渠道账户ID
-    i_state_before  tinyint,        -- 变化前的状态
-    i_state_after   tinyint,        -- 变化后的状态
-    t_change        datetime        -- 变化时间
+    i_pid           integer,    -- 产品ID
+    i_gaid          integer,    -- 游戏账号ID
+    i_caid          integer,    -- 渠道账户ID
+    i_state_before  tinyint,    -- 变化前的状态
+    i_state_after   tinyint,    -- 变化后的状态
+    t_change        datetime    -- 变化时间
 );
 
 -- 游戏信息表
@@ -87,7 +87,7 @@ create table tbl_order (
     c_poid      varchar(64),    -- 平台订单ID
     i_coid      integer,        -- 渠道订单ID
     i_channel   tinyint,        -- 渠道类型：0-淘宝 1-微信 2-京东
-    c_caid      varchar(64),    -- 渠道账户ID
+    i_caid      integer,        -- 渠道账户ID
     t_place     datetime        -- 下单时间
 );
 
@@ -113,7 +113,7 @@ create table tbl_order_product (
 -- 渠道账户信息
 drop table if exists tbl_channel_account;
 create table tbl_channel_account (
-    c_caid      varchar(64),    -- 渠道账户ID
+    i_caid      integer,        -- 渠道账户ID
     c_user      varchar(32),    -- 用户名
     i_channel   tinyint,        -- 渠道：0-淘宝 1-微信
     c_nick      varchar(32),    -- 昵称
@@ -123,6 +123,4 @@ create table tbl_channel_account (
     c_zipcode   varchar(10),    -- 邮编
     t_birth     date            -- 生日
 );
-
-
 

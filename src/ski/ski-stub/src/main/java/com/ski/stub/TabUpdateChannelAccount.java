@@ -10,7 +10,7 @@ public class TabUpdateChannelAccount extends TabPaneBase {
     private static final long serialVersionUID = 4478338967110972515L;
     
     public TabUpdateChannelAccount() {
-        addField(CommonUI.createPanelLabelField("CA      ID  (字符串)"));
+        addField(CommonUI.createPanelLabelField("CA      ID  (十六进制/自动生成)"));
         addField(CommonUI.createPanelLabelField("用  户  名  (字符串)"));
         addField(CommonUI.createPanelLabelCombo("渠道  来源  (字符串)", new String[] {"0 - 淘宝", "1 - 微信"}));
         addField(CommonUI.createPanelLabelField("昵      称  (字符串)"));
@@ -25,7 +25,7 @@ public class TabUpdateChannelAccount extends TabPaneBase {
     protected void submit() {
         JSONObject args = new JSONObject();
         String caid     = getFieldToField(0).getText();
-        if (0 < caid.length())      args.put("caid", caid);
+        if (0 < caid.length())      args.put("caid", Integer.parseInt(caid, 16));
         String user     = getFieldToField(1).getText();
         if (0 < user.length())      args.put("user", user);
         int    channel  = getFieldToCombo(2).getSelectedIndex();

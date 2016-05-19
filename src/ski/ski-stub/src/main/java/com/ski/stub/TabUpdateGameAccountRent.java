@@ -17,7 +17,7 @@ public class TabUpdateGameAccountRent extends TabPaneBase {
     public TabUpdateGameAccountRent() {
         addField(CommonUI.createPanelLabelCombo("P       ID  (整数)", new String[] {}));
         addField(CommonUI.createPanelLabelCombo("GA      ID  (整数)", new String[] {}));
-        addField(CommonUI.createPanelLabelCombo("CA      ID  (字符串)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("CA      ID  (整数)", new String[] {}));
         addField(CommonUI.createPanelLabelCombo("租赁  状态  (整数)", new String[] {"0 - 空闲", "1 - 租用", "2 - 锁定"}));
         getFieldToCombo(0).addItemListener(new ItemListener() {
             @Override
@@ -31,17 +31,14 @@ public class TabUpdateGameAccountRent extends TabPaneBase {
                 model_gaid.removeAllElements();
                 
                 if (!Service.map_game_account.isEmpty()) {
-                    Service.map_game_account.forEach((gaid, description)->{
-                        model_gaid.addElement(String.format("0x%08X - %s", gaid, description));
+                    Service.map_game_account.forEach((gaid, game_account)->{
+                        model_gaid.addElement(String.format("0x%08X - %s", gaid, game_account.c_user));
                     });
-                    if (0 < model_gaid.getSize()) {
-                        getFieldToCombo(1).setEnabled(true);
-                    } else {
-                        getFieldToCombo(1).setEnabled(false);
-                    }
-                }
+                    if (0 < model_gaid.getSize()) getFieldToCombo(1).setEnabled(true);
+                    else getFieldToCombo(1).setEnabled(false);
+                } else getFieldToCombo(1).setEnabled(false);
                 
-                if (Service.list_product.isEmpty()
+                if (Service.map_product.isEmpty()
                         || Service.map_game_account.isEmpty()
                         || Service.map_channel_account.isEmpty()) {
                     disableSubmit();
@@ -58,32 +55,32 @@ public class TabUpdateGameAccountRent extends TabPaneBase {
         DefaultComboBoxModel<String> model_pid = (DefaultComboBoxModel<String>)getFieldToCombo(0).getModel();
         model_pid.removeAllElements();
         
-        if (!Service.list_product.isEmpty()) {
-            Service.list_product.forEach((pid)->{
+        if (!Service.map_product.isEmpty()) {
+            Service.map_product.forEach((pid, product)->{
                 model_pid.addElement(String.format("0x%08X", pid));
             });
-            if (0 < model_pid.getSize()) {
-                getFieldToCombo(0).setEnabled(true);
-            } else {
+            if (0 < model_pid.getSize()) getFieldToCombo(0).setEnabled(true);
+            else {
                 getFieldToCombo(0).setEnabled(false);
+                getFieldToCombo(1).setEnabled(false);
             }
+        } else {
+            getFieldToCombo(0).setEnabled(false);
+            getFieldToCombo(1).setEnabled(false);
         }
         
         DefaultComboBoxModel<String> model_caid = (DefaultComboBoxModel<String>)getFieldToCombo(2).getModel();
         model_caid.removeAllElements();
         
         if (!Service.map_channel_account.isEmpty()) {
-            Service.map_channel_account.forEach((caid, description)->{
-                model_caid.addElement(String.format("%s - %s", caid, description));
+            Service.map_channel_account.forEach((caid, channel_account)->{
+                model_caid.addElement(String.format("0x%08X - %s", caid, channel_account.c_user));
             });
-            if (0 < model_caid.getSize()) {
-                getFieldToCombo(2).setEnabled(true);
-            } else {
-                getFieldToCombo(2).setEnabled(false);
-            }
-        }
+            if (0 < model_caid.getSize()) getFieldToCombo(2).setEnabled(true);
+            else getFieldToCombo(2).setEnabled(false);
+        } else getFieldToCombo(2).setEnabled(false);
         
-        if (Service.list_product.isEmpty()
+        if (Service.map_product.isEmpty()
                 || Service.map_game_account.isEmpty()
                 || Service.map_channel_account.isEmpty()) {
             disableSubmit();
@@ -97,8 +94,8 @@ public class TabUpdateGameAccountRent extends TabPaneBase {
         args.put("pid",     Integer.parseInt(pid, 16));
         String gaid         = getFieldToCombo(1).getSelectedItem().toString().split(" ")[0].split("x")[1];
         args.put("gaid",    Integer.parseInt(gaid, 16));
-        String caid         = getFieldToCombo(2).getSelectedItem().toString().split(" ")[0];
-        args.put("caid",    caid);
+        String caid         = getFieldToCombo(2).getSelectedItem().toString().split(" ")[0].split("x")[1];
+        args.put("caid",    Integer.parseInt(caid, 16));
         String state        = getFieldToCombo(3).getSelectedItem().toString().split(" ")[0];
         args.put("state",   Integer.parseInt(state, 16));
         

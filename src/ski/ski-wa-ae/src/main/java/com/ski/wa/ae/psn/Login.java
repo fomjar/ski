@@ -21,9 +21,16 @@ public class Login implements AE {
             desc = "no parameter: user or pass";
             return;
         }
-        driver.get("https://account.sonyentertainmentnetwork.com/login.action");
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
+//        driver.get("https://account.sonyentertainmentnetwork.com/login.action");
+//        try {Thread.sleep(1000L);}
+//        catch (InterruptedException e) {e.printStackTrace();}
+        try {
+            driver.findElement(By.id("notYouLink")).click();
+            try {Thread.sleep(1000L);}
+            catch (InterruptedException e) {e.printStackTrace();}
+        } catch (NoSuchElementException e){
+        }
+
         driver.findElement(By.id("signInInput_SignInID")).clear();
         driver.findElement(By.id("signInInput_SignInID")).sendKeys(args.getString("user")); // 账号
         driver.findElement(By.id("signInInput_Password")).clear();

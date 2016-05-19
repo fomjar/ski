@@ -7,9 +7,12 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -73,16 +76,17 @@ public class CommonUI {
         return jpanel;
     }
     
-    public static JTextField createPaneTitleField(String title) {
+    public static JTextField createPanelTitleField(String title, boolean editable) {
         JTextField jtf = new JTextField();
         jtf.setFont(getCommonFont());
         jtf.setBorder(BorderFactory.createTitledBorder(jtf.getBorder(), title));
         ((TitledBorder) jtf.getBorder()).setTitleFont(getCommonFont());
         jtf.setMaximumSize(new Dimension(Integer.MAX_VALUE, 24));
+        jtf.setEditable(editable);
         return jtf;
     }
     
-    public static JScrollPane createPaneTitleArea(String title, boolean editable) {
+    public static JScrollPane createPanelTitleArea(String title, boolean editable) {
         JTextArea jta = new JTextArea();
         jta.setFont(getCommonFont());
         jta.setLineWrap(true);
@@ -95,6 +99,25 @@ public class CommonUI {
         jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         return jsp;
+    }
+    
+    public static JPanel createPanelRadioButton(String title, String[] radio) {
+        JPanel panel = new JPanel();
+        panel.setMinimumSize(new Dimension(Integer.MAX_VALUE, 0));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 0));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
+        ((TitledBorder) panel.getBorder()).setTitleFont(getCommonFont());
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        ButtonGroup group = new ButtonGroup();
+        for (String s : radio) {
+            JRadioButton b = new JRadioButton(s);
+            b.setFont(getCommonFont());
+            panel.add(b);
+            
+            group.add(b);
+        }
+        return panel;
     }
 
 }

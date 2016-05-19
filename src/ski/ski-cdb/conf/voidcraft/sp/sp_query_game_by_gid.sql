@@ -21,7 +21,7 @@ begin
                             select g.i_gid, g.c_platform, g.c_country, g.c_url_icon, g.c_url_poster, g.c_url_buy, g.t_sale, g.c_name_zh, g.c_name_en
                               from tbl_game g
                              where g.i_gid = gid
-                             order by g.i_gid;
+                             order by g.c_name_zh;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 

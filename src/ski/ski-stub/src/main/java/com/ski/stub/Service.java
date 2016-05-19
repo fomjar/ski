@@ -1,11 +1,13 @@
 package com.ski.stub;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import com.ski.common.SkiCommon;
+import com.ski.stub.bean.BeanChannelAccount;
+import com.ski.stub.bean.BeanGame;
+import com.ski.stub.bean.BeanGameAccount;
+import com.ski.stub.bean.BeanProduct;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjSender;
@@ -19,10 +21,10 @@ public class Service {
     
     public static String getWsiUrl() {return URL_SKI_WSI;}
     
-    public static final Map<Integer, String>    map_game            = new LinkedHashMap<Integer, String>();
-    public static final List<Integer>           list_product        = new LinkedList<Integer>();
-    public static final Map<Integer, String>    map_game_account    = new LinkedHashMap<Integer, String>();
-    public static final Map<String, String>     map_channel_account = new LinkedHashMap<String, String>();
+    public static final Map<Integer, BeanGame>              map_game            = new LinkedHashMap<Integer, BeanGame>();
+    public static final Map<Integer, BeanProduct>           map_product         = new LinkedHashMap<Integer, BeanProduct>();
+    public static final Map<Integer, BeanGameAccount>       map_game_account    = new LinkedHashMap<Integer, BeanGameAccount>();
+    public static final Map<Integer, BeanChannelAccount>    map_channel_account = new LinkedHashMap<Integer, BeanChannelAccount>();
     
     public static FjMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();
@@ -50,6 +52,8 @@ public class Service {
     }
     
     public static String getResponseString(FjDscpMessage rsp) {
+        if (null == rsp) return null;
+        
         JSONObject args = rsp.argsToJsonObject();
         if (0 != args.getInt("code")) return null;
         else return args.getJSONArray("desc").getString(0);
@@ -61,20 +65,20 @@ public class Service {
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
-                String[] fields = line.split("\t");
-                Service.map_game.put(Integer.parseInt(fields[0], 16), fields[7] + "(" + fields[8] + ")");
+                BeanGame bean = new BeanGame(line);
+                Service.map_game.put(bean.i_gid, bean);
             }
         }
     }
     
     public static void updateProduct() {
-        Service.list_product.clear();
+        Service.map_product.clear();
         String rsp = Service.getResponseString(Service.send(SkiCommon.ISIS.INST_ECOM_QUERY_PRODUCT));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
-                String[] fields = line.split("\t");
-                Service.list_product.add(Integer.parseInt(fields[0], 16));
+                BeanProduct bean = new BeanProduct(line);
+                Service.map_product.put(bean.i_pid, bean);
             }
         }
     }
@@ -87,8 +91,8 @@ public class Service {
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
-                String[] fields = line.split("\t");
-                Service.map_game_account.put(Integer.parseInt(fields[0], 16), fields[1]);
+                BeanGameAccount bean = new BeanGameAccount(line);
+                Service.map_game_account.put(bean.i_gaid, bean);
             }
         }
     }
@@ -99,8 +103,8 @@ public class Service {
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
-                String[] fields = line.split("\t");
-                Service.map_channel_account.put(fields[0], fields[1]);
+                BeanChannelAccount bean = new BeanChannelAccount(line);
+                Service.map_channel_account.put(bean.i_caid, bean);
             }
         }
     }
