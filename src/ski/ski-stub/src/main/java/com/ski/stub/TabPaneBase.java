@@ -47,7 +47,7 @@ public class TabPaneBase extends JPanel {
         };
         submit = new JButton("提交");
         submit.setFont(CommonUI.getCommonFont());
-        submit.setContentAreaFilled(false);
+        //submit.setContentAreaFilled(false);
         submit.addActionListener(action->{
             try {submit();}
             catch (Exception e) {

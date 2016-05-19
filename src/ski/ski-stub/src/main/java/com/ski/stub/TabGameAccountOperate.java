@@ -2,6 +2,8 @@ package com.ski.stub;
 
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JPanel;
@@ -26,11 +28,12 @@ public class TabGameAccountOperate extends TabPaneBase {
     private JTextField      result;
     
     public TabGameAccountOperate() {
-        addField(CommonUI.createPanelLabelCombo("G       ID", new String[] {}));
-        addField(CommonUI.createPanelLabelCombo("GA      ID", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("G       ID  (游戏ID)", new String[] {}));
+        addField(CommonUI.createPanelLabelCombo("GA      ID  (游戏账户ID)", new String[] {}));
         addField(detail = CommonUI.createPanelTitleArea("响应消息", false));
+        ((JTextArea) detail.getViewport().getView()).setRows(7);
         addField(select = CommonUI.createPanelRadioButton("选择想要执行的操作", new String[] {
-                "在PlayStation网站上创建此游戏账号",
+                "在PlayStation网站上创建此游戏账号(暂未支持)",
                 "修改此游戏账号的当前密码为A密码",
                 "修改此游戏账号的当前密码为B密码",
                 "验证此游戏账号是否存在已绑定的设备"}));
@@ -55,7 +58,7 @@ public class TabGameAccountOperate extends TabPaneBase {
                     else getFieldToCombo(1).setEnabled(false);
                 } else getFieldToCombo(1).setEnabled(false);
                 
-                if (Service.map_product.isEmpty()
+                if (Service.map_game.isEmpty()
                         || Service.map_game_account.isEmpty()) {
                     disableSubmit();
                 } else enableSubmit();
@@ -85,6 +88,16 @@ public class TabGameAccountOperate extends TabPaneBase {
                         current.t_birth));
             }
         });
+        getFieldToCombo(1).addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if ("enabled".equals(evt.getPropertyName())) {
+                    if (!((Boolean)evt.getNewValue()).booleanValue()) {
+                        ((JTextArea) detail.getViewport().getView()).setText(null);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -99,14 +112,8 @@ public class TabGameAccountOperate extends TabPaneBase {
                 model.addElement(String.format("0x%08X - %s(%s)", gid, game.c_name_zh, game.c_name_en));
             });
             if (0 < model.getSize()) getFieldToCombo(0).setEnabled(true);
-            else {
-                getFieldToCombo(0).setEnabled(false);
-                getFieldToCombo(1).setEnabled(false);
-            }
-        } else {
-            getFieldToCombo(0).setEnabled(false);
-            getFieldToCombo(1).setEnabled(false);
-        }
+            else getFieldToCombo(0).setEnabled(false);
+        } else getFieldToCombo(0).setEnabled(false);
         
         if (Service.map_game.isEmpty()
                 || Service.map_game_account.isEmpty()) {

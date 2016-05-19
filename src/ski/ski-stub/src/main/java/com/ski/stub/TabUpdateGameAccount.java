@@ -70,8 +70,10 @@ public class TabUpdateGameAccount extends TabPaneBase {
         if (0 < pass_a.length())        args.put("pass_a",      pass_a);
         String pass_b       = getFieldToField(4).getText();
         if (0 < pass_b.length())        args.put("pass_b",      pass_b);
-        String pass_curr    = getFieldToCombo(5).getSelectedItem().toString();
-        if (0 < pass_curr.length())     args.put("pass_curr",   pass_curr);
+        if (null != getFieldToCombo(5).getSelectedItem()) {
+            String pass_curr    = getFieldToCombo(5).getSelectedItem().toString();
+            if (0 < pass_curr.length())     args.put("pass_curr",   pass_curr);
+        }
         String birth        = getFieldToField(6).getText();
         if (0 < birth.length())         args.put("birth",   birth);
         
