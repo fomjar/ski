@@ -115,7 +115,7 @@ public class WsiTask implements FjServerTask {
     private class CacheMonitor extends FjLoopTask {
         
         private static final long INTEVAL = 1000L * 1;
-        private static final long TIMEOUT = 1000L * 10;
+        private static final long TIMEOUT = 1000L * 60 * 3;
         
         public CacheMonitor() {
             setDelay(INTEVAL);

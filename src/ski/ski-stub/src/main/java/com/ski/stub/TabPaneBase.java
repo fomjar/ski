@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,6 +21,8 @@ import javax.swing.SwingConstants;
 public class TabPaneBase extends JPanel {
 
     private static final long serialVersionUID = 5527656651436272715L;
+    
+    private static ExecutorService pool = Executors.newCachedThreadPool();
     
     private JPanel  fieldpane;
     private JPanel  submitcontainer;
@@ -49,11 +53,17 @@ public class TabPaneBase extends JPanel {
         submit.setFont(CommonUI.getCommonFont());
         //submit.setContentAreaFilled(false);
         submit.addActionListener(action->{
-            try {submit();}
-            catch (Exception e) {
-                e.printStackTrace();
-                setStatus(e.getMessage());
-            }
+            pool.submit(()->{
+                submit.setEnabled(false);
+                submit.setText("正在处理...");
+                try {submit();}
+                catch (Exception e) {
+                    e.printStackTrace();
+                    setStatus(e.getMessage());
+                }
+                submit.setText("提交");
+                submit.setEnabled(true);
+            });
         });
         submitcontainer = new JPanel();
         submitcontainer.setBorder(BorderFactory.createEmptyBorder(0, 4, 4, 4));
@@ -92,7 +102,11 @@ public class TabPaneBase extends JPanel {
     
     protected void submit() {};
     
-    public void enableSubmit() {submit.setEnabled(true);}
+    public void enableSubmit() {
+        if (submit.getText().endsWith("...")) return;
+        
+        submit.setEnabled(true);
+    }
     
     public void disableSubmit() {submit.setEnabled(false);}
     

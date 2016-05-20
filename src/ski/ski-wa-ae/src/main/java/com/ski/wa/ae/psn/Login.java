@@ -21,9 +21,9 @@ public class Login implements AE {
             desc = "no parameter: user or pass";
             return;
         }
-//        driver.get("https://account.sonyentertainmentnetwork.com/login.action");
-//        try {Thread.sleep(1000L);}
-//        catch (InterruptedException e) {e.printStackTrace();}
+        driver.get("https://account.sonyentertainmentnetwork.com/login.action");
+        try {Thread.sleep(1000L);}
+        catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("notYouLink")).click();
             try {Thread.sleep(1000L);}
@@ -43,8 +43,10 @@ public class Login implements AE {
             code = SkiCommon.CODE.CODE_WEB_PSN_ACCOUNT_INCORRECT;
             desc = "user or pass is incorrect";
             return;
-        } catch (NoSuchElementException e) {}
-        code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+        } catch (NoSuchElementException e) {
+            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            desc = "login success";
+        }
     }
 
     @Override
