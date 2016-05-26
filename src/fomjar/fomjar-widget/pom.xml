@@ -1,12 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>fomjar</groupId>
-  <artifactId>fomjar</artifactId>
-  <version>0.0.1</version>
-  <packaging>pom</packaging>
-  <modules>
-  	<module>fomjar-util</module>
-  	<module>fomjar-server</module>
-  	<module>fomjar-widget</module>
-  </modules>
+  <parent>
+    <groupId>fomjar</groupId>
+    <artifactId>fomjar</artifactId>
+    <version>0.0.1</version>
+  </parent>
+  <groupId>fomjar-widget</groupId>
+  <artifactId>fomjar-widget</artifactId>
 </project>

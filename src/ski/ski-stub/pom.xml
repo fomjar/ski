@@ -9,6 +9,11 @@
   <artifactId>ski-stub</artifactId>
   <dependencies>
   	<dependency>
+  		<groupId>fomjar-widget</groupId>
+  		<artifactId>fomjar-widget</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
+  	<dependency>
   		<groupId>ski-common</groupId>
   		<artifactId>ski-common</artifactId>
   		<version>0.0.1</version>

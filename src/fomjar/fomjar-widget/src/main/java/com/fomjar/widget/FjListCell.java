@@ -1,0 +1,103 @@
+package com.fomjar.widget;
+
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+
+public abstract class FjListCell<E> extends JComponent {
+    
+    public static void passthroughMouseEvent(Component from, Component to) {
+        from.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseReleased(MouseEvent e)     {to.dispatchEvent(e);}
+            @Override
+            public void mousePressed(MouseEvent e)      {to.dispatchEvent(e);}
+            @Override
+            public void mouseExited(MouseEvent e)       {to.dispatchEvent(e);}
+            @Override
+            public void mouseEntered(MouseEvent e)      {to.dispatchEvent(e);}
+            @Override
+            public void mouseClicked(MouseEvent e)      {to.dispatchEvent(e);}
+        });
+        if (from instanceof Container) {
+            for (Component c : ((Container) from).getComponents()) passthroughMouseEvent(c, to);
+        }
+    }
+    
+    private static final long serialVersionUID = -5413153652935337627L;
+    
+    private   static final Color color_default  = Color.white;
+    private   static final Color color_over     = new Color(230, 230, 255);
+    private   static final Color color_press    = new Color(180, 180, 255);
+    protected static final Color color_major    = Color.black;
+    protected static final Color color_minor    = Color.gray;
+    
+    private boolean is_over;
+    private boolean is_press;
+    private List<ActionListener> listeners;
+    
+    public FjListCell() {
+        listeners   = new LinkedList<ActionListener>();
+        is_over     = false;
+        is_press    = false;
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, 0));
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                is_press = true;
+                repaint();
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                is_press = false;
+                repaint();
+                if (is_over) listeners.forEach(listener->{listener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), null, e.getModifiers()));});
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                is_over = true;
+                repaint();
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                is_over = false;
+                repaint();
+            }
+        });
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        if (is_press)       g.setColor(color_press);
+        else if (is_over)   g.setColor(color_over);
+        else                g.setColor(color_default);
+        
+        g.fillRect(0, 0, getWidth(), getHeight());
+        
+        g.setColor(Color.lightGray);
+        g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+        
+        super.paintComponent(g);
+    }
+    
+    public abstract void setData(E data);
+    
+    public void addActionListener(ActionListener listener) {
+        listeners.add(listener);
+    }
+    
+}
