@@ -8,15 +8,21 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjList;
 import com.fomjar.widget.FjListPane;
+import com.ski.common.SkiCommon;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
+import com.ski.stub.comp.DetailGame;
+import com.ski.stub.comp.DetailGameAccount;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
+
+import fomjar.server.msg.FjDscpMessage;
 
 public class MainFrame extends JFrame {
 
@@ -26,7 +32,7 @@ public class MainFrame extends JFrame {
     private JToolBar    toolbar;
     
     public MainFrame() {
-        setTitle("SKI-STUB [" + Service.getWsiUrl() + ']');
+        setTitle("SKI-STUB-v0.0.1 [" + Service.getWsiUrl() + ']');
         setSize(500, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -47,6 +53,12 @@ public class MainFrame extends JFrame {
         getContentPane().add(tabs, BorderLayout.CENTER);
         getContentPane().add(toolbar, BorderLayout.NORTH);
         
+        registerListener();
+        
+        updateAll();
+    }
+    
+    private void registerListener() {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -54,8 +66,28 @@ public class MainFrame extends JFrame {
                 catch (Exception e1){e1.printStackTrace();}
             }
         });
-        
-        updateAll();
+        ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DetailGame detail = new DetailGame();
+                int ret = JOptionPane.showConfirmDialog(MainFrame.this, detail, "新游戏", JOptionPane.OK_CANCEL_OPTION);
+                if (JOptionPane.OK_OPTION == ret) {
+                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, detail.toJson());
+                    JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                }
+            }
+        });
+        ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DetailGameAccount detail = new DetailGameAccount();
+                int ret = JOptionPane.showConfirmDialog(MainFrame.this, detail, "新账号", JOptionPane.OK_CANCEL_OPTION);
+                if (JOptionPane.OK_OPTION == ret) {
+                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, detail.toJson());
+                    JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                }
+            }
+        });
     }
     
     private void updateAll() {
@@ -82,5 +114,4 @@ public class MainFrame extends JFrame {
             }
         }.start();
     }
-
 }

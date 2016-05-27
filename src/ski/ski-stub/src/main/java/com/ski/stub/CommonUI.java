@@ -1,13 +1,8 @@
 package com.ski.stub;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 public class CommonUI {
@@ -28,15 +23,5 @@ public class CommonUI {
         UIManager.getLookAndFeelDefaults().put("ComboBox.font",     FONT);
         UIManager.getLookAndFeelDefaults().put("Button.font",       FONT);
     }
-    
-    public static JPanel createLabelField(String label, String text) {
-        JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(80, 40));
-        JTextField jfield = new JTextField(text);
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add(jlabel, BorderLayout.WEST);
-        panel.add(jfield, BorderLayout.CENTER);
-        return panel;
-    }
+
 }

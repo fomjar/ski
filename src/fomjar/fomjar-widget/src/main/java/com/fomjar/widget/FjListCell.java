@@ -38,9 +38,11 @@ public abstract class FjListCell<E> extends JComponent {
     
     private static final long serialVersionUID = -5413153652935337627L;
     
-    private   static final Color color_default  = Color.white;
-    private   static final Color color_over     = new Color(230, 230, 255);
-    private   static final Color color_press    = new Color(180, 180, 255);
+    private   static final Color color_default  = new Color(230, 230, 230);
+    private   static final Color color_over     = new Color(240, 240, 255);
+    private   static final Color color_press    = new Color(200, 200, 230);
+    private   static final Color color_bright   = Color.white;
+    private   static final Color color_shadow   = Color.lightGray;
     protected static final Color color_major    = Color.black;
     protected static final Color color_minor    = Color.gray;
     
@@ -88,7 +90,11 @@ public abstract class FjListCell<E> extends JComponent {
         
         g.fillRect(0, 0, getWidth(), getHeight());
         
-        g.setColor(Color.lightGray);
+        if (!is_press)  g.setColor(color_bright);
+        else            g.setColor(color_shadow);
+        g.drawLine(0, 0, getWidth(), 0);
+        if (!is_press)  g.setColor(color_shadow);
+        else            g.setColor(color_bright);
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
         
         super.paintComponent(g);

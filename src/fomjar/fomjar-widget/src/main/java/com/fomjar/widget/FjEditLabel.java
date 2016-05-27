@@ -47,16 +47,19 @@ public class FjEditLabel extends JComponent {
             public void mouseClicked(MouseEvent e) {
                 if (!isEditable()) return;
                 
-                if (2 == e.getClickCount()) {
-                    listeners.forEach(listener->listener.startEdit(label.getText()));
-                    removeAll();
-                    add(field, BorderLayout.CENTER);
-                    field.setPreferredSize(label.getPreferredSize());
-                    revalidate();
-                    repaint();
-                    field.setText(label.getText());
-                    field.requestFocus();
-                    field.selectAll();
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    if (2 == e.getClickCount()) {
+                        listeners.forEach(listener->listener.startEdit(label.getText()));
+                        removeAll();
+                        add(field, BorderLayout.CENTER);
+                        field.setPreferredSize(label.getPreferredSize());
+                        revalidate();
+                        repaint();
+                        
+                        field.setText(label.getText());
+                        field.requestFocus();
+                        field.selectAll();
+                    }
                 }
             }
         });
@@ -69,6 +72,7 @@ public class FjEditLabel extends JComponent {
                 add(label, BorderLayout.CENTER);
                 revalidate();
                 repaint();
+                
                 label.setText(field.getText());
             }
         });
@@ -82,6 +86,8 @@ public class FjEditLabel extends JComponent {
                     add(label, BorderLayout.CENTER);
                     revalidate();
                     repaint();
+                    
+                    field.setText(label.getText());
                 }
             }
         });
@@ -124,7 +130,7 @@ public class FjEditLabel extends JComponent {
         if (null != label) label.setBackground(bg);
         if (null != field) field.setBackground(bg);
     }
-    
+
     public static interface EditListener {
         void startEdit(String value);
         void finishEdit(String old_value, String new_value);
