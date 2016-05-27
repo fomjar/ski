@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷新"));
         toolbar.add(new JButton("新游戏"));
-        toolbar.add(new JButton("新账号"));
+        toolbar.add(new JButton("新账户"));
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs, BorderLayout.CENTER);
