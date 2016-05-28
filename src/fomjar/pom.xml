@@ -7,5 +7,6 @@
   <modules>
   	<module>fomjar-util</module>
   	<module>fomjar-server</module>
+  	<module>fomjar-widget</module>
   </modules>
 </project>

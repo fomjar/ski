@@ -57,7 +57,7 @@ public class FjServerToolkit {
     
     public static FjSlb getSlb() {return slb;}
     
-    public static FjConfigMonitor getConfigGuard() {return config_monitor;}
+    public static FjConfigMonitor getConfigMonitor() {return config_monitor;}
     
     public static class FjAddress {
         
@@ -66,7 +66,7 @@ public class FjServerToolkit {
         public int    port;
         
         @Override
-        public String toString() {return "[" + server + ":" + host + ":" + port + "]";}
+        public String toString() {return server + ":" + host + ":" + port;}
     }
     
     public static class FjSlb {
@@ -84,8 +84,8 @@ public class FjServerToolkit {
                 if (((String) k).toLowerCase().startsWith(namePrefix.toLowerCase())) {
                     FjAddress item = new FjAddress();
                     item.server = namePrefix;
-                    item.host = ((String) v).split(",")[0].trim();
-                    item.port = Integer.parseInt(((String) v).split(",")[1].trim());
+                    item.host = ((String) v).split(":")[0].trim();
+                    item.port = Integer.parseInt(((String) v).split(":")[1].trim());
                     items.add(item);
                 }
             });

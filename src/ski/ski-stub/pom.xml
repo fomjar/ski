@@ -13,5 +13,10 @@
   		<artifactId>ski-common</artifactId>
   		<version>0.0.1</version>
   	</dependency>
+  	<dependency>
+  		<groupId>fomjar-widget</groupId>
+  		<artifactId>fomjar-widget</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
   </dependencies>
 </project>

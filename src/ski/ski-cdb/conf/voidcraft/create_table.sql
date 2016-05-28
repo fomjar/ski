@@ -30,13 +30,18 @@ create table tbl_platform_account_relationship (
 -- 游戏账户
 drop table if exists tbl_game_account;
 create table tbl_game_account (
-    i_gid       integer,        -- 对应游戏ID
     i_gaid      integer,        -- 游戏账户ID，对应产品实例
     c_user      varchar(32),    -- 用户名
     c_pass_a    varchar(32),    -- 密码A
     c_pass_b    varchar(32),    -- 密码B
     c_pass_curr varchar(32),    -- 当前密码
     t_birth     date            -- 出生日期
+);
+
+drop table if exists tbl_game_account_game;
+create table tbl_game_account_game (
+    i_gaid  integer,    -- 游戏ID
+    i_gid   integer     -- 游戏账户ID
 );
 
 -- 当前租赁状态

@@ -30,13 +30,16 @@ public class Service {
         
         args.put("report", report);
         args.put("inst", inst);
+        System.out.println(">>" + args);
         FjHttpRequest req = new FjHttpRequest("POST", URL_SKI_WSI, args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
-        System.out.println(rsp);
+        System.out.println("<<" + rsp);
         return rsp;
     }
     
     public static boolean isResponseSuccess(FjDscpMessage rsp) {
+        if (null == rsp) return false;
+        
         JSONObject args = rsp.argsToJsonObject();
         if (0 == args.getInt("code")) return true;
         else return false;
@@ -74,11 +77,9 @@ public class Service {
         }
     }
     
-    public static void updateGameAccount(int gid) {
+    public static void updateGameAccount() {
         Service.map_game_account.clear();
-        JSONObject args = new JSONObject();
-        args.put("gid", gid);
-        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, args));
+        String rsp = Service.getResponseStringFromCDB(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, null));
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
