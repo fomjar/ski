@@ -20,8 +20,8 @@ import com.fomjar.widget.FjSearchBar.FjSearchListener;
 import com.ski.common.SkiCommon;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
-import com.ski.stub.comp.DetailGame;
-import com.ski.stub.comp.DetailGameAccount;
+import com.ski.stub.comp.NewGame;
+import com.ski.stub.comp.NewGameAccount;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
 
@@ -43,8 +43,8 @@ public class MainFrame extends JFrame {
         
         tabs = new JTabbedPane();
         tabs.setFont(CommonUI.FONT.deriveFont(12.0f));
-        tabs.add("游戏清单", new FjListPane<BeanGame>());
-        tabs.add("游戏账户", new FjListPane<BeanGameAccount>());
+        tabs.add("游戏管理", new FjListPane<BeanGame>());
+        tabs.add("账号管理", new FjListPane<BeanGameAccount>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTypes(new String[] {"按游戏名"});
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入搜索关键字");
@@ -78,10 +78,10 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DetailGame detail = new DetailGame();
-                int ret = JOptionPane.showConfirmDialog(MainFrame.this, detail, "新游戏", JOptionPane.OK_CANCEL_OPTION);
+                NewGame game = new NewGame();
+                int ret = JOptionPane.showConfirmDialog(MainFrame.this, game, "新游戏", JOptionPane.OK_CANCEL_OPTION);
                 if (JOptionPane.OK_OPTION == ret) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, detail.toJson());
+                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, game.toJson());
                     JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
                 }
             }
@@ -89,10 +89,10 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                DetailGameAccount detail = new DetailGameAccount();
-                int ret = JOptionPane.showConfirmDialog(MainFrame.this, detail, "新账号", JOptionPane.OK_CANCEL_OPTION);
+                NewGameAccount gameaccount = new NewGameAccount();
+                int ret = JOptionPane.showConfirmDialog(MainFrame.this, gameaccount, "新账号", JOptionPane.OK_CANCEL_OPTION);
                 if (JOptionPane.OK_OPTION == ret) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, detail.toJson());
+                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, gameaccount.toJson());
                     JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
                 }
             }
@@ -152,7 +152,8 @@ public class MainFrame extends JFrame {
     }
     
     private void updateAll() {
-        new Thread() {
+        Service.doLater(
+        new Runnable() {
             @Override
             @SuppressWarnings("unchecked")
             public void run() {
@@ -173,6 +174,6 @@ public class MainFrame extends JFrame {
                 
                 ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }
-        }.start();
+        });
     }
 }

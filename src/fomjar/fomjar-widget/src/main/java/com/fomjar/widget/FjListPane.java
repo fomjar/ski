@@ -24,6 +24,8 @@ public class FjListPane<E> extends JScrollPane {
         
         setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        
+        getVerticalScrollBar().setUnitIncrement(20);
     }
     
     public void enableSearchBar() {searchBar.setVisible(true);}
