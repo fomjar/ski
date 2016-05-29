@@ -39,6 +39,11 @@ public class FjSearchBar extends JComponent {
         add(this.types, BorderLayout.WEST);
         add(this.field, BorderLayout.CENTER);
         
+        this.types.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {doSearch();}
+        });
+        
         field.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {doSearch();}
@@ -61,7 +66,7 @@ public class FjSearchBar extends JComponent {
     }
     
     public void setSearchTips(String text) {
-        this.field.setTipText(text);
+        this.field.setDefaultTips(text);
     }
     
     public void addSearchListener(FjSearchListener listener) {

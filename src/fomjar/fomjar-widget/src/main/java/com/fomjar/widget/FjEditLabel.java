@@ -26,14 +26,23 @@ public class FjEditLabel extends JComponent {
     private List<EditListener> listeners;
     
     public FjEditLabel() {
-        this(true);
+        this(null, true);
     }
     
     public FjEditLabel(boolean isEditable) {
+        this(null, isEditable);
+    }
+    
+    public FjEditLabel(String text) {
+        this(text, true);
+    }
+    
+    public FjEditLabel(String text, boolean isEditable) {
         this.isEditable = isEditable;
         listeners = new LinkedList<EditListener>();
         label = new JLabel();
         field = new JTextField();
+        setText(text);
         
         setFont(label.getFont());
         setOpaque(false);

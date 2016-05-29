@@ -5,7 +5,10 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -20,10 +23,10 @@ import com.fomjar.widget.FjSearchBar.FjSearchListener;
 import com.ski.common.SkiCommon;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
-import com.ski.stub.comp.NewGame;
-import com.ski.stub.comp.NewGameAccount;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
+import com.ski.stub.comp.NewGame;
+import com.ski.stub.comp.NewGameAccount;
 
 import fomjar.server.msg.FjDscpMessage;
 
@@ -42,15 +45,15 @@ public class MainFrame extends JFrame {
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
         
         tabs = new JTabbedPane();
-        tabs.setFont(CommonUI.FONT.deriveFont(12.0f));
+        tabs.setFont(UIToolkit.FONT.deriveFont(12.0f));
         tabs.add("游戏管理", new FjListPane<BeanGame>());
         tabs.add("账号管理", new FjListPane<BeanGameAccount>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTypes(new String[] {"按游戏名"});
-        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入搜索关键字");
+        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(1)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号"});
-        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTips("键入搜索关键字");
+        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号", "按游戏名"});
+        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTips("键入关键词搜索");
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -146,31 +149,63 @@ public class MainFrame extends JFrame {
                     });
                     ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList().revalidate();
                     break;
+                case "按游戏名":
+                    List<BeanGame> games = Service.map_game.values().stream().filter(game->{
+                        int count = 0;
+                        for (String word : words) if (game.c_name_zh.contains(word)) count++;
+                        if (count == words.length) return true;
+                        else return false;
+                    }).collect(Collectors.toList());
+                    Map<Integer, BeanGameAccount> accounts = new LinkedHashMap<Integer, BeanGameAccount>();
+                    games.forEach(game->{
+                        Service.set_game_account_game.forEach(pair->{
+                            if (game.i_gid == pair.i_gid) {
+                                if (!accounts.containsKey(pair.i_gaid)) {
+                                    accounts.put(pair.i_gaid, Service.map_game_account.get(pair.i_gaid));
+                                }
+                            }
+                        });
+                    });
+                    cells.forEach(cell->{
+                        boolean found = false;
+                        for (BeanGameAccount account : accounts.values()) {
+                            if (account.i_gaid == cell.getData().i_gaid) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) cell.setVisible(true);
+                        else cell.setVisible(false);
+                    });
+                    break;
                 }
             }
         });
     }
     
     private void updateAll() {
-        Service.doLater(
-        new Runnable() {
+        Service.doLater(new Runnable() {
             @Override
             @SuppressWarnings("unchecked")
             public void run() {
                 ((JButton) toolbar.getComponent(0)).setEnabled(false);
-                Service.updateGame();
-                if (!Service.map_game.isEmpty()) {
-                    FjList<BeanGame> list = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
-                    list.removeAllCell();
-                    Service.map_game.values().forEach(data->list.addCell(new ListCellGame(data)));
-                }
-                
-                Service.updateGameAccount();
-                if (!Service.map_game_account.isEmpty()) {
-                    FjList<BeanGameAccount> list = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
-                    list.removeAllCell();
-                    Service.map_game_account.values().forEach(data->list.addCell(new ListCellGameAccount(data)));
-                }
+                try {
+                    Service.updateGame();
+                    if (!Service.map_game.isEmpty()) {
+                        FjList<BeanGame> list = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
+                        list.removeAllCell();
+                        Service.map_game.values().forEach(data->list.addCell(new ListCellGame(data)));
+                    }
+                    
+                    Service.updateGameAccount();
+                    if (!Service.map_game_account.isEmpty()) {
+                        FjList<BeanGameAccount> list = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
+                        list.removeAllCell();
+                        Service.map_game_account.values().forEach(data->list.addCell(new ListCellGameAccount(data)));
+                    }
+                    
+                    Service.updateGameAccountGame();
+                } catch (Exception e) {e.printStackTrace();}
                 
                 ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }

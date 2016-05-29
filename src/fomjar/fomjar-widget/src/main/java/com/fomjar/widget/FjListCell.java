@@ -51,10 +51,11 @@ public abstract class FjListCell<E> extends JComponent {
     private E       data;
     private List<ActionListener> listeners;
     
-    public FjListCell() {
+    public FjListCell(E data) {
         listeners   = new LinkedList<ActionListener>();
         is_over     = false;
         is_press    = false;
+        setData(data);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 0));
@@ -83,6 +84,14 @@ public abstract class FjListCell<E> extends JComponent {
         });
     }
     
+    public void setData(E data) {this.data = data;}
+
+    public E getData() {return data;}
+    
+    public void addActionListener(ActionListener listener) {
+        listeners.add(listener);
+    }
+    
     @Override
     protected void paintComponent(Graphics g) {
         if (is_press)       g.setColor(color_press);
@@ -100,13 +109,6 @@ public abstract class FjListCell<E> extends JComponent {
         
         super.paintComponent(g);
     }
-    
-    public void setData(E data) {this.data = data;}
 
-    public E getData() {return data;}
-    
-    public void addActionListener(ActionListener listener) {
-        listeners.add(listener);
-    }
     
 }

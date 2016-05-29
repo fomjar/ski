@@ -18,11 +18,11 @@ public class NewGame extends JComponent {
     
     public NewGame() {
         c_country   = new FjTextField();
-        c_country.setTipText("国家");
+        c_country.setDefaultTips("国家");
         t_sale      = new FjTextField();
-        t_sale.setTipText("发售日期");
+        t_sale.setDefaultTips("发售日期");
         c_name_zh   = new FjTextField();
-        c_name_zh.setTipText("简体中文名");
+        c_name_zh.setDefaultTips("简体中文名");
         
         setPreferredSize(new Dimension(200, 70));
         setLayout(new GridLayout(3, 1));

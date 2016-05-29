@@ -14,7 +14,7 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
 import com.ski.common.SkiCommon;
-import com.ski.stub.CommonUI;
+import com.ski.stub.UIToolkit;
 import com.ski.stub.Service;
 import com.ski.stub.bean.BeanGame;
 
@@ -32,14 +32,16 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private JButton     b_update;
     
     public ListCellGame(BeanGame data) {
-        c_name_zh   = new FjEditLabel();
+        super(data);
+        
+        c_name_zh   = new FjEditLabel(data.c_name_zh);
         c_name_zh.setFont(c_name_zh.getFont().deriveFont(18.0f));
         c_name_zh.setForeground(color_major);
-        i_gid       = new FjEditLabel(false);
+        i_gid       = new FjEditLabel(String.format("0x%08X", data.i_gid), false);
         i_gid.setForeground(color_minor);
-        t_sale      = new FjEditLabel();
+        t_sale      = new FjEditLabel(data.t_sale);
         t_sale.setForeground(color_minor);
-        c_country   = new FjEditLabel();
+        c_country   = new FjEditLabel(data.c_country);
         c_country.setForeground(color_minor);
         b_update    = new JButton("更新");
         b_update.setMargin(new Insets(0, 0, 0, 0));
@@ -62,19 +64,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         
         passthroughMouseEvent(panel, this);
         
-        setData(data);
-        
         registerListener();
-    }
-
-    @Override
-    public void setData(BeanGame data) {
-        super.setData(data);
-        
-        c_name_zh.setText(data.c_name_zh);
-        i_gid.setText(String.format("0x%08X", data.i_gid));
-        t_sale.setText(data.t_sale);
-        c_country.setText(data.c_country);
     }
     
     private JSONObject args = new JSONObject();
@@ -87,7 +77,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
             public void finishEdit(String old_value, String new_value) {
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
                 args.put("name_zh", new_value);
-                c_name_zh.setForeground(CommonUI.COLOR_MODIFYING);
+                c_name_zh.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -99,7 +89,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
             public void finishEdit(String old_value, String new_value) {
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
                 args.put("sale", new_value);
-                t_sale.setForeground(CommonUI.COLOR_MODIFYING);
+                t_sale.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -111,7 +101,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
             public void finishEdit(String old_value, String new_value) {
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
                 args.put("country", new_value);
-                c_country.setForeground(CommonUI.COLOR_MODIFYING);
+                c_country.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}

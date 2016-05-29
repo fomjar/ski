@@ -18,11 +18,11 @@ public class NewGameAccount extends JComponent {
     
     public NewGameAccount() {
         c_user   = new FjTextField();
-        c_user.setTipText("账号");
+        c_user.setDefaultTips("账号");
         c_pass      = new FjTextField();
-        c_pass.setTipText("密码");
+        c_pass.setDefaultTips("密码");
         t_birth   = new FjTextField();
-        t_birth.setTipText("出生日期");
+        t_birth.setDefaultTips("出生日期");
         
         setPreferredSize(new Dimension(200, 70));
         setLayout(new GridLayout(3, 1));

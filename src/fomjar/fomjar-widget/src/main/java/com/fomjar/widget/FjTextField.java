@@ -12,7 +12,7 @@ public class FjTextField extends JTextField {
     
     private String tipText;
 
-    public void setTipText(String text) {
+    public void setDefaultTips(String text) {
         this.tipText = text;
         repaint();
     }

@@ -10,12 +10,13 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
 import com.ski.common.SkiCommon;
-import com.ski.stub.CommonUI;
+import com.ski.stub.UIToolkit;
 import com.ski.stub.Service;
 import com.ski.stub.bean.BeanGameAccount;
 
@@ -36,13 +37,15 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
     private JButton     b_create;
     
     public ListCellGameAccount(BeanGameAccount data) {
-        c_user  = new FjEditLabel();
+        super(data);
+        
+        c_user  = new FjEditLabel(data.c_user);
         c_user.setForeground(color_major);
-        c_pass  = new FjEditLabel();
+        c_pass  = new FjEditLabel(data.c_pass_curr);
         c_pass.setForeground(color_major);
-        i_gaid  = new FjEditLabel(false);
+        i_gaid  = new FjEditLabel(String.format("0x%08X", data.i_gaid), false);
         i_gaid.setForeground(color_minor);
-        t_birth = new FjEditLabel();
+        t_birth = new FjEditLabel(data.t_birth);
         t_birth.setForeground(color_minor);
         b_update_to_db  = new JButton("更新到DB");
         b_update_to_db.setMargin(new Insets(0, 0, 0, 0));
@@ -83,24 +86,20 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         
         passthroughMouseEvent(panel, this);
         
-        setData(data);
-        
         registerListener();
+        
+        setData(data);
     }
 
-    @Override
-    public void setData(BeanGameAccount data) {
-        super.setData(data);
-        
-        c_user.setText(data.c_user);
-        c_pass.setText(data.c_pass_curr);
-        i_gaid.setText(String.format("0x%08X", data.i_gaid));
-        t_birth.setText(data.t_birth);
-    }
-    
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
+        addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new ManageGameAccountGame(SwingUtilities.getWindowAncestor(ListCellGameAccount.this), getData()).setVisible(true);
+            }
+        });
         c_user.addEditListener(new EditListener() {
             @Override
             public void startEdit(String value) {}
@@ -108,7 +107,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
             public void finishEdit(String old_value, String new_value) {
                 args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
                 args.put("user", new_value);
-                c_user.setForeground(CommonUI.COLOR_MODIFYING);
+                c_user.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -123,7 +122,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
                 args.put("user", c_user.getText()); // for wa
                 args.put("pass", old_value);        // for wa
                 args.put("pass_new", new_value);    // for wa
-                c_pass.setForeground(CommonUI.COLOR_MODIFYING);
+                c_pass.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -135,7 +134,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
             public void finishEdit(String old_value, String new_value) {
                 args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
                 args.put("birth", new_value);
-                t_birth.setForeground(CommonUI.COLOR_MODIFYING);
+                t_birth.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
