@@ -49,7 +49,6 @@ public class MainFrame extends JFrame {
         tabs.add("游戏管理", new FjListPane<BeanGame>());
         tabs.add("账号管理", new FjListPane<BeanGameAccount>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTypes(new String[] {"按游戏名"});
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(1)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号", "按游戏名"});
@@ -104,26 +103,20 @@ public class MainFrame extends JFrame {
             @Override
             @SuppressWarnings("unchecked")
             public void searchPerformed(String type, String[] words) {
-                if (null == type) return;
                 List<FjListCell<BeanGame>> cells = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList().getCells();
                 if (null == words || 0 == words.length) {
                     cells.forEach(cell->cell.setVisible(true));
                     return;
                 }
-                
-                switch(type) {
-                case "按游戏名":
-                    cells.forEach(cell->{
-                        BeanGame bean = cell.getData();
-                        int count = 0;
-                        for (String word : words) if (bean.c_name_zh.contains(word)) count++;
-                        
-                        if (count == words.length) cell.setVisible(true);
-                        else cell.setVisible(false);
-                    });
-                    ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList().revalidate();
-                    break;
-                }
+            
+                cells.forEach(cell->{
+                    BeanGame bean = cell.getData();
+                    int count = 0;
+                    for (String word : words) if (bean.c_name_zh.contains(word)) count++;
+                    
+                    if (count == words.length) cell.setVisible(true);
+                    else cell.setVisible(false);
+                });
             }
         });
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().addSearchListener(new FjSearchListener() {
@@ -147,7 +140,6 @@ public class MainFrame extends JFrame {
                         if (count == words.length) cell.setVisible(true);
                         else cell.setVisible(false);
                     });
-                    ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList().revalidate();
                     break;
                 case "按游戏名":
                     List<BeanGame> games = Service.map_game.values().stream().filter(game->{
