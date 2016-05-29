@@ -1,6 +1,7 @@
 package com.fomjar.widget;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class FjList<E> extends JComponent {
     private static final long serialVersionUID = -3914498112193542403L;
     
     public FjList() {
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(Box.createVerticalGlue());

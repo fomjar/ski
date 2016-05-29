@@ -1,6 +1,7 @@
 package com.fomjar.widget;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,6 +23,7 @@ public class FjListPane<E> extends JScrollPane {
         panel.add(list, BorderLayout.CENTER);
         setViewportView(panel);
         
+        setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         

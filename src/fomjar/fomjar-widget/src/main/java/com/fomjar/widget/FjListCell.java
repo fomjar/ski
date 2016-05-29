@@ -43,7 +43,7 @@ public abstract class FjListCell<E> extends JComponent {
     private   static final Color color_press    = new Color(200, 200, 230);
     private   static final Color color_bright   = Color.white;
     private   static final Color color_shadow   = Color.lightGray;
-    protected static final Color color_major    = Color.black;
+    protected static final Color color_major    = Color.darkGray;
     protected static final Color color_minor    = Color.gray;
     
     private boolean is_over;

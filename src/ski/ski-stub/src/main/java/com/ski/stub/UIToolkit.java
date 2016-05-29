@@ -57,7 +57,7 @@ public class UIToolkit {
         });
         
         // 创建弹框
-        JDialog chooseGame = new JDialog(window, "单击以选择游戏");
+        JDialog chooseGame = new JDialog(window, "选择游戏");
         chooseGame.setModal(true);
         chooseGame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         chooseGame.setSize(400, 500);

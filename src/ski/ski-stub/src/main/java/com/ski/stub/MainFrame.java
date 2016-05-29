@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
     
     public MainFrame() {
         setTitle("SKI-STUB-0.0.1 [" + Service.getWsiUrl() + ']');
-        setSize(600, 800);
+        setSize(500, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
@@ -59,7 +59,7 @@ public class MainFrame extends JFrame {
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷新"));
         toolbar.add(new JButton("新游戏"));
-        toolbar.add(new JButton("新账户"));
+        toolbar.add(new JButton("新账号"));
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs, BorderLayout.CENTER);
