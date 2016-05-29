@@ -68,11 +68,13 @@ public class ListCellGame extends FjListCell<BeanGame> {
     }
 
     @Override
-    public void setData(BeanGame value) {
-        c_name_zh.setText(value.c_name_zh);
-        i_gid.setText(String.format("0x%08X", value.i_gid));
-        t_sale.setText(value.t_sale);
-        c_country.setText(value.c_country);
+    public void setData(BeanGame data) {
+        super.setData(data);
+        
+        c_name_zh.setText(data.c_name_zh);
+        i_gid.setText(String.format("0x%08X", data.i_gid));
+        t_sale.setText(data.t_sale);
+        c_country.setText(data.c_country);
     }
     
     private JSONObject args = new JSONObject();

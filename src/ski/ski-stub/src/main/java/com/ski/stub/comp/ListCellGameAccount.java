@@ -89,11 +89,13 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
     }
 
     @Override
-    public void setData(BeanGameAccount value) {
-        c_user.setText(value.c_user);
-        c_pass.setText(value.c_pass_curr);
-        i_gaid.setText(String.format("0x%08X", value.i_gaid));
-        t_birth.setText(value.t_birth);
+    public void setData(BeanGameAccount data) {
+        super.setData(data);
+        
+        c_user.setText(data.c_user);
+        c_pass.setText(data.c_pass_curr);
+        i_gaid.setText(String.format("0x%08X", data.i_gaid));
+        t_birth.setText(data.t_birth);
     }
     
     private JSONObject args = new JSONObject();

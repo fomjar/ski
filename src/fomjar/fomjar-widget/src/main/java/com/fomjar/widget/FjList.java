@@ -1,5 +1,9 @@
 package com.fomjar.widget;
 
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -25,6 +29,23 @@ public class FjList<E> extends JComponent {
         add(cell);
         add(Box.createVerticalGlue());
         revalidate();
+    }
+    
+    public int getCellCount() {
+        return getCells().size();
+    }
+    
+    public FjListCell<E> getCell(int index) {
+        return getCells().get(index);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<FjListCell<E>> getCells() {
+        List<FjListCell<E>> cells = new ArrayList<FjListCell<E>>(getComponentCount() - 1);
+        for (Component c : getComponents()) {
+            if (c instanceof FjListCell<?>) cells.add((FjListCell<E>) c);
+        }
+        return cells;
     }
 
 }
