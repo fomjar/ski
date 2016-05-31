@@ -18,24 +18,6 @@ import javax.swing.JComponent;
 
 public abstract class FjListCell<E> extends JComponent {
     
-    public static void passthroughMouseEvent(Component from, Component to) {
-        from.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseReleased(MouseEvent e)     {to.dispatchEvent(e);}
-            @Override
-            public void mousePressed(MouseEvent e)      {to.dispatchEvent(e);}
-            @Override
-            public void mouseExited(MouseEvent e)       {to.dispatchEvent(e);}
-            @Override
-            public void mouseEntered(MouseEvent e)      {to.dispatchEvent(e);}
-            @Override
-            public void mouseClicked(MouseEvent e)      {to.dispatchEvent(e);}
-        });
-        if (from instanceof Container) {
-            for (Component c : ((Container) from).getComponents()) passthroughMouseEvent(c, to);
-        }
-    }
-    
     private static final long serialVersionUID = -5413153652935337627L;
     
     private   static final Color color_default  = new Color(230, 230, 230);
@@ -84,14 +66,6 @@ public abstract class FjListCell<E> extends JComponent {
         });
     }
     
-    public void setData(E data) {this.data = data;}
-
-    public E getData() {return data;}
-    
-    public void addActionListener(ActionListener listener) {
-        listeners.add(listener);
-    }
-    
     @Override
     protected void paintComponent(Graphics g) {
         if (is_press)       g.setColor(color_press);
@@ -109,6 +83,31 @@ public abstract class FjListCell<E> extends JComponent {
         
         super.paintComponent(g);
     }
-
     
+    public void setData(E data) {this.data = data;}
+
+    public E getData() {return data;}
+    
+    public void addActionListener(ActionListener listener) {
+        listeners.add(listener);
+    }
+    
+    public void passthroughMouseEvent(Component top) {
+        top.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseReleased(MouseEvent e)     {FjListCell.this.dispatchEvent(e);}
+            @Override
+            public void mousePressed(MouseEvent e)      {FjListCell.this.dispatchEvent(e);}
+            @Override
+            public void mouseExited(MouseEvent e)       {FjListCell.this.dispatchEvent(e);}
+            @Override
+            public void mouseEntered(MouseEvent e)      {FjListCell.this.dispatchEvent(e);}
+            @Override
+            public void mouseClicked(MouseEvent e)      {FjListCell.this.dispatchEvent(e);}
+        });
+        if (top instanceof Container) {
+            for (Component c : ((Container) top).getComponents()) passthroughMouseEvent(c);
+        }
+    }
+
 }

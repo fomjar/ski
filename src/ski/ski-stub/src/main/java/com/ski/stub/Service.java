@@ -63,7 +63,7 @@ public class Service {
     
     public static void doLater(Runnable task) {pool.submit(task);}
     
-    public static void updateGame() {
+    public static boolean updateGame() {
         Service.map_game.clear();
         String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME, null));
         if (null != rsp && !"null".equals(rsp)) {
@@ -72,10 +72,11 @@ public class Service {
                 BeanGame bean = new BeanGame(line);
                 Service.map_game.put(bean.i_gid, bean);
             }
-        }
+            return true;
+        } return false;
     }
     
-    public static void updateGameAccount() {
+    public static boolean updateGameAccount() {
         Service.map_game_account.clear();
         String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, null));
         if (null != rsp && !"null".equals(rsp)) {
@@ -84,10 +85,11 @@ public class Service {
                 BeanGameAccount bean = new BeanGameAccount(line);
                 Service.map_game_account.put(bean.i_gaid, bean);
             }
-        }
+            return true;
+        } else return false;
     }
     
-    public static void updateGameAccountGame() {
+    public static boolean updateGameAccountGame() {
         Service.set_game_account_game.clear();
         String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_GAME, null));
         if (null != rsp && !"null".equals(rsp)) {
@@ -96,10 +98,11 @@ public class Service {
                 PairGameAccountGame pair = new PairGameAccountGame(line);
                 Service.set_game_account_game.add(pair);
             }
-        }
+            return true;
+        } else return false;
     }
     
-    public static void updateProduct() {
+    public static boolean updateProduct() {
         Service.map_product.clear();
         String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_PRODUCT, null));
         if (null != rsp && !"null".equals(rsp)) {
@@ -108,11 +111,12 @@ public class Service {
                 BeanProduct bean = new BeanProduct(line);
                 Service.map_product.put(bean.i_pid, bean);
             }
-        }
+            return true;
+        } else return false;
     }
 
     
-    public static void updateChannelAccount() {
+    public static boolean updateChannelAccount() {
         Service.map_channel_account.clear();
         String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, null));
         if (null != rsp && !"null".equals(rsp)) {
@@ -121,7 +125,8 @@ public class Service {
                 BeanChannelAccount bean = new BeanChannelAccount(line);
                 Service.map_channel_account.put(bean.i_caid, bean);
             }
-        }
+            return true;
+        } else return false;
     }
 
 }

@@ -7,7 +7,10 @@ import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -16,11 +19,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import com.fomjar.widget.FjEditLabel;
+import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
-import com.fomjar.widget.FjEditLabel.EditListener;
 import com.ski.common.SkiCommon;
 import com.ski.stub.Service;
 import com.ski.stub.UIToolkit;
@@ -30,7 +34,7 @@ import com.ski.stub.bean.BeanGameAccount;
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
-public class ManageGameAccountGame extends JDialog {
+public class ManageGameAccount extends JDialog {
 
     private static final long serialVersionUID = -51034836551447291L;
     
@@ -42,8 +46,9 @@ public class ManageGameAccountGame extends JDialog {
     private FjEditLabel t_birth;
     private FjListPane<String> list;
     
-    public ManageGameAccountGame(Window window, BeanGameAccount account) {
-        super(window);
+    public ManageGameAccount(Window window, BeanGameAccount account) {
+        super(window, "管理账号“" + account.c_user + "”");
+        
         this.account = account;
         toolbar = new JToolBar();
         toolbar.add(new JButton("添加游戏"));
@@ -65,17 +70,17 @@ public class ManageGameAccountGame extends JDialog {
         labels.add(createBasicInfoLabel("生日", t_birth));
         
         list = new FjListPane<String>();
-        list.setBorder(BorderFactory.createTitledBorder("此账号下的游戏"));
+        list.setBorder(BorderFactory.createTitledBorder("拥有的游戏"));
         
         JPanel panel_center = new JPanel();
         panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.Y_AXIS));
         panel_center.add(labels);
         panel_center.add(list);
+        
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(panel_center, BorderLayout.CENTER);
         
-        setTitle("管理账号“" + account.c_user + "”");
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 300));
@@ -89,6 +94,14 @@ public class ManageGameAccountGame extends JDialog {
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
+        ActionMap am = getRootPane().getActionMap();
+        am.put("dispose", new AbstractAction() {
+            private static final long serialVersionUID = 4074354978669029364L;
+            @Override
+            public void actionPerformed(ActionEvent e) {ManageGameAccount.this.dispose();}
+        });
+        getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "dispose");
+        
         c_user.addEditListener(new EditListener() {
             @Override
             public void startEdit(String value) {}
@@ -131,7 +144,7 @@ public class ManageGameAccountGame extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BeanGame game = UIToolkit.chooseGame(ManageGameAccountGame.this);
+                BeanGame game = UIToolkit.chooseGame(ManageGameAccount.this);
                 if (null == game) return;
                 
                 int gaid = account.i_gaid;
@@ -140,7 +153,7 @@ public class ManageGameAccountGame extends JDialog {
                 args.put("gaid", gaid);
                 args.put("gid", gid);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
-                JOptionPane.showConfirmDialog(ManageGameAccountGame.this, rsp.toString(), "服务器响应", JOptionPane.CLOSED_OPTION);
+                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp.toString(), "服务器响应", JOptionPane.DEFAULT_OPTION);
                 
                 Service.updateGameAccountGame();
                 updateAll();
@@ -153,12 +166,12 @@ public class ManageGameAccountGame extends JDialog {
                     @Override
                     public void run() {
                         if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ManageGameAccountGame.this, "没有可更新的内容", "信息", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
                             return;
                         }
                         ((JButton) toolbar.getComponent(1)).setEnabled(false);
                         FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccountGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) {
                             if (args.has("user"))       c_user.setForeground(Color.darkGray);
                             if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
@@ -177,23 +190,23 @@ public class ManageGameAccountGame extends JDialog {
                     @Override
                     public void run() {
                         if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ManageGameAccountGame.this, "没有可更新的内容", "信息", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
                             return;
                         }
                         if (!args.has("pass")) {
-                            JOptionPane.showConfirmDialog(ManageGameAccountGame.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.DEFAULT_OPTION);
                             return;
                         }
                         ((JButton) toolbar.getComponent(2)).setEnabled(false);
                         FjDscpMessage rsp_wa = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         if (!Service.isResponseSuccess(rsp_wa)) {
-                            JOptionPane.showConfirmDialog(ManageGameAccountGame.this, null != rsp_wa ? rsp_wa.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_wa ? rsp_wa.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                             ((JButton) toolbar.getComponent(2)).setEnabled(true);
                             return;
                         }
                         FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         if (!Service.isResponseSuccess(rsp_cdb)) {
-                            JOptionPane.showConfirmDialog(ManageGameAccountGame.this, null != rsp_cdb ? rsp_cdb.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_cdb ? rsp_cdb.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                             ((JButton) toolbar.getComponent(2)).setEnabled(true);
                             return;
                         }
@@ -217,7 +230,7 @@ public class ManageGameAccountGame extends JDialog {
                         args.put("user", c_user.getText());
                         args.put("pass", c_pass.getText());
                         FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_VERIFY_ACCOUNT, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccountGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
                         ((JButton) toolbar.getComponent(3)).setEnabled(true);
                     }

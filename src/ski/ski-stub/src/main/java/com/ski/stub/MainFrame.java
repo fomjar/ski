@@ -17,18 +17,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjList;
-import com.fomjar.widget.FjListCell;
 import com.fomjar.widget.FjListPane;
-import com.fomjar.widget.FjSearchBar.FjSearchListener;
-import com.ski.common.SkiCommon;
+import com.fomjar.widget.FjSearchBar;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
-import com.ski.stub.comp.NewGame;
-import com.ski.stub.comp.NewGameAccount;
-
-import fomjar.server.msg.FjDscpMessage;
+import com.ski.stub.comp.ManageChannelAccount;
 
 public class MainFrame extends JFrame {
 
@@ -59,6 +54,7 @@ public class MainFrame extends JFrame {
         toolbar.add(new JButton("刷新"));
         toolbar.add(new JButton("新游戏"));
         toolbar.add(new JButton("新账号"));
+        toolbar.add(new JButton("管理用户"));
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs, BorderLayout.CENTER);
@@ -69,6 +65,7 @@ public class MainFrame extends JFrame {
         updateAll();
     }
     
+    @SuppressWarnings("unchecked")
     private void registerListener() {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
@@ -80,72 +77,52 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NewGame game = new NewGame();
-                int ret = JOptionPane.showConfirmDialog(MainFrame.this, game, "新游戏", JOptionPane.OK_CANCEL_OPTION);
-                if (JOptionPane.OK_OPTION == ret) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, game.toJson());
-                    JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
-                }
+                UIToolkit.createGame(MainFrame.this);
+                
+                Service.updateGame();
+                updateAll();
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                NewGameAccount gameaccount = new NewGameAccount();
-                int ret = JOptionPane.showConfirmDialog(MainFrame.this, gameaccount, "新账号", JOptionPane.OK_CANCEL_OPTION);
-                if (JOptionPane.OK_OPTION == ret) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, gameaccount.toJson());
-                    JOptionPane.showConfirmDialog(MainFrame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
-                }
+                UIToolkit.createGameAccount(MainFrame.this);
+                
+                Service.updateGameAccount();
+                updateAll();
             }
         });
-        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().addSearchListener(new FjSearchListener() {
+        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
             @Override
-            @SuppressWarnings("unchecked")
-            public void searchPerformed(String type, String[] words) {
-                List<FjListCell<BeanGame>> cells = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList().getCells();
-                if (null == words || 0 == words.length) {
-                    cells.forEach(cell->cell.setVisible(true));
-                    return;
-                }
-            
-                cells.forEach(cell->{
-                    BeanGame bean = cell.getData();
+            public void actionPerformed(ActionEvent e) {
+                new ManageChannelAccount(MainFrame.this).setVisible(true);
+            }
+        });
+        FjListPane<BeanGame> panegame = ((FjListPane<BeanGame>) tabs.getComponentAt(0));
+        panegame.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGame>(panegame.getList()) {
+            @Override
+            public boolean isMatch(String type, String[] words, BeanGame celldata) {
                     int count = 0;
-                    for (String word : words) if (bean.c_name_zh.contains(word)) count++;
-                    
-                    if (count == words.length) cell.setVisible(true);
-                    else cell.setVisible(false);
-                });
+                    for (String word : words) if (celldata.c_name_zh.contains(word)) count++;
+                    return count == words.length;
             }
         });
-        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().addSearchListener(new FjSearchListener() {
+        FjListPane<BeanGameAccount> panegameaccount = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1));
+        panegameaccount.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGameAccount>(panegameaccount.getList()) {
             @Override
-            @SuppressWarnings("unchecked")
-            public void searchPerformed(String type, String[] words) {
-                if (null == type) return;
-                List<FjListCell<BeanGameAccount>> cells = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList().getCells();
-                if (null == words || 0 == words.length) {
-                    cells.forEach(cell->cell.setVisible(true));
-                    return;
-                }
+            public boolean isMatch(String type, String[] words, BeanGameAccount celldata) {
+                if (null == type) return true;
                 
                 switch(type) {
                 case "按账号":
-                    cells.forEach(cell->{
-                        BeanGameAccount bean = cell.getData();
-                        int count = 0;
-                        for (String word : words) if (bean.c_user.contains(word)) count++;
-                        
-                        if (count == words.length) cell.setVisible(true);
-                        else cell.setVisible(false);
-                    });
-                    break;
+                    int count = 0;
+                    for (String word : words) if (celldata.c_user.contains(word)) count++;
+                    return count == words.length;
                 case "按游戏名":
                     List<BeanGame> games = Service.map_game.values().stream().filter(game->{
-                        int count = 0;
-                        for (String word : words) if (game.c_name_zh.contains(word)) count++;
-                        if (count == words.length) return true;
+                        int count1 = 0;
+                        for (String word : words) if (game.c_name_zh.contains(word)) count1++;
+                        if (count1 == words.length) return true;
                         else return false;
                     }).collect(Collectors.toList());
                     Map<Integer, BeanGameAccount> accounts = new LinkedHashMap<Integer, BeanGameAccount>();
@@ -158,18 +135,11 @@ public class MainFrame extends JFrame {
                             }
                         });
                     });
-                    cells.forEach(cell->{
-                        boolean found = false;
-                        for (BeanGameAccount account : accounts.values()) {
-                            if (account.i_gaid == cell.getData().i_gaid) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) cell.setVisible(true);
-                        else cell.setVisible(false);
-                    });
-                    break;
+                    for (BeanGameAccount account : accounts.values())
+                        if (account.i_gaid == celldata.i_gaid) return true;
+                    return false;
+                default:
+                    return true;
                 }
             }
         });
@@ -181,23 +151,31 @@ public class MainFrame extends JFrame {
             @SuppressWarnings("unchecked")
             public void run() {
                 ((JButton) toolbar.getComponent(0)).setEnabled(false);
+                boolean isfail = false;
                 try {
-                    Service.updateGame();
-                    if (!Service.map_game.isEmpty()) {
+                    if (Service.updateGame()) {
                         FjList<BeanGame> list = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                         list.removeAllCell();
                         Service.map_game.values().forEach(data->list.addCell(new ListCellGame(data)));
-                    }
+                    } else isfail = true;
                     
-                    Service.updateGameAccount();
-                    if (!Service.map_game_account.isEmpty()) {
+                    if (Service.updateGameAccount()) {
                         FjList<BeanGameAccount> list = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
                         list.removeAllCell();
                         Service.map_game_account.values().forEach(data->list.addCell(new ListCellGameAccount(data)));
-                    }
+                    } else isfail = true;
                     
-                    Service.updateGameAccountGame();
-                } catch (Exception e) {e.printStackTrace();}
+                    if (Service.updateGameAccountGame()) {}
+                    else isfail = true;
+                    
+                    if (Service.updateChannelAccount()) {}
+                    else isfail = true;
+                } catch (Exception e) {
+                    isfail = true;
+                    e.printStackTrace();
+                }
+                
+                if (isfail) JOptionPane.showConfirmDialog(null, "刷新过程中可能发生错误，重新尝试可能解决", "错误", JOptionPane.DEFAULT_OPTION);
                 
                 ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }

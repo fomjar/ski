@@ -73,10 +73,6 @@ public class FjSearchBar extends JComponent {
         listeners.add(listener);
     }
     
-    public static interface FjSearchListener {
-        void searchPerformed(String type, String[] words);
-    }
-    
     private void doSearch() {
         try {
             String type = FjSearchBar.this.types.isVisible() ? FjSearchBar.this.types.getSelectedItem().toString() : null;
@@ -87,4 +83,32 @@ public class FjSearchBar extends JComponent {
         } catch (Exception e) {e.printStackTrace();}
     }
     
+    public static interface FjSearchListener {
+        void searchPerformed(String type, String[] words);
+    }
+    
+    public static abstract class FjSearchAdapterForFjList<E> implements FjSearchListener {
+        
+        private final FjList<E> list;
+        
+        public FjSearchAdapterForFjList(FjList<E> list) {
+            this.list = list;
+        }
+        
+        @Override
+        public void searchPerformed(String type, String[] words) {
+            if (null == words || 0 == words.length) {
+                list.getCells().forEach(cell->cell.setVisible(true));
+                return;
+            }
+            
+            list.getCells().forEach(cell->{
+                if (isMatch(type, words, cell.getData())) cell.setVisible(true);
+                else cell.setVisible(false);
+            });
+        }
+        
+        public abstract boolean isMatch(String type, String[] words, E celldata);
+        
+    }
 }

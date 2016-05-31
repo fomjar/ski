@@ -54,7 +54,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         
         add(panel, BorderLayout.CENTER);
         
-        passthroughMouseEvent(panel, this);
+        passthroughMouseEvent(panel);
         
         registerListener();
         
@@ -65,7 +65,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ManageGameAccountGame(SwingUtilities.getWindowAncestor(ListCellGameAccount.this), getData()).setVisible(true);
+                new ManageGameAccount(SwingUtilities.getWindowAncestor(ListCellGameAccount.this), getData()).setVisible(true);
             }
         });
     }

@@ -6,6 +6,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,8 +27,8 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private static final long serialVersionUID = 6352907380098820766L;
     
     private FjEditLabel c_name_zh;
-    private FjEditLabel i_gid;
     private FjEditLabel t_sale;
+    private FjEditLabel i_gid;
     private FjEditLabel c_country;
     private JButton     b_update;
     
@@ -35,34 +36,40 @@ public class ListCellGame extends FjListCell<BeanGame> {
         super(data);
         
         c_name_zh   = new FjEditLabel(data.c_name_zh);
-        c_name_zh.setFont(c_name_zh.getFont().deriveFont(18.0f));
         c_name_zh.setForeground(color_major);
+        t_sale      = new FjEditLabel(data.t_sale);
+        t_sale.setForeground(color_major);
         i_gid       = new FjEditLabel(String.format("0x%08X", data.i_gid), false);
         i_gid.setForeground(color_minor);
-        t_sale      = new FjEditLabel(data.t_sale);
-        t_sale.setForeground(color_minor);
         c_country   = new FjEditLabel(data.c_country);
         c_country.setForeground(color_minor);
         b_update    = new JButton("更新");
         b_update.setMargin(new Insets(0, 0, 0, 0));
         
-        setLayout(new BorderLayout());
-        add(c_name_zh, BorderLayout.CENTER);
+        JPanel panel_center = new JPanel();
+        panel_center.setOpaque(false);
+        panel_center.setLayout(new GridLayout(2, 1));
+        panel_center.add(c_name_zh);
+        panel_center.add(t_sale);
+        
+        JPanel panel_east = new JPanel();
+        panel_east.setOpaque(false);
+        panel_east.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
+        panel_east.setLayout(new GridLayout(2, 1));
+        panel_east.add(i_gid);
+        panel_east.add(c_country);
+        
         JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setLayout(new BorderLayout());
-        panel.add(c_name_zh, BorderLayout.CENTER);
-        JPanel panel_south = new JPanel();
-        panel_south.setOpaque(false);
-        panel_south.setLayout(new GridLayout(1, 3));
-        panel_south.add(i_gid);
-        panel_south.add(t_sale);
-        panel_south.add(c_country);
-        panel.add(panel_south, BorderLayout.SOUTH);
+        panel.add(panel_center, BorderLayout.CENTER);
+        panel.add(panel_east, BorderLayout.EAST);
+        
+        setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
         add(b_update, BorderLayout.EAST);
         
-        passthroughMouseEvent(panel, this);
+        passthroughMouseEvent(panel);
         
         registerListener();
     }

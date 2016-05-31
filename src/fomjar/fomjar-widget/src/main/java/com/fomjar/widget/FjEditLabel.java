@@ -115,29 +115,29 @@ public class FjEditLabel extends JComponent {
     @Override
     public void setOpaque(boolean isOpaque) {
         super.setOpaque(isOpaque);
-        if (null != label) label.setOpaque(isOpaque);
-        if (null != field) field.setOpaque(isOpaque);
+        label.setOpaque(isOpaque);
+        field.setOpaque(isOpaque);
     }
-
+    
     @Override
     public void setFont(Font font) {
         super.setFont(font);
-        if (null != label) label.setFont(font);
-        if (null != field) field.setFont(font);
+        label.setFont(font);
+        field.setFont(font);
     }
 
     @Override
     public void setForeground(Color fg) {
         super.setForeground(fg);
-        if (null != label) label.setForeground(fg);
-        if (null != field) field.setForeground(fg);
+        label.setForeground(fg);
+        field.setForeground(fg);
     }
     
     @Override
     public void setBackground(Color bg) {
         super.setBackground(bg);
-        if (null != label) label.setBackground(bg);
-        if (null != field) field.setBackground(bg);
+        label.setBackground(bg);
+        field.setBackground(bg);
     }
 
     public static interface EditListener {
