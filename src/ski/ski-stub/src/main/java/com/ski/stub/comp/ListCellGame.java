@@ -120,12 +120,12 @@ public class ListCellGame extends FjListCell<BeanGame> {
                     @Override
                     public void run() {
                         if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ListCellGame.this, "没有可更新的内容", "信息", JOptionPane.CLOSED_OPTION);
+                            JOptionPane.showConfirmDialog(ListCellGame.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
                             return;
                         }
                         b_update.setEnabled(false);
                         FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
-                        JOptionPane.showConfirmDialog(ListCellGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.CLOSED_OPTION);
+                        JOptionPane.showConfirmDialog(ListCellGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) {
                             if (args.has("name_zh"))    c_name_zh.setForeground(color_major);
                             if (args.has("sale"))       t_sale.setForeground(color_minor);
