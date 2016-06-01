@@ -1,5 +1,5 @@
-delete from tbl_instruction where i_inst = (conv(00002407, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002407, 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$nick', $gender, '$phone', '$address', '$zipcode', '$birth')");
+delete from tbl_instruction where i_inst = (conv(00002405, 16, 10) + 0);
+insert into tbl_instruction values((conv(00002405, 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$nick', $gender, '$phone', '$address', '$zipcode', '$birth')");
 
 -- 更新订单
 delimiter //

@@ -170,6 +170,9 @@ public class MainFrame extends JFrame {
                     
                     if (Service.updateChannelAccount()) {}
                     else isfail = true;
+                    
+                    if (Service.updateOrder()) {}
+                    else isfail = true;
                 } catch (Exception e) {
                     isfail = true;
                     e.printStackTrace();

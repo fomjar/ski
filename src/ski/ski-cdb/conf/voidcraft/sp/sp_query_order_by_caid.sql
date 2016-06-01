@@ -1,8 +1,9 @@
 delimiter // 
-drop procedure if exists sp_query_order_all //   
-create procedure sp_query_order_all (
+drop procedure if exists sp_query_order_by_caid //   
+create procedure sp_query_order_by_caid (
     out i_code  integer,
-    out c_desc  mediumblob
+    out c_desc  mediumblob,
+    in  caid    integer
 )  
 begin  
     declare i_oid           integer         default -1;
@@ -20,6 +21,7 @@ begin
                         select o.i_oid, o.i_platform, o.i_caid, oi.i_oisn, oi.t_oper_time, oi.i_oper_type, oi.i_oper_object, oi.i_money, oi.c_remark
                           from tbl_order o, tbl_order_item oi
                          where o.i_oid = oi.i_oid
+                           and o.i_caid = caid
                          order by o.i_oid, oi.i_oisn;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
