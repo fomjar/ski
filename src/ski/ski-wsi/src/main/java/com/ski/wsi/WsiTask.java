@@ -1,6 +1,9 @@
 package com.ski.wsi;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,14 +55,36 @@ public class WsiTask implements FjServerTask {
         }
     }
     
+    private ByteBuffer buf = ByteBuffer.allocate(1024 * 1024);
+    
     private void process(String serverName, FjMessageWrapper wrapper) {
         FjHttpRequest hmsg = (FjHttpRequest) wrapper.message();
         final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
         Map<String, String> urlargs = hmsg.urlParameters();
         JSONObject args = hmsg.contentToJson();
+        
+        if ("POST".equals(hmsg.method()) && args.isEmpty()) {
+            logger.info("post data is on the way, waiting for 3 seconds at most");
+            long timeout = 1000L * 3;
+            long start = System.currentTimeMillis();
+            while (args.isEmpty() && System.currentTimeMillis() - start < timeout) {
+                try{Thread.sleep(50L);}
+                catch (InterruptedException e) {e.printStackTrace();}
+                buf.clear();
+                try {((SocketChannel) wrapper.attachment("conn")).read(buf);}
+                catch (IOException e) {logger.error("read post data failed", e);}
+                buf.flip();
+                if (!buf.hasRemaining()) continue;
+                
+                logger.debug("read post data success");
+                args = JSONObject.fromObject(Charset.forName("utf-8").decode(buf).toString());
+                break;
+            }
+        }
+        
         if (null != urlargs) args.putAll(urlargs);
         
-        if (null == args || !args.has("inst")) {
+        if (!args.has("inst")) {
             logger.error("bad request: " + hmsg);
             responseSimple(serverName, SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, "没有指令", conn);
             return;

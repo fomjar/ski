@@ -43,17 +43,17 @@ public class ManageChannelAccount extends JDialog {
         
         registerListener();
         
-        updateAll();
+        updateChannelAccount();
     }
     
     private void registerListener() {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UIToolkit.createChannelAccount(ManageChannelAccount.this);
+                UIToolkit.createChannelAccount();
                 
                 Service.updateChannelAccount();
-                updateAll();
+                updateChannelAccount();
             }
         });
         
@@ -75,7 +75,7 @@ public class ManageChannelAccount extends JDialog {
         });
     }
     
-    private void updateAll() {
+    private void updateChannelAccount() {
         pane.getList().removeAllCell();
         Service.map_channel_account.values().forEach(account->{
             pane.getList().addCell(new ListCellChannelAccount(account));

@@ -34,7 +34,7 @@ public class SessionTaskUpdateAccount implements FjSessionTask {
             msg2cdb.json().put("fs",   server);
             msg2cdb.json().put("ts",   "cdb");
             msg2cdb.json().put("sid",  context.sid());
-            msg2cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_INSTANCE);
+//            msg2cdb.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_INSTANCE);
             msg2cdb.json().put("args", args2cdb);
             FjServerToolkit.getSender(server).send(msg2cdb);
             

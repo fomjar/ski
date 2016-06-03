@@ -48,8 +48,8 @@ create table tbl_game_account_game (
 drop table if exists tbl_game_account_rent;
 create table tbl_game_account_rent(
     i_gaid      integer,    -- 游戏账号ID
-    i_caid      integer,    -- 渠道账户账户ID
     i_type      tinyint,    -- 租赁类型：0-A租，1-B租
+    i_caid      integer,    -- 渠道账户账户ID
     i_state     tinyint,    -- 租赁状态: 0-空闲，1-租用，2-锁定
     t_change    datetime    -- 变化时间
 );
@@ -58,8 +58,8 @@ create table tbl_game_account_rent(
 drop table if exists tbl_game_account_rent_history;
 create table tbl_game_account_rent_history (
     i_gaid      integer,    -- 游戏账号ID
-    i_caid      integer,    -- 渠道账户ID
     i_type      tinyint,    -- 租赁类型：0-A租，1-B租
+    i_caid      integer,    -- 渠道账户ID
     i_state     tinyint,    -- 变化前的状态
     t_change    datetime    -- 变化时间
 );
@@ -82,8 +82,9 @@ create table tbl_game (
 drop table if exists tbl_order;
 create table tbl_order (
     i_oid       integer,        -- 订单ID
-    i_platform  tinyint,        -- 平台类型：0-淘宝 1-微信 2-京东
-    i_caid      integer         -- 渠道账户ID
+    i_platform  tinyint,        -- 平台类型：0-淘宝 1-微信 2-支付宝
+    i_caid      integer,        -- 渠道账户ID
+    t_create    datetime        -- 创建时间
 );
 
 -- 订单项
@@ -92,10 +93,12 @@ create table tbl_order_item (
     i_oid           integer,        -- 平台订单ID
     i_oisn          integer,
     t_oper_time     datetime,
-    i_oper_type     integer,        -- 操作类型，0-购买，1-充值，2-起租，3-退租，4-停租，5-续租，6-换租，7-送券
+    i_oper_type     integer,        -- 操作类型，0-购买，1-充值，2-起租，3-退租，4-停租，5-续租，6-换租，7-赠券
     i_oper_object   integer,
-    i_money         decimal(8, 2),
-    c_remark        varchar(64)
+    c_remark        varchar(64),
+    c_oper_arg0     varchar(64),    -- 参数
+    c_oper_arg1     varchar(64),    -- 参数
+    c_oper_arg2     varchar(64)     -- 参数
 );
 
 -- 渠道账户信息

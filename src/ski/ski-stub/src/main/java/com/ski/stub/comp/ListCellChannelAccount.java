@@ -36,7 +36,7 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
     public ListCellChannelAccount(BeanChannelAccount data) {
         super(data);
         
-        i_channel = new FjEditLabel(0 == data.i_channel ? "[淘宝]" : "[微信]");
+        i_channel = new FjEditLabel(0 == data.i_channel ? "[淘宝]" : 1 == data.i_channel ? "[微信]" : 2 == data.i_channel ? "[支付宝]" : "[未知]");
         i_channel.setForeground(color_major);
         i_channel.setFont(i_channel.getFont().deriveFont(Font.ITALIC));
         c_user    = new FjEditLabel(data.c_user);

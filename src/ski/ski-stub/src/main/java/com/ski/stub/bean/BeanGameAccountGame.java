@@ -1,8 +1,8 @@
 package com.ski.stub.bean;
 
-public class PairGameAccountGame {
+public class BeanGameAccountGame {
     
-    public PairGameAccountGame(String line) {
+    public BeanGameAccountGame(String line) {
         String[] fields = line.split("\t", -1);
         this.i_gaid = Integer.parseInt(fields[0], 16);
         this.i_gid  = Integer.parseInt(fields[1], 16);

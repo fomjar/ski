@@ -46,6 +46,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_QUERY_CHANNEL_ACCOUNT     = 0x00002005;
         /** 查询订单 */
         public static final int INST_ECOM_QUERY_ORDER               = 0x00002006;
+        /** 查询订单项 */
+        public static final int INST_ECOM_QUERY_ORDER_ITEM          = 0x00002007;
         // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;
@@ -76,6 +78,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_UPDATE_CHANNEL_ACCOUNT    = 0x00002405;
         /** 更新订单 */
         public static final int INST_ECOM_UPDATE_ORDER              = 0x00002406;
+        /** 更新订单项 */
+        public static final int INST_ECOM_UPDATE_ORDER_ITEM         = 0x00002407;
     }
     
     /**

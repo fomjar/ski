@@ -7,19 +7,13 @@ import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 
 import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
@@ -38,70 +32,60 @@ public class ManageGameAccount extends JDialog {
 
     private static final long serialVersionUID = -51034836551447291L;
     
-    private final BeanGameAccount account;
     private JToolBar    toolbar;
     private FjEditLabel i_gaid;
     private FjEditLabel c_user;
     private FjEditLabel c_pass;
     private FjEditLabel t_birth;
-    private FjListPane<String> list;
+    private FjListPane<String> listpane;
     
-    public ManageGameAccount(Window window, BeanGameAccount account) {
-        super(window, "管理账号“" + account.c_user + "”");
+    public ManageGameAccount(Window owner, BeanGameAccount account) {
+        super(owner, "管理账号“" + account.c_user + "”");
         
-        this.account = account;
         toolbar = new JToolBar();
-        toolbar.add(new JButton("添加游戏"));
+        toolbar.setFloatable(false);
         toolbar.add(new JButton("更新到DB"));
         toolbar.add(new JButton("更新到DB和PS"));
         toolbar.add(new JButton("校验此账户"));
-        toolbar.setFloatable(false);
+        toolbar.add(new JButton("添加游戏"));
         i_gaid = new FjEditLabel(String.format("0x%08X", account.i_gaid), false);
         c_user = new FjEditLabel(account.c_user);
         c_pass = new FjEditLabel(account.c_pass_curr);
         t_birth = new FjEditLabel(account.t_birth);
         
-        JPanel labels = new JPanel();
-        labels.setBorder(BorderFactory.createTitledBorder("基本信息"));
-        labels.setLayout(new GridLayout(4, 1));
-        labels.add(createBasicInfoLabel("I  D", i_gaid));
-        labels.add(createBasicInfoLabel("账号", c_user));
-        labels.add(createBasicInfoLabel("密码", c_pass));
-        labels.add(createBasicInfoLabel("生日", t_birth));
+        listpane = new FjListPane<String>();
+        listpane.setBorder(BorderFactory.createTitledBorder(listpane.getBorder(), "拥有的游戏"));
         
-        list = new FjListPane<String>();
-        list.setBorder(BorderFactory.createTitledBorder("拥有的游戏"));
+        JPanel panel_basic = new JPanel();
+        panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
+        panel_basic.setLayout(new GridLayout(4, 1));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("GAID", i_gaid));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账号", c_user));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("密码", c_pass));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("生日", t_birth));
         
         JPanel panel_center = new JPanel();
-        panel_center.setLayout(new BoxLayout(panel_center, BoxLayout.Y_AXIS));
-        panel_center.add(labels);
-        panel_center.add(list);
+        panel_center.setLayout(new BorderLayout());
+        panel_center.add(panel_basic, BorderLayout.NORTH);
+        panel_center.add(listpane, BorderLayout.CENTER);
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(panel_center, BorderLayout.CENTER);
         
-        setModal(true);
+        setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 300));
-        setLocation(window.getX() - (getWidth() - window.getWidth()) / 2, window.getY() - (getHeight() - window.getHeight()) / 2);
+        setLocation(owner.getX() - (getWidth() - owner.getWidth()) / 2, owner.getY() - (getHeight() - owner.getHeight()) / 2);
         
         registerListener();
         
-        updateAll();
+        updateGameAccountGame();
     }
     
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
-        ActionMap am = getRootPane().getActionMap();
-        am.put("dispose", new AbstractAction() {
-            private static final long serialVersionUID = 4074354978669029364L;
-            @Override
-            public void actionPerformed(ActionEvent e) {ManageGameAccount.this.dispose();}
-        });
-        getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "dispose");
-        
         c_user.addEditListener(new EditListener() {
             @Override
             public void startEdit(String value) {}
@@ -144,24 +128,6 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                BeanGame game = UIToolkit.chooseGame(ManageGameAccount.this);
-                if (null == game) return;
-                
-                int gaid = account.i_gaid;
-                int gid  = game.i_gid;
-                JSONObject args = new JSONObject();
-                args.put("gaid", gaid);
-                args.put("gid", gid);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
-                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp.toString(), "服务器响应", JOptionPane.DEFAULT_OPTION);
-                
-                Service.updateGameAccountGame();
-                updateAll();
-            }
-        });
-        ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
                 Service.doLater(new Runnable() {
                     @Override
                     public void run() {
@@ -183,7 +149,7 @@ public class ManageGameAccount extends JDialog {
                 });
             }
         });
-        ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
+        ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Service.doLater(new Runnable() {
@@ -220,7 +186,7 @@ public class ManageGameAccount extends JDialog {
                 });
             }
         });
-        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
+        ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Service.doLater(new Runnable() {
@@ -237,28 +203,35 @@ public class ManageGameAccount extends JDialog {
                 });
             }
         });
-    }
-    
-    private void updateAll() {
-        list.getList().removeAllCell();
-        Service.set_game_account_game.forEach(pair->{
-            if (account.i_gaid == pair.i_gaid) {
-                BeanGame game = Service.map_game.get(pair.i_gid);
-                list.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh)));
+        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                BeanGame game = UIToolkit.chooseGame();
+                if (null == game) return;
+                
+                int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
+                int gid  = game.i_gid;
+                JSONObject args = new JSONObject();
+                args.put("gaid", gaid);
+                args.put("gid", gid);
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
+                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp.toString(), "服务器响应", JOptionPane.DEFAULT_OPTION);
+                
+                Service.updateGameAccountGame();
+                updateGameAccountGame();
             }
         });
     }
     
-    private static JPanel createBasicInfoLabel(String label, FjEditLabel field) {
-        JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(80, 0));
-        
-        JPanel jpanel = new JPanel();
-        jpanel.setLayout(new BorderLayout());
-        jpanel.add(jlabel, BorderLayout.WEST);
-        jpanel.add(field, BorderLayout.CENTER);
-        
-        return jpanel;
+    private void updateGameAccountGame() {
+        listpane.getList().removeAllCell();
+        int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
+        Service.set_game_account_game.forEach(bean->{
+            if (gaid == bean.i_gaid) {
+                BeanGame game = Service.map_game.get(bean.i_gid);
+                listpane.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh)));
+            }
+        });
     }
     
 }

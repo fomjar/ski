@@ -58,7 +58,6 @@ public class FjEditLabel extends JComponent {
                 
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (2 == e.getClickCount()) {
-                        listeners.forEach(listener->listener.startEdit(label.getText()));
                         removeAll();
                         add(field, BorderLayout.CENTER);
                         field.setPreferredSize(label.getPreferredSize());
@@ -68,6 +67,8 @@ public class FjEditLabel extends JComponent {
                         field.setText(label.getText());
                         field.requestFocus();
                         field.selectAll();
+                        
+                        listeners.forEach(listener->listener.startEdit(label.getText()));
                     }
                 }
             }
@@ -76,13 +77,15 @@ public class FjEditLabel extends JComponent {
         field.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                listeners.forEach(listener->listener.finishEdit(label.getText(), field.getText()));
+                String old_value = label.getText();
+                String new_value = field.getText();
+                label.setText(field.getText());
                 removeAll();
                 add(label, BorderLayout.CENTER);
                 revalidate();
                 repaint();
                 
-                label.setText(field.getText());
+                listeners.forEach(listener->listener.finishEdit(old_value, new_value));
             }
         });
         // escape
@@ -90,13 +93,13 @@ public class FjEditLabel extends JComponent {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (KeyEvent.VK_ESCAPE == e.getKeyCode()) {
-                    listeners.forEach(listener->listener.cancelEdit(label.getText()));
+                    field.setText(label.getText());
                     removeAll();
                     add(label, BorderLayout.CENTER);
                     revalidate();
                     repaint();
                     
-                    field.setText(label.getText());
+                    listeners.forEach(listener->listener.cancelEdit(label.getText()));
                 }
             }
         });

@@ -21,8 +21,10 @@ import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
+import com.ski.stub.bean.BeanOrder;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
+import com.ski.stub.comp.ListCellOrder;
 import com.ski.stub.comp.ManageChannelAccount;
 
 public class MainFrame extends JFrame {
@@ -43,18 +45,24 @@ public class MainFrame extends JFrame {
         tabs.setFont(UIToolkit.FONT.deriveFont(12.0f));
         tabs.add("游戏管理", new FjListPane<BeanGame>());
         tabs.add("账号管理", new FjListPane<BeanGameAccount>());
+        tabs.add("订单管理", new FjListPane<BeanOrder>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入关键词搜索");
+        ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入游戏名搜索");
         ((FjListPane<?>) tabs.getComponentAt(1)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号", "按游戏名"});
+        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号名", "按游戏名"});
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTips("键入关键词搜索");
+        ((FjListPane<?>) tabs.getComponentAt(2)).enableSearchBar();
+        ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTips("键入用户名搜索");
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷新"));
+        toolbar.add(new JToolBar.Separator());
         toolbar.add(new JButton("新游戏"));
         toolbar.add(new JButton("新账号"));
+        toolbar.add(new JToolBar.Separator());
         toolbar.add(new JButton("管理用户"));
+        toolbar.add(new JButton("新订单"));
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs, BorderLayout.CENTER);
@@ -70,32 +78,36 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {updateAll();}
-                catch (Exception e1){e1.printStackTrace();}
-            }
-        });
-        ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.createGame(MainFrame.this);
-                
-                Service.updateGame();
                 updateAll();
             }
         });
+        // separator 1
         ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UIToolkit.createGameAccount(MainFrame.this);
-                
-                Service.updateGameAccount();
+                UIToolkit.createGame();
                 updateAll();
             }
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                UIToolkit.createGameAccount();
+                updateAll();
+            }
+        });
+        // separator 4
+        ((JButton) toolbar.getComponent(5)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 new ManageChannelAccount(MainFrame.this).setVisible(true);
+            }
+        });
+        ((JButton) toolbar.getComponent(6)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                UIToolkit.createOrder();
+                updateAll();
             }
         });
         FjListPane<BeanGame> panegame = ((FjListPane<BeanGame>) tabs.getComponentAt(0));
@@ -114,7 +126,7 @@ public class MainFrame extends JFrame {
                 if (null == type) return true;
                 
                 switch(type) {
-                case "按账号":
+                case "按账号名":
                     int count = 0;
                     for (String word : words) if (celldata.c_user.contains(word)) count++;
                     return count == words.length;
@@ -127,10 +139,10 @@ public class MainFrame extends JFrame {
                     }).collect(Collectors.toList());
                     Map<Integer, BeanGameAccount> accounts = new LinkedHashMap<Integer, BeanGameAccount>();
                     games.forEach(game->{
-                        Service.set_game_account_game.forEach(pair->{
-                            if (game.i_gid == pair.i_gid) {
-                                if (!accounts.containsKey(pair.i_gaid)) {
-                                    accounts.put(pair.i_gaid, Service.map_game_account.get(pair.i_gaid));
+                        Service.set_game_account_game.forEach(bean->{
+                            if (game.i_gid == bean.i_gid) {
+                                if (!accounts.containsKey(bean.i_gaid)) {
+                                    accounts.put(bean.i_gaid, Service.map_game_account.get(bean.i_gaid));
                                 }
                             }
                         });
@@ -143,6 +155,18 @@ public class MainFrame extends JFrame {
                 }
             }
         });
+        FjListPane<BeanOrder> paneorder = ((FjListPane<BeanOrder>) tabs.getComponentAt(2));
+        paneorder.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanOrder>(paneorder.getList()) {
+            @Override
+            public boolean isMatch(String type, String[] words, BeanOrder celldata) {
+                    int count = 0;
+                    for (String word : words) {
+                        if (Service.map_channel_account.get(celldata.i_caid).c_user.contains(word))
+                            count++;
+                    }
+                    return count == words.length;
+            }
+        });
     }
     
     private void updateAll() {
@@ -153,26 +177,26 @@ public class MainFrame extends JFrame {
                 ((JButton) toolbar.getComponent(0)).setEnabled(false);
                 boolean isfail = false;
                 try {
-                    if (Service.updateGame()) {
-                        FjList<BeanGame> list = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
-                        list.removeAllCell();
-                        Service.map_game.values().forEach(data->list.addCell(new ListCellGame(data)));
-                    } else isfail = true;
+                    Service.updateGame();
+                    FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
+                    list_game.removeAllCell();
+                    Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
                     
-                    if (Service.updateGameAccount()) {
-                        FjList<BeanGameAccount> list = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
-                        list.removeAllCell();
-                        Service.map_game_account.values().forEach(data->list.addCell(new ListCellGameAccount(data)));
-                    } else isfail = true;
+                    Service.updateGameAccount();
+                    FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
+                    list_game_account.removeAllCell();
+                    Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
                     
-                    if (Service.updateGameAccountGame()) {}
-                    else isfail = true;
+                    Service.updateGameAccountGame();
                     
-                    if (Service.updateChannelAccount()) {}
-                    else isfail = true;
+                    Service.updateChannelAccount();
                     
-                    if (Service.updateOrder()) {}
-                    else isfail = true;
+                    Service.updateGameAccountRent();
+                    
+                    Service.updateOrder();
+                    FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(2)).getList();
+                    list_order.removeAllCell();
+                    Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
                 } catch (Exception e) {
                     isfail = true;
                     e.printStackTrace();

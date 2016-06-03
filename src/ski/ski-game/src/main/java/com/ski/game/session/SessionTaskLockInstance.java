@@ -35,7 +35,7 @@ public class SessionTaskLockInstance implements FjSessionTask {
             msg2wa.json().put("fs",   server);
             msg2wa.json().put("ts",   "wa");
             msg2wa.json().put("sid",  context.sid());
-            msg2wa.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_INSTANCE);
+//            msg2wa.json().put("inst", SkiCommon.ISIS.INST_ECOM_UPDATE_INSTANCE);
             msg2wa.json().put("args", args2wa);
             FjServerToolkit.getSender(server).send(msg2wa);
             

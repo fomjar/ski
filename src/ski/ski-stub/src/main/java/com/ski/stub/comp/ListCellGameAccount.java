@@ -54,11 +54,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         
         add(panel, BorderLayout.CENTER);
         
-        passthroughMouseEvent(panel);
-        
         registerListener();
-        
-        setData(data);
     }
 
     private void registerListener() {
