@@ -37,7 +37,7 @@ public class Service {
     public static final int RENT_TYPE_A = 0;
     public static final int RENT_TYPE_B = 1;
     public static final int RENT_STATE_IDLE = 0;
-    public static final int RENT_STATE_BUSY = 1;
+    public static final int RENT_STATE_RENT = 1;
     public static final int RENT_STATE_LOCK = 2;
     public static final int OPER_TYPE_BUY           = 0;
     public static final int OPER_TYPE_RECHARGE      = 1;
@@ -186,7 +186,10 @@ public class Service {
     
     public static int getGameAccountCurrentRentUser(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
-            if (rent.i_gaid == gaid && rent.i_type == type) return rent.i_caid; 
+            if (rent.i_gaid == gaid && rent.i_type == type) {
+                if (RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
+                else return -1;
+            }
         }
         
         return -1; // 没有租赁用户

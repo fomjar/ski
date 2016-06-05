@@ -231,9 +231,8 @@ public class UCRDialog extends JDialog {
         if (0 == buffer.length()) return "(没有充值)<br/>";
         
         else buffer.append("</table>");
-        float totalf = 0.0f;
         for (String s : totals.toString().split(" ")) total_coupon += Float.parseFloat(s);
-        return "优惠券总计：" + totalf + "元<br/>优惠券清单：<br/>" + buffer.toString();
+        return "优惠券总计：" + total_coupon + "元<br/>优惠券清单：<br/>" + buffer.toString();
     }
     
     private String generateTotal(List<BeanOrder> orders) {
