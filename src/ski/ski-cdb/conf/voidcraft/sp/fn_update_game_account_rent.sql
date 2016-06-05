@@ -34,8 +34,8 @@ begin
     else
         update tbl_game_account_rent
           set i_caid = caid
-          and i_state = state
-          and t_change = now()
+            , i_state = state
+            , t_change = now()
         where i_gaid = gaid
           and i_type = type;
     end if;

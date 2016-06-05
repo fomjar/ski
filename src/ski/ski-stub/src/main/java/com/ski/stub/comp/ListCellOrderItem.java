@@ -26,7 +26,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         i_oper_type.setForeground(color_major);
         t_oper_time = new JLabel(data.t_oper_time);
         t_oper_time.setForeground(color_minor);
-        c_oper_args = new JLabel();
+        c_oper_args = new JLabel(String.format("%s - %s - %s - %s - %s", data.c_oper_arg0, data.c_oper_arg1, data.c_oper_arg2, data.c_oper_arg3, data.c_oper_arg4));
         c_oper_args.setForeground(color_minor);
         if (0 != data.c_remark.length()) setToolTipText(data.c_remark);
         

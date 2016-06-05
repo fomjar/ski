@@ -137,25 +137,18 @@ public class ManageOrder extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
-                            return;
-                        }
-                        ((JButton) toolbar.getComponent(0)).setEnabled(false);
-                        FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
-                        JOptionPane.showConfirmDialog(ManageOrder.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                        if (null != rsp && Service.isResponseSuccess(rsp)) {
-                            if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
-                            if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
-                            if (args.has("create"))     t_create.setForeground(Color.darkGray);
-                            args.clear();
-                        }
-                        ((JButton) toolbar.getComponent(0)).setEnabled(true);
-                    }
-                });
+                if (args.isEmpty()) {
+                    JOptionPane.showConfirmDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                    return;
+                }
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
+                JOptionPane.showConfirmDialog(ManageOrder.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                if (null != rsp && Service.isResponseSuccess(rsp)) {
+                    if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
+                    if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
+                    if (args.has("create"))     t_create.setForeground(Color.darkGray);
+                    args.clear();
+                }
             }
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
@@ -164,7 +157,14 @@ public class ManageOrder extends JDialog {
                 UIToolkit.createOrderItem(Integer.parseInt(i_oid.getText().split("x")[1], 16));
                 
                 Service.updateOrder();
+                Service.updateGameAccountRent();
                 updateOrderItem();
+            }
+        });
+        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new UCRDialog(ManageOrder.this, Service.map_channel_account.get(Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).i_caid)).setVisible(true);
             }
         });
     }

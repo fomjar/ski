@@ -128,25 +128,20 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
-                            return;
-                        }
-                        ((JButton) toolbar.getComponent(1)).setEnabled(false);
-                        FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                        if (null != rsp && Service.isResponseSuccess(rsp)) {
-                            if (args.has("user"))       c_user.setForeground(Color.darkGray);
-                            if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
-                            if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
-                            args.clear();
-                        }
-                        ((JButton) toolbar.getComponent(1)).setEnabled(true);
-                    }
-                });
+                if (args.isEmpty()) {
+                    JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                    return;
+                }
+                ((JButton) toolbar.getComponent(1)).setEnabled(false);
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                if (null != rsp && Service.isResponseSuccess(rsp)) {
+                    if (args.has("user"))       c_user.setForeground(Color.darkGray);
+                    if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
+                    if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
+                    args.clear();
+                }
+                ((JButton) toolbar.getComponent(1)).setEnabled(true);
             }
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {

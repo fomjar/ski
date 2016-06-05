@@ -220,10 +220,9 @@ public class UIToolkit {
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此账号A/B类均已在租赁当中，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        game_account_label.setText(null);
+                        game_account_label.setText("");
                         continue;
                     }
-                    account = null;
                     break;
                 case 3: // 3 - 退租
                 case 4: // 4 - 停租
@@ -235,12 +234,12 @@ public class UIToolkit {
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        game_account_label.setText(null);
+                        game_account_label.setText("");
                         continue;
                     }
-                    account = null;
                     break;
                 }
+                break;
             }
         });
         JPanel game_account = new JPanel();
