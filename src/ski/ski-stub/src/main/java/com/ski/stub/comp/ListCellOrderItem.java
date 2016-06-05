@@ -8,7 +8,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.fomjar.widget.FjListCell;
-import com.ski.stub.Service;
 import com.ski.stub.bean.BeanOrderItem;
 
 public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
@@ -17,7 +16,6 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
     
     private JLabel i_oper_type;
     private JLabel t_oper_time;
-    private JLabel i_oper_object;
     private JLabel c_oper_args;
 
     public ListCellOrderItem(BeanOrderItem data) {
@@ -28,12 +26,6 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         i_oper_type.setForeground(color_major);
         t_oper_time = new JLabel(data.t_oper_time);
         t_oper_time.setForeground(color_minor);
-        i_oper_object = new JLabel(String.format("%s - %s - %s - %s",
-                -1 == data.i_oper_object ? "" : Service.map_game_account.get(data.i_oper_object).c_user,
-                data.c_oper_arg0,
-                data.c_oper_arg1,
-                data.c_oper_arg2));
-        i_oper_object.setForeground(color_major);
         c_oper_args = new JLabel();
         c_oper_args.setForeground(color_minor);
         if (0 != data.c_remark.length()) setToolTipText(data.c_remark);
@@ -44,15 +36,9 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         panel1.add(i_oper_type, BorderLayout.CENTER);
         panel1.add(t_oper_time, BorderLayout.EAST);
         
-        JPanel panel2 = new JPanel();
-        panel2.setOpaque(false);
-        panel2.setLayout(new GridLayout(1, 4));
-        panel2.add(i_oper_object);
-        panel2.add(c_oper_args);
-        
         setLayout(new GridLayout(2, 1));
         add(panel1);
-        add(panel2);
+        add(c_oper_args);
     }
     
     private static String getOperTypeInt2String(int oper_type) {

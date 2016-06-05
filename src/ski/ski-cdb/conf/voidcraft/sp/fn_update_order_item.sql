@@ -5,10 +5,16 @@ create function fn_update_order_item (
     oid         integer,        -- 平台订单ID
     oisn        integer,
     oper_type   integer,        -- 操作类型，0-购买，1-充值，2-起租，3-退租，4-停租，5-续租，6-换租，7-赠券
-    oper_object integer,
     oper_arg0   varchar(64),    -- 参数
     oper_arg1   varchar(64),    -- 参数
-    oper_arg2   varchar(64)     -- 参数
+    oper_arg2   varchar(64),    -- 参数
+    oper_arg3   varchar(64),    -- 参数
+    oper_arg4   varchar(64),    -- 参数
+    oper_arg5   varchar(64),    -- 参数
+    oper_arg6   varchar(64),    -- 参数
+    oper_arg7   varchar(64),    -- 参数
+    oper_arg8   varchar(64),    -- 参数
+    oper_arg9   varchar(64)     -- 参数
 )
 returns integer
 begin
@@ -29,15 +35,15 @@ begin
         elseif oper_type = 2 then
             call sp_update_game_account_rent(di_code,
                     dc_desc,
-                    oper_object,
-                    (case oper_arg0 when 'A' then 0 when 'B' then 1 else -1 end),
+                    conv(oper_arg1, 16, 10),
+                    (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
                     di_caid,
                     1);
         elseif oper_type = 3 then
             call sp_update_game_account_rent(di_code,
                     dc_desc,
-                    oper_object,
-                    (case oper_arg0 when 'A' then 0 when 'B' then 1 else -1 end),
+                    conv(oper_arg1, 16, 10),
+                    (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
                     di_caid,
                     0);
         elseif oper_type = 4 then
@@ -47,14 +53,14 @@ begin
         elseif oper_type = 6 then
             call sp_update_game_account_rent(di_code,
                     dc_desc,
-                    oper_object,
-                    (case oper_arg0 when 'A' then 0 when 'B' then 1 else -1 end),
+                    conv(oper_arg1, 16, 10),
+                    (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
                     di_caid,
                     1);
             call sp_update_game_account_rent(di_code,
                     dc_desc,
-                    conv(oper_arg1, 16, 10),
-                    (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
+                    conv(oper_arg3, 16, 10),
+                    (case oper_arg4 when 'A' then 0 when 'B' then 1 else -1 end),
                     di_caid,
                     0);
         elseif oper_type = 7 then

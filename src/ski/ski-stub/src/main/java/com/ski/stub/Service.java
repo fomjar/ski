@@ -39,6 +39,14 @@ public class Service {
     public static final int RENT_STATE_IDLE = 0;
     public static final int RENT_STATE_BUSY = 1;
     public static final int RENT_STATE_LOCK = 2;
+    public static final int OPER_TYPE_BUY           = 0;
+    public static final int OPER_TYPE_RECHARGE      = 1;
+    public static final int OPER_TYPE_RENT_BEGIN    = 2;
+    public static final int OPER_TYPE_RENT_END      = 3;
+    public static final int OPER_TYPE_RENT_PAUSE    = 4;
+    public static final int OPER_TYPE_RENT_RESUME   = 5;
+    public static final int OPER_TYPE_RENT_SWAP     = 6;
+    public static final int OPER_TYPE_COUPON        = 7;
     
     public static FjDscpMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();

@@ -73,7 +73,7 @@ public class FjSearchBar extends JComponent {
         listeners.add(listener);
     }
     
-    private void doSearch() {
+    public void doSearch() {
         try {
             String type = FjSearchBar.this.types.isVisible() ? FjSearchBar.this.types.getSelectedItem().toString() : null;
             String[] words0 = field.getText().split(" ");
@@ -97,11 +97,6 @@ public class FjSearchBar extends JComponent {
         
         @Override
         public void searchPerformed(String type, String[] words) {
-            if (null == words || 0 == words.length) {
-                list.getCells().forEach(cell->cell.setVisible(true));
-                return;
-            }
-            
             list.getCells().forEach(cell->{
                 if (isMatch(type, words, cell.getData())) cell.setVisible(true);
                 else cell.setVisible(false);

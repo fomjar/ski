@@ -57,10 +57,10 @@ public class MainFrame extends JFrame {
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷新"));
-        toolbar.add(new JToolBar.Separator());
+        toolbar.addSeparator();
         toolbar.add(new JButton("新游戏"));
         toolbar.add(new JButton("新账号"));
-        toolbar.add(new JToolBar.Separator());
+        toolbar.addSeparator();
         toolbar.add(new JButton("管理用户"));
         toolbar.add(new JButton("新订单"));
         

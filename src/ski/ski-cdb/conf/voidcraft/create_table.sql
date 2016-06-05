@@ -94,11 +94,17 @@ create table tbl_order_item (
     i_oisn          integer,
     t_oper_time     datetime,
     i_oper_type     integer,        -- 操作类型，0-购买，1-充值，2-起租，3-退租，4-停租，5-续租，6-换租，7-赠券
-    i_oper_object   integer,
     c_remark        varchar(64),
     c_oper_arg0     varchar(64),    -- 参数
     c_oper_arg1     varchar(64),    -- 参数
-    c_oper_arg2     varchar(64)     -- 参数
+    c_oper_arg2     varchar(64),    -- 参数
+    c_oper_arg3     varchar(64),    -- 参数
+    c_oper_arg4     varchar(64),    -- 参数
+    c_oper_arg5     varchar(64),    -- 参数
+    c_oper_arg6     varchar(64),    -- 参数
+    c_oper_arg7     varchar(64),    -- 参数
+    c_oper_arg8     varchar(64),    -- 参数
+    c_oper_arg9     varchar(64)     -- 参数
 );
 
 -- 渠道账户信息

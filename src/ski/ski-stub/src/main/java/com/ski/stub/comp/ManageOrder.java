@@ -46,6 +46,8 @@ public class ManageOrder extends JDialog {
         toolbar.setFloatable(false);
         toolbar.add(new JButton("更新"));
         toolbar.add(new JButton("新订单项"));
+        toolbar.addSeparator();
+        toolbar.add(new JButton("UCR"));
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
         i_caid      = new FjEditLabel(Service.map_channel_account.get(order.i_caid).c_user);
