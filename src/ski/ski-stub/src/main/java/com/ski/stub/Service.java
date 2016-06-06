@@ -194,4 +194,11 @@ public class Service {
         
         return -1; // 没有租赁用户
     }
+    
+    public static BeanGame getOneGameOfGameAccount(int gaid) {
+        for (BeanGameAccountGame gag : set_game_account_game) {
+            if (gag.i_gaid == gaid) return map_game.get(gag.i_gid);
+        }
+        return null;
+    }
 }

@@ -1,7 +1,6 @@
 package fomjar.server;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,9 +59,13 @@ public class FjServerLauncher {
                     mod,
                     sn);
             try {
-                Runtime.getRuntime().exec(cmd0);
-                System.out.println("start server success: " + sn);
-            } catch (IOException e) {
+                Process process = Runtime.getRuntime().exec(cmd0);
+                Thread.sleep(1000L * 3);
+                
+                byte[] buf = new byte[1024 * 4];
+                int    len = process.getInputStream().read(buf);
+                System.out.print(new String(buf, 0, len));
+            } catch (Exception e) {
                 System.err.println("start server failed: " + sn);
                 e.printStackTrace();
             }

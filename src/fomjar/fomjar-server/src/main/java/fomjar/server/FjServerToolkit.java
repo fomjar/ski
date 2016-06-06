@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -72,20 +71,21 @@ public class FjServerToolkit {
     public static class FjSlb {
         
         private Properties address;
+        private Map<String, Integer> cache;
         
-        public FjSlb(Properties address) {setAddresses(address);}
+        public FjSlb() {cache = new HashMap<String, Integer>();}
         
         public void setAddresses(Properties address) {this.address = address;}
         
-        public List<FjAddress> getAddresses(String namePrefix) {
-            if (null == address || null == namePrefix) return null;
+        public List<FjAddress> getAddresses(String server) {
+            if (null == address || null == server) return null;
             List<FjAddress> items = new LinkedList<FjAddress>();
             address.forEach((k, v)->{
-                if (((String) k).toLowerCase().startsWith(namePrefix.toLowerCase())) {
+                if (k.toString().toLowerCase().startsWith(server.toLowerCase())) {
                     FjAddress item = new FjAddress();
-                    item.server = namePrefix;
-                    item.host = ((String) v).split(":")[0].trim();
-                    item.port = Integer.parseInt(((String) v).split(":")[1].trim());
+                    item.server = server;
+                    item.host = v.toString().split(":")[0].trim();
+                    item.port = Integer.parseInt(v.toString().split(":")[1].trim());
                     items.add(item);
                 }
             });
@@ -94,9 +94,15 @@ public class FjServerToolkit {
         
         public FjAddress getAddress(String server) {
             List<FjAddress> addresses = getAddresses(server);
-            if (null == addresses || 0 == addresses.size()) return null;
-            int i = new Random().nextInt() % addresses.size();
-            return addresses.get(i);
+            if (null == addresses || addresses.isEmpty()) return null;
+            
+            if (!cache.containsKey(server)) cache.put(server, -1);
+            int last_index = cache.get(server);
+            int this_index = last_index + 1;
+            if (this_index >= addresses.size()) this_index = 0;
+            cache.put(server, this_index);
+            
+            return addresses.get(this_index);
         }
     }
     
@@ -113,10 +119,10 @@ public class FjServerToolkit {
             try {PropertyConfigurator.configure("conf/log4j.conf");}
             catch (Exception e) {logger.error("load config failed", e);}
             
-            server = loadOneConfig("conf/server.conf");
+            if (null == slb) slb = new FjSlb();
+            slb.setAddresses(loadOneConfig("conf/address.conf"));
             
-            if (null == slb) slb = new FjSlb(loadOneConfig("conf/address.conf"));
-            else slb.setAddresses(loadOneConfig("conf/address.conf"));
+            server = loadOneConfig("conf/server.conf");
         }
     }
     

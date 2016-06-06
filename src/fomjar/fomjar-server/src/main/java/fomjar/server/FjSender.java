@@ -14,7 +14,6 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.List;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -70,12 +69,11 @@ public class FjSender extends FjLoopTask {
                     ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
                     while (buf.hasRemaining()) conn.write(buf);
                 } catch (IOException e) {
-                    List<FjServerToolkit.FjAddress> addresses = FjServerToolkit.getSlb().getAddresses(dmsg.ts());
-                    for (FjServerToolkit.FjAddress addr : addresses) {
-                        if (addr.host.equals(addr0.host) && addr.port == addr0.port) continue;
+                    FjServerToolkit.FjAddress addr = null;
+                    while (addr0 != (addr = FjServerToolkit.getSlb().getAddress(dmsg.ts()))) {
                         try {
                             conn = SocketChannel.open();
-                            conn.connect(new InetSocketAddress(addr0.host, addr0.port));
+                            conn.connect(new InetSocketAddress(addr.host, addr.port));
                             ByteBuffer buf = ByteBuffer.wrap(msg.toString().getBytes(Charset.forName("utf-8")));
                             while (buf.hasRemaining()) conn.write(buf);
                             break;

@@ -75,7 +75,7 @@ public class ManageOrder extends JDialog {
         
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 400));
+        setSize(new Dimension(400, 500));
         setLocation(owner.getX() - (getWidth() - owner.getWidth()) / 2, owner.getY() - (getHeight() - owner.getHeight()) / 2);
         
         registerListener();
@@ -164,7 +164,7 @@ public class ManageOrder extends JDialog {
         ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new UCRDialog(ManageOrder.this, Service.map_channel_account.get(Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).i_caid)).setVisible(true);
+                new UCRDialog(Service.map_channel_account.get(Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).i_caid)).setVisible(true);
             }
         });
     }
