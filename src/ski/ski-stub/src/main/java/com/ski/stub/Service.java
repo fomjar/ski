@@ -2,19 +2,21 @@ package com.ski.stub;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import com.ski.common.SkiCommon;
 import com.ski.stub.bean.BeanChannelAccount;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
+import com.ski.stub.bean.BeanGameAccountGame;
 import com.ski.stub.bean.BeanGameAccountRent;
 import com.ski.stub.bean.BeanOrder;
 import com.ski.stub.bean.BeanOrderItem;
-import com.ski.stub.bean.BeanGameAccountGame;
 
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
@@ -195,10 +197,11 @@ public class Service {
         return -1; // 没有租赁用户
     }
     
-    public static BeanGame getOneGameOfGameAccount(int gaid) {
-        for (BeanGameAccountGame gag : set_game_account_game) {
-            if (gag.i_gaid == gaid) return map_game.get(gag.i_gid);
-        }
-        return null;
+    public static List<BeanGame> getGameAccountGames(int gaid) {
+        return set_game_account_game
+                .stream()
+                .filter(gag->{return gag.i_gaid == gaid;})
+                .map(gag->{return map_game.get(gag.i_gid);})
+                .collect(Collectors.toList());
     }
 }

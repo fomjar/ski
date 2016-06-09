@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -61,6 +62,10 @@ public class UIToolkit {
         UIManager.getLookAndFeelDefaults().put("RadioButton.font",  FONT);
         UIManager.getLookAndFeelDefaults().put("ComboBox.font",     FONT);
         UIManager.getLookAndFeelDefaults().put("Button.font",       FONT);
+        UIManager.getLookAndFeelDefaults().put("Panel.font",        FONT);
+        UIManager.getLookAndFeelDefaults().put("FilePane.font",     FONT);
+        
+        // UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
     
     public static JPanel createBasicInfoLabel(String label, FjEditLabel field) {
@@ -194,8 +199,7 @@ public class UIToolkit {
     
     public static FjDscpMessage createOrderItem(int oid) {
         JLabel              i_oid = new JLabel(String.format("订单编号：0x%08X", oid));
-        i_oid.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
-        i_oid.setPreferredSize(new Dimension(200, 20));
+        i_oid.setPreferredSize(new Dimension(360, 0));
         JComboBox<String>   i_oper_type = new JComboBox<String>(new String[] {"0 - 购买", "1 - 充值", "2 - 起租", "3 - 退租", "4 - 停租", "5 - 续租", "6 - 换租", "7 - 赠券"});
         FjTextField         c_remark = new FjTextField();
         c_remark.setDefaultTips("备注");
@@ -203,7 +207,6 @@ public class UIToolkit {
         
         JComboBox<String> rent_type = new JComboBox<String>();
         JLabel game_account_label= new JLabel();
-        game_account_label.setPreferredSize(new Dimension(200, 0));
         JButton game_account_button = new JButton();
         game_account_button.setMargin(new Insets(0, 0, 0, 0));
         game_account_button.addActionListener(e->{
@@ -220,7 +223,6 @@ public class UIToolkit {
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此账号A/B类均已在租赁当中，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        game_account_label.setText("");
                         continue;
                     }
                     break;
@@ -234,22 +236,25 @@ public class UIToolkit {
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        game_account_label.setText("");
                         continue;
                     }
                     break;
                 }
                 break;
             }
+            if (null == account) game_account_label.setText("");
         });
+        JPanel game_account0 = new JPanel();
+        game_account0.setLayout(new BorderLayout());
+        game_account0.add(game_account_label, BorderLayout.CENTER);
+        game_account0.add(game_account_button, BorderLayout.EAST);
         JPanel game_account = new JPanel();
         game_account.setLayout(new BorderLayout());
-        game_account.add(game_account_label, BorderLayout.CENTER);
-        game_account.add(game_account_button, BorderLayout.EAST);
+        game_account.add(game_account0, BorderLayout.CENTER);
+        game_account.add(rent_type, BorderLayout.EAST);
         
         JComboBox<String> rent_type_old = new JComboBox<String>();
         JLabel game_account_label_old= new JLabel();
-        game_account_label_old.setPreferredSize(new Dimension(200, 0));
         JButton game_account_button_old = new JButton();
         game_account_button_old.setMargin(new Insets(0, 0, 0, 0));
         game_account_button_old.addActionListener(e->{
@@ -263,16 +268,20 @@ public class UIToolkit {
                 game_account_label_old.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                 if (0 == rent_type_old.getModel().getSize()) {
                     JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                    game_account_label.setText(null);
                     continue;
                 }
                 break;
             }
+            if (null == account) game_account_label_old.setText("");
         });
+        JPanel game_account_old0 = new JPanel();
+        game_account_old0.setLayout(new BorderLayout());
+        game_account_old0.add(game_account_label_old, BorderLayout.CENTER);
+        game_account_old0.add(game_account_button_old, BorderLayout.EAST);
         JPanel game_account_old = new JPanel();
         game_account_old.setLayout(new BorderLayout());
-        game_account_old.add(game_account_label_old, BorderLayout.CENTER);
-        game_account_old.add(game_account_button_old, BorderLayout.EAST);
+        game_account_old.add(game_account_old0, BorderLayout.CENTER);
+        game_account_old.add(rent_type_old, BorderLayout.EAST);
         
         JComponent[] components = new JComponent[] {c_cost, game_account, rent_type, game_account_old, rent_type_old};
         for (JComponent c : components) c.setVisible(false);
@@ -330,11 +339,12 @@ public class UIToolkit {
         panel.add(i_oid);
         panel.add(i_oper_type);
         panel.add(c_remark);
+        panel.add(Box.createVerticalStrut(8));
         panel.add(c_cost);
+        panel.add(Box.createVerticalStrut(8));
         panel.add(game_account);
-        panel.add(rent_type);
+        panel.add(Box.createVerticalStrut(8));
         panel.add(game_account_old);
-        panel.add(rent_type_old);
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单项", JOptionPane.OK_CANCEL_OPTION)) {
             JSONObject args = new JSONObject();

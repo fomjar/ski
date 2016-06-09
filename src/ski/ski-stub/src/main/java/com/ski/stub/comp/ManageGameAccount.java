@@ -47,6 +47,7 @@ public class ManageGameAccount extends JDialog {
         toolbar.add(new JButton("更新到DB"));
         toolbar.add(new JButton("更新到DB和PS"));
         toolbar.add(new JButton("校验此账户"));
+        toolbar.addSeparator();
         toolbar.add(new JButton("添加游戏"));
         i_gaid = new FjEditLabel(String.format("0x%08X", account.i_gaid), false);
         c_user = new FjEditLabel(account.c_user);
@@ -198,11 +199,14 @@ public class ManageGameAccount extends JDialog {
                 });
             }
         });
-        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
+        ((JButton) toolbar.getComponent(4)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 BeanGame game = UIToolkit.chooseGame();
                 if (null == game) return;
+                
+                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
+                    return;
                 
                 int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
                 int gid  = game.i_gid;
