@@ -25,7 +25,8 @@ import net.sf.json.JSONObject;
 
 public class Service {
     
-    private static final String URL_SKI_WSI = "http://www.pan-o.cn:8080/ski-wsi";
+    private static final String URL_SKI_WSI = "http://120.26.233.118:8080/ski-wsi";
+    // private static final String URL_SKI_WSI = "http://www.pan-o.cn:8080/ski-wsi";
     
     public static String getWsiUrl() {return URL_SKI_WSI;}
     

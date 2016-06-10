@@ -35,8 +35,8 @@ public class ReportDialog extends JDialog {
         HTMLEditorKit ek = new HTMLEditorKit();
         jep.setEditorKit(ek);
         StyleSheet ss = ek.getStyleSheet();
-        ss.addRule("table {width:100%; border-collapse: collapse; border: 0; margin: 0; font-family: '微软雅黑', 'Hiragino Sans GB'}");
-        ss.addRule("td {padding: 0; border: 1px solid black; text-align: center; background-color: #EEEEEE}");
+        ss.addRule("table {width:100%; border-spacing: 0; font-family: '微软雅黑', 'Hiragino Sans GB'}");
+        ss.addRule("td {border: 1px solid black; text-align: center; background-color: #EEEEEE}");
         ss.addRule("h1 {color: #884444}");
         ss.addRule("h2 {text-align: left; padding-left: 8px}");
         ss.addRule(".category {background-color: #444488; color: #EEEEEE}");

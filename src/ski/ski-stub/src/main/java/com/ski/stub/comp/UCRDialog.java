@@ -14,7 +14,7 @@ public class UCRDialog extends ReportDialog {
         setTitle(String.format("%s的消费报告", user.c_user));
         setReport(Report.createUCR(user.i_caid));
         pack();
-        setSize(new Dimension(800, 800));
+        setSize(new Dimension(800, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
     }

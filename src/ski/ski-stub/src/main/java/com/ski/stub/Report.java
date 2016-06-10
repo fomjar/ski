@@ -3,6 +3,7 @@ package com.ski.stub;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -446,7 +447,10 @@ public class Report {
     }
     
     private static String createReportHead(String title) {
-        return String.format("<table><tr><td><h1>%s</h1></td></tr></table>", title);
+        return String.format("<table><tr><td><h1>%s</h1>"
+                + "<div style='text-align: right; font-size: 8px'>——此报告由SKI系统于[%s]自动生成</div></td></tr></table>",
+                title,
+                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date(System.currentTimeMillis())));
     }
     
     private static String createReportTable(String category, List<Object> data, int maxcol) {
