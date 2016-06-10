@@ -1,8 +1,6 @@
 package com.ski.stub.comp;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -17,6 +15,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 public class ReportDialog extends JDialog {
 
@@ -28,13 +28,19 @@ public class ReportDialog extends JDialog {
         setTitle("报告");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(800, 800));
-        Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
 
         jep = new JEditorPane();
         jep.setEditable(false);
         jep.setContentType("text/html");
+        HTMLEditorKit ek = new HTMLEditorKit();
+        jep.setEditorKit(ek);
+        StyleSheet ss = ek.getStyleSheet();
+        ss.addRule("table {width:100%; border-collapse: collapse; border: 0; margin: 0; font-family: '微软雅黑', 'Hiragino Sans GB'}");
+        ss.addRule("td {padding: 0; border: 1px solid black; text-align: center; background-color: #EEEEEE}");
+        ss.addRule("h1 {color: #884444}");
+        ss.addRule("h2 {text-align: left; padding-left: 8px}");
+        ss.addRule(".category {background-color: #444488; color: #EEEEEE}");
+        jep.setDocument(ek.createDefaultDocument());
         JScrollPane jsp = new JScrollPane(jep);
         jsp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

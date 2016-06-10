@@ -188,13 +188,13 @@ public class ManageGameAccount extends JDialog {
                 Service.doLater(new Runnable() {
                     @Override
                     public void run() {
-                        ((JButton) toolbar.getComponent(3)).setEnabled(false);
+                        ((JButton) toolbar.getComponent(2)).setEnabled(false);
                         args.put("user", c_user.getText());
                         args.put("pass", c_pass.getText());
                         FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_VERIFY_ACCOUNT, args);
                         JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
-                        ((JButton) toolbar.getComponent(3)).setEnabled(true);
+                        ((JButton) toolbar.getComponent(2)).setEnabled(true);
                     }
                 });
             }

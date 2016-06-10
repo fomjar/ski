@@ -47,6 +47,10 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(panel1);
         add(panel2);
+        
+        addActionListener(e->{
+            new OIRDialog(data).setVisible(true);
+        });
     }
     
     private static String getOperTypeInt2String(int oper_type) {
@@ -70,7 +74,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                   "金额：%s元<br/>"
                 + "备注：%s",
                 item.c_oper_arg0,
-                item.c_remark);
+                0 == item.c_remark.length() ? "-" : item.c_remark);
         case Service.OPER_TYPE_RENT_BEGIN:  {
             BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16));
             List<BeanGame>  games   = null != account ? Service.getGameAccountGames(account.i_gaid) : null;
@@ -82,7 +86,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     item.c_oper_arg0,
                     null != account ? account.c_user : "-", item.c_oper_arg2,
                     (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
-                    item.c_remark);
+                    0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_END:    {
             BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16));
@@ -93,7 +97,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
                     (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
-                    item.c_remark);
+                    0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_PAUSE:  {
             BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16));
@@ -104,7 +108,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
                     (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
-                    item.c_remark);
+                    0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_RESUME: {
             BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16));
@@ -115,7 +119,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
                     (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
-                    item.c_remark);
+                    0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_SWAP:   {
             BeanGameAccount account1 = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16));
@@ -123,24 +127,24 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
             BeanGameAccount account2 = Service.map_game_account.get(Integer.parseInt(item.c_oper_arg3, 16));
             List<BeanGame>  games2   = null != account2 ? Service.getGameAccountGames(account2.i_gaid) : null;
             return String.format(
-                      "(新)单价：%s元/天<br/>"
+                      "(老)账号：%s - %s<br/>"
+                    + "(老)游戏：%s<br/>"
                     + "(新)账号：%s - %s<br/>"
                     + "(新)游戏：%s<br/>"
-                    + "(老)账号：%s - %s<br/>"
-                    + "(老)游戏：%s<br/>"
+                    + "(新)单价：%s元/天<br/>"
                     + "备注：%s",
-                    item.c_oper_arg0,
-                    null != account1 ? account1.c_user : "-", item.c_oper_arg2,
-                    (null != games1 && !games1.isEmpty()) ? games1.get(0).c_name_zh : "-",
                     null != account2 ? account2.c_user : "-", item.c_oper_arg4,
                     (null != games2 && !games2.isEmpty()) ? games2.get(0).c_name_zh : "-",
-                    item.c_remark);
+                    null != account1 ? account1.c_user : "-", item.c_oper_arg2,
+                    (null != games1 && !games1.isEmpty()) ? games1.get(0).c_name_zh : "-",
+                    item.c_oper_arg0,
+                    0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_COUPON:      return String.format(
                   "金额：%s元<br/>"
                 + "备注：%s",
                 item.c_oper_arg0,
-                item.c_remark);
+                0 == item.c_remark.length() ? "-" : item.c_remark);
         default: return "(未知订单项参数)";
         }
     }
