@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -19,19 +22,21 @@ import javax.swing.JToolBar;
 import com.fomjar.widget.FjList;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
+import com.ski.stub.bean.BeanChannelAccount;
 import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
 import com.ski.stub.bean.BeanOrder;
+import com.ski.stub.comp.ListCellChannelAccount;
 import com.ski.stub.comp.ListCellGame;
 import com.ski.stub.comp.ListCellGameAccount;
 import com.ski.stub.comp.ListCellOrder;
-import com.ski.stub.comp.ManageChannelAccount;
 
 public class MainFrame extends JFrame {
 
     private static final long serialVersionUID = -4646332990528380747L;
     
     private JTabbedPane tabs;
+    private JMenuBar    menubar;
     private JToolBar    toolbar;
     
     public MainFrame() {
@@ -45,6 +50,7 @@ public class MainFrame extends JFrame {
         tabs.setFont(UIToolkit.FONT.deriveFont(12.0f));
         tabs.add("游戏管理", new FjListPane<BeanGame>());
         tabs.add("账号管理", new FjListPane<BeanGameAccount>());
+        tabs.add("用户管理", new FjListPane<BeanChannelAccount>());
         tabs.add("订单管理", new FjListPane<BeanOrder>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入游戏名搜索");
@@ -52,18 +58,18 @@ public class MainFrame extends JFrame {
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号名", "按游戏名"});
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(2)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTips("键入用户名搜索");
+        ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTypes(new String[] {"按用户名", "按手机号"});
+        ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTips("键入关键词搜索");
+        ((FjListPane<?>) tabs.getComponentAt(3)).enableSearchBar();
+        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().setSearchTips("键入用户名搜索");
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷新"));
-        toolbar.addSeparator();
-        toolbar.add(new JButton("新游戏"));
-        toolbar.add(new JButton("新账号"));
-        toolbar.addSeparator();
-        toolbar.add(new JButton("管理用户"));
-        toolbar.add(new JButton("新订单"));
         
+        menubar = createMenuBar();
+
+        setJMenuBar(menubar);
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(tabs, BorderLayout.CENTER);
         getContentPane().add(toolbar, BorderLayout.NORTH);
@@ -78,35 +84,6 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateAll();
-            }
-        });
-        // separator 1
-        ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.createGame();
-                updateAll();
-            }
-        });
-        ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.createGameAccount();
-                updateAll();
-            }
-        });
-        // separator 4
-        ((JButton) toolbar.getComponent(5)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ManageChannelAccount(MainFrame.this).setVisible(true);
-            }
-        });
-        ((JButton) toolbar.getComponent(6)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.createOrder();
                 updateAll();
             }
         });
@@ -155,7 +132,24 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        FjListPane<BeanOrder> paneorder = ((FjListPane<BeanOrder>) tabs.getComponentAt(2));
+        FjListPane<BeanChannelAccount> paneuser = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2));
+        paneuser.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(paneuser.getList()) {
+            @Override
+            public boolean isMatch(String type, String[] words, BeanChannelAccount celldata) {
+                int count = 0;
+                switch (type) {
+                case "按用户名":
+                    for (String word : words) if (celldata.c_user.contains(word)) count++;
+                    return count == words.length;
+                case "按手机号":
+                    for (String word : words) if (celldata.c_phone.contains(word)) count++;
+                    return count == words.length;
+                default:
+                    return true;
+                }
+            }
+        });
+        FjListPane<BeanOrder> paneorder = ((FjListPane<BeanOrder>) tabs.getComponentAt(3));
         paneorder.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanOrder>(paneorder.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanOrder celldata) {
@@ -167,6 +161,48 @@ public class MainFrame extends JFrame {
                     return count == words.length;
             }
         });
+    }
+    
+    private JMenuBar createMenuBar() {
+        JMenu       mconfig = new JMenu("创建");
+        JMenuItem   micreategame        = new JMenuItem("创建游戏");
+        JMenuItem   micreategameaccount = new JMenuItem("创建账号");
+        JMenuItem   micreateuser        = new JMenuItem("创建用户");
+        JMenuItem   micreateorder       = new JMenuItem("创建订单");
+        mconfig.add(micreategame);
+        mconfig.add(micreategameaccount);
+        mconfig.add(micreateuser);
+        mconfig.add(micreateorder);
+        
+        JMenu       mhelp   = new JMenu("帮助");
+        JMenuItem   miabout = new JMenuItem("关于");
+        mhelp.add(miabout);
+        
+        JMenuBar    menubar = new JMenuBar();
+        menubar.add(mconfig);
+        menubar.add(mhelp);
+        
+        micreategame.addActionListener(e->{
+            UIToolkit.createGame();
+            updateAll();
+        });
+        micreategameaccount.addActionListener(e->{
+            UIToolkit.createGameAccount();
+            updateAll();
+        });
+        micreateuser.addActionListener(e->{
+            UIToolkit.createChannelAccount();
+            updateAll();
+        });
+        micreateorder.addActionListener(e->{
+            UIToolkit.createOrder();
+            updateAll();
+        });
+        miabout.addActionListener(e->{
+            JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION);
+        });
+        
+        return menubar;
     }
     
     private void updateAll() {
@@ -189,12 +225,15 @@ public class MainFrame extends JFrame {
                     
                     Service.updateGameAccountGame();
                     
-                    Service.updateChannelAccount();
-                    
                     Service.updateGameAccountRent();
                     
+                    Service.updateChannelAccount();
+                    FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
+                    list_channel_account.removeAllCell();
+                    Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
+                    
                     Service.updateOrder();
-                    FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(2)).getList();
+                    FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
                     list_order.removeAllCell();
                     Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
                 } catch (Exception e) {

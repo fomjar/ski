@@ -20,9 +20,10 @@ public abstract class FjListCell<E> extends JComponent {
     
     private static final long serialVersionUID = -5413153652935337627L;
     
-    private   static final Color color_default  = new Color(230, 230, 230);
-    private   static final Color color_over     = new Color(240, 240, 255);
-    private   static final Color color_press    = new Color(200, 200, 230);
+    private   static final Color color_default      = new Color(230, 230, 230);
+    private   static final Color color_over         = new Color(240, 240, 255);
+    private   static final Color color_press        = new Color(200, 200, 230);
+    private   static final Color color_actionmark   = new Color(255, 100, 100);
     private   static final Color color_bright   = Color.white;
     private   static final Color color_shadow   = Color.lightGray;
     protected static final Color color_major    = Color.darkGray;
@@ -30,6 +31,7 @@ public abstract class FjListCell<E> extends JComponent {
     
     private boolean is_over;
     private boolean is_press;
+    private boolean actionmark;
     private E       data;
     private List<ActionListener> listeners;
     
@@ -37,9 +39,10 @@ public abstract class FjListCell<E> extends JComponent {
         listeners   = new LinkedList<ActionListener>();
         is_over     = false;
         is_press    = false;
+        actionmark  = true;
         setData(data);
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
+        setBorder(BorderFactory.createEmptyBorder(4,8,4,8));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 0));
         addMouseListener(new MouseAdapter() {
             @Override
@@ -71,7 +74,6 @@ public abstract class FjListCell<E> extends JComponent {
         if (is_press)       g.setColor(color_press);
         else if (is_over)   g.setColor(color_over);
         else                g.setColor(color_default);
-        
         g.fillRect(0, 0, getWidth(), getHeight());
         
         if (!is_press)  g.setColor(color_bright);
@@ -82,16 +84,21 @@ public abstract class FjListCell<E> extends JComponent {
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
         
         super.paintComponent(g);
+        
+        if (actionmark && !listeners.isEmpty()) {
+            g.setColor(color_actionmark);
+            g.fillRect(0, 1, 3, getHeight() - 2);
+        }
     }
     
     public void setData(E data) {this.data = data;}
 
     public E getData() {return data;}
     
-    public void addActionListener(ActionListener listener) {
-        listeners.add(listener);
-    }
+    public void addActionListener(ActionListener listener) {listeners.add(listener);}
     
+    public void setActionMark(boolean actionmark) {this.actionmark = actionmark;}
+
     public void passthroughMouseEvent(Component top) {
         top.addMouseListener(new MouseListener() {
             @Override

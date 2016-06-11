@@ -200,7 +200,16 @@ public class Report {
     private static void calculateMoney(Map<String, Object> rent) {
         long time = (long) rent.get("time");
         float uprice = (float) rent.get("uprice");
-        rent.put("money", (uprice / 2) * (time / 1000 / 60 / 60 / 12)); // 半天的维度
+        long count0 = time / 1000 / 60 / 60 / 12;
+        long count1 = time / 1000 / 60 / 60 % 12;
+        if (count0 >= 2) {
+            if (count1 > 0) count1 = 1;
+        } else {
+            count0 = 2;
+            count1 = 0;
+        }
+        int count = (int) (count0 + count1);
+        rent.put("money", (uprice / 2) * count);
     }
     
     @SuppressWarnings("unchecked")

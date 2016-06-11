@@ -1,6 +1,7 @@
 package com.fomjar.widget;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -34,6 +35,7 @@ public class FjSearchBar extends JComponent {
         this.listeners = new LinkedList<FjSearchListener>();
         
         this.types.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, INSETS));
+        this.types.setPreferredSize(new Dimension(100, field.getHeight()));
         setBorder(BorderFactory.createEmptyBorder(INSETS, INSETS, INSETS, INSETS));
         setLayout(new BorderLayout());
         add(this.types, BorderLayout.WEST);

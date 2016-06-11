@@ -64,6 +64,8 @@ public class UIToolkit {
         UIManager.getLookAndFeelDefaults().put("Button.font",       FONT);
         UIManager.getLookAndFeelDefaults().put("Panel.font",        FONT);
         UIManager.getLookAndFeelDefaults().put("FilePane.font",     FONT);
+        UIManager.getLookAndFeelDefaults().put("Menu.font",         FONT);
+        UIManager.getLookAndFeelDefaults().put("MenuItem.font",     FONT);
         
         // UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
