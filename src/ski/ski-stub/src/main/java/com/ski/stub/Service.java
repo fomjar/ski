@@ -39,9 +39,11 @@ public class Service {
     
     public static final int RENT_TYPE_A = 0;
     public static final int RENT_TYPE_B = 1;
+    
     public static final int RENT_STATE_IDLE = 0;
     public static final int RENT_STATE_RENT = 1;
     public static final int RENT_STATE_LOCK = 2;
+    
     public static final int OPER_TYPE_BUY           = 0;
     public static final int OPER_TYPE_RECHARGE      = 1;
     public static final int OPER_TYPE_RENT_BEGIN    = 2;
@@ -56,10 +58,10 @@ public class Service {
         
         args.put("report", report);
         args.put("inst", inst);
-        System.out.println(">>" + args);
+        System.out.println(">> " + args);
         FjHttpRequest req = new FjHttpRequest("POST", URL_SKI_WSI, args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
-        System.out.println("<<" + rsp);
+        System.out.println("<< " + rsp);
         return rsp;
     }
     

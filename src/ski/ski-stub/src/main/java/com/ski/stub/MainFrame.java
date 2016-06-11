@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
@@ -65,7 +66,8 @@ public class MainFrame extends JFrame {
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        toolbar.add(new JButton("刷新"));
+        JButton refresh = new JButton(new ImageIcon(UIToolkit.loadImage("/com/ski/stub/refresh.png", 0.22)));
+        toolbar.add(refresh);
         
         menubar = createMenuBar();
 

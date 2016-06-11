@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -12,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,7 @@ import com.ski.stub.bean.BeanGameAccount;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
+import sun.awt.image.ToolkitImage;
 
 public class UIToolkit {
     
@@ -70,6 +73,13 @@ public class UIToolkit {
         // UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
     
+    public static Image loadImage(String path, double zoom) {
+        ToolkitImage  img0 = (ToolkitImage) Toolkit.getDefaultToolkit().getImage(UIToolkit.class.getResource(path));
+        BufferedImage img  = new BufferedImage((int) (img0.getWidth() * zoom), (int) (img0.getHeight() * zoom), BufferedImage.TYPE_INT_ARGB);
+        img.getGraphics().drawImage(img0, 0, 0, img.getWidth(), img.getHeight(), null);
+        return img;
+    }
+    
     public static JPanel createBasicInfoLabel(String label, FjEditLabel field) {
         JLabel jlabel = new JLabel(label);
         jlabel.setPreferredSize(new Dimension(80, 0));
@@ -82,7 +92,7 @@ public class UIToolkit {
         return jpanel;
     }
     
-    public static FjDscpMessage createGame() {
+    public static void createGame() {
         FjTextField c_country   = new FjTextField();
         FjTextField t_sale      = new FjTextField();
         FjTextField c_name_zh   = new FjTextField();
@@ -104,13 +114,10 @@ public class UIToolkit {
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            return rsp;
         }
-        
-        return null;
     }
     
-    public static FjDscpMessage createGameAccount() {
+    public static void createGameAccount() {
         FjTextField c_user  = new FjTextField();
         FjTextField c_pass  = new FjTextField();
         FjTextField t_birth = new FjTextField();
@@ -132,12 +139,10 @@ public class UIToolkit {
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            return rsp;
         }
-        return null;
     }
     
-    public static FjDscpMessage createChannelAccount() {
+    public static void createChannelAccount() {
         JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信", "2 - 支付宝"});
         i_channel.setEditable(false);
         FjTextField         c_user  = new FjTextField();
@@ -160,12 +165,10 @@ public class UIToolkit {
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            return rsp;
         }
-        return null;
     }
     
-    public static FjDscpMessage createOrder() {
+    public static void createOrder() {
         JComboBox<String>   i_platform = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信"});
         JLabel i_caid_label = new JLabel();
         i_caid_label.setPreferredSize(new Dimension(240, 0));
@@ -194,12 +197,10 @@ public class UIToolkit {
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            return rsp;
         }
-        return null;
     }
     
-    public static FjDscpMessage createOrderItem(int oid) {
+    public static void createOrderItem(int oid) {
         JLabel              i_oid = new JLabel(String.format("订单编号：0x%08X", oid));
         i_oid.setPreferredSize(new Dimension(360, 0));
         JComboBox<String>   i_oper_type = new JComboBox<String>(new String[] {"0 - 购买", "1 - 充值", "2 - 起租", "3 - 退租", "4 - 停租", "5 - 续租", "6 - 换租", "7 - 赠券"});
@@ -455,9 +456,7 @@ public class UIToolkit {
             }
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER_ITEM, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            return rsp;
         }
-        return null;
     }
     
     public static BeanGame chooseGame() {

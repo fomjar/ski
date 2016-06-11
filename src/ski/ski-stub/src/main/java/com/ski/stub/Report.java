@@ -457,7 +457,7 @@ public class Report {
     
     private static String createReportHead(String title) {
         return String.format("<table><tr><td><h1>%s</h1>"
-                + "<div style='text-align: right; font-size: 8px'>——此报告由SKI系统于[%s]自动生成</div></td></tr></table>",
+                + "<div style='text-align: right; font-size: 8px'>——此报告由\"SKI系统\"于 %s 自动生成</div></td></tr></table>",
                 title,
                 new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date(System.currentTimeMillis())));
     }
