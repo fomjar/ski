@@ -81,7 +81,7 @@ public class Report {
                         rent.put("type",    item.c_oper_arg2);
                         rent.put("games",   Service.getGameAccountGames(account.i_gaid));
                         rent.put("begin",   item.t_oper_time);
-                        rent.put("uprice",  Float.parseFloat(item.c_oper_arg0));
+                        rent.put("price",  Float.parseFloat(item.c_oper_arg0));
                         rent.put("time",    0l);
                         rent.put("money",   0.0f);
                         break;
@@ -124,7 +124,7 @@ public class Report {
                         rent_to.put("games",   Service.getGameAccountGames(account_to.i_gaid));
                         rent_to.put("begin",   item.t_oper_time);
                         rent_to.put("money",   0.0f);
-                        rent_to.put("uprice",  Float.parseFloat(item.c_oper_arg0));
+                        rent_to.put("price",  Float.parseFloat(item.c_oper_arg0));
                         rent_to.put("time",    0l);
                         break;
                     }
@@ -199,7 +199,7 @@ public class Report {
     
     private static void calculateMoney(Map<String, Object> rent) {
         long time = (long) rent.get("time");
-        float uprice = (float) rent.get("uprice");
+        float price = (float) rent.get("price");
         long count0 = time / 1000 / 60 / 60 / 12;
         long count1 = time / 1000 / 60 / 60 % 12;
         if (count0 >= 2) {
@@ -209,7 +209,7 @@ public class Report {
             count1 = 0;
         }
         int count = (int) (count0 + count1);
-        rent.put("money", (uprice / 2) * count);
+        rent.put("money", (price / 2) * count);
     }
     
     @SuppressWarnings("unchecked")
@@ -265,7 +265,7 @@ public class Report {
                             (String) rent_object.get("begin"),
                             rent_object.containsKey("end") ? (String) rent_object.get("end") : "-",
                             formatTimeLong(time),
-                            df.format(rent_object.get("uprice")) + "元/天",
+                            df.format(rent_object.get("price")) + "元/天",
                             df.format(rent_object.get("money")) + "元"});
                 });
         rent.add(String.format("租赁小计：%s元", df.format(ucd.get("rent.total"))));
@@ -332,7 +332,7 @@ public class Report {
                 rows.add(new String[] {"租赁类型",  item.c_oper_arg2});
                 rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent.get("begin")});
-                rows.add(new String[] {"租赁单价",  df.format(rent.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent.get("price")) + "元/天"});
                 rows.add(new String[] {"备注",     0 == item.c_remark.length() ? "-" : item.c_remark});
                 rows.add(new String[] {"账户余额",  df.format(ucd.get("balance")) + "元"});
                 rows.add(new String[] {"可退金额",  df.format(ucd.get("refund")) + "元"});
@@ -351,7 +351,7 @@ public class Report {
                 rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent.get("begin")});
                 rows.add(new String[] {"退租时间",  (String) rent.get("end")});
-                rows.add(new String[] {"租赁单价",  df.format(rent.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent.get("price")) + "元/天"});
                 rows.add(new String[] {"有效时长",  formatTimeLong((long) rent.get("time"))});
                 rows.add(new String[] {"费用小计",  df.format(rent.get("money")) + "元"});
                 rows.add(new String[] {"备注",     0 == item.c_remark.length() ? "-" : item.c_remark});
@@ -372,7 +372,7 @@ public class Report {
                 rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent.get("begin")});
                 rows.add(new String[] {"停租时间",  (String) rent.get("lastpause")});
-                rows.add(new String[] {"租赁单价",  df.format(rent.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent.get("price")) + "元/天"});
                 rows.add(new String[] {"有效时长",  formatTimeLong((long) rent.get("time"))});
                 rows.add(new String[] {"费用小计",  df.format(rent.get("money")) + "元"});
                 rows.add(new String[] {"备注",     0 == item.c_remark.length() ? "-" : item.c_remark});
@@ -393,7 +393,7 @@ public class Report {
                 rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent.get("begin")});
                 rows.add(new String[] {"续租时间",  (String) rent.get("lastresume")});
-                rows.add(new String[] {"租赁单价",  df.format(rent.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent.get("price")) + "元/天"});
                 rows.add(new String[] {"有效时长",  formatTimeLong((long) rent.get("time"))});
                 rows.add(new String[] {"费用小计",  df.format(rent.get("money")) + "元"});
                 rows.add(new String[] {"备注",     0 == item.c_remark.length() ? "-" : item.c_remark});
@@ -417,7 +417,7 @@ public class Report {
                 rows.add(new String[] {"包含游戏",  (null == games_from || games_from.isEmpty()) ? "-" : games_from.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent_from.get("begin")});
                 rows.add(new String[] {"退租时间",  (String) rent_from.get("end")});
-                rows.add(new String[] {"租赁单价",  df.format(rent_from.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent_from.get("price")) + "元/天"});
                 rows.add(new String[] {"有效时长",  formatTimeLong((long) rent_from.get("time"))});
                 rows.add(new String[] {"费用小计",  df.format(rent_from.get("money")) + "元"});
                 oir.append(createReportTable("老帐号", rows, 2));
@@ -427,7 +427,7 @@ public class Report {
                 rows.add(new String[] {"租赁类型",  item.c_oper_arg2});
                 rows.add(new String[] {"包含游戏",  (null == games_to || games_to.isEmpty()) ? "-" : games_to.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
                 rows.add(new String[] {"起租时间",  (String) rent_to.get("begin")});
-                rows.add(new String[] {"租赁单价",  df.format(rent_to.get("uprice")) + "元/天"});
+                rows.add(new String[] {"租赁单价",  df.format(rent_to.get("price")) + "元/天"});
                 oir.append(createReportTable("新帐号", rows, 2));
                 rows.clear();
                 rows.add(new String[] {"备注",     0 == item.c_remark.length() ? "-" : item.c_remark});

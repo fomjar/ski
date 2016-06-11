@@ -15,6 +15,7 @@ import com.ski.stub.bean.BeanGame;
 import com.ski.stub.bean.BeanGameAccount;
 import com.ski.stub.bean.BeanGameAccountGame;
 import com.ski.stub.bean.BeanGameAccountRent;
+import com.ski.stub.bean.BeanGameRentPrice;
 import com.ski.stub.bean.BeanOrder;
 import com.ski.stub.bean.BeanOrderItem;
 
@@ -25,17 +26,18 @@ import net.sf.json.JSONObject;
 
 public class Service {
     
-    private static final String URL_SKI_WSI = "http://120.26.233.118:8080/ski-wsi";
-    // private static final String URL_SKI_WSI = "http://www.pan-o.cn:8080/ski-wsi";
+    private static String HOST_SKI_WSI = "www.pan-o.cn";
+    public static void setWsiHost(String host) {HOST_SKI_WSI = host;}
     
-    public static String getWsiUrl() {return URL_SKI_WSI;}
+    public static String getWsiUrl() {return String.format("http://%s:8080/ski-wsi", HOST_SKI_WSI);}
     
-    public static final Map<Integer, BeanGame>              map_game                = new LinkedHashMap<Integer, BeanGame>();
-    public static final Map<Integer, BeanGameAccount>       map_game_account        = new LinkedHashMap<Integer, BeanGameAccount>();
+    public static final Map<Integer, BeanGame>              map_game                = new LinkedHashMap<Integer, BeanGame>();           // gid
+    public static final Map<Integer, BeanGameAccount>       map_game_account        = new LinkedHashMap<Integer, BeanGameAccount>();    // gaid
     public static final Set<BeanGameAccountGame>            set_game_account_game   = new LinkedHashSet<BeanGameAccountGame>();
     public static final Set<BeanGameAccountRent>            set_game_account_rent   = new LinkedHashSet<BeanGameAccountRent>();
-    public static final Map<Integer, BeanChannelAccount>    map_channel_account     = new LinkedHashMap<Integer, BeanChannelAccount>();
-    public static final Map<Integer, BeanOrder>             map_order               = new LinkedHashMap<Integer, BeanOrder>();
+    public static final Map<Integer, BeanChannelAccount>    map_channel_account     = new LinkedHashMap<Integer, BeanChannelAccount>(); // caid
+    public static final Map<Integer, BeanOrder>             map_order               = new LinkedHashMap<Integer, BeanOrder>();          // oid
+    public static final Map<String, BeanGameRentPrice>      map_game_rent_price     = new LinkedHashMap<String, BeanGameRentPrice>();   // gid + type
     
     public static final int RENT_TYPE_A = 0;
     public static final int RENT_TYPE_B = 1;
@@ -59,7 +61,7 @@ public class Service {
         args.put("report", report);
         args.put("inst", inst);
         System.out.println(">> " + args);
-        FjHttpRequest req = new FjHttpRequest("POST", URL_SKI_WSI, args.toString());
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
         System.out.println("<< " + rsp);
         return rsp;
@@ -176,6 +178,19 @@ public class Service {
         }
     }
     
+    public static void updateGameRentPrice() {
+        Service.map_game_rent_price.clear();
+        String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_GAME_RENT_PRICE, null));
+        
+        if (null != rsp && !"null".equals(rsp)) {
+            String[] lines = rsp.split("\n");
+            for (String line : lines) {
+                BeanGameRentPrice bean = new BeanGameRentPrice(line);
+                Service.map_game_rent_price.put(Integer.toHexString(bean.i_gid) + bean.i_type, bean);
+            }
+        }
+    }
+    
     public static int getGameAccountCurrentRentState(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
             if (rent.i_gaid == gaid) {
@@ -206,5 +221,20 @@ public class Service {
                 .filter(gag->{return gag.i_gaid == gaid;})
                 .map(gag->{return map_game.get(gag.i_gid);})
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * 
+     * @param gaid
+     * @param type RENT_TYPE_X
+     * @return
+     */
+    public static float getGameAccountRentPrice(int gaid, int type) {
+        float price = 0.0f;
+        for (BeanGame game : getGameAccountGames(gaid)) {
+            String key = Integer.toHexString(game.i_gid) + type;
+            if (map_game_rent_price.containsKey(key)) price += map_game_rent_price.get(key).i_price;
+        }
+        return price;
     }
 }

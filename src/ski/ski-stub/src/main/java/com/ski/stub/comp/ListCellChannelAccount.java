@@ -42,7 +42,7 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
         c_user    = new FjEditLabel(data.c_user);
         c_user.setForeground(color_major);
         c_user.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
-        c_phone   = new FjEditLabel(data.c_phone);
+        c_phone   = new FjEditLabel(0 == data.c_phone.length() ? "(没有电话)" : data.c_phone);
         c_phone.setForeground(color_major);
         i_caid    = new FjEditLabel(String.format("0x%08X", data.i_caid), false);
         i_caid.setForeground(color_minor);
@@ -126,25 +126,18 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
         b_update.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ListCellChannelAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
-                            return;
-                        }
-                        b_update.setEnabled(false);
-                        FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-                        JOptionPane.showConfirmDialog(ListCellChannelAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                        if (null != rsp && Service.isResponseSuccess(rsp)) {
-                            if (args.has("channel"))    i_channel.setForeground(color_major);
-                            if (args.has("user"))       c_user.setForeground(color_major);
-                            if (args.has("phone"))      c_phone.setForeground(color_major);
-                            args.clear();
-                        }
-                        b_update.setEnabled(true);
-                    }
-                }.start();
+                if (args.isEmpty()) {
+                    JOptionPane.showConfirmDialog(ListCellChannelAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                    return;
+                }
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
+                JOptionPane.showConfirmDialog(ListCellChannelAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                if (null != rsp && Service.isResponseSuccess(rsp)) {
+                    if (args.has("channel"))    i_channel.setForeground(color_major);
+                    if (args.has("user"))       c_user.setForeground(color_major);
+                    if (args.has("phone"))      c_phone.setForeground(color_major);
+                    args.clear();
+                }
             }
         });
     }

@@ -125,6 +125,7 @@ create table tbl_channel_account (
 drop table if exists tbl_game_rent_price;
 create table tbl_game_rent_price (
     i_gid   integer,
+    i_type  tinyint,    -- 租赁类型：0-A租，1-B租
     i_price decimal(4, 2)
 );
 

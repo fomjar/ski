@@ -48,6 +48,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_QUERY_ORDER               = 0x00002006;
         /** 查询订单项 */
         public static final int INST_ECOM_QUERY_ORDER_ITEM          = 0x00002007;
+        /** 查询游戏租赁价格 */
+        public static final int INST_ECOM_QUERY_GAME_RENT_PRICE     = 0x00002008;
         // APPLY
         /** 申请（处理）订单，返回提货单 */
         public static final int INST_ECOM_APPLY_ORDER       = 0x00002101;

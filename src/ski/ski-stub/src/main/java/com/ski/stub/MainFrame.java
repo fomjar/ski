@@ -33,6 +33,13 @@ import com.ski.stub.comp.ListCellGameAccount;
 import com.ski.stub.comp.ListCellOrder;
 
 public class MainFrame extends JFrame {
+    
+    private static MainFrame instance = null;
+    
+    public static synchronized MainFrame getInstance() {
+        if (null == instance) instance = new MainFrame();
+        return instance;
+    }
 
     private static final long serialVersionUID = -4646332990528380747L;
     
@@ -40,7 +47,7 @@ public class MainFrame extends JFrame {
     private JMenuBar    menubar;
     private JToolBar    toolbar;
     
-    public MainFrame() {
+    private MainFrame() {
         setTitle("SKI-STUB-0.0.1 [" + Service.getWsiUrl() + ']');
         setSize(500, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -207,7 +214,7 @@ public class MainFrame extends JFrame {
         return menubar;
     }
     
-    private void updateAll() {
+    public void updateAll() {
         Service.doLater(new Runnable() {
             @Override
             @SuppressWarnings("unchecked")
@@ -216,6 +223,7 @@ public class MainFrame extends JFrame {
                 boolean isfail = false;
                 try {
                     Service.updateGame();
+                    Service.updateGameRentPrice();
                     FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                     list_game.removeAllCell();
                     Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
