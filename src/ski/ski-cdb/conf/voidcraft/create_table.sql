@@ -121,3 +121,10 @@ create table tbl_channel_account (
     t_birth     date            -- 生日
 );
 
+-- 游戏价格管理
+drop table if exists tbl_game_rent_price;
+create table tbl_game_rent_price (
+    i_gid   integer,
+    i_price decimal(4, 2)
+);
+

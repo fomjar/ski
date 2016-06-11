@@ -80,6 +80,8 @@ public final class SkiCommon {
         public static final int INST_ECOM_UPDATE_ORDER              = 0x00002406;
         /** 更新订单项 */
         public static final int INST_ECOM_UPDATE_ORDER_ITEM         = 0x00002407;
+        /** 更新游戏租赁价格 */
+        public static final int INST_ECOM_UPDATE_GAME_RENT_PRICE    = 0x00002408;
     }
     
     /**

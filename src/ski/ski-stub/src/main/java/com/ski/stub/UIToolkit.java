@@ -106,14 +106,18 @@ public class UIToolkit {
         panel.add(t_sale);
         panel.add(c_name_zh);
         
-        int option = JOptionPane.showConfirmDialog(null, panel, "创建游戏", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == option) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == c_name_zh.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "游戏名称一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
             JSONObject args = new JSONObject();
             if (0 != c_country.getText().length())  args.put("country", c_country.getText());
             if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            break;
         }
     }
     
@@ -131,14 +135,22 @@ public class UIToolkit {
         panel.add(c_pass);
         panel.add(t_birth);
         
-        int option = JOptionPane.showConfirmDialog(null, panel, "创建游戏账号", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == option) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏账号", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == c_user.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
+            if (0 == c_pass.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "密码一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
             JSONObject args = new JSONObject();
             if (0 != c_user.getText().length())     args.put("user",        c_user.getText());
             if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            break;
         }
     }
     
@@ -156,8 +168,11 @@ public class UIToolkit {
         panel.add(c_user);
         panel.add(c_phone);
         
-        int option = JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == option) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == c_user.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
             JSONObject args = new JSONObject();
             args.put("gender", 1);
             args.put("channel", Integer.parseInt(i_channel.getSelectedItem().toString().split(" ")[0]));
@@ -165,6 +180,7 @@ public class UIToolkit {
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            break;
         }
     }
     
@@ -176,8 +192,8 @@ public class UIToolkit {
         i_caid_button.setMargin(new Insets(0, 0, 0, 0));
         i_caid_button.addActionListener(e->{
             BeanChannelAccount account = chooseChannelAccount();
-            if (null == account) return;
-            i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.c_user));
+            if (null == account) i_caid_label.setText("");
+            else i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.c_user));
         });
         
         JPanel i_caid = new JPanel();
@@ -190,13 +206,17 @@ public class UIToolkit {
         panel.add(i_platform);
         panel.add(i_caid);
         
-        int option = JOptionPane.showConfirmDialog(null, panel, "创建订单", JOptionPane.OK_CANCEL_OPTION);
-        if (JOptionPane.OK_OPTION == option) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == i_caid_label.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
             JSONObject args = new JSONObject();
             args.put("platform", Integer.parseInt(i_platform.getSelectedItem().toString().split(" ")[0]));
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            break;
         }
     }
     
