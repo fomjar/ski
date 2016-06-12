@@ -115,7 +115,6 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 JOptionPane.showConfirmDialog(ListCellGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                 args.clear();
                 
-                Service.updateGameRentPrice();
                 MainFrame.getInstance().updateAll();
             }
             @Override
@@ -136,7 +135,6 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 JOptionPane.showConfirmDialog(ListCellGame.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                 args.clear();
                 
-                Service.updateGameRentPrice();
                 MainFrame.getInstance().updateAll();
             }
             @Override
