@@ -219,25 +219,11 @@ public class MainFrame extends JFrame {
         menubar.add(mconfig);
         menubar.add(mhelp);
         
-        micreategame.addActionListener(e->{
-            UIToolkit.createGame();
-            updateAll();
-        });
-        micreategameaccount.addActionListener(e->{
-            UIToolkit.createGameAccount();
-            updateAll();
-        });
-        micreateuser.addActionListener(e->{
-            UIToolkit.createChannelAccount();
-            updateAll();
-        });
-        micreateorder.addActionListener(e->{
-            UIToolkit.createOrder();
-            updateAll();
-        });
-        miabout.addActionListener(e->{
-            JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION);
-        });
+        micreategame        .addActionListener(e->UIToolkit.createGame());
+        micreategameaccount .addActionListener(e->UIToolkit.createGameAccount());
+        micreateuser        .addActionListener(e->UIToolkit.createChannelAccount());
+        micreateorder       .addActionListener(e->UIToolkit.createOrder());
+        miabout             .addActionListener(e->JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
         
         return menubar;
     }
