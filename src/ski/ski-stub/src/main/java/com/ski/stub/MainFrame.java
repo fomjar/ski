@@ -5,9 +5,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.ImageIcon;
@@ -63,7 +61,7 @@ public class MainFrame extends JFrame {
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入游戏名搜索");
         ((FjListPane<?>) tabs.getComponentAt(1)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按账号名", "按游戏名"});
+        ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTypes(new String[] {"按游戏名", "按用户名", "按账号名"});
         ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(2)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTypes(new String[] {"按用户名", "按手机号"});
@@ -112,30 +110,60 @@ public class MainFrame extends JFrame {
                 if (null == type) return true;
                 
                 switch(type) {
-                case "按账号名":
+                case "按游戏名": {
+                    List<BeanGame> games = Service.map_game.values()
+                            .stream()
+                            .filter(game->{
+                                int count = 0;
+                                for (String word : words) if (game.c_name_zh.contains(word)) count++;
+                                if (count == words.length) return true;
+                                else return false;
+                            }).collect(Collectors.toList());
+                    List<BeanGameAccount> accounts = Service.set_game_account_game
+                            .stream()
+                            .filter(gag->{
+                                for (BeanGame game : games) {
+                                    if (game.i_gid == gag.i_gid) return true;
+                                }
+                                return false;
+                            })
+                            .map(gag->Service.map_game_account.get(gag.i_gaid))
+                            .collect(Collectors.toList());
+                    for (BeanGameAccount account : accounts) {
+                        if (account.i_gaid == celldata.i_gaid) return true;
+                    }
+                    return false;
+                }
+                case "按用户名": {
+                    List<BeanChannelAccount> users = Service.map_channel_account.values()
+                            .stream()
+                            .filter(user->{
+                                int count1 = 0;
+                                for (String word : words) if (user.c_user.contains(word)) count1++;
+                                if (count1 == words.length) return true;
+                                else return false;
+                            }).collect(Collectors.toList());
+                    List<BeanGameAccount> accounts = Service.set_game_account_rent
+                            .stream()
+                            .filter(rent->{
+                                if (Service.RENT_STATE_RENT != rent.i_state) return false;
+                                for (BeanChannelAccount user : users) {
+                                    if (user.i_caid == rent.i_caid) return true;
+                                }
+                                return false;
+                            })
+                            .map(rent->Service.map_game_account.get(rent.i_gaid))
+                            .collect(Collectors.toList());
+                    for (BeanGameAccount account : accounts) {
+                        if (account.i_gaid == celldata.i_gaid) return true;
+                    }
+                    return false;
+                }
+                case "按账号名": {
                     int count = 0;
                     for (String word : words) if (celldata.c_user.contains(word)) count++;
                     return count == words.length;
-                case "按游戏名":
-                    List<BeanGame> games = Service.map_game.values().stream().filter(game->{
-                        int count1 = 0;
-                        for (String word : words) if (game.c_name_zh.contains(word)) count1++;
-                        if (count1 == words.length) return true;
-                        else return false;
-                    }).collect(Collectors.toList());
-                    Map<Integer, BeanGameAccount> accounts = new LinkedHashMap<Integer, BeanGameAccount>();
-                    games.forEach(game->{
-                        Service.set_game_account_game.forEach(bean->{
-                            if (game.i_gid == bean.i_gid) {
-                                if (!accounts.containsKey(bean.i_gaid)) {
-                                    accounts.put(bean.i_gaid, Service.map_game_account.get(bean.i_gaid));
-                                }
-                            }
-                        });
-                    });
-                    for (BeanGameAccount account : accounts.values())
-                        if (account.i_gaid == celldata.i_gaid) return true;
-                    return false;
+                }
                 default:
                     return true;
                 }

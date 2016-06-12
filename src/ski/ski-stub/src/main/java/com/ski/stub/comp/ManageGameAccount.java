@@ -161,22 +161,16 @@ public class ManageGameAccount extends JDialog {
                         }
                         ((JButton) toolbar.getComponent(1)).setEnabled(false);
                         FjDscpMessage rsp_wa = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        if (!Service.isResponseSuccess(rsp_wa)) {
-                            JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_wa ? rsp_wa.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                            ((JButton) toolbar.getComponent(1)).setEnabled(true);
-                            return;
-                        }
-                        FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        if (!Service.isResponseSuccess(rsp_cdb)) {
+                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_wa ? rsp_wa.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                        if (Service.isResponseSuccess(rsp_wa)) {
+                            FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                             JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_cdb ? rsp_cdb.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                            ((JButton) toolbar.getComponent(1)).setEnabled(true);
-                            return;
+                            
+                            if (args.has("user"))   c_user.setForeground(Color.darkGray);
+                            if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+                            if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
+                            args.clear();
                         }
-                        
-                        if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                        if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
-                        if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
-                        args.clear();
                         ((JButton) toolbar.getComponent(1)).setEnabled(true);
                     }
                 });

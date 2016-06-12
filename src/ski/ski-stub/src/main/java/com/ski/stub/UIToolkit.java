@@ -14,9 +14,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -542,72 +540,103 @@ public class UIToolkit {
     }
     
     public static BeanGameAccount chooseGameAccount() {
-        JCheckBox type_all = new JCheckBox("全部", true);
-        JCheckBox type_a   = new JCheckBox("可A租", true);
-        JCheckBox type_b   = new JCheckBox("可B租", true);
+        JCheckBox type_a   = new JCheckBox("A:〇", true);
+        JCheckBox type_b   = new JCheckBox("B:〇", true);
         
         FjListPane<String> pane = new FjListPane<String>();
         // 启用搜索框
         pane.enableSearchBar();
-        pane.getSearchBar().setSearchTypes(new String[] {"按账号名", "按游戏名"});
+        pane.getSearchBar().setSearchTypes(new String[] {"按游戏名", "按用户名", "按账号名"});
         pane.getSearchBar().setSearchTips("键入关键词搜索");
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<String>(pane.getList()) {
+            private boolean isMatchCheckBox(JCheckBox type_a, JCheckBox type_b, String celldata) {
+                return celldata.contains(type_a.getText()) && celldata.contains(type_b.getText());
+            }
             @Override
             public boolean isMatch(String type, String[] words, String celldata) {
-                if (null == type) return true;
-                
                 switch(type) {
-                case "按账号名":
+                case "按游戏名": {
+                    List<BeanGame> games = Service.map_game.values()
+                            .stream()
+                            .filter(game->{
+                                int count = 0;
+                                for (String word : words) if (game.c_name_zh.contains(word)) count++;
+                                if (count == words.length) return true;
+                                else return false;
+                            }).collect(Collectors.toList());
+                    List<BeanGameAccount> accounts = Service.set_game_account_game
+                            .stream()
+                            .filter(gag->{
+                                for (BeanGame game : games) {
+                                    if (game.i_gid == gag.i_gid) return true;
+                                }
+                                return false;
+                            })
+                            .map(gag->Service.map_game_account.get(gag.i_gaid))
+                            .collect(Collectors.toList());
+                    for (BeanGameAccount account : accounts) {
+                        if (!isMatchCheckBox(type_a, type_b, celldata)) continue;
+                        if (account.i_gaid == Integer.parseInt(celldata.split(" ")[0].split("x")[1], 16)) return true;
+                    }
+                    return false;
+                }
+                case "按用户名": {
+                    List<BeanChannelAccount> users = Service.map_channel_account.values()
+                            .stream()
+                            .filter(user->{
+                                int count1 = 0;
+                                for (String word : words) if (user.c_user.contains(word)) count1++;
+                                if (count1 == words.length) return true;
+                                else return false;
+                            }).collect(Collectors.toList());
+                    List<BeanGameAccount> accounts = Service.set_game_account_rent
+                            .stream()
+                            .filter(rent->{
+                                if (Service.RENT_STATE_RENT != rent.i_state) return false;
+                                for (BeanChannelAccount user : users) {
+                                    if (user.i_caid == rent.i_caid) return true;
+                                }
+                                return false;
+                            })
+                            .map(rent->Service.map_game_account.get(rent.i_gaid))
+                            .collect(Collectors.toList());
+                    for (BeanGameAccount account : accounts) {
+                        if (!isMatchCheckBox(type_a, type_b, celldata)) continue;
+                        if (account.i_gaid == Integer.parseInt(celldata.split(" ")[0].split("x")[1], 16)) return true;
+                    }
+                    return false;
+                }
+                case "按账号名": {
                     int count = 0;
                     for (String word : words) if (celldata.contains(word)) count++;
-                    return count == words.length && ((celldata.contains("可A租") && type_a.isSelected()) || (celldata.contains("可B租") && type_b.isSelected()));
-                case "按游戏名":
-                    List<BeanGame> games = Service.map_game.values().stream().filter(game->{
-                        int count1 = 0;
-                        for (String word : words) if (game.c_name_zh.contains(word)) count1++;
-                        if (count1 == words.length) return true;
-                        else return false;
-                    }).collect(Collectors.toList());
-                    Map<Integer, BeanGameAccount> accounts = new LinkedHashMap<Integer, BeanGameAccount>();
-                    games.forEach(game->{
-                        Service.set_game_account_game.forEach(bean->{
-                            if (game.i_gid == bean.i_gid) {
-                                if (!accounts.containsKey(bean.i_gaid)) {
-                                    accounts.put(bean.i_gaid, Service.map_game_account.get(bean.i_gaid));
-                                }
-                            }
-                        });
-                    });
-                    for (BeanGameAccount account : accounts.values())
-                        if (account.i_gaid == Integer.parseInt(celldata.split(" ")[0].split("x")[1], 16)) return true && ((celldata.contains("可A租") && type_a.isSelected()) || (celldata.contains("可B租") && type_b.isSelected()));
-                    return false;
+                    return count == words.length &&  isMatchCheckBox(type_a, type_b, celldata);
+                }
                 default:
                     return true;
                 }
             }
         });
-        
-        type_all.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                type_a.setSelected(type_all.isSelected());
-                type_b.setSelected(type_all.isSelected());
-                pane.getSearchBar().doSearch();
-            }
+
+        type_a.addActionListener(e->{
+            if (type_a.isSelected()) type_a.setText("A:〇");
+            else type_a.setText("A:●");
+            pane.getSearchBar().doSearch();
         });
-        type_a.addActionListener(e->pane.getSearchBar().doSearch());
-        type_b.addActionListener(e->pane.getSearchBar().doSearch());
+        type_b.addActionListener(e->{
+            if (type_b.isSelected()) type_b.setText("B:〇");
+            else type_b.setText("B:●");
+            pane.getSearchBar().doSearch();
+        });
         
         JPanel types = new JPanel();
         types.setBorder(BorderFactory.createTitledBorder("过滤条件"));
-        types.setLayout(new GridLayout(1, 3));
-        types.add(type_all);
+        types.setLayout(new GridLayout(1, 2));
         types.add(type_a);
         types.add(type_b);
         
         // 创建弹框
         JDialog dialog = new JDialog();
-        dialog.setTitle("选择游戏账号");
+        dialog.setTitle("选择游戏账号(〇:空闲;●:已租)");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(400, 500);
@@ -619,11 +648,9 @@ public class UIToolkit {
         
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
         Service.map_game_account.values().forEach(account->{
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s %s%s",
-                    account.i_gaid,
-                    account.c_user,
-                    Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_A) ? "[可A租]" : "",
-                    Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_B) ? "[可B租]" : ""));
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
+                    ( (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
+                    + (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -633,6 +660,7 @@ public class UIToolkit {
             });
             pane.getList().addCell(cell);
         });
+        pane.getSearchBar().doSearch();
         
         dialog.setVisible(true);
         
