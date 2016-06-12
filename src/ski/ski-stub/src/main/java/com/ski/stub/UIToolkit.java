@@ -325,6 +325,7 @@ public class UIToolkit {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 for (JComponent c : components) c.setVisible(false);
+                c_price.setText("0.00");
                 
                 switch(Integer.parseInt(i_oper_type.getSelectedItem().toString().split(" ")[0])) {
                 case 0: // 0 - 购买
@@ -363,6 +364,7 @@ public class UIToolkit {
                 case 7: // 7 - 赠券
                     c_price.setVisible(true);
                     c_price.setDefaultTips("输入优惠券金额");
+                    c_price.setText("10.00");
                     break;
                 }
                 Window window = SwingUtilities.getWindowAncestor(i_oper_type);
