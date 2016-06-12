@@ -219,11 +219,23 @@ public class MainFrame extends JFrame {
         menubar.add(mconfig);
         menubar.add(mhelp);
         
-        micreategame        .addActionListener(e->UIToolkit.createGame());
-        micreategameaccount .addActionListener(e->UIToolkit.createGameAccount());
-        micreateuser        .addActionListener(e->UIToolkit.createChannelAccount());
-        micreateorder       .addActionListener(e->UIToolkit.createOrder());
-        miabout             .addActionListener(e->JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
+        micreategame.addActionListener(e->{
+            UIToolkit.createGame();
+            updateGame();
+        });
+        micreategameaccount.addActionListener(e->{
+            UIToolkit.createGameAccount();
+            updateGameAccount();
+        });
+        micreateuser.addActionListener(e->{
+            UIToolkit.createChannelAccount();
+            updateChannelAccount();
+        });
+        micreateorder.addActionListener(e->{
+            UIToolkit.createOrder();
+            updateOrder();
+        });
+        miabout.addActionListener(e->JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
         
         return menubar;
     }
@@ -231,35 +243,14 @@ public class MainFrame extends JFrame {
     public void updateAll() {
         Service.doLater(new Runnable() {
             @Override
-            @SuppressWarnings("unchecked")
             public void run() {
                 ((JButton) toolbar.getComponent(0)).setEnabled(false);
                 boolean isfail = false;
                 try {
-                    Service.updateGame();
-                    Service.updateGameRentPrice();
-                    FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
-                    list_game.removeAllCell();
-                    Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
-                    
-                    Service.updateGameAccount();
-                    FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
-                    list_game_account.removeAllCell();
-                    Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
-                    
-                    Service.updateGameAccountGame();
-                    
-                    Service.updateGameAccountRent();
-                    
-                    Service.updateChannelAccount();
-                    FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
-                    list_channel_account.removeAllCell();
-                    Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
-                    
-                    Service.updateOrder();
-                    FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
-                    list_order.removeAllCell();
-                    Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
+                    updateGame();
+                    updateGameAccount();
+                    updateChannelAccount();
+                    updateOrder();
                 } catch (Exception e) {
                     isfail = true;
                     e.printStackTrace();
@@ -270,5 +261,41 @@ public class MainFrame extends JFrame {
                 ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }
         });
+    }
+    
+    private void updateGame() {
+        Service.updateGame();
+        Service.updateGameRentPrice();
+        
+        @SuppressWarnings("unchecked")
+        FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
+        list_game.removeAllCell();
+        Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
+    }
+    
+    private void updateGameAccount() {
+        Service.updateGameAccount();
+        Service.updateGameAccountGame();
+        Service.updateGameAccountRent();
+        @SuppressWarnings("unchecked")
+        FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
+        list_game_account.removeAllCell();
+        Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
+    }
+    
+    private void updateChannelAccount() {
+        Service.updateChannelAccount();
+        @SuppressWarnings("unchecked")
+        FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
+        list_channel_account.removeAllCell();
+        Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
+    }
+    
+    private void updateOrder() {
+        Service.updateOrder();
+        @SuppressWarnings("unchecked")
+        FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
+        list_order.removeAllCell();
+        Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
     }
 }
