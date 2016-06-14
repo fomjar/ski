@@ -5,6 +5,5 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>ski-common</groupId>
   <artifactId>ski-common</artifactId>
 </project>

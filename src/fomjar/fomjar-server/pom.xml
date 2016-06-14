@@ -5,11 +5,10 @@
     <artifactId>fomjar</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>fomjar-server</groupId>
   <artifactId>fomjar-server</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>fomjar-util</groupId>
+  		<groupId>fomjar</groupId>
   		<artifactId>fomjar-util</artifactId>
   		<version>0.0.1</version>
   	</dependency>

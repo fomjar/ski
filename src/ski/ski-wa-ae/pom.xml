@@ -8,7 +8,7 @@
   <artifactId>ski-wa-ae</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>ski-wa</groupId>
+  		<groupId>ski</groupId>
   		<artifactId>ski-wa</artifactId>
   		<version>0.0.1</version>
   	</dependency>

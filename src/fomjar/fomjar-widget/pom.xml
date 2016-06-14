@@ -5,6 +5,5 @@
     <artifactId>fomjar</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>fomjar-widget</groupId>
   <artifactId>fomjar-widget</artifactId>
 </project>

@@ -13,13 +13,11 @@
     <module>ski-cdb</module>
   	<module>ski-wa</module>
   	<module>ski-wa-ae</module>
-    
-
   	<module>ski-omc</module>
   </modules>
   <dependencies>
   	<dependency>
-  		<groupId>fomjar-server</groupId>
+  		<groupId>fomjar</groupId>
   		<artifactId>fomjar-server</artifactId>
   		<version>0.0.1</version>
   	</dependency>

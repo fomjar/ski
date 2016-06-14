@@ -5,7 +5,6 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>ski-wa</groupId>
   <artifactId>ski-wa</artifactId>
     <build>
         <plugins>
@@ -37,7 +36,7 @@
 			<version>2.49.1</version>
 		</dependency>
     	<dependency>
-    		<groupId>ski-common</groupId>
+    		<groupId>ski</groupId>
     		<artifactId>ski-common</artifactId>
     		<version>0.0.1</version>
     	</dependency>

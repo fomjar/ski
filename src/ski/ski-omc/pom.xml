@@ -5,16 +5,15 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <groupId>ski-omc</groupId>
   <artifactId>ski-omc</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>ski-common</groupId>
+  		<groupId>ski</groupId>
   		<artifactId>ski-common</artifactId>
   		<version>0.0.1</version>
   	</dependency>
   	<dependency>
-  		<groupId>fomjar-widget</groupId>
+  		<groupId>fomjar</groupId>
   		<artifactId>fomjar-widget</artifactId>
   		<version>0.0.1</version>
   	</dependency>
