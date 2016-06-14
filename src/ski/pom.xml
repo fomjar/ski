@@ -13,9 +13,9 @@
     <module>ski-cdb</module>
   	<module>ski-wa</module>
   	<module>ski-wa-ae</module>
-    <module>ski-omc</module>
-    <module>ski-stub</module>
     
+
+  	<module>ski-omc</module>
   </modules>
   <dependencies>
   	<dependency>
