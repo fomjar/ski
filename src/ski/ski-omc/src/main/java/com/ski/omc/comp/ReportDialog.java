@@ -1,4 +1,4 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;

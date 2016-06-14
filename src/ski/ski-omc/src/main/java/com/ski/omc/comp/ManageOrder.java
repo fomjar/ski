@@ -1,4 +1,4 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -19,11 +19,11 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListPane;
 import com.ski.common.SkiCommon;
-import com.ski.stub.Service;
-import com.ski.stub.UIToolkit;
-import com.ski.stub.bean.BeanChannelAccount;
-import com.ski.stub.bean.BeanOrder;
-import com.ski.stub.bean.BeanOrderItem;
+import com.ski.omc.Service;
+import com.ski.omc.UIToolkit;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanOrderItem;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;

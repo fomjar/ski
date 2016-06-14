@@ -1,4 +1,4 @@
-package com.ski.stub;
+package com.ski.omc;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -10,14 +10,14 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import com.ski.common.SkiCommon;
-import com.ski.stub.bean.BeanChannelAccount;
-import com.ski.stub.bean.BeanGame;
-import com.ski.stub.bean.BeanGameAccount;
-import com.ski.stub.bean.BeanGameAccountGame;
-import com.ski.stub.bean.BeanGameAccountRent;
-import com.ski.stub.bean.BeanGameRentPrice;
-import com.ski.stub.bean.BeanOrder;
-import com.ski.stub.bean.BeanOrderItem;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanGame;
+import com.ski.omc.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanGameAccountGame;
+import com.ski.omc.bean.BeanGameAccountRent;
+import com.ski.omc.bean.BeanGameRentPrice;
+import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanOrderItem;
 
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;

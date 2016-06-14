@@ -1,10 +1,10 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import com.ski.stub.Report;
-import com.ski.stub.bean.BeanChannelAccount;
+import com.ski.omc.Report;
+import com.ski.omc.bean.BeanChannelAccount;
 
 public class UCRDialog extends ReportDialog {
 

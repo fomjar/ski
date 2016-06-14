@@ -1,4 +1,4 @@
-package com.ski.stub;
+package com.ski.omc;
 
 public class Main {
     

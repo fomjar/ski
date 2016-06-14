@@ -1,4 +1,4 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -9,10 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.fomjar.widget.FjListCell;
-import com.ski.stub.Service;
-import com.ski.stub.bean.BeanGame;
-import com.ski.stub.bean.BeanGameAccount;
-import com.ski.stub.bean.BeanOrderItem;
+import com.ski.omc.Service;
+import com.ski.omc.bean.BeanGame;
+import com.ski.omc.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanOrderItem;
 
 public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
 

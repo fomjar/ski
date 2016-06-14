@@ -1,4 +1,4 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -15,10 +15,10 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
 import com.ski.common.SkiCommon;
-import com.ski.stub.MainFrame;
-import com.ski.stub.Service;
-import com.ski.stub.UIToolkit;
-import com.ski.stub.bean.BeanGame;
+import com.ski.omc.MainFrame;
+import com.ski.omc.Service;
+import com.ski.omc.UIToolkit;
+import com.ski.omc.bean.BeanGame;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;

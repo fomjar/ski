@@ -1,4 +1,4 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.fomjar.widget.FjListCell;
-import com.ski.stub.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanGameAccount;
 
 public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
     

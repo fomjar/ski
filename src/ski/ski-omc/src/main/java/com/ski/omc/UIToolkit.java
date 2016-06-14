@@ -1,4 +1,4 @@
-package com.ski.stub;
+package com.ski.omc;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -38,9 +38,9 @@ import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.SkiCommon;
-import com.ski.stub.bean.BeanChannelAccount;
-import com.ski.stub.bean.BeanGame;
-import com.ski.stub.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanGame;
+import com.ski.omc.bean.BeanGameAccount;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;

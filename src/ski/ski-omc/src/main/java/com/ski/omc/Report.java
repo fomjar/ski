@@ -1,4 +1,4 @@
-package com.ski.stub;
+package com.ski.omc;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.ski.stub.bean.BeanChannelAccount;
-import com.ski.stub.bean.BeanGame;
-import com.ski.stub.bean.BeanGameAccount;
-import com.ski.stub.bean.BeanOrder;
-import com.ski.stub.bean.BeanOrderItem;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanGame;
+import com.ski.omc.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanOrderItem;
 
 public class Report {
     

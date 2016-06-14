@@ -1,12 +1,12 @@
-package com.ski.stub.comp;
+package com.ski.omc.comp;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import com.ski.stub.Report;
-import com.ski.stub.Service;
-import com.ski.stub.bean.BeanChannelAccount;
-import com.ski.stub.bean.BeanOrderItem;
+import com.ski.omc.Report;
+import com.ski.omc.Service;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanOrderItem;
 
 public class OIRDialog extends ReportDialog {
 
