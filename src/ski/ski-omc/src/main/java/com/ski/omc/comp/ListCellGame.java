@@ -50,7 +50,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         i_price_b.setForeground(color_major);
         t_sale      = new FjEditLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
         t_sale.setForeground(color_minor);
-        c_country   = new FjEditLabel(0 == data.c_country.length() ? "(没有国家)" : data.t_sale);
+        c_country   = new FjEditLabel(0 == data.c_country.length() ? "(没有国家)" : data.c_country);
         c_country.setForeground(color_minor);
         b_update    = new JButton("更新");
         b_update.setMargin(new Insets(0, 0, 0, 0));
