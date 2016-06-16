@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
     
     private MainFrame() {
         setTitle("SKI-OMC-0.0.1 [" + Service.getWsiUrl() + ']');
-        setSize(500, 800);
+        setSize(600, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
@@ -71,7 +71,7 @@ public class MainFrame extends JFrame {
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
-        JButton refresh = new JButton(new ImageIcon(UIToolkit.loadImage("/com/ski/stub/refresh.png", 0.22)));
+        JButton refresh = new JButton(new ImageIcon(UIToolkit.loadImage("/com/ski/omc/refresh.png", 0.22)));
         toolbar.add(refresh);
         
         menubar = createMenuBar();

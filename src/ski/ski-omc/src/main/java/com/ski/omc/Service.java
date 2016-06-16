@@ -26,7 +26,7 @@ import net.sf.json.JSONObject;
 
 public class Service {
     
-    private static String HOST_SKI_WSI = "www.pan-o.cn";
+    private static String HOST_SKI_WSI = "craftvoid.com";
     public static void setWsiHost(String host) {HOST_SKI_WSI = host;}
     
     public static String getWsiUrl() {return String.format("http://%s:8080/ski-wsi", HOST_SKI_WSI);}
