@@ -1,16 +1,21 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingConstants;
 
 import com.fomjar.widget.FjListCell;
+import com.ski.omc.Service;
+import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
 
 public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
@@ -19,8 +24,11 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
     
     private JLabel c_user;
     private JLabel c_pass;
-    private JLabel i_gaid;
     private JLabel t_birth;
+    private JLabel i_gaid;
+    private JLabel c_channel_account_a;
+    private JLabel c_channel_account_b;
+    private JLabel c_games;
     
     public ListCellGameAccount(BeanGameAccount data) {
         super(data);
@@ -29,28 +37,51 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         c_user.setForeground(color_major);
         c_pass  = new JLabel(data.c_pass_curr);
         c_pass.setForeground(color_major);
+        t_birth = new JLabel(0 == data.t_birth.length() ? "(没有生日)" : data.t_birth);
+        t_birth.setForeground(color_minor);
         i_gaid  = new JLabel(String.format("0x%08X", data.i_gaid));
         i_gaid.setForeground(color_minor);
-        t_birth = new JLabel(data.t_birth);
-        t_birth.setForeground(color_minor);
+        i_gaid.setHorizontalAlignment(SwingConstants.RIGHT);
+        
+        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getUserByGameAccount(data.i_gaid, Service.RENT_TYPE_A));
+        c_channel_account_a = new JLabel("A租用户: " + (null != user_a ? user_a.c_user : "-"));
+        c_channel_account_a.setForeground(color_minor);
+        c_channel_account_a.setPreferredSize(new Dimension(100, 0));
+        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getUserByGameAccount(data.i_gaid, Service.RENT_TYPE_B));
+        c_channel_account_b = new JLabel("B租用户: " + (null != user_b ? user_b.c_user : "-"));
+        c_channel_account_b.setForeground(color_minor);
+        c_channel_account_b.setPreferredSize(new Dimension(100, 0));
+        List<BeanGame> games = Service.getGameAccountGames(data.i_gaid);
+        c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-"));
+        c_games.setForeground(color_minor);
+        c_games.setPreferredSize(new Dimension(280, 0));
         
         setLayout(new BorderLayout());
+        JPanel panel1 = new JPanel();
+        panel1.setOpaque(false);
+        panel1.setLayout(new GridLayout(1, 4));
+        panel1.add(c_user);
+        panel1.add(c_pass);
+        panel1.add(t_birth);
+        panel1.add(i_gaid);
+        
+        JPanel panel2 = new JPanel();
+        panel2.setOpaque(false);
+        panel2.setLayout(new GridLayout(1, 2));
+        panel2.add(c_channel_account_a);
+        panel2.add(c_channel_account_b);
+        
+        JPanel panel3 = new JPanel();
+        panel3.setOpaque(false);
+        panel3.setLayout(new BorderLayout());
+        panel3.add(c_games, BorderLayout.WEST);
+        panel3.add(panel2, BorderLayout.CENTER);
+        
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        panel.setLayout(new BorderLayout());
-        JPanel panel_center = new JPanel();
-        panel_center.setOpaque(false);
-        panel_center.setLayout(new GridLayout(2, 1));
-        panel_center.add(c_user);
-        panel_center.add(c_pass);
-        JPanel panel_east = new JPanel();
-        panel_east.setOpaque(false);
-        panel_east.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
-        panel_east.setLayout(new GridLayout(2, 1));
-        panel_east.add(i_gaid);
-        panel_east.add(t_birth);
-        panel.add(panel_center, BorderLayout.CENTER);
-        panel.add(panel_east, BorderLayout.EAST);
+        panel.setLayout(new GridLayout(2, 1));
+        panel.add(panel1);
+        panel.add(panel3);
         
         add(panel, BorderLayout.CENTER);
         
@@ -61,7 +92,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ManageGameAccount(SwingUtilities.getWindowAncestor(ListCellGameAccount.this), getData()).setVisible(true);
+                new ManageGameAccount(getData().i_gaid).setVisible(true);
             }
         });
     }

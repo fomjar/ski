@@ -3,6 +3,7 @@ package com.ski.omc.comp;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -30,7 +31,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         i_oper_type.setForeground(color_major);
         t_oper_time = new JLabel(data.t_oper_time);
         t_oper_time.setForeground(color_major);
-        c_oper_args = new JLabel("<html>" + generateArgsDescription(data));
+        c_oper_args = new JLabel("<html>" + generateArgsDesc(data));
         c_oper_args.setForeground(color_minor);
         
         JPanel panel1 = new JPanel();
@@ -67,7 +68,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
         return null;
     }
     
-    private static String generateArgsDescription(BeanOrderItem item) {
+    private static String generateArgsDesc(BeanOrderItem item) {
         switch (item.i_oper_type) {
         case Service.OPER_TYPE_BUY:         return item.c_oper_arg0;
         case Service.OPER_TYPE_RECHARGE:    return String.format(
@@ -85,7 +86,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "备注：%s",
                     item.c_oper_arg0,
                     null != account ? account.c_user : "-", item.c_oper_arg2,
-                    (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
+                    !games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_END:    {
@@ -96,7 +97,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "游戏：%s<br/>"
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
-                    (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
+                    !games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_PAUSE:  {
@@ -107,7 +108,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "游戏：%s<br/>"
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
-                    (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
+                    !games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_RESUME: {
@@ -118,7 +119,7 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "游戏：%s<br/>"
                     + "备注：%s",
                     null != account ? account.c_user : "-", item.c_oper_arg2,
-                    (null != games && !games.isEmpty()) ? games.get(0).c_name_zh : "-",
+                    !games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     0 == item.c_remark.length() ? "-" : item.c_remark);
         }
         case Service.OPER_TYPE_RENT_SWAP:   {
@@ -134,9 +135,9 @@ public class ListCellOrderItem extends FjListCell<BeanOrderItem> {
                     + "(新)单价：%s元/天<br/>"
                     + "备注：%s",
                     null != account2 ? account2.c_user : "-", item.c_oper_arg4,
-                    (null != games2 && !games2.isEmpty()) ? games2.get(0).c_name_zh : "-",
+                    !games2.isEmpty() ? games2.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     null != account1 ? account1.c_user : "-", item.c_oper_arg2,
-                    (null != games1 && !games1.isEmpty()) ? games1.get(0).c_name_zh : "-",
+                    !games1.isEmpty() ? games1.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-",
                     item.c_oper_arg0,
                     0 == item.c_remark.length() ? "-" : item.c_remark);
         }

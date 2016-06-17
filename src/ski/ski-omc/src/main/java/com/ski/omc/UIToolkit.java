@@ -32,7 +32,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
-import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
@@ -78,7 +77,7 @@ public class UIToolkit {
         return img;
     }
     
-    public static JPanel createBasicInfoLabel(String label, FjEditLabel field) {
+    public static JPanel createBasicInfoLabel(String label, JComponent field) {
         JLabel jlabel = new JLabel(label);
         jlabel.setPreferredSize(new Dimension(80, 0));
         
@@ -253,9 +252,9 @@ public class UIToolkit {
                 case 2: // 2 - 起租
                 case 6: // 6 - 换租
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
-                    if (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_A))
+                    if (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_A))
                         ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：A");
-                    if (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_B))
+                    if (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_B))
                         ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：B");
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此账号A/B类均已在租赁当中，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
@@ -266,9 +265,9 @@ public class UIToolkit {
                 case 4: // 4 - 停租
                 case 5: // 5 - 续租
                     game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
-                    if (Service.map_order.get(oid).i_caid == Service.getGameAccountCurrentRentUser(account.i_gaid, Service.RENT_TYPE_A))
+                    if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
                         ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：A");
-                    if (Service.map_order.get(oid).i_caid == Service.getGameAccountCurrentRentUser(account.i_gaid, Service.RENT_TYPE_B))
+                    if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
                         ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：B");
                     if (0 == rent_type.getModel().getSize()) {
                         JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
@@ -298,9 +297,9 @@ public class UIToolkit {
             while (null != (account = chooseGameAccount())) {
                 game_account_label_old.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
                 ((DefaultComboBoxModel<String>) rent_type_old.getModel()).removeAllElements();
-                if (Service.map_order.get(oid).i_caid == Service.getGameAccountCurrentRentUser(account.i_gaid, Service.RENT_TYPE_A))
+                if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) rent_type_old.getModel()).addElement("租赁类型：A");
-                if (Service.map_order.get(oid).i_caid == Service.getGameAccountCurrentRentUser(account.i_gaid, Service.RENT_TYPE_B))
+                if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
                     ((DefaultComboBoxModel<String>) rent_type_old.getModel()).addElement("租赁类型：B");
                 if (0 == rent_type_old.getModel().getSize()) {
                     JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
@@ -651,8 +650,8 @@ public class UIToolkit {
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
         Service.map_game_account.values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
-                    ( (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
-                    + (Service.RENT_STATE_IDLE == Service.getGameAccountCurrentRentState(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
+                    ( (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
+                    + (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

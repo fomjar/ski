@@ -96,9 +96,9 @@ public class FjSessionContext {
     /** 获取会话中缓存的所有收到的消息，按照会话序列号排序返回 */
     public List<FjDscpMessage> msgs() {
         return data.entrySet().stream()
-                .filter ((entry)->         {return entry.getKey().startsWith("msg.");})
-                .sorted ((entry1, entry2)->{return entry1.getKey().compareTo(entry2.getKey());})
-                .map    ((entry)->         {return (FjDscpMessage) entry.getValue();})
+                .filter (entry->entry.getKey().startsWith("msg."))
+                .sorted ((entry1, entry2)->entry1.getKey().compareTo(entry2.getKey()))
+                .map    (entry->(FjDscpMessage) entry.getValue())
                 .collect(Collectors.toList());
     }
 }

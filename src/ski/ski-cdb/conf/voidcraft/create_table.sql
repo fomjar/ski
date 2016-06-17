@@ -112,7 +112,7 @@ drop table if exists tbl_channel_account;
 create table tbl_channel_account (
     i_caid      integer,        -- 渠道账户ID
     c_user      varchar(32),    -- 用户名
-    i_channel   tinyint,        -- 渠道：0-淘宝 1-微信
+    i_channel   tinyint,        -- 渠道：0-淘宝 1-微信 2-支付宝
     c_nick      varchar(32),    -- 昵称
     i_gender    tinyint,        -- 性别：0-女 1-男 2-人妖
     c_phone     varchar(20),    -- 电话

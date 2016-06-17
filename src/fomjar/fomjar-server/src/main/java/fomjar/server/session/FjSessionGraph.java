@@ -192,12 +192,9 @@ public class FjSessionGraph {
             synchronized(contexts) {
                 toclose = contexts.entrySet()
                         .stream()
-                        .filter((entry)->{
-                            FjSessionContext context = entry.getValue();
-                            return timeout <= System.currentTimeMillis() - context.getLong("time.open"); 
-                        }).map((entry)->{
-                            return entry.getKey();
-                        }).collect(Collectors.toList());
+                        .filter(entry->timeout <= System.currentTimeMillis() - entry.getValue().getLong("time.open"))
+                        .map(entry->entry.getKey())
+                        .collect(Collectors.toList());
             }
             if (null != toclose) {
                 for (String sid : toclose) {

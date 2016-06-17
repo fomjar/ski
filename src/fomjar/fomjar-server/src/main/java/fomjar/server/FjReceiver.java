@@ -73,7 +73,7 @@ public class FjReceiver extends FjLoopTask {
             }
         } catch (IOException e) {e.printStackTrace();}
             Set<SelectionKey> keys = selector.selectedKeys();
-            keys.forEach((key)->{
+            keys.forEach(key->{
                 try {
                     if (key.isAcceptable()) {
                         SocketChannel conn = ((ServerSocketChannel) key.channel()).accept();

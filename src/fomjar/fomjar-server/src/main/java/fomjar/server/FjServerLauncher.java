@@ -16,15 +16,15 @@ public class FjServerLauncher {
         String delimiter = System.getProperty("os.name").contains("indow") ? ";" : ":";
         return Arrays.asList(lib.listFiles())
                 .stream()
-                .map((file)->{return "lib/" + file.getName();})
+                .map(file->"lib/" + file.getName())
                 .collect(Collectors.joining(delimiter));
     }
     
     private static String collectJvmOptions(String[] args) {
         return Arrays.asList(args)
                 .stream()
-                .filter((arg)->{return arg.startsWith("-J");})
-                .map((arg)->{
+                .filter(arg->arg.startsWith("-J"))
+                .map(arg->{
                     String opt = arg.substring(2);
                     if (opt.startsWith("\"")) opt = opt.substring(1);
                     if (opt.endsWith("\""))   opt = opt.substring(0, opt.length() - 1);
@@ -36,7 +36,7 @@ public class FjServerLauncher {
     private static List<String> collectServerName(String[] args) {
         return Arrays.asList(args)
                 .stream()
-                .filter((arg)->{return !arg.startsWith("-J");})
+                .filter(arg->!arg.startsWith("-J"))
                 .collect(Collectors.toList());
     }
     

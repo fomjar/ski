@@ -4,7 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Window;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -39,14 +39,14 @@ public class ManageGameAccount extends JDialog {
     private FjEditLabel t_birth;
     private FjListPane<String> listpane;
     
-    public ManageGameAccount(Window owner, BeanGameAccount account) {
-        super(owner, "管理账号“" + account.c_user + "”");
+    public ManageGameAccount(int gaid) {
+        BeanGameAccount account = Service.map_game_account.get(gaid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("更新到DB"));
         toolbar.add(new JButton("更新到DB和PS"));
-        toolbar.add(new JButton("校验此账户"));
+        toolbar.add(new JButton("测试账号"));
         toolbar.addSeparator();
         toolbar.add(new JButton("添加游戏"));
         i_gaid = new FjEditLabel(String.format("0x%08X", account.i_gaid), false);
@@ -55,7 +55,7 @@ public class ManageGameAccount extends JDialog {
         t_birth = new FjEditLabel(account.t_birth);
         
         listpane = new FjListPane<String>();
-        listpane.setBorder(BorderFactory.createTitledBorder(listpane.getBorder(), "拥有的游戏"));
+        listpane.setBorder(BorderFactory.createTitledBorder(listpane.getBorder(), "包含游戏"));
         
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
@@ -74,10 +74,12 @@ public class ManageGameAccount extends JDialog {
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(panel_center, BorderLayout.CENTER);
         
+        setTitle(String.format("管理账号“%s”", account.c_user));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 300));
-        setLocation(owner.getX() - (getWidth() - owner.getWidth()) / 2, owner.getY() - (getHeight() - owner.getHeight()) / 2);
+        Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
         registerListener();
         

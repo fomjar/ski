@@ -4,9 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Window;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collection;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjEditLabel;
+import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListPane;
 import com.ski.common.SkiCommon;
@@ -37,11 +39,11 @@ public class ManageOrder extends JDialog {
     private FjEditLabel i_platform;
     private FjEditLabel i_caid;
     private FjEditLabel t_create;
-    private FjListPane<BeanOrderItem> listpane;
+    private FjListPane<String> pane_accounts;
+    private FjListPane<BeanOrderItem> pane_order_items;
     
-    public ManageOrder(Window owner, BeanOrder order) {
-        super(owner, String.format("管理订单“0x%08X”", order.i_oid));
-        
+    public ManageOrder(int oid) {
+        BeanOrder order = Service.map_order.get(oid);
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("更新"));
@@ -53,8 +55,10 @@ public class ManageOrder extends JDialog {
         i_caid      = new FjEditLabel(Service.map_channel_account.get(order.i_caid).c_user);
         t_create    = new FjEditLabel(order.t_create);
         
-        listpane    = new FjListPane<BeanOrderItem>();
-        listpane.setBorder(BorderFactory.createTitledBorder(listpane.getBorder(), "订单项"));
+        pane_accounts       = new FjListPane<String>();
+        pane_accounts.setBorder(BorderFactory.createTitledBorder(pane_accounts.getBorder(), "关联账号"));
+        pane_order_items    = new FjListPane<BeanOrderItem>();
+        pane_order_items.setBorder(BorderFactory.createTitledBorder(pane_order_items.getBorder(), "订单项"));
         
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
@@ -64,23 +68,30 @@ public class ManageOrder extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户", i_caid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("创建", t_create));
         
+        JPanel panel_accounts = new JPanel();
+        panel_accounts.setLayout(new BorderLayout());
+        panel_accounts.add(pane_accounts, BorderLayout.NORTH);
+        panel_accounts.add(pane_order_items, BorderLayout.CENTER);
+        
         JPanel panel_center = new JPanel();
         panel_center.setLayout(new BorderLayout());
         panel_center.add(panel_basic, BorderLayout.NORTH);
-        panel_center.add(listpane, BorderLayout.CENTER);
+        panel_center.add(panel_accounts, BorderLayout.CENTER);
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(panel_center, BorderLayout.CENTER);
         
+        setTitle(String.format("管理订单“0x%08X”", order.i_oid));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 500));
-        setLocation(owner.getX() - (getWidth() - owner.getWidth()) / 2, owner.getY() - (getHeight() - owner.getHeight()) / 2);
+        Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
         registerListener();
         
-        updateOrderItem();
+        updateAccountNOrderItem();
     }
     
     private JSONObject args = new JSONObject();
@@ -158,7 +169,7 @@ public class ManageOrder extends JDialog {
                 
                 Service.updateOrder();
                 Service.updateGameAccountRent();
-                updateOrderItem();
+                updateAccountNOrderItem();
             }
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
@@ -169,8 +180,18 @@ public class ManageOrder extends JDialog {
         });
     }
 
-    private void updateOrderItem() {
-        listpane.getList().removeAllCell();
-        Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).order_items.values().forEach(item->listpane.getList().addCell(new ListCellOrderItem(item)));
+    private void updateAccountNOrderItem() {
+        Collection<BeanOrderItem> order_items = Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).order_items.values();
+        pane_accounts.getList().removeAllCell();
+        order_items
+                .stream()
+                .filter(oi->oi.i_oper_type == Service.OPER_TYPE_RENT_BEGIN || oi.i_oper_type == Service.OPER_TYPE_RENT_SWAP)
+                .forEach(item->{
+                    FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", Integer.parseInt(item.c_oper_arg1, 16), Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16)).c_user), item.c_oper_arg2 + "类");
+                    cell.addActionListener(e->new ManageGameAccount(Integer.parseInt(item.c_oper_arg1, 16)).setVisible(true));
+                    pane_accounts.getList().addCell(cell);
+                });
+        pane_order_items.getList().removeAllCell();
+        order_items.forEach(item->pane_order_items.getList().addCell(new ListCellOrderItem(item)));
     }
 }

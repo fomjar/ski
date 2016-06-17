@@ -1,144 +1,91 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
-import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjListCell;
-import com.fomjar.widget.FjEditLabel.EditListener;
-import com.ski.common.SkiCommon;
 import com.ski.omc.Service;
-import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
-
-import fomjar.server.msg.FjDscpMessage;
-import net.sf.json.JSONObject;
+import com.ski.omc.bean.BeanGameAccount;
 
 public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
 
     private static final long serialVersionUID = 6691136971313150684L;
     
-    private FjEditLabel i_channel;
-    private FjEditLabel c_user;
-    private FjEditLabel c_phone;
-    private FjEditLabel i_caid;
-    private JButton     b_update;
+    private JLabel  i_channel;
+    private JLabel  c_user;
+    private JLabel  c_phone;
+    private JLabel  i_caid;
+    private JLabel  c_accounts_a;
+    private JLabel  c_accounts_b;
 
-    public ListCellChannelAccount(BeanChannelAccount data) {
-        super(data);
+    public ListCellChannelAccount(BeanChannelAccount user) {
+        super(user);
         
-        i_channel = new FjEditLabel(0 == data.i_channel ? "[淘宝]" : 1 == data.i_channel ? "[微信]" : 2 == data.i_channel ? "[支付宝]" : "[未知]");
+        i_channel = new JLabel("[" + getUserTypeDesc(user.i_channel) + "] ");
         i_channel.setForeground(color_major);
         i_channel.setFont(i_channel.getFont().deriveFont(Font.ITALIC));
-        c_user    = new FjEditLabel(data.c_user);
+        c_user    = new JLabel(user.c_user);
         c_user.setForeground(color_major);
-        c_user.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
-        c_phone   = new FjEditLabel(0 == data.c_phone.length() ? "(没有电话)" : data.c_phone);
+        c_phone   = new JLabel(0 == user.c_phone.length() ? "(没有电话)" : user.c_phone);
         c_phone.setForeground(color_major);
-        i_caid    = new FjEditLabel(String.format("0x%08X", data.i_caid), false);
+        i_caid    = new JLabel(String.format("0x%08X", user.i_caid));
         i_caid.setForeground(color_minor);
-        b_update  = new JButton("更新");
-        b_update.setMargin(new Insets(0, 0, 0, 0));
+        i_caid.setHorizontalAlignment(SwingConstants.RIGHT);
+        List<BeanGameAccount> accounts_a = Service.getGameAccountByUser(user.i_caid, Service.RENT_TYPE_A);
+        c_accounts_a = new JLabel("A租账号: " + (!accounts_a.isEmpty() ? accounts_a.stream().map(a->a.c_user).collect(Collectors.joining("; ")) : "-"));
+        c_accounts_a.setForeground(color_minor);
+        c_accounts_a.setPreferredSize(new Dimension(240, 0));
+        List<BeanGameAccount> accounts_b = Service.getGameAccountByUser(user.i_caid, Service.RENT_TYPE_B);
+        c_accounts_b = new JLabel("B租账号: " + (!accounts_b.isEmpty() ? accounts_b.stream().map(b->b.c_user).collect(Collectors.joining("; ")) : "-"));
+        c_accounts_b.setForeground(color_minor);
+        c_accounts_b.setPreferredSize(new Dimension(240, 0));
         
-        JPanel panel_center1 = new JPanel();
-        panel_center1.setOpaque(false);
-        panel_center1.setLayout(new BorderLayout());
-        panel_center1.add(i_channel, BorderLayout.WEST);
-        panel_center1.add(c_user, BorderLayout.CENTER);
+        JPanel panel1 = new JPanel();
+        panel1.setOpaque(false);
+        panel1.setLayout(new GridLayout(1, 2));
+        panel1.add(c_phone);
+        panel1.add(i_caid);
         
-        JPanel panel_center0 = new JPanel();
-        panel_center0.setOpaque(false);
-        panel_center0.setLayout(new GridLayout(2, 1));
-        panel_center0.add(panel_center1);
-        panel_center0.add(c_phone);
+        JPanel panel_up = new JPanel();
+        panel_up.setOpaque(false);
+        panel_up.setLayout(new BorderLayout());
+        panel_up.add(i_channel, BorderLayout.WEST);
+        panel_up.add(c_user, BorderLayout.CENTER);
+        panel_up.add(panel1, BorderLayout.EAST);
         
-        JPanel panel_east0 = new JPanel();
-        panel_east0.setOpaque(false);
-        panel_east0.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
-        panel_east0.setLayout(new GridLayout(2, 1));
-        panel_east0.add(i_caid);
+        JPanel panel_down = new JPanel();
+        panel_down.setOpaque(false);
+        panel_down.setLayout(new GridLayout(1, 2));
+        panel_down.add(c_accounts_a);
+        panel_down.add(c_accounts_b);
         
-        JPanel panel_center = new JPanel();
-        panel_center.setOpaque(false);
-        panel_center.setLayout(new BorderLayout());
-        panel_center.add(panel_center0, BorderLayout.CENTER);
-        panel_center.add(panel_east0, BorderLayout.EAST);
+        JPanel panel = new JPanel();
+        panel.setOpaque(false);
+        panel.setLayout(new GridLayout(2, 1));
+        panel.add(panel_up);
+        panel.add(panel_down);
         
         setLayout(new BorderLayout());
-        add(panel_center, BorderLayout.CENTER);
-        add(b_update, BorderLayout.EAST);
+        add(panel, BorderLayout.CENTER);
         
-        passthroughMouseEvent(panel_center);
-        
-        registerListener();
+        addActionListener(e->new ManageChannelAccount(user.i_caid).setVisible(true));
     }
     
-        
-    private JSONObject args = new JSONObject();
-        
-    private void registerListener() {
-        i_channel.addEditListener(new EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("caid", Integer.parseInt(i_caid.getText().split("x")[1], 16));
-                if (i_channel.getText().contains("淘宝")) args.put("channel", 0);
-                if (i_channel.getText().contains("微信")) args.put("channel", 1);
-                i_channel.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_user.addEditListener(new EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("caid", Integer.parseInt(i_caid.getText().split("x")[1], 16));
-                args.put("user", c_user.getText());
-                c_user.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_phone.addEditListener(new EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("caid", Integer.parseInt(i_caid.getText().split("x")[1], 16));
-                args.put("phone", c_phone.getText());
-                c_phone.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        b_update.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (args.isEmpty()) {
-                    JOptionPane.showConfirmDialog(ListCellChannelAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
-                    return;
-                }
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(ListCellChannelAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                if (null != rsp && Service.isResponseSuccess(rsp)) {
-                    if (args.has("channel"))    i_channel.setForeground(color_major);
-                    if (args.has("user"))       c_user.setForeground(color_major);
-                    if (args.has("phone"))      c_phone.setForeground(color_major);
-                    args.clear();
-                }
-            }
-        });
+    private static String getUserTypeDesc(int channel) {
+        switch (channel) {
+        case Service.USER_TYPE_TAOBAO: return "淘宝";
+        case Service.USER_TYPE_WECHAT: return "微信";
+        case Service.USER_TYPE_ALIPAY: return "支付宝";
+        default: return "未知";
+        }
     }
 }

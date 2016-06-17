@@ -26,7 +26,7 @@ import net.sf.json.JSONObject;
 
 public class Service {
     
-    private static String HOST_SKI_WSI = "craftvoid.com";
+    private static String HOST_SKI_WSI = "ski.craftvoid.com";
     public static void setWsiHost(String host) {HOST_SKI_WSI = host;}
     
     public static String getWsiUrl() {return String.format("http://%s:8080/ski-wsi", HOST_SKI_WSI);}
@@ -38,6 +38,10 @@ public class Service {
     public static final Map<Integer, BeanChannelAccount>    map_channel_account     = new LinkedHashMap<Integer, BeanChannelAccount>(); // caid
     public static final Map<Integer, BeanOrder>             map_order               = new LinkedHashMap<Integer, BeanOrder>();          // oid
     public static final Map<String, BeanGameRentPrice>      map_game_rent_price     = new LinkedHashMap<String, BeanGameRentPrice>();   // gid + type
+    
+    public static final int USER_TYPE_TAOBAO = 0;
+    public static final int USER_TYPE_WECHAT = 1;
+    public static final int USER_TYPE_ALIPAY = 2;
     
     public static final int RENT_TYPE_A = 0;
     public static final int RENT_TYPE_B = 1;
@@ -191,7 +195,7 @@ public class Service {
         }
     }
     
-    public static int getGameAccountCurrentRentState(int gaid, int type) {
+    public static int getGameAccountRentState(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
             if (rent.i_gaid == gaid) {
                 if (rent.i_type != type) continue; // 只看对应类型的
@@ -204,22 +208,29 @@ public class Service {
         return RENT_STATE_IDLE; // 没有非空闲，则空闲
     }
     
-    public static int getGameAccountCurrentRentUser(int gaid, int type) {
+    public static int getUserByGameAccount(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
-            if (rent.i_gaid == gaid && rent.i_type == type) {
-                if (RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
-                else return -1;
-            }
+            if (rent.i_gaid == gaid && rent.i_type == type && RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
         }
         
         return -1; // 没有租赁用户
     }
     
+    public static List<BeanGameAccount> getGameAccountByUser(int caid, int type) {
+        return set_game_account_rent
+                .stream()
+                .filter(rent->rent.i_caid == caid)
+                .filter(rent->rent.i_state == RENT_STATE_RENT)
+                .filter(rent->rent.i_type == type)
+                .map(rent->map_game_account.get(rent.i_gaid))
+                .collect(Collectors.toList());
+    }
+    
     public static List<BeanGame> getGameAccountGames(int gaid) {
         return set_game_account_game
                 .stream()
-                .filter(gag->{return gag.i_gaid == gaid;})
-                .map(gag->{return map_game.get(gag.i_gid);})
+                .filter(gag->gag.i_gaid == gaid)
+                .map(gag->map_game.get(gag.i_gid))
                 .collect(Collectors.toList());
     }
     

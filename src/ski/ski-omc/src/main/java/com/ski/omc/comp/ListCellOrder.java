@@ -5,9 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
 
 import com.fomjar.widget.FjListCell;
 import com.ski.omc.Service;
@@ -23,12 +21,11 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
 
     public ListCellOrder(BeanOrder data) {
         super(data);
-        i_platform = new JLabel(0 == data.i_platform ? "[淘宝]" : "[微信]");
+        i_platform = new JLabel(0 == data.i_platform ? "[淘宝] " : "[微信] ");
         i_platform.setForeground(color_major);
         i_platform.setFont(i_platform.getFont().deriveFont(Font.ITALIC));
         i_caid = new JLabel(Service.map_channel_account.get(data.i_caid).c_user);
         i_caid.setForeground(color_major);
-        i_caid.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 0));
         t_create = new JLabel(data.t_create);
         t_create.setForeground(color_major);
         i_oid = new JLabel(String.format("0x%08X", data.i_oid));
@@ -47,7 +44,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
         addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new ManageOrder(SwingUtilities.getWindowAncestor(ListCellOrder.this), getData()).setVisible(true);
+                new ManageOrder(getData().i_oid).setVisible(true);
             }
         });
     }
