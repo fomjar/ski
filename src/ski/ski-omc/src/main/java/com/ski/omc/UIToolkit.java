@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -203,6 +205,7 @@ public class UIToolkit {
         panel.add(i_platform);
         panel.add(i_caid);
         
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == i_caid_label.getText().length()) {
                 JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
@@ -211,13 +214,14 @@ public class UIToolkit {
             JSONObject args = new JSONObject();
             args.put("platform", Integer.parseInt(i_platform.getSelectedItem().toString().split(" ")[0]));
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
+            args.put("open", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
     
-    public static void createOrderItem(int oid) {
+    public static void createOrderCommodity(int oid) {
         JLabel              i_oid = new JLabel(String.format("订单编号：0x%08X", oid));
         i_oid.setPreferredSize(new Dimension(360, 0));
         JComboBox<String>   i_oper_type = new JComboBox<String>(new String[] {"0 - 购买", "1 - 充值", "2 - 起租", "3 - 退租", "4 - 停租", "5 - 续租", "6 - 换租", "7 - 赠券"});
@@ -489,7 +493,7 @@ public class UIToolkit {
                 args.put("oper_arg0", c_price.getText());
                 break;
             }
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER_ITEM, args);
+            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
             JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
@@ -576,6 +580,7 @@ public class UIToolkit {
                             .map(gag->Service.map_game_account.get(gag.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
+                        if (null == account) continue;
                         if (!isMatchCheckBox(type_a, type_b, celldata)) continue;
                         if (account.i_gaid == Integer.parseInt(celldata.split(" ")[0].split("x")[1], 16)) return true;
                     }
@@ -602,6 +607,7 @@ public class UIToolkit {
                             .map(rent->Service.map_game_account.get(rent.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
+                        if (null == account) continue;
                         if (!isMatchCheckBox(type_a, type_b, celldata)) continue;
                         if (account.i_gaid == Integer.parseInt(celldata.split(" ")[0].split("x")[1], 16)) return true;
                     }

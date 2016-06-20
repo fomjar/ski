@@ -17,7 +17,7 @@ import com.ski.omc.bean.BeanGameAccountGame;
 import com.ski.omc.bean.BeanGameAccountRent;
 import com.ski.omc.bean.BeanGameRentPrice;
 import com.ski.omc.bean.BeanOrder;
-import com.ski.omc.bean.BeanOrderItem;
+import com.ski.omc.bean.BeanCommodity;
 
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
@@ -166,18 +166,18 @@ public class Service {
                 BeanOrder bean = new BeanOrder(line);
                 Service.map_order.put(bean.i_oid, bean);
             }
-            updateOrderItem();
+            updateCommodity();
         }
     }
     
-    private static void updateOrderItem() {
-        String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_ORDER_ITEM, null));
+    private static void updateCommodity() {
+        String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_COMMODITY, null));
         
         if (null != rsp && !"null".equals(rsp)) {
             String[] lines = rsp.split("\n");
             for (String line : lines) {
-                BeanOrderItem bean = new BeanOrderItem(line);
-                if (Service.map_order.containsKey(bean.i_oid)) Service.map_order.get(bean.i_oid).order_items.put(bean.i_oisn, bean);
+                BeanCommodity bean = new BeanCommodity(line);
+                if (Service.map_order.containsKey(bean.i_oid)) Service.map_order.get(bean.i_oid).commodities.put(bean.i_csn, bean);
             }
         }
     }

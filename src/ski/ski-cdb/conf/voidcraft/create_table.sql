@@ -17,12 +17,14 @@ create table tbl_platform_account (
     c_mobile    varchar(20),    -- 手机
     c_email     varchar(32),    -- 邮箱
     t_create    datetime,       -- 创建时间
-    t_birth     date            -- 出生日期
+    t_birth     date,           -- 出生日期
+    i_balance   decimal(9, 2),  -- 现金余额（可退的）
+    i_coupon    decimal(9, 2)   -- 优惠券（不可退）
 );
 
 -- 平台账户与渠道账户的关系
-drop table if exists tbl_platform_account_relationship;
-create table tbl_platform_account_relationship (
+drop table if exists tbl_platform_account_map;
+create table tbl_platform_account_map (
     i_paid      integer,    -- 平台账户ID
     i_caid      integer     -- 渠道账户ID
 );
@@ -82,29 +84,32 @@ create table tbl_game (
 drop table if exists tbl_order;
 create table tbl_order (
     i_oid       integer,        -- 订单ID
-    i_platform  tinyint,        -- 平台类型：0-淘宝 1-微信 2-支付宝
+    i_platform  tinyint,        -- 订单来源平台类型：0-淘宝 1-微信
     i_caid      integer,        -- 渠道账户ID
-    t_create    datetime        -- 创建时间
+    t_open      datetime,       -- 打开时间
+    t_close     datetime        -- 关闭时间
 );
 
--- 订单项
-drop table if exists tbl_order_item;
-create table tbl_order_item (
-    i_oid           integer,        -- 平台订单ID
-    i_oisn          integer,
-    t_oper_time     datetime,
-    i_oper_type     integer,        -- 操作类型，0-购买，1-充值，2-起租，3-退租，4-停租，5-续租，6-换租，7-赠券
-    c_remark        varchar(64),
-    c_oper_arg0     varchar(64),    -- 参数
-    c_oper_arg1     varchar(64),    -- 参数
-    c_oper_arg2     varchar(64),    -- 参数
-    c_oper_arg3     varchar(64),    -- 参数
-    c_oper_arg4     varchar(64),    -- 参数
-    c_oper_arg5     varchar(64),    -- 参数
-    c_oper_arg6     varchar(64),    -- 参数
-    c_oper_arg7     varchar(64),    -- 参数
-    c_oper_arg8     varchar(64),    -- 参数
-    c_oper_arg9     varchar(64)     -- 参数
+-- 商品
+drop table if exists tbl_commodity;
+create table tbl_commodity (
+    i_oid       integer,        -- 订单ID
+    i_csn       integer,        -- 商品序列号
+    c_remark    varchar(64),    -- 备注
+    i_price     decimal(9, 2),  -- 单价
+    t_begin     datetime,       -- 购买/租用开始时间
+    t_end       datetime,       -- 购买/租用结束时间
+    i_expense   decimal(9, 2),  -- 商品费用
+    c_arg0      varchar(64),    -- 参数0
+    c_arg1      varchar(64),    -- 参数1
+    c_arg2      varchar(64),    -- 参数2
+    c_arg3      varchar(64),    -- 参数3
+    c_arg4      varchar(64),    -- 参数4
+    c_arg5      varchar(64),    -- 参数5
+    c_arg6      varchar(64),    -- 参数6
+    c_arg7      varchar(64),    -- 参数7
+    c_arg8      varchar(64),    -- 参数8
+    c_arg9      varchar(64)     -- 参数9
 );
 
 -- 渠道账户信息

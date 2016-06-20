@@ -8,20 +8,21 @@ begin
     declare i_oid       integer     default -1;
     declare i_platform  integer     default -1;
     declare i_caid      integer     default -1;
-    declare t_create    datetime    default null;
+    declare t_open      datetime    default null;
+    declare t_close     datetime    default null;
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select o.i_oid, o.i_platform, o.i_caid, o.t_create
+                        select o.i_oid, o.i_platform, o.i_caid, o.t_open, o.t_close
                           from tbl_order o
-                         order by o.t_create desc;
+                         order by o.t_open desc;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_oid, i_platform, i_caid, t_create;
+    fetch rs into i_oid, i_platform, i_caid, t_open, t_close;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -36,10 +37,12 @@ begin
                 '\t',
                 conv(i_caid, 10, 16),
                 '\t',
-                ifnull(t_create, '')
+                ifnull(t_open, ''),
+                '\t',
+                ifnull(t_close, '')
         );
 
-        fetch rs into i_oid, i_platform, i_caid, t_create;
+        fetch rs into i_oid, i_platform, i_caid, t_open, t_close;
     end while;
     /* 关闭游标 */
     close rs;

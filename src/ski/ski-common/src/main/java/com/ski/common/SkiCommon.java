@@ -49,7 +49,7 @@ public final class SkiCommon {
         /** 查询订单 */
         public static final int INST_ECOM_QUERY_ORDER               = 0x00002006;
         /** 查询订单项 */
-        public static final int INST_ECOM_QUERY_ORDER_ITEM          = 0x00002007;
+        public static final int INST_ECOM_QUERY_COMMODITY           = 0x00002007;
         /** 查询游戏租赁价格 */
         public static final int INST_ECOM_QUERY_GAME_RENT_PRICE     = 0x00002008;
         // APPLY
@@ -83,7 +83,7 @@ public final class SkiCommon {
         /** 更新订单 */
         public static final int INST_ECOM_UPDATE_ORDER              = 0x00002406;
         /** 更新订单项 */
-        public static final int INST_ECOM_UPDATE_ORDER_ITEM         = 0x00002407;
+        public static final int INST_ECOM_UPDATE_COMMODITY          = 0x00002407;
         /** 更新游戏租赁价格 */
         public static final int INST_ECOM_UPDATE_GAME_RENT_PRICE    = 0x00002408;
     }

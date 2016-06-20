@@ -16,7 +16,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
     private static final long serialVersionUID = 809658844004339713L;
     private JLabel i_platform;
     private JLabel i_caid;
-    private JLabel t_create;
+    private JLabel t_time;
     private JLabel i_oid;
 
     public ListCellOrder(BeanOrder data) {
@@ -26,15 +26,15 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
         i_platform.setFont(i_platform.getFont().deriveFont(Font.ITALIC));
         i_caid = new JLabel(Service.map_channel_account.get(data.i_caid).c_user);
         i_caid.setForeground(color_major);
-        t_create = new JLabel(data.t_create);
-        t_create.setForeground(color_major);
+        t_time = new JLabel(String.format("%s ~ %s", data.t_open, data.t_close));
+        t_time.setForeground(color_major);
         i_oid = new JLabel(String.format("0x%08X", data.i_oid));
         i_oid.setForeground(color_minor);
         
         setLayout(new BorderLayout());
         add(i_platform, BorderLayout.WEST);
         add(i_caid, BorderLayout.CENTER);
-        add(t_create, BorderLayout.SOUTH);
+        add(t_time, BorderLayout.SOUTH);
         add(i_oid, BorderLayout.EAST);
         
         registerListener();

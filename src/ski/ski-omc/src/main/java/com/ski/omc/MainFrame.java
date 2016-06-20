@@ -131,6 +131,7 @@ public class MainFrame extends JFrame {
                             .map(gag->Service.map_game_account.get(gag.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
+                        if (null == account) continue;
                         if (account.i_gaid == celldata.i_gaid) return true;
                     }
                     return false;
@@ -156,6 +157,7 @@ public class MainFrame extends JFrame {
                             .map(rent->Service.map_game_account.get(rent.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
+                        if (null == account) continue;
                         if (account.i_gaid == celldata.i_gaid) return true;
                     }
                     return false;

@@ -25,7 +25,7 @@ import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanOrder;
-import com.ski.omc.bean.BeanOrderItem;
+import com.ski.omc.bean.BeanCommodity;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -34,13 +34,15 @@ public class ManageOrder extends JDialog {
     
     private static final long serialVersionUID = 7688182519875816792L;
     
+    private BeanChannelAccount user;
     private JToolBar    toolbar;
     private FjEditLabel i_oid;
     private FjEditLabel i_platform;
     private FjEditLabel i_caid;
-    private FjEditLabel t_create;
+    private FjEditLabel t_open;
+    private FjEditLabel t_close;
     private FjListPane<String> pane_accounts;
-    private FjListPane<BeanOrderItem> pane_order_items;
+    private FjListPane<BeanCommodity> pane_order_items;
     
     public ManageOrder(int oid) {
         BeanOrder order = Service.map_order.get(oid);
@@ -49,24 +51,27 @@ public class ManageOrder extends JDialog {
         toolbar.add(new JButton("更新"));
         toolbar.add(new JButton("新订单项"));
         toolbar.addSeparator();
-        toolbar.add(new JButton("UCR"));
+        toolbar.add(new JButton("管理用户"));
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
-        i_caid      = new FjEditLabel(Service.map_channel_account.get(order.i_caid).c_user);
-        t_create    = new FjEditLabel(order.t_create);
+        user = Service.map_channel_account.get(order.i_caid);
+        i_caid      = new FjEditLabel(user.c_user);
+        t_open      = new FjEditLabel(order.t_open);
+        t_close     = new FjEditLabel(order.t_close);
         
         pane_accounts       = new FjListPane<String>();
         pane_accounts.setBorder(BorderFactory.createTitledBorder(pane_accounts.getBorder(), "关联账号"));
-        pane_order_items    = new FjListPane<BeanOrderItem>();
+        pane_order_items    = new FjListPane<BeanCommodity>();
         pane_order_items.setBorder(BorderFactory.createTitledBorder(pane_order_items.getBorder(), "订单项"));
         
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
-        panel_basic.setLayout(new GridLayout(4, 1));
+        panel_basic.setLayout(new GridLayout(5, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("O ID", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("平台", i_platform));
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户", i_caid));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("创建", t_create));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("打开", t_open));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("关闭", t_close));
         
         JPanel panel_accounts = new JPanel();
         panel_accounts.setLayout(new BorderLayout());
@@ -91,7 +96,7 @@ public class ManageOrder extends JDialog {
         
         registerListener();
         
-        updateAccountNOrderItem();
+        updateAccountNCommodity();
     }
     
     private JSONObject args = new JSONObject();
@@ -133,14 +138,26 @@ public class ManageOrder extends JDialog {
             @Override
             public void cancelEdit(String value) {}
         });
-        t_create.addEditListener(new EditListener() {
+        t_open.addEditListener(new EditListener() {
             @Override
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
                 args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
-                args.put("create", new_value);
-                t_create.setForeground(UIToolkit.COLOR_MODIFYING);
+                args.put("open", new_value);
+                t_open.setForeground(UIToolkit.COLOR_MODIFYING);
+            }
+            @Override
+            public void cancelEdit(String value) {}
+        });
+        t_close.addEditListener(new EditListener() {
+            @Override
+            public void startEdit(String value) {}
+            @Override
+            public void finishEdit(String old_value, String new_value) {
+                args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                args.put("close", new_value);
+                t_close.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -157,7 +174,8 @@ public class ManageOrder extends JDialog {
                 if (null != rsp && Service.isResponseSuccess(rsp)) {
                     if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
                     if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
-                    if (args.has("create"))     t_create.setForeground(Color.darkGray);
+                    if (args.has("open"))       t_open.setForeground(Color.darkGray);
+                    if (args.has("close"))      t_close.setForeground(Color.darkGray);
                     args.clear();
                 }
             }
@@ -165,33 +183,30 @@ public class ManageOrder extends JDialog {
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                UIToolkit.createOrderItem(Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                UIToolkit.createOrderCommodity(Integer.parseInt(i_oid.getText().split("x")[1], 16));
                 
                 Service.updateOrder();
                 Service.updateGameAccountRent();
-                updateAccountNOrderItem();
+                updateAccountNCommodity();
             }
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new UCRDialog(Service.map_channel_account.get(Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).i_caid)).setVisible(true);
+                new ManageChannelAccount(user.i_caid).setVisible(true);
             }
         });
     }
 
-    private void updateAccountNOrderItem() {
-        Collection<BeanOrderItem> order_items = Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).order_items.values();
+    private void updateAccountNCommodity() {
+        Collection<BeanCommodity> commodities = Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).commodities.values();
         pane_accounts.getList().removeAllCell();
-        order_items
-                .stream()
-                .filter(oi->oi.i_oper_type == Service.OPER_TYPE_RENT_BEGIN || oi.i_oper_type == Service.OPER_TYPE_RENT_SWAP)
-                .forEach(item->{
-                    FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", Integer.parseInt(item.c_oper_arg1, 16), Service.map_game_account.get(Integer.parseInt(item.c_oper_arg1, 16)).c_user), item.c_oper_arg2 + "类");
-                    cell.addActionListener(e->new ManageGameAccount(Integer.parseInt(item.c_oper_arg1, 16)).setVisible(true));
+        commodities.forEach(item->{
+                    FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", Integer.parseInt(item.c_arg0, 16), Service.map_game_account.get(Integer.parseInt(item.c_arg0, 16)).c_user), item.c_arg1 + "类");
+                    cell.addActionListener(e->new ManageGameAccount(Integer.parseInt(item.c_arg0, 16)).setVisible(true));
                     pane_accounts.getList().addCell(cell);
                 });
         pane_order_items.getList().removeAllCell();
-        order_items.forEach(item->pane_order_items.getList().addCell(new ListCellOrderItem(item)));
+        commodities.forEach(item->pane_order_items.getList().addCell(new ListCellCommodity(item)));
     }
 }
