@@ -17,6 +17,8 @@ import com.ski.omc.bean.BeanGameAccountGame;
 import com.ski.omc.bean.BeanGameAccountRent;
 import com.ski.omc.bean.BeanGameRentPrice;
 import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanPlatformAccount;
+import com.ski.omc.bean.BeanPlatformAccountMap;
 import com.ski.omc.bean.BeanCommodity;
 
 import fomjar.server.FjSender;
@@ -31,13 +33,15 @@ public class Service {
     
     public static String getWsiUrl() {return String.format("http://%s:8080/ski-wsi", HOST_SKI_WSI);}
     
-    public static final Map<Integer, BeanGame>              map_game                = new LinkedHashMap<Integer, BeanGame>();           // gid
-    public static final Map<Integer, BeanGameAccount>       map_game_account        = new LinkedHashMap<Integer, BeanGameAccount>();    // gaid
-    public static final Set<BeanGameAccountGame>            set_game_account_game   = new LinkedHashSet<BeanGameAccountGame>();
-    public static final Set<BeanGameAccountRent>            set_game_account_rent   = new LinkedHashSet<BeanGameAccountRent>();
-    public static final Map<Integer, BeanChannelAccount>    map_channel_account     = new LinkedHashMap<Integer, BeanChannelAccount>(); // caid
-    public static final Map<Integer, BeanOrder>             map_order               = new LinkedHashMap<Integer, BeanOrder>();          // oid
-    public static final Map<String, BeanGameRentPrice>      map_game_rent_price     = new LinkedHashMap<String, BeanGameRentPrice>();   // gid + type
+    public static final Map<Integer, BeanGame>              map_game                    = new LinkedHashMap<Integer, BeanGame>();               // gid
+    public static final Map<Integer, BeanGameAccount>       map_game_account            = new LinkedHashMap<Integer, BeanGameAccount>();        // gaid
+    public static final Set<BeanGameAccountGame>            set_game_account_game       = new LinkedHashSet<BeanGameAccountGame>();
+    public static final Set<BeanGameAccountRent>            set_game_account_rent       = new LinkedHashSet<BeanGameAccountRent>();
+    public static final Map<Integer, BeanChannelAccount>    map_channel_account         = new LinkedHashMap<Integer, BeanChannelAccount>();     // caid
+    public static final Map<Integer, BeanOrder>             map_order                   = new LinkedHashMap<Integer, BeanOrder>();              // oid
+    public static final Map<String, BeanGameRentPrice>      map_game_rent_price         = new LinkedHashMap<String, BeanGameRentPrice>();       // gid + type
+    public static final Map<Integer, BeanPlatformAccount>   map_platform_account        = new LinkedHashMap<Integer, BeanPlatformAccount>();    // paid
+    public static final Set<BeanPlatformAccountMap>         set_platform_account_map    = new LinkedHashSet<BeanPlatformAccountMap>();
     
     public static final int USER_TYPE_TAOBAO = 0;
     public static final int USER_TYPE_WECHAT = 1;
@@ -195,6 +199,32 @@ public class Service {
         }
     }
     
+    public static void updatePlatformAccount() {
+        Service.map_platform_account.clear();
+        String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, null));
+        
+        if (null != rsp && !"null".equals(rsp)) {
+            String[] lines = rsp.split("\n");
+            for (String line : lines) {
+                BeanPlatformAccount bean = new BeanPlatformAccount(line);
+                Service.map_platform_account.put(bean.i_paid, bean);
+            }
+        }
+    }
+    
+    public static void updatePlatformAccountMap() {
+        Service.set_platform_account_map.clear();
+        String rsp = Service.getDescFromResponse(Service.send("cdb", SkiCommon.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP, null));
+        
+        if (null != rsp && !"null".equals(rsp)) {
+            String[] lines = rsp.split("\n");
+            for (String line : lines) {
+                BeanPlatformAccountMap bean = new BeanPlatformAccountMap(line);
+                Service.set_platform_account_map.add(bean);
+            }
+        }
+    }
+    
     public static int getGameAccountRentState(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
             if (rent.i_gaid == gaid) {
@@ -247,5 +277,16 @@ public class Service {
             if (map_game_rent_price.containsKey(key)) price += map_game_rent_price.get(key).i_price;
         }
         return price;
+    }
+    
+    public static int getPaidByCaid(int caid) {
+        for (BeanPlatformAccountMap bean : Service.set_platform_account_map) {
+            if (bean.i_caid == caid) return bean.i_paid;
+        }
+        return -1;
+    }
+    
+    public static BeanPlatformAccount getPlatformAccount(int caid) {
+        return Service.map_platform_account.get(getPaidByCaid(caid));
     }
 }

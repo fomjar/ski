@@ -97,6 +97,7 @@ create table tbl_commodity (
     i_csn       integer,        -- 商品序列号
     c_remark    varchar(64),    -- 备注
     i_price     decimal(9, 2),  -- 单价
+    i_count     integer,        -- 数量
     t_begin     datetime,       -- 购买/租用开始时间
     t_end       datetime,       -- 购买/租用结束时间
     i_expense   decimal(9, 2),  -- 商品费用

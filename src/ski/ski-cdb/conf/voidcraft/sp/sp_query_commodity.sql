@@ -1,5 +1,5 @@
-delete from tbl_instruction where i_inst = (conv(00002007, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002007, 16, 10) + 0), 'sp', 2, "sp_query_commodity(?, ?)");
+delete from tbl_instruction where i_inst = (conv('00002007', 16, 10) + 0);
+insert into tbl_instruction values((conv('00002007', 16, 10) + 0), 'sp', 2, "sp_query_commodity(?, ?)");
 
 -- 查询订单
 delimiter //

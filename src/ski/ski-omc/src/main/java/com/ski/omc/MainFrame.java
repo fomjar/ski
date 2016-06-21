@@ -258,6 +258,8 @@ public class MainFrame extends JFrame {
                     Service.updateGameAccountRent();
                     
                     Service.updateChannelAccount();
+                    Service.updatePlatformAccount();
+                    Service.updatePlatformAccountMap();
                     
                     Service.updateOrder();
                     

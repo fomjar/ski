@@ -4,13 +4,17 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
@@ -19,6 +23,7 @@ import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanGameAccount;
 import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanPlatformAccount;
 
 public class ManageChannelAccount extends JDialog {
 
@@ -26,13 +31,27 @@ public class ManageChannelAccount extends JDialog {
     
     public ManageChannelAccount(int caid) {
         BeanChannelAccount user = Service.map_channel_account.get(caid);
+        BeanPlatformAccount platform = Service.getPlatformAccount(caid);
+        
+        JToolBar toolbar = new JToolBar();
+        toolbar.add(new JButton("关联用户"));
+        ((JButton) toolbar.getComponent(0)).addActionListener(e->{
+            BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
+            if (null == user2) return;
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, String.format("即将关联用户%s和%s，关联之后将不可取消", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
+                return;
+            
+            
+        });
         
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
         panel_basic.setLayout(new GridLayout(2, 1));
-//        DecimalFormat df = new DecimalFormat("###,###,###.##");
-        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额", new JLabel("元")));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("可退金额", new JLabel("元")));
+        DecimalFormat df = new DecimalFormat("###,###,###.##");
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额",  new JLabel(df.format(platform.i_balance) + "元")));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额", new JLabel(df.format(platform.i_coupon) + "元")));
+        
+        FjListPane<String> pane_users = new FjListPane<String>();
         
         FjListPane<String> pane_account = new FjListPane<String>();
         pane_account.setBorder(BorderFactory.createTitledBorder(pane_account.getBorder(), "在租账号"));

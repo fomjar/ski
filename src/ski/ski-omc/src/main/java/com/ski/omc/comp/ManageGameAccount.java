@@ -196,7 +196,7 @@ public class ManageGameAccount extends JDialog {
                         ((JButton) toolbar.getComponent(2)).setEnabled(false);
                         args.put("user", c_user.getText());
                         args.put("pass", c_pass.getText());
-                        FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_VERIFY_ACCOUNT, args);
+                        FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                         JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
                         ((JButton) toolbar.getComponent(2)).setEnabled(true);
@@ -210,7 +210,7 @@ public class ManageGameAccount extends JDialog {
                 BeanGame game = UIToolkit.chooseGame();
                 if (null == game) return;
                 
-                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
+                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
                     return;
                 
                 int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);

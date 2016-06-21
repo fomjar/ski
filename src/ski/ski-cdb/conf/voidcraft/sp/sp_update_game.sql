@@ -1,5 +1,5 @@
-delete from tbl_instruction where i_inst = (conv(00002401, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002401, 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, '$platform', '$country', '$url_icon', '$url_poster', '$url_buy', '$sale', '$name_zh', '$name_en')");
+delete from tbl_instruction where i_inst = (conv('00002401', 16, 10) + 0);
+insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, '$platform', '$country', '$url_icon', '$url_poster', '$url_buy', '$sale', '$name_zh', '$name_en')");
 
 -- 更新游戏
 delimiter //

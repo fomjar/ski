@@ -1,5 +1,5 @@
-delete from tbl_instruction where i_inst = (conv(00002407, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002407, 16, 10) + 0), 'sp', 2, "sp_update_commodity(?, ?, $oid, $csn, '$remark', price, count, '$begin', 'end', $expense, '$arg0', '$arg1', '$arg2', '$arg3', '$arg4', '$arg5', '$arg6', '$arg7', '$arg8', '$arg9')");
+delete from tbl_instruction where i_inst = (conv('00002407', 16, 10) + 0);
+insert into tbl_instruction values((conv('00002407', 16, 10) + 0), 'sp', 2, "sp_update_commodity(?, ?, $oid, $csn, '$remark', price, count, '$begin', 'end', $expense, '$arg0', '$arg1', '$arg2', '$arg3', '$arg4', '$arg5', '$arg6', '$arg7', '$arg8', '$arg9')");
 
 -- 更新游戏
 delimiter //

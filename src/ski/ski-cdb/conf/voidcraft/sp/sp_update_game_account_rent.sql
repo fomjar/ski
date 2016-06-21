@@ -1,5 +1,5 @@
-delete from tbl_instruction where i_inst = (conv(00002404, 16, 10) + 0);
-insert into tbl_instruction values((conv(00002404, 16, 10) + 0), 'sp', 2, "sp_update_game_account_rent(?, ?, $gaid, $type, $caid, $state)");
+delete from tbl_instruction where i_inst = (conv('00002404', 16, 10) + 0);
+insert into tbl_instruction values((conv('00002404', 16, 10) + 0), 'sp', 2, "sp_update_game_account_rent(?, ?, $gaid, $type, $caid, $state)");
 
 -- 更新产品
 delimiter //
