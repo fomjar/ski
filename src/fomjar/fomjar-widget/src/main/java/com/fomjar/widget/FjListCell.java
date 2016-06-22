@@ -54,7 +54,7 @@ public abstract class FjListCell<E> extends JComponent {
             public void mouseReleased(MouseEvent e) {
                 is_press = false;
                 repaint();
-                if (is_over) listeners.forEach(listener->listener.actionPerformed(new ActionEvent(e.getSource(), e.getID(), null, e.getModifiers())));
+                if (is_over) listeners.forEach(listener->listener.actionPerformed(new ActionEvent(e, e.getID(), null, e.getModifiers())));
             }
             @Override
             public void mouseEntered(MouseEvent e) {

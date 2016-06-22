@@ -238,7 +238,7 @@ public class MainFrame extends JFrame {
             UIToolkit.createOrder();
             updateAll();
         });
-        miabout.addActionListener(e->JOptionPane.showConfirmDialog(null, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
+        miabout.addActionListener(e->JOptionPane.showConfirmDialog(MainFrame.this, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
         
         return menubar;
     }
@@ -287,7 +287,7 @@ public class MainFrame extends JFrame {
                     e.printStackTrace();
                 }
                 
-                if (isfail) JOptionPane.showConfirmDialog(null, "刷新过程中可能发生错误，重新尝试可能解决", "错误", JOptionPane.DEFAULT_OPTION);
+                if (isfail) JOptionPane.showConfirmDialog(MainFrame.this, "刷新过程中可能发生错误，重新尝试可能解决", "错误", JOptionPane.DEFAULT_OPTION);
                 
                 ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }

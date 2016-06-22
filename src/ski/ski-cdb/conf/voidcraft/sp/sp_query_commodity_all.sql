@@ -46,7 +46,7 @@ begin
                 c_desc,
                 conv(i_oid, 10, 16),
                 '\t',
-                conv(i_oisn, 10, 16),
+                conv(i_csn, 10, 16),
                 '\t',
                 ifnull(c_remark, ''),
                 '\t',

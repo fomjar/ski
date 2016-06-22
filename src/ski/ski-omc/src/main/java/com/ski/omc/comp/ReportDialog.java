@@ -63,9 +63,9 @@ public class ReportDialog extends JDialog {
                 if (!file.getName().toLowerCase().endsWith(".png")) file = new File(file.getAbsolutePath() + ".png");
                 try {
                     ImageIO.write(buffer, "png", file);
-                    JOptionPane.showConfirmDialog(null, "保存成功: " + file.getAbsolutePath(), "信息", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showConfirmDialog(ReportDialog.this, "保存成功: " + file.getAbsolutePath(), "信息", JOptionPane.DEFAULT_OPTION);
                 } catch (Exception e1) {
-                    JOptionPane.showConfirmDialog(null, "保存失败: " + e1.getMessage(), "错误", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showConfirmDialog(ReportDialog.this, "保存失败: " + e1.getMessage(), "错误", JOptionPane.DEFAULT_OPTION);
                     e1.printStackTrace();
                 }
             }

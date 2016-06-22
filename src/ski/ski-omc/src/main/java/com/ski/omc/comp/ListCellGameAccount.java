@@ -43,11 +43,11 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         i_gaid.setForeground(color_minor);
         i_gaid.setHorizontalAlignment(SwingConstants.RIGHT);
         
-        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getUserByGameAccount(data.i_gaid, Service.RENT_TYPE_A));
+        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(data.i_gaid, Service.RENT_TYPE_A));
         c_channel_account_a = new JLabel("A租用户: " + (null != user_a ? user_a.c_user : "-"));
         c_channel_account_a.setForeground(color_minor);
         c_channel_account_a.setPreferredSize(new Dimension(100, 0));
-        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getUserByGameAccount(data.i_gaid, Service.RENT_TYPE_B));
+        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(data.i_gaid, Service.RENT_TYPE_B));
         c_channel_account_b = new JLabel("B租用户: " + (null != user_b ? user_b.c_user : "-"));
         c_channel_account_b.setForeground(color_minor);
         c_channel_account_b.setPreferredSize(new Dimension(100, 0));

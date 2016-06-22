@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002407', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002407', 16, 10) + 0), 'sp', 2, "sp_update_commodity(?, ?, $oid, $csn, '$remark', price, count, '$begin', 'end', $expense, '$arg0', '$arg1', '$arg2', '$arg3', '$arg4', '$arg5', '$arg6', '$arg7', '$arg8', '$arg9')");
+insert into tbl_instruction values((conv('00002407', 16, 10) + 0), 'sp', 2, "sp_update_commodity(?, ?, $oid, $csn, '$remark', $price, $count, '$begin', '$end', $expense, '$arg0', '$arg1', '$arg2', '$arg3', '$arg4', '$arg5', '$arg6', '$arg7', '$arg8', '$arg9')");
 
 -- 更新游戏
 delimiter //
@@ -86,16 +86,16 @@ begin
                     _begin,
                     _end,
                     expense,
-                    oper_arg0,
-                    oper_arg1,
-                    oper_arg2,
-                    oper_arg3,
-                    oper_arg4,
-                    oper_arg5,
-                    oper_arg6,
-                    oper_arg7,
-                    oper_arg8,
-                    oper_arg9
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5,
+                    arg6,
+                    arg7,
+                    arg8,
+                    arg9
                 );
             else
                 select count(1)
@@ -133,16 +133,16 @@ begin
                         _begin(),
                         _end,
                         expense,
-                        oper_arg0,
-                        oper_arg1,
-                        oper_arg2,
-                        oper_arg3,
-                        oper_arg4,
-                        oper_arg5,
-                        oper_arg6,
-                        oper_arg7,
-                        oper_arg8,
-                        oper_arg9
+                        arg0,
+                        arg1,
+                        arg2,
+                        arg3,
+                        arg4,
+                        arg5,
+                        arg6,
+                        arg7,
+                        arg8,
+                        arg9
                     );
                 else
                     if remark is not null then

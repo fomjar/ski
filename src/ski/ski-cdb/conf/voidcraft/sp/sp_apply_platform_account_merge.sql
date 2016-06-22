@@ -13,14 +13,8 @@ create procedure sp_apply_platform_account_merge (
 begin
     declare di_count    integer default -1;
     declare di_caid     integer default -1;
-
-    declare done        integer default 0;
-    declare rs          cursor for
-                        select pam.i_caid
-                          from tbl_platform_account_map pam
-                         where pam.i_paid = paid_from;
-    /* 异常处理 */
-    declare continue handler for sqlstate '02000' set done = 1;
+    declare di_balance  decimal(9, 2) default 0.00;
+    declare di_coupon   decimal(9, 2) default 0.00;
 
     select count(1)
       into di_count
@@ -30,36 +24,29 @@ begin
     if di_count < 2 then
         set i_code = 2;
         set c_desc = 'illegal arguments, paid_to or paid_from does not exist';
+    elseif paid_to = paid_from then
+        set i_code = 2;
+        set c_desc = 'illegal arguments, paid_to must be different from paid_from';
     else
-        /* 打开游标 */
-        open rs;  
-        /* 逐个取出当前记录i_gaid值*/
-        fetch rs into di_caid;
-        /* 遍历数据表 */
-        while (done = 0) do
-            update tbl_platform_account_map
-               set i_paid = paid_to
-             where i_caid = di_caid;
-
-            fetch rs into di_caid;
-        end while;
-        /* 关闭游标 */
-        close rs;
-
+        select sum(i_balance)
+          into di_balance
+          from tbl_platform_account
+         where i_paid in (paid_from, paid_to);
         update tbl_platform_account
-           set i_balance = (
-                    select sum(i_balance)
-                      from tbl_platform_account
-                     where i_paid in (paid_from, paid_to)
-                )
+           set i_balance = di_balance
          where i_paid = paid_to;
+        
+        select sum(i_coupon)
+          into di_coupon
+          from tbl_platform_account
+         where i_paid in (paid_from, paid_to);
         update tbl_platform_account
-           set i_coupon = (
-                    select sum(i_coupon)
-                      from tbl_platform_account
-                     where i_paid in (paid_from, paid_to)
-                )
+           set i_coupon = di_coupon
          where i_paid = paid_to;
+
+        update tbl_platform_account_map
+           set i_paid = paid_to
+         where i_paid = paid_from;
 
         delete from tbl_platform_account
          where i_paid = paid_from;

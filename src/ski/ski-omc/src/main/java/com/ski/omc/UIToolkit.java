@@ -8,7 +8,6 @@ import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -20,8 +19,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,7 +28,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.fomjar.widget.FjListCellString;
@@ -115,7 +111,7 @@ public class UIToolkit {
             if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
-            JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
@@ -148,7 +144,7 @@ public class UIToolkit {
             if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
@@ -178,7 +174,7 @@ public class UIToolkit {
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
@@ -216,285 +212,94 @@ public class UIToolkit {
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             args.put("open", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
     
-    public static void createOrderCommodity(int oid) {
-        JLabel              i_oid = new JLabel(String.format("订单编号：0x%08X", oid));
-        i_oid.setPreferredSize(new Dimension(360, 0));
-        JComboBox<String>   i_oper_type = new JComboBox<String>(new String[] {"0 - 购买", "1 - 充值", "2 - 起租", "3 - 退租", "4 - 停租", "5 - 续租", "6 - 换租", "7 - 赠券"});
-        FjTextField         c_remark = new FjTextField();
-        c_remark.setDefaultTips("备注");
-        FjTextField         c_price = new FjTextField();
+    public static void createCommodity(int oid) {
+        JLabel              c_arg0      = new JLabel();
+        c_arg0.setPreferredSize(new Dimension(300, 0));
+        JButton             button      = new JButton("选择游戏账号");
+        JComboBox<String>   c_arg1      = new JComboBox<String>();
+        c_arg1.setEnabled(false);
+        FjTextField         i_price     = new FjTextField();
+        i_price.setDefaultTips("(单价)");
+        FjTextField         c_remark    = new FjTextField();
+        c_remark.setDefaultTips("(备注)");
         
-        JComboBox<String> rent_type = new JComboBox<String>();
-        JLabel game_account_label= new JLabel();
-        JButton game_account_button = new JButton();
-        game_account_button.setMargin(new Insets(0, 0, 0, 0));
-        rent_type.addItemListener(new ItemListener() {
+        c_arg1.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (ItemEvent.SELECTED != e.getStateChange()) return;
                 
-                if (!rent_type.getSelectedItem().toString().contains("A")
-                        && !rent_type.getSelectedItem().toString().contains("B")) {
-                    c_price.setText("");
-                    return;
-                }
-                int gaid = Integer.parseInt(game_account_label.getText().split(" ")[0].split("x")[1], 16);
-                int type = rent_type.getSelectedItem().toString().contains("A") ? Service.RENT_TYPE_A : Service.RENT_TYPE_B;
-                c_price.setText(String.valueOf(Service.getGameAccountRentPrice(gaid, type)));
+                if (c_arg1.getSelectedItem().toString().contains("A"))
+                    i_price.setText(Service.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), Service.RENT_TYPE_A) + "");
+                else if (c_arg1.getSelectedItem().toString().contains("B"))
+                    i_price.setText(Service.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), Service.RENT_TYPE_B) + "");
+                else
+                    i_price.setText("0.00");
             }
         });
-        game_account_button.addActionListener(e->{
-            BeanGameAccount account = null;
-            while (null != (account = chooseGameAccount())) {
-                ((DefaultComboBoxModel<String>) rent_type.getModel()).removeAllElements();
-                switch (Integer.parseInt(i_oper_type.getSelectedItem().toString().split(" ")[0])) {
-                case 2: // 2 - 起租
-                case 6: // 6 - 换租
-                    game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
-                    if (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_A))
-                        ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：A");
-                    if (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_B))
-                        ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：B");
-                    if (0 == rent_type.getModel().getSize()) {
-                        JOptionPane.showConfirmDialog(null, "此账号A/B类均已在租赁当中，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        continue;
-                    }
-                    break;
-                case 3: // 3 - 退租
-                case 4: // 4 - 停租
-                case 5: // 5 - 续租
-                    game_account_label.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
-                    if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
-                        ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：A");
-                    if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
-                        ((DefaultComboBoxModel<String>) rent_type.getModel()).addElement("租赁类型：B");
-                    if (0 == rent_type.getModel().getSize()) {
-                        JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
-                        continue;
-                    }
-                    break;
-                }
-                break;
-            }
-            if (null == account) game_account_label.setText("");
-        });
-        JPanel game_account0 = new JPanel();
-        game_account0.setLayout(new BorderLayout());
-        game_account0.add(game_account_label, BorderLayout.CENTER);
-        game_account0.add(game_account_button, BorderLayout.EAST);
-        JPanel game_account = new JPanel();
-        game_account.setLayout(new BorderLayout());
-        game_account.add(game_account0, BorderLayout.CENTER);
-        game_account.add(rent_type, BorderLayout.EAST);
         
-        JComboBox<String> rent_type_old = new JComboBox<String>();
-        JLabel game_account_label_old= new JLabel();
-        JButton game_account_button_old = new JButton();
-        game_account_button_old.setMargin(new Insets(0, 0, 0, 0));
-        game_account_button_old.addActionListener(e->{
+        button.addActionListener(e->{
             BeanGameAccount account = null;
             while (null != (account = chooseGameAccount())) {
-                game_account_label_old.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
-                ((DefaultComboBoxModel<String>) rent_type_old.getModel()).removeAllElements();
-                if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
-                    ((DefaultComboBoxModel<String>) rent_type_old.getModel()).addElement("租赁类型：A");
-                if (Service.map_order.get(oid).i_caid == Service.getUserByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
-                    ((DefaultComboBoxModel<String>) rent_type_old.getModel()).addElement("租赁类型：B");
-                if (0 == rent_type_old.getModel().getSize()) {
-                    JOptionPane.showConfirmDialog(null, "此用户并没有租用选定的游戏账号，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
+                c_arg0.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
+                ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
+                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
+                    ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
+                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
+                    ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("B类");
+                if (0 == c_arg1.getModel().getSize()) {
+                    c_arg0.setText("");
+                    c_arg1.setEnabled(false);
+                    JOptionPane.showConfirmDialog(null, "选定账号已没有可租类型，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
                     continue;
                 }
+                c_arg1.setEnabled(true);
                 break;
             }
-            if (null == account) game_account_label_old.setText("");
-        });
-        JPanel game_account_old0 = new JPanel();
-        game_account_old0.setLayout(new BorderLayout());
-        game_account_old0.add(game_account_label_old, BorderLayout.CENTER);
-        game_account_old0.add(game_account_button_old, BorderLayout.EAST);
-        JPanel game_account_old = new JPanel();
-        game_account_old.setLayout(new BorderLayout());
-        game_account_old.add(game_account_old0, BorderLayout.CENTER);
-        game_account_old.add(rent_type_old, BorderLayout.EAST);
-        
-        JComponent[] components = new JComponent[] {c_price, game_account, rent_type, game_account_old, rent_type_old};
-        for (JComponent c : components) c.setVisible(false);
-        i_oper_type.addItemListener(new ItemListener() {
-            @Override
-            public void itemStateChanged(ItemEvent e) {
-                for (JComponent c : components) c.setVisible(false);
-                c_price.setText("0.00");
-                
-                switch(Integer.parseInt(i_oper_type.getSelectedItem().toString().split(" ")[0])) {
-                case 0: // 0 - 购买
-                    JOptionPane.showConfirmDialog(null, "没有可购买产品，暂不开放", "信息", JOptionPane.DEFAULT_OPTION);
-                    i_oper_type.setSelectedIndex(1);
-                    break;
-                case 1: // 1 - 充值
-                    c_price.setVisible(true);
-                    c_price.setDefaultTips("输入充值金额");
-                    c_price.setText("150.00");
-                    break;
-                case 2: // 2 - 起租
-                    c_price.setVisible(true);
-                    c_price.setDefaultTips("输入账号日租金额");
-                    game_account.setVisible(true);
-                    game_account_button.setText("选择游戏账号");
-                    rent_type.setVisible(true);
-                    break;
-                case 3: // 3 - 退租
-                case 4: // 4 - 停租
-                case 5: // 5 - 续租
-                    game_account.setVisible(true);
-                    game_account_button.setText("选择游戏账号");
-                    rent_type.setVisible(true);
-                    break;
-                case 6: // 6 - 换租
-                    c_price.setVisible(true);
-                    c_price.setDefaultTips("输入新账号日租金额");
-                    game_account.setVisible(true);
-                    game_account_button.setText("选择新的游戏账号");
-                    rent_type.setVisible(true);
-                    game_account_old.setVisible(true);
-                    game_account_button_old.setText("选择将被替换掉的游戏账号");
-                    rent_type_old.setVisible(true);
-                    break;
-                case 7: // 7 - 赠券
-                    c_price.setVisible(true);
-                    c_price.setDefaultTips("输入优惠券金额");
-                    c_price.setText("10.00");
-                    break;
-                }
-                Window window = SwingUtilities.getWindowAncestor(i_oper_type);
-                if (null != window) window.pack();
+            if (null == account) {
+                c_arg0.setText("");
+                ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
+                c_arg1.setEnabled(false);
+                i_price.setDefaultTips("0.00");
             }
         });
-        i_oper_type.setSelectedIndex(1);
         
+        JPanel panel0 = new JPanel();
+        panel0.setLayout(new BorderLayout());
+        panel0.add(c_arg0, BorderLayout.CENTER);
+        panel0.add(button, BorderLayout.EAST);
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.add(i_oid);
-        panel.add(i_oper_type);
+        panel.setLayout(new GridLayout(4, 1));
+        panel.add(panel0);
+        panel.add(c_arg1);
+        panel.add(i_price);
         panel.add(c_remark);
-        panel.add(Box.createVerticalStrut(8));
-        panel.add(c_price);
-        panel.add(Box.createVerticalStrut(8));
-        panel.add(game_account);
-        panel.add(Box.createVerticalStrut(8));
-        panel.add(game_account_old);
         
-        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单项", JOptionPane.OK_CANCEL_OPTION)) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建商品", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == c_arg0.getText().length()) {
+                JOptionPane.showConfirmDialog(null, "必须要选择游戏账号", "服务器响应", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
+            if (0 == c_arg1.getModel().getSize()) {
+                JOptionPane.showConfirmDialog(null, "必须要选择租赁类型", "服务器响应", JOptionPane.DEFAULT_OPTION);
+                continue;
+            }
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             args.put("oid", oid);
-            int ot = Integer.parseInt(i_oper_type.getSelectedItem().toString().split(" ")[0]);
-            args.put("oper_type", ot);
-            args.put("remark", c_remark.getText());
-            
-            switch(ot) {
-            case 0: // 0 - 购买
-                break;
-            case 1: // 1 - 充值
-                if (0 == c_price.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请输入充值金额", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg0", c_price.getText());
-                break;
-            case 2: // 2 - 起租
-                if (0 == c_price.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请输入日租金额", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == game_account_label.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择租赁账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择租赁类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg0", c_price.getText());
-                args.put("oper_arg1", game_account_label.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg2", rent_type.getSelectedItem().toString().substring(rent_type.getSelectedItem().toString().length() - 1));
-                break;
-            case 3: // 3 - 退租
-                if (0 == game_account_label.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择退租账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择退租类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg1", game_account_label.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg2", rent_type.getSelectedItem().toString().substring(rent_type.getSelectedItem().toString().length() - 1));
-                break;
-            case 4: // 4 - 停租
-                if (0 == game_account_label.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择停租账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择停租类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg1", game_account_label.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg2", rent_type.getSelectedItem().toString().substring(rent_type.getSelectedItem().toString().length() - 1));
-                break;
-            case 5: // 5 - 续租
-                if (0 == game_account_label.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择续租账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择续租类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg1", game_account_label.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg2", rent_type.getSelectedItem().toString().substring(rent_type.getSelectedItem().toString().length() - 1));
-                break;
-            case 6: // 6 - 换租
-                if (0 == c_price.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请输入新账号日租金额", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == game_account_label.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择新游戏账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择新续租类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == game_account_label_old.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择被替换掉的游戏账号", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                if (0 == rent_type_old.getSelectedItem().toString().length()) {
-                    JOptionPane.showConfirmDialog(null, "请选择被替换掉的账号类型", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg0", c_price.getText());
-                args.put("oper_arg1", game_account_label.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg2", rent_type.getSelectedItem().toString().substring(rent_type.getSelectedItem().toString().length() - 1));
-                args.put("oper_arg3", game_account_label_old.getText().split(" ")[0].split("x")[1]);
-                args.put("oper_arg4", rent_type_old.getSelectedItem().toString().substring(rent_type_old.getSelectedItem().toString().length() - 1));
-                break;
-            case 7: // 7 - 赠券
-                if (0 == c_price.getText().length()) {
-                    JOptionPane.showConfirmDialog(null, "请输入券额", "错误", JOptionPane.DEFAULT_OPTION);
-                    continue;
-                }
-                args.put("oper_arg0", c_price.getText());
-                break;
-            }
+            if (0 < c_remark.getText().length()) args.put("remark", c_remark.getText());
+            args.put("price", Float.parseFloat(i_price.getText()));
+            args.put("count", 1);
+            args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
+            args.put("arg0", c_arg0.getText().split(" ")[0].split("x")[1]);
+            args.put("arg1", c_arg1.getSelectedItem().toString().contains("A") ? "A" : "B");
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
-            JOptionPane.showConfirmDialog(null, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             break;
         }
     }
@@ -656,8 +461,8 @@ public class UIToolkit {
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
         Service.map_game_account.values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
-                    ( (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
-                    + (Service.RENT_STATE_IDLE == Service.getGameAccountRentState(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
+                    ( (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
+                    + (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

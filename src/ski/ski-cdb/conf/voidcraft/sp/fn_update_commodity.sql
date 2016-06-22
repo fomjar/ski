@@ -35,8 +35,8 @@ begin
     if _begin is not null then
         call sp_update_game_account_rent(di_code,
                 dc_desc,
-                conv(oper_arg1, 16, 10),
-                (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
+                conv(arg0, 16, 10),
+                (case arg1 when 'A' then 0 when 'B' then 1 else -1 end),
                 di_caid,
                 1);
     end if;
@@ -44,8 +44,8 @@ begin
     if _end is not null then
         call sp_update_game_account_rent(di_code,
                 dc_desc,
-                conv(oper_arg1, 16, 10),
-                (case oper_arg2 when 'A' then 0 when 'B' then 1 else -1 end),
+                conv(arg0, 16, 10),
+                (case arg1 when 'A' then 0 when 'B' then 1 else -1 end),
                 di_caid,
                 0);
     end if;

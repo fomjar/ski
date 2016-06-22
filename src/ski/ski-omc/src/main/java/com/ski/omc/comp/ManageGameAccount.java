@@ -146,7 +146,7 @@ public class ManageGameAccount extends JDialog {
                 }
                 ((JButton) toolbar.getComponent(0)).setEnabled(false);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
                 if (null != rsp && Service.isResponseSuccess(rsp)) {
                     if (args.has("user"))       c_user.setForeground(Color.darkGray);
                     if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
@@ -197,7 +197,7 @@ public class ManageGameAccount extends JDialog {
                         args.put("user", c_user.getText());
                         args.put("pass", c_pass.getText());
                         FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp ? rsp.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                        JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
                         if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
                         ((JButton) toolbar.getComponent(2)).setEnabled(true);
                     }
@@ -210,7 +210,7 @@ public class ManageGameAccount extends JDialog {
                 BeanGame game = UIToolkit.chooseGame();
                 if (null == game) return;
                 
-                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
+                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
                     return;
                 
                 int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
@@ -230,8 +230,8 @@ public class ManageGameAccount extends JDialog {
     private void updateGameAccountGame() {
         int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
         
-        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getUserByGameAccount(gaid, Service.RENT_TYPE_A));
-        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getUserByGameAccount(gaid, Service.RENT_TYPE_B));
+        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(gaid, Service.RENT_TYPE_A));
+        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(gaid, Service.RENT_TYPE_B));
         pane_users.getList().removeAllCell();
         if (null != user_a) {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "A类");

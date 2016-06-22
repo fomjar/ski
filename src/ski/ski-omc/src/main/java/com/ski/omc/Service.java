@@ -225,7 +225,7 @@ public class Service {
         }
     }
     
-    public static int getGameAccountRentState(int gaid, int type) {
+    public static int getRentStateByGameAccount(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
             if (rent.i_gaid == gaid) {
                 if (rent.i_type != type) continue; // 只看对应类型的
@@ -238,7 +238,7 @@ public class Service {
         return RENT_STATE_IDLE; // 没有非空闲，则空闲
     }
     
-    public static int getUserByGameAccount(int gaid, int type) {
+    public static int getRentChannelAccountByGameAccount(int gaid, int type) {
         for (BeanGameAccountRent rent : set_game_account_rent) {
             if (rent.i_gaid == gaid && rent.i_type == type && RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
         }
@@ -246,7 +246,7 @@ public class Service {
         return -1; // 没有租赁用户
     }
     
-    public static List<BeanGameAccount> getGameAccountByUser(int caid, int type) {
+    public static List<BeanGameAccount> getRentGameAccountByChannelAccount(int caid, int type) {
         return set_game_account_rent
                 .stream()
                 .filter(rent->rent.i_caid == caid)
@@ -270,7 +270,7 @@ public class Service {
      * @param type RENT_TYPE_X
      * @return
      */
-    public static float getGameAccountRentPrice(int gaid, int type) {
+    public static float getRentPriceByGameAccount(int gaid, int type) {
         float price = 0.0f;
         for (BeanGame game : getGameAccountGames(gaid)) {
             String key = Integer.toHexString(game.i_gid) + type;
@@ -279,14 +279,19 @@ public class Service {
         return price;
     }
     
-    public static int getPaidByCaid(int caid) {
+    public static int getPlatformAccountByChannelAccount(int caid) {
         for (BeanPlatformAccountMap bean : Service.set_platform_account_map) {
             if (bean.i_caid == caid) return bean.i_paid;
         }
         return -1;
     }
     
-    public static BeanPlatformAccount getPlatformAccount(int caid) {
-        return Service.map_platform_account.get(getPaidByCaid(caid));
+    public static List<BeanChannelAccount> getChannelAccountRelated(int caid) {
+        int paid = getPlatformAccountByChannelAccount(caid);
+        return set_platform_account_map
+                .stream()
+                .filter(bean->paid == bean.i_paid)
+                .map(bean->map_channel_account.get(bean.i_caid))
+                .collect(Collectors.toList());
     }
 }
