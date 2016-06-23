@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -46,6 +47,7 @@ public class ManageGameAccount extends JDialog {
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
+        toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("更新到DB"));
         toolbar.add(new JButton("更新到DB和PS"));
         toolbar.add(new JButton("测试账号"));
@@ -57,31 +59,27 @@ public class ManageGameAccount extends JDialog {
         t_birth = new FjEditLabel(0 == account.t_birth.length() ? "(没有生日)" : account.t_birth);
         
         pane_users = new FjListPane<String>();
-        pane_users.setBorder(BorderFactory.createTitledBorder(pane_users.getBorder(), "在租用户"));
+        pane_users.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "在租用户"));
         pane_games = new FjListPane<String>();
-        pane_games.setBorder(BorderFactory.createTitledBorder(pane_games.getBorder(), "包含游戏"));
+        pane_games.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "包含游戏"));
         
         JPanel panel_basic = new JPanel();
-        panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
+        panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
         panel_basic.setLayout(new GridLayout(4, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("GAID", i_gaid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账号", c_user));
         panel_basic.add(UIToolkit.createBasicInfoLabel("密码", c_pass));
         panel_basic.add(UIToolkit.createBasicInfoLabel("生日", t_birth));
         
-        JPanel panel_users = new JPanel();
-        panel_users.setLayout(new BorderLayout());
-        panel_users.add(panel_basic, BorderLayout.NORTH);
-        panel_users.add(pane_users, BorderLayout.CENTER);
-        
-        JPanel panel_center = new JPanel();
-        panel_center.setLayout(new BorderLayout());
-        panel_center.add(panel_users, BorderLayout.NORTH);
-        panel_center.add(pane_games, BorderLayout.CENTER);
+        JPanel panel_north = new JPanel();
+        panel_north.setLayout(new BoxLayout(panel_north, BoxLayout.Y_AXIS));
+        panel_north.add(toolbar);
+        panel_north.add(panel_basic);
+        panel_north.add(pane_users);
         
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(toolbar, BorderLayout.NORTH);
-        getContentPane().add(panel_center, BorderLayout.CENTER);
+        getContentPane().add(panel_north, BorderLayout.NORTH);
+        getContentPane().add(pane_games, BorderLayout.CENTER);
         
         setTitle(String.format("管理账号“%s”", account.c_user));
         setModal(false);

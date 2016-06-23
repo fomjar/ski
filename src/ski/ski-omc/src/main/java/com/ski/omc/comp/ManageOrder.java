@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -46,6 +47,7 @@ public class ManageOrder extends JDialog {
         BeanOrder order = Service.map_order.get(oid);
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
+        toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("创建商品"));
         toolbar.add(new JButton("更新订单"));
         toolbar.add(new JButton("关闭订单"));
@@ -59,10 +61,10 @@ public class ManageOrder extends JDialog {
         t_close     = new FjEditLabel(order.t_close);
         
         pane_commodity    = new FjListPane<BeanCommodity>();
-        pane_commodity.setBorder(BorderFactory.createTitledBorder(pane_commodity.getBorder(), "商品列表"));
+        pane_commodity.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "商品列表"));
         
         JPanel panel_basic = new JPanel();
-        panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
+        panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
         panel_basic.setLayout(new GridLayout(5, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("订单编号", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_platform));
@@ -70,14 +72,14 @@ public class ManageOrder extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("打开时间", t_open));
         panel_basic.add(UIToolkit.createBasicInfoLabel("关闭时间", t_close));
         
-        JPanel panel_center = new JPanel();
-        panel_center.setLayout(new BorderLayout());
-        panel_center.add(panel_basic, BorderLayout.NORTH);
-        panel_center.add(pane_commodity, BorderLayout.CENTER);
+        JPanel panel_north = new JPanel();
+        panel_north.setLayout(new BoxLayout(panel_north, BoxLayout.Y_AXIS));
+        panel_north.add(toolbar);
+        panel_north.add(panel_basic);
         
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(toolbar, BorderLayout.NORTH);
-        getContentPane().add(panel_center, BorderLayout.CENTER);
+        getContentPane().add(panel_north, BorderLayout.NORTH);
+        getContentPane().add(pane_commodity, BorderLayout.CENTER);
         
         setTitle(String.format("管理订单“0x%08X”", order.i_oid));
         setModal(false);

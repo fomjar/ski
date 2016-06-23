@@ -7,6 +7,7 @@ import java.awt.Toolkit;
 import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -41,42 +42,38 @@ public class ManageChannelAccount extends JDialog {
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
+        toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("关联其他用户"));
         
         JPanel panel_basic = new JPanel();
-        panel_basic.setBorder(BorderFactory.createTitledBorder("基本信息"));
+        panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
         panel_basic.setLayout(new GridLayout(2, 1));
         DecimalFormat df = new DecimalFormat("###,###,###.##");
         panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额",  new JLabel(df.format(platform.i_balance) + "元")));
         panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额", new JLabel(df.format(platform.i_coupon) + "元")));
         
         pane_user = new FjListPane<String>();
-        pane_user.setBorder(BorderFactory.createTitledBorder(pane_user.getBorder(), "关联用户"));
+        pane_user.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "关联用户"));
         pane_account = new FjListPane<String>();
-        pane_account.setBorder(BorderFactory.createTitledBorder(pane_account.getBorder(), "在租账号"));
+        pane_account.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "在租账号"));
         pane_order = new FjListPane<String>();
-        pane_order.setBorder(BorderFactory.createTitledBorder(pane_order.getBorder(), "打开订单"));
+        pane_order.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "打开订单"));
         
-        JPanel panel0 = new JPanel();
-        panel0.setLayout(new BorderLayout());
-        panel0.add(toolbar, BorderLayout.NORTH);
-        panel0.add(panel_basic, BorderLayout.CENTER);
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new BorderLayout());
-        panel1.add(panel0, BorderLayout.NORTH);
-        panel1.add(pane_user, BorderLayout.CENTER);
-        JPanel panel2 = new JPanel();
-        panel2.setLayout(new BorderLayout());
-        panel2.add(panel1, BorderLayout.NORTH);
-        panel2.add(pane_account, BorderLayout.CENTER);
+        JPanel panel_north = new JPanel();
+        panel_north.setLayout(new BoxLayout(panel_north, BoxLayout.Y_AXIS));
+        panel_north.add(toolbar);
+        panel_north.add(panel_basic);
+        panel_north.add(pane_user);
+        panel_north.add(pane_account);
+        
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(panel2, BorderLayout.NORTH);
+        getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(pane_order, BorderLayout.CENTER);
         
         setTitle(String.format("管理用户“%s”", user.c_user));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 300));
+        setSize(new Dimension(400, 400));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         

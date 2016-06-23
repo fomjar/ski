@@ -60,7 +60,7 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         menu.add(new JMenuItem("退    租"));
         menu.add(new JMenuItem("账号信息"));
         menu.add(new JMenuItem("租赁报告"));
-        if (0 < data.t_end.length()) menu.getComponent().setEnabled(false);
+        if (0 < data.t_end.length()) menu.getComponent(0).setEnabled(false);
         
         ((JMenuItem) menu.getComponent(1)).addActionListener(e->{
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
