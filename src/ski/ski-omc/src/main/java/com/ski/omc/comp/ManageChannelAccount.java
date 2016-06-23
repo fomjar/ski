@@ -360,7 +360,7 @@ public class ManageChannelAccount extends JDialog {
         switch (channel) {
         case "淘宝": return Service.USER_TYPE_TAOBAO;
         case "微信": return Service.USER_TYPE_WECHAT;
-        case "支付宝": return Service.USER_TYPE_WECHAT;
+        case "支付宝": return Service.USER_TYPE_ALIPAY;
         default: return Integer.parseInt(channel);
         }
     }
