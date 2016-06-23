@@ -76,6 +76,9 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
             args.put("end", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
             JOptionPane.showConfirmDialog(ListCellCommodity.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            
+            Service.updatePlatformAccount();
+            Service.updateOrder();
         });
         ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
         ((JMenuItem) menu.getComponent(2)).addActionListener(e->new OCRDialog(data).setVisible(true));

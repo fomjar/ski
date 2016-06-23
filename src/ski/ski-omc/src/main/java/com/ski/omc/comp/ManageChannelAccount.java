@@ -21,6 +21,7 @@ import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.SkiCommon;
+import com.ski.omc.MainFrame;
 import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
@@ -55,6 +56,8 @@ public class ManageChannelAccount extends JDialog {
     private JButton             order_switch;
     
     public ManageChannelAccount(int caid) {
+        super(MainFrame.getInstance());
+        
         user = Service.map_channel_account.get(caid);
         puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(caid));
         
@@ -69,7 +72,7 @@ public class ManageChannelAccount extends JDialog {
         
         i_caid      = new FjEditLabel(String.format("0x%08X", user.i_caid), false);
         i_caid.setForeground(Color.gray);
-        c_user      = new FjEditLabel(user.c_user);
+        c_user      = new FjEditLabel(user.c_user, false);
         i_channel   = new FjEditLabel(getChannel2String(user.i_channel));
         c_nick      = new FjEditLabel(0 == user.c_nick.length() ? "(没有昵称)" : user.c_nick);
         i_gender    = new FjEditLabel(0 == user.i_gender ? "女" : 1 == user.i_gender ? "男" : "人妖");
@@ -138,18 +141,6 @@ public class ManageChannelAccount extends JDialog {
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
-        c_user.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("caid", user.i_caid);
-                args.put("user", new_value);
-                c_user.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
         i_channel.addEditListener(new FjEditLabel.EditListener() {
             @Override
             public void startEdit(String value) {}
@@ -235,6 +226,11 @@ public class ManageChannelAccount extends JDialog {
             public void cancelEdit(String value) {}
         });
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
+            if (args.isEmpty()) {
+                JOptionPane.showConfirmDialog(ManageChannelAccount.this, "没有可更新的内容", "错误", JOptionPane.DEFAULT_OPTION);
+                return;
+            }
+            
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             if (Service.isResponseSuccess(rsp)) {
@@ -343,7 +339,7 @@ public class ManageChannelAccount extends JDialog {
                     if (SWITCH_TITLE_OPEN.equals(order_switch.getText())) return !order.isClose();
                     else return true;})
                 .forEach(order->{
-                    FjListCellString cell = new FjListCellString(String.format("0x%08X", order.i_oid), String.format("%s ~ %s", order.t_open, order.t_close));
+                    FjListCellString cell = new FjListCellString(String.format("%s ~ %s", order.t_open, order.t_close), String.format("0x%08X", order.i_oid));
                     if (order.isClose()) cell.setForeground(Color.lightGray);
                     cell.addActionListener(e->new ManageOrder(order.i_oid).setVisible(true));
                     pane_order.getList().addCell(cell);

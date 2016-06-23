@@ -21,6 +21,7 @@ import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.ski.common.SkiCommon;
+import com.ski.omc.MainFrame;
 import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
@@ -43,6 +44,8 @@ public class ManageGameAccount extends JDialog {
     private FjListPane<String> pane_games;
     
     public ManageGameAccount(int gaid) {
+        super(MainFrame.getInstance());
+        
         BeanGameAccount account = Service.map_game_account.get(gaid);
         
         toolbar = new JToolBar();

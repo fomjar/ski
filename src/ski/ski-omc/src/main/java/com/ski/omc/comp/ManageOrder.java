@@ -21,6 +21,7 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListPane;
 import com.ski.common.SkiCommon;
+import com.ski.omc.MainFrame;
 import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
@@ -45,6 +46,8 @@ public class ManageOrder extends JDialog {
     private FjListPane<BeanCommodity> pane_commodity;
     
     public ManageOrder(int oid) {
+        super(MainFrame.getInstance());
+
         order = Service.map_order.get(oid);
         
         toolbar = new JToolBar();
@@ -169,6 +172,7 @@ public class ManageOrder extends JDialog {
             
             Service.updateOrder();
             Service.updateGameAccountRent();
+            this.order = Service.map_order.get(order.i_oid);
             updateAccountNCommodity();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
