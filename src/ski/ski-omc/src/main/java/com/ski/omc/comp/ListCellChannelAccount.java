@@ -30,7 +30,7 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
     public ListCellChannelAccount(BeanChannelAccount user) {
         super(user);
         
-        i_channel = new JLabel("[" + getUserTypeDesc(user.i_channel) + "] ");
+        i_channel = new JLabel("[" + getChannel2String(user.i_channel) + "] ");
         i_channel.setForeground(color_major);
         i_channel.setFont(i_channel.getFont().deriveFont(Font.ITALIC));
         c_user    = new JLabel(user.c_user);
@@ -80,7 +80,7 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
         addActionListener(e->new ManageChannelAccount(user.i_caid).setVisible(true));
     }
     
-    private static String getUserTypeDesc(int channel) {
+    private static String getChannel2String(int channel) {
         switch (channel) {
         case Service.USER_TYPE_TAOBAO: return "淘宝";
         case Service.USER_TYPE_WECHAT: return "微信";

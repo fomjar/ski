@@ -34,6 +34,7 @@ public class ManageOrder extends JDialog {
     
     private static final long serialVersionUID = 7688182519875816792L;
     
+    private BeanOrder   order;
     private BeanChannelAccount user;
     private JToolBar    toolbar;
     private FjEditLabel i_oid;
@@ -44,15 +45,17 @@ public class ManageOrder extends JDialog {
     private FjListPane<BeanCommodity> pane_commodity;
     
     public ManageOrder(int oid) {
-        BeanOrder order = Service.map_order.get(oid);
+        order = Service.map_order.get(oid);
+        
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("创建商品"));
         toolbar.add(new JButton("更新订单"));
         toolbar.add(new JButton("关闭订单"));
-        toolbar.addSeparator();
-        toolbar.add(new JButton("管理用户"));
+        toolbar.getComponent(0).setEnabled(!order.isClose());
+        toolbar.getComponent(1).setEnabled(!order.isClose());
+        toolbar.getComponent(2).setEnabled(!order.isClose());
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
         user = Service.map_channel_account.get(order.i_caid);
@@ -68,7 +71,7 @@ public class ManageOrder extends JDialog {
         panel_basic.setLayout(new GridLayout(5, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("订单编号", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_platform));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid, "管理用户", e->new ManageChannelAccount(order.i_caid).setVisible(true)));
         panel_basic.add(UIToolkit.createBasicInfoLabel("打开时间", t_open));
         panel_basic.add(UIToolkit.createBasicInfoLabel("关闭时间", t_close));
         
@@ -101,7 +104,7 @@ public class ManageOrder extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                args.put("oid", order.i_oid);
                 args.put("platform", new_value.contains("淘宝") ? 0 : 1);
                 i_platform.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -125,7 +128,7 @@ public class ManageOrder extends JDialog {
                     i_caid.setText(old_value);
                     return;
                 }
-                args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                args.put("oid", order.i_oid);
                 args.put("caid", new_value);
                 i_caid.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -137,7 +140,7 @@ public class ManageOrder extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                args.put("oid", order.i_oid);
                 args.put("open", new_value);
                 t_open.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -149,7 +152,7 @@ public class ManageOrder extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
+                args.put("oid", order.i_oid);
                 args.put("close", new_value);
                 t_close.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -157,7 +160,12 @@ public class ManageOrder extends JDialog {
             public void cancelEdit(String value) {}
         });
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
-            UIToolkit.createCommodity(Integer.parseInt(i_oid.getText().split("x")[1], 16));
+            if (order.isClose()) {
+                JOptionPane.showConfirmDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.DEFAULT_OPTION);
+                return;
+            }
+            
+            UIToolkit.createCommodity(order.i_oid);
             
             Service.updateOrder();
             Service.updateGameAccountRent();
@@ -179,23 +187,32 @@ public class ManageOrder extends JDialog {
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
+            if (order.isClose()) {
+                JOptionPane.showConfirmDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.DEFAULT_OPTION);
+                return;
+            }
+            
+            for (BeanCommodity c : order.commodities.values()) {
+                if (!c.isClose()) {
+                    JOptionPane.showConfirmDialog(ManageOrder.this, "存在未退租的账号，不能关闭订单", "错误", JOptionPane.DEFAULT_OPTION);
+                    return;
+                }
+            }
+            
             if (JOptionPane.CANCEL_OPTION == JOptionPane.showConfirmDialog(ManageOrder.this, "确定关闭此订单", "提示", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
-            args.put("oid", Integer.parseInt(i_oid.getText().split("x")[1], 16));
-            args.put("end", sdf.format(new Date(System.currentTimeMillis())));
+            args.put("oid", order.i_oid);
+            args.put("close", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(ManageOrder.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-        });
-        ((JButton) toolbar.getComponent(4)).addActionListener(e->{
-            new ManageChannelAccount(user.i_caid).setVisible(true);
         });
     }
 
     private void updateAccountNCommodity() {
-        Collection<BeanCommodity> commodities = Service.map_order.get(Integer.parseInt(i_oid.getText().split("x")[1], 16)).commodities.values();
+        Collection<BeanCommodity> commodities = order.commodities.values();
         pane_commodity.getList().removeAllCell();
         commodities.forEach(item->pane_commodity.getList().addCell(new ListCellCommodity(item)));
     }

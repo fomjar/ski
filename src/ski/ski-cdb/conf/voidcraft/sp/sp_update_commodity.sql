@@ -98,11 +98,13 @@ begin
                     arg9
                 );
             else
+                set di_csn = csn;
+
                 select count(1)
                   into di_count
                   from tbl_commodity
                  where i_oid = oid
-                   and i_csn = csn;
+                   and i_csn = di_csn;
 
                 if di_count = 0 then
                     insert into tbl_commodity (
@@ -244,7 +246,7 @@ begin
                 end if;
             end if;
 
-            select fn_update_commodity(oid, csn, remark, price, count, _begin, _end, expense, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
+            select fn_update_commodity_rent(oid, di_csn, remark, price, count, _begin, _end, expense, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
               into i_code;
             set c_desc = null;
         end if;

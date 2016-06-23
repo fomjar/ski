@@ -2,6 +2,7 @@ package com.ski.omc;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,10 +42,13 @@ public class MainFrame extends JFrame {
     }
 
     private static final long serialVersionUID = -4646332990528380747L;
+    private static final String SWITCH_TITLE_OPEN = "当前显示：未关闭订单 (点击切换)";
+    private static final String SWITCH_TITLE_ALL  = "当前显示：全部订单 (点击切换)";
     
     private JTabbedPane tabs;
     private JMenuBar    menubar;
     private JToolBar    toolbar;
+    private JButton     order_switch;
     
     private MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", SkiCommon.VERSION, Service.getWsiUrl()));
@@ -69,6 +73,10 @@ public class MainFrame extends JFrame {
         ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(3)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().setSearchTips("键入用户名搜索");
+        
+        order_switch = new JButton(SWITCH_TITLE_OPEN);
+        order_switch.setMargin(new Insets(0, 0, 0, 0));
+        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().add(order_switch, BorderLayout.NORTH);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -193,13 +201,27 @@ public class MainFrame extends JFrame {
         paneorder.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanOrder>(paneorder.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanOrder celldata) {
-                    int count = 0;
-                    for (String word : words) {
-                        if (Service.map_channel_account.get(celldata.i_caid).c_user.contains(word))
-                            count++;
-                    }
-                    return count == words.length;
+                if (SWITCH_TITLE_OPEN.equals(order_switch.getText()) && celldata.isClose()) return false;
+                
+                int count = 0;
+                for (String word : words) {
+                    if (Service.map_channel_account.get(celldata.i_caid).c_user.contains(word))
+                        count++;
+                }
+                return count == words.length;
             }
+        });
+        order_switch.addActionListener(e->{
+            switch (order_switch.getText()) {
+            case SWITCH_TITLE_OPEN:
+                order_switch.setText(SWITCH_TITLE_ALL);
+                break;
+            case SWITCH_TITLE_ALL:
+                order_switch.setText(SWITCH_TITLE_OPEN);
+                break;
+            }
+            paneorder.getSearchBar().doSearch();
+            paneorder.getList().repaint();
         });
     }
     
@@ -267,21 +289,25 @@ public class MainFrame extends JFrame {
                     FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                     list_game.removeAllCell();
                     Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
+                    ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().doSearch();
                     
                     @SuppressWarnings("unchecked")
                     FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
                     list_game_account.removeAllCell();
                     Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
+                    ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().doSearch();
                     
                     @SuppressWarnings("unchecked")
                     FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
                     list_channel_account.removeAllCell();
                     Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
+                    ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().doSearch();
                     
                     @SuppressWarnings("unchecked")
                     FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
                     list_order.removeAllCell();
                     Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
+                    ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().doSearch();
                 } catch (Exception e) {
                     isfail = true;
                     e.printStackTrace();

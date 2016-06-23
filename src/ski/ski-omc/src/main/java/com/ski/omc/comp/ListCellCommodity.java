@@ -8,12 +8,15 @@ import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
 import com.fomjar.widget.FjListCell;
+import com.ski.common.SkiCommon;
 import com.ski.omc.Service;
 import com.ski.omc.bean.BeanCommodity;
 
+import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class ListCellCommodity extends FjListCell<BeanCommodity> {
@@ -62,16 +65,19 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         menu.add(new JMenuItem("租赁报告"));
         if (0 < data.t_end.length()) menu.getComponent(0).setEnabled(false);
         
-        ((JMenuItem) menu.getComponent(1)).addActionListener(e->{
+        ((JMenuItem) menu.getComponent(0)).addActionListener(e->{
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ListCellCommodity.this, "确认退租此商品？", "提示", JOptionPane.OK_CANCEL_OPTION))
+                return;
+            
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             args.put("oid", data.i_oid);
             args.put("csn", data.i_csn);
             args.put("end", sdf.format(new Date(System.currentTimeMillis())));
-            
-            JSONObject args2;
+            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+            JOptionPane.showConfirmDialog(ListCellCommodity.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
         });
-        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageChannelAccount(Service.map_order.get(data.i_oid).i_caid).setVisible(true));
+        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
         ((JMenuItem) menu.getComponent(2)).addActionListener(e->new OCRDialog(data).setVisible(true));
         
         addActionListener(e->{

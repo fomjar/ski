@@ -21,12 +21,12 @@ begin
       from tbl_platform_account
      where i_paid in (paid_from, paid_to);
 
-    if di_count < 2 then
-        set i_code = 2;
-        set c_desc = 'illegal arguments, paid_to or paid_from does not exist';
-    elseif paid_to = paid_from then
+    if paid_to = paid_from then
         set i_code = 2;
         set c_desc = 'illegal arguments, paid_to must be different from paid_from';
+    elseif di_count < 2 then
+        set i_code = 2;
+        set c_desc = 'illegal arguments, paid_to or paid_from does not exist';
     else
         select sum(i_balance)
           into di_balance

@@ -1,9 +1,8 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 
@@ -22,14 +21,21 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
     public ListCellOrder(BeanOrder data) {
         super(data);
         i_platform = new JLabel(0 == data.i_platform ? "[淘宝] " : "[微信] ");
-        i_platform.setForeground(color_major);
         i_platform.setFont(i_platform.getFont().deriveFont(Font.ITALIC));
         i_caid = new JLabel(Service.map_channel_account.get(data.i_caid).c_user);
-        i_caid.setForeground(color_major);
         t_time = new JLabel(String.format("%s ~ %s", data.t_open, data.t_close));
-        t_time.setForeground(color_major);
         i_oid = new JLabel(String.format("0x%08X", data.i_oid));
-        i_oid.setForeground(color_minor);
+        if (!data.isClose()) {
+            i_platform.setForeground(color_major);
+            i_caid.setForeground(color_major);
+            t_time.setForeground(color_major);
+            i_oid.setForeground(color_minor);
+        } else {
+            i_platform.setForeground(Color.lightGray);
+            i_caid.setForeground(Color.lightGray);
+            t_time.setForeground(Color.lightGray);
+            i_oid.setForeground(Color.lightGray);
+        }
         
         setLayout(new BorderLayout());
         add(i_platform, BorderLayout.WEST);
@@ -41,12 +47,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
     }
     
     private void registerListener() {
-        addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ManageOrder(getData().i_oid).setVisible(true);
-            }
-        });
+        addActionListener(e->new ManageOrder(getData().i_oid).setVisible(true));
     }
 
 }

@@ -42,7 +42,7 @@ public abstract class FjListCell<E> extends JComponent {
         actionmark  = true;
         setData(data);
         setOpaque(false);
-        setBorder(BorderFactory.createEmptyBorder(4,8,4,8));
+        setBorder(BorderFactory.createEmptyBorder(4,12,4,12));
         setMaximumSize(new Dimension(Integer.MAX_VALUE, 0));
         addMouseListener(new MouseAdapter() {
             @Override

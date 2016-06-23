@@ -11,6 +11,7 @@ import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanCommodity;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanPlatformAccount;
 
 public class Report {
 
@@ -18,9 +19,10 @@ public class Report {
         StringBuilder ocr = new StringBuilder(1024);
         DecimalFormat df = new DecimalFormat("###,###,###.##");
         
-        BeanChannelAccount user = Service.map_channel_account.get(Service.map_order.get(commodity.i_oid).i_caid);
-        BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
-        List<BeanGame>  games   = Service.getGameAccountGames(account.i_gaid);
+        BeanChannelAccount user     = Service.map_channel_account.get(Service.map_order.get(commodity.i_oid).i_caid);
+        BeanPlatformAccount puser   = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(user.i_caid));
+        BeanGameAccount account     = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
+        List<BeanGame>  games       = Service.getGameAccountGames(account.i_gaid);
         
         ocr.append(createReportHead(String.format("%s租赁报告", user.c_user)));
         List<Object> rows = new LinkedList<Object>();
@@ -31,8 +33,10 @@ public class Report {
         rows.add(new String[] {"租赁单价",  df.format(commodity.i_price) + "元/天"});
         rows.add(new String[] {"起租时间",  commodity.t_begin});
         if (commodity.isClose()) rows.add(new String[] {"退租时间", commodity.t_end});
-        if (commodity.isClose()) rows.add(new String[] {"消费小计", df.format(commodity.i_expense)});
+        if (commodity.isClose()) rows.add(new String[] {"消费小计", df.format(commodity.i_expense) + "元"});
         rows.add(new String[] {"备    注",     0 == commodity.c_remark.length() ? "-" : commodity.c_remark});
+        rows.add(new String[] {"账户余额",  puser.i_balance + "元"});
+        rows.add(new String[] {"优惠券余额", puser.i_coupon + "元"});
         ocr.append(createReportTable(null, rows, 2));
         return ocr.toString();
     }

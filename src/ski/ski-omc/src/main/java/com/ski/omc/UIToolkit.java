@@ -76,13 +76,27 @@ public class UIToolkit {
     }
     
     public static JPanel createBasicInfoLabel(String label, JComponent field) {
+        return createBasicInfoLabel(label, field, null, null);
+    }
+    
+    public static JPanel createBasicInfoLabel(String label, JComponent field, String actionName, ActionListener action) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(80, 0));
+        jlabel.setPreferredSize(new Dimension(100, 0));
+        jlabel.setFont(field.getFont());
+        jlabel.setForeground(field.getForeground());
         
         JPanel jpanel = new JPanel();
         jpanel.setLayout(new BorderLayout());
         jpanel.add(jlabel, BorderLayout.WEST);
         jpanel.add(field, BorderLayout.CENTER);
+        
+        if (null != actionName) {
+            JButton jbutton = new JButton(actionName);
+            jbutton.setMargin(new Insets(0, 0, 0, 0));
+            jbutton.setPreferredSize(new Dimension(jbutton.getPreferredSize().width, field.getPreferredSize().height));
+            jbutton.addActionListener(action);
+            jpanel.add(jbutton, BorderLayout.EAST);
+        }
         
         return jpanel;
     }

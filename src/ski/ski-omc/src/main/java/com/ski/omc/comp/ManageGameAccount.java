@@ -142,16 +142,14 @@ public class ManageGameAccount extends JDialog {
                     JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
                     return;
                 }
-                ((JButton) toolbar.getComponent(0)).setEnabled(false);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                 JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                if (null != rsp && Service.isResponseSuccess(rsp)) {
+                if (Service.isResponseSuccess(rsp)) {
                     if (args.has("user"))       c_user.setForeground(Color.darkGray);
                     if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
                     if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
                     args.clear();
                 }
-                ((JButton) toolbar.getComponent(0)).setEnabled(true);
             }
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
@@ -232,12 +230,12 @@ public class ManageGameAccount extends JDialog {
         BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(gaid, Service.RENT_TYPE_B));
         pane_users.getList().removeAllCell();
         if (null != user_a) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "A类");
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "[A类]");
             cell.addActionListener(e->new ManageChannelAccount(user_a.i_caid).setVisible(true));
             pane_users.getList().addCell(cell);
         }
         if (null != user_b) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_b.i_caid, user_b.c_user), "B类");
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_b.i_caid, user_b.c_user), "[B类]");
             cell.addActionListener(e->new ManageChannelAccount(user_b.i_caid).setVisible(true));
             pane_users.getList().addCell(cell);
         }
