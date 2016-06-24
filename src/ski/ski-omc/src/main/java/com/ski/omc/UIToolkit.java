@@ -563,7 +563,9 @@ public class UIToolkit {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
                     ( (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
                     + (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
-            cell.add(new JLabel(Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))), BorderLayout.SOUTH);
+            JLabel games = new JLabel("包含游戏：" + Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+            games.setForeground(Color.gray);
+            cell.add(games, BorderLayout.SOUTH);
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

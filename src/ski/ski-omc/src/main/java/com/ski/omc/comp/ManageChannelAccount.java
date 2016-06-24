@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
@@ -302,7 +304,8 @@ public class ManageChannelAccount extends JDialog {
             UIToolkit.createOrder(user);
             
             Service.updateOrder();
-            updatePaneOrder();
+            Service.updateGameAccountRent();
+            updateListPane();
         });
         ((JButton) toolbar.getComponent(6)).addActionListener(e->{
             BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
@@ -377,7 +380,18 @@ public class ManageChannelAccount extends JDialog {
                 .forEach(order->{
                     FjListCellString cell = new FjListCellString(String.format("%s ~ %s", order.t_open, order.t_close), String.format("0x%08X", order.i_oid));
                     if (order.isClose()) cell.setForeground(Color.lightGray);
-                    cell.addActionListener(e->new ManageOrder(order.i_oid).setVisible(true));
+                    cell.addActionListener(e->{
+                        ManageOrder dialog = new ManageOrder(order.i_oid);
+                        dialog.addWindowListener(new WindowAdapter() {
+                            @Override
+                            public void windowClosed(WindowEvent e) {
+                                Service.updateOrder();
+                                Service.updateGameAccountRent();
+                                updateListPane();
+                            }
+                        });
+                        dialog.setVisible(true);
+                    });
                     pane_order.getList().addCell(cell);
                 });
         pane_order.getList().repaint();

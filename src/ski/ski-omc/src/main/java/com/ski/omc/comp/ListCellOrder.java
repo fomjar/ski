@@ -28,7 +28,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
         if (!data.isClose()) {
             i_platform.setForeground(color_major);
             i_caid.setForeground(color_major);
-            t_time.setForeground(color_major);
+            t_time.setForeground(color_minor);
             i_oid.setForeground(color_minor);
         } else {
             i_platform.setForeground(Color.lightGray);

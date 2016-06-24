@@ -1,5 +1,6 @@
 package com.ski.omc.comp;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
@@ -37,19 +38,30 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         super(data);
         
         i_csn       = new JLabel();
-        i_csn.setForeground(color_minor);
         c_commodity = new JLabel();
-        c_commodity.setForeground(color_major);
         c_commodity2= new JLabel();
-        c_commodity2.setForeground(color_major);
         i_price     = new JLabel();
-        i_price.setForeground(color_major);
         t_time      = new JLabel();
-        t_time.setForeground(color_major);
         i_expense   = new JLabel();
-        i_expense.setForeground(color_major);
         c_remark    = new JLabel();
-        c_remark.setForeground(color_minor);
+        
+        if (!data.isClose()) {
+            i_csn.setForeground(color_minor);
+            c_commodity.setForeground(color_major);
+            c_commodity2.setForeground(color_major);
+            i_price.setForeground(color_major);
+            t_time.setForeground(color_major);
+            i_expense.setForeground(color_major);
+            c_remark.setForeground(color_minor);
+        } else {
+            i_csn.setForeground(Color.lightGray);
+            c_commodity.setForeground(Color.lightGray);
+            c_commodity2.setForeground(Color.lightGray);
+            i_price.setForeground(Color.lightGray);
+            t_time.setForeground(Color.lightGray);
+            i_expense.setForeground(Color.lightGray);
+            c_remark.setForeground(Color.lightGray);
+        }
         
         setLayout(new GridLayout(7, 1));
         add(i_csn);
