@@ -82,8 +82,6 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
             
             Service.updatePlatformAccount();
             Service.updateOrder();
-            
-            setData(Service.map_order.get(data.i_oid).commodities.get(data.i_csn));
             updateCommodity();
         });
         
@@ -96,7 +94,9 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
     }
     
     private void updateCommodity() {
+        setData(Service.map_order.get(getData().i_oid).commodities.get(getData().i_csn));
         BeanCommodity data = getData();
+        
         i_csn.setText("商品序号：" + String.format("0x%08X", data.i_csn));
         c_commodity.setText("商品信息：" + String.format("%s - %s", Service.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
         c_commodity2.setText("辅助信息：" + Service.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));

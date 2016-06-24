@@ -286,6 +286,10 @@ public class Service {
         return -1;
     }
     
+    public static int getPlatformAccountByOrder(int oid) {
+        return getPlatformAccountByChannelAccount(map_order.get(oid).i_caid);
+    }
+    
     public static List<BeanChannelAccount> getChannelAccountRelated(int caid) {
         int paid = getPlatformAccountByChannelAccount(caid);
         return set_platform_account_map

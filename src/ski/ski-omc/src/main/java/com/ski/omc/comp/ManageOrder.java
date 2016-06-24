@@ -53,13 +53,13 @@ public class ManageOrder extends JDialog {
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        toolbar.add(new JButton("更新订单"));
+        toolbar.add(new JButton("更新"));
         toolbar.addSeparator();
         toolbar.add(new JButton("创建商品"));
         toolbar.add(new JButton("关闭订单"));
         toolbar.getComponent(0).setEnabled(!order.isClose());
-        toolbar.getComponent(1).setEnabled(!order.isClose());
         toolbar.getComponent(2).setEnabled(!order.isClose());
+        toolbar.getComponent(3).setEnabled(!order.isClose());
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
         user = Service.map_channel_account.get(order.i_caid);
@@ -75,7 +75,12 @@ public class ManageOrder extends JDialog {
         panel_basic.setLayout(new GridLayout(5, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("订单编号", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_platform));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid, "管理用户", e->new ManageChannelAccount(order.i_caid).setVisible(true)));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid, "管理用户", e->{
+            Service.updateChannelAccount();
+            Service.updatePlatformAccount();
+            Service.updatePlatformAccountMap();
+            new ManageChannelAccount(order.i_caid).setVisible(true);
+        }));
         panel_basic.add(UIToolkit.createBasicInfoLabel("打开时间", t_open));
         panel_basic.add(UIToolkit.createBasicInfoLabel("关闭时间", t_close));
         
@@ -97,7 +102,7 @@ public class ManageOrder extends JDialog {
         
         registerListener();
         
-        updateAccountNCommodity();
+        updateCommodity();
     }
     
     private JSONObject args = new JSONObject();
@@ -167,7 +172,7 @@ public class ManageOrder extends JDialog {
             Service.updateOrder();
             Service.updateGameAccountRent();
             this.order = Service.map_order.get(order.i_oid);
-            updateAccountNCommodity();
+            updateCommodity();
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(e->{
             order = Service.map_order.get(order.i_oid);
@@ -195,10 +200,11 @@ public class ManageOrder extends JDialog {
             JOptionPane.showConfirmDialog(ManageOrder.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
             
             ManageOrder.this.dispose();
+            MainFrame.getInstance().updateAll();
         });
     }
 
-    private void updateAccountNCommodity() {
+    private void updateCommodity() {
         Collection<BeanCommodity> commodities = order.commodities.values();
         pane_commodity.getList().removeAllCell();
         commodities.forEach(item->pane_commodity.getList().addCell(new ListCellCommodity(item)));

@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -50,6 +51,8 @@ public class ManageChannelAccount extends JDialog {
     private FjEditLabel         t_birth;
     private FjEditLabel         i_balance;
     private FjEditLabel         i_coupon;
+    private FjEditLabel         ri_balance;
+    private FjEditLabel         ri_coupon;
     private FjListPane<String>  pane_user;
     private FjListPane<String>  pane_account;
     private FjListPane<String>  pane_order;
@@ -59,7 +62,6 @@ public class ManageChannelAccount extends JDialog {
         super(MainFrame.getInstance());
         
         user = Service.map_channel_account.get(caid);
-        puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(caid));
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -68,26 +70,31 @@ public class ManageChannelAccount extends JDialog {
         toolbar.addSeparator();
         toolbar.add(new JButton("充值"));
         toolbar.add(new JButton("充券"));
+        toolbar.add(new JButton("创建订单"));
         toolbar.addSeparator();
-        toolbar.add(new JButton("关联其他用户"));
+        toolbar.add(new JButton("关联用户"));
         
-        i_caid      = new FjEditLabel(String.format("0x%08X", user.i_caid), false);
+        i_caid      = new FjEditLabel(false);
         i_caid.setForeground(Color.gray);
-        c_user      = new FjEditLabel(user.c_user, false);
-        i_channel   = new FjEditLabel(getChannel2String(user.i_channel));
-        c_nick      = new FjEditLabel(0 == user.c_nick.length() ? "(没有昵称)" : user.c_nick);
-        i_gender    = new FjEditLabel(0 == user.i_gender ? "女" : 1 == user.i_gender ? "男" : "人妖");
-        c_phone     = new FjEditLabel(0 == user.c_phone.length() ? "(没有电话)" : user.c_phone);
-        c_address   = new FjEditLabel(0 == user.c_address.length() ? "(没有地址)" : user.c_address);
-        c_zipcode   = new FjEditLabel(0 == user.c_zipcode.length() ? "(没有邮编)" : user.c_zipcode);
-        t_birth     = new FjEditLabel(0 == user.t_birth.length() ? "(没有生日)" : user.t_birth);
-        i_balance   = new FjEditLabel(puser.i_balance + "元", false);
+        c_user      = new FjEditLabel(false);
+        i_channel   = new FjEditLabel();
+        c_nick      = new FjEditLabel();
+        i_gender    = new FjEditLabel();
+        c_phone     = new FjEditLabel();
+        c_address   = new FjEditLabel();
+        c_zipcode   = new FjEditLabel();
+        t_birth     = new FjEditLabel();
+        i_balance   = new FjEditLabel(false);
         i_balance.setFont(i_balance.getFont().deriveFont(Font.BOLD));
-        i_coupon    = new FjEditLabel(puser.i_coupon + "元", false);
+        i_coupon    = new FjEditLabel(false);
         i_coupon.setFont(i_coupon.getFont().deriveFont(Font.BOLD));
+        ri_balance  = new FjEditLabel(false);
+        ri_balance.setFont(ri_balance.getFont().deriveFont(Font.BOLD));
+        ri_coupon   = new FjEditLabel(false);
+        ri_coupon.setFont(ri_coupon.getFont().deriveFont(Font.BOLD));
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
-        panel_basic.setLayout(new GridLayout(11, 1));
+        panel_basic.setLayout(new GridLayout(13, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户编号", i_caid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账    号", c_user));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_channel));
@@ -99,6 +106,8 @@ public class ManageChannelAccount extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("出生日期", t_birth));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额",  i_balance));
         panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额", i_coupon));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额  (RT)", ri_balance));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额(RT)", ri_coupon));
         
         pane_user = new FjListPane<String>();
         pane_user.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "关联用户"));
@@ -135,6 +144,7 @@ public class ManageChannelAccount extends JDialog {
         
         registerListener();
         
+        updateBasicPane();
         updateListPane();
 
     }
@@ -260,7 +270,10 @@ public class ManageChannelAccount extends JDialog {
                 args.put("balance", balance);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
                 JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                if (Service.isResponseSuccess(rsp)) i_balance.setText(balance + "元");
+                if (Service.isResponseSuccess(rsp)) {
+                    Service.updatePlatformAccount();
+                    updateBasicPane();
+                }
                 break;
             }
         });
@@ -278,11 +291,20 @@ public class ManageChannelAccount extends JDialog {
                 args.put("coupon", coupon);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
                 JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                if (Service.isResponseSuccess(rsp)) i_coupon.setText(coupon + "元");
+                if (Service.isResponseSuccess(rsp)) {
+                    Service.updatePlatformAccount();
+                    updateBasicPane();
+                }
                 break;
             }
         });
-        ((JButton) toolbar.getComponent(5)).addActionListener(e->{
+        ((JButton) toolbar.getComponent(4)).addActionListener(e->{
+            UIToolkit.createOrder(user);
+            
+            Service.updateOrder();
+            updatePaneOrder();
+        });
+        ((JButton) toolbar.getComponent(6)).addActionListener(e->{
             BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
             if (null == user2) return;
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
@@ -303,6 +325,7 @@ public class ManageChannelAccount extends JDialog {
             
             Service.updatePlatformAccount();
             Service.updatePlatformAccountMap();
+            updateBasicPane();
             updateListPane();
         });
         order_switch.addActionListener(e->{
@@ -339,6 +362,8 @@ public class ManageChannelAccount extends JDialog {
         });
         
         updatePaneOrder();
+        
+        getContentPane().revalidate();
     }
     
     private void updatePaneOrder() {
@@ -358,6 +383,26 @@ public class ManageChannelAccount extends JDialog {
         pane_order.getList().repaint();
     }
     
+    private void updateBasicPane() {
+        user = Service.map_channel_account.get(user.i_caid);
+        puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(user.i_caid));
+        
+        i_caid.setText(String.format("0x%08X", user.i_caid));
+        c_user.setText(user.c_user);
+        i_channel.setText(getChannel2String(user.i_channel));
+        c_nick.setText(0 == user.c_nick.length() ? "(没有昵称)" : user.c_nick);
+        i_gender.setText(0 == user.i_gender ? "女" : 1 == user.i_gender ? "男" : "人妖");
+        c_phone.setText(0 == user.c_phone.length() ? "(没有电话)" : user.c_phone);
+        c_address.setText(0 == user.c_address.length() ? "(没有地址)" : user.c_address);
+        c_zipcode.setText(0 == user.c_zipcode.length() ? "(没有邮编)" : user.c_zipcode);
+        t_birth.setText(0 == user.t_birth.length() ? "(没有生日)" : user.t_birth);
+        i_balance.setText(puser.i_balance + "元");
+        i_coupon.setText(puser.i_coupon + "元");
+        float[] ps = prestatement(user.i_caid);
+        ri_balance.setText(ps[0] + "元");
+        ri_coupon.setText(ps[1] + "元");
+    }
+    
     private static String getChannel2String(int channel) {
         switch (channel) {
         case Service.USER_TYPE_TAOBAO: return "淘宝";
@@ -374,5 +419,51 @@ public class ManageChannelAccount extends JDialog {
         case "支付宝": return Service.USER_TYPE_ALIPAY;
         default: return Integer.parseInt(channel);
         }
+    }
+    
+    private static float[] prestatement(int caid) {
+        BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(caid));
+        float balance   = puser.i_balance;
+        float coupon    = puser.i_coupon;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        float cost = 0.00f;
+        try {
+            cost = Service.getOrderByChannelAccount(caid)
+                .stream()
+                .filter(order->!order.isClose())
+                .map(order->{
+                    try {
+                        return order.commodities.values()
+                                .stream()
+                                .filter(commodity->!commodity.isClose())
+                                .map(commodity->{
+                                    try {
+                                        long begin  = sdf.parse(commodity.t_begin).getTime();
+                                        long end    = System.currentTimeMillis();
+                                        int  times  = (int) ((end - begin) / 1000 / 60 / 60 / 12);
+                                        if (times < 2) times = 2;
+                                        else times = times + 1;
+                                        
+                                        return (commodity.i_price / 2) * times;
+                                    } catch (Exception e) {e.printStackTrace();}
+                                    return 0.00f;
+                                })
+                                .reduce((cost1, cost2)->(cost1 + cost2))
+                                .get();
+                    } catch (Exception e) {}
+                    return 0.00f;
+                })
+                .reduce((cost1, cost2)->(cost1 + cost2))
+                .get();
+        } catch (Exception e) {}
+        
+        if (cost <= coupon) {
+            coupon -= cost;
+        } else {
+            balance -= (cost - coupon);
+            coupon = 0.00f;
+        }
+        
+        return new float[] {balance, coupon};
     }
 }

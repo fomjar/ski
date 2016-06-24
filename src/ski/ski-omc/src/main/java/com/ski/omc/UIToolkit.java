@@ -41,6 +41,7 @@ import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
 import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.bean.BeanPlatformAccount;
 import com.ski.omc.comp.ManageOrder;
 
 import fomjar.server.msg.FjDscpMessage;
@@ -49,7 +50,7 @@ import sun.awt.image.ToolkitImage;
 
 public class UIToolkit {
     
-    public static final Font FONT = new Font("仿宋", Font.PLAIN, 14);
+    public static final Font FONT = new Font("楷体", Font.PLAIN, 14);
 
     public static final Color COLOR_MODIFYING = Color.blue;
     
@@ -85,7 +86,7 @@ public class UIToolkit {
     
     public static JPanel createBasicInfoLabel(String label, JComponent field, String actionName, ActionListener action) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(100, 0));
+        jlabel.setPreferredSize(new Dimension(160, 0));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         
@@ -278,13 +279,15 @@ public class UIToolkit {
     public static void createCommodity(int oid) {
         JLabel              c_arg0      = new JLabel();
         c_arg0.setPreferredSize(new Dimension(300, 0));
-        JButton             button      = new JButton("选择游戏账号");
-        button.setMargin(new Insets(0, 0, 0, 0));
+        JButton             choose      = new JButton("选择游戏账号");
+        choose.setMargin(new Insets(0, 0, 0, 0));
         JComboBox<String>   c_arg1      = new JComboBox<String>();
         c_arg1.setEnabled(false);
-        c_arg1.setPreferredSize(new Dimension(c_arg1.getPreferredSize().width, button.getPreferredSize().height));
+        c_arg1.setPreferredSize(new Dimension(c_arg1.getPreferredSize().width, choose.getPreferredSize().height));
         FjTextField         i_price     = new FjTextField();
         i_price.setDefaultTips("(单价)");
+        JCheckBox           recharge    = new JCheckBox("充值此金额", true);
+        recharge.setToolTipText("创建商品的同时，将此单价金额充值到用户账户");
         FjTextField         c_remark    = new FjTextField();
         c_remark.setDefaultTips("(备注)");
         
@@ -302,7 +305,7 @@ public class UIToolkit {
             }
         });
         
-        button.addActionListener(e->{
+        choose.addActionListener(e->{
             BeanGameAccount account = null;
             while (null != (account = chooseGameAccount())) {
                 c_arg0.setText(String.format("0x%08X - %s (%s)", account.i_gaid, account.c_user,
@@ -328,26 +331,32 @@ public class UIToolkit {
                 i_price.setDefaultTips("0.00");
             }
         });
-        button.addAncestorListener(new AncestorListener() {
+        choose.addAncestorListener(new AncestorListener() {
             @Override
             public void ancestorRemoved(AncestorEvent event) {}
             @Override
             public void ancestorMoved(AncestorEvent event) {}
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                for (ActionListener l : button.getActionListeners()) l.actionPerformed(null);
+                for (ActionListener l : choose.getActionListeners()) l.actionPerformed(null);
             }
         });
         
         JPanel panel0 = new JPanel();
         panel0.setLayout(new BorderLayout());
         panel0.add(c_arg0, BorderLayout.CENTER);
-        panel0.add(button, BorderLayout.EAST);
+        panel0.add(choose, BorderLayout.EAST);
+        
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new BorderLayout());
+        panel1.add(i_price, BorderLayout.CENTER);
+        panel1.add(recharge, BorderLayout.EAST);
+        
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 1));
         panel.add(panel0);
         panel.add(c_arg1);
-        panel.add(i_price);
+        panel.add(panel1);
         panel.add(c_remark);
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建商品", JOptionPane.OK_CANCEL_OPTION)) {
@@ -371,6 +380,15 @@ public class UIToolkit {
             args.put("arg1", c_arg1.getSelectedItem().toString().contains("A") ? "A" : "B");
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
             JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            
+            if (Service.isResponseSuccess(rsp) && recharge.isSelected()) {
+                BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByOrder(oid));
+                args.clear();
+                args.put("paid", puser.i_paid);
+                args.put("balance", puser.i_balance + Float.parseFloat(i_price.getText()));
+                rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            }
             break;
         }
     }
