@@ -113,8 +113,8 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         c_commodity.setText("商品信息：" + String.format("%s - %s", Service.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
         c_commodity2.setText("辅助信息：" + Service.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
         i_price.setText("商品单价：" + data.i_price + "元/天");
-        t_time.setText("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未结束)"));
-        i_expense.setText("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未计算消费)"));
+        t_time.setText("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未退租)"));
+        i_expense.setText("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未结算)"));
         c_remark.setText("备    注：" + (0 == data.c_remark.length() ? "-" : data.c_remark));
     }
 
