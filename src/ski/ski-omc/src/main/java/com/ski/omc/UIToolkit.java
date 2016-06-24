@@ -29,6 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
@@ -38,6 +40,8 @@ import com.ski.common.SkiCommon;
 import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
+import com.ski.omc.bean.BeanOrder;
+import com.ski.omc.comp.ManageOrder;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -189,13 +193,26 @@ public class UIToolkit {
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            
+            if (Service.isResponseSuccess(rsp)) {
+                if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.OK_CANCEL_OPTION)) {
+                    Service.updateChannelAccount();
+                    List<BeanChannelAccount> users = Service.getChannelAccountByUserName(c_user.getText());
+                    if (1 == users.size()) UIToolkit.createOrder(users.get(0));
+                    else UIToolkit.createOrder();
+                }
+            }
             break;
         }
     }
     
     public static void createOrder() {
+        createOrder(null);
+    }
+    
+    public static void createOrder(BeanChannelAccount user) {
         JComboBox<String>   i_platform = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信"});
-        JLabel i_caid_label = new JLabel();
+        JLabel i_caid_label = new JLabel(null != user ? String.format("0x%08X - %s", user.i_caid, user.c_user) : "");
         i_caid_label.setPreferredSize(new Dimension(240, 0));
         JButton i_caid_button = new JButton("选择用户");
         i_caid_button.setMargin(new Insets(0, 0, 0, 0));
@@ -204,6 +221,19 @@ public class UIToolkit {
             if (null == account) i_caid_label.setText("");
             else i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.c_user));
         });
+        if (null == user) {
+            // auto choose channel account
+            i_caid_button.addAncestorListener(new AncestorListener() {
+                @Override
+                public void ancestorRemoved(AncestorEvent event) {}
+                @Override
+                public void ancestorMoved(AncestorEvent event) {}
+                @Override
+                public void ancestorAdded(AncestorEvent event) {
+                    for (ActionListener l : i_caid_button.getActionListeners()) l.actionPerformed(null);
+                }
+            });
+        }
         
         JPanel i_caid = new JPanel();
         i_caid.setLayout(new BorderLayout());
@@ -227,6 +257,20 @@ public class UIToolkit {
             args.put("open", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            
+            if (Service.isResponseSuccess(rsp)) {
+                if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.OK_CANCEL_OPTION)) {
+                    Service.updateOrder();
+                    List<BeanOrder> orders = Service.getOrderByChannelAccount(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
+                    if (1 == orders.size()) {
+                        BeanOrder order = orders.get(0);
+                        UIToolkit.createCommodity(order.i_oid);
+                        Service.updateOrder();
+                        new ManageOrder(order.i_oid).setVisible(true);
+                    }
+                    else JOptionPane.showConfirmDialog(null, "不能确认刚才创建的订单", "错误", JOptionPane.DEFAULT_OPTION);
+                }
+            }
             break;
         }
     }
@@ -235,8 +279,10 @@ public class UIToolkit {
         JLabel              c_arg0      = new JLabel();
         c_arg0.setPreferredSize(new Dimension(300, 0));
         JButton             button      = new JButton("选择游戏账号");
+        button.setMargin(new Insets(0, 0, 0, 0));
         JComboBox<String>   c_arg1      = new JComboBox<String>();
         c_arg1.setEnabled(false);
+        c_arg1.setPreferredSize(new Dimension(c_arg1.getPreferredSize().width, button.getPreferredSize().height));
         FjTextField         i_price     = new FjTextField();
         i_price.setDefaultTips("(单价)");
         FjTextField         c_remark    = new FjTextField();
@@ -259,7 +305,8 @@ public class UIToolkit {
         button.addActionListener(e->{
             BeanGameAccount account = null;
             while (null != (account = chooseGameAccount())) {
-                c_arg0.setText(String.format("0x%08X - %s", account.i_gaid, account.c_user));
+                c_arg0.setText(String.format("0x%08X - %s (%s)", account.i_gaid, account.c_user,
+                        Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
                 if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
@@ -279,6 +326,16 @@ public class UIToolkit {
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
                 c_arg1.setEnabled(false);
                 i_price.setDefaultTips("0.00");
+            }
+        });
+        button.addAncestorListener(new AncestorListener() {
+            @Override
+            public void ancestorRemoved(AncestorEvent event) {}
+            @Override
+            public void ancestorMoved(AncestorEvent event) {}
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                for (ActionListener l : button.getActionListeners()) l.actionPerformed(null);
             }
         });
         
@@ -364,8 +421,11 @@ public class UIToolkit {
     }
     
     public static BeanGameAccount chooseGameAccount() {
+        JCheckBox type_enable   = new JCheckBox("启用状态过滤", false);
         JCheckBox type_a   = new JCheckBox("A:〇", true);
+        type_a.setEnabled(false);
         JCheckBox type_b   = new JCheckBox("B:〇", true);
+        type_b.setEnabled(false);
         
         FjListPane<String> pane = new FjListPane<String>();
         // 启用搜索框
@@ -374,6 +434,7 @@ public class UIToolkit {
         pane.getSearchBar().setSearchTips("键入关键词搜索");
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<String>(pane.getList()) {
             private boolean isMatchCheckBox(JCheckBox type_a, JCheckBox type_b, String celldata) {
+                if (!type_enable.isSelected()) return true;
                 return celldata.contains(type_a.getText()) && celldata.contains(type_b.getText());
             }
             @Override
@@ -443,6 +504,11 @@ public class UIToolkit {
             }
         });
 
+        type_enable.addActionListener(e->{
+            type_a.setEnabled(type_enable.isSelected());
+            type_b.setEnabled(type_enable.isSelected());
+            pane.getSearchBar().doSearch();
+        });
         type_a.addActionListener(e->{
             if (type_a.isSelected()) type_a.setText("A:〇");
             else type_a.setText("A:●");
@@ -456,7 +522,9 @@ public class UIToolkit {
         
         JPanel types = new JPanel();
         types.setBorder(BorderFactory.createTitledBorder("过滤条件"));
-        types.setLayout(new GridLayout(1, 2));
+        types.setLayout(new GridLayout(2, 2));
+        types.add(type_enable);
+        types.add(new JPanel());
         types.add(type_a);
         types.add(type_b);
         
@@ -477,6 +545,7 @@ public class UIToolkit {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
                     ( (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
                     + (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
+            cell.add(new JLabel(Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))), BorderLayout.SOUTH);
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -486,6 +555,7 @@ public class UIToolkit {
             });
             pane.getList().addCell(cell);
         });
+        
         pane.getSearchBar().doSearch();
         
         dialog.setVisible(true);

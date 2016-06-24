@@ -294,4 +294,12 @@ public class Service {
                 .map(bean->map_channel_account.get(bean.i_caid))
                 .collect(Collectors.toList());
     }
+    
+    public static List<BeanChannelAccount> getChannelAccountByUserName(String user) {
+        return Service.map_channel_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+    }
+    
+    public static List<BeanOrder> getOrderByChannelAccount(int caid) {
+        return Service.map_order.values().stream().filter(order->order.i_caid == caid).collect(Collectors.toList());
+    }
 }

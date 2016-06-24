@@ -53,8 +53,9 @@ public class ManageOrder extends JDialog {
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
-        toolbar.add(new JButton("创建商品"));
         toolbar.add(new JButton("更新订单"));
+        toolbar.addSeparator();
+        toolbar.add(new JButton("创建商品"));
         toolbar.add(new JButton("关闭订单"));
         toolbar.getComponent(0).setEnabled(!order.isClose());
         toolbar.getComponent(1).setEnabled(!order.isClose());
@@ -62,7 +63,7 @@ public class ManageOrder extends JDialog {
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
         user = Service.map_channel_account.get(order.i_caid);
-        i_caid      = new FjEditLabel(user.c_user);
+        i_caid      = new FjEditLabel(user.c_user, false);
         t_open      = new FjEditLabel(order.t_open);
         t_close     = new FjEditLabel(order.t_close);
         
@@ -114,30 +115,6 @@ public class ManageOrder extends JDialog {
             @Override
             public void cancelEdit(String value) {}
         });
-        i_caid.addEditListener(new EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                boolean isexist = false;
-                for (BeanChannelAccount account : Service.map_channel_account.values()) {
-                    if (account.c_user.equals(new_value)) {
-                        isexist = true;
-                        break;
-                    }
-                }
-                if (!isexist) {
-                    JOptionPane.showConfirmDialog(ManageOrder.this, "输入的用户不存在", "错误", JOptionPane.DEFAULT_OPTION);
-                    i_caid.setText(old_value);
-                    return;
-                }
-                args.put("oid", order.i_oid);
-                args.put("caid", new_value);
-                i_caid.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
         t_open.addEditListener(new EditListener() {
             @Override
             public void startEdit(String value) {}
@@ -163,19 +140,6 @@ public class ManageOrder extends JDialog {
             public void cancelEdit(String value) {}
         });
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
-            if (order.isClose()) {
-                JOptionPane.showConfirmDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.DEFAULT_OPTION);
-                return;
-            }
-            
-            UIToolkit.createCommodity(order.i_oid);
-            
-            Service.updateOrder();
-            Service.updateGameAccountRent();
-            this.order = Service.map_order.get(order.i_oid);
-            updateAccountNCommodity();
-        });
-        ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             if (args.isEmpty()) {
                 JOptionPane.showConfirmDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
                 return;
@@ -191,6 +155,23 @@ public class ManageOrder extends JDialog {
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
+            order = Service.map_order.get(order.i_oid);
+            
+            if (order.isClose()) {
+                JOptionPane.showConfirmDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.DEFAULT_OPTION);
+                return;
+            }
+            
+            UIToolkit.createCommodity(order.i_oid);
+            
+            Service.updateOrder();
+            Service.updateGameAccountRent();
+            this.order = Service.map_order.get(order.i_oid);
+            updateAccountNCommodity();
+        });
+        ((JButton) toolbar.getComponent(3)).addActionListener(e->{
+            order = Service.map_order.get(order.i_oid);
+            
             if (order.isClose()) {
                 JOptionPane.showConfirmDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.DEFAULT_OPTION);
                 return;
@@ -212,6 +193,8 @@ public class ManageOrder extends JDialog {
             args.put("close", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
             JOptionPane.showConfirmDialog(ManageOrder.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            
+            ManageOrder.this.dispose();
         });
     }
 

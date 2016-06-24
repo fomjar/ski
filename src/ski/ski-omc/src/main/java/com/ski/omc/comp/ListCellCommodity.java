@@ -36,18 +36,19 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
     public ListCellCommodity(BeanCommodity data) {
         super(data);
         
-        i_csn       = new JLabel("商品序号：" + String.format("0x%08X", data.i_csn));
+        i_csn       = new JLabel();
         i_csn.setForeground(color_minor);
-        c_commodity = new JLabel("商品信息：" + String.format("%s - %s", Service.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
+        c_commodity = new JLabel();
         c_commodity.setForeground(color_major);
-        c_commodity2= new JLabel("辅助信息：" + Service.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
-        i_price     = new JLabel("商品单价：" + data.i_price + "元/天");
+        c_commodity2= new JLabel();
+        c_commodity2.setForeground(color_major);
+        i_price     = new JLabel();
         i_price.setForeground(color_major);
-        t_time      = new JLabel("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未结束)"));
+        t_time      = new JLabel();
         t_time.setForeground(color_major);
-        i_expense   = new JLabel("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未计算消费)"));
+        i_expense   = new JLabel();
         i_expense.setForeground(color_major);
-        c_remark    = new JLabel("备    注：" + (0 == data.c_remark.length() ? "-" : data.c_remark));
+        c_remark    = new JLabel();
         c_remark.setForeground(color_minor);
         
         setLayout(new GridLayout(7, 1));
@@ -60,12 +61,14 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         add(c_remark);
         
         menu = new JPopupMenu();
-        menu.add(new JMenuItem("退    租"));
-        menu.add(new JMenuItem("账号信息"));
         menu.add(new JMenuItem("租赁报告"));
-        if (0 < data.t_end.length()) menu.getComponent(0).setEnabled(false);
+        menu.add(new JMenuItem("账号信息"));
+        menu.add(new JMenuItem("退    租"));
+        if (0 < data.t_end.length()) menu.getComponent(2).setEnabled(false);
         
-        ((JMenuItem) menu.getComponent(0)).addActionListener(e->{
+        ((JMenuItem) menu.getComponent(0)).addActionListener(e->new OCRDialog(data).setVisible(true));
+        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
+        ((JMenuItem) menu.getComponent(2)).addActionListener(e->{
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ListCellCommodity.this, "确认退租此商品？", "提示", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
@@ -79,14 +82,28 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
             
             Service.updatePlatformAccount();
             Service.updateOrder();
+            
+            setData(Service.map_order.get(data.i_oid).commodities.get(data.i_csn));
+            updateCommodity();
         });
-        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
-        ((JMenuItem) menu.getComponent(2)).addActionListener(e->new OCRDialog(data).setVisible(true));
         
         addActionListener(e->{
             MouseEvent me = (MouseEvent) e.getSource();
             menu.show(ListCellCommodity.this, me.getX(), me.getY());
         });
+        
+        updateCommodity();
+    }
+    
+    private void updateCommodity() {
+        BeanCommodity data = getData();
+        i_csn.setText("商品序号：" + String.format("0x%08X", data.i_csn));
+        c_commodity.setText("商品信息：" + String.format("%s - %s", Service.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
+        c_commodity2.setText("辅助信息：" + Service.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+        i_price.setText("商品单价：" + data.i_price + "元/天");
+        t_time.setText("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未结束)"));
+        i_expense.setText("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未计算消费)"));
+        c_remark.setText("备    注：" + (0 == data.c_remark.length() ? "-" : data.c_remark));
     }
 
 }

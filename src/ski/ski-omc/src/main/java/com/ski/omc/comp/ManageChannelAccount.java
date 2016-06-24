@@ -65,6 +65,7 @@ public class ManageChannelAccount extends JDialog {
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("更新"));
+        toolbar.addSeparator();
         toolbar.add(new JButton("充值"));
         toolbar.add(new JButton("充券"));
         toolbar.addSeparator();
@@ -245,33 +246,43 @@ public class ManageChannelAccount extends JDialog {
                 args.clear();
             }
         });
-        ((JButton) toolbar.getComponent(1)).addActionListener(e->{
-            FjTextField money = new FjTextField();
-            money.setDefaultTips("(请输入充值金额)");
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充值", JOptionPane.OK_CANCEL_OPTION))
-                return;
-            float balance = puser.i_balance + Float.parseFloat(money.getText());
-            JSONObject args = new JSONObject();
-            args.put("paid", puser.i_paid);
-            args.put("balance", balance);
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            if (Service.isResponseSuccess(rsp)) i_balance.setText(balance + "元");
-        });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
             FjTextField money = new FjTextField();
-            money.setDefaultTips("(请输入充券金额)");
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充券", JOptionPane.OK_CANCEL_OPTION))
-                return;
-            float coupon = puser.i_coupon + Float.parseFloat(money.getText());
-            JSONObject args = new JSONObject();
-            args.put("paid", puser.i_paid);
-            args.put("coupon", coupon);
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            if (Service.isResponseSuccess(rsp)) i_coupon.setText(coupon + "元");
+            money.setDefaultTips("(请输入充值金额)");
+            while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充值", JOptionPane.OK_CANCEL_OPTION)) {
+                if (0 == money.getText().length()) {
+                    JOptionPane.showConfirmDialog(ManageChannelAccount.this, "充值金额一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                    continue;
+                }
+                float balance = puser.i_balance + Float.parseFloat(money.getText());
+                JSONObject args = new JSONObject();
+                args.put("paid", puser.i_paid);
+                args.put("balance", balance);
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                if (Service.isResponseSuccess(rsp)) i_balance.setText(balance + "元");
+                break;
+            }
         });
-        ((JButton) toolbar.getComponent(4)).addActionListener(e->{
+        ((JButton) toolbar.getComponent(3)).addActionListener(e->{
+            FjTextField money = new FjTextField();
+            money.setDefaultTips("(请输入充券金额)");
+            while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充券", JOptionPane.OK_CANCEL_OPTION)) {
+                if (0 == money.getText().length()) {
+                    JOptionPane.showConfirmDialog(ManageChannelAccount.this, "充券金额一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                    continue;
+                }
+                float coupon = puser.i_coupon + Float.parseFloat(money.getText());
+                JSONObject args = new JSONObject();
+                args.put("paid", puser.i_paid);
+                args.put("coupon", coupon);
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                if (Service.isResponseSuccess(rsp)) i_coupon.setText(coupon + "元");
+                break;
+            }
+        });
+        ((JButton) toolbar.getComponent(5)).addActionListener(e->{
             BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
             if (null == user2) return;
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
