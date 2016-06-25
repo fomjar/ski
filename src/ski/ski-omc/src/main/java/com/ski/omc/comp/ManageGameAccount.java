@@ -52,7 +52,7 @@ public class ManageGameAccount extends JDialog {
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         toolbar.add(new JButton("更新到DB"));
-        toolbar.add(new JButton("更新到DB和PS"));
+        toolbar.add(new JButton("更新到PS和DB"));
         toolbar.add(new JButton("测试账号"));
         toolbar.addSeparator();
         toolbar.add(new JButton("添加游戏"));
