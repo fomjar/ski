@@ -1,6 +1,7 @@
 package com.ski.wa.ae.psn;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
 import com.ski.common.SkiCommon;
@@ -58,7 +59,8 @@ public class UpdateAccount implements AE {
             desc = "update new password success";
         } else { // 密码保存失败
             code = SkiCommon.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
-            desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();
+            try {desc = driver.findElement(By.id("passwordFieldError")).getText();}
+            catch (NoSuchElementException e) {desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();}
         }
     }
 

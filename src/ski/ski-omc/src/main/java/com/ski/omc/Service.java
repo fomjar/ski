@@ -1,9 +1,11 @@
 package com.ski.omc;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 
 import com.ski.common.SkiCommon;
 import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanCommodity;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
 import com.ski.omc.bean.BeanGameAccountGame;
@@ -19,7 +22,6 @@ import com.ski.omc.bean.BeanGameRentPrice;
 import com.ski.omc.bean.BeanOrder;
 import com.ski.omc.bean.BeanPlatformAccount;
 import com.ski.omc.bean.BeanPlatformAccountMap;
-import com.ski.omc.bean.BeanCommodity;
 
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
@@ -307,5 +309,26 @@ public class Service {
     
     public static List<BeanOrder> getOrderByChannelAccount(int caid) {
         return Service.map_order.values().stream().filter(order->order.i_caid == caid).collect(Collectors.toList());
+    }
+    
+    public static List<BeanGameAccount> getGameAccountByUserName(String user) {
+        return Service.map_game_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+    }
+    
+    public static String createGameAccountPassword() {
+        List<Integer> number = new ArrayList<Integer>(20);
+        // 密碼中同一個字母不可連續重複 3 次
+        for (int i = 0; i <= 9; i++) {
+            for (int j = 0; j < 2; j++) {
+                number.add(i);
+            }
+        }
+        Random r = new Random();
+        return String.format("vcg%d%d%d%d%d",
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()));
     }
 }

@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -33,13 +36,15 @@ public class StepStepDialog extends JDialog {
         super(MainFrame.getInstance());
         
         this.steps = steps;
-        this.index = 0;
-        this.progress = new JProgressBar(0, steps.length - 1);
+        this.index = 1;
+        this.progress = new JProgressBar(0, steps.length);
         this.progress.setValue(this.index);
+        this.progress.setStringPainted(true);
         
         jlb_steps = new JLabel[steps.length];
         for (int i = 0; i < jlb_steps.length; i++) {
             jlb_steps[i] = new JLabel(steps[i].name);
+            jlb_steps[i].setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         }
         this.jta_desc = new JTextArea();
         this.jta_desc.setLineWrap(true);
@@ -49,8 +54,10 @@ public class StepStepDialog extends JDialog {
         this.jsp_desc.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         JPanel panel_steps = new JPanel();
-        panel_steps.setLayout(new GridLayout(jlb_steps.length, 1));
+        panel_steps.setLayout(new BoxLayout(panel_steps, BoxLayout.Y_AXIS));
+        panel_steps.add(Box.createVerticalGlue());
         for (JLabel label : jlb_steps) panel_steps.add(label);
+        panel_steps.add(Box.createVerticalGlue());
         
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
@@ -62,11 +69,25 @@ public class StepStepDialog extends JDialog {
         getContentPane().add(panel, BorderLayout.CENTER);
         getContentPane().add(progress, BorderLayout.SOUTH);
         
+        getContentPane().addMouseMotionListener(new MouseMotionAdapter() {
+            private int x;
+            private int y;
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                setLocation(getX() + (e.getX() - x), getY() + (e.getY() - y));
+            }
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                x = e.getX();
+                y = e.getY();
+            }
+        });
+        
         setTitle("正在操作");
         setModal(true);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setUndecorated(true);
-        setSize(new Dimension(600, 100));
+        setSize(new Dimension(600, 300));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
@@ -75,19 +96,23 @@ public class StepStepDialog extends JDialog {
     
     public void toPrevStep() {
         index--;
+        if (index < 1) index = 1;
         update();
     }
     
     public void toNextStep() {
         index++;
+        if (index > steps.length) index = steps.length;
         update();
     }
     
     private void update() {
         for (JLabel step : jlb_steps) step.setFont(step.getFont().deriveFont(Font.PLAIN));
-        jlb_steps[index].setFont(jlb_steps[index].getFont().deriveFont(Font.BOLD));
-        appendDescription(steps[index].desc);
+        jlb_steps[index - 1].setFont(jlb_steps[index - 1].getFont().deriveFont(Font.BOLD));
+        if (0 < jta_desc.getText().length()) appendDescription("");
+        appendDescription(steps[index - 1].desc);
         progress.setValue(index);
+        progress.setString(String.format("%d / %d", index, steps.length));
     }
     
     public void appendDescription(String desc) {

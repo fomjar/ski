@@ -39,24 +39,6 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         i_expense   = new JLabel();
         c_remark    = new JLabel();
         
-        if (!data.isClose()) {
-            i_csn.setForeground(color_minor);
-            c_commodity.setForeground(color_major);
-            c_commodity2.setForeground(color_major);
-            i_price.setForeground(color_major);
-            t_time.setForeground(color_major);
-            i_expense.setForeground(color_major);
-            c_remark.setForeground(color_minor);
-        } else {
-            i_csn.setForeground(Color.lightGray);
-            c_commodity.setForeground(Color.lightGray);
-            c_commodity2.setForeground(Color.lightGray);
-            i_price.setForeground(Color.lightGray);
-            t_time.setForeground(Color.lightGray);
-            i_expense.setForeground(Color.lightGray);
-            c_remark.setForeground(Color.lightGray);
-        }
-        
         setLayout(new GridLayout(7, 1));
         add(i_csn);
         add(c_commodity);
@@ -78,6 +60,7 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
             UIToolkit.closeCommodity(data.i_oid, data.i_csn);
             
             Service.updatePlatformAccount();
+            Service.updateGameAccountRent();
             Service.updateOrder();
             updateCommodity();
         });
@@ -101,6 +84,24 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         t_time.setText("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未退租)"));
         i_expense.setText("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未结算)"));
         c_remark.setText("备    注：" + (0 == data.c_remark.length() ? "-" : data.c_remark));
+        
+        if (!data.isClose()) {
+            i_csn.setForeground(color_minor);
+            c_commodity.setForeground(color_major);
+            c_commodity2.setForeground(color_major);
+            i_price.setForeground(color_major);
+            t_time.setForeground(color_major);
+            i_expense.setForeground(color_major);
+            c_remark.setForeground(color_minor);
+        } else {
+            i_csn.setForeground(Color.lightGray);
+            c_commodity.setForeground(Color.lightGray);
+            c_commodity2.setForeground(Color.lightGray);
+            i_price.setForeground(Color.lightGray);
+            t_time.setForeground(Color.lightGray);
+            i_expense.setForeground(Color.lightGray);
+            c_remark.setForeground(Color.lightGray);
+        }
     }
 
 }

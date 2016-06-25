@@ -48,15 +48,17 @@ public class WaTask implements FjServerTask {
             ae.execute(driver, args);
         } catch (Exception e) {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
-            response(server.name(), req, String.format("{'code':%d, 'desc':\"execute ae failed for instuction(0x%08X): %s\"}", SkiCommon.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, e.getMessage()));
+            String desc = e.getMessage();
+            if (desc.contains(" (WARNING:")) desc = desc.substring(0, desc.indexOf(" (WARNING:"));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", SkiCommon.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
             return;
         } finally {
             if (null != driver) driver.quit();
         }
-        String desc = ae.desc();
-        // string type for json
-        if (null != desc && !desc.startsWith("{") && !desc.endsWith("}") && !desc.startsWith("[") && !desc.endsWith("]")) desc = "\"" + desc + "\"";
-        response(server.name(), req, String.format("{'code':%d, 'desc':%s}", ae.code(), desc));
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", ae.code());
+        args_rsp.put("desc", ae.desc());
+        response(server.name(), req, args_rsp);
     }
     
     private static void response(String serverName, FjDscpMessage req, Object args) {
