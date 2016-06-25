@@ -240,12 +240,12 @@ public class ManageChannelAccount extends JDialog {
         });
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             if (args.isEmpty()) {
-                JOptionPane.showConfirmDialog(ManageChannelAccount.this, "没有可更新的内容", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(ManageChannelAccount.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             if (Service.isResponseSuccess(rsp)) {
                 if (args.has("user"))       c_user.setForeground(Color.darkGray);
                 if (args.has("channel"))    i_channel.setForeground(Color.darkGray);
@@ -263,7 +263,7 @@ public class ManageChannelAccount extends JDialog {
             money.setDefaultTips("(请输入充值金额)");
             while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充值", JOptionPane.OK_CANCEL_OPTION)) {
                 if (0 == money.getText().length()) {
-                    JOptionPane.showConfirmDialog(ManageChannelAccount.this, "充值金额一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(ManageChannelAccount.this, "充值金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 float balance = puser.i_balance + Float.parseFloat(money.getText());
@@ -271,7 +271,7 @@ public class ManageChannelAccount extends JDialog {
                 args.put("paid", puser.i_paid);
                 args.put("balance", balance);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 if (Service.isResponseSuccess(rsp)) {
                     Service.updatePlatformAccount();
                     updateBasicPane();
@@ -284,7 +284,7 @@ public class ManageChannelAccount extends JDialog {
             money.setDefaultTips("(请输入充券金额)");
             while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, money, "充券", JOptionPane.OK_CANCEL_OPTION)) {
                 if (0 == money.getText().length()) {
-                    JOptionPane.showConfirmDialog(ManageChannelAccount.this, "充券金额一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(ManageChannelAccount.this, "充券金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 float coupon = puser.i_coupon + Float.parseFloat(money.getText());
@@ -292,7 +292,7 @@ public class ManageChannelAccount extends JDialog {
                 args.put("paid", puser.i_paid);
                 args.put("coupon", coupon);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 if (Service.isResponseSuccess(rsp)) {
                     Service.updatePlatformAccount();
                     updateBasicPane();
@@ -310,13 +310,13 @@ public class ManageChannelAccount extends JDialog {
         ((JButton) toolbar.getComponent(6)).addActionListener(e->{
             BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
             if (null == user2) return;
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退，继续？", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
             int paid_to = Service.getPlatformAccountByChannelAccount(user.i_caid);
             int paid_from = Service.getPlatformAccountByChannelAccount(user2.i_caid);
             if (paid_to == paid_from) {
-                JOptionPane.showConfirmDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -324,7 +324,7 @@ public class ManageChannelAccount extends JDialog {
             args.put("paid_to", paid_to);
             args.put("paid_from", paid_from);
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
-            JOptionPane.showConfirmDialog(ManageChannelAccount.this, rsp.toString(), "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             
             Service.updatePlatformAccount();
             Service.updatePlatformAccountMap();

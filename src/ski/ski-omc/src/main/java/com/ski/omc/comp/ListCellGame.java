@@ -112,7 +112,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 args.put("type", Service.RENT_TYPE_A);
                 args.put("price", Float.parseFloat(new_value));
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
-                JOptionPane.showConfirmDialog(ListCellGame.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 args.clear();
                 
                 MainFrame.getInstance().updateAll();
@@ -132,7 +132,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 args.put("type", Service.RENT_TYPE_B);
                 args.put("price", Float.parseFloat(new_value));
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
-                JOptionPane.showConfirmDialog(ListCellGame.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 args.clear();
                 
                 MainFrame.getInstance().updateAll();
@@ -168,12 +168,12 @@ public class ListCellGame extends FjListCell<BeanGame> {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (args.isEmpty()) {
-                    JOptionPane.showConfirmDialog(ListCellGame.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(ListCellGame.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                     return;
                 }
                 if (3 < args.size() || !args.containsKey("price")) {
                     FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
-                    JOptionPane.showConfirmDialog(ListCellGame.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                    UIToolkit.showServerResponse(rsp);
                     if (null != rsp && Service.isResponseSuccess(rsp)) {
                         if (args.has("name_zh"))    c_name_zh.setForeground(color_major);
                         if (args.has("sale"))       t_sale.setForeground(color_minor);
@@ -183,7 +183,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 }
                 if (args.containsKey("price")) {
                     FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
-                    JOptionPane.showConfirmDialog(ListCellGame.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                    UIToolkit.showServerResponse(rsp);
                     if (null != rsp && Service.isResponseSuccess(rsp)) {
                         if (args.has("price")) i_price_a.setForeground(color_major);
                         args.clear();

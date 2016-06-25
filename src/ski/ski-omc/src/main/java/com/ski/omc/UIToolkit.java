@@ -38,11 +38,13 @@ import com.fomjar.widget.FjSearchBar;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.SkiCommon;
 import com.ski.omc.bean.BeanChannelAccount;
+import com.ski.omc.bean.BeanCommodity;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
 import com.ski.omc.bean.BeanOrder;
 import com.ski.omc.bean.BeanPlatformAccount;
 import com.ski.omc.comp.ManageOrder;
+import com.ski.omc.comp.StepStepDialog;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -122,7 +124,7 @@ public class UIToolkit {
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_name_zh.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "游戏名称一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "游戏名称一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             JSONObject args = new JSONObject();
@@ -130,7 +132,7 @@ public class UIToolkit {
             if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
-            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             break;
         }
     }
@@ -151,11 +153,11 @@ public class UIToolkit {
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏账号", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             if (0 == c_pass.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "密码一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "密码一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             JSONObject args = new JSONObject();
@@ -163,7 +165,7 @@ public class UIToolkit {
             if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             break;
         }
     }
@@ -184,7 +186,7 @@ public class UIToolkit {
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             JSONObject args = new JSONObject();
@@ -193,10 +195,10 @@ public class UIToolkit {
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             
             if (Service.isResponseSuccess(rsp)) {
-                if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.OK_CANCEL_OPTION)) {
+                if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.YES_NO_OPTION)) {
                     Service.updateChannelAccount();
                     List<BeanChannelAccount> users = Service.getChannelAccountByUserName(c_user.getText());
                     if (1 == users.size()) UIToolkit.createOrder(users.get(0));
@@ -249,7 +251,7 @@ public class UIToolkit {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == i_caid_label.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "用户名一定要填", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             JSONObject args = new JSONObject();
@@ -257,26 +259,27 @@ public class UIToolkit {
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             args.put("open", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             
             if (Service.isResponseSuccess(rsp)) {
-                if(JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.OK_CANCEL_OPTION)) {
+                if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.YES_NO_OPTION)) {
                     Service.updateOrder();
                     List<BeanOrder> orders = Service.getOrderByChannelAccount(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
                     if (1 == orders.size()) {
                         BeanOrder order = orders.get(0);
-                        UIToolkit.createCommodity(order.i_oid);
+                        UIToolkit.openCommodity(order.i_oid);
                         Service.updateOrder();
                         new ManageOrder(order.i_oid).setVisible(true);
                     }
-                    else JOptionPane.showConfirmDialog(null, "不能确认刚才创建的订单", "错误", JOptionPane.DEFAULT_OPTION);
+                    else JOptionPane.showMessageDialog(null, "不能确认刚才创建的订单，请手工打开再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
                 }
             }
             break;
         }
     }
     
-    public static void createCommodity(int oid) {
+    public static void openCommodity(int oid) {
+        Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
         JLabel              c_arg0      = new JLabel();
         c_arg0.setPreferredSize(new Dimension(300, 0));
         JButton             choose      = new JButton("选择游戏账号");
@@ -306,25 +309,24 @@ public class UIToolkit {
         });
         
         choose.addActionListener(e->{
-            BeanGameAccount account = null;
-            while (null != (account = chooseGameAccount())) {
-                c_arg0.setText(String.format("0x%08X - %s (%s)", account.i_gaid, account.c_user,
-                        Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
+            while (null != (account.obj = chooseGameAccount())) {
+                c_arg0.setText(String.format("0x%08X - %s (%s)", account.obj.i_gaid, account.obj.c_user,
+                        Service.getGameAccountGames(account.obj.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
-                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A))
+                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
-                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B))
+                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_B))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("B类");
                 if (0 == c_arg1.getModel().getSize()) {
                     c_arg0.setText("");
                     c_arg1.setEnabled(false);
-                    JOptionPane.showConfirmDialog(null, "选定账号已没有可租类型，请重新选择", "错误", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(null, "选定账号已没有可租类型，请重新选择", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 c_arg1.setEnabled(true);
                 break;
             }
-            if (null == account) {
+            if (null == account.obj) {
                 c_arg0.setText("");
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
                 c_arg1.setEnabled(false);
@@ -361,36 +363,153 @@ public class UIToolkit {
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建商品", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_arg0.getText().length()) {
-                JOptionPane.showConfirmDialog(null, "必须要选择游戏账号", "服务器响应", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "必须要选择游戏账号", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             if (0 == c_arg1.getModel().getSize()) {
-                JOptionPane.showConfirmDialog(null, "必须要选择租赁类型", "服务器响应", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(null, "必须要选择租赁类型", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            JSONObject args = new JSONObject();
-            args.put("oid", oid);
-            if (0 < c_remark.getText().length()) args.put("remark", c_remark.getText());
-            args.put("price", Float.parseFloat(i_price.getText()));
-            args.put("count", 1);
-            args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
-            args.put("arg0", c_arg0.getText().split(" ")[0].split("x")[1]);
-            args.put("arg1", c_arg1.getSelectedItem().toString().contains("A") ? "A" : "B");
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
-            JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            if (!doOpenCommodity(
+                    oid,
+                    account.obj,
+                    c_arg1.getSelectedItem().toString().contains("A") ? "A" : "B",
+                    c_remark.getText(),
+                    Float.parseFloat(i_price.getText()),
+                    recharge.isSelected())) continue;
             
-            if (Service.isResponseSuccess(rsp) && recharge.isSelected()) {
-                BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByOrder(oid));
-                args.clear();
-                args.put("paid", puser.i_paid);
-                args.put("balance", puser.i_balance + Float.parseFloat(i_price.getText()));
-                rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(null, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-            }
             break;
         }
+    }
+    
+    private static boolean doOpenCommodity(int oid, BeanGameAccount account, String type, String remark, float price, boolean isRecharge) {
+        StepStepDialog ssd = new StepStepDialog(new StepStepDialog.Step[] {
+                new StepStepDialog.Step("验证账号", "正在验证账号状态..."),
+                new StepStepDialog.Step("更新数据", "正在更新账号数据..."),
+        });
+        Wrapper<Boolean> isSuccess = new Wrapper<Boolean>();
+        isSuccess.obj = false;
+        Service.doLater(()->{
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            JSONObject args = new JSONObject();
+            // 0
+            {
+                args.clear();
+                args.put("user", account.c_user);
+                args.put("pass", account.c_pass_curr);
+                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                ssd.appendDescription(rsp.toString());
+                if (!Service.isResponseSuccess(rsp)) {
+                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：" + Service.getDescFromResponse(rsp) + "，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                        ssd.dispose();
+                        return;
+                    }
+                }
+                switch (type) {
+                case "A":
+                    if (rsp.toString().contains(" binded")) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租A类账号要求未绑定，但此账号当前已被绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                    break;
+                case "B":
+                    if (rsp.toString().contains(" unbinded")) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租B类账号要求先绑定，但此账号当前尚未绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                    break;
+                }
+            }
+            // 1
+            ssd.toNextStep();
+            {
+                args.clear();
+                args.put("oid", oid);
+                if (0 < remark.length()) args.put("remark", remark);
+                args.put("price", price);
+                args.put("count", 1);
+                args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
+                args.put("arg0", Integer.toHexString(account.i_gaid));
+                args.put("arg1", type);
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                ssd.appendDescription(rsp.toString());
+                
+                if (Service.isResponseSuccess(rsp) && isRecharge) {
+                    BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByOrder(oid));
+                    args.clear();
+                    args.put("paid", puser.i_paid);
+                    args.put("balance", puser.i_balance + price);
+                    rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                    ssd.appendDescription(rsp.toString());
+                }
+            }
+            isSuccess.obj = true;
+            ssd.dispose();
+            JOptionPane.showMessageDialog(null, "起租成功", "信息", JOptionPane.PLAIN_MESSAGE);
+        });
+        ssd.setVisible(true);
+        return isSuccess.obj;
+    }
+    
+    public static void closeCommodity(int oid, int csn) {
+        if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(null, "确认退租此商品？", "提示", JOptionPane.YES_NO_OPTION))
+            return;
+        
+        StepStepDialog ssd = new StepStepDialog(new StepStepDialog.Step[] {
+                new StepStepDialog.Step("验证账号", "正在验证账号状态..."),
+                new StepStepDialog.Step("重设密码", "正在重设账号密码..."),
+                new StepStepDialog.Step("更新数据", "正在更新账号数据..."),
+        });
+        BeanCommodity commodity = Service.map_order.get(oid).commodities.get(csn);
+        BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
+        Service.doLater(()->{
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            JSONObject args = new JSONObject();
+            // 0
+            {
+                if ("A".equals(commodity.c_arg1)) {
+                    args.clear();
+                    args.put("user", account.c_user);
+                    args.put("pass", account.c_pass_curr);
+                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                    ssd.appendDescription(rsp.toString());
+                    if (!Service.isResponseSuccess(rsp)) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：" + Service.getDescFromResponse(rsp) + "，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                    if (rsp.toString().contains(" binded")) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号时要求账号解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                }
+            }
+            // 1
+            {
+                ssd.toNextStep();
+            }
+            // 2
+            ssd.toNextStep();
+            {
+                args.clear();
+                args.put("oid", oid);
+                args.put("csn", csn);
+                args.put("end", sdf.format(new Date(System.currentTimeMillis())));
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                ssd.appendDescription(rsp.toString());
+            }
+            ssd.dispose();
+            JOptionPane.showMessageDialog(null, "退租成功", "信息", JOptionPane.PLAIN_MESSAGE);
+        });
+        ssd.setVisible(true);
     }
     
     public static BeanGame chooseGame() {
@@ -614,7 +733,7 @@ public class UIToolkit {
         Service.map_channel_account.values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
-                    0 == account.i_channel ? "淘宝" : 1 == account.i_channel ? "微信" : 2 == account.i_channel ? "支付宝" : "未知",
+                    Service.USER_TYPE_TAOBAO == account.i_channel ? "淘宝" : Service.USER_TYPE_WECHAT == account.i_channel ? "微信" : Service.USER_TYPE_ALIPAY == account.i_channel ? "支付宝" : "未知",
                     account.c_user));
             cell.addActionListener(new ActionListener() {
                 @Override
@@ -633,5 +752,9 @@ public class UIToolkit {
     
     private static class Wrapper<E> {
         public E obj;
+    }
+    
+    public static void showServerResponse(FjDscpMessage rsp) {
+        JOptionPane.showMessageDialog(null, rsp.toString(), "服务器响应", JOptionPane.PLAIN_MESSAGE);
     }
 }

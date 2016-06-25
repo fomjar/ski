@@ -142,11 +142,11 @@ public class ManageGameAccount extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (args.isEmpty()) {
-                    JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                     return;
                 }
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 if (Service.isResponseSuccess(rsp)) {
                     if (args.has("user"))       c_user.setForeground(Color.darkGray);
                     if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
@@ -158,48 +158,42 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (args.isEmpty()) {
-                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
-                            return;
-                        }
-                        if (!args.has("pass")) {
-                            JOptionPane.showConfirmDialog(ManageGameAccount.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.DEFAULT_OPTION);
-                            return;
-                        }
-                        ((JButton) toolbar.getComponent(1)).setEnabled(false);
-                        FjDscpMessage rsp_wa = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_wa ? rsp_wa.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                        if (Service.isResponseSuccess(rsp_wa)) {
-                            FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                            JOptionPane.showConfirmDialog(ManageGameAccount.this, null != rsp_cdb ? rsp_cdb.toString() : null, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                            
-                            if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                            if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
-                            if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
-                            args.clear();
-                        }
-                        ((JButton) toolbar.getComponent(1)).setEnabled(true);
+                Service.doLater(()->{
+                    if (args.isEmpty()) {
+                        JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
+                        return;
                     }
+                    if (!args.has("pass")) {
+                        JOptionPane.showMessageDialog(ManageGameAccount.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    ((JButton) toolbar.getComponent(1)).setEnabled(false);
+                    FjDscpMessage rsp_wa = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    UIToolkit.showServerResponse(rsp_wa);
+                    if (Service.isResponseSuccess(rsp_wa)) {
+                        FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                        UIToolkit.showServerResponse(rsp_cdb);
+                        
+                        if (args.has("user"))   c_user.setForeground(Color.darkGray);
+                        if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+                        if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
+                        args.clear();
+                    }
+                    ((JButton) toolbar.getComponent(1)).setEnabled(true);
                 });
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((JButton) toolbar.getComponent(2)).setEnabled(false);
-                        args.put("user", c_user.getText());
-                        args.put("pass", c_pass.getText());
-                        FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                        JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
-                        if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
-                        ((JButton) toolbar.getComponent(2)).setEnabled(true);
-                    }
+                Service.doLater(()->{
+                    ((JButton) toolbar.getComponent(2)).setEnabled(false);
+                    args.put("user", c_user.getText());
+                    args.put("pass", c_pass.getText());
+                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                    UIToolkit.showServerResponse(rsp);
+                    if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
+                    ((JButton) toolbar.getComponent(2)).setEnabled(true);
                 });
             }
         });
@@ -218,7 +212,7 @@ public class ManageGameAccount extends JDialog {
                 args.put("gaid", gaid);
                 args.put("gid", gid);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
-                JOptionPane.showConfirmDialog(ManageGameAccount.this, rsp.toString(), "服务器响应", JOptionPane.DEFAULT_OPTION);
+                UIToolkit.showServerResponse(rsp);
                 
                 Service.updateGameAccountGame();
                 updateGameAccountGame();

@@ -146,11 +146,11 @@ public class ManageOrder extends JDialog {
         });
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             if (args.isEmpty()) {
-                JOptionPane.showConfirmDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            JOptionPane.showConfirmDialog(ManageOrder.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             if (null != rsp && Service.isResponseSuccess(rsp)) {
                 if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
                 if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
@@ -163,11 +163,11 @@ public class ManageOrder extends JDialog {
             order = Service.map_order.get(order.i_oid);
             
             if (order.isClose()) {
-                JOptionPane.showConfirmDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            UIToolkit.createCommodity(order.i_oid);
+            UIToolkit.openCommodity(order.i_oid);
             
             Service.updateOrder();
             Service.updateGameAccountRent();
@@ -178,13 +178,13 @@ public class ManageOrder extends JDialog {
             order = Service.map_order.get(order.i_oid);
             
             if (order.isClose()) {
-                JOptionPane.showConfirmDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.DEFAULT_OPTION);
+                JOptionPane.showMessageDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
             for (BeanCommodity c : order.commodities.values()) {
                 if (!c.isClose()) {
-                    JOptionPane.showConfirmDialog(ManageOrder.this, "存在未退租的账号，不能关闭订单", "错误", JOptionPane.DEFAULT_OPTION);
+                    JOptionPane.showMessageDialog(ManageOrder.this, "存在未退租的账号，不能关闭订单", "错误", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
@@ -197,7 +197,7 @@ public class ManageOrder extends JDialog {
             args.put("oid", order.i_oid);
             args.put("close", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            JOptionPane.showConfirmDialog(ManageOrder.this, rsp, "服务器响应", JOptionPane.DEFAULT_OPTION);
+            UIToolkit.showServerResponse(rsp);
             
             ManageOrder.this.dispose();
             MainFrame.getInstance().updateAll();

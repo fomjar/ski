@@ -24,6 +24,7 @@ import com.ski.omc.bean.BeanCommodity;
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Service {
@@ -87,8 +88,9 @@ public class Service {
         if (null == rsp) return null;
         
         JSONObject args = rsp.argsToJsonObject();
-        if (0 != args.getInt("code")) return null;
-        else return args.getJSONArray("desc").getString(0);
+        Object desc = args.get("desc");
+        if (desc instanceof JSONArray) return ((JSONArray) desc).getString(0);
+        return desc.toString();
     }
     
     private static final ExecutorService pool = Executors.newCachedThreadPool();

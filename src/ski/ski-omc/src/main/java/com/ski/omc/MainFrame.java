@@ -260,63 +260,60 @@ public class MainFrame extends JFrame {
             UIToolkit.createOrder();
             updateAll();
         });
-        miabout.addActionListener(e->JOptionPane.showConfirmDialog(MainFrame.this, "SKI平台人机交互系统", "关于", JOptionPane.DEFAULT_OPTION));
+        miabout.addActionListener(e->JOptionPane.showMessageDialog(MainFrame.this, "SKI平台人机交互系统", "关于", JOptionPane.PLAIN_MESSAGE));
         
         return menubar;
     }
     
     public void updateAll() {
-        Service.doLater(new Runnable() {
-            @Override
-            public void run() {
-                ((JButton) toolbar.getComponent(0)).setEnabled(false);
-                boolean isfail = false;
-                try {
-                    Service.updateGame();
-                    Service.updateGameRentPrice();
-                    
-                    Service.updateGameAccount();
-                    Service.updateGameAccountGame();
-                    Service.updateGameAccountRent();
-                    
-                    Service.updateChannelAccount();
-                    Service.updatePlatformAccount();
-                    Service.updatePlatformAccountMap();
-                    
-                    Service.updateOrder();
-                    
-                    @SuppressWarnings("unchecked")
-                    FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
-                    list_game.removeAllCell();
-                    Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
-                    ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().doSearch();
-                    
-                    @SuppressWarnings("unchecked")
-                    FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
-                    list_game_account.removeAllCell();
-                    Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
-                    ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().doSearch();
-                    
-                    @SuppressWarnings("unchecked")
-                    FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
-                    list_channel_account.removeAllCell();
-                    Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
-                    ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().doSearch();
-                    
-                    @SuppressWarnings("unchecked")
-                    FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
-                    list_order.removeAllCell();
-                    Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
-                    ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().doSearch();
-                } catch (Exception e) {
-                    isfail = true;
-                    e.printStackTrace();
-                }
+        Service.doLater(()->{
+            ((JButton) toolbar.getComponent(0)).setEnabled(false);
+            boolean isfail = false;
+            try {
+                Service.updateGame();
+                Service.updateGameRentPrice();
                 
-                if (isfail) JOptionPane.showConfirmDialog(MainFrame.this, "刷新过程中可能发生错误，重新尝试可能解决", "错误", JOptionPane.DEFAULT_OPTION);
+                Service.updateGameAccount();
+                Service.updateGameAccountGame();
+                Service.updateGameAccountRent();
                 
-                ((JButton) toolbar.getComponent(0)).setEnabled(true);
+                Service.updateChannelAccount();
+                Service.updatePlatformAccount();
+                Service.updatePlatformAccountMap();
+                
+                Service.updateOrder();
+                
+                @SuppressWarnings("unchecked")
+                FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
+                list_game.removeAllCell();
+                Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
+                ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().doSearch();
+                
+                @SuppressWarnings("unchecked")
+                FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
+                list_game_account.removeAllCell();
+                Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
+                ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().doSearch();
+                
+                @SuppressWarnings("unchecked")
+                FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
+                list_channel_account.removeAllCell();
+                Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
+                ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().doSearch();
+                
+                @SuppressWarnings("unchecked")
+                FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
+                list_order.removeAllCell();
+                Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
+                ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().doSearch();
+            } catch (Exception e) {
+                isfail = true;
+                e.printStackTrace();
             }
+            
+            if (isfail) JOptionPane.showMessageDialog(MainFrame.this, "刷新过程中可能发生错误，重新尝试可能解决", "错误", JOptionPane.ERROR_MESSAGE);
+            
+            ((JButton) toolbar.getComponent(0)).setEnabled(true);
         });
     }
 }
