@@ -56,8 +56,8 @@ begin
             mobile,
             email,
             birth,
-            balance,
-            coupon,
+            ifnull(balance, 0.00),
+            ifnull(coupon, 0.00),
             ifnull(_create, now())
         );
     else
@@ -88,8 +88,8 @@ begin
                 mobile,
                 email,
                 birth,
-                balance,
-                coupon,
+                ifnull(balance, 0.00),
+                ifnull(coupon, 0.00),
                 ifnull(_create, now())
             );
         else
