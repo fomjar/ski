@@ -24,7 +24,6 @@ import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.SkiCommon;
-import com.ski.omc.MainFrame;
 import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;

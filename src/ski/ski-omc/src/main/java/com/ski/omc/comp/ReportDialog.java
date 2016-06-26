@@ -18,8 +18,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import com.ski.omc.MainFrame;
-
 public class ReportDialog extends JDialog {
 
     private static final long serialVersionUID = 5478304934566261533L;

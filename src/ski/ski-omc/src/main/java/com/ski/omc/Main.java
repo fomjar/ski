@@ -1,5 +1,7 @@
 package com.ski.omc;
 
+import com.ski.omc.comp.MainFrame;
+
 public class Main {
     
     public static void main(String[] args) {

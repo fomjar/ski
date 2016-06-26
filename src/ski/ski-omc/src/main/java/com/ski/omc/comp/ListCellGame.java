@@ -15,7 +15,6 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
 import com.ski.common.SkiCommon;
-import com.ski.omc.MainFrame;
 import com.ski.omc.Service;
 import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanGame;

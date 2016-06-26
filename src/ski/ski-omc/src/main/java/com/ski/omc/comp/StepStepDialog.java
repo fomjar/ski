@@ -20,7 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-import com.ski.omc.MainFrame;
 import com.ski.omc.UIToolkit;
 
 public class StepStepDialog extends JDialog {

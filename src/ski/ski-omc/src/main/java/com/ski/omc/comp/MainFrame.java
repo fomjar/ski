@@ -1,4 +1,4 @@
-package com.ski.omc;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -23,14 +23,12 @@ import com.fomjar.widget.FjList;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
 import com.ski.common.SkiCommon;
+import com.ski.omc.Service;
+import com.ski.omc.UIToolkit;
 import com.ski.omc.bean.BeanChannelAccount;
 import com.ski.omc.bean.BeanGame;
 import com.ski.omc.bean.BeanGameAccount;
 import com.ski.omc.bean.BeanOrder;
-import com.ski.omc.comp.ListCellChannelAccount;
-import com.ski.omc.comp.ListCellGame;
-import com.ski.omc.comp.ListCellGameAccount;
-import com.ski.omc.comp.ListCellOrder;
 
 public class MainFrame extends JFrame {
     
