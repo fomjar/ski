@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002402', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002402', 16, 10) + 0), 'sp', 2, "sp_update_game_account(?, ?, $gaid, '$user', '$pass_a', '$pass_b', '$pass_curr', '$birth')");
+insert into tbl_instruction values((conv('00002402', 16, 10) + 0), 'sp', 2, "sp_update_game_account(?, ?, $gaid, '$user', '$pass_a', '$pass_b', '$pass_curr', '$birth', '$create')");
 
 -- 更新订单
 delimiter //
@@ -12,7 +12,8 @@ create procedure sp_update_game_account (
     in  pass_a      varchar(32),    -- 密码A
     in  pass_b      varchar(32),    -- 密码B
     in  pass_curr   varchar(32),    -- 当前密码
-    in  birth       date            -- 出生日期
+    in  birth       date,           -- 出生日期
+    in  _create     datetime        -- 创建时间
 )
 begin
     declare di_gaid     integer default -1;
@@ -39,14 +40,16 @@ begin
             c_pass_a,
             c_pass_b,
             c_pass_curr,
-            t_birth
+            t_birth,
+            t_create
         ) values (
             di_gaid,
             user,
             pass_a,
             pass_b,
             pass_curr,
-            birth
+            birth,
+            ifnull(_create, now())
         );
     else
         select count(1)
@@ -61,14 +64,16 @@ begin
                 c_pass_a,
                 c_pass_b,
                 c_pass_curr,
-                t_birth
+                t_birth,
+                t_create
             ) values (
                 gaid,
                 user,
                 pass_a,
                 pass_b,
                 pass_curr,
-                birth
+                birth,
+                ifnull(_create, now())
             );
         else
             if user is not null then
@@ -94,6 +99,11 @@ begin
             if birth is not null then
                 update tbl_game_account
                    set t_birth = birth
+                 where i_gaid = gaid;
+            end if;
+            if _create is not null then
+                update tbl_game_account
+                   set t_create = _create
                  where i_gaid = gaid;
             end if;
         end if;

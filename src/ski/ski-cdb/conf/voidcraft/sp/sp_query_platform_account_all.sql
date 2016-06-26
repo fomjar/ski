@@ -11,14 +11,14 @@ begin
     declare c_name      varchar(32)     default null;   -- 姓名
     declare c_mobile    varchar(20)     default null;   -- 手机
     declare c_email     varchar(32)     default null;   -- 邮箱
-    declare t_create    datetime        default null;   -- 创建时间
     declare t_birth     date            default null;   -- 出生日期
     declare i_balance   decimal(9, 2)   default 0.0;    -- 现金余额（可退的）
     declare i_coupon    decimal(9, 2)   default 0.0;    -- 优惠券（不可退）
+    declare t_create    datetime        default null;   -- 创建时间
 
     declare done            integer default 0;
     declare rs              cursor for
-                            select pa.i_paid, pa.c_user, pa.c_pass, pa.c_name, pa.c_mobile, pa.c_email, pa.t_create, pa.t_birth, pa.i_balance, pa.i_coupon
+                            select pa.i_paid, pa.c_user, pa.c_pass, pa.c_name, pa.c_mobile, pa.c_email, pa.t_birth, pa.i_balance, pa.i_coupon, pa.t_create
                               from tbl_platform_account pa
                              order by pa.c_user;
     /* 异常处理 */
@@ -27,7 +27,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_create, t_birth, i_balance, i_coupon;
+    fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_balance, i_coupon, t_create;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -48,16 +48,16 @@ begin
                 '\t',
                 ifnull(c_email, ''),
                 '\t',
-                ifnull(t_create,  ''),
-                '\t',
                 ifnull(t_birth, ''),
                 '\t',
                 ifnull(i_balance, 0.0),
                 '\t',
-                ifnull(i_coupon, 0.0)
+                ifnull(i_coupon, 0.0),
+                '\t',
+                ifnull(t_create,  '')
         );
 
-        fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_create, t_birth, i_balance, i_coupon;
+        fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_balance, i_coupon, t_create;
     end while;
     /* 关闭游标 */
     close rs;

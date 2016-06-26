@@ -15,10 +15,11 @@ begin
     declare c_address   varchar(100)    default null;
     declare c_zipcode   varchar(10)     default null;
     declare t_birth     date            default null;
+    declare t_create    datetime        default null;
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select ca.i_caid, ca.c_user, ca.i_channel, ca.c_nick, ca.i_gender, ca.c_phone, ca.c_address, ca.c_zipcode, ca.t_birth
+                        select ca.i_caid, ca.c_user, ca.i_channel, ca.c_nick, ca.i_gender, ca.c_phone, ca.c_address, ca.c_zipcode, ca.t_birth, ca.t_create
                           from tbl_channel_account ca
                          where ca.i_caid = caid
                          order by ca.i_caid;
@@ -29,7 +30,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
+    fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth, t_create;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -54,10 +55,12 @@ begin
                 '\t',
                 ifnull(c_zipcode, ''),
                 '\t',
-                ifnull(t_birth, '')
+                ifnull(t_birth, ''),
+                '\t',
+                ifnull(t_create, '')
         );
 
-        fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth;
+        fetch rs into i_caid, c_user, i_channel, c_nick, i_gender, c_phone, c_address, c_zipcode, t_birth, t_create;
     end while;
     /* 关闭游标 */
     close rs;

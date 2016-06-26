@@ -16,10 +16,10 @@ create table tbl_platform_account (
     c_name      varchar(32),    -- 姓名
     c_mobile    varchar(20),    -- 手机
     c_email     varchar(32),    -- 邮箱
-    t_create    datetime,       -- 创建时间
     t_birth     date,           -- 出生日期
     i_balance   decimal(9, 2),  -- 现金余额（可退的）
-    i_coupon    decimal(9, 2)   -- 优惠券（不可退）
+    i_coupon    decimal(9, 2),  -- 优惠券（不可退）
+    t_create    datetime        -- 创建时间
 );
 
 -- 平台账户与渠道账户的关系
@@ -37,7 +37,8 @@ create table tbl_game_account (
     c_pass_a    varchar(32),    -- 密码A
     c_pass_b    varchar(32),    -- 密码B
     c_pass_curr varchar(32),    -- 当前密码
-    t_birth     date            -- 出生日期
+    t_birth     date,           -- 出生日期
+    t_create    datetime        -- 创建时间
 );
 
 drop table if exists tbl_game_account_game;
@@ -124,7 +125,8 @@ create table tbl_channel_account (
     c_phone     varchar(20),    -- 电话
     c_address   varchar(100),   -- 地址
     c_zipcode   varchar(10),    -- 邮编
-    t_birth     date            -- 生日
+    t_birth     date,           -- 生日
+    t_create    datetime        -- 创建时间
 );
 
 -- 游戏价格管理

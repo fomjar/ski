@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002405', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$nick', $gender, '$phone', '$address', '$zipcode', '$birth')");
+insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$nick', $gender, '$phone', '$address', '$zipcode', '$birth', '$create')");
 
 -- 更新订单
 delimiter //
@@ -15,7 +15,8 @@ create procedure sp_update_channel_account (
     in  phone       varchar(20),    -- 电话
     in  address     varchar(100),   -- 地址
     in  zipcode     varchar(10),    -- 邮编
-    in  birth       date            -- 生日
+    in  birth       date,           -- 生日
+    in  _create     datetime        -- 创建时间
 )
 begin
     declare di_caid     integer default -1;
@@ -46,7 +47,8 @@ begin
             c_phone,
             c_address,
             c_zipcode,
-            t_birth
+            t_birth,
+            t_create
         ) values (
             di_caid,
             user,
@@ -56,7 +58,8 @@ begin
             phone,
             address,
             zipcode,
-            birth
+            birth,
+            ifnull(_create, now())
         );
     else
         set di_caid = caid;
@@ -76,7 +79,8 @@ begin
                 c_phone,
                 c_address,
                 c_zipcode,
-                t_birth
+                t_birth,
+                t_create
             ) values (
                 di_caid,
                 user,
@@ -86,7 +90,8 @@ begin
                 phone,
                 address,
                 zipcode,
-                birth
+                birth,
+                ifnull(_create, now())
             );
         else
             if user is not null then
@@ -127,6 +132,11 @@ begin
             if birth is not null then
                 update tbl_channel_account
                    set t_birth = birth
+                 where i_caid = di_caid;
+            end if;
+            if _create is not null then
+                update tbl_channel_account
+                   set t_create = _create
                  where i_caid = di_caid;
             end if;
         end if;

@@ -10,6 +10,7 @@ public class BeanGameAccount {
         this.c_pass_b       = fields[3];
         this.c_pass_curr    = fields[4];
         this.t_birth        = fields[5];
+        this.t_create       = fields[6];
     }
 
     public int      i_gaid;
@@ -18,5 +19,6 @@ public class BeanGameAccount {
     public String   c_pass_b;
     public String   c_pass_curr;
     public String   t_birth;
+    public String   t_create;
     
 }

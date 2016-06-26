@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002409', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002409', 16, 10) + 0), 'sp', 2, "sp_update_platform_account(?, ?, $paid, '$user', '$pass', '$name', '$mobile', '$email', '$create', '$birth', $balance, $coupon)");
+insert into tbl_instruction values((conv('00002409', 16, 10) + 0), 'sp', 2, "sp_update_platform_account(?, ?, $paid, '$user', '$pass', '$name', '$mobile', '$email', '$birth', $balance, $coupon, '$create')");
 
 -- 更新游戏
 delimiter //
@@ -13,10 +13,10 @@ create procedure sp_update_platform_account (
     in  name        varchar(32),    -- 姓名
     in  mobile      varchar(20),    -- 手机
     in  email       varchar(32),    -- 邮箱
-    in  _create     datetime,       -- 创建时间
     in  birth       date,           -- 出生日期
     in  balance     decimal(9, 2),  -- 现金余额（可退的）
-    in  coupon      decimal(9, 2)   -- 优惠券（不可退）
+    in  coupon      decimal(9, 2),  -- 优惠券（不可退）
+    in  _create     datetime        -- 创建时间
 )
 begin
     declare di_paid     integer default -1;
@@ -44,10 +44,10 @@ begin
             c_name,
             c_mobile,
             c_email,
-            t_create,
             t_birth,
             i_balance,
-            i_coupon
+            i_coupon,
+            t_create
         ) values (
             di_paid,
             user,
@@ -55,10 +55,10 @@ begin
             name,
             mobile,
             email,
-            ifnull(_create, now()),
             birth,
             balance,
-            coupon
+            coupon,
+            ifnull(_create, now())
         );
     else
         set di_paid = paid;
@@ -76,10 +76,10 @@ begin
                 c_name,
                 c_mobile,
                 c_email,
-                t_create,
                 t_birth,
                 i_balance,
-                i_coupon
+                i_coupon,
+                t_create
             ) values (
                 di_paid,
                 user,
@@ -87,10 +87,10 @@ begin
                 name,
                 mobile,
                 email,
-                ifnull(_create, now()),
                 birth,
                 balance,
-                coupon
+                coupon,
+                ifnull(_create, now())
             );
         else
             if user is not null then
@@ -118,11 +118,6 @@ begin
                    set c_email = email
                  where i_paid = di_paid;
             end if;
-            if _create is not null then
-                update tbl_platform_account
-                   set c_create = _create
-                 where i_paid = di_paid;
-            end if;
             if birth is not null then
                 update tbl_platform_account
                    set t_birth = birth
@@ -136,6 +131,11 @@ begin
             if coupon is not null then
                 update tbl_platform_account
                    set i_coupon = coupon
+                 where i_paid = di_paid;
+            end if;
+            if _create is not null then
+                update tbl_platform_account
+                   set c_create = _create
                  where i_paid = di_paid;
             end if;
         end if;

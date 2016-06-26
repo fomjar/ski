@@ -13,6 +13,7 @@ public class BeanChannelAccount {
         this.c_address  = fields[6];
         this.c_zipcode  = fields[7];
         this.t_birth    = fields[8];
+        this.t_create   = fields[9];
     }
     
     public int      i_caid;
@@ -24,5 +25,6 @@ public class BeanChannelAccount {
     public String   c_address;
     public String   c_zipcode;
     public String   t_birth;
+    public String   t_create;
 
 }
