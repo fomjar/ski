@@ -35,7 +35,7 @@ begin
        and i_csn = csn;
 
     -- 至少算24小时，之后不满12小时算12小时
-    set di_times = ceil(timestampdiff(second, dt_end, dt_begin) / 60 / 60 / 12);
+    set di_times = ceil(timestampdiff(second, dt_begin, dt_end) / 60 / 60 / 12);
     if di_times < 2 then
         set di_times = 2;
     end if;

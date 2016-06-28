@@ -25,18 +25,18 @@ import com.ski.omc.UIToolkit;
 public class StepStepDialog extends JDialog {
 
     private static final long serialVersionUID = 4665927096547901460L;
-    private Step[]      steps;
+    private String[]    steps;
     private int         index;
     private JProgressBar progress;
     private JLabel[]    jlb_steps;
     private JScrollPane jsp_desc;
     private JTextArea   jta_desc;
     
-    public StepStepDialog(Step[] steps) {
+    public StepStepDialog(String... steps) {
         super(MainFrame.getInstance());
         
         this.steps = steps;
-        this.index = 1;
+        this.index = 0;
         this.progress = new JProgressBar(0, steps.length);
         this.progress.setFont(UIToolkit.FONT);
         this.progress.setValue(this.index);
@@ -44,7 +44,7 @@ public class StepStepDialog extends JDialog {
         
         jlb_steps = new JLabel[steps.length];
         for (int i = 0; i < jlb_steps.length; i++) {
-            jlb_steps[i] = new JLabel(steps[i].name);
+            jlb_steps[i] = new JLabel(steps[i]);
             jlb_steps[i].setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
         }
         this.jta_desc = new JTextArea();
@@ -92,43 +92,37 @@ public class StepStepDialog extends JDialog {
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
-        update();
+        toNextStep();
     }
     
     public void toPrevStep() {
         index--;
         if (index < 1) index = 1;
         update();
+        if (0 < jta_desc.getText().length()) appendText("");
+        appendText(String.format("【%s】", steps[index - 1]));
     }
     
     public void toNextStep() {
         index++;
         if (index > steps.length) index = steps.length;
         update();
+        if (0 < jta_desc.getText().length()) appendText("");
+        appendText(String.format("【%s】", steps[index - 1]));
     }
     
     private void update() {
         for (JLabel step : jlb_steps) step.setFont(step.getFont().deriveFont(Font.PLAIN));
         jlb_steps[index - 1].setFont(jlb_steps[index - 1].getFont().deriveFont(Font.BOLD));
-        if (0 < jta_desc.getText().length()) appendDescription("");
-        appendDescription(steps[index - 1].desc);
+        if (0 < jta_desc.getText().length()) appendText("");
         progress.setValue(index);
         progress.setString(String.format("%d / %d", index, steps.length));
     }
     
-    public void appendDescription(String desc) {
-        jta_desc.append(desc + "\n");
+    public void appendText(String text) {
+        jta_desc.append(text + "\n");
         jta_desc.setSelectionStart(jta_desc.getText().length());
         jta_desc.setSelectionEnd(jta_desc.getText().length());
-    }
-    
-    public static class Step {
-        public String name;
-        public String desc;
-        public Step(String name, String desc) {
-            this.name = name;
-            this.desc = desc;
-        }
     }
 
 }

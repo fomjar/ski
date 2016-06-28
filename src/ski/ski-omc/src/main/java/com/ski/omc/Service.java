@@ -1,5 +1,8 @@
 package com.ski.omc;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -65,6 +68,14 @@ public class Service {
     public static final int OPER_TYPE_RENT_RESUME   = 5;
     public static final int OPER_TYPE_RENT_SWAP     = 6;
     public static final int OPER_TYPE_COUPON        = 7;
+    
+    public static void initLog() {
+        try {
+            PrintStream ps = new PrintStream(new FileOutputStream("ski-omc.log", true));
+            System.setOut(ps);
+            System.setErr(ps);
+        } catch (FileNotFoundException e) {e.printStackTrace();}
+    }
     
     public static FjDscpMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();

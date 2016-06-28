@@ -377,7 +377,11 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "必须要选择租赁类型", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-            
+            if (c_arg1.getSelectedItem().toString().contains("B")
+                    && Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_A)) {
+                JOptionPane.showMessageDialog(null, "B类账号起租要求A类已租，请先将此账号A类出租，然后再出租B类", "错误", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
             if (!doOpenCommodity(
                     oid,
                     account.obj,
@@ -391,9 +395,9 @@ public class UIToolkit {
     }
     
     private static boolean doOpenCommodity(int oid, BeanGameAccount account, String type, String remark, float price, boolean isRecharge) {
-        StepStepDialog ssd = new StepStepDialog(new StepStepDialog.Step[] {
-                new StepStepDialog.Step("验证账号", "验证账号状态..."),
-                new StepStepDialog.Step("更新数据", "更新账号数据..."),
+        StepStepDialog ssd = new StepStepDialog(new String[] {
+                "验证账号",
+                "更新数据",
         });
         Wrapper<Boolean> isSuccess = new Wrapper<Boolean>();
         isSuccess.obj = false;
@@ -402,12 +406,12 @@ public class UIToolkit {
             JSONObject args = new JSONObject();
             // 1
             {
-                ssd.appendDescription("正在登录到PlayStation网站验证账号密码及其绑定状态，A类账号租赁要求账号当前处于未绑定状态，而B类账号租赁要求账号当前处于绑定状态。");
+                ssd.appendText("正在登录到PlayStation网站验证账号密码及其绑定状态...");
                 args.clear();
                 args.put("user", account.c_user);
                 args.put("pass", account.c_pass_curr);
                 FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                ssd.appendDescription(rsp.toString());
+                ssd.appendText(rsp.toString());
                 if (!Service.isResponseSuccess(rsp)) {
                     if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                         ssd.dispose();
@@ -432,12 +436,12 @@ public class UIToolkit {
                     }
                     break;
                 }
-                ssd.appendDescription("验证通过。");
+                ssd.appendText("验证通过");
             }
             // 2
             ssd.toNextStep();
             {
-                ssd.appendDescription("正在将租赁数据提交到数据库中。");
+                ssd.appendText("正在将租赁数据提交到数据库中...");
                 args.clear();
                 args.put("oid", oid);
                 if (0 < remark.length()) args.put("remark", remark);
@@ -447,7 +451,7 @@ public class UIToolkit {
                 args.put("arg0", Integer.toHexString(account.i_gaid));
                 args.put("arg1", type);
                 FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
-                ssd.appendDescription(rsp.toString());
+                ssd.appendText(rsp.toString());
                 
                 if (Service.isResponseSuccess(rsp) && isRecharge) {
                     BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByOrder(oid));
@@ -455,9 +459,9 @@ public class UIToolkit {
                     args.put("paid", puser.i_paid);
                     args.put("balance", puser.i_balance + price);
                     rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
-                    ssd.appendDescription(rsp.toString());
+                    ssd.appendText(rsp.toString());
                 }
-                ssd.appendDescription("提交完成。");
+                ssd.appendText("提交完成");
             }
             isSuccess.obj = true;
             JOptionPane.showMessageDialog(null, "起租成功", "信息", JOptionPane.PLAIN_MESSAGE);
@@ -471,10 +475,10 @@ public class UIToolkit {
         if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(null, "确认退租此商品？", "提示", JOptionPane.YES_NO_OPTION))
             return;
         
-        StepStepDialog ssd = new StepStepDialog(new StepStepDialog.Step[] {
-                new StepStepDialog.Step("验证账号", "验证账号状态..."),
-                new StepStepDialog.Step("重设密码", "重设账号密码..."),
-                new StepStepDialog.Step("更新数据", "更新账号数据..."),
+        StepStepDialog ssd = new StepStepDialog(new String[] {
+                "验证账号",
+                "重设密码",
+                "更新数据",
         });
         BeanCommodity commodity = Service.map_order.get(oid).commodities.get(csn);
         BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
@@ -483,66 +487,93 @@ public class UIToolkit {
             JSONObject args = new JSONObject();
             // 1
             {
-                ssd.appendDescription("正在登录到PlayStation网站验证账号密码及其绑定状态，A类账号退租要求账号当前处于未绑定状态，B类账号退租没有相关要求。");
-                if ("A".equals(commodity.c_arg1)) {
-                    args.clear();
-                    args.put("user", account.c_user);
-                    args.put("pass", account.c_pass_curr);
-                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                    ssd.appendDescription(rsp.toString());
-                    if (!Service.isResponseSuccess(rsp)) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                            ssd.dispose();
-                            return;
-                        }
-                    }
-                    if (rsp.toString().contains(" binded")) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号时要求账号解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                            ssd.dispose();
-                            return;
-                        }
-                    }
-                }
-                ssd.appendDescription("验证通过。");
-            }
-            // 2
-            ssd.toNextStep();
-            String pass_new = Service.createGameAccountPassword();
-            {
-                ssd.appendDescription("正在生成新密码，并登录到PlayStation网站重设密码。");
+                ssd.appendText("正在登录到PlayStation网站验证账号密码及其绑定状态");
                 args.clear();
-                args.put("user",     account.c_user);
-                args.put("pass",     account.c_pass_curr);
-                args.put("pass_new", pass_new);
-                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                ssd.appendDescription(rsp.toString());
+                args.put("user", account.c_user);
+                args.put("pass", account.c_pass_curr);
+                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                ssd.appendText(rsp.toString());
                 if (!Service.isResponseSuccess(rsp)) {
-                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                         ssd.dispose();
                         return;
                     }
                 }
-                ssd.appendDescription("重设成功，新密码：\"" + pass_new + "\"。");
+                switch (commodity.c_arg1) {
+                case "A":
+                    if (rsp.toString().contains(" binded")) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号要求解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                    break;
+                case "B":
+                    ssd.appendText("退租B类账号没有绑定要求");
+                    break;
+                }
+                ssd.appendText("验证通过");
+            }
+            // 2
+            ssd.toNextStep();
+            {
+                ssd.appendText("正在生成新密码...");
+                String pass_new = Service.createGameAccountPassword();
+                boolean isModify = true;
+                switch (commodity.c_arg1) {
+                case "A":
+                    if (Service.RENT_STATE_IDLE != Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B)) {
+                        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(account.i_gaid, Service.RENT_TYPE_B));
+                        JOptionPane.showMessageDialog(null,
+                                String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.c_user),
+                                "信息",
+                                JOptionPane.PLAIN_MESSAGE);
+                    }
+                    break;
+                case "B":
+                    if (Service.RENT_STATE_IDLE != Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A)) {
+                        ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
+                        isModify = false;
+                    }
+                    break;
+                }
+                if (isModify) {
+                    ssd.appendText("正在登录到PlayStation网站重设密码...");
+                    args.clear();
+                    args.put("user",     account.c_user);
+                    args.put("pass",     account.c_pass_curr);
+                    args.put("pass_new", pass_new);
+                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    ssd.appendText(rsp.toString());
+                    if (!Service.isResponseSuccess(rsp)) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            ssd.dispose();
+                            return;
+                        }
+                    }
+                    ssd.appendText("重设成功");
+                    ssd.appendText("正在将新密码提交到数据库中...");
+                    args.clear();
+                    args.put("gaid", account.i_gaid);
+                    args.put("pass_curr", pass_new);
+                    rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    ssd.appendText(rsp.toString());
+                    ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
+                } else {
+                    ssd.appendText("密码重设已跳过");
+                }
             }
             // 3
             ssd.toNextStep();
             {
-                ssd.appendDescription("正在将新密码提交到数据库中。");
-                args.clear();
-                args.put("gaid", account.i_gaid);
-                args.put("pass_curr", pass_new);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                ssd.appendDescription(rsp.toString());
-                ssd.appendDescription("提交完成。");
-                
-                ssd.appendDescription("正在将退租信息提交到数据库中，并结算。");
+                ssd.appendText("正在将退租信息提交到数据库中，并处理结算...");
                 args.clear();
                 args.put("oid", oid);
                 args.put("csn", csn);
                 args.put("end", sdf.format(new Date(System.currentTimeMillis())));
-                rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
-                ssd.appendDescription(rsp.toString());
-                ssd.appendDescription("提交完成。");
+                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                ssd.appendText(rsp.toString());
+                ssd.appendText("提交完成");
             }
             JOptionPane.showMessageDialog(null, "退租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
