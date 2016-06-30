@@ -7,11 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanCommodity;
-import com.ski.omc.bean.BeanGame;
-import com.ski.omc.bean.BeanGameAccount;
-import com.ski.omc.bean.BeanPlatformAccount;
+import com.ski.common.CommonService;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanCommodity;
+import com.ski.common.bean.BeanGame;
+import com.ski.common.bean.BeanGameAccount;
+import com.ski.common.bean.BeanPlatformAccount;
 
 public class Report {
 
@@ -19,10 +20,10 @@ public class Report {
         StringBuilder ocr = new StringBuilder(1024);
         DecimalFormat df = new DecimalFormat("###,###,###.##");
         
-        BeanChannelAccount user     = Service.map_channel_account.get(Service.map_order.get(commodity.i_oid).i_caid);
-        BeanPlatformAccount puser   = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(user.i_caid));
-        BeanGameAccount account     = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
-        List<BeanGame>  games       = Service.getGameAccountGames(account.i_gaid);
+        BeanChannelAccount user     = CommonService.map_channel_account.get(CommonService.map_order.get(commodity.i_oid).i_caid);
+        BeanPlatformAccount puser   = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(user.i_caid));
+        BeanGameAccount account     = CommonService.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
+        List<BeanGame>  games       = CommonService.getGameAccountGames(account.i_gaid);
         
         ocr.append(createReportHead(String.format("%s租赁报告", user.c_user)));
         List<Object> rows = new LinkedList<Object>();

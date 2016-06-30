@@ -1,6 +1,6 @@
 package com.ski.game;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
@@ -17,9 +17,9 @@ public class GameToolkit {
         msg2wca.json().put("fs",   server);
         msg2wca.json().put("ts",   "wca");
         msg2wca.json().put("sid",  sid);
-        msg2wca.json().put("inst", SkiCommon.ISIS.INST_USER_RESPONSE);
+        msg2wca.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
         msg2wca.json().put("args", args2wca);
-        FjServerToolkit.getSender(server).send(msg2wca);
+        FjServerToolkit.getAnySender().send(msg2wca);
     }
     
 }

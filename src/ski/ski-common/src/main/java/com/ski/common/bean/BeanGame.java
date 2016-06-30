@@ -1,4 +1,4 @@
-package com.ski.omc.bean;
+package com.ski.common.bean;
 
 public class BeanGame {
     

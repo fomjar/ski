@@ -11,9 +11,16 @@ import fomjar.util.FjLoopTask;
 
 public class MenuMonitor extends FjLoopTask {
     
+    private static MenuMonitor instance = null;
+    public static MenuMonitor getInstance() {
+        if (null == instance) instance = new MenuMonitor();
+        return instance;
+    }
+    
+    
     private static final Logger logger = Logger.getLogger(MenuMonitor.class);
     
-    public MenuMonitor() {
+    private MenuMonitor() {
         setDelay(10 * 1000L);
     }
     
@@ -29,7 +36,7 @@ public class MenuMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         
-        boolean menu_switch = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload.switch"));
+        boolean menu_switch = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload-switch"));
         if (!menu_switch) return;
         
         String  menu_content = FjServerToolkit.getServerConfig("wca.menu.content");
@@ -43,7 +50,7 @@ public class MenuMonitor extends FjLoopTask {
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload.interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval"));
         setInterval(second);
     }
     

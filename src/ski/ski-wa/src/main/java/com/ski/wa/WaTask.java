@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -39,7 +39,7 @@ public class WaTask implements FjServerTask {
         AE ae = AEMonitor.getInstance().getAe(inst);
         if (null == ae) {
             logger.error(String.format("can not find an AE for instuction: 0x%08X", inst));
-            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%08X'}", SkiCommon.CODE.CODE_WEB_AE_NOT_FOUND, inst));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%08X'}", CommonDefinition.CODE.CODE_WEB_AE_NOT_FOUND, inst));
             return;
         }
         WebDriver driver = null;
@@ -50,7 +50,7 @@ public class WaTask implements FjServerTask {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
             String desc = e.getMessage();
             if (desc.contains(" (WARNING:")) desc = desc.substring(0, desc.indexOf(" (WARNING:"));
-            response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", SkiCommon.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
+            response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", CommonDefinition.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
             return;
         } finally {
             if (null != driver) driver.quit();
@@ -61,14 +61,14 @@ public class WaTask implements FjServerTask {
         response(server.name(), req, args_rsp);
     }
     
-    private static void response(String serverName, FjDscpMessage req, Object args) {
+    private static void response(String server, FjDscpMessage req, Object args) {
         FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",   serverName);
+        rsp.json().put("fs",   server);
         rsp.json().put("ts",   req.fs());
         rsp.json().put("sid",  req.sid());
         rsp.json().put("inst", req.inst());
         rsp.json().put("args", args);
-        FjServerToolkit.getSender(serverName).send(rsp);
+        FjServerToolkit.getAnySender().send(rsp);
         logger.debug("response message: " + rsp);
     }
 }

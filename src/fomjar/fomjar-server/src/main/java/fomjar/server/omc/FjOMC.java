@@ -18,7 +18,7 @@ public class FjOMC {
         trcmsg.json().put("sid",  msg.sid());
         trcmsg.json().put("inst", FjISIS.INST_SYS_TRACE);
         trcmsg.json().put("args", msg);
-        FjServerToolkit.getSender(fs).send(trcmsg);
+        FjServerToolkit.getAnySender().send(trcmsg);
     }
     
 }

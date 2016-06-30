@@ -23,8 +23,6 @@ public class TokenMonitor extends FjLoopTask {
     
     private TokenMonitor() {}
     
-    public void setServerName() {}
-    
     public void start() {
         if (isRun()) {
             logger.warn("token-monitor has already started");
@@ -48,7 +46,7 @@ public class TokenMonitor extends FjLoopTask {
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
         setInterval(second);
     }
     

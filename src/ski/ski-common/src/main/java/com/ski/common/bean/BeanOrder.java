@@ -1,4 +1,4 @@
-package com.ski.omc.bean;
+package com.ski.common.bean;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

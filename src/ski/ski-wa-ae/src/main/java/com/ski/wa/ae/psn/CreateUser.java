@@ -4,20 +4,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.Select;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
 
 import net.sf.json.JSONObject;
 
 public class CreateUser implements AE {
     
-    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
+    private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         if (!args.containsKey("email") || !args.containsKey("pass") || !args.containsKey("year") || !args.containsKey("month") || !args.containsKey("day")) { // 没有账号或密码
-            code = SkiCommon.CODE.CODE_SYS_ILLEGAL_ARGS;
+            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
             desc = "no parameter: email or birth or pass";
             return;
         }
@@ -36,12 +36,12 @@ public class CreateUser implements AE {
         driver.findElement(By.id("createAccountButton")).click();  // 注册按钮点击
 
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         } else { // 密码保存失败
-            code = SkiCommon.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
+            code = CommonDefinition.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
             desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();
         }
-        code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+        code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
     }
 
     @Override

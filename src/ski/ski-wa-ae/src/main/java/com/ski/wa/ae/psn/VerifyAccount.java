@@ -6,19 +6,19 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
 
 public class VerifyAccount implements AE {
     
-    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
+    private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         AE login = new Login();
         login.execute(driver, args);
-        if (SkiCommon.CODE.CODE_SYS_SUCCESS != login.code()) {
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
@@ -28,10 +28,10 @@ public class VerifyAccount implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("device-0")); // 存在设备绑定
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "psn account is binded";
         } catch (NoSuchElementException e) { // 不存在设备绑定
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "psn account is unbinded";
         }
     }

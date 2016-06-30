@@ -2,7 +2,7 @@ package com.ski.game.monitor;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
@@ -12,12 +12,12 @@ public class OrderMonitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(OrderMonitor.class);
     
-    private String serverName;
+    private String server;
     
-    public OrderMonitor(String serverName) {
+    public OrderMonitor(String server) {
         long second = Long.parseLong(FjServerToolkit.getServerConfig("taobao.order.proc-interval"));
         setDelay(second * 1000);
-        this.serverName = serverName;
+        this.server = server;
     }
     
     public void start() {
@@ -32,11 +32,11 @@ public class OrderMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         FjDscpMessage req = new FjDscpMessage();
-        req.json().put("fs",   serverName);
+        req.json().put("fs",   server);
         req.json().put("ts",   "wa");
-        req.json().put("inst", SkiCommon.ISIS.INST_ECOM_QUERY_ORDER);
+        req.json().put("inst", CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER);
         req.json().put("args", String.format("{'user':'%s','pass':'%s'}", FjServerToolkit.getServerConfig("taobao.account.user"), FjServerToolkit.getServerConfig("taobao.account.pass")));
-        FjServerToolkit.getSender(serverName).send(req);
+        FjServerToolkit.getAnySender().send(req);
     }
     
     private void resetInterval() {

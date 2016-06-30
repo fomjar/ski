@@ -7,18 +7,18 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
 
 public class Login implements AE {
     
-    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
+    private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         if (!args.containsKey("user") || !args.containsKey("pass")) {
-            code = SkiCommon.CODE.CODE_SYS_ILLEGAL_ARGS;
+            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
             return;
         }
         
@@ -39,11 +39,11 @@ public class Login implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("TPL_username_1"));
-            code = SkiCommon.CODE.CODE_WEB_TAOBAO_ACCOUNT_INCORRECT;
+            code = CommonDefinition.CODE.CODE_WEB_TAOBAO_ACCOUNT_INCORRECT;
             desc = "username or password is incorrect";
             return;
         } catch (NoSuchElementException e){
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         }
     }
     

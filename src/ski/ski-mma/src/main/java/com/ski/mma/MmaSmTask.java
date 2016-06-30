@@ -2,7 +2,7 @@ package com.ski.mma;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.taobao.api.ApiException;
 import com.taobao.api.DefaultTaobaoClient;
 import com.taobao.api.TaobaoClient;
@@ -45,7 +45,7 @@ public class MmaSmTask implements FjServerTask {
         
         FjDscpMessage dmsg = (FjDscpMessage) msg;
         switch (dmsg.inst()) {
-        case SkiCommon.ISIS.INST_USER_RESPONSE:
+        case CommonDefinition.ISIS.INST_USER_RESPONSE:
             logger.info(String.format("INST_USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
             sendShortMessage(dmsg.argsToJsonObject());
             break;

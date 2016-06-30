@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class FjSearchBar extends JComponent {
         this.listeners = new LinkedList<FjSearchListener>();
         
         this.types.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, INSETS));
-        this.types.setPreferredSize(new Dimension(100, field.getHeight()));
+        this.types.setPreferredSize(new Dimension(120, field.getHeight()));
         setBorder(BorderFactory.createEmptyBorder(INSETS, INSETS, INSETS, INSETS));
         setLayout(new BorderLayout());
         add(this.types, BorderLayout.WEST);
@@ -46,14 +48,20 @@ public class FjSearchBar extends JComponent {
             public void actionPerformed(ActionEvent e) {doSearch();}
         });
         
-        field.addActionListener(new ActionListener() {
+        this.field.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {doSearch();}
         });
         
-        field.addKeyListener(new KeyAdapter() {
+        this.field.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {doSearch();}
+        });
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                FjSearchBar.this.types.setPreferredSize(new Dimension(getWidth() / 4, FjSearchBar.this.types.getHeight()));
+            }
         });
     }
     

@@ -10,9 +10,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.fomjar.widget.FjListCell;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.bean.BeanCommodity;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanCommodity;
 
 public class ListCellCommodity extends FjListCell<BeanCommodity> {
 
@@ -59,9 +59,9 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         ((JMenuItem) menu.getComponent(2)).addActionListener(e->{
             UIToolkit.closeCommodity(data.i_oid, data.i_csn);
             
-            Service.updatePlatformAccount();
-            Service.updateGameAccountRent();
-            Service.updateOrder();
+            CommonService.updatePlatformAccount();
+            CommonService.updateGameAccountRent();
+            CommonService.updateOrder();
             updateCommodity();
         });
         
@@ -74,12 +74,12 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
     }
     
     private void updateCommodity() {
-        setData(Service.map_order.get(getData().i_oid).commodities.get(getData().i_csn));
+        setData(CommonService.map_order.get(getData().i_oid).commodities.get(getData().i_csn));
         BeanCommodity data = getData();
         
         i_csn.setText("商品序号：" + String.format("0x%08X", data.i_csn));
-        c_commodity.setText("商品信息：" + String.format("%s - %s", Service.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
-        c_commodity2.setText("辅助信息：" + Service.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+        c_commodity.setText("商品信息：" + String.format("%s - %s", CommonService.map_game_account.get(Integer.parseInt(data.c_arg0, 16)).c_user, data.c_arg1));
+        c_commodity2.setText("辅助信息：" + CommonService.getGameAccountGames(Integer.parseInt(data.c_arg0, 16)).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
         i_price.setText("商品单价：" + data.i_price + "元/天");
         t_time.setText("起止日期：" + String.format("%s ~ %s", data.t_begin, 0 < data.t_end.length() ? data.t_end : "(尚未退租)"));
         i_expense.setText("商品总价：" + (0 < data.t_end.length() ? (data.i_expense + "元/天") : "(尚未结算)"));

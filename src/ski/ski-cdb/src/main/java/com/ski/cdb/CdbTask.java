@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -38,7 +38,7 @@ public class CdbTask implements FjServerTask {
         public int          out     = 0;
         public String       sql_ori = null;
         public String       sql_use = null;
-        public int          code    = SkiCommon.CODE.CODE_SYS_SUCCESS;
+        public int          code    = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         public String       desc    = null;
     }
     
@@ -62,7 +62,7 @@ public class CdbTask implements FjServerTask {
         }
         
         getInstInfo(conn, inst);
-        if (SkiCommon.CODE.CODE_SYS_SUCCESS != inst.code) {
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != inst.code) {
             logger.error("get instruction info failed: " + inst.desc);
             response(server.name(), req, inst);
             return;
@@ -72,9 +72,9 @@ public class CdbTask implements FjServerTask {
         response(server.name(), req, inst);
     }
     
-    private static void response(String serverName, FjDscpMessage req, InstInfo inst) {
+    private static void response(String server, FjDscpMessage req, InstInfo inst) {
         FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",   serverName);
+        rsp.json().put("fs",   server);
         rsp.json().put("ts",   req.fs());
         rsp.json().put("sid",  req.sid());
         rsp.json().put("inst", req.inst());
@@ -82,7 +82,7 @@ public class CdbTask implements FjServerTask {
         args.put("code", inst.code);
         args.put("desc", inst.desc);
         rsp.json().put("args", args);
-        FjServerToolkit.getSender(serverName).send(rsp);
+        FjServerToolkit.getAnySender().send(rsp);
         logger.debug("response message: " + rsp);
     }
     
@@ -116,7 +116,7 @@ public class CdbTask implements FjServerTask {
             st = conn.createStatement();
             ResultSet rs = st.executeQuery("select c_mode, i_out, c_sql from tbl_instruction where i_inst = " + inst.inst);
             if (!rs.next()) {
-                inst.code = SkiCommon.CODE.CODE_SYS_ILLEGAL_INST;
+                inst.code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST;
                 inst.desc = "instruction is not registered: " + inst.inst;
                 logger.error(inst.desc);
                 return;
@@ -126,13 +126,13 @@ public class CdbTask implements FjServerTask {
             inst.sql_ori = rs.getString(3);
             
             if ("sp".equalsIgnoreCase(inst.mode) && 2 > inst.out) {
-                inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+                inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
                 inst.desc = "invalid store procedure, out parameter count must be larger than 1: " + inst.sql_ori;
                 logger.error(inst.desc);
                 return;
             }
         } catch (SQLException e) {
-            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
             inst.desc = e.getMessage();
             logger.error("failed to get instruction info: " + inst.inst, e);
         } finally {
@@ -161,7 +161,7 @@ public class CdbTask implements FjServerTask {
         case "sp": executeSp(conn, inst); break;
         case "st": executeSt(conn, inst); break;
         default:
-            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
             inst.desc = "instruction execute mode is not supported: " + inst.mode;
             break;
         }
@@ -181,9 +181,9 @@ public class CdbTask implements FjServerTask {
             } else {
                 st.execute(inst.sql_use);
             }
-            inst.code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            inst.code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         } catch (SQLException e) {
-            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
             inst.desc = e.getMessage();
             logger.error(String.format("failed to execute statement, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
         } finally {
@@ -210,7 +210,7 @@ public class CdbTask implements FjServerTask {
             }
             inst.desc = JSONArray.fromObject(desc).toString();
         } catch (SQLException e) {
-            inst.code = SkiCommon.CODE.CODE_DB_OPERATE_FAILED;
+            inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
             inst.desc = e.getMessage();
             logger.error(String.format("failed to execute store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
         } finally {

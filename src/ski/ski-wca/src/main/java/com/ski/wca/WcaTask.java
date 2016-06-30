@@ -2,32 +2,33 @@ package com.ski.wca;
 
 import java.nio.channels.SocketChannel;
 
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wca.WechatInterface.WechatInterfaceException;
+import com.ski.wca.biz.WcaBusiness;
 import com.ski.wca.monitor.MenuMonitor;
 import com.ski.wca.monitor.TokenMonitor;
+import com.ski.wca.monitor.DataMonitor;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
-import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
+import net.sf.json.JSONObject;
 
 public class WcaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WcaTask.class);
     
     public WcaTask() {
+        DataMonitor.getInstance().start();
         TokenMonitor.getInstance().start();
-        new MenuMonitor().start();
+        MenuMonitor.getInstance().start();
     }
     
     @Override
@@ -44,7 +45,7 @@ public class WcaTask implements FjServerTask {
         }
     }
     
-    private void processWechat(String serverName, FjMessageWrapper wrapper) {
+    private void processWechat(String server, FjMessageWrapper wrapper) {
         if (((FjHttpRequest) wrapper.message()).urlParameters().containsKey("echostr")) {
             WechatInterface.access(wrapper);
             logger.info("wechat access");
@@ -57,9 +58,9 @@ public class WcaTask implements FjServerTask {
         WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
         
         FjDscpMessage req = new FjDscpMessage();
-        req.json().put("fs", serverName);
-        req.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
-        req.json().put("sid", user_from);
+        req.json().put("fs",    server);
+        req.json().put("ts",    server);
+        req.json().put("sid",   user_from);
         
         JSONObject args = new JSONObject();
         args.put("user", user_from);
@@ -71,23 +72,23 @@ public class WcaTask implements FjServerTask {
         if ("text".equals(msg_type))  {
             logger.info("INST_USER_REQUEST     - wechat:" + user_from);
             content = xml.getElementsByTagName("Content").item(0).getTextContent();
-            req.json().put("inst", SkiCommon.ISIS.INST_USER_REQUEST);
+            req.json().put("inst", CommonDefinition.ISIS.INST_USER_REQUEST);
             args.put("content", content);
         } else if ("event".equals(msg_type)) {
             event     = xml.getElementsByTagName("Event").item(0).getTextContent();
             event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent();
             if ("subscribe".equals(event)) {
                 logger.info("INST_USER_SUBSCRIBE   - wechat:" + user_from);
-                req.json().put("inst", SkiCommon.ISIS.INST_USER_SUBSCRIBE);
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_SUBSCRIBE);
             } else if ("unsubscribe".equals(event)) {
                 logger.info("INST_USER_UNSUBSCRIBE - wechat:" + user_from);
-                req.json().put("inst", SkiCommon.ISIS.INST_USER_UNSUBSCRIBE);
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_UNSUBSCRIBE);
             } else if ("CLICK".equals(event)) {
                 logger.info(String.format("INST_USER_INSTRUCTION - wechat:%s:0x%s", user_from, event_key));
                 req.json().put("inst", Integer.parseInt(event_key, 16));
             } else if ("VIEW".equals(event)) {
                 logger.info("INST_USER_GOTO - wechat:" + user_from);
-                req.json().put("inst", SkiCommon.ISIS.INST_USER_GOTO);
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_GOTO);
                 args.put("content", event_key);
             }
         } else if ("location".equals(msg_type)) {
@@ -96,7 +97,7 @@ public class WcaTask implements FjServerTask {
             float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
             int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
             String label = xml.getElementsByTagName("Label").item(0).getTextContent();
-            req.json().put("inst", SkiCommon.ISIS.INST_USER_LOCATION);
+            req.json().put("inst", CommonDefinition.ISIS.INST_USER_LOCATION);
             args.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
         } else if ("image".equals(msg_type)) {
             logger.info("INST_USER_IMAGE       - wechat:" + user_from);
@@ -137,14 +138,14 @@ public class WcaTask implements FjServerTask {
              */
         }
         req.json().put("args", args);
-        FjServerToolkit.getSender(serverName).send(req); // 用户行为上报业务
-        logger.debug("report message from wechat server: " + req);
+        logger.debug("dispatch message from wechat server: " + req);
+        WcaBusiness.getInstance().dispatch(req);
     }
     
-    private void processSKI(String serverName, FjMessageWrapper wrapper) {
+    private void processSKI(String server, FjMessageWrapper wrapper) {
         FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
         switch (dmsg.inst()) {
-        case SkiCommon.ISIS.INST_USER_RESPONSE: // 响应用户
+        case CommonDefinition.ISIS.INST_USER_RESPONSE: // 响应用户
             logger.info(String.format("INST_USER_RESPONSE    - %s:%s", dmsg.fs(), dmsg.sid()));
             try {
                 String user    = dmsg.argsToJsonObject().getString("user");
@@ -154,13 +155,9 @@ public class WcaTask implements FjServerTask {
                 else logger.debug(String.format("send custom service message success: user=%s, content=%s", user, content));
             } catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + dmsg, e);}
             break;
-        default: // forward report
-            logger.info(String.format("INST_USER_INSTRUCTION - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
-            FjDscpMessage msg = new FjDscpMessage(dmsg.json());
-            msg.json().put("fs", serverName);
-            msg.json().put("ts", FjServerToolkit.getServerConfig("wca.report"));
-            FjServerToolkit.getSender(serverName).send(msg);
-            logger.debug("report message from anywhere: " + msg);
+        default:
+            WcaBusiness.getInstance().dispatch((FjDscpMessage) wrapper.message());
+            logger.debug("dispatch message from ski server: " + wrapper.message());
             break;
         }
     }

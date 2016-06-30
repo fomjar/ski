@@ -16,6 +16,8 @@ import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
@@ -36,13 +38,14 @@ import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
 import com.fomjar.widget.FjTextField;
-import com.ski.common.SkiCommon;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanCommodity;
-import com.ski.omc.bean.BeanGame;
-import com.ski.omc.bean.BeanGameAccount;
-import com.ski.omc.bean.BeanOrder;
-import com.ski.omc.bean.BeanPlatformAccount;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanCommodity;
+import com.ski.common.bean.BeanGame;
+import com.ski.common.bean.BeanGameAccount;
+import com.ski.common.bean.BeanOrder;
+import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.omc.comp.ManageGameAccount;
 import com.ski.omc.comp.ManageOrder;
 import com.ski.omc.comp.StepStepDialog;
@@ -75,6 +78,10 @@ public class UIToolkit {
         
         // UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
+    
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
+    
+    public static void doLater(Runnable task) {pool.submit(task);}
     
     public static Image loadImage(String path, double zoom) {
         ToolkitImage  img0 = (ToolkitImage) Toolkit.getDefaultToolkit().getImage(UIToolkit.class.getResource(path));
@@ -132,7 +139,7 @@ public class UIToolkit {
             if (0 != c_country.getText().length())  args.put("country", c_country.getText());
             if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
             UIToolkit.showServerResponse(rsp);
             break;
         }
@@ -165,11 +172,11 @@ public class UIToolkit {
             if (0 != c_user.getText().length())     args.put("user",        c_user.getText());
             if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             UIToolkit.showServerResponse(rsp);
             
-            if (Service.isResponseSuccess(rsp)) {
-                List<BeanGameAccount> accounts = Service.getGameAccountByUserName(c_user.getText());
+            if (CommonService.isResponseSuccess(rsp)) {
+                List<BeanGameAccount> accounts = CommonService.getGameAccountByUserName(c_user.getText());
                 if (1 == accounts.size()) new ManageGameAccount(accounts.get(0).i_gaid).setVisible(true);
             }
             break;
@@ -179,16 +186,19 @@ public class UIToolkit {
     public static void createChannelAccount() {
         JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信", "2 - 支付宝"});
         i_channel.setEditable(false);
-        FjTextField         c_user  = new FjTextField();
-        FjTextField         c_phone  = new FjTextField();
+        FjTextField c_user  = new FjTextField();
+        FjTextField c_phone = new FjTextField();
+        FjTextField c_nick  = new FjTextField();
         c_user.setDefaultTips("用户名");
         c_phone.setDefaultTips("电话号码");
+        c_nick.setDefaultTips("昵称");
         
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1));
+        panel.setLayout(new GridLayout(4, 1));
         panel.add(i_channel);
         panel.add(c_user);
         panel.add(c_phone);
+        panel.add(c_nick);
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
@@ -196,17 +206,17 @@ public class UIToolkit {
                 continue;
             }
             JSONObject args = new JSONObject();
-            args.put("gender", 1);
             args.put("channel", Integer.parseInt(i_channel.getSelectedItem().toString().split(" ")[0]));
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
+            if (0 != c_nick.getText().length())     args.put("nick",   c_nick.getText());
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             UIToolkit.showServerResponse(rsp);
             
-            if (Service.isResponseSuccess(rsp)) {
+            if (CommonService.isResponseSuccess(rsp)) {
                 if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.YES_NO_OPTION)) {
-                    Service.updateChannelAccount();
-                    List<BeanChannelAccount> users = Service.getChannelAccountByUserName(c_user.getText());
+                    CommonService.updateChannelAccount();
+                    List<BeanChannelAccount> users = CommonService.getChannelAccountByUserName(c_user.getText());
                     if (1 == users.size()) UIToolkit.createOrder(users.get(0));
                     else UIToolkit.createOrder();
                 }
@@ -264,17 +274,17 @@ public class UIToolkit {
             args.put("platform", Integer.parseInt(i_platform.getSelectedItem().toString().split(" ")[0]));
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             args.put("open", sdf.format(new Date(System.currentTimeMillis())));
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
             UIToolkit.showServerResponse(rsp);
             
-            if (Service.isResponseSuccess(rsp)) {
+            if (CommonService.isResponseSuccess(rsp)) {
                 if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.YES_NO_OPTION)) {
-                    Service.updateOrder();
-                    List<BeanOrder> orders = Service.getOrderByChannelAccount(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
+                    CommonService.updateOrder();
+                    List<BeanOrder> orders = CommonService.getOrderByChannelAccount(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
                     if (1 == orders.size()) {
                         BeanOrder order = orders.get(0);
                         UIToolkit.openCommodity(order.i_oid);
-                        Service.updateOrder();
+                        CommonService.updateOrder();
                         new ManageOrder(order.i_oid).setVisible(true);
                     }
                     else JOptionPane.showMessageDialog(null, "不能确认刚才创建的订单，请手工打开再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
@@ -306,9 +316,9 @@ public class UIToolkit {
                 if (ItemEvent.SELECTED != e.getStateChange()) return;
                 
                 if (c_arg1.getSelectedItem().toString().contains("A"))
-                    i_price.setText(Service.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), Service.RENT_TYPE_A) + "");
+                    i_price.setText(CommonService.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_A) + "");
                 else if (c_arg1.getSelectedItem().toString().contains("B"))
-                    i_price.setText(Service.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), Service.RENT_TYPE_B) + "");
+                    i_price.setText(CommonService.getRentPriceByGameAccount(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_B) + "");
                 else
                     i_price.setText("0.00");
             }
@@ -317,11 +327,11 @@ public class UIToolkit {
         choose.addActionListener(e->{
             while (null != (account.obj = chooseGameAccount())) {
                 c_arg0.setText(String.format("0x%08X - %s (%s)", account.obj.i_gaid, account.obj.c_user,
-                        Service.getGameAccountGames(account.obj.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
+                        CommonService.getGameAccountGames(account.obj.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
-                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_A))
+                if (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGameAccount(account.obj.i_gaid, CommonService.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
-                if (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_B))
+                if (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGameAccount(account.obj.i_gaid, CommonService.RENT_TYPE_B))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("B类");
                 if (0 == c_arg1.getModel().getSize()) {
                     c_arg0.setText("");
@@ -378,7 +388,7 @@ public class UIToolkit {
                 continue;
             }
             if (c_arg1.getSelectedItem().toString().contains("B")
-                    && Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.obj.i_gaid, Service.RENT_TYPE_A)) {
+                    && CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGameAccount(account.obj.i_gaid, CommonService.RENT_TYPE_A)) {
                 JOptionPane.showMessageDialog(null, "B类账号起租要求A类已租，请先将此账号A类出租，然后再出租B类", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
@@ -401,7 +411,7 @@ public class UIToolkit {
         });
         Wrapper<Boolean> isSuccess = new Wrapper<Boolean>();
         isSuccess.obj = false;
-        Service.doLater(()->{
+        doLater(()->{
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             // 1
@@ -410,10 +420,10 @@ public class UIToolkit {
                 args.clear();
                 args.put("user", account.c_user);
                 args.put("pass", account.c_pass_curr);
-                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                 ssd.appendText(rsp.toString());
-                if (!Service.isResponseSuccess(rsp)) {
-                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                         ssd.dispose();
                         return;
                     }
@@ -450,15 +460,15 @@ public class UIToolkit {
                 args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
                 args.put("arg0", Integer.toHexString(account.i_gaid));
                 args.put("arg1", type);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 ssd.appendText(rsp.toString());
                 
-                if (Service.isResponseSuccess(rsp) && isRecharge) {
-                    BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByOrder(oid));
+                if (CommonService.isResponseSuccess(rsp) && isRecharge) {
+                    BeanPlatformAccount puser = CommonService.map_platform_account.get(CommonService.getPlatformAccountByOrder(oid));
                     args.clear();
                     args.put("paid", puser.i_paid);
                     args.put("balance", puser.i_balance + price);
-                    rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
                     ssd.appendText(rsp.toString());
                 }
                 ssd.appendText("提交完成");
@@ -480,9 +490,9 @@ public class UIToolkit {
                 "重设密码",
                 "更新数据",
         });
-        BeanCommodity commodity = Service.map_order.get(oid).commodities.get(csn);
-        BeanGameAccount account = Service.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
-        Service.doLater(()->{
+        BeanCommodity commodity = CommonService.map_order.get(oid).commodities.get(csn);
+        BeanGameAccount account = CommonService.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
+        doLater(()->{
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             // 1
@@ -491,10 +501,10 @@ public class UIToolkit {
                 args.clear();
                 args.put("user", account.c_user);
                 args.put("pass", account.c_pass_curr);
-                FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                 ssd.appendText(rsp.toString());
-                if (!Service.isResponseSuccess(rsp)) {
-                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                         ssd.dispose();
                         return;
                     }
@@ -518,12 +528,12 @@ public class UIToolkit {
             ssd.toNextStep();
             {
                 ssd.appendText("正在生成新密码...");
-                String pass_new = Service.createGameAccountPassword();
+                String pass_new = CommonService.createGameAccountPassword();
                 boolean isModify = true;
                 switch (commodity.c_arg1) {
                 case "A":
-                    if (Service.RENT_STATE_IDLE != Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B)) {
-                        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(account.i_gaid, Service.RENT_TYPE_B));
+                    if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGameAccount(account.i_gaid, CommonService.RENT_TYPE_B)) {
+                        BeanChannelAccount user_b = CommonService.map_channel_account.get(CommonService.getRentChannelAccountByGameAccount(account.i_gaid, CommonService.RENT_TYPE_B));
                         JOptionPane.showMessageDialog(null,
                                 String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.c_user),
                                 "信息",
@@ -531,7 +541,7 @@ public class UIToolkit {
                     }
                     break;
                 case "B":
-                    if (Service.RENT_STATE_IDLE != Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A)) {
+                    if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGameAccount(account.i_gaid, CommonService.RENT_TYPE_A)) {
                         ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
                         isModify = false;
                     }
@@ -543,10 +553,10 @@ public class UIToolkit {
                     args.put("user",     account.c_user);
                     args.put("pass",     account.c_pass_curr);
                     args.put("pass_new", pass_new);
-                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                     ssd.appendText(rsp.toString());
-                    if (!Service.isResponseSuccess(rsp)) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + Service.getDescFromResponse(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                             ssd.dispose();
                             return;
                         }
@@ -556,7 +566,7 @@ public class UIToolkit {
                     args.clear();
                     args.put("gaid", account.i_gaid);
                     args.put("pass_curr", pass_new);
-                    rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                     ssd.appendText(rsp.toString());
                     ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
                 } else {
@@ -571,7 +581,7 @@ public class UIToolkit {
                 args.put("oid", oid);
                 args.put("csn", csn);
                 args.put("end", sdf.format(new Date(System.currentTimeMillis())));
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 ssd.appendText(rsp.toString());
                 ssd.appendText("提交完成");
             }
@@ -609,12 +619,12 @@ public class UIToolkit {
         Wrapper<BeanGame> wrapper = new Wrapper<BeanGame>();
         
         // 添加游戏列表
-        Service.map_game.values().forEach(game->{
+        CommonService.map_game.values().forEach(game->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    wrapper.obj = Service.map_game.get(game.i_gid);
+                    wrapper.obj = CommonService.map_game.get(game.i_gid);
                     dialog.dispose();
                 }
             });
@@ -647,7 +657,7 @@ public class UIToolkit {
             public boolean isMatch(String type, String[] words, String celldata) {
                 switch(type) {
                 case "按游戏名": {
-                    List<BeanGame> games = Service.map_game.values()
+                    List<BeanGame> games = CommonService.map_game.values()
                             .stream()
                             .filter(game->{
                                 int count = 0;
@@ -655,7 +665,7 @@ public class UIToolkit {
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = Service.set_game_account_game
+                    List<BeanGameAccount> accounts = CommonService.set_game_account_game
                             .stream()
                             .filter(gag->{
                                 for (BeanGame game : games) {
@@ -663,7 +673,7 @@ public class UIToolkit {
                                 }
                                 return false;
                             })
-                            .map(gag->Service.map_game_account.get(gag.i_gaid))
+                            .map(gag->CommonService.map_game_account.get(gag.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
                         if (null == account) continue;
@@ -673,7 +683,7 @@ public class UIToolkit {
                     return false;
                 }
                 case "按用户名": {
-                    List<BeanChannelAccount> users = Service.map_channel_account.values()
+                    List<BeanChannelAccount> users = CommonService.map_channel_account.values()
                             .stream()
                             .filter(user->{
                                 int count1 = 0;
@@ -681,16 +691,16 @@ public class UIToolkit {
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = Service.set_game_account_rent
+                    List<BeanGameAccount> accounts = CommonService.set_game_account_rent
                             .stream()
                             .filter(rent->{
-                                if (Service.RENT_STATE_RENT != rent.i_state) return false;
+                                if (CommonService.RENT_STATE_RENT != rent.i_state) return false;
                                 for (BeanChannelAccount user : users) {
                                     if (user.i_caid == rent.i_caid) return true;
                                 }
                                 return false;
                             })
-                            .map(rent->Service.map_game_account.get(rent.i_gaid))
+                            .map(rent->CommonService.map_game_account.get(rent.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
                         if (null == account) continue;
@@ -747,17 +757,17 @@ public class UIToolkit {
         dialog.getContentPane().add(pane, BorderLayout.CENTER);
         
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
-        Service.map_game_account.values().forEach(account->{
+        CommonService.map_game_account.values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
-                    ( (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
-                    + (Service.RENT_STATE_IDLE == Service.getRentStateByGameAccount(account.i_gaid, Service.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
-            JLabel games = new JLabel("包含游戏：" + Service.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+                    ( (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGameAccount(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
+                    + (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGameAccount(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
+            JLabel games = new JLabel("包含游戏：" + CommonService.getGameAccountGames(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
             games.setForeground(Color.gray);
             cell.add(games, BorderLayout.SOUTH);
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    wrapper.obj = Service.map_game_account.get(account.i_gaid);
+                    wrapper.obj = CommonService.map_game_account.get(account.i_gaid);
                     dialog.dispose();
                 }
             });
@@ -799,15 +809,15 @@ public class UIToolkit {
         Wrapper<BeanChannelAccount> wrapper = new Wrapper<BeanChannelAccount>();
         
         // 添加用户列表
-        Service.map_channel_account.values().forEach(account->{
+        CommonService.map_channel_account.values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
-                    Service.USER_TYPE_TAOBAO == account.i_channel ? "淘宝" : Service.USER_TYPE_WECHAT == account.i_channel ? "微信" : Service.USER_TYPE_ALIPAY == account.i_channel ? "支付宝" : "未知",
+                    CommonService.USER_TYPE_TAOBAO == account.i_channel ? "淘宝" : CommonService.USER_TYPE_WECHAT == account.i_channel ? "微信" : CommonService.USER_TYPE_ALIPAY == account.i_channel ? "支付宝" : "未知",
                     account.c_user));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    wrapper.obj = Service.map_channel_account.get(account.i_caid);
+                    wrapper.obj = CommonService.map_channel_account.get(account.i_caid);
                     dialog.dispose();
                 }
             });

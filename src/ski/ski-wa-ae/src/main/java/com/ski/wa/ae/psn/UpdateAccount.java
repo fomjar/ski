@@ -4,20 +4,20 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
 
 import net.sf.json.JSONObject;
 
 public class UpdateAccount implements AE {
     
-    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
+    private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         if (!args.containsKey("user") || !args.containsKey("pass")) { // 参数没有新老密码
-            code = SkiCommon.CODE.CODE_SYS_ILLEGAL_ARGS;
+            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
             desc = "no parameter: user or pass";
             return;
         }
@@ -31,14 +31,14 @@ public class UpdateAccount implements AE {
         login_args.put("user", args.getString("user"));
         login_args.put("pass", args.getString("pass"));
         login.execute(driver, login_args);
-        if (SkiCommon.CODE.CODE_SYS_SUCCESS != login.code()) {
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
         }
         
         if (!args.has("pass_new")) {
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "login success";
             return;
         }
@@ -55,10 +55,10 @@ public class UpdateAccount implements AE {
         driver.findElement(By.id("changePasswordButton")).click();
         
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "update new password success";
         } else { // 密码保存失败
-            code = SkiCommon.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
+            code = CommonDefinition.CODE.CODE_WEB_PSN_CHANGE_PASSWORD_FAILED;
             try {desc = driver.findElement(By.id("passwordFieldError")).getText();}
             catch (NoSuchElementException e) {desc = driver.findElement(By.id("confirmPasswordFieldError")).getText();}
         }

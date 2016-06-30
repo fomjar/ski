@@ -12,9 +12,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 import com.fomjar.widget.FjListCell;
-import com.ski.omc.Service;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanGameAccount;
+import com.ski.common.CommonService;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanGameAccount;
 
 public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
 
@@ -40,11 +40,11 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
         i_caid    = new JLabel(String.format("0x%08X", user.i_caid));
         i_caid.setForeground(color_minor);
         i_caid.setHorizontalAlignment(SwingConstants.RIGHT);
-        List<BeanGameAccount> accounts_a = Service.getRentGameAccountByChannelAccount(user.i_caid, Service.RENT_TYPE_A);
+        List<BeanGameAccount> accounts_a = CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_A);
         c_accounts_a = new JLabel("A租账号: " + (!accounts_a.isEmpty() ? accounts_a.stream().map(a->a.c_user).collect(Collectors.joining("; ")) : "-"));
         c_accounts_a.setForeground(color_minor);
         c_accounts_a.setPreferredSize(new Dimension(240, 0));
-        List<BeanGameAccount> accounts_b = Service.getRentGameAccountByChannelAccount(user.i_caid, Service.RENT_TYPE_B);
+        List<BeanGameAccount> accounts_b = CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_B);
         c_accounts_b = new JLabel("B租账号: " + (!accounts_b.isEmpty() ? accounts_b.stream().map(b->b.c_user).collect(Collectors.joining("; ")) : "-"));
         c_accounts_b.setForeground(color_minor);
         c_accounts_b.setPreferredSize(new Dimension(240, 0));
@@ -82,9 +82,9 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
     
     private static String getChannel2String(int channel) {
         switch (channel) {
-        case Service.USER_TYPE_TAOBAO: return "淘宝";
-        case Service.USER_TYPE_WECHAT: return "微信";
-        case Service.USER_TYPE_ALIPAY: return "支付宝";
+        case CommonService.USER_TYPE_TAOBAO: return "淘宝";
+        case CommonService.USER_TYPE_WECHAT: return "微信";
+        case CommonService.USER_TYPE_ALIPAY: return "支付宝";
         default: return "未知";
         }
     }

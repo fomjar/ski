@@ -20,12 +20,12 @@ import javax.swing.JToolBar;
 import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListPane;
-import com.ski.common.SkiCommon;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanCommodity;
+import com.ski.common.bean.BeanOrder;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanCommodity;
-import com.ski.omc.bean.BeanOrder;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -47,7 +47,7 @@ public class ManageOrder extends JDialog {
     public ManageOrder(int oid) {
         super(MainFrame.getInstance());
 
-        order = Service.map_order.get(oid);
+        order = CommonService.map_order.get(oid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -61,7 +61,7 @@ public class ManageOrder extends JDialog {
         toolbar.getComponent(3).setEnabled(!order.isClose());
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
-        user = Service.map_channel_account.get(order.i_caid);
+        user = CommonService.map_channel_account.get(order.i_caid);
         i_caid      = new FjEditLabel(user.c_user, false);
         t_open      = new FjEditLabel(order.t_open);
         t_close     = new FjEditLabel(order.t_close);
@@ -75,9 +75,9 @@ public class ManageOrder extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("订单编号", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_platform));
         panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid, "管理用户", e->{
-            Service.updateChannelAccount();
-            Service.updatePlatformAccount();
-            Service.updatePlatformAccountMap();
+            CommonService.updateChannelAccount();
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
             new ManageChannelAccount(order.i_caid).setVisible(true);
         }));
         panel_basic.add(UIToolkit.createBasicInfoLabel("打开时间", t_open));
@@ -148,9 +148,9 @@ public class ManageOrder extends JDialog {
                 JOptionPane.showMessageDialog(ManageOrder.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
             UIToolkit.showServerResponse(rsp);
-            if (null != rsp && Service.isResponseSuccess(rsp)) {
+            if (null != rsp && CommonService.isResponseSuccess(rsp)) {
                 if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
                 if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
                 if (args.has("open"))       t_open.setForeground(Color.darkGray);
@@ -159,7 +159,7 @@ public class ManageOrder extends JDialog {
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
-            order = Service.map_order.get(order.i_oid);
+            order = CommonService.map_order.get(order.i_oid);
             
             if (order.isClose()) {
                 JOptionPane.showMessageDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
@@ -168,13 +168,13 @@ public class ManageOrder extends JDialog {
             
             UIToolkit.openCommodity(order.i_oid);
             
-            Service.updateOrder();
-            Service.updateGameAccountRent();
-            this.order = Service.map_order.get(order.i_oid);
+            CommonService.updateOrder();
+            CommonService.updateGameAccountRent();
+            this.order = CommonService.map_order.get(order.i_oid);
             updateCommodity();
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(e->{
-            order = Service.map_order.get(order.i_oid);
+            order = CommonService.map_order.get(order.i_oid);
             
             if (order.isClose()) {
                 JOptionPane.showMessageDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.ERROR_MESSAGE);
@@ -195,7 +195,7 @@ public class ManageOrder extends JDialog {
             JSONObject args = new JSONObject();
             args.put("oid", order.i_oid);
             args.put("close", sdf.format(new Date(System.currentTimeMillis())));
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
             UIToolkit.showServerResponse(rsp);
             
             ManageOrder.this.dispose();

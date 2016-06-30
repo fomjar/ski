@@ -20,12 +20,12 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
-import com.ski.common.SkiCommon;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanGame;
+import com.ski.common.bean.BeanGameAccount;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanGame;
-import com.ski.omc.bean.BeanGameAccount;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -45,7 +45,7 @@ public class ManageGameAccount extends JDialog {
     public ManageGameAccount(int gaid) {
         super(MainFrame.getInstance());
         
-        BeanGameAccount account = Service.map_game_account.get(gaid);
+        BeanGameAccount account = CommonService.map_game_account.get(gaid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -144,9 +144,9 @@ public class ManageGameAccount extends JDialog {
                     JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                     return;
                 }
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                 UIToolkit.showServerResponse(rsp);
-                if (Service.isResponseSuccess(rsp)) {
+                if (CommonService.isResponseSuccess(rsp)) {
                     if (args.has("user"))       c_user.setForeground(Color.darkGray);
                     if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
                     if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
@@ -157,7 +157,7 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(()->{
+                UIToolkit.doLater(()->{
                     if (args.isEmpty()) {
                         JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
                         return;
@@ -167,10 +167,10 @@ public class ManageGameAccount extends JDialog {
                         return;
                     }
                     ((JButton) toolbar.getComponent(1)).setEnabled(false);
-                    FjDscpMessage rsp_wa = Service.send("wa", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                     UIToolkit.showServerResponse(rsp_wa);
-                    if (Service.isResponseSuccess(rsp_wa)) {
-                        FjDscpMessage rsp_cdb = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    if (CommonService.isResponseSuccess(rsp_wa)) {
+                        FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         UIToolkit.showServerResponse(rsp_cdb);
                         
                         if (args.has("user"))   c_user.setForeground(Color.darkGray);
@@ -185,13 +185,13 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Service.doLater(()->{
+                UIToolkit.doLater(()->{
                     ((JButton) toolbar.getComponent(2)).setEnabled(false);
                     args.put("user", c_user.getText());
                     args.put("pass", c_pass.getText());
-                    FjDscpMessage rsp = Service.send("wa", SkiCommon.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                     UIToolkit.showServerResponse(rsp);
-                    if (null != rsp && Service.isResponseSuccess(rsp)) args.clear();
+                    if (null != rsp && CommonService.isResponseSuccess(rsp)) args.clear();
                     ((JButton) toolbar.getComponent(2)).setEnabled(true);
                 });
             }
@@ -210,10 +210,10 @@ public class ManageGameAccount extends JDialog {
                 JSONObject args = new JSONObject();
                 args.put("gaid", gaid);
                 args.put("gid", gid);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
                 UIToolkit.showServerResponse(rsp);
                 
-                Service.updateGameAccountGame();
+                CommonService.updateGameAccountGame();
                 updateGameAccountGame();
             }
         });
@@ -222,8 +222,8 @@ public class ManageGameAccount extends JDialog {
     private void updateGameAccountGame() {
         int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
         
-        BeanChannelAccount user_a = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(gaid, Service.RENT_TYPE_A));
-        BeanChannelAccount user_b = Service.map_channel_account.get(Service.getRentChannelAccountByGameAccount(gaid, Service.RENT_TYPE_B));
+        BeanChannelAccount user_a = CommonService.map_channel_account.get(CommonService.getRentChannelAccountByGameAccount(gaid, CommonService.RENT_TYPE_A));
+        BeanChannelAccount user_b = CommonService.map_channel_account.get(CommonService.getRentChannelAccountByGameAccount(gaid, CommonService.RENT_TYPE_B));
         pane_users.getList().removeAllCell();
         if (null != user_a) {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "[A类]");
@@ -237,9 +237,9 @@ public class ManageGameAccount extends JDialog {
         }
 
         pane_games.getList().removeAllCell();
-        Service.set_game_account_game.forEach(bean->{
+        CommonService.set_game_account_game.forEach(bean->{
             if (gaid == bean.i_gaid) {
-                BeanGame game = Service.map_game.get(bean.i_gid);
+                BeanGame game = CommonService.map_game.get(bean.i_gid);
                 pane_games.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh)));
             }
         });

@@ -23,11 +23,11 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjTextField;
-import com.ski.common.SkiCommon;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanPlatformAccount;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -62,7 +62,7 @@ public class ManageChannelAccount extends JDialog {
     public ManageChannelAccount(int caid) {
         super(MainFrame.getInstance());
         
-        user = Service.map_channel_account.get(caid);
+        user = CommonService.map_channel_account.get(caid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -243,9 +243,9 @@ public class ManageChannelAccount extends JDialog {
                 return;
             }
             
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
             UIToolkit.showServerResponse(rsp);
-            if (Service.isResponseSuccess(rsp)) {
+            if (CommonService.isResponseSuccess(rsp)) {
                 if (args.has("user"))       c_user.setForeground(Color.darkGray);
                 if (args.has("channel"))    i_channel.setForeground(Color.darkGray);
                 if (args.has("nick"))       c_nick.setForeground(Color.darkGray);
@@ -269,10 +269,10 @@ public class ManageChannelAccount extends JDialog {
                 JSONObject args = new JSONObject();
                 args.put("paid", puser.i_paid);
                 args.put("balance", balance);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
                 UIToolkit.showServerResponse(rsp);
-                if (Service.isResponseSuccess(rsp)) {
-                    Service.updatePlatformAccount();
+                if (CommonService.isResponseSuccess(rsp)) {
+                    CommonService.updatePlatformAccount();
                     updateBasicPane();
                 }
                 break;
@@ -290,10 +290,10 @@ public class ManageChannelAccount extends JDialog {
                 JSONObject args = new JSONObject();
                 args.put("paid", puser.i_paid);
                 args.put("coupon", coupon);
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
                 UIToolkit.showServerResponse(rsp);
-                if (Service.isResponseSuccess(rsp)) {
-                    Service.updatePlatformAccount();
+                if (CommonService.isResponseSuccess(rsp)) {
+                    CommonService.updatePlatformAccount();
                     updateBasicPane();
                 }
                 break;
@@ -302,8 +302,8 @@ public class ManageChannelAccount extends JDialog {
         ((JButton) toolbar.getComponent(4)).addActionListener(e->{
             UIToolkit.createOrder(user);
             
-            Service.updateOrder();
-            Service.updateGameAccountRent();
+            CommonService.updateOrder();
+            CommonService.updateGameAccountRent();
             updateListPane();
         });
         ((JButton) toolbar.getComponent(6)).addActionListener(e->{
@@ -312,8 +312,8 @@ public class ManageChannelAccount extends JDialog {
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退，继续？", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
-            int paid_to = Service.getPlatformAccountByChannelAccount(user.i_caid);
-            int paid_from = Service.getPlatformAccountByChannelAccount(user2.i_caid);
+            int paid_to = CommonService.getPlatformAccountByChannelAccount(user.i_caid);
+            int paid_from = CommonService.getPlatformAccountByChannelAccount(user2.i_caid);
             if (paid_to == paid_from) {
                 JOptionPane.showMessageDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -322,11 +322,11 @@ public class ManageChannelAccount extends JDialog {
             JSONObject args = new JSONObject();
             args.put("paid_to", paid_to);
             args.put("paid_from", paid_from);
-            FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
             UIToolkit.showServerResponse(rsp);
             
-            Service.updatePlatformAccount();
-            Service.updatePlatformAccountMap();
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
             updateBasicPane();
             updateListPane();
         });
@@ -345,19 +345,19 @@ public class ManageChannelAccount extends JDialog {
     
     private void updateListPane() {
         pane_user.getList().removeAllCell();
-        Service.getChannelAccountRelated(user.i_caid).forEach(user->{
+        CommonService.getChannelAccountRelated(user.i_caid).forEach(user->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user.i_caid, user.c_user), "[" + getChannel2String(user.i_channel) + "]");
             cell.addActionListener(e->new ManageChannelAccount(user.i_caid).setVisible(true));
             pane_user.getList().addCell(cell);
         });
         
         pane_account.getList().removeAllCell();
-        Service.getRentGameAccountByChannelAccount(user.i_caid, Service.RENT_TYPE_A).forEach(account->{
+        CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_A).forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[A类]");
             cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
             pane_account.getList().addCell(cell);
         });
-        Service.getRentGameAccountByChannelAccount(user.i_caid, Service.RENT_TYPE_B).forEach(account->{
+        CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_B).forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[B类]");
             cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
             pane_account.getList().addCell(cell);
@@ -370,7 +370,7 @@ public class ManageChannelAccount extends JDialog {
     
     private void updatePaneOrder() {
         pane_order.getList().removeAllCell();
-        Service.map_order.values()
+        CommonService.map_order.values()
                 .stream()
                 .filter(order->order.i_caid == user.i_caid)
                 .filter(order->{
@@ -384,8 +384,8 @@ public class ManageChannelAccount extends JDialog {
                         dialog.addWindowListener(new WindowAdapter() {
                             @Override
                             public void windowClosed(WindowEvent e) {
-                                Service.updateOrder();
-                                Service.updateGameAccountRent();
+                                CommonService.updateOrder();
+                                CommonService.updateGameAccountRent();
                                 updateListPane();
                             }
                         });
@@ -397,8 +397,8 @@ public class ManageChannelAccount extends JDialog {
     }
     
     private void updateBasicPane() {
-        user = Service.map_channel_account.get(user.i_caid);
-        puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(user.i_caid));
+        user = CommonService.map_channel_account.get(user.i_caid);
+        puser = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(user.i_caid));
         
         i_caid.setText(String.format("0x%08X", user.i_caid));
         c_user.setText(user.c_user);
@@ -418,30 +418,30 @@ public class ManageChannelAccount extends JDialog {
     
     private static String getChannel2String(int channel) {
         switch (channel) {
-        case Service.USER_TYPE_TAOBAO: return "淘宝";
-        case Service.USER_TYPE_WECHAT: return "微信";
-        case Service.USER_TYPE_ALIPAY: return "支付宝";
+        case CommonService.USER_TYPE_TAOBAO: return "淘宝";
+        case CommonService.USER_TYPE_WECHAT: return "微信";
+        case CommonService.USER_TYPE_ALIPAY: return "支付宝";
         default: return "未知";
         }
     }
     
     private static int getChannel2Int(String channel) {
         switch (channel) {
-        case "淘宝": return Service.USER_TYPE_TAOBAO;
-        case "微信": return Service.USER_TYPE_WECHAT;
-        case "支付宝": return Service.USER_TYPE_ALIPAY;
+        case "淘宝": return CommonService.USER_TYPE_TAOBAO;
+        case "微信": return CommonService.USER_TYPE_WECHAT;
+        case "支付宝": return CommonService.USER_TYPE_ALIPAY;
         default: return Integer.parseInt(channel);
         }
     }
     
     private static float[] prestatement(int caid) {
-        BeanPlatformAccount puser = Service.map_platform_account.get(Service.getPlatformAccountByChannelAccount(caid));
+        BeanPlatformAccount puser = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(caid));
         float balance   = puser.i_balance;
         float coupon    = puser.i_coupon;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         float cost = 0.00f;
         try {
-            cost = Service.getOrderByChannelAccount(caid)
+            cost = CommonService.getOrderByChannelAccount(caid)
                 .stream()
                 .filter(order->!order.isClose())
                 .map(order->{

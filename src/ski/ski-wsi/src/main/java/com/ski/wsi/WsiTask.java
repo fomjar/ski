@@ -11,7 +11,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -57,7 +57,7 @@ public class WsiTask implements FjServerTask {
     
     private ByteBuffer buf = ByteBuffer.allocate(1024 * 1024);
     
-    private void process(String serverName, FjMessageWrapper wrapper) {
+    private void process(String server, FjMessageWrapper wrapper) {
         FjHttpRequest hmsg = (FjHttpRequest) wrapper.message();
         final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
         Map<String, String> urlargs = hmsg.urlParameters();
@@ -86,7 +86,7 @@ public class WsiTask implements FjServerTask {
         
         if (!args.has("inst")) {
             logger.error("bad request: " + hmsg);
-            responseSimple(serverName, SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, "没有指令", conn);
+            responseSimple( CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST, "没有指令", conn);
             return;
         }
         
@@ -98,7 +98,7 @@ public class WsiTask implements FjServerTask {
             try {inst = Integer.parseInt(instobj.toString(), 16);}
             catch (NumberFormatException e) {
                 logger.error("bad request: " + hmsg);
-                responseSimple(serverName, SkiCommon.CODE.CODE_SYS_ILLEGAL_INST, "非法指令", conn);
+                responseSimple(CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST, "非法指令", conn);
                 return;
             }
         }
@@ -106,8 +106,8 @@ public class WsiTask implements FjServerTask {
         logger.info(String.format("[ REPORT ] %s:0x%08X", report, inst));
         
         FjDscpMessage newreq = new FjDscpMessage();
-        newreq.json().put("fs",   serverName);
-        newreq.json().put("ts",   report);
+        newreq.json().put("fs", server);
+        newreq.json().put("ts", report);
         if (args.has("sid")) newreq.json().put("sid",  args.remove("sid").toString());
         newreq.json().put("inst", inst);
         newreq.json().put("args", JSONObject.fromObject(args));
@@ -116,7 +116,7 @@ public class WsiTask implements FjServerTask {
         wrapper.attach("conn", null); // 清除连接缓存 防止被服务器自动释放
         
         // 请求上报业务
-        FjServerToolkit.getSender(serverName).send(newreq);
+        FjServerToolkit.getAnySender().send(newreq);
         
         logger.debug(newreq);
     }
@@ -129,12 +129,12 @@ public class WsiTask implements FjServerTask {
         }
     }
     
-    private static void responseSimple(String serverName,  int code, String desc, SocketChannel conn) {
-        logger.info(String.format("[RESPONSE] %s:0x%08X:%s", serverName, code, desc));
+    private static void responseSimple(int code, String desc, SocketChannel conn) {
+        logger.info(String.format("[RESPONSE] 0x%08X:%s", code, desc));
         JSONObject args = new JSONObject();
         args.put("code", code);
         args.put("desc", desc);
-        FjServerToolkit.getSender(serverName).send(new FjMessageWrapper(new FjJsonMessage(args)).attach("conn", conn));
+        FjServerToolkit.getAnySender().send(new FjMessageWrapper(new FjJsonMessage(args)).attach("conn", conn));
     }
     
     private class CacheMonitor extends FjLoopTask {

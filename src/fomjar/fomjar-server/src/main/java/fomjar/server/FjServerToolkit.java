@@ -4,10 +4,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -178,6 +180,14 @@ public class FjServerToolkit {
     public static FjServer getServer(String name) {return null == g_server ? null : g_server.get(name);}
     
     public static FjSender getSender(String name) {return null == g_sender ? null : g_sender.get(name);}
+    
+    public static FjSender getAnySender() {
+        if (null == g_sender) return null;
+        int index = Math.abs(new Random().nextInt()) % g_sender.size();
+        Iterator<FjSender> iterator = g_sender.values().iterator();
+        for (int i = 0; i < index; i++) iterator.next();
+        return iterator.next();
+    }
     
     public static FjMessage createMessage(String data) {
         if (data.startsWith("GET")

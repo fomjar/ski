@@ -22,13 +22,13 @@ import javax.swing.JToolBar;
 import com.fomjar.widget.FjList;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
-import com.ski.common.SkiCommon;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanGame;
+import com.ski.common.bean.BeanGameAccount;
+import com.ski.common.bean.BeanOrder;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanChannelAccount;
-import com.ski.omc.bean.BeanGame;
-import com.ski.omc.bean.BeanGameAccount;
-import com.ski.omc.bean.BeanOrder;
 
 public class MainFrame extends JFrame {
     
@@ -49,7 +49,7 @@ public class MainFrame extends JFrame {
     private JButton     order_switch;
     
     private MainFrame() {
-        setTitle(String.format("SKI-OMC-%s [%s]", SkiCommon.VERSION, Service.getWsiUrl()));
+        setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
         setSize(600, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -118,7 +118,7 @@ public class MainFrame extends JFrame {
                 
                 switch(type) {
                 case "按游戏名": {
-                    List<BeanGame> games = Service.map_game.values()
+                    List<BeanGame> games = CommonService.map_game.values()
                             .stream()
                             .filter(game->{
                                 int count = 0;
@@ -126,7 +126,7 @@ public class MainFrame extends JFrame {
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = Service.set_game_account_game
+                    List<BeanGameAccount> accounts = CommonService.set_game_account_game
                             .stream()
                             .filter(gag->{
                                 for (BeanGame game : games) {
@@ -134,7 +134,7 @@ public class MainFrame extends JFrame {
                                 }
                                 return false;
                             })
-                            .map(gag->Service.map_game_account.get(gag.i_gaid))
+                            .map(gag->CommonService.map_game_account.get(gag.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
                         if (null == account) continue;
@@ -143,7 +143,7 @@ public class MainFrame extends JFrame {
                     return false;
                 }
                 case "按用户名": {
-                    List<BeanChannelAccount> users = Service.map_channel_account.values()
+                    List<BeanChannelAccount> users = CommonService.map_channel_account.values()
                             .stream()
                             .filter(user->{
                                 int count1 = 0;
@@ -151,16 +151,16 @@ public class MainFrame extends JFrame {
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = Service.set_game_account_rent
+                    List<BeanGameAccount> accounts = CommonService.set_game_account_rent
                             .stream()
                             .filter(rent->{
-                                if (Service.RENT_STATE_RENT != rent.i_state) return false;
+                                if (CommonService.RENT_STATE_RENT != rent.i_state) return false;
                                 for (BeanChannelAccount user : users) {
                                     if (user.i_caid == rent.i_caid) return true;
                                 }
                                 return false;
                             })
-                            .map(rent->Service.map_game_account.get(rent.i_gaid))
+                            .map(rent->CommonService.map_game_account.get(rent.i_gaid))
                             .collect(Collectors.toList());
                     for (BeanGameAccount account : accounts) {
                         if (null == account) continue;
@@ -203,7 +203,7 @@ public class MainFrame extends JFrame {
                 
                 int count = 0;
                 for (String word : words) {
-                    if (Service.map_channel_account.get(celldata.i_caid).c_user.contains(word))
+                    if (CommonService.map_channel_account.get(celldata.i_caid).c_user.contains(word))
                         count++;
                 }
                 return count == words.length;
@@ -264,45 +264,45 @@ public class MainFrame extends JFrame {
     }
     
     public void updateAll() {
-        Service.doLater(()->{
+        UIToolkit.doLater(()->{
             ((JButton) toolbar.getComponent(0)).setEnabled(false);
             boolean isfail = false;
             try {
-                Service.updateGame();
-                Service.updateGameRentPrice();
+                CommonService.updateGame();
+                CommonService.updateGameRentPrice();
                 
-                Service.updateGameAccount();
-                Service.updateGameAccountGame();
-                Service.updateGameAccountRent();
+                CommonService.updateGameAccount();
+                CommonService.updateGameAccountGame();
+                CommonService.updateGameAccountRent();
                 
-                Service.updateChannelAccount();
-                Service.updatePlatformAccount();
-                Service.updatePlatformAccountMap();
+                CommonService.updateChannelAccount();
+                CommonService.updatePlatformAccount();
+                CommonService.updatePlatformAccountMap();
                 
-                Service.updateOrder();
+                CommonService.updateOrder();
                 
                 @SuppressWarnings("unchecked")
                 FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                 list_game.removeAllCell();
-                Service.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
+                CommonService.map_game.values().forEach(data->list_game.addCell(new ListCellGame(data)));
                 ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().doSearch();
                 
                 @SuppressWarnings("unchecked")
                 FjList<BeanGameAccount> list_game_account = ((FjListPane<BeanGameAccount>) tabs.getComponentAt(1)).getList();
                 list_game_account.removeAllCell();
-                Service.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
+                CommonService.map_game_account.values().forEach(data->list_game_account.addCell(new ListCellGameAccount(data)));
                 ((FjListPane<?>) tabs.getComponentAt(1)).getSearchBar().doSearch();
                 
                 @SuppressWarnings("unchecked")
                 FjList<BeanChannelAccount> list_channel_account = ((FjListPane<BeanChannelAccount>) tabs.getComponentAt(2)).getList();
                 list_channel_account.removeAllCell();
-                Service.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
+                CommonService.map_channel_account.values().forEach(account->{list_channel_account.addCell(new ListCellChannelAccount(account));});
                 ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().doSearch();
                 
                 @SuppressWarnings("unchecked")
                 FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
                 list_order.removeAllCell();
-                Service.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
+                CommonService.map_order.values().forEach(data->list_order.addCell(new ListCellOrder(data)));
                 ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().doSearch();
             } catch (Exception e) {
                 isfail = true;

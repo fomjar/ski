@@ -9,21 +9,21 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import com.ski.common.SkiCommon;
+import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
 
 public class OrderListNew implements AE {
     
 //    private static final Logger logger = Logger.getLogger(OrderListNew.class);
     
-    private int     code = SkiCommon.CODE.CODE_SYS_UNKNOWN_ERROR;
+    private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
     @Override
     public void execute(WebDriver driver, JSONObject args) {
         AE login = new Login();
         login.execute(driver, args);
-        if (SkiCommon.CODE.CODE_SYS_SUCCESS != login.code()) {
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != login.code()) {
             code = login.code();
             desc = login.desc();
             return;
@@ -36,7 +36,7 @@ public class OrderListNew implements AE {
         catch (InterruptedException e) {e.printStackTrace();}
         try {driver.findElement(By.className("J_TriggerAll")).click();} // 批量发货勾选
         catch (NoSuchElementException e) { // 没有订单
-            code = SkiCommon.CODE.CODE_WEB_TAOBAO_ORDER_NO_NEW;
+            code = CommonDefinition.CODE.CODE_WEB_TAOBAO_ORDER_NO_NEW;
             desc = "no new order";
             return;
         }
@@ -62,7 +62,7 @@ public class OrderListNew implements AE {
             String tp_price = order_table.findElement(By.className("total")).findElement(By.tagName("span")).getText().trim().split(" ")[0].trim();
             String tp_count    = order_table.findElement(By.className("total")).findElement(By.tagName("em")).getText().trim();
             
-            code = SkiCommon.CODE.CODE_SYS_SUCCESS;
+            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             JSONObject json_desc = new JSONObject();
             json_desc.put("toid",     toid);
             json_desc.put("tuid",     tuid);

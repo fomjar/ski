@@ -14,10 +14,10 @@ import javax.swing.JPanel;
 import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
-import com.ski.common.SkiCommon;
-import com.ski.omc.Service;
+import com.ski.common.CommonService;
+import com.ski.common.CommonDefinition;
+import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.bean.BeanGame;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
@@ -41,11 +41,11 @@ public class ListCellGame extends FjListCell<BeanGame> {
         c_name_zh.setForeground(color_major);
         i_gid       = new FjEditLabel(String.format("0x%08X", data.i_gid), false);
         i_gid.setForeground(color_minor);
-        String keya = Integer.toHexString(data.i_gid) + Service.RENT_TYPE_A;
-        String keyb = Integer.toHexString(data.i_gid) + Service.RENT_TYPE_B;
-        i_price_a   = new FjEditLabel("A: " + (Service.map_game_rent_price.containsKey(keya) ? Service.map_game_rent_price.get(keya).i_price : 0.0f) + "元/天");
+        String keya = Integer.toHexString(data.i_gid) + CommonService.RENT_TYPE_A;
+        String keyb = Integer.toHexString(data.i_gid) + CommonService.RENT_TYPE_B;
+        i_price_a   = new FjEditLabel("A: " + (CommonService.map_game_rent_price.containsKey(keya) ? CommonService.map_game_rent_price.get(keya).i_price : 0.0f) + "元/天");
         i_price_a.setForeground(color_major);
-        i_price_b   = new FjEditLabel("B: " + (Service.map_game_rent_price.containsKey(keyb) ? Service.map_game_rent_price.get(keyb).i_price : 0.0f) + "元/天");
+        i_price_b   = new FjEditLabel("B: " + (CommonService.map_game_rent_price.containsKey(keyb) ? CommonService.map_game_rent_price.get(keyb).i_price : 0.0f) + "元/天");
         i_price_b.setForeground(color_major);
         t_sale      = new FjEditLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
         t_sale.setForeground(color_minor);
@@ -108,9 +108,9 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 if (new_value.contains("元/天")) new_value = new_value.replace("元/天", "");
                 new_value = new_value.trim();
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("type", Service.RENT_TYPE_A);
+                args.put("type", CommonService.RENT_TYPE_A);
                 args.put("price", Float.parseFloat(new_value));
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
                 UIToolkit.showServerResponse(rsp);
                 args.clear();
                 
@@ -128,9 +128,9 @@ public class ListCellGame extends FjListCell<BeanGame> {
                 if (new_value.contains("元/天")) new_value = new_value.replace("元/天", "");
                 new_value = new_value.trim();
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("type", Service.RENT_TYPE_B);
+                args.put("type", CommonService.RENT_TYPE_B);
                 args.put("price", Float.parseFloat(new_value));
-                FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
                 UIToolkit.showServerResponse(rsp);
                 args.clear();
                 
@@ -171,9 +171,9 @@ public class ListCellGame extends FjListCell<BeanGame> {
                     return;
                 }
                 if (3 < args.size() || !args.containsKey("price")) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME, args);
+                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
                     UIToolkit.showServerResponse(rsp);
-                    if (null != rsp && Service.isResponseSuccess(rsp)) {
+                    if (null != rsp && CommonService.isResponseSuccess(rsp)) {
                         if (args.has("name_zh"))    c_name_zh.setForeground(color_major);
                         if (args.has("sale"))       t_sale.setForeground(color_minor);
                         if (args.has("country"))    c_country.setForeground(color_minor);
@@ -181,9 +181,9 @@ public class ListCellGame extends FjListCell<BeanGame> {
                     }
                 }
                 if (args.containsKey("price")) {
-                    FjDscpMessage rsp = Service.send("cdb", SkiCommon.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
+                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
                     UIToolkit.showServerResponse(rsp);
-                    if (null != rsp && Service.isResponseSuccess(rsp)) {
+                    if (null != rsp && CommonService.isResponseSuccess(rsp)) {
                         if (args.has("price")) i_price_a.setForeground(color_major);
                         args.clear();
                     }
