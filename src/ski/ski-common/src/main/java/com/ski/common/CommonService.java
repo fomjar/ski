@@ -61,128 +61,9 @@ public class CommonService {
     public static final int OPER_TYPE_RENT_SWAP     = 6;
     public static final int OPER_TYPE_COUPON        = 7;
     
-    public static String createGameAccountPassword() {
-        List<Integer> number = new ArrayList<Integer>(20);
-        // 密碼中同一個字母不可連續重複 3 次
-        for (int i = 0; i <= 9; i++) {
-            for (int j = 0; j < 2; j++) {
-                number.add(i);
-            }
-        }
-        Random r = new Random();
-        return String.format("vcg%d%d%d%d%d",
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()));
-    }
-    
-    public static List<BeanChannelAccount> getChannelAccountByUserName(String user) {
-        return CommonService.map_channel_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
-    }
-    
-    public static List<BeanChannelAccount> getChannelAccountRelated(int caid) {
-        int paid = getPlatformAccountByChannelAccount(caid);
-        return set_platform_account_map
-                .stream()
-                .filter(bean->paid == bean.i_paid)
-                .map(bean->map_channel_account.get(bean.i_caid))
-                .collect(Collectors.toList());
-    }
-    
-    public static List<BeanGameAccount> getGameAccountByUserName(String user) {
-        return CommonService.map_game_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
-    }
-    
-    public static List<BeanGame> getGameAccountGames(int gaid) {
-        return set_game_account_game
-                .stream()
-                .filter(gag->gag.i_gaid == gaid)
-                .map(gag->map_game.get(gag.i_gid))
-                .collect(Collectors.toList());
-    }
-    
-    public static List<BeanOrder> getOrderByChannelAccount(int caid) {
-        return CommonService.map_order.values().stream().filter(order->order.i_caid == caid).collect(Collectors.toList());
-    }
-    
-    public static int getPlatformAccountByChannelAccount(int caid) {
-        for (BeanPlatformAccountMap bean : CommonService.set_platform_account_map) {
-            if (bean.i_caid == caid) return bean.i_paid;
-        }
-        return -1;
-    }
-    
-    public static int getPlatformAccountByOrder(int oid) {
-        return getPlatformAccountByChannelAccount(map_order.get(oid).i_caid);
-    }
-    
-    public static int getRentChannelAccountByGameAccount(int gaid, int type) {
-        for (BeanGameAccountRent rent : set_game_account_rent) {
-            if (rent.i_gaid == gaid && rent.i_type == type && RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
-        }
-        
-        return -1; // 没有租赁用户
-    }
-    
-    public static List<BeanGameAccount> getRentGameAccountByChannelAccount(int caid, int type) {
-        return set_game_account_rent
-                .stream()
-                .filter(rent->rent.i_caid == caid)
-                .filter(rent->rent.i_state == RENT_STATE_RENT)
-                .filter(rent->rent.i_type == type)
-                .map(rent->map_game_account.get(rent.i_gaid))
-                .collect(Collectors.toList());
-    }
-    
-    /**
-     * 
-     * @param gaid
-     * @param type RENT_TYPE_X
-     * @return
-     */
-    public static float getRentPriceByGameAccount(int gaid, int type) {
-        float price = 0.0f;
-        for (BeanGame game : getGameAccountGames(gaid)) {
-            String key = Integer.toHexString(game.i_gid) + type;
-            if (map_game_rent_price.containsKey(key)) price += map_game_rent_price.get(key).i_price;
-        }
-        return price;
-    }
-    
-    public static int getRentStateByGameAccount(int gaid, int type) {
-        for (BeanGameAccountRent rent : set_game_account_rent) {
-            if (rent.i_gaid == gaid) {
-                if (rent.i_type != type) continue; // 只看对应类型的
-                if (rent.i_state == RENT_STATE_IDLE) continue; // 先排除空闲的
-                
-                return rent.i_state; // 非空闲
-            }
-        }
-        
-        return RENT_STATE_IDLE; // 没有非空闲，则空闲
-    }
-    
-    public static int getResponseCode(FjDscpMessage rsp) {
-        return rsp.argsToJsonObject().getInt("code");
-    }
-    
-    public static String getResponseDesc(FjDscpMessage rsp) {
-        JSONObject args = rsp.argsToJsonObject();
-        Object desc = args.get("desc");
-        if (desc instanceof JSONArray) return ((JSONArray) desc).getString(0);
-        return desc.toString();
-    }
-    
     public static String getWsiUrl() {return String.format("http://%s:8080/ski-wsi", HOST_SKI_WSI);}
     
-    public static boolean isResponseSuccess(FjDscpMessage rsp) {
-        if (null == rsp) return false;
-        
-        if (CommonDefinition.CODE.CODE_SYS_SUCCESS == getResponseCode(rsp)) return true;
-        else return false;
-    }
+    public static void setWsiHost(String host) {HOST_SKI_WSI = host;}
     
     public static FjDscpMessage send(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();
@@ -196,7 +77,12 @@ public class CommonService {
         return rsp;
     }
     
-    public static void setWsiHost(String host) {HOST_SKI_WSI = host;}
+    public static boolean isResponseSuccess(FjDscpMessage rsp) {
+        if (null == rsp) return false;
+        
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS == getResponseCode(rsp)) return true;
+        else return false;
+    }
     
     public static void updateChannelAccount() {
         CommonService.map_channel_account.clear();
@@ -326,5 +212,135 @@ public class CommonService {
                 CommonService.set_platform_account_map.add(bean);
             }
         }
+    }
+    
+    public static String createGameAccountPassword() {
+        List<Integer> number = new ArrayList<Integer>(20);
+        // 密碼中同一個字母不可連續重複 3 次
+        for (int i = 0; i <= 9; i++) {
+            for (int j = 0; j < 2; j++) {
+                number.add(i);
+            }
+        }
+        Random r = new Random();
+        return String.format("vcg%d%d%d%d%d",
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()),
+                number.remove(Math.abs(r.nextInt()) % number.size()));
+    }
+    
+    public static List<BeanChannelAccount> getChannelAccountByPhone(String phone) {
+        return CommonService.map_channel_account.values().stream().filter(account->account.c_phone.equals(phone)).collect(Collectors.toList());
+    }
+    
+    public static List<BeanChannelAccount> getChannelAccountByUserName(String user) {
+        return CommonService.map_channel_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+    }
+    
+    public static List<BeanChannelAccount> getChannelAccountRelated(int caid) {
+        int paid = getPlatformAccountByChannelAccount(caid);
+        return set_platform_account_map
+                .stream()
+                .filter(bean->paid == bean.i_paid)
+                .map(bean->map_channel_account.get(bean.i_caid))
+                .collect(Collectors.toList());
+    }
+    
+    public static boolean isChannelAccountRelated(int... caids) {
+        int paid = -1;
+        for (int caid : caids) {
+            int p = getPlatformAccountByChannelAccount(caid);
+            if (0 > paid) paid = p;
+            else {
+                if (paid != p) return false;
+            }
+        }
+        return true;
+    }
+    
+    public static List<BeanGameAccount> getGameAccountByUserName(String user) {
+        return CommonService.map_game_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+    }
+    
+    public static List<BeanGame> getGameAccountGames(int gaid) {
+        return set_game_account_game
+                .stream()
+                .filter(gag->gag.i_gaid == gaid)
+                .map(gag->map_game.get(gag.i_gid))
+                .collect(Collectors.toList());
+    }
+    
+    public static List<BeanOrder> getOrderByChannelAccount(int caid) {
+        return CommonService.map_order.values().stream().filter(order->order.i_caid == caid).collect(Collectors.toList());
+    }
+    
+    public static int getPlatformAccountByChannelAccount(int caid) {
+        for (BeanPlatformAccountMap bean : CommonService.set_platform_account_map) {
+            if (bean.i_caid == caid) return bean.i_paid;
+        }
+        return -1;
+    }
+    
+    public static int getPlatformAccountByOrder(int oid) {
+        return getPlatformAccountByChannelAccount(map_order.get(oid).i_caid);
+    }
+    
+    public static int getRentChannelAccountByGameAccount(int gaid, int type) {
+        for (BeanGameAccountRent rent : set_game_account_rent) {
+            if (rent.i_gaid == gaid && rent.i_type == type && RENT_STATE_RENT == rent.i_state) return rent.i_caid; 
+        }
+        
+        return -1; // 没有租赁用户
+    }
+    
+    public static List<BeanGameAccount> getRentGameAccountByChannelAccount(int caid, int type) {
+        return set_game_account_rent
+                .stream()
+                .filter(rent->rent.i_caid == caid)
+                .filter(rent->rent.i_state == RENT_STATE_RENT)
+                .filter(rent->rent.i_type == type)
+                .map(rent->map_game_account.get(rent.i_gaid))
+                .collect(Collectors.toList());
+    }
+    
+    /**
+     * 
+     * @param gaid
+     * @param type RENT_TYPE_X
+     * @return
+     */
+    public static float getRentPriceByGameAccount(int gaid, int type) {
+        float price = 0.0f;
+        for (BeanGame game : getGameAccountGames(gaid)) {
+            String key = Integer.toHexString(game.i_gid) + type;
+            if (map_game_rent_price.containsKey(key)) price += map_game_rent_price.get(key).i_price;
+        }
+        return price;
+    }
+    
+    public static int getRentStateByGameAccount(int gaid, int type) {
+        for (BeanGameAccountRent rent : set_game_account_rent) {
+            if (rent.i_gaid == gaid) {
+                if (rent.i_type != type) continue; // 只看对应类型的
+                if (rent.i_state == RENT_STATE_IDLE) continue; // 先排除空闲的
+                
+                return rent.i_state; // 非空闲
+            }
+        }
+        
+        return RENT_STATE_IDLE; // 没有非空闲，则空闲
+    }
+    
+    public static int getResponseCode(FjDscpMessage rsp) {
+        return rsp.argsToJsonObject().getInt("code");
+    }
+    
+    public static String getResponseDesc(FjDscpMessage rsp) {
+        JSONObject args = rsp.argsToJsonObject();
+        Object desc = args.get("desc");
+        if (desc instanceof JSONArray) return ((JSONArray) desc).getString(0);
+        return desc.toString();
     }
 }
