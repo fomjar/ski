@@ -26,10 +26,10 @@ public class MenuMonitor extends FjLoopTask {
     
     public void start() {
         if (isRun()) {
-            logger.warn("menu-monitor has already started");
+            logger.warn("monitor-menu has already started");
             return;
         }
-        new Thread(this, "menu-monitor").start();
+        new Thread(this, "monitor-menu").start();
     }
     
     @Override

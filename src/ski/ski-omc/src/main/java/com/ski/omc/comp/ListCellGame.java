@@ -14,8 +14,8 @@ import javax.swing.JPanel;
 import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCell;
-import com.ski.common.CommonService;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
 
@@ -41,11 +41,9 @@ public class ListCellGame extends FjListCell<BeanGame> {
         c_name_zh.setForeground(color_major);
         i_gid       = new FjEditLabel(String.format("0x%08X", data.i_gid), false);
         i_gid.setForeground(color_minor);
-        String keya = Integer.toHexString(data.i_gid) + CommonService.RENT_TYPE_A;
-        String keyb = Integer.toHexString(data.i_gid) + CommonService.RENT_TYPE_B;
-        i_price_a   = new FjEditLabel("A: " + (CommonService.map_game_rent_price.containsKey(keya) ? CommonService.map_game_rent_price.get(keya).i_price : 0.0f) + "元/天");
+        i_price_a   = new FjEditLabel("A: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
         i_price_a.setForeground(color_major);
-        i_price_b   = new FjEditLabel("B: " + (CommonService.map_game_rent_price.containsKey(keyb) ? CommonService.map_game_rent_price.get(keyb).i_price : 0.0f) + "元/天");
+        i_price_b   = new FjEditLabel("B: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
         i_price_b.setForeground(color_major);
         t_sale      = new FjEditLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
         t_sale.setForeground(color_minor);

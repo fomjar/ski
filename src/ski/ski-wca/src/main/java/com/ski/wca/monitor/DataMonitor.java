@@ -21,21 +21,24 @@ public class DataMonitor extends FjLoopTask {
     
     public void start() {
         if (isRun()) {
-            logger.warn("data-monitor has already started");
+            logger.warn("monitor-data has already started");
             return;
         }
-        new Thread(this, "data-monitor").start();
+        new Thread(this, "monitor-data").start();
     }
     
     @Override
     public void perform() {
         resetInterval();
         
+        CommonService.updateGame();
         CommonService.updateChannelAccount();
+        CommonService.updatePlatformAccount();
+        CommonService.updatePlatformAccountMap();
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.user.reload-interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.data.reload-interval"));
         setInterval(second * 1000);
     }
 

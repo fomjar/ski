@@ -25,10 +25,10 @@ public class TokenMonitor extends FjLoopTask {
     
     public void start() {
         if (isRun()) {
-            logger.warn("token-monitor has already started");
+            logger.warn("monitor-token has already started");
             return;
         }
-        new Thread(this, "token-monitor").start();
+        new Thread(this, "monitor-token").start();
     }
     
     @Override

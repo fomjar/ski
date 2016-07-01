@@ -33,7 +33,7 @@ public class FjServerToolkit {
         if (null == config_monitor) config_monitor = new FjConfigMonitor();
         
         config_monitor.perform();
-        if (!config_monitor.isRun()) new Thread(config_monitor, "fjconfig-monitor").start();
+        if (!config_monitor.isRun()) new Thread(config_monitor, "monitor-fjconfig").start();
     }
     
     private static Properties loadOneConfig(String absolutePath) {

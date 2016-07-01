@@ -20,10 +20,10 @@ public class Report {
         StringBuilder ocr = new StringBuilder(1024);
         DecimalFormat df = new DecimalFormat("###,###,###.##");
         
-        BeanChannelAccount user     = CommonService.map_channel_account.get(CommonService.map_order.get(commodity.i_oid).i_caid);
-        BeanPlatformAccount puser   = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(user.i_caid));
-        BeanGameAccount account     = CommonService.map_game_account.get(Integer.parseInt(commodity.c_arg0, 16));
-        List<BeanGame>  games       = CommonService.getGameAccountGames(account.i_gaid);
+        BeanChannelAccount user     = CommonService.getChannelAccountByCaid(CommonService.getOrderByOid(commodity.i_oid).i_caid);
+        BeanPlatformAccount puser   = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user.i_caid));
+        BeanGameAccount account     = CommonService.getGameAccountByGaid(Integer.parseInt(commodity.c_arg0, 16));
+        List<BeanGame>  games       = CommonService.getGameByGaid(account.i_gaid);
         
         ocr.append(createReportHead(String.format("%s租赁报告", user.c_user)));
         List<Object> rows = new LinkedList<Object>();

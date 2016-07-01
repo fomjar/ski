@@ -149,8 +149,8 @@ public class WechatInterface {
     
     public static FjDscpMessage convertRequest(String server, FjHttpRequest request) {
         Element xml      = request.contentToXml().getDocumentElement();
-        String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent();
-        // String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent();
+        String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent().trim();
+        // String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent().trim();
         
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",    "wechat");
@@ -163,30 +163,48 @@ public class WechatInterface {
         String content   = null;
         String event     = null;
         String event_key = null;
-        String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent();
-        if ("text".equals(msg_type))  {
-            logger.info("INST_USER_REQUEST     - wechat:" + user_from);
-            content = xml.getElementsByTagName("Content").item(0).getTextContent();
+        String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent().trim();
+        switch (msg_type) {
+        case "text": {
+            content = xml.getElementsByTagName("Content").item(0).getTextContent().trim();
+            logger.info("INST_USER_REQUEST     - wechat:" + user_from + ":" + content);
             req.json().put("inst", CommonDefinition.ISIS.INST_USER_REQUEST);
             args.put("content", content);
-        } else if ("event".equals(msg_type)) {
-            event     = xml.getElementsByTagName("Event").item(0).getTextContent();
-            event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent();
-            if ("subscribe".equals(event)) {
+            break;
+        }
+        case "event": {
+            event     = xml.getElementsByTagName("Event").item(0).getTextContent().trim();
+            event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent().trim();
+            switch (event) {
+            case "subscribe": {
                 logger.info("INST_USER_SUBSCRIBE   - wechat:" + user_from);
                 req.json().put("inst", CommonDefinition.ISIS.INST_USER_SUBSCRIBE);
-            } else if ("unsubscribe".equals(event)) {
+                break;
+            }
+            case "unsubscribe": {
                 logger.info("INST_USER_UNSUBSCRIBE - wechat:" + user_from);
                 req.json().put("inst", CommonDefinition.ISIS.INST_USER_UNSUBSCRIBE);
-            } else if ("CLICK".equals(event)) {
-                logger.info(String.format("INST_USER_INSTRUCTION - wechat:%s:0x%s", user_from, event_key));
-                req.json().put("inst", Integer.parseInt(event_key, 16));
-            } else if ("VIEW".equals(event)) {
-                logger.info("INST_USER_GOTO - wechat:" + user_from);
+                break;
+            }
+            case "CLICK": {
+                logger.info("INST_USER_COMMAND     - wechat:" + user_from + ":" + event_key);
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_COMMAND);
+                args.put("content", event_key);
+                break;
+            }
+            case "VIEW": {
+                logger.info("INST_USER_GOTO        - wechat:" + user_from);
                 req.json().put("inst", CommonDefinition.ISIS.INST_USER_GOTO);
                 args.put("content", event_key);
+                break;
             }
-        } else if ("location".equals(msg_type)) {
+            default:
+                logger.error("unknown event: " + event);
+                break;
+            }
+            break;
+        }
+        case "location": {
             logger.info("INST_USER_LOCATION    - wechat:" + user_from);
             float  x     = Float.parseFloat(xml.getElementsByTagName("Location_X").item(0).getTextContent());
             float  y     = Float.parseFloat(xml.getElementsByTagName("Location_Y").item(0).getTextContent());
@@ -194,8 +212,9 @@ public class WechatInterface {
             String label = xml.getElementsByTagName("Label").item(0).getTextContent();
             req.json().put("inst", CommonDefinition.ISIS.INST_USER_LOCATION);
             args.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
-        } else if ("image".equals(msg_type)) {
-            logger.info("INST_USER_IMAGE       - wechat:" + user_from);
+            break;
+        }
+        case "image": {
             /**
              * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
              * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
@@ -206,8 +225,10 @@ public class WechatInterface {
              * <MediaId><![CDATA[m0136L5dVlQckJJUHFOSc1ZW757ZuVBhZAvvBr1kXV8DwBW3t-w7l3a8i4btf5yO]]></MediaId>
              * </xml>
              */
-        } else if ("voice".equals(msg_type)) {
-            logger.info("INST_USER_VOICE       - wechat:" + user_from);
+            logger.info("INST_USER_IMAGE       - wechat:" + user_from);
+            break;
+        }
+        case "voice": {
             /**
              * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
              * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
@@ -219,8 +240,10 @@ public class WechatInterface {
              * <Recognition><![CDATA[]]></Recognition>
              * </xml>
              */
-        } else if ("shortvideo".equals(msg_type)) {
-            logger.info("INST_USER_SHORTVIDEO  - wechat:" + user_from);
+            logger.info("INST_USER_VOICE       - wechat:" + user_from);
+            break;
+        }
+        case "shortvideo": {
             /**
              * <xml><ToUserName><![CDATA[gh_8b1e54d8e5df]]></ToUserName>
              * <FromUserName><![CDATA[oRojEwPTK3o2cYrLsXuuX-FuypBM]]></FromUserName>
@@ -231,6 +254,12 @@ public class WechatInterface {
              * <MsgId>6233742239923027843</MsgId>
              * </xml>
              */
+            logger.info("INST_USER_SHORTVIDEO  - wechat:" + user_from);
+            break;
+        }
+        default:
+            logger.error("unknown msg type: " + msg_type);
+            break;
         }
         req.json().put("args", args);
         return req;
@@ -294,7 +323,7 @@ public class WechatInterface {
     }
     
     public static FjJsonMessage sendRequest(String method, String url, String content) {
-        logger.debug(">> " + content.replace("\r\n", ""));
+        logger.debug(">> " + (null != content ? content.replace("\r\n", "") : null));
         FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, content));
         logger.debug("<< " + rsp);
         return rsp;

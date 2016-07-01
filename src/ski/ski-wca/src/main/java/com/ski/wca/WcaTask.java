@@ -31,7 +31,7 @@ public class WcaTask implements FjServerTask {
         FjMessage msg = wrapper.message();
         if (msg instanceof FjHttpRequest) {
             FjHttpRequest hmsg = (FjHttpRequest) msg;
-            if (hmsg.url().startsWith("/wechat")) {
+            if (hmsg.url().startsWith("/ski-wca")) {
                 logger.debug("dispatch message from wechat server: " + wrapper.message());
                 processWechat(server.name(), wrapper);
             } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));

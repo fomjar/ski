@@ -11,11 +11,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
@@ -100,16 +98,18 @@ public class FjSender extends FjLoopTask {
         FjMessage rsp = null;
         try {
             URL httpurl = new URL(req.url());
-            if (req.url().startsWith("https")) {initSslContext();}
+            if (req.url().startsWith("https")) initSslContext();
             conn = (HttpURLConnection) httpurl.openConnection();
             conn.setRequestMethod(req.method());
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type",   req.contentType());
             conn.setRequestProperty("Content-Length", String.valueOf(req.contentLength()));
-            OutputStream os = conn.getOutputStream();
-            os.write(req.content().getBytes(Charset.forName("utf-8")));
-            os.flush();
+            if (null != req.content()) {
+                OutputStream os = conn.getOutputStream();
+                os.write(req.content().getBytes(Charset.forName("utf-8")));
+                os.flush();
+            }
             InputStream is = conn.getInputStream();
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
             byte[] buf = new byte[1024];
@@ -133,8 +133,8 @@ public class FjSender extends FjLoopTask {
     private static void initSslContext() {
         if (null != sslcontext) return;
         try {
-            sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
+            sslcontext = SSLContext.getInstance("SSL");
+            sslcontext.init(null, new TrustManager[]{new DefaultTrustManager()}, null);
             SSLContext.setDefault(sslcontext);
         } catch (GeneralSecurityException e) {logger.error("init ssl context failed!", e);}
     }

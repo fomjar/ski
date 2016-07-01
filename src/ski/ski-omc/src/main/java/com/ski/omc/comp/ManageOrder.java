@@ -47,7 +47,7 @@ public class ManageOrder extends JDialog {
     public ManageOrder(int oid) {
         super(MainFrame.getInstance());
 
-        order = CommonService.map_order.get(oid);
+        order = CommonService.getOrderByOid(oid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -61,7 +61,7 @@ public class ManageOrder extends JDialog {
         toolbar.getComponent(3).setEnabled(!order.isClose());
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
-        user = CommonService.map_channel_account.get(order.i_caid);
+        user = CommonService.getChannelAccountByCaid(order.i_caid);
         i_caid      = new FjEditLabel(user.c_user, false);
         t_open      = new FjEditLabel(order.t_open);
         t_close     = new FjEditLabel(order.t_close);
@@ -159,7 +159,7 @@ public class ManageOrder extends JDialog {
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
-            order = CommonService.map_order.get(order.i_oid);
+            order = CommonService.getOrderByOid(order.i_oid);
             
             if (order.isClose()) {
                 JOptionPane.showMessageDialog(ManageOrder.this, "已经关闭的订单不能再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
@@ -170,11 +170,11 @@ public class ManageOrder extends JDialog {
             
             CommonService.updateOrder();
             CommonService.updateGameAccountRent();
-            this.order = CommonService.map_order.get(order.i_oid);
+            this.order = CommonService.getOrderByOid(order.i_oid);
             updateCommodity();
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(e->{
-            order = CommonService.map_order.get(order.i_oid);
+            order = CommonService.getOrderByOid(order.i_oid);
             
             if (order.isClose()) {
                 JOptionPane.showMessageDialog(ManageOrder.this, "订单已经被关闭过了，不能重复关闭", "错误", JOptionPane.ERROR_MESSAGE);

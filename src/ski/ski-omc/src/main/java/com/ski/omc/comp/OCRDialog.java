@@ -13,7 +13,7 @@ public class OCRDialog extends ReportDialog {
     private static final long serialVersionUID = -203234202066475026L;
     
     public OCRDialog(BeanCommodity item) {
-        BeanChannelAccount user = CommonService.map_channel_account.get(CommonService.map_order.get(item.i_oid).i_caid);
+        BeanChannelAccount user = CommonService.getChannelAccountByCaid(CommonService.getOrderByOid(item.i_oid).i_caid);
         setTitle(String.format("%s的租赁报告", user.c_user));
         setReport(Report.createOCR(item));
         pack();

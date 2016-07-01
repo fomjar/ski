@@ -62,7 +62,7 @@ public class ManageChannelAccount extends JDialog {
     public ManageChannelAccount(int caid) {
         super(MainFrame.getInstance());
         
-        user = CommonService.map_channel_account.get(caid);
+        user = CommonService.getChannelAccountByCaid(caid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -312,8 +312,8 @@ public class ManageChannelAccount extends JDialog {
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退，继续？", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
-            int paid_to = CommonService.getPlatformAccountByChannelAccount(user.i_caid);
-            int paid_from = CommonService.getPlatformAccountByChannelAccount(user2.i_caid);
+            int paid_to = CommonService.getPlatformAccountByCaid(user.i_caid);
+            int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
             if (paid_to == paid_from) {
                 JOptionPane.showMessageDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -352,12 +352,12 @@ public class ManageChannelAccount extends JDialog {
         });
         
         pane_account.getList().removeAllCell();
-        CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_A).forEach(account->{
+        CommonService.getRentGameAccountByCaid(user.i_caid, CommonService.RENT_TYPE_A).forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[A类]");
             cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
             pane_account.getList().addCell(cell);
         });
-        CommonService.getRentGameAccountByChannelAccount(user.i_caid, CommonService.RENT_TYPE_B).forEach(account->{
+        CommonService.getRentGameAccountByCaid(user.i_caid, CommonService.RENT_TYPE_B).forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[B类]");
             cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
             pane_account.getList().addCell(cell);
@@ -370,7 +370,7 @@ public class ManageChannelAccount extends JDialog {
     
     private void updatePaneOrder() {
         pane_order.getList().removeAllCell();
-        CommonService.map_order.values()
+        CommonService.getOrderAll().values()
                 .stream()
                 .filter(order->order.i_caid == user.i_caid)
                 .filter(order->{
@@ -397,8 +397,8 @@ public class ManageChannelAccount extends JDialog {
     }
     
     private void updateBasicPane() {
-        user = CommonService.map_channel_account.get(user.i_caid);
-        puser = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(user.i_caid));
+        user = CommonService.getChannelAccountByCaid(user.i_caid);
+        puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user.i_caid));
         
         i_caid.setText(String.format("0x%08X", user.i_caid));
         c_user.setText(user.c_user);
@@ -435,13 +435,13 @@ public class ManageChannelAccount extends JDialog {
     }
     
     private static float[] prestatement(int caid) {
-        BeanPlatformAccount puser = CommonService.map_platform_account.get(CommonService.getPlatformAccountByChannelAccount(caid));
+        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
         float balance   = puser.i_balance;
         float coupon    = puser.i_coupon;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         float cost = 0.00f;
         try {
-            cost = CommonService.getOrderByChannelAccount(caid)
+            cost = CommonService.getOrderByCaid(caid)
                 .stream()
                 .filter(order->!order.isClose())
                 .map(order->{

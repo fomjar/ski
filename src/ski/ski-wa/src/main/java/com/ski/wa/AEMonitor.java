@@ -21,10 +21,10 @@ public class AEMonitor extends FjLoopTask {
     
     public void start() {
         if (isRun()) {
-            logger.warn("ae-monitor has already started");
+            logger.warn("monitor-ae has already started");
             return;
         }
-        new Thread(this, "ae-monitor").start();
+        new Thread(this, "monitor-ae").start();
     }
     
     private static final Logger logger = Logger.getLogger(AEMonitor.class);

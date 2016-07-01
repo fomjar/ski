@@ -45,7 +45,7 @@ public class ManageGameAccount extends JDialog {
     public ManageGameAccount(int gaid) {
         super(MainFrame.getInstance());
         
-        BeanGameAccount account = CommonService.map_game_account.get(gaid);
+        BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -222,8 +222,8 @@ public class ManageGameAccount extends JDialog {
     private void updateGameAccountGame() {
         int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
         
-        BeanChannelAccount user_a = CommonService.map_channel_account.get(CommonService.getRentChannelAccountByGameAccount(gaid, CommonService.RENT_TYPE_A));
-        BeanChannelAccount user_b = CommonService.map_channel_account.get(CommonService.getRentChannelAccountByGameAccount(gaid, CommonService.RENT_TYPE_B));
+        BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(gaid, CommonService.RENT_TYPE_A));
+        BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(gaid, CommonService.RENT_TYPE_B));
         pane_users.getList().removeAllCell();
         if (null != user_a) {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "[A类]");
@@ -237,9 +237,9 @@ public class ManageGameAccount extends JDialog {
         }
 
         pane_games.getList().removeAllCell();
-        CommonService.set_game_account_game.forEach(bean->{
+        CommonService.getGameAccountGameAll().forEach(bean->{
             if (gaid == bean.i_gaid) {
-                BeanGame game = CommonService.map_game.get(bean.i_gid);
+                BeanGame game = CommonService.getGameByGid(bean.i_gid);
                 pane_games.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh)));
             }
         });

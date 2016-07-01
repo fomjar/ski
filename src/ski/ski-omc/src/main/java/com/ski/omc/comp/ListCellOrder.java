@@ -22,7 +22,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
         super(data);
         i_platform = new JLabel(0 == data.i_platform ? "[淘宝] " : "[微信] ");
         i_platform.setFont(i_platform.getFont().deriveFont(Font.ITALIC));
-        i_caid = new JLabel(CommonService.map_channel_account.get(data.i_caid).c_user);
+        i_caid = new JLabel(CommonService.getChannelAccountByCaid(data.i_caid).c_user);
         t_time = new JLabel(String.format("%s ~ %s", data.t_open, data.t_close));
         i_oid = new JLabel(String.format("0x%08X", data.i_oid));
         if (!data.isClose()) {

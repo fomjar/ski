@@ -11,6 +11,7 @@ public class Main {
     
     public static void main(String[] args) {
         if (0 != args.length) CommonService.setWsiHost(args[0]);
+        else CommonService.setWsiHost("ski.craftvoid.com");
         
         initLog();
         MainFrame.getInstance().setVisible(true);
