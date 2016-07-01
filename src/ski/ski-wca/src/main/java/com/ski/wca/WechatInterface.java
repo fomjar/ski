@@ -14,6 +14,7 @@ import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class WechatInterface {
@@ -301,21 +302,36 @@ public class WechatInterface {
         return sendRequest("GET", url);
     }
     
-    private static final String TEMPLATE_CUSTOM_TEXT_MESSAGE =
-              "{\r\n"
-            + "    \"touser\":\"%s\",\r\n"
-            + "    \"msgtype\":\"text\",\r\n"
-            + "    \"text\":\r\n"
-            + "    {\r\n"
-            + "         \"content\":\"%s\"\r\n"
-            + "    }\r\n"
-            + "}";
     public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
+        
         String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), TokenMonitor.getInstance().token());
-        String msg_content = String.format(TEMPLATE_CUSTOM_TEXT_MESSAGE, user_to, content);
-        return sendRequest("POST", url, msg_content);
+        
+        JSONObject text = new JSONObject();
+        text.put("content", content);
+        JSONObject msg = new JSONObject();
+        msg.put("touser", user_to);
+        msg.put("msgtype", "text");
+        msg.put("text", text);
+        return sendRequest("POST", url, msg.toString());
+    }
+    
+    public static FjJsonMessage customSendNewsMessage(String user_to, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
+        checkWechatPermission();
+        checkWechatCustomService();
+        
+        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), TokenMonitor.getInstance().token());
+        
+        JSONArray articles = new JSONArray();
+        for (Article a : article) articles.add(a.toString());
+        JSONObject news = new JSONObject();
+        news.put("articles", articles);
+        JSONObject msg = new JSONObject();
+        msg.put("touser", user_to);
+        msg.put("msgtype", "news");
+        msg.put("news", news);
+        return sendRequest("POST", url, msg.toString());
     }
     
     public static FjJsonMessage sendRequest(String method, String url) {
@@ -333,4 +349,27 @@ public class WechatInterface {
         FjSender.sendHttpResponse(new FjHttpResponse(content), conn);
     }
     
+    public static class Article {
+        
+        private String title;
+        private String description;
+        private String url;
+        private String picurl;
+        
+        public Article(String title, String description, String url, String picurl) {
+            this.title = title;
+            this.description = description;
+            this.url = url;
+            this.picurl = picurl;
+        }
+        @Override
+        public String toString() {
+            JSONObject json = new JSONObject();
+            json.put("title", title);
+            json.put("description", description);
+            json.put("url", url);
+            json.put("picurl", picurl);
+            return json.toString();
+        }
+    }
 }
