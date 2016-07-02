@@ -140,7 +140,7 @@ public class WechatInterface {
      * @param wrapper
      */
     public static void access(FjMessageWrapper wrapper) {
-        sendResponse(((FjHttpRequest) wrapper.message()).urlParameters().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
+        sendResponse(((FjHttpRequest) wrapper.message()).urlArgs().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
     }
     
     public static FjJsonMessage token(String appid, String secret) {

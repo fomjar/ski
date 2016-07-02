@@ -1,5 +1,6 @@
 package com.ski.common;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -100,10 +101,10 @@ public class CommonService {
     }
     
     public static void updateChannelAccount() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, null));
+        
         synchronized (cache_channel_account) {
             cache_channel_account.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -127,10 +128,10 @@ public class CommonService {
     }
     
     public static void updateGame() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME, null));
+        
         synchronized (cache_game) {
             cache_game.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -142,10 +143,10 @@ public class CommonService {
     }
     
     public static void updateGameAccount() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, null));
+        
         synchronized (cache_game_account) {
             cache_game_account.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -157,10 +158,10 @@ public class CommonService {
     }
     
     public static void updateGameAccountGame() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_GAME, null));
+        
         synchronized (cache_game_account_game) {
             cache_game_account_game.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_GAME, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -172,10 +173,10 @@ public class CommonService {
     }
     
     public static void updateGameAccountRent() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_RENT, null));
+        
         synchronized (cache_game_account_rent) {
             cache_game_account_rent.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_RENT, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -187,10 +188,10 @@ public class CommonService {
     }
     
     public static void updateGameRentPrice() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_RENT_PRICE, null));
+        
         synchronized (cache_game_rent_price) {
             cache_game_rent_price.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_RENT_PRICE, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -202,10 +203,10 @@ public class CommonService {
     }
     
     public static void updateOrder() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, null));
+        
         synchronized (cache_order) {
             cache_order.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -218,10 +219,10 @@ public class CommonService {
     }
     
     public static void updatePlatformAccount() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, null));
+        
         synchronized (cache_platform_account) {
             cache_platform_account.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -233,10 +234,10 @@ public class CommonService {
     }
     
     public static void updatePlatformAccountMap() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP, null));
+        
         synchronized (cache_platform_account_map) {
             cache_platform_account_map.clear();
-            String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP, null));
-            
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
@@ -460,5 +461,51 @@ public class CommonService {
             
             return RENT_STATE_IDLE; // 没有非空闲，则空闲
         }
+    }
+    
+    public static float[] prestatement(int caid) {
+        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
+        float balance   = puser.i_balance;
+        float coupon    = puser.i_coupon;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        float cost = 0.00f;
+        try {
+            cost = CommonService.getOrderByCaid(caid)
+                .stream()
+                .filter(order->!order.isClose())
+                .map(order->{
+                    try {
+                        return order.commodities.values()
+                                .stream()
+                                .filter(commodity->!commodity.isClose())
+                                .map(commodity->{
+                                    try {
+                                        long begin  = sdf.parse(commodity.t_begin).getTime();
+                                        long end    = System.currentTimeMillis();
+                                        int  times  = (int) ((end - begin) / 1000 / 60 / 60 / 12);
+                                        if (times < 2) times = 2;
+                                        else times = times + 1;
+                                        
+                                        return (commodity.i_price / 2) * times;
+                                    } catch (Exception e) {e.printStackTrace();}
+                                    return 0.00f;
+                                })
+                                .reduce((cost1, cost2)->(cost1 + cost2))
+                                .get();
+                    } catch (Exception e) {}
+                    return 0.00f;
+                })
+                .reduce((cost1, cost2)->(cost1 + cost2))
+                .get();
+        } catch (Exception e) {}
+        
+        if (cost <= coupon) {
+            coupon -= cost;
+        } else {
+            balance -= (cost - coupon);
+            coupon = 0.00f;
+        }
+        
+        return new float[] {balance, coupon};
     }
 }

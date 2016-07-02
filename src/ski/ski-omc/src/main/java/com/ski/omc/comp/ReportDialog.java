@@ -15,8 +15,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.StyleSheet;
 
 public class ReportDialog extends JDialog {
 
@@ -32,15 +30,6 @@ public class ReportDialog extends JDialog {
         jep = new JEditorPane();
         jep.setEditable(false);
         jep.setContentType("text/html");
-        HTMLEditorKit ek = new HTMLEditorKit();
-        jep.setEditorKit(ek);
-        StyleSheet ss = ek.getStyleSheet();
-        ss.addRule("table {width: 100%; border-spacing: 0; font-family: '微软雅黑', 'Hiragino Sans GB'}");
-        ss.addRule("td {border: 1px solid black; text-align: center; background-color: #EEEEEE}");
-        ss.addRule("h1 {color: #884444}");
-        ss.addRule("h2 {text-align: left; padding-left: 8px}");
-        ss.addRule(".category {background-color: #444488; color: #EEEEEE}");
-        jep.setDocument(ek.createDefaultDocument());
         JScrollPane jsp = new JScrollPane(jep);
         jsp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);

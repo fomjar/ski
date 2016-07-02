@@ -72,32 +72,33 @@ public class FjReceiver extends FjLoopTask {
                 return;
             }
         } catch (IOException e) {e.printStackTrace();}
-            Set<SelectionKey> keys = selector.selectedKeys();
-            keys.forEach(key->{
-                try {
-                    if (key.isAcceptable()) {
-                        SocketChannel conn = ((ServerSocketChannel) key.channel()).accept();
-                        logger.debug("here comes a connection from: " + conn.getRemoteAddress());
-                        conn.configureBlocking(false);
-                        conn.register(selector, SelectionKey.OP_READ);
-                    } else if (key.isReadable()) {
-                        SocketChannel conn = (SocketChannel) key.channel();
-                        if (port() != conn.socket().getLocalPort()) return;
-                        
-                        key.cancel();
-                        buf.clear();
-                        int n = conn.read(buf);
-                        buf.flip();
-                        String data = Charset.forName("utf-8").decode(buf).toString();
-                        logger.debug("read raw data is: " + data);
-                        if (0 < n)
-                            mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
-                                    .attach("conn", conn)
-                                    .attach("raw", data));
-                    }
-                } catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
-            });
-            keys.clear();
+        
+        Set<SelectionKey> keys = selector.selectedKeys();
+        keys.forEach(key->{
+            try {
+                if (key.isAcceptable()) {
+                    SocketChannel conn = ((ServerSocketChannel) key.channel()).accept();
+                    logger.debug("here comes a connection from: " + conn.getRemoteAddress());
+                    conn.configureBlocking(false);
+                    conn.register(selector, SelectionKey.OP_READ);
+                } else if (key.isReadable()) {
+                    SocketChannel conn = (SocketChannel) key.channel();
+                    if (port() != conn.socket().getLocalPort()) return;
+                    
+                    key.cancel();
+                    buf.clear();
+                    int n = conn.read(buf);
+                    buf.flip();
+                    String data = Charset.forName("utf-8").decode(buf).toString();
+                    logger.debug("read raw data is: " + data);
+                    if (0 < n)
+                        mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
+                                .attach("conn", conn)
+                                .attach("raw", data));
+                }
+            } catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
+        });
+        keys.clear();
     }
     
     public static InputStream receive(int port, long timeout) throws IOException {

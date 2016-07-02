@@ -1,7 +1,13 @@
 package fomjar.server.msg;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sf.json.JSONObject;
 
 
 public class FjHttpRequest extends FjHttpMessage {
@@ -21,13 +27,16 @@ public class FjHttpRequest extends FjHttpMessage {
     
     public String url() {return url;}
     
-    public Map<String, String> urlParameters() {
+    public Map<String, String> urlArgs() {
         if (!url().contains("?")) return null;
         
         String paramLine = url().split("\\?")[1];
         String[] params = paramLine.split("&");
         Map<String, String> result = new HashMap<String, String>();
-        for (String param : params) result.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
+        for (String param : params) {
+            if (param.contains("=")) result.put(param.substring(0, param.indexOf("=")), param.substring(param.indexOf("=") + 1));
+            else result.put(param, null);
+        }
         return result;
     }
 
@@ -45,5 +54,33 @@ public class FjHttpRequest extends FjHttpMessage {
                 contentType(),
                 contentLength(),
                 null == content() ? "" : content());
+    }
+    
+    private ByteBuffer buf = null;
+    
+    public FjJsonMessage toJsonMessage(SocketChannel conn) {
+        Map<String, String> urlargs = urlArgs();
+        JSONObject args = contentToJson();
+        
+        if ("POST".equals(method()) && args.isEmpty()) {
+            if (null == buf) buf = ByteBuffer.allocate(1024 * 1024);
+            long timeout = 1000L * 3;
+            long start = System.currentTimeMillis();
+            while (args.isEmpty() && System.currentTimeMillis() - start < timeout) {
+                try{Thread.sleep(50L);}
+                catch (InterruptedException e) {e.printStackTrace();}
+                buf.clear();
+                try {conn.read(buf);}
+                catch (IOException e) {e.printStackTrace();}
+                buf.flip();
+                if (!buf.hasRemaining()) continue;
+                
+                args = JSONObject.fromObject(Charset.forName("utf-8").decode(buf).toString());
+                break;
+            }
+        }
+        
+        if (null != urlargs) args.putAll(urlargs);
+        return new FjJsonMessage(args);
     }
 }

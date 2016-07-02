@@ -1,6 +1,8 @@
 package com.ski.wca.biz;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -33,12 +35,15 @@ public abstract class WcFlow {
     
     private static final String FLOW_DEFAULT    = "fdefault";
     private static final String FLOW_BIND       = "fbind";
+    private static final String FLOW_SEARCH     = "fsearch";
     
     static {
         WcFlow flow_default = new FlowDefault();
         flows.put(flow_default.name(), flow_default);
         WcFlow flow_bind    = new FlowBind();
         flows.put(flow_bind.name(), flow_bind);
+        WcFlow flow_search  = new FlowSearch();
+        flows.put(flow_search.name(), flow_search);
     }
 
     public static void dispatch(String server, String user, String content) {
@@ -99,7 +104,10 @@ public abstract class WcFlow {
         @Override
         public String name() {return FLOW_DEFAULT;}
         @Override
-        public String onRequest(String server, CacheUser user, String content) {return null;}
+        public String onRequest(String server, CacheUser user, String content) {
+            logger.info("on default flow request from user: " + user.user + " with content: " + content);
+            return content;
+        }
     }
     
     private static class FlowBind extends WcFlow {
@@ -153,6 +161,22 @@ public abstract class WcFlow {
             }
             
         }
+    }
+    
+    private static class FlowSearch extends WcFlow {
+        @Override
+        public String name() {return FLOW_SEARCH;}
+        @Override
+        public String onRequest(String server, CacheUser user, String content) {
+            String[] fields = content.split(" ");
+            List<String> fields_list = new LinkedList<String>();
+            for (String field : fields) if (0 < field.length()) fields_list.add(field);
+            fields = fields_list.toArray(new String[fields_list.size()]);
+            
+            user.toFlow(FLOW_DEFAULT);
+            return fields_list.toString();
+        }
+        
     }
     
 }

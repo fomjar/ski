@@ -67,6 +67,19 @@ public class FjServerToolkit {
         public int    port;
         
         @Override
+        public boolean equals(Object obj) {
+            if (null == obj) return false;
+            if (!(obj instanceof FjAddress)) return false;
+            
+            if (this == obj) return true;
+            
+            FjAddress addr1 = (FjAddress) obj;
+            return server.equals(addr1.server)
+                    && host.equals(addr1.host)
+                    && port == addr1.port;
+        }
+        
+        @Override
         public String toString() {return server + ":" + host + ":" + port;}
     }
     

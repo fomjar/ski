@@ -4,6 +4,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
+import com.ski.wca.biz.WcWeb;
 import com.ski.wca.biz.WcaBusiness;
 import com.ski.wca.monitor.DataMonitor;
 import com.ski.wca.monitor.MenuMonitor;
@@ -31,20 +32,22 @@ public class WcaTask implements FjServerTask {
         FjMessage msg = wrapper.message();
         if (msg instanceof FjHttpRequest) {
             FjHttpRequest hmsg = (FjHttpRequest) msg;
-            if (hmsg.url().startsWith("/ski-wca")) {
-                logger.debug("dispatch message from wechat server: " + wrapper.message());
+            if (hmsg.url().startsWith(WcaBusiness.URL_KEY)) {
+                logger.debug("dispatch wechat message: " + msg);
                 processWechat(server.name(), wrapper);
+            } else if (hmsg.url().startsWith(WcWeb.URL_KEY)) {
+                logger.debug("dispatch wechat web message: " + msg);
+                WcWeb.dispatch(wrapper);
             } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
         } else if (msg instanceof FjDscpMessage) {
-            logger.debug("dispatch message from ski server: " + msg);
-            WcaBusiness.getInstance().dispatch((FjDscpMessage) msg);
+            logger.debug("do nothing to ski message: " + msg);
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
     }
     
-    private void processWechat(String server, FjMessageWrapper wrapper) {
-        if (((FjHttpRequest) wrapper.message()).urlParameters().containsKey("echostr")) {
+    private static void processWechat(String server, FjMessageWrapper wrapper) {
+        if (((FjHttpRequest) wrapper.message()).urlArgs().containsKey("echostr")) {
             WechatInterface.access(wrapper);
             logger.info("wechat access");
             return;
@@ -53,6 +56,8 @@ public class WcaTask implements FjServerTask {
         WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
         
         FjDscpMessage req = WechatInterface.convertRequest(server, (FjHttpRequest) wrapper.message());
-        WcaBusiness.getInstance().dispatch(req);
+        WcaBusiness.dispatch(server, req);
     }
 }
+
+  

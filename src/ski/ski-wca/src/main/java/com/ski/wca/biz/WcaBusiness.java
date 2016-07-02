@@ -16,29 +16,18 @@ import net.sf.json.JSONObject;
 
 public class WcaBusiness {
     
-    private static WcaBusiness instance = null;
-    public static WcaBusiness getInstance() {
-        if (null == instance) instance = new WcaBusiness();
-        return instance;
-    }
-    
     private static final Logger logger = Logger.getLogger(WcaBusiness.class);
-    
-    private String server;
+    public static final String URL_KEY = "/ski-wca";
     
     private WcaBusiness() {}
     
-    public void setServer(String server) {
-        this.server = server;
-    }
-    
-    public void dispatch(FjDscpMessage req) {
+    public static void dispatch(String server, FjDscpMessage req) {
         if (!req.argsToJsonObject().has("user")) return;
         
         String user     = req.argsToJsonObject().getString("user");
         String content  = req.argsToJsonObject().has("content") ? req.argsToJsonObject().getString("content") : null;
         
-        if (!verifyUser(user)) return;
+        verifyUser(server, user);
         
         switch (req.inst()) {
         case CommonDefinition.ISIS.INST_USER_RESPONSE: {
@@ -71,20 +60,17 @@ public class WcaBusiness {
      * @param user
      * @return true for pass
      */
-    private boolean verifyUser(String user) {
+    private static void verifyUser(String server, String user) {
         List<BeanChannelAccount> users = CommonService.getChannelAccountByUserName(user);
         if (!users.isEmpty()
-                && CommonService.USER_TYPE_WECHAT == users.get(0).i_channel) {
-            return true;
-        }
+                && CommonService.USER_TYPE_WECHAT == users.get(0).i_channel)
+            return;
         
-        registerUser(user);
+        registerUser(server, user);
         logger.info("registered a new wechat user: " + user);
-        
-        return false;
     }
     
-    private void registerUser(String user) {
+    private static void registerUser(String server, String user) {
         JSONObject args = new JSONObject();
         args.put("channel", CommonService.USER_TYPE_WECHAT);
         args.put("user",    user);

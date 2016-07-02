@@ -9,7 +9,6 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -23,8 +22,8 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjTextField;
-import com.ski.common.CommonService;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.omc.UIToolkit;
@@ -411,7 +410,7 @@ public class ManageChannelAccount extends JDialog {
         t_birth.setText(0 == user.t_birth.length() ? "(没有生日)" : user.t_birth);
         i_balance.setText(puser.i_balance + "元");
         i_coupon.setText(puser.i_coupon + "元");
-        float[] ps = prestatement(user.i_caid);
+        float[] ps = CommonService.prestatement(user.i_caid);
         ri_balance.setText(ps[0] + "元");
         ri_coupon.setText(ps[1] + "元");
     }
@@ -432,51 +431,5 @@ public class ManageChannelAccount extends JDialog {
         case "支付宝": return CommonService.USER_TYPE_ALIPAY;
         default: return Integer.parseInt(channel);
         }
-    }
-    
-    private static float[] prestatement(int caid) {
-        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
-        float balance   = puser.i_balance;
-        float coupon    = puser.i_coupon;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        float cost = 0.00f;
-        try {
-            cost = CommonService.getOrderByCaid(caid)
-                .stream()
-                .filter(order->!order.isClose())
-                .map(order->{
-                    try {
-                        return order.commodities.values()
-                                .stream()
-                                .filter(commodity->!commodity.isClose())
-                                .map(commodity->{
-                                    try {
-                                        long begin  = sdf.parse(commodity.t_begin).getTime();
-                                        long end    = System.currentTimeMillis();
-                                        int  times  = (int) ((end - begin) / 1000 / 60 / 60 / 12);
-                                        if (times < 2) times = 2;
-                                        else times = times + 1;
-                                        
-                                        return (commodity.i_price / 2) * times;
-                                    } catch (Exception e) {e.printStackTrace();}
-                                    return 0.00f;
-                                })
-                                .reduce((cost1, cost2)->(cost1 + cost2))
-                                .get();
-                    } catch (Exception e) {}
-                    return 0.00f;
-                })
-                .reduce((cost1, cost2)->(cost1 + cost2))
-                .get();
-        } catch (Exception e) {}
-        
-        if (cost <= coupon) {
-            coupon -= cost;
-        } else {
-            balance -= (cost - coupon);
-            coupon = 0.00f;
-        }
-        
-        return new float[] {balance, coupon};
     }
 }

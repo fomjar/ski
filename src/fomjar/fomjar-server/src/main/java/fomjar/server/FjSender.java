@@ -68,7 +68,7 @@ public class FjSender extends FjLoopTask {
                     while (buf.hasRemaining()) conn.write(buf);
                 } catch (IOException e) {
                     FjServerToolkit.FjAddress addr = null;
-                    while (addr0 != (addr = FjServerToolkit.getSlb().getAddress(dmsg.ts()))) {
+                    while (!addr0.equals(addr = FjServerToolkit.getSlb().getAddress(dmsg.ts()))) {
                         try {
                             conn = SocketChannel.open();
                             conn.connect(new InetSocketAddress(addr.host, addr.port));

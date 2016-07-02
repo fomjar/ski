@@ -31,8 +31,13 @@ public class DataMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         
-        CommonService.updateGame();
         CommonService.updateChannelAccount();
+        CommonService.updateGame();
+        CommonService.updateGameAccount();
+        CommonService.updateGameAccountGame();
+        CommonService.updateGameAccountRent();
+        CommonService.updateGameRentPrice();
+        CommonService.updateOrder();
         CommonService.updatePlatformAccount();
         CommonService.updatePlatformAccountMap();
     }
