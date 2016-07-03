@@ -33,17 +33,22 @@ public abstract class WcFlow {
     private static final Map<String, WcFlow>    flows = new HashMap<String, WcFlow>();
     private static final Map<String, CacheUser> cache = new HashMap<String, CacheUser>();
     
-    private static final String FLOW_DEFAULT    = "fdefault";
-    private static final String FLOW_BIND       = "fbind";
+    private static final String FLOW_DEFAULT    = "0";
+    private static final String FLOW_BIND       = "30";
+    private static final String FLOW_APPEAL     = "322";
+    private static final String FLOW_SUGGEST    = "323";
     private static final String FLOW_SEARCH     = "fsearch";
     
+    public static void registerFlow(WcFlow flow) {
+        flows.put(flow.name(), flow);
+    }
+    
     static {
-        WcFlow flow_default = new FlowDefault();
-        flows.put(flow_default.name(), flow_default);
-        WcFlow flow_bind    = new FlowBind();
-        flows.put(flow_bind.name(), flow_bind);
-        WcFlow flow_search  = new FlowSearch();
-        flows.put(flow_search.name(), flow_search);
+        registerFlow(new FlowDefault());
+        registerFlow(new FlowBind());
+        registerFlow(new FlowAppeal());
+        registerFlow(new FlowSuggest());
+        registerFlow(new FlowSearch());
     }
 
     public static void dispatch(String server, String user, String content) {
@@ -160,6 +165,30 @@ public abstract class WcFlow {
                 return null;
             }
             
+        }
+    }
+    
+    private static class FlowAppeal extends WcFlow {
+        @Override
+        public String name() {return FLOW_APPEAL;}
+        @Override
+        public String onRequest(String server, CacheUser user, String content) {
+            user.step++;
+            String result = getTipByStep(user);
+            user.toFlow(FLOW_DEFAULT);
+            return result;
+        }
+    }
+    
+    private static class FlowSuggest extends WcFlow {
+        @Override
+        public String name() {return FLOW_SUGGEST;}
+        @Override
+        public String onRequest(String server, CacheUser user, String content) {
+            user.step++;
+            String result = getTipByStep(user);
+            user.toFlow(FLOW_DEFAULT);
+            return result;
         }
     }
     
