@@ -67,8 +67,8 @@ public class WcMenu {
             protected String select(String server, String user) {
                 try {
                     WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
-                            new WechatInterface.Article("我的账户", "查看账户余额、优惠券等信息", 
-                                    WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, CommonService.getChannelAccountByUserName(user).get(0).i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                            new WechatInterface.Article("账户明细", "查看账户余额、优惠券等信息", 
+                                    WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, CommonService.getChannelAccountByUser(user).get(0).i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
                             new WechatInterface.Article("我要充值", "起租游戏之前需要先充值", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
                             new WechatInterface.Article("我要退款", "申请将账户中的余额全额退款", "https://www.baidu.com/", "http://findicons.com/icon/download/28731/coins/128/png?id=271105"),
                             new WechatInterface.Article("消费记录", "查看过去的消费记录", "https://www.baidu.com/", "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),

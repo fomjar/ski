@@ -17,7 +17,6 @@ public class OCRDialog extends ReportDialog {
         setTitle(String.format("%s的租赁报告", user.c_user));
         setReport(Report.createOCR(item));
         pack();
-        setSize(new Dimension(400, getHeight()));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
     }

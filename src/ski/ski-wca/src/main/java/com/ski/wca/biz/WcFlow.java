@@ -115,7 +115,7 @@ public abstract class WcFlow {
         public String name() {return FLOW_BIND;}
         @Override
         public String onActive(CacheUser user) {
-            BeanChannelAccount user_wechat = CommonService.getChannelAccountByUserName(user.user).get(0);    // 此处不会报错，微信用户肯定已创建
+            BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user.user).get(0);    // 此处不会报错，微信用户肯定已创建
             if (1 < CommonService.getChannelAccountRelated(user_wechat.i_caid).size()) {    // 用户已经绑定过了，不能再绑定
                 user.toFlow(FLOW_DEFAULT);
                 return FjServerToolkit.getServerConfig("wca.error.bind-already");
@@ -126,9 +126,9 @@ public abstract class WcFlow {
         public String onRequest(String server, CacheUser user, String content) {
             switch (user.step) {
             case 0: {
-                if (CommonService.getChannelAccountByUserName(content).isEmpty()) return FjServerToolkit.getServerConfig("wca.error.wrong-taobao-user");    // 指定用户不存在
-                BeanChannelAccount user_taobao = CommonService.getChannelAccountByUserName(content).get(0);
-                if (CommonService.USER_TYPE_TAOBAO != user_taobao.i_channel)    return FjServerToolkit.getServerConfig("wca.error.wrong-taobao-user");      // 指定用户存在，但不是淘宝用户
+                if (CommonService.getChannelAccountByUser(content).isEmpty()) return FjServerToolkit.getServerConfig("wca.error.wrong-taobao-user");    // 指定用户不存在
+                BeanChannelAccount user_taobao = CommonService.getChannelAccountByUser(content).get(0);
+                if (CommonService.CHANNEL_TAOBAO != user_taobao.i_channel)    return FjServerToolkit.getServerConfig("wca.error.wrong-taobao-user");      // 指定用户存在，但不是淘宝用户
                 user.cache.put("user-taobao", user_taobao);
                 user.step++;
                 return getTipByStep(user);
@@ -136,14 +136,14 @@ public abstract class WcFlow {
             case 1: {
                 BeanChannelAccount user_taobao = (BeanChannelAccount) user.cache.get("user-taobao");
                 if (!user_taobao.c_phone.equals(content)) { // 如果电话不匹配，尝试检查是否是支付宝账号
-                    if (CommonService.getChannelAccountByUserName(content).isEmpty()) return FjServerToolkit.getServerConfig("wca.error.wrong-phone-or-alipay");  // 淘宝电话和支付宝账号均不存在
-                    BeanChannelAccount user_alipay = CommonService.getChannelAccountByUserName(content).get(0);
-                    if (CommonService.USER_TYPE_ALIPAY != user_alipay.i_channel) return FjServerToolkit.getServerConfig("wca.error.wrong-phone-or-alipay");   // 指定用户存在，但不是支付宝用户
+                    if (CommonService.getChannelAccountByUser(content).isEmpty()) return FjServerToolkit.getServerConfig("wca.error.wrong-phone-or-alipay");  // 淘宝电话和支付宝账号均不存在
+                    BeanChannelAccount user_alipay = CommonService.getChannelAccountByUser(content).get(0);
+                    if (CommonService.CHANNEL_ALIPAY != user_alipay.i_channel) return FjServerToolkit.getServerConfig("wca.error.wrong-phone-or-alipay");   // 指定用户存在，但不是支付宝用户
                 }
                 
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
-                args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(CommonService.getChannelAccountByUserName(user.user).get(0).i_caid));
+                args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(CommonService.getChannelAccountByUser(user.user).get(0).i_caid));
                 FjDscpMessage req = new FjDscpMessage();
                 req.json().put("fs", server);
                 req.json().put("ts", "cdb");

@@ -3,7 +3,7 @@ insert into tbl_instruction values((conv('00002007', 16, 10) + 0), 'sp', 2, "sp_
 
 -- 查询订单
 delimiter //
-drop procedure if exists sp_query_commodity // 
+drop procedure if exists sp_query_commodity //
 create procedure sp_query_commodity (
     out i_code  integer,
     out c_desc  mediumblob

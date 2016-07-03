@@ -1,5 +1,5 @@
-delimiter // 
-drop procedure if exists sp_query_game_by_gid //   
+delimiter //
+drop procedure if exists sp_query_game_by_gid //
 create procedure sp_query_game_by_gid (
     out i_code  integer,
     out c_desc  mediumblob,

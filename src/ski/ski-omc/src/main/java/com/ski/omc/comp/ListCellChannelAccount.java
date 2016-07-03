@@ -33,7 +33,7 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
         i_channel = new JLabel("[" + getChannel2String(user.i_channel) + "] ");
         i_channel.setForeground(color_major);
         i_channel.setFont(i_channel.getFont().deriveFont(Font.ITALIC));
-        c_user    = new JLabel(user.c_user);
+        c_user    = new JLabel(0 < user.c_name.length() ? (String.format("%s(%s)", user.c_name, user.c_user)) : user.c_user);
         c_user.setForeground(color_major);
         c_phone   = new JLabel(0 == user.c_phone.length() ? "(没有电话)" : user.c_phone);
         c_phone.setForeground(color_major);
@@ -82,10 +82,10 @@ public class ListCellChannelAccount extends FjListCell<BeanChannelAccount> {
     
     private static String getChannel2String(int channel) {
         switch (channel) {
-        case CommonService.USER_TYPE_TAOBAO: return "淘宝";
-        case CommonService.USER_TYPE_WECHAT: return "微信";
-        case CommonService.USER_TYPE_ALIPAY: return "支付宝";
-        default: return "未知";
+        case CommonService.CHANNEL_TAOBAO: return "淘  宝";
+        case CommonService.CHANNEL_WECHAT: return "微  信";
+        case CommonService.CHANNEL_ALIPAY: return "支付宝";
+        default: return "未  知";
         }
     }
 }

@@ -1,6 +1,6 @@
 -- 修改租赁实例状态
 delimiter //
-drop function if exists fn_update_commodity_rent // 
+drop function if exists fn_update_commodity_rent //
 create function fn_update_commodity_rent (
     oid       integer,        -- 订单ID
     csn       integer,        -- 商品序列号

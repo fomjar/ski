@@ -8,14 +8,15 @@ public class CommonReport {
     
     public static String createReportHead(String title) {
         return String.format("<html><head><meta charset=\"utf-8\" />"
-                + "<style type=\"text/css\"> "
+                + "<style type=\"text/css\">"
+                + "body {width: 400px; text-align: center}"
                 + "table {width: 100%%; border-collapse: collapse; border-spacing: 0}"
                 + "td {vertical-align: middle; border: 1px solid black; text-align: center; background-color: #EEEEEE}"
                 + ".title {color: #884444}"
                 + ".category {text-align: left; padding-left: 8px; background-color: #444488; color: #EEEEEE}"
                 + "</style>"
                 + "<title>%s</title></head>"
-                + "<table><tr><td class='title'><h1>%s</h1>"
+                + "<body><table><tr><td class='title'><h1>%s</h1>"
                 + "<div style='text-align: right; font-size: 8px'>——此报告由\"SKI系统\"于 %s 自动生成</div></td></tr></table>",
                 title,
                 title,

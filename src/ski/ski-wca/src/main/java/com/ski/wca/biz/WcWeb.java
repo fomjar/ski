@@ -62,16 +62,7 @@ public class WcWeb {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
         
         StringBuilder sb = new StringBuilder();
-        sb.append(CommonReport.createReportHead("我的账户"));
-        {
-            List<Object> data = new LinkedList<Object>();
-            float[] prestatement = CommonService.prestatement(user);
-            data.add(new String[] {"账户余额",          puser.i_balance + "元"});
-            data.add(new String[] {"优惠券余额",         puser.i_coupon + "元"});
-            data.add(new String[] {"账户余额(实时)",      prestatement[0] + "元"});
-            data.add(new String[] {"优惠券余额(实时)",     prestatement[1] + "元"});
-            sb.append(CommonReport.createReportTable("我的账户", data, 2));
-        }
+        sb.append(CommonReport.createReportHead("账户明细"));
         {
             List<Object> data = new LinkedList<Object>();
             List<BeanCommodity> commodities = new LinkedList<BeanCommodity>();
@@ -84,9 +75,9 @@ public class WcWeb {
                                 .filter(commodity->!commodity.isClose())
                                 .collect(Collectors.toList()));
                     });
-            data.add(new String[] {"账号", "密码", "租赁类型", "包含游戏", "单价", "起租时间", "备注"});
             if (commodities.isEmpty()) {
                 data.add("没有在租账号");
+                data.add("&nbsp;");
             } else {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 commodities
@@ -98,17 +89,27 @@ public class WcWeb {
                         })
                         .forEach(c->{
                             BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                            data.add(new String[] {
-                                    account.c_user,
-                                    account.c_pass_curr,
-                                    c.c_arg1,
-                                    CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")),
-                                    c.i_price + "元/天",
-                                    c.t_begin,
-                                    0 == c.c_remark.length() ? "-" : c.c_remark});
+                            data.add(new String[] {"账号",     account.c_user});
+                            data.add(new String[] {"密码",     account.c_pass_curr});
+                            data.add(new String[] {"租赁类型", c.c_arg1});
+                            data.add(new String[] {"包含游戏", CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))});
+                            data.add(new String[] {"单价",     c.i_price + "元/天"});
+                            data.add(new String[] {"起租时间", c.t_begin});
+                            data.add(new String[] {"备注",     0 == c.c_remark.length() ? "-" : c.c_remark});
+                            data.add("&nbsp;");
                         });
             }
             sb.append(CommonReport.createReportTable("我的游戏", data, 7));
+        }
+        {
+            List<Object> data = new LinkedList<Object>();
+            float[] prestatement = CommonService.prestatement(user);
+            data.add(new String[] {"账户余额",         puser.i_balance + "元"});
+            data.add(new String[] {"优惠券余额",       puser.i_coupon + "元"});
+            data.add(new String[] {"账户余额(实时)",   prestatement[0] + "元"});
+            data.add(new String[] {"优惠券余额(实时)", prestatement[1] + "元"});
+            data.add("&nbsp;");
+            sb.append(CommonReport.createReportTable("我的余额", data, 2));
         }
         return sb.toString();
     }

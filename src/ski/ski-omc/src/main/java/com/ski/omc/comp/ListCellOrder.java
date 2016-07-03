@@ -20,7 +20,7 @@ public class ListCellOrder extends FjListCell<BeanOrder> {
 
     public ListCellOrder(BeanOrder data) {
         super(data);
-        i_platform = new JLabel(0 == data.i_platform ? "[淘宝] " : "[微信] ");
+        i_platform = new JLabel(CommonService.CHANNEL_TAOBAO == data.i_platform ? "[淘  宝] " : CommonService.CHANNEL_WECHAT == data.i_platform ? "[微  信] " : "[未  知] ");
         i_platform.setFont(i_platform.getFont().deriveFont(Font.ITALIC));
         i_caid = new JLabel(CommonService.getChannelAccountByCaid(data.i_caid).c_user);
         t_time = new JLabel(String.format("%s ~ %s", data.t_open, data.t_close));

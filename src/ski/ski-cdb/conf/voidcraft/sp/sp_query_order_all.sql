@@ -1,5 +1,5 @@
-delimiter // 
-drop procedure if exists sp_query_order_all //   
+delimiter //
+drop procedure if exists sp_query_order_all //
 create procedure sp_query_order_all (
     out i_code  integer,
     out c_desc  mediumblob

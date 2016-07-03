@@ -29,6 +29,17 @@ create table tbl_platform_account_map (
     i_caid      integer     -- 渠道账户ID
 );
 
+-- 金额流水
+drop table if exists tbl_platform_account_money;
+create table tbl_platform_account_money (
+    i_paid      integer,        -- 平台账户ID
+    c_remark    varchar(64),    -- 备注
+    t_time      datetime,       -- 时间
+    i_type      tinyint,        -- 0-消费，1-充值，2-充券
+    i_base      decimal(9, 2),  -- 基准值
+    i_money     decimal(9, 2)   -- 变化值
+);
+
 -- 游戏账户
 drop table if exists tbl_game_account;
 create table tbl_game_account (
@@ -120,7 +131,7 @@ create table tbl_channel_account (
     i_caid      integer,        -- 渠道账户ID
     c_user      varchar(32),    -- 用户名
     i_channel   tinyint,        -- 渠道：0-淘宝 1-微信 2-支付宝
-    c_nick      varchar(32),    -- 昵称
+    c_name      varchar(32),    -- 姓名
     i_gender    tinyint,        -- 性别：0-女 1-男 2-人妖
     c_phone     varchar(20),    -- 电话
     c_address   varchar(100),   -- 地址

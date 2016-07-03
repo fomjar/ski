@@ -3,7 +3,7 @@ insert into tbl_instruction values((conv('0000240A', 16, 10) + 0), 'sp', 2, "sp_
 
 -- 更新订单
 delimiter //
-drop procedure if exists sp_update_platform_account_map // 
+drop procedure if exists sp_update_platform_account_map //
 create procedure sp_update_platform_account_map (
     out i_code      integer,
     out c_desc      mediumblob,

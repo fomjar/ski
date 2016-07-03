@@ -3,7 +3,7 @@ insert into tbl_instruction values((conv('00002408', 16, 10) + 0), 'sp', 2, "sp_
 
 -- 更新游戏
 delimiter //
-drop procedure if exists sp_update_game_rent_price // 
+drop procedure if exists sp_update_game_rent_price //
 create procedure sp_update_game_rent_price (
     out i_code  integer,
     out c_desc  mediumblob,

@@ -7,7 +7,7 @@ public class BeanChannelAccount {
         this.i_caid     = Integer.parseInt(fields[0], 16);
         this.c_user     = fields[1];
         this.i_channel  = Integer.parseInt(fields[2], 16);
-        this.c_nick     = fields[3];
+        this.c_name     = fields[3];
         this.i_gender   = Integer.parseInt(fields[4], 16);
         this.c_phone    = fields[5];
         this.c_address  = fields[6];
@@ -19,7 +19,7 @@ public class BeanChannelAccount {
     public int      i_caid;
     public String   c_user;
     public int      i_channel;
-    public String   c_nick;
+    public String   c_name;
     public int      i_gender;
     public String   c_phone;
     public String   c_address;

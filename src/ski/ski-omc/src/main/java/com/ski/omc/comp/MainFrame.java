@@ -278,6 +278,7 @@ public class MainFrame extends JFrame {
                 CommonService.updateChannelAccount();
                 CommonService.updatePlatformAccount();
                 CommonService.updatePlatformAccountMap();
+                CommonService.updatePlatformAccountRecharge();
                 
                 CommonService.updateOrder();
                 

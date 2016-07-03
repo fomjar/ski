@@ -58,6 +58,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_QUERY_PLATFORM_ACCOUNT        = 0x00002009;
         /** 查询平台账户与渠道账户间的映射关系 */
         public static final int INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP    = 0x0000200A;
+        /** 查询平台用户充值记录 */
+        public static final int INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY  = 0x0000200B;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -65,8 +67,10 @@ public final class CommonDefinition {
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_LOCK       = 0x00002102;
         /** 平台账户合并操作 */
         public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE  = 0x00002103;
+        /** 平台账户充值 */
+        public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY  = 0x00002104;
         /** 申请转账，包含对方账户是确认转账，否则只获取对方账户信息并生成转账提示 */
-        public static final int INST_ECOM_APPLY_MONEY_TRANSFER          = 0x00002104;
+        public static final int INST_ECOM_APPLY_MONEY_TRANSFER          = 0x00002105;
         // UPDATE
         /** 更新游戏 */
         public static final int INST_ECOM_UPDATE_GAME                   = 0x00002401;

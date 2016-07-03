@@ -1,6 +1,6 @@
 -- 修改租赁实例状态
 delimiter //
-drop function if exists fn_update_game_account_rent // 
+drop function if exists fn_update_game_account_rent //
 create function fn_update_game_account_rent (
     gaid    integer,    -- 游戏账户ID
     type    tinyint,    -- 租赁类型：0-A租，1-B租

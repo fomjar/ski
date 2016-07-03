@@ -55,7 +55,7 @@ public class WcaTask implements FjServerTask {
         // 第一时间给微信响应
         WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
         
-        FjDscpMessage req = WechatInterface.convertRequest(server, (FjHttpRequest) wrapper.message());
+        FjDscpMessage req = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
         WcaBusiness.dispatch(server, req);
     }
 }

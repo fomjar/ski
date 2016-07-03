@@ -1,4 +1,4 @@
-delimiter // 
+delimiter //
 drop procedure if exists sp_query_game_account_rent_all //
 create procedure sp_query_game_account_rent_all (
     out i_code  integer,

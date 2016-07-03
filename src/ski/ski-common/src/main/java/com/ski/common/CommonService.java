@@ -20,6 +20,7 @@ import com.ski.common.bean.BeanGameRentPrice;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanPlatformAccountMap;
+import com.ski.common.bean.BeanPlatformAccountRecharge;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
@@ -30,36 +31,35 @@ import net.sf.json.JSONObject;
 
 public class CommonService {
     
-    private static final Map<Integer, BeanChannelAccount>   cache_channel_account         = new LinkedHashMap<Integer, BeanChannelAccount>();     // caid
+    private static final Map<Integer, BeanChannelAccount>   cache_channel_account           = new LinkedHashMap<Integer, BeanChannelAccount>();     // caid
     private static final Map<Integer, BeanGame>             cache_game                      = new LinkedHashMap<Integer, BeanGame>();               // gid
-    private static final Map<Integer, BeanGameAccount>      cache_game_account            = new LinkedHashMap<Integer, BeanGameAccount>();        // gaid
-    private static final Set<BeanGameAccountGame>           cache_game_account_game       = new LinkedHashSet<BeanGameAccountGame>();
-    private static final Set<BeanGameAccountRent>           cache_game_account_rent       = new LinkedHashSet<BeanGameAccountRent>();
-    private static final Map<String, BeanGameRentPrice>     cache_game_rent_price         = new LinkedHashMap<String, BeanGameRentPrice>();       // gid + type
+    private static final Map<Integer, BeanGameAccount>      cache_game_account              = new LinkedHashMap<Integer, BeanGameAccount>();        // gaid
+    private static final Set<BeanGameAccountGame>           cache_game_account_game         = new LinkedHashSet<BeanGameAccountGame>();
+    private static final Set<BeanGameAccountRent>           cache_game_account_rent         = new LinkedHashSet<BeanGameAccountRent>();
+    private static final Map<String, BeanGameRentPrice>     cache_game_rent_price           = new LinkedHashMap<String, BeanGameRentPrice>();       // gid + type
     private static final Map<Integer, BeanOrder>            cache_order                     = new LinkedHashMap<Integer, BeanOrder>();              // oid
-    private static final Map<Integer, BeanPlatformAccount>  cache_platform_account        = new LinkedHashMap<Integer, BeanPlatformAccount>();    // paid
-    private static final Set<BeanPlatformAccountMap>        cache_platform_account_map    = new LinkedHashSet<BeanPlatformAccountMap>();
+    private static final Map<Integer, BeanPlatformAccount>  cache_platform_account          = new LinkedHashMap<Integer, BeanPlatformAccount>();    // paid
+    private static final Set<BeanPlatformAccountMap>        cache_platform_account_map      = new LinkedHashSet<BeanPlatformAccountMap>();
+    private static final Set<BeanPlatformAccountRecharge>   cache_platform_account_recharge = new LinkedHashSet<BeanPlatformAccountRecharge>();
     
-    public static final int USER_TYPE_TAOBAO = 0;
-    public static final int USER_TYPE_WECHAT = 1;
+    public static final int CHANNEL_TAOBAO = 0;
+    public static final int CHANNEL_WECHAT = 1;
+    public static final int CHANNEL_ALIPAY = 2;
     
-    public static final int USER_TYPE_ALIPAY = 2;
+    public static final int GENDER_FEMALE  = 0;
+    public static final int GENDER_MALE    = 1;
+    public static final int GENDER_UNKNOWN = 2;
+    
+    public static final int MONEY_COST      = 0;
+    public static final int MONEY_BALANCE   = 1;
+    public static final int MONEY_COUPON    = 2;
+    
     public static final int RENT_TYPE_A = 0;
     public static final int RENT_TYPE_B = 1;
     
     public static final int RENT_STATE_IDLE = 0;
     public static final int RENT_STATE_RENT = 1;
-    
-    public static final int RENT_STATE_LOCK = 2;
-    public static final int OPER_TYPE_BUY           = 0;
-    public static final int OPER_TYPE_RECHARGE      = 1;
-    
-    public static final int OPER_TYPE_RENT_BEGIN    = 2;
-    public static final int OPER_TYPE_RENT_END      = 3;
-    public static final int OPER_TYPE_RENT_PAUSE    = 4;
-    public static final int OPER_TYPE_RENT_RESUME   = 5;
-    public static final int OPER_TYPE_RENT_SWAP     = 6;
-    public static final int OPER_TYPE_COUPON        = 7;
+    public static final int RENT_STATE_LOCK         = 2;
     
     private static String wsi_host = null;
     public static void setWsiHost(String host) {wsi_host = host;}
@@ -248,6 +248,21 @@ public class CommonService {
         }
     }
     
+    public static void updatePlatformAccountRecharge() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, null));
+        
+        synchronized (cache_platform_account_recharge) {
+            cache_platform_account_recharge.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanPlatformAccountRecharge bean = new BeanPlatformAccountRecharge(line);
+                    cache_platform_account_recharge.add(bean);
+                }
+            }
+        }
+    }
+    
     public static String createGameAccountPassword() {
         List<Integer> number = new ArrayList<Integer>(20);
         // 密碼中同一個字母不可連續重複 3 次
@@ -283,7 +298,7 @@ public class CommonService {
         }
     }
     
-    public static List<BeanChannelAccount> getChannelAccountByUserName(String user) {
+    public static List<BeanChannelAccount> getChannelAccountByUser(String user) {
         synchronized (cache_channel_account) {
             return cache_channel_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
         }
@@ -394,6 +409,15 @@ public class CommonService {
     public static BeanPlatformAccount getPlatformAccountByPaid(int paid) {
         synchronized (cache_platform_account) {
             return cache_platform_account.get(paid);
+        }
+    }
+    
+    public static List<BeanPlatformAccountRecharge> getPlatformAccountRechargeByPaid(int paid) {
+        synchronized (cache_platform_account_recharge) {
+            return cache_platform_account_recharge
+                    .stream()
+                    .filter(recharge->recharge.i_paid == paid)
+                    .collect(Collectors.toList());
         }
     }
     

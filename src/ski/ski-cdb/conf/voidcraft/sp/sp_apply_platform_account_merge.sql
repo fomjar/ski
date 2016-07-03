@@ -3,7 +3,7 @@ insert into tbl_instruction values((conv('00002103', 16, 10) + 0), 'sp', 2, "sp_
 
 -- 查询游戏
 delimiter //
-drop procedure if exists sp_apply_platform_account_merge // 
+drop procedure if exists sp_apply_platform_account_merge //
 create procedure sp_apply_platform_account_merge (
     out i_code      integer,
     out c_desc      mediumblob,
@@ -28,21 +28,22 @@ begin
         set i_code = 2;
         set c_desc = 'illegal arguments, paid_to or paid_from does not exist';
     else
-        select sum(i_balance)
-          into di_balance
-          from tbl_platform_account
-         where i_paid in (paid_from, paid_to);
-        update tbl_platform_account
-           set i_balance = di_balance
-         where i_paid = paid_to;
-        
-        select sum(i_coupon)
-          into di_coupon
-          from tbl_platform_account
-         where i_paid in (paid_from, paid_to);
-        update tbl_platform_account
-           set i_coupon = di_coupon
-         where i_paid = paid_to;
+        call sp_apply_platform_account_money (
+            i_code,
+            c_desc,
+            paid_to,
+            concat('【账户合并】来源账户：', conv(paid_from, 10, 16)),
+            1,
+            (select i_balance from tbl_platform_account where i_paid = paid_from)
+        );
+        call sp_apply_platform_account_money (
+            i_code,
+            c_desc,
+            paid_to,
+            concat('【账户合并】来源账户：', conv(paid_from, 10, 16)),
+            2,
+            (select i_coupon from tbl_platform_account where i_paid = paid_from)
+        );
 
         update tbl_platform_account_map
            set i_paid = paid_to

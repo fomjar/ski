@@ -1,16 +1,16 @@
 delete from tbl_instruction where i_inst = (conv('00002405', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$nick', $gender, '$phone', '$address', '$zipcode', '$birth', '$create')");
+insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$name', $gender, '$phone', '$address', '$zipcode', '$birth', '$create')");
 
 -- 更新订单
 delimiter //
-drop procedure if exists sp_update_channel_account // 
+drop procedure if exists sp_update_channel_account //
 create procedure sp_update_channel_account (
     out i_code      integer,
     out c_desc      mediumblob,
     in  caid        integer,        -- 渠道账户ID
     in  user        varchar(32),    -- 用户名
     in  channel     tinyint,        -- 渠道：0-淘宝 1-微信
-    in  nick        varchar(32),    -- 昵称
+    in  name        varchar(32),    -- 昵称
     in  gender      tinyint,        -- 性别：0-女 1-男 2-人妖
     in  phone       varchar(20),    -- 电话
     in  address     varchar(100),   -- 地址
@@ -42,7 +42,7 @@ begin
             i_caid,
             c_user,
             i_channel,
-            c_nick,
+            c_name,
             i_gender,
             c_phone,
             c_address,
@@ -53,7 +53,7 @@ begin
             di_caid,
             user,
             channel,
-            nick,
+            name,
             ifnull(gender, 2),
             phone,
             address,
@@ -74,7 +74,7 @@ begin
                 i_caid,
                 c_user,
                 i_channel,
-                c_nick,
+                c_name,
                 i_gender,
                 c_phone,
                 c_address,
@@ -85,7 +85,7 @@ begin
                 di_caid,
                 user,
                 channel,
-                nick,
+                name,
                 ifnull(gender, 2),
                 phone,
                 address,
@@ -104,9 +104,9 @@ begin
                    set i_channel = channel
                  where i_caid = di_caid;
             end if;
-            if nick is not null then
+            if name is not null then
                 update tbl_channel_account
-                   set c_nick = nick
+                   set c_name = name
                  where i_caid = di_caid;
             end if;
             if gender is not null then

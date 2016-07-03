@@ -9,9 +9,11 @@ import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.wca.WechatInterface;
 import com.ski.wca.WechatInterface.WechatInterfaceException;
+import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
+import fomjar.server.msg.FjJsonMessage;
 import net.sf.json.JSONObject;
 
 public class WcaBusiness {
@@ -61,25 +63,46 @@ public class WcaBusiness {
      * @return true for pass
      */
     private static void verifyUser(String server, String user) {
-        List<BeanChannelAccount> users = CommonService.getChannelAccountByUserName(user);
+        List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(user);
         if (!users.isEmpty()
-                && CommonService.USER_TYPE_WECHAT == users.get(0).i_channel)
+                && CommonService.CHANNEL_WECHAT == users.get(0).i_channel)
             return;
         
         registerUser(server, user);
-        logger.info("registered a new wechat user: " + user);
+        CommonService.updateChannelAccount();
     }
     
     private static void registerUser(String server, String user) {
+        FjJsonMessage ui = null;
+        try {
+            ui = WechatInterface.userInfo(user);
+            logger.info("register a new wechat user: " + ui);
+        } catch (WechatPermissionDeniedException e) {
+            logger.error("get user info failed: " + user, e);
+            return;
+        }
+        
         JSONObject args = new JSONObject();
-        args.put("channel", CommonService.USER_TYPE_WECHAT);
+        args.put("channel", CommonService.CHANNEL_WECHAT);
         args.put("user",    user);
+        args.put("name",    ui.json().getString("nickname"));
+        args.put("gender",  convertSex(ui.json().getInt("sex")));
+        args.put("address", String.format("%s %s %s", ui.json().getString("country"), ui.json().getString("province"), ui.json().getString("city")));
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",    server);
         req.json().put("ts",    "cdb");
         req.json().put("inst",  CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT);
         req.json().put("args",  args);
         FjServerToolkit.getAnySender().send(req);
+    }
+    
+    private static int convertSex(int sex) {
+        switch (sex) {
+        case 1: return CommonService.GENDER_MALE;
+        case 2: return CommonService.GENDER_FEMALE;
+        case 0:
+        default: return CommonService.GENDER_UNKNOWN;
+        }
     }
     
 }

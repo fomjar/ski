@@ -24,7 +24,7 @@ public class Report {
         BeanGameAccount account     = CommonService.getGameAccountByGaid(Integer.parseInt(commodity.c_arg0, 16));
         List<BeanGame>  games       = CommonService.getGameByGaid(account.i_gaid);
         
-        ocr.append(CommonReport.createReportHead(String.format("%s租赁报告", user.c_user)));
+        ocr.append(CommonReport.createReportHead(String.format("%s的租赁报告", user.c_user)));
         List<Object> rows = new LinkedList<Object>();
         rows.add(new String[] {"游戏账号",  account.c_user});
         rows.add(new String[] {"当前密码",  account.c_pass_curr});

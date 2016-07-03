@@ -1,5 +1,5 @@
-delimiter // 
-drop procedure if exists sp_query_platform_account_map_all //   
+delimiter //
+drop procedure if exists sp_query_platform_account_map_all //
 create procedure sp_query_platform_account_map_all (
     out i_code  integer,
     out c_desc  mediumblob

@@ -148,7 +148,43 @@ public class WechatInterface {
         return sendRequest("GET", url);
     }
     
-    public static FjDscpMessage convertRequest(String server, FjHttpRequest request) {
+    public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("POST", url, menu);
+    }
+    
+    public static FjJsonMessage menuDelete() throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("GET", url);
+    }
+    
+    public static FjJsonMessage customServiceAdd(String kfaccount) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("POST", url, kfaccount);
+    }
+    
+    public static FjJsonMessage customServiceUpdate(String kfaccount) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("POST", url, kfaccount);
+    }
+    
+    public static FjJsonMessage customServiceDel(String kfaccount) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("GET", url, kfaccount);
+    }
+    
+    public static FjJsonMessage customServiceGet() throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), TokenMonitor.getInstance().token());
+        return sendRequest("GET", url);
+    }
+    
+    public static FjDscpMessage customConvertRequest(String server, FjHttpRequest request) {
         Element xml      = request.contentToXml().getDocumentElement();
         String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent().trim();
         // String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent().trim();
@@ -266,43 +302,7 @@ public class WechatInterface {
         return req;
     }
     
-    public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("POST", url, menu);
-    }
-    
-    public static FjJsonMessage menuDelete() throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("GET", url);
-    }
-    
-    public static FjJsonMessage customServiceAdd(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("POST", url, kfaccount);
-    }
-    
-    public static FjJsonMessage customServiceUpdate(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("POST", url, kfaccount);
-    }
-    
-    public static FjJsonMessage customServiceDel(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("GET", url, kfaccount);
-    }
-    
-    public static FjJsonMessage customServiceGet() throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), TokenMonitor.getInstance().token());
-        return sendRequest("GET", url);
-    }
-    
-    public static FjJsonMessage customSendTextMessage(String user_to, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
+    public static FjJsonMessage customSendTextMessage(String user, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
         
@@ -311,13 +311,13 @@ public class WechatInterface {
         JSONObject text = new JSONObject();
         text.put("content", content);
         JSONObject msg = new JSONObject();
-        msg.put("touser", user_to);
+        msg.put("touser", user);
         msg.put("msgtype", "text");
         msg.put("text", text);
         return sendRequest("POST", url, msg.toString());
     }
     
-    public static FjJsonMessage customSendNewsMessage(String user_to, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
+    public static FjJsonMessage customSendNewsMessage(String user, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
         
@@ -328,10 +328,17 @@ public class WechatInterface {
         JSONObject news = new JSONObject();
         news.put("articles", articles);
         JSONObject msg = new JSONObject();
-        msg.put("touser", user_to);
+        msg.put("touser", user);
         msg.put("msgtype", "news");
         msg.put("news", news);
         return sendRequest("POST", url, msg.toString());
+    }
+    
+    public static FjJsonMessage userInfo(String user) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        
+        String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), TokenMonitor.getInstance().token(), user);
+        return sendRequest("GET", url);
     }
     
     public static FjJsonMessage sendRequest(String method, String url) {

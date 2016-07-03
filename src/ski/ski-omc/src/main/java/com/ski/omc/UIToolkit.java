@@ -184,14 +184,14 @@ public class UIToolkit {
     }
     
     public static void createChannelAccount() {
-        JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信", "2 - 支付宝"});
+        JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"淘  宝", "微  信", "支付宝"}); // ordered
         i_channel.setEditable(false);
         FjTextField c_user  = new FjTextField();
         FjTextField c_phone = new FjTextField();
         FjTextField c_nick  = new FjTextField();
         c_user.setDefaultTips("用户名");
         c_phone.setDefaultTips("电话号码");
-        c_nick.setDefaultTips("昵称");
+        c_nick.setDefaultTips("姓名");
         
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 1));
@@ -206,7 +206,7 @@ public class UIToolkit {
                 continue;
             }
             JSONObject args = new JSONObject();
-            args.put("channel", Integer.parseInt(i_channel.getSelectedItem().toString().split(" ")[0]));
+            args.put("channel", i_channel.getSelectedIndex());
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             if (0 != c_nick.getText().length())     args.put("nick",   c_nick.getText());
@@ -216,7 +216,7 @@ public class UIToolkit {
             if (CommonService.isResponseSuccess(rsp)) {
                 if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.YES_NO_OPTION)) {
                     CommonService.updateChannelAccount();
-                    List<BeanChannelAccount> users = CommonService.getChannelAccountByUserName(c_user.getText());
+                    List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(c_user.getText());
                     if (1 == users.size()) UIToolkit.createOrder(users.get(0));
                     else UIToolkit.createOrder();
                 }
@@ -466,9 +466,11 @@ public class UIToolkit {
                 if (CommonService.isResponseSuccess(rsp) && isRecharge) {
                     BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByOid(oid));
                     args.clear();
-                    args.put("paid", puser.i_paid);
-                    args.put("balance", puser.i_balance + price);
-                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT, args);
+                    args.put("paid",    puser.i_paid);
+                    args.put("remark",  "【起租充值】起租账号：" + account.c_user);
+                    args.put("type",    CommonService.MONEY_BALANCE);
+                    args.put("money",   price);
+                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
                     ssd.appendText(rsp.toString());
                 }
                 ssd.appendText("提交完成");
@@ -812,7 +814,7 @@ public class UIToolkit {
         CommonService.getChannelAccountAll().values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
-                    CommonService.USER_TYPE_TAOBAO == account.i_channel ? "淘宝" : CommonService.USER_TYPE_WECHAT == account.i_channel ? "微信" : CommonService.USER_TYPE_ALIPAY == account.i_channel ? "支付宝" : "未知",
+                    CommonService.CHANNEL_TAOBAO == account.i_channel ? "淘宝" : CommonService.CHANNEL_WECHAT == account.i_channel ? "微信" : CommonService.CHANNEL_ALIPAY == account.i_channel ? "支付宝" : "未知",
                     account.c_user));
             cell.addActionListener(new ActionListener() {
                 @Override
