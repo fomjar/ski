@@ -58,10 +58,6 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
         ((JMenuItem) menu.getComponent(2)).addActionListener(e->{
             UIToolkit.closeCommodity(data.i_oid, data.i_csn);
-            
-            CommonService.updatePlatformAccount();
-            CommonService.updateGameAccountRent();
-            CommonService.updateOrder();
             updateCommodity();
         });
         

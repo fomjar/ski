@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -62,7 +64,7 @@ public class ManageOrder extends JDialog {
         i_oid       = new FjEditLabel(String.format("0x%08X", order.i_oid), false);
         i_platform  = new FjEditLabel(0 == order.i_platform ? "淘宝" : "微信");
         user = CommonService.getChannelAccountByCaid(order.i_caid);
-        i_caid      = new FjEditLabel(user.c_user, false);
+        i_caid      = new FjEditLabel(user.getDisplayName(), false);
         t_open      = new FjEditLabel(order.t_open);
         t_close     = new FjEditLabel(order.t_close);
         
@@ -75,10 +77,12 @@ public class ManageOrder extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("订单编号", i_oid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_platform));
         panel_basic.add(UIToolkit.createBasicInfoLabel("渠道用户", i_caid, "管理用户", e->{
-            CommonService.updateChannelAccount();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            new ManageChannelAccount(order.i_caid).setVisible(true);
+            ManageChannelAccount dialog = new ManageChannelAccount(order.i_caid);
+            dialog.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosed(WindowEvent e) {updateCommodity();}
+            });
+            dialog.setVisible(true);
         }));
         panel_basic.add(UIToolkit.createBasicInfoLabel("打开时间", t_open));
         panel_basic.add(UIToolkit.createBasicInfoLabel("关闭时间", t_close));
@@ -92,7 +96,7 @@ public class ManageOrder extends JDialog {
         getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(pane_commodity, BorderLayout.CENTER);
         
-        setTitle(String.format("管理订单“0x%08X”", order.i_oid));
+        setTitle(String.format("管理订单 - 0x%08X", order.i_oid));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(500, 500));
@@ -152,7 +156,6 @@ public class ManageOrder extends JDialog {
             UIToolkit.showServerResponse(rsp);
             if (null != rsp && CommonService.isResponseSuccess(rsp)) {
                 if (args.has("platform"))   i_platform.setForeground(Color.darkGray);
-                if (args.has("caid"))       i_caid.setForeground(Color.darkGray);
                 if (args.has("open"))       t_open.setForeground(Color.darkGray);
                 if (args.has("close"))      t_close.setForeground(Color.darkGray);
                 args.clear();
@@ -167,9 +170,6 @@ public class ManageOrder extends JDialog {
             }
             
             UIToolkit.openCommodity(order.i_oid);
-            
-            CommonService.updateOrder();
-            CommonService.updateGameAccountRent();
             this.order = CommonService.getOrderByOid(order.i_oid);
             updateCommodity();
         });

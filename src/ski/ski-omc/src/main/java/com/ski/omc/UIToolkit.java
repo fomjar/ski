@@ -183,22 +183,27 @@ public class UIToolkit {
         }
     }
     
-    public static void createChannelAccount() {
+    /**
+     * 
+     * @return 字段user
+     */
+    public static String createChannelAccount() {
+        String result = null;
         JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"淘  宝", "微  信", "支付宝"}); // ordered
         i_channel.setEditable(false);
         FjTextField c_user  = new FjTextField();
         FjTextField c_phone = new FjTextField();
-        FjTextField c_nick  = new FjTextField();
+        FjTextField c_name  = new FjTextField();
         c_user.setDefaultTips("用户名");
         c_phone.setDefaultTips("电话号码");
-        c_nick.setDefaultTips("姓名");
+        c_name.setDefaultTips("姓名");
         
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(4, 1));
         panel.add(i_channel);
         panel.add(c_user);
         panel.add(c_phone);
-        panel.add(c_nick);
+        panel.add(c_name);
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
@@ -209,13 +214,16 @@ public class UIToolkit {
             args.put("channel", i_channel.getSelectedIndex());
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
-            if (0 != c_nick.getText().length())     args.put("nick",   c_nick.getText());
+            if (0 != c_name.getText().length())     args.put("name",    c_name.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
+            CommonService.updateChannelAccount();
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
             UIToolkit.showServerResponse(rsp);
             
             if (CommonService.isResponseSuccess(rsp)) {
+                result = c_user.getText();
                 if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.YES_NO_OPTION)) {
-                    CommonService.updateChannelAccount();
                     List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(c_user.getText());
                     if (1 == users.size()) UIToolkit.createOrder(users.get(0));
                     else UIToolkit.createOrder();
@@ -223,6 +231,7 @@ public class UIToolkit {
             }
             break;
         }
+        return result;
     }
     
     public static void createOrder() {
@@ -231,14 +240,14 @@ public class UIToolkit {
     
     public static void createOrder(BeanChannelAccount user) {
         JComboBox<String>   i_platform = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信"});
-        JLabel i_caid_label = new JLabel(null != user ? String.format("0x%08X - %s", user.i_caid, user.c_user) : "");
+        JLabel i_caid_label = new JLabel(null != user ? String.format("0x%08X - %s", user.i_caid, user.getDisplayName()) : "");
         i_caid_label.setPreferredSize(new Dimension(240, 0));
         JButton i_caid_button = new JButton("选择用户");
         i_caid_button.setMargin(new Insets(0, 0, 0, 0));
         i_caid_button.addActionListener(e->{
             BeanChannelAccount account = chooseChannelAccount();
             if (null == account) i_caid_label.setText("");
-            else i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.c_user));
+            else i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.getDisplayName()));
         });
         if (null == user) {
             // auto choose channel account
@@ -275,16 +284,15 @@ public class UIToolkit {
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
             args.put("open", sdf.format(new Date(System.currentTimeMillis())));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            CommonService.updateOrder();
             UIToolkit.showServerResponse(rsp);
             
             if (CommonService.isResponseSuccess(rsp)) {
                 if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.YES_NO_OPTION)) {
-                    CommonService.updateOrder();
                     List<BeanOrder> orders = CommonService.getOrderByCaid(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
                     if (1 == orders.size()) {
                         BeanOrder order = orders.get(0);
                         UIToolkit.openCommodity(order.i_oid);
-                        CommonService.updateOrder();
                         new ManageOrder(order.i_oid).setVisible(true);
                     }
                     else JOptionPane.showMessageDialog(null, "不能确认刚才创建的订单，请手工打开再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
@@ -293,6 +301,8 @@ public class UIToolkit {
             break;
         }
     }
+    
+    public static boolean skip_wa = true;
     
     public static void openCommodity(int oid) {
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
@@ -305,22 +315,27 @@ public class UIToolkit {
         c_arg1.setPreferredSize(new Dimension(c_arg1.getPreferredSize().width, choose.getPreferredSize().height));
         FjTextField         i_price     = new FjTextField();
         i_price.setDefaultTips("(单价)");
-        JCheckBox           recharge    = new JCheckBox("充值此金额", true);
-        recharge.setToolTipText("创建商品的同时，将此单价金额充值到用户账户");
         FjTextField         c_remark    = new FjTextField();
         c_remark.setDefaultTips("(备注)");
+        JCheckBox           recharge    = new JCheckBox("同时充值", true);
+        recharge.setToolTipText("创建商品的同时，将指定金额充值到用户账户");
+        FjTextField         i_recharge  = new FjTextField();
+        i_recharge.setDefaultTips("(充值金额)");
+        recharge.addActionListener(e->i_recharge.setEnabled(recharge.isSelected()));
         
         c_arg1.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (ItemEvent.SELECTED != e.getStateChange()) return;
                 
-                if (c_arg1.getSelectedItem().toString().contains("A"))
+                if (c_arg1.getSelectedItem().toString().contains("A")) {
                     i_price.setText(CommonService.getRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_A) + "");
-                else if (c_arg1.getSelectedItem().toString().contains("B"))
+                } else if (c_arg1.getSelectedItem().toString().contains("B")) {
                     i_price.setText(CommonService.getRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_B) + "");
-                else
+                } else {
                     i_price.setText("0.00");
+                }
+                i_recharge.setText(i_price.getText());
             }
         });
         
@@ -346,7 +361,8 @@ public class UIToolkit {
                 c_arg0.setText("");
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
                 c_arg1.setEnabled(false);
-                i_price.setDefaultTips("0.00");
+                i_price.setText("0.00");
+                i_recharge.setText(i_price.getText());
             }
         });
         choose.addAncestorListener(new AncestorListener() {
@@ -368,15 +384,16 @@ public class UIToolkit {
         
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BorderLayout());
-        panel1.add(i_price, BorderLayout.CENTER);
-        panel1.add(recharge, BorderLayout.EAST);
+        panel1.add(recharge, BorderLayout.WEST);
+        panel1.add(i_recharge, BorderLayout.CENTER);
         
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(4, 1));
+        panel.setLayout(new GridLayout(5, 1));
         panel.add(panel0);
         panel.add(c_arg1);
-        panel.add(panel1);
+        panel.add(i_price);
         panel.add(c_remark);
+        panel.add(panel1);
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建商品", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_arg0.getText().length()) {
@@ -398,13 +415,14 @@ public class UIToolkit {
                     c_arg1.getSelectedItem().toString().contains("A") ? "A" : "B",
                     c_remark.getText(),
                     Float.parseFloat(i_price.getText()),
-                    recharge.isSelected())) continue;
+                    recharge.isSelected(),
+                    Float.parseFloat(i_recharge.getText()))) continue;
             
             break;
         }
     }
     
-    private static boolean doOpenCommodity(int oid, BeanGameAccount account, String type, String remark, float price, boolean isRecharge) {
+    private static boolean doOpenCommodity(int oid, BeanGameAccount account, String type, String remark, float price, boolean isRecharge, float recharge) {
         StepStepDialog ssd = new StepStepDialog(new String[] {
                 "验证账号",
                 "更新数据",
@@ -417,36 +435,39 @@ public class UIToolkit {
             // 1
             {
                 ssd.appendText("正在登录到PlayStation网站验证账号密码及其绑定状态...");
-                args.clear();
-                args.put("user", account.c_user);
-                args.put("pass", account.c_pass_curr);
-                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                ssd.appendText(rsp.toString());
-                if (!CommonService.isResponseSuccess(rsp)) {
-                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                        ssd.dispose();
-                        return;
-                    }
-                }
-                switch (type) {
-                case "A":
-                    if (rsp.toString().contains(" binded")) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租A类账号要求未绑定，但此账号当前已被绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                if (skip_wa) ssd.appendText("设定跳过");
+                else {
+                    args.clear();
+                    args.put("user", account.c_user);
+                    args.put("pass", account.c_pass_curr);
+                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                    ssd.appendText(rsp.toString());
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                             ssd.dispose();
                             return;
                         }
                     }
-                    break;
-                case "B":
-                    if (rsp.toString().contains(" unbinded")) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租B类账号要求先绑定，但此账号当前尚未绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                            ssd.dispose();
-                            return;
+                    switch (type) {
+                    case "A":
+                        if (rsp.toString().contains(" binded")) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租A类账号要求未绑定，但此账号当前已被绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                                ssd.dispose();
+                                return;
+                            }
                         }
+                        break;
+                    case "B":
+                        if (rsp.toString().contains(" unbinded")) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "起租B类账号要求先绑定，但此账号当前尚未绑定，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                                ssd.dispose();
+                                return;
+                            }
+                        }
+                        break;
                     }
-                    break;
+                    ssd.appendText("验证通过");
                 }
-                ssd.appendText("验证通过");
             }
             // 2
             ssd.toNextStep();
@@ -455,7 +476,7 @@ public class UIToolkit {
                 args.clear();
                 args.put("oid", oid);
                 if (0 < remark.length()) args.put("remark", remark);
-                args.put("price", price);
+                args.put("price", recharge);
                 args.put("count", 1);
                 args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
                 args.put("arg0", Integer.toHexString(account.i_gaid));
@@ -468,14 +489,17 @@ public class UIToolkit {
                     args.clear();
                     args.put("paid",    puser.i_paid);
                     args.put("remark",  "【起租充值】起租账号：" + account.c_user);
-                    args.put("type",    CommonService.MONEY_BALANCE);
-                    args.put("money",   price);
+                    args.put("type",    CommonService.MONEY_CASH);
+                    args.put("money",   recharge);
                     rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
                     ssd.appendText(rsp.toString());
                 }
                 ssd.appendText("提交完成");
             }
             isSuccess.obj = true;
+            CommonService.updateOrder();
+            CommonService.updateGameAccountRent();
+            CommonService.updatePlatformAccount();
             JOptionPane.showMessageDialog(null, "起租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
         });
@@ -500,79 +524,85 @@ public class UIToolkit {
             // 1
             {
                 ssd.appendText("正在登录到PlayStation网站验证账号密码及其绑定状态");
-                args.clear();
-                args.put("user", account.c_user);
-                args.put("pass", account.c_pass_curr);
-                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                ssd.appendText(rsp.toString());
-                if (!CommonService.isResponseSuccess(rsp)) {
-                    if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                        ssd.dispose();
-                        return;
-                    }
-                }
-                switch (commodity.c_arg1) {
-                case "A":
-                    if (rsp.toString().contains(" binded")) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号要求解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                if (skip_wa) ssd.appendText("设定跳过");
+                else {
+                    args.clear();
+                    args.put("user", account.c_user);
+                    args.put("pass", account.c_pass_curr);
+                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
+                    ssd.appendText(rsp.toString());
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "账号验证失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                             ssd.dispose();
                             return;
                         }
                     }
-                    break;
-                case "B":
-                    ssd.appendText("退租B类账号没有绑定要求");
-                    break;
+                    switch (commodity.c_arg1) {
+                    case "A":
+                        if (rsp.toString().contains(" binded")) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号要求解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                                ssd.dispose();
+                                return;
+                            }
+                        }
+                        break;
+                    case "B":
+                        ssd.appendText("退租B类账号没有绑定要求");
+                        break;
+                    }
+                    ssd.appendText("验证通过");
                 }
-                ssd.appendText("验证通过");
             }
             // 2
             ssd.toNextStep();
             {
                 ssd.appendText("正在生成新密码...");
-                String pass_new = CommonService.createGameAccountPassword();
-                boolean isModify = true;
-                switch (commodity.c_arg1) {
-                case "A":
-                    if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
-                        BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
-                        JOptionPane.showMessageDialog(null,
-                                String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.c_user),
-                                "信息",
-                                JOptionPane.PLAIN_MESSAGE);
-                    }
-                    break;
-                case "B":
-                    if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
-                        ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
-                        isModify = false;
-                    }
-                    break;
-                }
-                if (isModify) {
-                    ssd.appendText("正在登录到PlayStation网站重设密码...");
-                    args.clear();
-                    args.put("user",     account.c_user);
-                    args.put("pass",     account.c_pass_curr);
-                    args.put("pass_new", pass_new);
-                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                    ssd.appendText(rsp.toString());
-                    if (!CommonService.isResponseSuccess(rsp)) {
-                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-                            ssd.dispose();
-                            return;
+                if (skip_wa) ssd.appendText("设定跳过");
+                else {
+                    String pass_new = CommonService.createGameAccountPassword();
+                    boolean isModify = true;
+                    switch (commodity.c_arg1) {
+                    case "A":
+                        if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
+                            BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
+                            JOptionPane.showMessageDialog(null,
+                                    String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.getDisplayName()),
+                                    "信息",
+                                    JOptionPane.PLAIN_MESSAGE);
                         }
+                        break;
+                    case "B":
+                        if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
+                            ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
+                            isModify = false;
+                        }
+                        break;
                     }
-                    ssd.appendText("重设成功");
-                    ssd.appendText("正在将新密码提交到数据库中...");
-                    args.clear();
-                    args.put("gaid", account.i_gaid);
-                    args.put("pass_curr", pass_new);
-                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                    ssd.appendText(rsp.toString());
-                    ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
-                } else {
-                    ssd.appendText("密码重设已跳过");
+                    if (isModify) {
+                        ssd.appendText("正在登录到PlayStation网站重设密码...");
+                        args.clear();
+                        args.put("user",     account.c_user);
+                        args.put("pass",     account.c_pass_curr);
+                        args.put("pass_new", pass_new);
+                        FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                        ssd.appendText(rsp.toString());
+                        if (!CommonService.isResponseSuccess(rsp)) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "密码重设失败，错误原因：\"" + CommonService.getResponseDesc(rsp) + "\"，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                                ssd.dispose();
+                                return;
+                            }
+                        }
+                        ssd.appendText("重设成功");
+                        ssd.appendText("正在将新密码提交到数据库中...");
+                        args.clear();
+                        args.put("gaid", account.i_gaid);
+                        args.put("pass_curr", pass_new);
+                        rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                        ssd.appendText(rsp.toString());
+                        ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
+                    } else {
+                        ssd.appendText("密码重设已跳过");
+                    }
                 }
             }
             // 3
@@ -587,6 +617,9 @@ public class UIToolkit {
                 ssd.appendText(rsp.toString());
                 ssd.appendText("提交完成");
             }
+            CommonService.updateOrder();
+            CommonService.updateGameAccountRent();
+            CommonService.updatePlatformAccount();
             JOptionPane.showMessageDialog(null, "退租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
         });
@@ -689,7 +722,7 @@ public class UIToolkit {
                             .stream()
                             .filter(user->{
                                 int count1 = 0;
-                                for (String word : words) if (user.c_user.contains(word)) count1++;
+                                for (String word : words) if (user.getDisplayName().contains(word)) count1++;
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -815,7 +848,7 @@ public class UIToolkit {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
                     CommonService.CHANNEL_TAOBAO == account.i_channel ? "淘宝" : CommonService.CHANNEL_WECHAT == account.i_channel ? "微信" : CommonService.CHANNEL_ALIPAY == account.i_channel ? "支付宝" : "未知",
-                    account.c_user));
+                    account.getDisplayName()));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {

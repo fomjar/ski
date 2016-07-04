@@ -1,22 +1,22 @@
 delete from tbl_instruction where i_inst = (conv('00002409', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002409', 16, 10) + 0), 'sp', 2, "sp_update_platform_account(?, ?, $paid, '$user', '$pass', '$name', '$mobile', '$email', '$birth', $balance, $coupon, '$create')");
+insert into tbl_instruction values((conv('00002409', 16, 10) + 0), 'sp', 2, "sp_update_platform_account(?, ?, $paid, '$user', '$pass', '$name', '$mobile', '$email', '$birth', $cash, $coupon, '$create')");
 
 -- 更新游戏
 delimiter //
 drop procedure if exists sp_update_platform_account //
 create procedure sp_update_platform_account (
-    out i_code      integer,
-    out c_desc      mediumblob,
-    in  paid        integer,        -- 平台账户ID
-    in  user        varchar(32),    -- 用户名
-    in  pass        varchar(32),    -- 密码
-    in  name        varchar(32),    -- 姓名
-    in  mobile      varchar(20),    -- 手机
-    in  email       varchar(32),    -- 邮箱
-    in  birth       date,           -- 出生日期
-    in  balance     decimal(9, 2),  -- 现金余额（可退的）
-    in  coupon      decimal(9, 2),  -- 优惠券（不可退）
-    in  _create     datetime        -- 创建时间
+    out i_code  integer,
+    out c_desc  mediumblob,
+    in  paid    integer,        -- 平台账户ID
+    in  user    varchar(32),    -- 用户名
+    in  pass    varchar(32),    -- 密码
+    in  name    varchar(32),    -- 姓名
+    in  mobile  varchar(20),    -- 手机
+    in  email   varchar(32),    -- 邮箱
+    in  birth   date,           -- 出生日期
+    in  cash    decimal(9, 2),  -- 现金余额（可退的）
+    in  coupon  decimal(9, 2),  -- 优惠券（不可退）
+    in  _create datetime        -- 创建时间
 )
 begin
     declare di_paid     integer default -1;
@@ -45,7 +45,7 @@ begin
             c_mobile,
             c_email,
             t_birth,
-            i_balance,
+            i_cash,
             i_coupon,
             t_create
         ) values (
@@ -56,7 +56,7 @@ begin
             mobile,
             email,
             birth,
-            ifnull(balance, 0.00),
+            ifnull(cash, 0.00),
             ifnull(coupon, 0.00),
             ifnull(_create, now())
         );
@@ -77,7 +77,7 @@ begin
                 c_mobile,
                 c_email,
                 t_birth,
-                i_balance,
+                i_cash,
                 i_coupon,
                 t_create
             ) values (
@@ -88,7 +88,7 @@ begin
                 mobile,
                 email,
                 birth,
-                ifnull(balance, 0.00),
+                ifnull(cash, 0.00),
                 ifnull(coupon, 0.00),
                 ifnull(_create, now())
             );
@@ -123,9 +123,9 @@ begin
                    set t_birth = birth
                  where i_paid = di_paid;
             end if;
-            if balance is not null then
+            if cash is not null then
                 update tbl_platform_account
-                   set i_balance = balance
+                   set i_cash = cash
                  where i_paid = di_paid;
             end if;
             if coupon is not null then

@@ -14,7 +14,7 @@ public class OCRDialog extends ReportDialog {
     
     public OCRDialog(BeanCommodity item) {
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(CommonService.getOrderByOid(item.i_oid).i_caid);
-        setTitle(String.format("%s的租赁报告", user.c_user));
+        setTitle(String.format("%s的租赁报告", user.getDisplayName()));
         setReport(Report.createOCR(item));
         pack();
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();

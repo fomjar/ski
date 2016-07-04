@@ -1,8 +1,8 @@
 package com.ski.common.bean;
 
-public class BeanPlatformAccountRecharge {
+public class BeanPlatformAccountMoney {
     
-    public BeanPlatformAccountRecharge(String line) {
+    public BeanPlatformAccountMoney(String line) {
         String[] fields = line.split("\t", -1);
         this.i_paid     = Integer.parseInt(fields[0], 16);
         this.c_remark   = fields[1];

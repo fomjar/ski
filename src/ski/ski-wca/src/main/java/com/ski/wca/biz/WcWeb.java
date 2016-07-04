@@ -104,7 +104,7 @@ public class WcWeb {
         {
             List<Object> data = new LinkedList<Object>();
             float[] prestatement = CommonService.prestatement(user);
-            data.add(new String[] {"账户余额",         puser.i_balance + "元"});
+            data.add(new String[] {"账户余额",         puser.i_cash + "元"});
             data.add(new String[] {"优惠券余额",       puser.i_coupon + "元"});
             data.add(new String[] {"账户余额(实时)",   prestatement[0] + "元"});
             data.add(new String[] {"优惠券余额(实时)", prestatement[1] + "元"});

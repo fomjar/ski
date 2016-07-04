@@ -11,7 +11,7 @@ public class BeanPlatformAccount {
         c_mobile    = fields[4];
         c_email     = fields[5];
         t_birth     = fields[6];
-        i_balance   = Float.parseFloat(fields[7]);
+        i_cash      = Float.parseFloat(fields[7]);
         i_coupon    = Float.parseFloat(fields[8]);
         t_create    = fields[9];
     }
@@ -23,7 +23,7 @@ public class BeanPlatformAccount {
     public String   c_mobile;
     public String   c_email;
     public String   t_birth;
-    public float    i_balance;
+    public float    i_cash;
     public float    i_coupon;
     public String   t_create;
 

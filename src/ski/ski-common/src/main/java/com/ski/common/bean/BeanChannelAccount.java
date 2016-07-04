@@ -26,5 +26,7 @@ public class BeanChannelAccount {
     public String   c_zipcode;
     public String   t_birth;
     public String   t_create;
+    
+    public String getDisplayName() {return 0 < c_name.length() ? String.format("%s(%s)", c_name, c_user) : c_user;}
 
 }

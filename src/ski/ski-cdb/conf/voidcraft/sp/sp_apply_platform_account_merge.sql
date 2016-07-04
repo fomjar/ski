@@ -13,7 +13,7 @@ create procedure sp_apply_platform_account_merge (
 begin
     declare di_count    integer default -1;
     declare di_caid     integer default -1;
-    declare di_balance  decimal(9, 2) default 0.00;
+    declare di_cash     decimal(9, 2) default 0.00;
     declare di_coupon   decimal(9, 2) default 0.00;
 
     select count(1)
@@ -34,7 +34,7 @@ begin
             paid_to,
             concat('【账户合并】来源账户：', conv(paid_from, 10, 16)),
             1,
-            (select i_balance from tbl_platform_account where i_paid = paid_from)
+            (select i_cash from tbl_platform_account where i_paid = paid_from)
         );
         call sp_apply_platform_account_money (
             i_code,

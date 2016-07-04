@@ -7,6 +7,9 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -33,7 +36,7 @@ import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanPlatformAccount;
-import com.ski.common.bean.BeanPlatformAccountRecharge;
+import com.ski.common.bean.BeanPlatformAccountMoney;
 import com.ski.omc.UIToolkit;
 
 import fomjar.server.msg.FjDscpMessage;
@@ -57,9 +60,9 @@ public class ManageChannelAccount extends JDialog {
     private FjEditLabel         c_address;
     private FjEditLabel         c_zipcode;
     private FjEditLabel         t_birth;
-    private FjEditLabel         i_balance;
+    private FjEditLabel         i_cash;
     private FjEditLabel         i_coupon;
-    private FjEditLabel         ri_balance;
+    private FjEditLabel         ri_cash;
     private FjEditLabel         ri_coupon;
     private FjListPane<String>  pane_user;
     private FjListPane<String>  pane_account;
@@ -92,19 +95,22 @@ public class ManageChannelAccount extends JDialog {
         c_address   = new FjEditLabel();
         c_zipcode   = new FjEditLabel();
         t_birth     = new FjEditLabel();
-        i_balance   = new FjEditLabel(false);
-        i_balance.setFont(i_balance.getFont().deriveFont(Font.BOLD));
+        i_cash   = new FjEditLabel(false);
+        i_cash.setFont(i_cash.getFont().deriveFont(Font.BOLD));
         i_coupon    = new FjEditLabel(false);
         i_coupon.setFont(i_coupon.getFont().deriveFont(Font.BOLD));
-        ri_balance  = new FjEditLabel(false);
-        ri_balance.setFont(ri_balance.getFont().deriveFont(Font.BOLD));
+        ri_cash  = new FjEditLabel(false);
+        ri_cash.setFont(ri_cash.getFont().deriveFont(Font.BOLD));
         ri_coupon   = new FjEditLabel(false);
         ri_coupon.setFont(ri_coupon.getFont().deriveFont(Font.BOLD));
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
         panel_basic.setLayout(new GridLayout(13, 1));
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户编号", i_caid));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("账    号", c_user));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账    号", c_user, "复制", e->{
+            StringSelection ss = new StringSelection(user.c_user);
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+        }));
         panel_basic.add(UIToolkit.createBasicInfoLabel("来源平台", i_channel));
         panel_basic.add(UIToolkit.createBasicInfoLabel("姓    名", c_name));
         panel_basic.add(UIToolkit.createBasicInfoLabel("性    别", i_gender));
@@ -112,9 +118,9 @@ public class ManageChannelAccount extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("地    址", c_address));
         panel_basic.add(UIToolkit.createBasicInfoLabel("邮    编", c_zipcode));
         panel_basic.add(UIToolkit.createBasicInfoLabel("出生日期", t_birth));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额",  i_balance));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额",  i_cash));
         panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额", i_coupon));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额  (RT)", ri_balance));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("账户余额  (RT)", ri_cash));
         panel_basic.add(UIToolkit.createBasicInfoLabel("优惠券金额(RT)", ri_coupon));
         
         pane_user = new FjListPane<String>();
@@ -143,7 +149,7 @@ public class ManageChannelAccount extends JDialog {
         getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(panel_center, BorderLayout.CENTER);
         
-        setTitle(String.format("管理用户“%s”", user.c_user));
+        setTitle(String.format("管理用户 - %s", user.getDisplayName()));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(480, 600));
@@ -252,7 +258,7 @@ public class ManageChannelAccount extends JDialog {
             }
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
-            JComboBox<String> type = new JComboBox<String>(new String[] {"充值", "充券"}); // ordered
+            JComboBox<String> type = new JComboBox<String>(new String[] {"充值", "充券", "退款"});
             type.setEditable(false);
             FjTextField remark = new FjTextField();
             remark.setDefaultTips("备注");
@@ -263,53 +269,65 @@ public class ManageChannelAccount extends JDialog {
             panel.add(type);
             panel.add(remark);
             panel.add(money);
-            while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, panel, "充值", JOptionPane.OK_CANCEL_OPTION)) {
-                if (0 == remark.getText().length()) {
-                    JOptionPane.showMessageDialog(ManageChannelAccount.this, "备注一定要填", "错误", JOptionPane.ERROR_MESSAGE);
-                    continue;
+            type.addItemListener(new ItemListener() {
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    switch (type.getSelectedIndex()) {
+                    case 0:
+                        remark.setText("【客服充值】");
+                        money.setText("150.00");
+                        break;
+                    case 1:
+                        remark.setText("【客服充券】");
+                        money.setText("10.00");
+                        break;
+                    case 2:
+                        remark.setText("【客服退款】");
+                        money.setText("-" + puser.i_cash);
+                        break;
+                    }
                 }
+            });
+            type.setSelectedIndex(1);
+            type.setSelectedIndex(0);
+            while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(ManageChannelAccount.this, panel, "充值", JOptionPane.OK_CANCEL_OPTION)) {
                 if (0 == money.getText().length()) {
                     JOptionPane.showMessageDialog(ManageChannelAccount.this, "金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 JSONObject args = new JSONObject();
                 args.put("paid",    puser.i_paid);
-                args.put("remark",  remark.getText());
-                args.put("type",    type.getSelectedIndex() + 1);
+                if (0 < remark.getText().length()) args.put("remark",  remark.getText());
+                args.put("type",    0 == type.getSelectedIndex() ? CommonService.MONEY_CASH : 1 == type.getSelectedIndex() ? CommonService.MONEY_COUPON : 2 == type.getSelectedIndex() ? CommonService.MONEY_CASH : -1);
                 args.put("money",   Float.parseFloat(money.getText()));
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
                 UIToolkit.showServerResponse(rsp);
-                if (CommonService.isResponseSuccess(rsp)) {
-                    CommonService.updatePlatformAccount();
-                    updateBasicPane();
-                }
+                CommonService.updatePlatformAccount();
+                updateBasicPane();
                 break;
             }
         });
         ((JButton) toolbar.getComponent(3)).addActionListener(e->{
             UIToolkit.createOrder(user);
-            
-            CommonService.updateOrder();
-            CommonService.updateGameAccountRent();
             updateListPane();
         });
         ((JButton) toolbar.getComponent(5)).addActionListener(e->{
-            CommonService.updatePlatformAccountRecharge();
-            List<BeanPlatformAccountRecharge> recharge = CommonService.getPlatformAccountRechargeByPaid(puser.i_paid);
+            CommonService.updatePlatformAccountMoney();
+            List<BeanPlatformAccountMoney> money = CommonService.getPlatformAccountMoneyByPaid(puser.i_paid);
             JTable table = new JTable();
             DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
             renderer.setHorizontalAlignment(SwingConstants.CENTER);
             table.setDefaultRenderer(Object.class, renderer);
             DefaultTableModel model = (DefaultTableModel) table.getModel();
             model.setColumnIdentifiers(new String[] {"平台用户", "备注", "时间", "操作类型", "基准值", "变化值"});
-            recharge.forEach(r->{
+            money.forEach(m->{
                 model.addRow(new String[] {
-                        String.format("0x%08X", r.i_paid),
-                        r.c_remark,
-                        r.t_time,
-                        CommonService.MONEY_COST == r.i_type ? "消费" : CommonService.MONEY_BALANCE == r.i_type ? "充值" : CommonService.MONEY_COUPON == r.i_type ? "充券" : "未知",
-                        r.i_base + "元",
-                        r.i_money + "元"});
+                        String.format("0x%08X", m.i_paid),
+                        m.c_remark,
+                        m.t_time,
+                        CommonService.MONEY_CONSUME == m.i_type ? "消费" : CommonService.MONEY_CASH == m.i_type ? "充值" : CommonService.MONEY_COUPON == m.i_type ? "充券" : "未知",
+                        m.i_base + "元",
+                        m.i_money + "元"});
             });
             JDialog dialog = new JDialog(MainFrame.getInstance(), "操作记录");
             dialog.getContentPane().setLayout(new BorderLayout());
@@ -327,28 +345,44 @@ public class ManageChannelAccount extends JDialog {
             table.getColumn("时间").setPreferredWidth(160);
         });
         ((JButton) toolbar.getComponent(6)).addActionListener(e->{
-            BeanChannelAccount user2 = UIToolkit.chooseChannelAccount();
-            if (null == user2) return;
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户%s和%s，关联之后将无法回退，继续？", user.c_user, user2.c_user), "提示", JOptionPane.OK_CANCEL_OPTION))
-                return;
-            
-            int paid_to = CommonService.getPlatformAccountByCaid(user.i_caid);
-            int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
-            if (paid_to == paid_from) {
-                JOptionPane.showMessageDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
-                return;
+            BeanChannelAccount user2 = null;
+            int option = JOptionPane.CLOSED_OPTION;
+            while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择关联途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
+                switch (option) {
+                case JOptionPane.YES_OPTION:
+                    String suser = UIToolkit.createChannelAccount();
+                    if (null == suser) continue; // no choose
+                    user2 = CommonService.getChannelAccountByUser(suser).get(0);
+                    break;
+                case JOptionPane.NO_OPTION:
+                    user2 = UIToolkit.chooseChannelAccount();
+                    break;
+                }
+                if (null == user2) continue;
+                
+                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageChannelAccount.this, String.format("即将关联用户“%s”和“%s”，关联之后将无法回退，继续？", user.getDisplayName(), user2.getDisplayName()), "提示", JOptionPane.OK_CANCEL_OPTION))
+                    return;
+                
+                int paid_to = CommonService.getPlatformAccountByCaid(user.i_caid);
+                int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
+                if (paid_to == paid_from) {
+                    JOptionPane.showMessageDialog(ManageChannelAccount.this, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                JSONObject args = new JSONObject();
+                args.put("paid_to", paid_to);
+                args.put("paid_from", paid_from);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
+                UIToolkit.showServerResponse(rsp);
+                
+                CommonService.updatePlatformAccount();
+                CommonService.updatePlatformAccountMap();
+                updateBasicPane();
+                updateListPane();
+                
+                break;
             }
-            
-            JSONObject args = new JSONObject();
-            args.put("paid_to", paid_to);
-            args.put("paid_from", paid_from);
-            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
-            UIToolkit.showServerResponse(rsp);
-            
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            updateBasicPane();
-            updateListPane();
         });
         order_switch.addActionListener(e->{
             switch (order_switch.getText()) {
@@ -366,7 +400,7 @@ public class ManageChannelAccount extends JDialog {
     private void updateListPane() {
         pane_user.getList().removeAllCell();
         CommonService.getChannelAccountRelated(user.i_caid).forEach(user->{
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user.i_caid, user.c_user), "[" + getChannel2String(user.i_channel) + "]");
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user.i_caid, user.getDisplayName()), "[" + getChannel2String(user.i_channel) + "]");
             cell.addActionListener(e->new ManageChannelAccount(user.i_caid).setVisible(true));
             pane_user.getList().addCell(cell);
         });
@@ -404,8 +438,7 @@ public class ManageChannelAccount extends JDialog {
                         dialog.addWindowListener(new WindowAdapter() {
                             @Override
                             public void windowClosed(WindowEvent e) {
-                                CommonService.updateOrder();
-                                CommonService.updateGameAccountRent();
+                                updateBasicPane();
                                 updateListPane();
                             }
                         });
@@ -421,7 +454,7 @@ public class ManageChannelAccount extends JDialog {
         puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user.i_caid));
         
         i_caid.setText(String.format("0x%08X", user.i_caid));
-        c_user.setText(user.c_user);
+        c_user.setText(user.getDisplayName());
         i_channel.setText(getChannel2String(user.i_channel));
         c_name.setText(0 == user.c_name.length() ? "(没有姓名)" : user.c_name);
         i_gender.setText(CommonService.GENDER_FEMALE == user.i_gender ? "女" : CommonService.GENDER_MALE == user.i_gender ? "男" : "人妖");
@@ -429,10 +462,10 @@ public class ManageChannelAccount extends JDialog {
         c_address.setText(0 == user.c_address.length() ? "(没有地址)" : user.c_address);
         c_zipcode.setText(0 == user.c_zipcode.length() ? "(没有邮编)" : user.c_zipcode);
         t_birth.setText(0 == user.t_birth.length() ? "(没有生日)" : user.t_birth);
-        i_balance.setText(puser.i_balance + "元");
+        i_cash.setText(puser.i_cash + "元");
         i_coupon.setText(puser.i_coupon + "元");
         float[] ps = CommonService.prestatement(user.i_caid);
-        ri_balance.setText(ps[0] + "元");
+        ri_cash.setText(ps[0] + "元");
         ri_coupon.setText(ps[1] + "元");
     }
     

@@ -17,7 +17,7 @@ create table tbl_platform_account (
     c_mobile    varchar(20),    -- 手机
     c_email     varchar(32),    -- 邮箱
     t_birth     date,           -- 出生日期
-    i_balance   decimal(9, 2),  -- 现金余额（可退的）
+    i_cash      decimal(9, 2),  -- 现金（可退的）
     i_coupon    decimal(9, 2),  -- 优惠券（不可退）
     t_create    datetime        -- 创建时间
 );
@@ -29,13 +29,13 @@ create table tbl_platform_account_map (
     i_caid      integer     -- 渠道账户ID
 );
 
--- 金额流水
+-- 金额操作
 drop table if exists tbl_platform_account_money;
 create table tbl_platform_account_money (
     i_paid      integer,        -- 平台账户ID
     c_remark    varchar(64),    -- 备注
     t_time      datetime,       -- 时间
-    i_type      tinyint,        -- 0-消费，1-充值，2-充券
+    i_type      tinyint,        -- 0-消费结算，1-现金操作，2-优惠券操作
     i_base      decimal(9, 2),  -- 基准值
     i_money     decimal(9, 2)   -- 变化值
 );

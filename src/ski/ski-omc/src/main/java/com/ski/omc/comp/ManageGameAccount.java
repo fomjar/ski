@@ -83,7 +83,7 @@ public class ManageGameAccount extends JDialog {
         getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(pane_games, BorderLayout.CENTER);
         
-        setTitle(String.format("管理账号“%s”", account.c_user));
+        setTitle(String.format("管理账号 - %s", account.c_user));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 320));
@@ -226,12 +226,12 @@ public class ManageGameAccount extends JDialog {
         BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(gaid, CommonService.RENT_TYPE_B));
         pane_users.getList().removeAllCell();
         if (null != user_a) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.c_user), "[A类]");
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.getDisplayName()), "[A类]");
             cell.addActionListener(e->new ManageChannelAccount(user_a.i_caid).setVisible(true));
             pane_users.getList().addCell(cell);
         }
         if (null != user_b) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_b.i_caid, user_b.c_user), "[B类]");
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_b.i_caid, user_b.getDisplayName()), "[B类]");
             cell.addActionListener(e->new ManageChannelAccount(user_b.i_caid).setVisible(true));
             pane_users.getList().addCell(cell);
         }

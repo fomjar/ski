@@ -147,7 +147,7 @@ public class MainFrame extends JFrame {
                             .stream()
                             .filter(user->{
                                 int count1 = 0;
-                                for (String word : words) if (user.c_user.contains(word)) count1++;
+                                for (String word : words) if (user.getDisplayName().contains(word)) count1++;
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -185,7 +185,7 @@ public class MainFrame extends JFrame {
                 int count = 0;
                 switch (type) {
                 case "按用户名":
-                    for (String word : words) if (celldata.c_user.contains(word)) count++;
+                    for (String word : words) if (celldata.getDisplayName().contains(word)) count++;
                     return count == words.length;
                 case "按手机号":
                     for (String word : words) if (celldata.c_phone.contains(word)) count++;
@@ -203,7 +203,7 @@ public class MainFrame extends JFrame {
                 
                 int count = 0;
                 for (String word : words) {
-                    if (CommonService.getChannelAccountByCaid(celldata.i_caid).c_user.contains(word))
+                    if (CommonService.getChannelAccountByCaid(celldata.i_caid).getDisplayName().contains(word))
                         count++;
                 }
                 return count == words.length;
@@ -278,7 +278,7 @@ public class MainFrame extends JFrame {
                 CommonService.updateChannelAccount();
                 CommonService.updatePlatformAccount();
                 CommonService.updatePlatformAccountMap();
-                CommonService.updatePlatformAccountRecharge();
+                CommonService.updatePlatformAccountMoney();
                 
                 CommonService.updateOrder();
                 

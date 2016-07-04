@@ -15,7 +15,7 @@ create procedure sp_apply_platform_account_money (
 begin
     declare di_count    integer         default -1;
     declare di_caid     integer         default -1;
-    declare di_balance  decimal(9, 2)   default 0.00;
+    declare di_cash     decimal(9, 2)   default 0.00;
     declare di_coupon   decimal(9, 2)   default 0.00;
 
     select count(1)
@@ -36,8 +36,8 @@ begin
         set i_code = 2;
         set c_desc = 'illegal arguments, money is null';
     else
-        select i_balance, i_coupon
-          into di_balance, di_coupon
+        select i_cash, i_coupon
+          into di_cash, di_coupon
           from tbl_platform_account
          where i_paid = paid;
 
@@ -54,22 +54,22 @@ begin
                 remark,
                 now(),
                 type,
-                di_balance + di_coupon,
+                di_cash + di_coupon,
                 money
             );
 
             if (di_coupon >= money) then
                 set di_coupon = di_coupon - money;
             else
-                set di_balance = di_balance - (money - di_coupon);
+                set di_cash = di_cash - (money - di_coupon);
                 set di_coupon = 0.00;
             end if;
 
             update tbl_platform_account
-               set i_balance = di_balance
+               set i_cash = di_cash
                  , i_coupon = di_coupon
              where i_paid = paid;
-        elseif type = 1 then -- balance
+        elseif type = 1 then -- cash
             insert into tbl_platform_account_money (
                 i_paid,
                 c_remark,
@@ -82,13 +82,13 @@ begin
                 remark,
                 now(),
                 type,
-                di_balance,
+                di_cash,
                 money
             );
 
-            set di_balance = di_balance + money;
+            set di_cash = di_cash + money;
             update tbl_platform_account
-               set i_balance = di_balance
+               set i_cash = di_cash
              where i_paid = paid;
         elseif type = 2 then -- coupon
             insert into tbl_platform_account_money (

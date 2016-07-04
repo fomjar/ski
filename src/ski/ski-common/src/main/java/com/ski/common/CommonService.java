@@ -20,7 +20,7 @@ import com.ski.common.bean.BeanGameRentPrice;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanPlatformAccountMap;
-import com.ski.common.bean.BeanPlatformAccountRecharge;
+import com.ski.common.bean.BeanPlatformAccountMoney;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
@@ -40,7 +40,7 @@ public class CommonService {
     private static final Map<Integer, BeanOrder>            cache_order                     = new LinkedHashMap<Integer, BeanOrder>();              // oid
     private static final Map<Integer, BeanPlatformAccount>  cache_platform_account          = new LinkedHashMap<Integer, BeanPlatformAccount>();    // paid
     private static final Set<BeanPlatformAccountMap>        cache_platform_account_map      = new LinkedHashSet<BeanPlatformAccountMap>();
-    private static final Set<BeanPlatformAccountRecharge>   cache_platform_account_recharge = new LinkedHashSet<BeanPlatformAccountRecharge>();
+    private static final Set<BeanPlatformAccountMoney>      cache_platform_account_money    = new LinkedHashSet<BeanPlatformAccountMoney>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -50,8 +50,8 @@ public class CommonService {
     public static final int GENDER_MALE    = 1;
     public static final int GENDER_UNKNOWN = 2;
     
-    public static final int MONEY_COST      = 0;
-    public static final int MONEY_BALANCE   = 1;
+    public static final int MONEY_CONSUME   = 0;
+    public static final int MONEY_CASH      = 1;
     public static final int MONEY_COUPON    = 2;
     
     public static final int RENT_TYPE_A = 0;
@@ -248,16 +248,16 @@ public class CommonService {
         }
     }
     
-    public static void updatePlatformAccountRecharge() {
+    public static void updatePlatformAccountMoney() {
         String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, null));
         
-        synchronized (cache_platform_account_recharge) {
-            cache_platform_account_recharge.clear();
+        synchronized (cache_platform_account_money) {
+            cache_platform_account_money.clear();
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {
-                    BeanPlatformAccountRecharge bean = new BeanPlatformAccountRecharge(line);
-                    cache_platform_account_recharge.add(bean);
+                    BeanPlatformAccountMoney bean = new BeanPlatformAccountMoney(line);
+                    cache_platform_account_money.add(bean);
                 }
             }
         }
@@ -412,11 +412,11 @@ public class CommonService {
         }
     }
     
-    public static List<BeanPlatformAccountRecharge> getPlatformAccountRechargeByPaid(int paid) {
-        synchronized (cache_platform_account_recharge) {
-            return cache_platform_account_recharge
+    public static List<BeanPlatformAccountMoney> getPlatformAccountMoneyByPaid(int paid) {
+        synchronized (cache_platform_account_money) {
+            return cache_platform_account_money
                     .stream()
-                    .filter(recharge->recharge.i_paid == paid)
+                    .filter(money->money.i_paid == paid)
                     .collect(Collectors.toList());
         }
     }
@@ -489,7 +489,7 @@ public class CommonService {
     
     public static float[] prestatement(int caid) {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
-        float balance   = puser.i_balance;
+        float cash      = puser.i_cash;
         float coupon    = puser.i_coupon;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         float cost = 0.00f;
@@ -526,10 +526,10 @@ public class CommonService {
         if (cost <= coupon) {
             coupon -= cost;
         } else {
-            balance -= (cost - coupon);
+            cash -= (cost - coupon);
             coupon = 0.00f;
         }
         
-        return new float[] {balance, coupon};
+        return new float[] {cash, coupon};
     }
 }
