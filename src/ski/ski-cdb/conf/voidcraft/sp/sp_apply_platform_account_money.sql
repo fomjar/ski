@@ -55,7 +55,7 @@ begin
                 now(),
                 type,
                 di_cash + di_coupon,
-                money
+                -money
             );
 
             if (di_coupon >= money) then

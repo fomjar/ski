@@ -302,7 +302,7 @@ public class UIToolkit {
         }
     }
     
-    public static boolean skip_wa = true;
+    public static boolean skip_wa = false;
     
     public static void openCommodity(int oid) {
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
