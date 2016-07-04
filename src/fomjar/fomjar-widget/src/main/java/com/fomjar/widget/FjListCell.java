@@ -23,7 +23,6 @@ public abstract class FjListCell<E> extends JComponent {
     private   static final Color color_default      = new Color(230, 230, 230);
     private   static final Color color_over         = new Color(240, 240, 255);
     private   static final Color color_press        = new Color(200, 200, 230);
-    private   static final Color color_actionmark   = new Color(255, 100, 100);
     private   static final Color color_bright   = Color.white;
     private   static final Color color_shadow   = Color.lightGray;
     protected static final Color color_major    = Color.darkGray;
@@ -31,7 +30,6 @@ public abstract class FjListCell<E> extends JComponent {
     
     private boolean is_over;
     private boolean is_press;
-    private boolean actionmark;
     private E       data;
     private List<ActionListener> listeners;
     
@@ -39,7 +37,6 @@ public abstract class FjListCell<E> extends JComponent {
         listeners   = new LinkedList<ActionListener>();
         is_over     = false;
         is_press    = false;
-        actionmark  = true;
         setData(data);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(4,12,4,12));
@@ -84,11 +81,6 @@ public abstract class FjListCell<E> extends JComponent {
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
         
         super.paintComponent(g);
-        
-        if (actionmark && !listeners.isEmpty()) {
-            g.setColor(color_actionmark);
-            g.fillRect(0, 1, 3, getHeight() - 2);
-        }
     }
     
     public void setData(E data) {this.data = data;}
@@ -97,8 +89,6 @@ public abstract class FjListCell<E> extends JComponent {
     
     public void addActionListener(ActionListener listener) {listeners.add(listener);}
     
-    public void setActionMark(boolean actionmark) {this.actionmark = actionmark;}
-
     public void passthroughMouseEvent(Component top) {
         top.addMouseListener(new MouseListener() {
             @Override

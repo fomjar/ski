@@ -9,7 +9,7 @@ public class CommonReport {
     public static String createReportHead(String title) {
         return String.format("<html><head><meta charset=\"utf-8\" />"
                 + "<style type=\"text/css\">"
-                + "body {width: 400px; text-align: center}"
+                + "body {width: 300px; text-align: center}"
                 + "table {width: 100%%; border-collapse: collapse; border-spacing: 0}"
                 + "td {vertical-align: middle; border: 1px solid black; text-align: center; background-color: #EEEEEE}"
                 + ".title {color: #884444}"

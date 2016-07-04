@@ -140,6 +140,7 @@ public class UIToolkit {
             if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
             if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
+            CommonService.updateGame();
             UIToolkit.showServerResponse(rsp);
             break;
         }
@@ -173,6 +174,7 @@ public class UIToolkit {
             if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+            CommonService.updateGameAccount();
             UIToolkit.showServerResponse(rsp);
             
             if (CommonService.isResponseSuccess(rsp)) {

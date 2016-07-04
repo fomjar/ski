@@ -10,8 +10,16 @@ import com.ski.omc.comp.MainFrame;
 public class Main {
     
     public static void main(String[] args) {
-        if (0 != args.length) CommonService.setWsiHost(args[0]);
-        else CommonService.setWsiHost("ski.craftvoid.com");
+        CommonService.setWsiHost("ski.craftvoid.com");
+        for (String arg : args) {
+            switch (arg) {
+            case "SKIP-WA":
+                UIToolkit.skip_wa = true;
+                break;
+            default:
+                CommonService.setWsiHost(arg);
+            }
+        }
         
         initLog();
         MainFrame.getInstance().setVisible(true);
