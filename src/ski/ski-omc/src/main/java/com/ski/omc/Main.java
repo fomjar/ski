@@ -11,13 +11,14 @@ public class Main {
     
     public static void main(String[] args) {
         CommonService.setWsiHost("ski.craftvoid.com");
-        for (String arg : args) {
-            switch (arg) {
-            case "SKIP-WA":
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+            case "skip-wa":
                 UIToolkit.skip_wa = true;
                 break;
-            default:
-                CommonService.setWsiHost(arg);
+            case "host":
+                CommonService.setWsiHost(args[++i]);
+                break;
             }
         }
         
