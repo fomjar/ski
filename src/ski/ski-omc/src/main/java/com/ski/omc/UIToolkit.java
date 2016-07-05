@@ -478,7 +478,7 @@ public class UIToolkit {
                 args.clear();
                 args.put("oid", oid);
                 if (0 < remark.length()) args.put("remark", remark);
-                args.put("price", recharge);
+                args.put("price", price);
                 args.put("count", 1);
                 args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
                 args.put("arg0", Integer.toHexString(account.i_gaid));

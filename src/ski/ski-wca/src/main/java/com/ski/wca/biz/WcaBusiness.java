@@ -1,5 +1,6 @@
 package com.ski.wca.biz;
 
+import java.nio.channels.SocketChannel;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -8,6 +9,7 @@ import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.wca.WechatInterface;
+import com.ski.wca.WechatInterface.WechatCustomServiceException;
 import com.ski.wca.WechatInterface.WechatInterfaceException;
 import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
@@ -23,7 +25,7 @@ public class WcaBusiness {
     
     private WcaBusiness() {}
     
-    public static void dispatch(String server, FjDscpMessage req) {
+    public static void dispatch(String server, FjDscpMessage req, SocketChannel conn) {
         if (!req.argsToJsonObject().has("user")) return;
         
         String user     = req.argsToJsonObject().getString("user");
@@ -38,11 +40,10 @@ public class WcaBusiness {
             break;
         }
         case CommonDefinition.ISIS.INST_USER_REQUEST:
-        case CommonDefinition.ISIS.INST_USER_COMMAND: {
-            if (WcMenu.isMenu(content)) WcMenu.dispatch(server, user, content);
-            else WcFlow.dispatch(server, user, content);
             break;
-        }
+        case CommonDefinition.ISIS.INST_USER_COMMAND:
+            dispatchMenu(server, user, content, conn);
+            break;
         case CommonDefinition.ISIS.INST_USER_SUBSCRIBE:
             break;
         case CommonDefinition.ISIS.INST_USER_UNSUBSCRIBE:
@@ -105,4 +106,30 @@ public class WcaBusiness {
         }
     }
     
+    private static void dispatchMenu(String server, String user, String content, SocketChannel conn) {
+        logger.debug(String.format("user: %s select menu: %s", user, content));
+        BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
+        switch (content) {
+        case "30":
+            try {
+                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                        new WechatInterface.Article("点此进行关联", "如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联", 
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP, user_wechat.i_caid),
+                                "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                });
+            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
+            break;
+        case "31":
+            try {
+                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                        new WechatInterface.Article("账户明细", "查看账户余额、优惠券等信息", 
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, user_wechat.i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                        new WechatInterface.Article("我要充值", "起租游戏之前需要先充值", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
+                        new WechatInterface.Article("我要退款", "申请将账户中的余额全额退款", "https://www.baidu.com/", "http://findicons.com/icon/download/28731/coins/128/png?id=271105"),
+                        new WechatInterface.Article("消费记录", "查看过去的消费记录", "https://www.baidu.com/", "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),
+                });
+            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
+            break;
+        }
+    }    
 }

@@ -1,6 +1,8 @@
 package com.ski.wca;
 
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
@@ -20,24 +22,31 @@ import fomjar.server.msg.FjHttpRequest;
 public class WcaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WcaTask.class);
+    private ExecutorService pool;
     
     public WcaTask() {
         DataMonitor.getInstance().start();
         TokenMonitor.getInstance().start();
         MenuMonitor.getInstance().start();
+        pool = Executors.newCachedThreadPool();
     }
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
         if (msg instanceof FjHttpRequest) {
-            FjHttpRequest hmsg = (FjHttpRequest) msg;
-            if (hmsg.url().startsWith(WcaBusiness.URL_KEY)) {
+            FjHttpRequest req = (FjHttpRequest) msg;
+            if (req.url().startsWith(WcaBusiness.URL_KEY)) {
                 logger.debug("dispatch wechat message: " + msg);
                 processWechat(server.name(), wrapper);
-            } else if (hmsg.url().startsWith(WcWeb.URL_KEY)) {
+            } else if (req.url().startsWith(WcWeb.URL_KEY)) {
                 logger.debug("dispatch wechat web message: " + msg);
-                WcWeb.dispatch(wrapper);
+                final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
+                wrapper.attach("conn", null); // give up connection
+                pool.submit(()->{
+                    try {WcWeb.dispatch(req, conn);}
+                    catch (Exception e) {logger.error("error occurs when dispatch web message: " + msg, e);}
+                });
             } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
         } else if (msg instanceof FjDscpMessage) {
             logger.debug("do nothing to ski message: " + msg);
@@ -56,7 +65,7 @@ public class WcaTask implements FjServerTask {
         WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
         
         FjDscpMessage req = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
-        WcaBusiness.dispatch(server, req);
+        WcaBusiness.dispatch(server, req, (SocketChannel) wrapper.attachment("conn"));
     }
 }
 
