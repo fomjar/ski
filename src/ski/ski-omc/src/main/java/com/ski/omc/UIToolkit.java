@@ -46,6 +46,7 @@ import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
+import com.ski.common.bean.BeanTag;
 import com.ski.omc.comp.ManageGameAccount;
 import com.ski.omc.comp.ManageOrder;
 import com.ski.omc.comp.StepStepDialog;
@@ -868,6 +869,18 @@ public class UIToolkit {
     
     private static class Wrapper<E> {
         public E obj;
+    }
+    
+    public static void deleteTag(BeanTag tag) {
+        if (JOptionPane.CANCEL_OPTION == JOptionPane.showConfirmDialog(null, "确定删除TAG：" + tag.c_tag + "？", "信息", JOptionPane.OK_CANCEL_OPTION))
+            return;
+
+        JSONObject args = new JSONObject();
+        args.put("type",        tag.i_type);
+        args.put("instance",    tag.i_instance);
+        args.put("tag",         tag.c_tag);
+        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TAG_DEL, args);
+        showServerResponse(rsp);
     }
     
     public static void showServerResponse(FjDscpMessage rsp) {

@@ -271,6 +271,8 @@ public class MainFrame extends JFrame {
                 
                 CommonService.updateOrder();
                 
+                CommonService.updateTag();
+                
                 @SuppressWarnings("unchecked")
                 FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                 list_game.removeAllCell();

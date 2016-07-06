@@ -15,10 +15,10 @@ public class FjHttpRequest extends FjHttpMessage {
     private String method;
     private String url;
     
-    public FjHttpRequest(String method, String url) {this(method, url, null);}
+    public FjHttpRequest(String method, String url) {this(method, url, null, null);}
     
-    public FjHttpRequest(String method, String url, String content) {
-        super(content);
+    public FjHttpRequest(String method, String url, String contentType, String content) {
+        super(contentType, content);
         this.method = method;
         this.url    = url;
     }

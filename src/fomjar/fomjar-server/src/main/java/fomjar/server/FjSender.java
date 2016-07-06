@@ -125,7 +125,7 @@ public class FjSender extends FjLoopTask {
         ByteBuffer buf = ByteBuffer.wrap(rsp.toString().getBytes(Charset.forName("utf-8")));
         try {while(buf.hasRemaining()) conn.write(buf);}
         catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
-        finally {if (null != conn) try {conn.close();} catch (IOException e) {}}
+        finally {if (null != conn) try {conn.close();} catch (IOException e) {e.printStackTrace();}}
     }
     
     private static SSLContext sslcontext = null;

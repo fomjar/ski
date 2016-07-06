@@ -209,12 +209,12 @@ public class FjServerToolkit {
             String[] title = data.split("\r\n")[0].split(" ");
             String content = null;
             if (data.contains("\r\n\r\n") && 1 < data.split("\r\n\r\n").length) content = data.split("\r\n\r\n")[1];
-            return new FjHttpRequest(title[0], title[1], content);
+            return new FjHttpRequest(title[0], title[1], null, content);
         }
         if (data.startsWith("HTTP/")) {
             int code = Integer.parseInt(data.split("\r\n")[0].split(" ")[1]);
             String content = data.contains("\r\n\r\n") ? data.split("\r\n\r\n")[1] : null;
-            return new FjHttpResponse(code, content);
+            return new FjHttpResponse(code, null, content);
         }
         if (data.startsWith("{")) {
             FjJsonMessage jmsg = new FjJsonMessage(data);

@@ -21,8 +21,10 @@ import com.ski.wca.WechatInterface;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
+import net.sf.json.JSONObject;
 
 public class WcWeb {
     
@@ -45,49 +47,86 @@ public class WcWeb {
     public static void dispatch(FjHttpRequest req, SocketChannel conn) {
         FjJsonMessage jreq = req.toJsonMessage(conn);
         
-        String  form = null;
+        String[]  form = null;
         if (jreq.json().has("inst") && jreq.json().has("user")) {
             int inst = Integer.parseInt(jreq.json().getString("inst"), 16);
             int user = Integer.parseInt(jreq.json().getString("user"), 16);
             logger.info(String.format("web user request: 0x%08X:0x%08X", user, inst));
             switch(inst) {
-            case CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP:
-                form = processUpdatePlatformAccountMap(user);
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE:
+                form = processApplyPlatformAccountMerge(user, jreq.json());
                 break;
-            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE: {
-                String to_user  = jreq.json().getString("to_user");
-                String to_phone = jreq.json().getString("to_phone");
-                form = processUpdatePlatformAccountMerge(user, to_user, to_phone);
-                break;
-            }
             case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT:
                 form = processQueryPlatformAccount(user);
                 break;
-            case CommonDefinition.CODE.CODE_SYS_SUCCESS: {
-                form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "操作成功", null, null, null);
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
+                form = processApplyPlatformAccountMoney(user, jreq.json());
                 break;
-            }
             }
         } else {
             form = fetchFile(req.url());
         }
-        WechatInterface.sendResponse(form, conn);
+        WechatInterface.sendResponse(form[0], form[1], conn);
     }
     
-    private static String processUpdatePlatformAccountMap(int user) {
-        if (1 < CommonService.getChannelAccountRelated(user).size())    // 用户已经绑定过了，不能再绑定
-            return WechatForm.createFormMessage(WechatForm.MESSAGE_WARN, "错误", "您已经关联过其他账号，请不要重复关联", null, null);
-        
-        return String.format(fetchFile("/update_platform_account_map.html"), user);
+    private static String[] processApplyPlatformAccountMerge(int user, JSONObject args) {
+        String step = args.has("step") ? args.getString("step") : "setup";
+        String ct   = null;
+        String form = null;
+        if (1 < CommonService.getChannelAccountRelated(user).size()) {  // 用户已经绑定过了
+            ct = FjHttpRequest.CT_HTML;
+            form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
+        } else {
+            switch (step) {
+            case "setup":
+                ct = FjHttpRequest.CT_HTML;
+                String[] file = fetchFile("/apply_platform_account_merge.html");
+                ct      = file[0];
+                form    = String.format(file[1], CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user);
+                break;
+            case "verify":
+                ct = FjHttpRequest.CT_TEXT;
+                String to_user  = args.getString("to_user");
+                String to_phone = args.getString("to_phone");
+                List<BeanChannelAccount> user_taobaos = CommonService.getChannelAccountByUser(to_user);
+                if (user_taobaos.isEmpty()) {
+                    form = "我们没有招待过此淘宝用户，请重新输入";
+                    break;
+                }
+                
+                BeanChannelAccount user_taobao = user_taobaos.get(0);
+                if (CommonService.CHANNEL_TAOBAO != user_taobao.i_channel) {
+                    form = "我们没有招待过此淘宝用户，请重新输入";
+                    break;
+                }
+                if (!user_taobao.c_phone.equals(to_phone)) {
+                    form = "填写的手机号跟淘宝上使用的手机不匹配，请重新输入";
+                    break;
+                }
+                
+                {
+                    JSONObject args_cdb = new JSONObject();
+                    args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
+                    args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(user));
+                    FjDscpMessage req_cdb = new FjDscpMessage();
+                    req_cdb.json().put("fs", "wcweb");
+                    req_cdb.json().put("ts", "cdb");
+                    req_cdb.json().put("inst", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE);
+                    req_cdb.json().put("args", args_cdb);
+                    FjServerToolkit.getAnySender().send(req_cdb);
+                    form = "success";
+                }
+                break;
+            case "success":
+                ct = FjHttpRequest.CT_HTML;
+                form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
+                break;
+            }
+        }
+        return new String[] {ct, form};
     }
     
-    private static String processUpdatePlatformAccountMerge(int user, String to_user, String to_phone) {
-        List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(to_user);
-        if (users.isEmpty()) return "我们没有见过这个淘宝用户";
-        return null;
-    }
-    
-    private static String processQueryPlatformAccount(int user) {
+    private static String[] processQueryPlatformAccount(int user) {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
         StringBuilder sb = new StringBuilder();
         sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "账户明细"));
@@ -128,14 +167,30 @@ public class WcWeb {
                     });
         }
         sb.append(WechatForm.createFormFoot());
-        return sb.toString();
+        return new String[] {FjHttpRequest.CT_HTML, sb.toString()};
     }
     
-    private static String fetchFile(String url) {
+    private static String[] processApplyPlatformAccountMoney(int user, JSONObject args) {
+//        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
+        String step = args.has("step") ? args.getString("step") : "setup";
+        String ct   = null;
+        String form = null;
+        switch (step) {
+        case "setup":
+            ct = FjHttpRequest.CT_HTML;
+            String[] file = fetchFile("/apply_platform_account_money.html");
+            ct      = file[0];
+            form    = String.format(file[1], CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user);
+            break;
+        }
+        return new String[] {ct, form};
+    }
+    
+    private static String[] fetchFile(String url) {
         File file = new File(ROOT + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
         if (!file.isFile()) {
             logger.warn("not such file to fetch: " + file.getPath());
-            return "";
+            return new String[] {FjHttpRequest.CT_TEXT, ""};
         }
         
         FileInputStream         fis = null;
@@ -146,7 +201,7 @@ public class WcWeb {
             fis     = new FileInputStream(file);
             baos    = new ByteArrayOutputStream();
             while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
-            return baos.toString("utf-8");
+            return new String[] {getFileMime(file.getName()), baos.toString("utf-8")};
         } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
         finally {
             try {
@@ -154,7 +209,23 @@ public class WcWeb {
                 baos.close();
             } catch (IOException e) {e.printStackTrace();}
         }
-        return "";
+        return new String[] {FjHttpRequest.CT_TEXT, ""};
+    }
+    
+    private static String getFileMime (String name) {
+        if (!name.contains(".")) return FjHttpRequest.CT_TEXT;
+        
+        String ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
+        switch (ext) {
+        case "html":
+        case "htm":     return FjHttpRequest.CT_HTML;
+        case "js":      return FjHttpRequest.CT_JS;
+        case "css":
+        case "less":    return FjHttpRequest.CT_CSS;
+        case "xml":     return FjHttpRequest.CT_XML;
+        case "json":    return FjHttpRequest.CT_JSON;
+        default:    return FjHttpRequest.CT_TEXT;
+        }
     }
 
 }

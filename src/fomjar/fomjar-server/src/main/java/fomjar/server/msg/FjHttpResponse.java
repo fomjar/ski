@@ -4,12 +4,12 @@ public class FjHttpResponse extends FjHttpMessage {
     
     private int code;
     
-    public FjHttpResponse() {this(200, null);}
+    public FjHttpResponse() {this(200, null, null);}
     
-    public FjHttpResponse(String content) {this(200, content);}
+    public FjHttpResponse(String contentType, String content) {this(200, contentType, content);}
 
-    public FjHttpResponse(int code, String content) {
-        super(content);
+    public FjHttpResponse(int code, String contentType, String content) {
+        super(contentType, content);
         this.code = code;
     }
     

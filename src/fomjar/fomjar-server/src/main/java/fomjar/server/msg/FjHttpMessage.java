@@ -9,11 +9,20 @@ import net.sf.json.JSONObject;
 
 public class FjHttpMessage implements FjMessage {
     
+    public static final String CT_TEXT  = "text/plain";
+    public static final String CT_JSON  = "application/json";
+    public static final String CT_HTML  = "text/html";
+    public static final String CT_XML   = "text/xml";
+    public static final String CT_CSS   = "text/css";
+    public static final String CT_JS    = "application/x-javascript";
+    
+    private String contentType;
     private String content;
     
-    public FjHttpMessage() {this(null);}
+    public FjHttpMessage() {this(null, null);}
     
-    public FjHttpMessage(String content) {
+    public FjHttpMessage(String contentType, String content) {
+        this.contentType = contentType;
         this.content = content;
     }
     
@@ -24,11 +33,8 @@ public class FjHttpMessage implements FjMessage {
     }
     
     public String contentType() {
-        if (null == content) return "text/plain";
-        if (content.startsWith("<html>") || content.startsWith("<HTML>")) return "text/html";
-        if (content.startsWith("<")) return "text/xml";
-        if (content.startsWith("{")) return "application/json";
-        return "text/plain";
+        if (null == contentType) return "text/plain";
+        return contentType;
     }
     
     public String       content()       {return content;}

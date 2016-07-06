@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -20,8 +18,8 @@ import com.fomjar.widget.FjEditLabel;
 import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
-import com.ski.common.CommonService;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
@@ -137,85 +135,73 @@ public class ManageGameAccount extends JDialog {
             @Override
             public void cancelEdit(String value) {}
         });
-        ((JButton) toolbar.getComponent(0)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        ((JButton) toolbar.getComponent(0)).addActionListener(e->{
+            if (args.isEmpty()) {
+                JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
+                return;
+            }
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+            UIToolkit.showServerResponse(rsp);
+            if (CommonService.isResponseSuccess(rsp)) {
+                if (args.has("user"))       c_user.setForeground(Color.darkGray);
+                if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
+                if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
+                args.clear();
+            }
+        });
+        ((JButton) toolbar.getComponent(1)).addActionListener(e->{
+            UIToolkit.doLater(()->{
                 if (args.isEmpty()) {
-                    JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
+                    JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                UIToolkit.showServerResponse(rsp);
-                if (CommonService.isResponseSuccess(rsp)) {
-                    if (args.has("user"))       c_user.setForeground(Color.darkGray);
-                    if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
-                    if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
+                if (!args.has("pass")) {
+                    JOptionPane.showMessageDialog(ManageGameAccount.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                ((JButton) toolbar.getComponent(1)).setEnabled(false);
+                FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                UIToolkit.showServerResponse(rsp_wa);
+                if (CommonService.isResponseSuccess(rsp_wa)) {
+                    FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                    UIToolkit.showServerResponse(rsp_cdb);
+                    
+                    if (args.has("user"))   c_user.setForeground(Color.darkGray);
+                    if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+                    if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
                     args.clear();
                 }
-            }
+                ((JButton) toolbar.getComponent(1)).setEnabled(true);
+            });
         });
-        ((JButton) toolbar.getComponent(1)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.doLater(()->{
-                    if (args.isEmpty()) {
-                        JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    if (!args.has("pass")) {
-                        JOptionPane.showMessageDialog(ManageGameAccount.this, "PlayStation网站上只可以更新密码", "错误", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                    ((JButton) toolbar.getComponent(1)).setEnabled(false);
-                    FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                    UIToolkit.showServerResponse(rsp_wa);
-                    if (CommonService.isResponseSuccess(rsp_wa)) {
-                        FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                        UIToolkit.showServerResponse(rsp_cdb);
-                        
-                        if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                        if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
-                        if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
-                        args.clear();
-                    }
-                    ((JButton) toolbar.getComponent(1)).setEnabled(true);
-                });
-            }
-        });
-        ((JButton) toolbar.getComponent(2)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                UIToolkit.doLater(()->{
-                    ((JButton) toolbar.getComponent(2)).setEnabled(false);
-                    args.put("user", c_user.getText());
-                    args.put("pass", c_pass.getText());
-                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                    UIToolkit.showServerResponse(rsp);
-                    if (null != rsp && CommonService.isResponseSuccess(rsp)) args.clear();
-                    ((JButton) toolbar.getComponent(2)).setEnabled(true);
-                });
-            }
-        });
-        ((JButton) toolbar.getComponent(4)).addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                BeanGame game = UIToolkit.chooseGame();
-                if (null == game) return;
-                
-                if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
-                    return;
-                
-                int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
-                int gid  = game.i_gid;
-                JSONObject args = new JSONObject();
-                args.put("gaid", gaid);
-                args.put("gid", gid);
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
+        ((JButton) toolbar.getComponent(2)).addActionListener(e->{
+            UIToolkit.doLater(()->{
+                ((JButton) toolbar.getComponent(2)).setEnabled(false);
+                args.put("user", c_user.getText());
+                args.put("pass", c_pass.getText());
+                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                 UIToolkit.showServerResponse(rsp);
-                
-                CommonService.updateGameAccountGame();
-                updateGameAccountGame();
-            }
+                if (null != rsp && CommonService.isResponseSuccess(rsp)) args.clear();
+                ((JButton) toolbar.getComponent(2)).setEnabled(true);
+            });
+        });
+        ((JButton) toolbar.getComponent(4)).addActionListener(e->{
+            BeanGame game = UIToolkit.chooseGame();
+            if (null == game) return;
+            
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
+                return;
+            
+            int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
+            int gid  = game.i_gid;
+            JSONObject args = new JSONObject();
+            args.put("gaid", gaid);
+            args.put("gid", gid);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
+            UIToolkit.showServerResponse(rsp);
+            
+            CommonService.updateGameAccountGame();
+            updateGameAccountGame();
         });
     }
     

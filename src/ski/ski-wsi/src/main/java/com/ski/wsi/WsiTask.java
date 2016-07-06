@@ -99,7 +99,7 @@ public class WsiTask implements FjServerTask {
         logger.info(String.format("[RESPONSE] %s:0x%08X", rsp.fs(), rsp.inst()));
         synchronized (cache) {
             SocketChannel conn = (SocketChannel) cache.remove(rsp.sid()).conn;
-            FjSender.sendHttpResponse(new FjHttpResponse(rsp.toString()), conn);
+            FjSender.sendHttpResponse(new FjHttpResponse(FjHttpResponse.CT_JSON, rsp.toString()), conn);
         }
     }
     

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>充值</title>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/ski-wcweb/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript'>
+            var inst = %x;
+            var user = %x;
+            function submit() {
+                var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
+                $.get(base+'&to_user='+to_user+'&to_phone='+to_phone+'&step=verify', function(result) {
+                            if ('success' == result) {
+                                window.location = base + '&step=success';
+                            } else {
+                                $('#result_head').text("关联失败")
+                                $('#result_desc').text(result);
+                                $('#dialog').show();
+                            }
+                        });
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='hd'>
+                <h1 class='page_title'>充值</h1>
+            </div>
+            <div class='bd'>
+                <div class='weui_cells_title'>选择金额</div>
+                <div class='weui_cells'>
+                    <div class="weui_cell weui_cell_select weui_select_after">
+                        <div class="weui_cell_hd">
+                            <label class="weui_label" for="">充值金额</label>
+                        </div>
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <select name="select" class="weui_select">
+                                <option value="50">50元</option>
+                                <option value="100">100元</option>
+                                <option value="150">150元</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class='weui_cells_tips'>账户余额可以全额退款，请放心充值</div>
+                <div class='weui_btn_area'>
+                    <a class='weui_btn weui_btn_primary' href="javascript:submit()">充值</a>
+                </div>
+            </div>
+        </div>
+        <div class="weui_dialog_alert" id="dialog" style='display:none'>
+            <div class="weui_mask"></div>
+            <div class="weui_dialog">
+                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
+                <div class="weui_dialog_bd" id='result_desc'></div>
+                <div class="weui_dialog_ft">
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide()">确定</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

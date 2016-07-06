@@ -20,7 +20,7 @@ public class WechatForm {
     
     public static String createFormHead(String type, String title) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("<html>"
+        sb.append(String.format("<!DOCTYPE html><html>"
                 + "<head>"
                 + "<meta charset='utf-8'/>"
                 + "<meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>"

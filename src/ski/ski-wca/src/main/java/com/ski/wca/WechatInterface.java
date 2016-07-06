@@ -140,7 +140,7 @@ public class WechatInterface {
      * @param wrapper
      */
     public static void access(FjMessageWrapper wrapper) {
-        sendResponse(((FjHttpRequest) wrapper.message()).urlArgs().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
+        sendResponse(FjHttpRequest.CT_TEXT, ((FjHttpRequest) wrapper.message()).urlArgs().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
     }
     
     public static FjJsonMessage token(String appid, String secret) {
@@ -347,13 +347,13 @@ public class WechatInterface {
     
     public static FjJsonMessage sendRequest(String method, String url, String content) {
         logger.debug(">> " + (null != content ? content.replace("\r\n", "") : null));
-        FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, content));
+        FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, FjHttpRequest.CT_JSON, content));
         logger.debug("<< " + rsp);
         return rsp;
     }
     
-    public static void sendResponse(String content, SocketChannel conn) {
-        FjSender.sendHttpResponse(new FjHttpResponse(content), conn);
+    public static void sendResponse(String contentType, String content, SocketChannel conn) {
+        FjSender.sendHttpResponse(new FjHttpResponse(contentType, content), conn);
     }
     
     public static class Article {

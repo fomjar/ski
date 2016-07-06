@@ -1,5 +1,6 @@
 package com.ski.wca;
 
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +47,7 @@ public class WcaTask implements FjServerTask {
                 pool.submit(()->{
                     try {WcWeb.dispatch(req, conn);}
                     catch (Exception e) {logger.error("error occurs when dispatch web message: " + msg, e);}
+                    finally {try {conn.close();} catch (IOException e) {e.printStackTrace();}}
                 });
             } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
         } else if (msg instanceof FjDscpMessage) {
@@ -62,7 +64,7 @@ public class WcaTask implements FjServerTask {
             return;
         }
         // 第一时间给微信响应
-        WechatInterface.sendResponse("success", (SocketChannel) wrapper.attachment("conn"));
+        WechatInterface.sendResponse(FjHttpRequest.CT_TEXT, "success", (SocketChannel) wrapper.attachment("conn"));
         
         FjDscpMessage req = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
         WcaBusiness.dispatch(server, req, (SocketChannel) wrapper.attachment("conn"));

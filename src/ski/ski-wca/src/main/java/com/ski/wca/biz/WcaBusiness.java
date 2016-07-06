@@ -113,8 +113,8 @@ public class WcaBusiness {
         case "30":
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("点此进行关联", "如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联", 
-                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP, user_wechat.i_caid),
+                        new WechatInterface.Article("关联淘宝账号", "为了能够更便捷地为您提供服务，如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联",
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user_wechat.i_caid),
                                 "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
                 });
             } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
@@ -122,9 +122,10 @@ public class WcaBusiness {
         case "31":
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("账户明细", "查看账户余额、优惠券等信息", 
+                        new WechatInterface.Article("账户信息", "查看账户余额、优惠券、在租账号等信息", 
                                 WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, user_wechat.i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
-                        new WechatInterface.Article("我要充值", "起租游戏之前需要先充值", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
+                        new WechatInterface.Article("我要充值", "起租游戏之前需要先充值",
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user_wechat.i_caid), "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
                         new WechatInterface.Article("我要退款", "申请将账户中的余额全额退款", "https://www.baidu.com/", "http://findicons.com/icon/download/28731/coins/128/png?id=271105"),
                         new WechatInterface.Article("消费记录", "查看过去的消费记录", "https://www.baidu.com/", "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),
                 });

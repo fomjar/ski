@@ -21,6 +21,7 @@ import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanPlatformAccountMap;
 import com.ski.common.bean.BeanPlatformAccountMoney;
+import com.ski.common.bean.BeanTag;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
@@ -41,6 +42,7 @@ public class CommonService {
     private static final Map<Integer, BeanPlatformAccount>  cache_platform_account          = new LinkedHashMap<Integer, BeanPlatformAccount>();    // paid
     private static final Set<BeanPlatformAccountMap>        cache_platform_account_map      = new LinkedHashSet<BeanPlatformAccountMap>();
     private static final Set<BeanPlatformAccountMoney>      cache_platform_account_money    = new LinkedHashSet<BeanPlatformAccountMoney>();
+    private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -59,7 +61,9 @@ public class CommonService {
     
     public static final int RENT_STATE_IDLE = 0;
     public static final int RENT_STATE_RENT = 1;
-    public static final int RENT_STATE_LOCK         = 2;
+    public static final int RENT_STATE_LOCK = 2;
+    
+    public static final int TAG_GAME    = 0;
     
     private static String wsi_host = null;
     public static void setWsiHost(String host) {wsi_host = host;}
@@ -76,7 +80,7 @@ public class CommonService {
         args.put("report", report);
         args.put("inst", inst);
         System.out.println(">> " + args);
-        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), args.toString());
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_JSON, args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
         System.out.println("<< " + rsp);
         return rsp;
@@ -258,6 +262,21 @@ public class CommonService {
                 for (String line : lines) {
                     BeanPlatformAccountMoney bean = new BeanPlatformAccountMoney(line);
                     cache_platform_account_money.add(bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateTag() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_TAG, null));
+        
+        synchronized (cache_tag) {
+            cache_tag.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanTag bean = new BeanTag(line);
+                    cache_tag.add(bean);
                 }
             }
         }
@@ -484,6 +503,30 @@ public class CommonService {
             }
             
             return RENT_STATE_IDLE; // 没有非空闲，则空闲
+        }
+    }
+    
+    public static Set<BeanTag> getTagAll() {
+        synchronized (cache_tag) {
+            return cache_tag;
+        }
+    }
+    
+    public static List<BeanTag> getTagByType(int type) {
+        synchronized (cache_tag) {
+            return cache_tag
+                    .stream()
+                    .filter(tag->tag.i_type == type)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static List<BeanTag> getTagByInstance(int type, int instance) {
+        synchronized (cache_tag) {
+            return cache_tag
+                    .stream()
+                    .filter(tag->tag.i_type == type && tag.i_instance == instance)
+                    .collect(Collectors.toList());
         }
     }
     
