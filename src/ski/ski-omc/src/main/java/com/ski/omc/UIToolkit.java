@@ -30,6 +30,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
@@ -37,9 +38,10 @@ import javax.swing.event.AncestorListener;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
+import com.fomjar.widget.FjTextArea;
 import com.fomjar.widget.FjTextField;
-import com.ski.common.CommonService;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
@@ -285,7 +287,7 @@ public class UIToolkit {
             JSONObject args = new JSONObject();
             args.put("platform", Integer.parseInt(i_platform.getSelectedItem().toString().split(" ")[0]));
             args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
-            args.put("open", sdf.format(new Date(System.currentTimeMillis())));
+            args.put("open", sdf.format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
             CommonService.updateOrder();
             UIToolkit.showServerResponse(rsp);
@@ -433,7 +435,6 @@ public class UIToolkit {
         Wrapper<Boolean> isSuccess = new Wrapper<Boolean>();
         isSuccess.obj = false;
         doLater(()->{
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             // 1
             {
@@ -481,7 +482,6 @@ public class UIToolkit {
                 if (0 < remark.length()) args.put("remark", remark);
                 args.put("price", price);
                 args.put("count", 1);
-                args.put("begin", sdf.format(new Date(System.currentTimeMillis())));
                 args.put("arg0", Integer.toHexString(account.i_gaid));
                 args.put("arg1", type);
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
@@ -621,12 +621,72 @@ public class UIToolkit {
                 ssd.appendText("提交完成");
             }
             CommonService.updateOrder();
+            CommonService.updateGameAccount();
             CommonService.updateGameAccountRent();
             CommonService.updatePlatformAccount();
             JOptionPane.showMessageDialog(null, "退租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
         });
         ssd.setVisible(true);
+    }
+    
+    public static void createTicket() {
+        createTicket(null);
+    }
+    
+    public static void createTicket(BeanChannelAccount account) {
+        JLabel  i_caid  = new JLabel(null != account ? String.format("0x%08X - %s", account.i_caid, account.getDisplayName()) : "");
+        i_caid.setPreferredSize(new Dimension(200, i_caid.getPreferredSize().height));
+        JButton choose  = new JButton("选择发起用户");
+        choose.setMargin(new Insets(0, 0, 0, 0));
+        JPanel  caid    = new JPanel();
+        caid.setLayout(new BorderLayout());
+        caid.add(i_caid, BorderLayout.CENTER);
+        caid.add(choose, BorderLayout.EAST);
+        choose.addActionListener(e->{
+            BeanChannelAccount account1 = chooseChannelAccount();
+            if (null == account1) i_caid.setText("");
+            else i_caid.setText(String.format("0x%08X - %s", account1.i_caid, account1.getDisplayName()));
+        });
+        
+        JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议"}); // ordered
+        FjTextField         c_title     = new FjTextField();
+        c_title.setDefaultTips("工单标题");
+        FjTextArea          c_content   = new FjTextArea();
+        c_content.setDefaultTips("工单内容");
+        c_content.setColumns(40);
+        c_content.setRows(12);
+        
+        JPanel panel0 = new JPanel();
+        panel0.setLayout(new GridLayout(3, 1));
+        panel0.add(caid);
+        panel0.add(i_type);
+        panel0.add(c_title);
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(panel0, BorderLayout.NORTH);
+        panel.add(new JScrollPane(c_content), BorderLayout.CENTER);
+        
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建工单", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == i_caid.getText().length()) {
+                JOptionPane.showMessageDialog(null, "用户一定要选择", "错误", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            if (0 == c_title.getText().length()) {
+                JOptionPane.showMessageDialog(null, "标题一定要填", "错误", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            JSONObject args = new JSONObject();
+            args.put("caid", Integer.parseInt(i_caid.getText().split(" ")[0].split("x")[1], 16));
+            args.put("type", i_type.getSelectedIndex());
+            args.put("title", c_title.getText().replace("'", "^").replace("\"", "^").replace("\n", ""));
+            args.put("content", c_content.getText().replace("'", "^").replace("\"", "^").replace("\n", ""));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
+            CommonService.updateTicket();
+            UIToolkit.showServerResponse(rsp);
+            break;
+        }
     }
     
     public static BeanGame chooseGame() {
@@ -850,7 +910,7 @@ public class UIToolkit {
         CommonService.getChannelAccountAll().values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
-                    CommonService.CHANNEL_TAOBAO == account.i_channel ? "淘宝" : CommonService.CHANNEL_WECHAT == account.i_channel ? "微信" : CommonService.CHANNEL_ALIPAY == account.i_channel ? "支付宝" : "未知",
+                    CommonService.CHANNEL_TAOBAO == account.i_channel ? "淘  宝" : CommonService.CHANNEL_WECHAT == account.i_channel ? "微  信" : CommonService.CHANNEL_ALIPAY == account.i_channel ? "支付宝" : "未  知",
                     account.getDisplayName()));
             cell.addActionListener(new ActionListener() {
                 @Override

@@ -15,7 +15,5 @@ begin
     else
         call sp_query_tag_by_type(i_code, c_desc, type);
     end if;
-
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

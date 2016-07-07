@@ -10,7 +10,5 @@ create procedure sp_query_game_rent_price (
 )
 begin
     call sp_query_game_rent_price_all(i_code, c_desc);
-
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

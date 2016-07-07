@@ -65,7 +65,6 @@ public class ManageChannelAccount extends JDialog {
     private FjEditLabel         ri_cash;
     private FjEditLabel         ri_coupon;
     private FjListPane<String>  pane_user;
-    private FjListPane<String>  pane_account;
     private FjListPane<String>  pane_order;
     private JButton             order_switch;
     
@@ -125,8 +124,6 @@ public class ManageChannelAccount extends JDialog {
         
         pane_user = new FjListPane<String>();
         pane_user.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "关联用户"));
-        pane_account = new FjListPane<String>();
-        pane_account.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "在租账号"));
         pane_order = new FjListPane<String>();
         pane_order.setBorder(null);
         order_switch = new JButton(SWITCH_TITLE_OPEN);
@@ -137,7 +134,6 @@ public class ManageChannelAccount extends JDialog {
         panel_north.add(toolbar);
         panel_north.add(panel_basic);
         panel_north.add(pane_user);
-        panel_north.add(pane_account);
         
         JPanel panel_center = new JPanel();
         panel_center.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "订单列表"));
@@ -403,18 +399,6 @@ public class ManageChannelAccount extends JDialog {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user.i_caid, user.getDisplayName()), "[" + getChannel2String(user.i_channel) + "]");
             cell.addActionListener(e->new ManageChannelAccount(user.i_caid).setVisible(true));
             pane_user.getList().addCell(cell);
-        });
-        
-        pane_account.getList().removeAllCell();
-        CommonService.getRentGameAccountByCaid(user.i_caid, CommonService.RENT_TYPE_A).forEach(account->{
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[A类]");
-            cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
-            pane_account.getList().addCell(cell);
-        });
-        CommonService.getRentGameAccountByCaid(user.i_caid, CommonService.RENT_TYPE_B).forEach(account->{
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user), "[B类]");
-            cell.addActionListener(e->new ManageGameAccount(account.i_gaid).setVisible(true));
-            pane_account.getList().addCell(cell);
         });
         
         updatePaneOrder();

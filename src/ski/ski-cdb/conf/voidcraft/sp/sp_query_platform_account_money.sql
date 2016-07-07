@@ -15,6 +15,5 @@ begin
     else
         call sp_query_platform_account_money_by_paid(i_code, c_desc, paid);
     end if;
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

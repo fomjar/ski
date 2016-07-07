@@ -15,6 +15,5 @@ begin
     else
         call sp_query_game_account_by_gaid(i_code, c_desc, gaid);
     end if;
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

@@ -46,7 +46,7 @@ public class ReportDialog extends JDialog {
             BufferedImage buffer = new BufferedImage(jep.getWidth(), jep.getHeight(), BufferedImage.TYPE_INT_RGB);
             jep.paint(buffer.getGraphics());
             JFileChooser chooser = new JFileChooser();
-            chooser.setSelectedFile(new File(String.format("%s%s.png", getTitle(), new SimpleDateFormat("-yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())))));
+            chooser.setSelectedFile(new File(String.format("%s%s.png", getTitle(), new SimpleDateFormat("-yyyyMMddHHmmss").format(new Date()))));
             if (JFileChooser.APPROVE_OPTION == chooser.showSaveDialog(ReportDialog.this)) {
                 File file = chooser.getSelectedFile();
                 if (!file.getName().toLowerCase().endsWith(".png")) file = new File(file.getAbsolutePath() + ".png");

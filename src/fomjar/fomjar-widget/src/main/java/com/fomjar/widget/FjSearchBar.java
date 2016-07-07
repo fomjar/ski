@@ -111,6 +111,7 @@ public class FjSearchBar extends JComponent {
                 if (isMatch(type, words, cell.getData())) cell.setVisible(true);
                 else cell.setVisible(false);
             });
+            list.repaint();
         }
         
         public abstract boolean isMatch(String type, String[] words, E celldata);

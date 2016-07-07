@@ -22,6 +22,7 @@ import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanPlatformAccountMap;
 import com.ski.common.bean.BeanPlatformAccountMoney;
 import com.ski.common.bean.BeanTag;
+import com.ski.common.bean.BeanTicket;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
@@ -43,6 +44,7 @@ public class CommonService {
     private static final Set<BeanPlatformAccountMap>        cache_platform_account_map      = new LinkedHashSet<BeanPlatformAccountMap>();
     private static final Set<BeanPlatformAccountMoney>      cache_platform_account_money    = new LinkedHashSet<BeanPlatformAccountMoney>();
     private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
+    private static final Map<Integer, BeanTicket>           cache_ticket                    = new LinkedHashMap<Integer, BeanTicket>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -64,6 +66,13 @@ public class CommonService {
     public static final int RENT_STATE_LOCK = 2;
     
     public static final int TAG_GAME    = 0;
+    
+    public static final int TICKET_TYPE_REFUND  = 0;
+    public static final int TICKET_TYPE_ADVICE  = 1;
+    
+    public static final int TICKET_STATE_OPEN   = 0;
+    public static final int TICKET_STATE_CLOSE  = 1;
+    public static final int TICKET_STATE_CANCEL = 2;
     
     private static String wsi_host = null;
     public static void setWsiHost(String host) {wsi_host = host;}
@@ -277,6 +286,21 @@ public class CommonService {
                 for (String line : lines) {
                     BeanTag bean = new BeanTag(line);
                     cache_tag.add(bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateTicket() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_TICKET, null));
+        
+        synchronized (cache_ticket) {
+            cache_ticket.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanTicket bean = new BeanTicket(line);
+                    cache_ticket.put(bean.i_tid, bean);
                 }
             }
         }
@@ -526,6 +550,30 @@ public class CommonService {
             return cache_tag
                     .stream()
                     .filter(tag->tag.i_type == type && tag.i_instance == instance)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static Map<Integer, BeanTicket> getTicketAll() {
+        synchronized (cache_ticket) {
+            return cache_ticket;
+        }
+    }
+    
+    public static List<BeanTicket> getTicketByType(int type) {
+        synchronized (cache_ticket) {
+            return cache_ticket.values()
+                    .stream()
+                    .filter(ticket->ticket.i_type == type)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static List<BeanTicket> getTicketByCaid(int caid) {
+        synchronized (cache_ticket) {
+            return cache_ticket.values()
+                    .stream()
+                    .filter(ticket->ticket.i_caid == caid)
                     .collect(Collectors.toList());
         }
     }

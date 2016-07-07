@@ -57,7 +57,7 @@ public class Report {
                 + "<div style='text-align: right; font-size: 8px'>——此报告由\"SKI系统\"于 %s 自动生成</div></td></tr></table>",
                 title,
                 title,
-                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date(System.currentTimeMillis())));
+                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
     }
     
     public static String createReportTable(String category, List<Object> data, int maxcol) {

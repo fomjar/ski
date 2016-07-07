@@ -54,10 +54,10 @@ public class ListCellCommodity extends FjListCell<BeanCommodity> {
         menu.add(new JMenuItem("退    租"));
         if (0 < data.t_end.length()) menu.getComponent(2).setEnabled(false);
         
-        ((JMenuItem) menu.getComponent(0)).addActionListener(e->new OCRDialog(data).setVisible(true));
-        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(data.c_arg0, 16)).setVisible(true));
+        ((JMenuItem) menu.getComponent(0)).addActionListener(e->new OCRDialog(getData()).setVisible(true));
+        ((JMenuItem) menu.getComponent(1)).addActionListener(e->new ManageGameAccount(Integer.parseInt(getData().c_arg0, 16)).setVisible(true));
         ((JMenuItem) menu.getComponent(2)).addActionListener(e->{
-            UIToolkit.closeCommodity(data.i_oid, data.i_csn);
+            UIToolkit.closeCommodity(getData().i_oid, getData().i_csn);
             updateCommodity();
         });
         

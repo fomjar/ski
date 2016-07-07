@@ -62,6 +62,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY  = 0x0000200B;
         /** 查询TAG */
         public static final int INST_ECOM_QUERY_TAG                     = 0x0000200C;
+        /** 查询工单 */
+        public static final int INST_ECOM_QUERY_TICKET                  = 0x0000200D;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -98,6 +100,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_UPDATE_TAG                    = 0x0000240B;
         /** 删除TAG */
         public static final int INST_ECOM_UPDATE_TAG_DEL                = 0x0000240C;
+        /** 更新工单 */
+        public static final int INST_ECOM_UPDATE_TICKET                 = 0x0000240D;
     }
     
     /**

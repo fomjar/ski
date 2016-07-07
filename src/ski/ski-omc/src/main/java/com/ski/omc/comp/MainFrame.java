@@ -22,12 +22,12 @@ import javax.swing.JToolBar;
 import com.fomjar.widget.FjList;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
-import com.ski.common.CommonService;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
-import com.ski.common.bean.BeanOrder;
+import com.ski.common.bean.BeanTicket;
 import com.ski.omc.UIToolkit;
 
 public class MainFrame extends JFrame {
@@ -40,13 +40,13 @@ public class MainFrame extends JFrame {
     }
 
     private static final long serialVersionUID = -4646332990528380747L;
-    private static final String SWITCH_TITLE_OPEN = "当前显示：未关闭订单 (点击切换)";
-    private static final String SWITCH_TITLE_ALL  = "当前显示：全部订单 (点击切换)";
+    private static final String SWITCH_TITLE_OPEN = "当前显示：未处理工单 (点击切换)";
+    private static final String SWITCH_TITLE_ALL  = "当前显示：全部工单 (点击切换)";
     
     private JTabbedPane tabs;
     private JMenuBar    menubar;
     private JToolBar    toolbar;
-    private JButton     order_switch;
+    private JButton     ticket_switch;
     
     private MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
@@ -60,7 +60,7 @@ public class MainFrame extends JFrame {
         tabs.add("游戏清单", new FjListPane<BeanGame>());
         tabs.add("账号清单", new FjListPane<BeanGameAccount>());
         tabs.add("用户清单", new FjListPane<BeanChannelAccount>());
-        tabs.add("订单清单", new FjListPane<BeanOrder>());
+        tabs.add("工单清单", new FjListPane<BeanTicket>());
         ((FjListPane<?>) tabs.getComponentAt(0)).enableSearchBar();
         ((FjListPane<?>) tabs.getComponentAt(0)).getSearchBar().setSearchTips("键入游戏名搜索");
         ((FjListPane<?>) tabs.getComponentAt(1)).enableSearchBar();
@@ -70,11 +70,11 @@ public class MainFrame extends JFrame {
         ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTypes(new String[] {"按用户名", "按手机号"});
         ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().setSearchTips("键入关键词搜索");
         ((FjListPane<?>) tabs.getComponentAt(3)).enableSearchBar();
-        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().setSearchTips("键入用户名搜索");
+        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().setSearchTips("键入关键词搜索");
         
-        order_switch = new JButton(SWITCH_TITLE_OPEN);
-        order_switch.setMargin(new Insets(0, 0, 0, 0));
-        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().add(order_switch, BorderLayout.NORTH);
+        ticket_switch = new JButton(SWITCH_TITLE_OPEN);
+        ticket_switch.setMargin(new Insets(0, 0, 0, 0));
+        ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().add(ticket_switch, BorderLayout.NORTH);
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -195,31 +195,31 @@ public class MainFrame extends JFrame {
                 }
             }
         });
-        FjListPane<BeanOrder> paneorder = ((FjListPane<BeanOrder>) tabs.getComponentAt(3));
-        paneorder.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanOrder>(paneorder.getList()) {
+        FjListPane<BeanTicket> paneticket = ((FjListPane<BeanTicket>) tabs.getComponentAt(3));
+        paneticket.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanTicket>(paneticket.getList()) {
             @Override
-            public boolean isMatch(String type, String[] words, BeanOrder celldata) {
-                if (SWITCH_TITLE_OPEN.equals(order_switch.getText()) && celldata.isClose()) return false;
+            public boolean isMatch(String type, String[] words, BeanTicket celldata) {
+                if (SWITCH_TITLE_OPEN.equals(ticket_switch.getText()) && celldata.isClose()) return false;
                 
                 int count = 0;
                 for (String word : words) {
-                    if (CommonService.getChannelAccountByCaid(celldata.i_caid).getDisplayName().contains(word))
+                    if (celldata.c_title.contains(word) || celldata.c_content.contains(word))
                         count++;
                 }
                 return count == words.length;
             }
         });
-        order_switch.addActionListener(e->{
-            switch (order_switch.getText()) {
+        ticket_switch.addActionListener(e->{
+            switch (ticket_switch.getText()) {
             case SWITCH_TITLE_OPEN:
-                order_switch.setText(SWITCH_TITLE_ALL);
+                ticket_switch.setText(SWITCH_TITLE_ALL);
                 break;
             case SWITCH_TITLE_ALL:
-                order_switch.setText(SWITCH_TITLE_OPEN);
+                ticket_switch.setText(SWITCH_TITLE_OPEN);
                 break;
             }
-            paneorder.getSearchBar().doSearch();
-            paneorder.getList().repaint();
+            paneticket.getSearchBar().doSearch();
+            paneticket.getList().repaint();
         });
     }
     
@@ -229,10 +229,12 @@ public class MainFrame extends JFrame {
         JMenuItem   micreategameaccount = new JMenuItem("创建账号");
         JMenuItem   micreateuser        = new JMenuItem("创建用户");
         JMenuItem   micreateorder       = new JMenuItem("创建订单");
+        JMenuItem   micreateticket      = new JMenuItem("创建工单");
         mconfig.add(micreategame);
         mconfig.add(micreategameaccount);
         mconfig.add(micreateuser);
         mconfig.add(micreateorder);
+        mconfig.add(micreateticket);
         
         JMenu       mhelp   = new JMenu("帮助");
         JMenuItem   miabout = new JMenuItem("关于");
@@ -246,8 +248,9 @@ public class MainFrame extends JFrame {
         micreategameaccount .addActionListener(e->UIToolkit.createGameAccount());
         micreateuser        .addActionListener(e->UIToolkit.createChannelAccount());
         micreateorder       .addActionListener(e->UIToolkit.createOrder());
+        micreateticket      .addActionListener(e->UIToolkit.createTicket());
         
-        miabout.addActionListener(e->JOptionPane.showMessageDialog(MainFrame.this, "SKI平台人机交互系统", "关于", JOptionPane.PLAIN_MESSAGE));
+        miabout.addActionListener(e->JOptionPane.showMessageDialog(MainFrame.this, "SKI平台操作维护中心(OMC)，版本：" + CommonDefinition.VERSION, "关于", JOptionPane.PLAIN_MESSAGE));
         
         return menubar;
     }
@@ -273,6 +276,8 @@ public class MainFrame extends JFrame {
                 
                 CommonService.updateTag();
                 
+                CommonService.updateTicket();
+                
                 @SuppressWarnings("unchecked")
                 FjList<BeanGame> list_game = ((FjListPane<BeanGame>) tabs.getComponentAt(0)).getList();
                 list_game.removeAllCell();
@@ -292,9 +297,9 @@ public class MainFrame extends JFrame {
                 ((FjListPane<?>) tabs.getComponentAt(2)).getSearchBar().doSearch();
                 
                 @SuppressWarnings("unchecked")
-                FjList<BeanOrder> list_order = ((FjListPane<BeanOrder>) tabs.getComponentAt(3)).getList();
-                list_order.removeAllCell();
-                CommonService.getOrderAll().values().forEach(data->list_order.addCell(new ListCellOrder(data)));
+                FjList<BeanTicket> list_ticket = ((FjListPane<BeanTicket>) tabs.getComponentAt(3)).getList();
+                list_ticket.removeAllCell();
+                CommonService.getTicketAll().values().forEach(data->list_ticket.addCell(new ListCellTicket(data)));
                 ((FjListPane<?>) tabs.getComponentAt(3)).getSearchBar().doSearch();
             } catch (Exception e) {
                 isfail = true;

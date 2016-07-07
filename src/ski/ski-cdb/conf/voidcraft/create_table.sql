@@ -34,7 +34,7 @@ drop table if exists tbl_platform_account_money;
 create table tbl_platform_account_money (
     i_paid      integer,        -- 平台账户ID
     c_remark    varchar(64),    -- 备注
-    t_time      datetime,       -- 时间
+    t_time      datetime,       -- 操作时间
     i_type      tinyint,        -- 0-消费结算，1-现金操作，2-优惠券操作
     i_base      decimal(9, 2),  -- 基准值
     i_money     decimal(9, 2)   -- 变化值
@@ -154,5 +154,19 @@ create table tbl_tag (
     i_type      tinyint,    -- 0-game
     i_instance  integer,    -- 标记实例
     c_tag       varchar(16) -- tag值
+);
+
+-- 工单管理
+drop table if exists tbl_ticket;
+create table tbl_ticket (
+    i_tid       integer,        -- 工单编号
+    i_caid      integer,        -- 渠道用户ID
+    t_open      datetime,       -- 打开时间
+    t_close     datetime,       -- 关闭时间
+    i_type      tinyint,        -- 0-退款申请，1-意见建议
+    c_title     varchar(64),    -- 工单标题
+    c_content   varchar(512),   -- 工单内容
+    i_state     tinyint,        -- 工单状态：0-open, 1-close, 2-cancel
+    c_result    varchar(64)     -- 处理结果
 );
 

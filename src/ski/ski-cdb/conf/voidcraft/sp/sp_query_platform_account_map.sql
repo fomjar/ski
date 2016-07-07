@@ -21,6 +21,5 @@ begin
         set i_code = 2;
         set c_desc = 'can not determin which to query by, paid or caid?';
     end if;
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

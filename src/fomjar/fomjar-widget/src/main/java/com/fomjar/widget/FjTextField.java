@@ -25,7 +25,7 @@ public class FjTextField extends JTextField {
             g.setColor(Color.gray);
             g.setFont(g.getFont().deriveFont(Font.ITALIC));
             int h = (int) g.getFontMetrics().getStringBounds(tipText, g).getHeight();
-            g.drawString(tipText, 4, h + (getHeight() - h) / 2);
+            g.drawString(tipText, 4, h);
         }
     }
 

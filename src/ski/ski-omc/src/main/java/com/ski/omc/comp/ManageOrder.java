@@ -194,7 +194,7 @@ public class ManageOrder extends JDialog {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             args.put("oid", order.i_oid);
-            args.put("close", sdf.format(new Date(System.currentTimeMillis())));
+            args.put("close", sdf.format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
             UIToolkit.showServerResponse(rsp);
             

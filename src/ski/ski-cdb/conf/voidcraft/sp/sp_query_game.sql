@@ -16,6 +16,5 @@ begin
         call sp_query_game_by_gid(i_code, c_desc, gid);
     end if;
 
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;

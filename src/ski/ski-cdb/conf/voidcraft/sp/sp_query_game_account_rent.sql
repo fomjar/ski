@@ -15,6 +15,5 @@ begin
     else
         call sp_query_game_account_rent_by_caid(i_code, c_desc, caid);
     end if;
-    set c_desc = convert(c_desc using utf8);
 end //
 delimiter ;
