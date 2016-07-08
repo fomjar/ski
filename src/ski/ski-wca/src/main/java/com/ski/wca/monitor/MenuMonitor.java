@@ -56,7 +56,6 @@ public class MenuMonitor extends FjLoopTask {
     
     @Override
     public void setInterval(long second) {
-        logger.debug("will try again after " + second + " seconds");
         super.setInterval(second * 1000);
     }
 }

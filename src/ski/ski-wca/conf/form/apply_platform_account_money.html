@@ -4,23 +4,46 @@
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
         <title>充值</title>
-        <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
+            wx.config({
+                debug:      true,   // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId:      '%s',   // 必填，公众号的唯一标识
+                timestamp:  %d,     // 必填，生成签名的时间戳
+                nonceStr:   '%s',   // 必填，生成签名的随机串
+                signature:  '%s',   // 必填，签名，见附录1
+                jsApiList:  [onMenuShareTimeline, onMenuShareAppMessage, onMenuShareQQ, onMenuShareWeibo, onMenuShareQZone, startRecord, stopRecord, onVoiceRecordEnd, playVoice, pauseVoice, stopVoice, onVoicePlayEnd, uploadVoice, downloadVoice, chooseImage, previewImage, uploadImage, downloadImage, translateVoice, getNetworkType, openLocation, getLocation, hideOptionMenu, showOptionMenu, hideMenuItems, showMenuItems, hideAllNonBaseMenuItem, showAllNonBaseMenuItem, closeWindow, scanQRCode, chooseWXPay, openProductSpecificView, addCard, chooseCard, openCard] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+            });
+            wx.ready(function(){
+                            window.alert('wx.config success');
+                            });
+            wx.error(function(err){
+                            window.alert('wx.config failed: ' + err);
+                            })
+
             var inst = %x;
             var user = %x;
             function submit() {
-                var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
-                $.get(base+'&to_user='+to_user+'&to_phone='+to_phone+'&step=verify', function(result) {
-                            if ('success' == result) {
-                                window.location = base + '&step=success';
-                            } else {
-                                $('#result_head').text("关联失败")
-                                $('#result_desc').text(result);
-                                $('#dialog').show();
-                            }
-                        });
+                WeixinJSBridge.invoke(
+                    'getBrandWCPayRequest', {
+                        "appId"     : "%s",             // 公众号名称，由商户传入     
+                        "timeStamp" : "%s",             // 时间戳，自1970年以来的秒数     
+                        "nonceStr"  : "%s",             // 随机串     
+                        "package"   : "prepay_id=%s",   // 统一下单接口返回的prepay_id参数值，提交格式如：prepay_id=*** 
+                        "signType"  : "MD5",            // 微信签名方式：     
+                        "paySign"   : "%s"              //微信签名 
+                    },
+                    function(res){     
+                        if(res.err_msg == "get_brand_wcpay_request：ok" ) { // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。 
+                            window.alert('pay success');
+                        } else {
+                            window.alert('pay fail');
+                        }
+                    }
+                );
             }
         </script>
     </head>
@@ -38,9 +61,14 @@
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
                             <select name="select" class="weui_select">
+                                <option value="10">10元</option>
+                                <option value="30">30元</option>
                                 <option value="50">50元</option>
                                 <option value="100">100元</option>
-                                <option value="150">150元</option>
+                                <option value="150" selected='selected'>150元</option>
+                                <option value="200">200元</option>
+                                <option value="300">300元</option>
+                                <option value="500">500元</option>
                             </select>
                         </div>
                     </div>
@@ -55,9 +83,9 @@
             <div class="weui_mask"></div>
             <div class="weui_dialog">
                 <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
-                <div class="weui_dialog_bd" id='result_desc'></div>
+                <div class="weui_dialog_bd" id='result_body'></div>
                 <div class="weui_dialog_ft">
-                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide()">确定</a>
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
                 </div>
             </div>
         </div>

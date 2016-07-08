@@ -13,8 +13,51 @@ create procedure sp_update_game_account_rent (
     in  state   tinyint     -- 租赁状态: 0-空闲，1-租用，2-锁定
 )
 begin
-    select fn_update_game_account_rent(gaid, type, caid, state)
-      into i_code;
+    declare di_count        integer default -1;
+
+    select count(1)
+      into di_count
+      from tbl_game_account_rent
+     where i_gaid = gaid
+       and i_type = type;
+
+    if di_count = 0 then
+        insert into tbl_game_account_rent (
+            i_gaid,
+            i_type,
+            i_caid,
+            i_state,
+            t_change
+        ) values (
+            gaid,
+            type,
+            caid,
+            state,
+            now()
+        );
+    else
+        update tbl_game_account_rent
+          set i_caid = caid
+            , i_state = state
+            , t_change = now()
+        where i_gaid = gaid
+          and i_type = type;
+    end if;
+
+    insert into tbl_game_account_rent_history (
+        i_gaid,
+        i_type,
+        i_caid,
+        i_state,
+        t_change
+    ) values (
+        gaid,
+        type,
+        caid,
+        state,
+        now()
+    );
+    set i_code = 0;
     set c_desc = null;
 end //
 delimiter ;

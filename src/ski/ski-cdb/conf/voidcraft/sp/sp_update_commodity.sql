@@ -83,7 +83,7 @@ begin
                     remark,
                     price,
                     count,
-                    ifnull(_begin, now()),
+                    _begin,
                     _end,
                     expense,
                     arg0,
@@ -132,7 +132,7 @@ begin
                         remark,
                         price,
                         count,
-                        ifnull(_begin, now()),
+                        _begin,
                         _end,
                         expense,
                         arg0,
@@ -246,9 +246,7 @@ begin
                 end if;
             end if;
 
-            select fn_update_commodity_rent(oid, di_csn, remark, price, count, _begin, _end, expense, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)
-              into i_code;
-            set c_desc = null;
+            call sp_update_commodity_rent(i_code, c_desc, oid, di_csn, remark, price, count, _begin, _end, expense, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         end if;
     end if;
 end //

@@ -45,13 +45,14 @@ public class WcWeb {
     }
     
     public static void dispatch(FjHttpRequest req, SocketChannel conn) {
+        logger.info(String.format("user request url: %s", req.url()));
+        
         FjJsonMessage jreq = req.toJsonMessage(conn);
         
         String[]  form = null;
         if (jreq.json().has("inst") && jreq.json().has("user")) {
             int inst = Integer.parseInt(jreq.json().getString("inst"), 16);
             int user = Integer.parseInt(jreq.json().getString("user"), 16);
-            logger.info(String.format("web user request: 0x%08X:0x%08X", user, inst));
             switch(inst) {
             case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE:
                 form = processApplyPlatformAccountMerge(user, jreq.json());
@@ -84,7 +85,7 @@ public class WcWeb {
                 ct      = file[0];
                 form    = String.format(file[1], CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user);
                 break;
-            case "verify":
+            case "apply":
                 ct = FjHttpRequest.CT_TEXT;
                 String to_user  = args.getString("to_user");
                 String to_phone = args.getString("to_phone");
@@ -181,6 +182,8 @@ public class WcWeb {
             String[] file = fetchFile("/apply_platform_account_money.html");
             ct      = file[0];
             form    = String.format(file[1], CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user);
+            break;
+        case "apply":
             break;
         }
         return new String[] {ct, form};

@@ -1,6 +1,11 @@
 package com.ski.wca;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -8,6 +13,7 @@ import org.w3c.dom.Element;
 import com.ski.common.CommonDefinition;
 import com.ski.wca.monitor.TokenMonitor;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
 import fomjar.server.msg.FjDscpMessage;
@@ -145,6 +151,12 @@ public class WechatInterface {
     
     public static FjJsonMessage token(String appid, String secret) {
         String url = String.format("https://%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", host(), appid, secret);
+        return sendRequest("GET", url);
+    }
+    
+    public static FjJsonMessage ticket() throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url);
     }
     
@@ -377,6 +389,73 @@ public class WechatInterface {
             json.put("url", url);
             json.put("picurl", picurl);
             return json.toString();
+        }
+    }
+    
+    private static final String MSG_PAY = "<xml>"
+            + "<appid>%s</appid>"                           // 公众号APPID
+            + "<mch_id>%s</mch_id>"                         // 微信支付分配的商户ID
+            + "<nonce_str>%s</nonce_str>"                   // 随机字符串不长于32位
+            + "<sign>%s</sign>"                             // 签名
+            + "<body>%s</body>"                             // 商品描述：title-name
+            + "<detail><![CDATA[%s]]></detail>"             // 商品详情
+            + "<attach>%s</attach>"                         // 附加字段，查询结果时显示
+            + "<out_trade_no>%s</out_trade_no>"             // 商户订单号
+            + "<total_fee>1</total_fee>"                    // 交易总金额，单位：分
+            + "<spbill_create_ip>%s</spbill_create_ip>"     // 本地IP
+            + "<notify_url>%s</notify_url>"                 // 回调地址，不带参数
+            + "<trade_type>%s</trade_type>"                 // 交易类型
+            + "</xml>";
+    
+    public static final String TRADE_TYPE_JSAPI     = "JSAPI";  // 公众号
+    public static final String TRADE_TYPE_NATIVE    = "NATIVE"; // 原生扫码
+    public static final String TRADE_TYPE_APP       = "APP";    // APP
+    
+    public static void pay(String appid, String mch_id, String body, String attach, String notify_url, String trade_type, PayGoods... goods) {
+        if (null == goods || 0 == goods.length) throw new IllegalArgumentException("there must be at least one goods");
+        
+        String url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
+        JSONObject goods_detail = new JSONObject();
+        goods_detail.put("goods_detail", JSONArray.fromObject(goods));
+        String spbill_create_ip = "127.0.0.1";
+        try {spbill_create_ip = InetAddress.getLocalHost().getHostAddress();}
+        catch (UnknownHostException e) {e.printStackTrace();}
+        String msg_pay = String.format(MSG_PAY,
+                appid,
+                mch_id,
+                Long.toHexString(System.currentTimeMillis()) + Long.toHexString(System.nanoTime()),
+                "%s",
+                body,
+                goods_detail.toString(),
+                attach,
+                new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + String.valueOf(System.currentTimeMillis()).substring(10),
+                1 == goods.length ? (goods[0].count * goods[0].price) : Arrays.asList(goods).stream().map(goods0->goods0.count * goods0.price).reduce((goods1, goods2)->{return goods1 + goods2;}).get(),
+                spbill_create_ip,
+                notify_url,
+                trade_type);
+        FjMessage rsp = FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_XML, msg_pay));
+        System.out.println(rsp);
+    }
+    
+    public static class PayGoods {
+        
+        public String id;
+        public String name;
+        public int count;
+        public int price;
+        private JSONObject args;
+        
+        public PayGoods(String id, String name, int count, int price) {
+            args = new JSONObject();
+            args.put("goods_id",    this.id = id);
+            args.put("goods_name",  this.name = name);
+            args.put("quantity",    this.count = count);
+            args.put("price",       this.price = price);
+        }
+        
+        @Override
+        public String toString() {
+            return args.toString();
         }
     }
 }

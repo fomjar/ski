@@ -482,6 +482,7 @@ public class UIToolkit {
                 if (0 < remark.length()) args.put("remark", remark);
                 args.put("price", price);
                 args.put("count", 1);
+                args.put("begin", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                 args.put("arg0", Integer.toHexString(account.i_gaid));
                 args.put("arg1", type);
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
@@ -522,7 +523,6 @@ public class UIToolkit {
         BeanCommodity commodity = CommonService.getOrderByOid(oid).commodities.get(csn);
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(commodity.c_arg0, 16));
         doLater(()->{
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             JSONObject args = new JSONObject();
             // 1
             {
@@ -615,7 +615,7 @@ public class UIToolkit {
                 args.clear();
                 args.put("oid", oid);
                 args.put("csn", csn);
-                args.put("end", sdf.format(new Date(System.currentTimeMillis())));
+                args.put("end", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 ssd.appendText(rsp.toString());
                 ssd.appendText("提交完成");
