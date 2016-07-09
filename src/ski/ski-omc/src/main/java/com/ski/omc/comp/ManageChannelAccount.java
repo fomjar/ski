@@ -86,7 +86,7 @@ public class ManageChannelAccount extends JDialog {
         
         i_caid      = new FjEditLabel(false);
         i_caid.setForeground(Color.gray);
-        c_user      = new FjEditLabel(false);
+        c_user      = new FjEditLabel();
         i_channel   = new FjEditLabel(false);
         c_name      = new FjEditLabel();
         i_gender    = new FjEditLabel();
@@ -162,6 +162,18 @@ public class ManageChannelAccount extends JDialog {
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
+        c_user.addEditListener(new FjEditLabel.EditListener() {
+            @Override
+            public void startEdit(String value) {}
+            @Override
+            public void finishEdit(String old_value, String new_value) {
+                args.put("caid", user.i_caid);
+                args.put("user", new_value);
+                c_user.setForeground(UIToolkit.COLOR_MODIFYING);
+            }
+            @Override
+            public void cancelEdit(String value) {}
+        });
         c_name.addEditListener(new FjEditLabel.EditListener() {
             @Override
             public void startEdit(String value) {}

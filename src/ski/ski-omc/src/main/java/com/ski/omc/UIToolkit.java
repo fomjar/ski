@@ -409,11 +409,11 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "必须要选择租赁类型", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-            if (c_arg1.getSelectedItem().toString().contains("B")
-                    && CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_A)) {
-                JOptionPane.showMessageDialog(null, "B类账号起租要求A类已租，请先将此账号A类出租，然后再出租B类", "错误", JOptionPane.ERROR_MESSAGE);
-                continue;
-            }
+//            if (c_arg1.getSelectedItem().toString().contains("B")
+//                    && CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_A)) {
+//                JOptionPane.showMessageDialog(null, "B类账号起租要求A类已租，请先将此账号A类出租，然后再出租B类", "错误", JOptionPane.ERROR_MESSAGE);
+//                continue;
+//            }
             if (!doOpenCommodity(
                     oid,
                     account.obj,
