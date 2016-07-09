@@ -110,7 +110,11 @@ public class WcaBusiness {
         logger.debug(String.format("user: %s select menu: %s", user, content));
         BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
         switch (content) {
-        case "30":
+        case "21":
+            break;
+        case "22":
+            break;
+        case "30":  // 关联淘宝
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("关联淘宝账号", "为了能够更便捷地为您提供服务，如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联",
@@ -119,7 +123,7 @@ public class WcaBusiness {
                 });
             } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;
-        case "31":
+        case "31":  //
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("账户信息", "查看账户余额、优惠券、在租账号等信息", 

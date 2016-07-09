@@ -39,10 +39,10 @@ public class UpdateAccount implements AE {
             return;
         }
         
-        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
         String psnp_old = args.getString("pass");
         String psnp_new = args.getString("pass_new");
-
+        
+        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
         driver.findElement(By.id("currentPasswordField")).clear();
         driver.findElement(By.id("currentPasswordField")).sendKeys(psnp_old); // 旧密码
         driver.findElement(By.id("changePasswordInput")).click();

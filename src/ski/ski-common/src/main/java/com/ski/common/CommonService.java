@@ -1,7 +1,6 @@
 package com.ski.common;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -307,20 +306,28 @@ public class CommonService {
     }
     
     public static String createGameAccountPassword() {
-        List<Integer> number = new ArrayList<Integer>(20);
-        // 密碼中同一個字母不可連續重複 3 次
-        for (int i = 0; i <= 9; i++) {
-            for (int j = 0; j < 2; j++) {
-                number.add(i);
-            }
+        int     len     = 5;            // 密码长度
+        Random  random  = new Random();
+        int[]   number  = new int[len];
+        
+        for (int i = 0; i < len; i++) {
+            boolean available;
+            int     n;
+            do {
+                available   = true;
+                n           = Math.abs(random.nextInt()) % 10;
+                // 第一个数字不管
+                if (0 == i) break;
+                // 不能跟上一个数字相同
+                if (n == number[i - 1]) available = false;
+                // 不能跟上一个数字连续
+                if (1 == Math.abs(n - number[i - 1])) available = false;
+            } while (!available);
+            
+            number[i] = n;
         }
-        Random r = new Random();
-        return String.format("vcg%d%d%d%d%d",
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()),
-                number.remove(Math.abs(r.nextInt()) % number.size()));
+        
+        return String.format("vcg%d%d%d%d%d", number[0], number[1], number[2], number[3], number[4]);
     }
     
     public static Map<Integer, BeanChannelAccount> getChannelAccountAll() {

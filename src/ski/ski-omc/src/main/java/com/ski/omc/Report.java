@@ -28,7 +28,7 @@ public class Report {
         ocr.append(createReportHead(String.format("%s的租赁报告", user.getDisplayName())));
         List<Object> rows = new LinkedList<Object>();
         rows.add(new String[] {"<div bgcolor='#AAAAFF'>游戏账号</div>",  "<div bgcolor='#AAAAFF'>" + account.c_user + "</div>"});
-        rows.add(new String[] {"<div bgcolor='#AAAAFF'>当前密码</div>",  "<div bgcolor='#AAAAFF'>" + account.c_pass_curr + "</div>"});
+        if (!commodity.isClose()) rows.add(new String[] {"<div bgcolor='#AAAAFF'>当前密码</div>",  "<div bgcolor='#AAAAFF'>" + account.c_pass_curr + "</div>"});
         rows.add(new String[] {"租赁类型",  "A".equals(commodity.c_arg1) ? "认证" : "B".equals(commodity.c_arg1) ? "不认证" : "未知"});
         rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
         rows.add(new String[] {"租赁单价",  df.format(commodity.i_price) + "元/天"});
