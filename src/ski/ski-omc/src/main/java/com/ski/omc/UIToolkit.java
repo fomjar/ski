@@ -944,6 +944,14 @@ public class UIToolkit {
     }
     
     public static void showServerResponse(FjDscpMessage rsp) {
-        JOptionPane.showMessageDialog(null, rsp.toString(), "服务器响应", JOptionPane.PLAIN_MESSAGE);
+        if (CommonService.isResponseSuccess(rsp)) {
+            JDialog dialog = new JOptionPane("操作成功", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION).createDialog(null, "提示");
+            doLater(()->{
+                try {Thread.sleep(500L);}
+                catch (Exception e) {e.printStackTrace();}
+                dialog.dispose();
+            });
+            dialog.setVisible(true);
+        } else JOptionPane.showMessageDialog(null, "服务器响应：" + CommonService.getResponseDesc(rsp), "错误", JOptionPane.PLAIN_MESSAGE);
     }
 }

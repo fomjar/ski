@@ -110,9 +110,20 @@ public class WcaBusiness {
         logger.debug(String.format("user: %s select menu: %s", user, content));
         BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
         switch (content) {
-        case "21":
+        case "21":  // 所有游戏
+            try {
+                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                        new WechatInterface.Article("热门游戏", "热门游戏", "https://www.baidu.com/", "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                        new WechatInterface.Article("最新大作", "最新大作", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
+                });
+            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;
-        case "22":
+        case "22":  // 搜索游戏
+            try {
+                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                        new WechatInterface.Article("搜索游戏", "搜索游戏", "https://www.baidu.com/", "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                });
+            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;
         case "30":  // 关联淘宝
             try {
@@ -123,7 +134,7 @@ public class WcaBusiness {
                 });
             } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;
-        case "31":  //
+        case "31":  // 我的账户
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("账户信息", "查看账户余额、优惠券、在租账号等信息", 
