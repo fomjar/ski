@@ -22,10 +22,6 @@ public class UpdateAccount implements AE {
             return;
         }
         
-        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
-        
         AE login = new Login();
         JSONObject login_args = new JSONObject();
         login_args.put("user", args.getString("user"));
@@ -42,7 +38,8 @@ public class UpdateAccount implements AE {
             desc = "login success";
             return;
         }
-       
+        
+        driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
         String psnp_old = args.getString("pass");
         String psnp_new = args.getString("pass_new");
 

@@ -1,7 +1,5 @@
 package com.ski.wa;
 
-import net.sf.json.JSONObject;
-
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -14,10 +12,12 @@ import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
+import net.sf.json.JSONObject;
 
 public class WaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WaTask.class);
+    private WebDriver driver;
     
     public WaTask() {
         System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
@@ -42,9 +42,8 @@ public class WaTask implements FjServerTask {
             response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%08X'}", CommonDefinition.CODE.CODE_WEB_AE_NOT_FOUND, inst));
             return;
         }
-        WebDriver driver = null;
         try {
-            driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
+            if (null == driver) driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
             ae.execute(driver, args);
         } catch (Exception e) {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
@@ -53,12 +52,21 @@ public class WaTask implements FjServerTask {
             response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", CommonDefinition.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
             return;
         } finally {
-            if (null != driver) driver.quit();
+            driver.quit();
+            driver = null;
         }
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", ae.code());
         args_rsp.put("desc", ae.desc());
         response(server.name(), req, args_rsp);
+        
+        if (0 == server.mq().size()) {
+            String home = FjServerToolkit.getServerConfig("wa.home");
+            if (null != home) {
+                driver = new InternetExplorerDriver();
+                driver.get(home);
+            }
+        }
     }
     
     private static void response(String server, FjDscpMessage req, Object args) {

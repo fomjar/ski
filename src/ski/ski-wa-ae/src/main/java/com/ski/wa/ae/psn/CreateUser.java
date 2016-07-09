@@ -22,8 +22,6 @@ public class CreateUser implements AE {
             return;
         }
         driver.get("https://account.sonyentertainmentnetwork.com/liquid/reg/account/create-account!input.action?request_locale=zh_HK");
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
         driver.findElement(By.id("account_loginNameFieldInput")).sendKeys(args.getString("email")); // 账号
         driver.findElement(By.id("account_password")).click();
         driver.findElement(By.name("account.password")).sendKeys(args.getString("pass")); // 密码

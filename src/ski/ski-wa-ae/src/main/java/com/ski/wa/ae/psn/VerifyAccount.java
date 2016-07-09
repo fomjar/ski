@@ -24,8 +24,6 @@ public class VerifyAccount implements AE {
             return;
         }
         driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/devices/device-list.action?category=psn&displayNavigation=false"); // 设备->PlayStation系统
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("device-0")); // 存在设备绑定
             code = CommonDefinition.CODE.CODE_SYS_SUCCESS;

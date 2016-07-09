@@ -22,22 +22,11 @@ public class Login implements AE {
             return;
         }
         driver.get("https://account.sonyentertainmentnetwork.com/login.action");
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
-        try {
-            driver.findElement(By.id("notYouLink")).click();
-            try {Thread.sleep(1000L);}
-            catch (InterruptedException e) {e.printStackTrace();}
-        } catch (NoSuchElementException e){
-        }
-
         driver.findElement(By.id("signInInput_SignInID")).clear();
         driver.findElement(By.id("signInInput_SignInID")).sendKeys(args.getString("user")); // 账号
         driver.findElement(By.id("signInInput_Password")).clear();
         driver.findElement(By.id("signInInput_Password")).sendKeys(args.getString("pass")); // 密码
         driver.findElement(By.id("signInButton")).click(); // 登陆
-        try {Thread.sleep(1000L);}
-        catch (InterruptedException e) {e.printStackTrace();}
         try {
             driver.findElement(By.id("signInInput_SignInID"));    // 账号输入框存在即说明用户名密码错误
             code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_INCORRECT;
