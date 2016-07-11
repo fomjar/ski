@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.text.SimpleDateFormat;
@@ -40,7 +40,7 @@ public class UserDetail extends JPanel {
                 UIToolkit.createDetailButton("起租", e->{
                     if (null != user) {
                         UIToolkit.openCommodity(user.i_caid);
-                        MainFrame2.getInstance().setDetailUser(user.i_caid);
+                        MainFrame.getInstance().setDetailUser(user.i_caid);
                     }
                 })));
         setLayout(new BorderLayout());

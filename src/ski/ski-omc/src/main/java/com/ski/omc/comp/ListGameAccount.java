@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -25,7 +25,7 @@ public class ListGameAccount extends JDialog {
     private FjListPane<BeanGameAccount> pane;
     
     public ListGameAccount() {
-        super(MainFrame2.getInstance(), "账号清单");
+        super(MainFrame.getInstance(), "账号清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(800, 600));

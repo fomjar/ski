@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -43,7 +43,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         add(name, BorderLayout.CENTER);
         add(rent, BorderLayout.EAST);
         
-        addActionListener(e->MainFrame2.getInstance().setDetailUser(data.i_caid));
+        addActionListener(e->MainFrame.getInstance().setDetailUser(data.i_caid));
     }
 
     private static String getMinorString(BeanChannelAccount data) {

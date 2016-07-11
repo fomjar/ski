@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,7 +35,7 @@ public class ManageUser extends JDialog {
     private FjEditLabel         t_birth;
     
     public ManageUser(int caid) {
-        super(MainFrame2.getInstance());
+        super(MainFrame.getInstance());
         
         user = CommonService.getChannelAccountByCaid(caid);
         

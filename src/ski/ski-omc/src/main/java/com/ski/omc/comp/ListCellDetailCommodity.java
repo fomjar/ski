@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -52,7 +52,7 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
         panel_oper.add(UIToolkit.createDetailButton("退", e->{
             if (!c.isClose()) {
                 UIToolkit.closeCommodity(c.i_oid, c.i_csn);
-                MainFrame2.getInstance().setDetailUser(CommonService.getOrderByOid(c.i_oid).i_caid);
+                MainFrame.getInstance().setDetailUser(CommonService.getOrderByOid(c.i_oid).i_caid);
             }
         }));
         

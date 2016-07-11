@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -26,7 +26,7 @@ public class ListTicket extends JDialog {
     private FjListPane<BeanTicket>  pane;
     
     public ListTicket() {
-        super(MainFrame2.getInstance(), "工单清单");
+        super(MainFrame.getInstance(), "工单清单");
         
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

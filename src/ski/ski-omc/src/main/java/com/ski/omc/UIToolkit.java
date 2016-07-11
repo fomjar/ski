@@ -50,8 +50,8 @@ import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanTag;
-import com.ski.omc.comp2.ManageGameAccount;
-import com.ski.omc.comp2.StepStepDialog;
+import com.ski.omc.comp.ManageGameAccount;
+import com.ski.omc.comp.StepStepDialog;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;

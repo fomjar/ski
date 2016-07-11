@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -13,7 +13,7 @@ import com.fomjar.widget.FjSearchBar;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.comp2.ListCellGame;
+import com.ski.omc.comp.ListCellGame;
 
 public class ListGame extends JDialog {
 
@@ -22,7 +22,7 @@ public class ListGame extends JDialog {
     private FjListPane<BeanGame>    pane;
     
     public ListGame() {
-        super(MainFrame2.getInstance(), "游戏清单");
+        super(MainFrame.getInstance(), "游戏清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(500, 600));

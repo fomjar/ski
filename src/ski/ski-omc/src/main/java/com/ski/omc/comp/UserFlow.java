@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -20,7 +20,7 @@ public class UserFlow extends JDialog {
     private static final long serialVersionUID = 4379993252792720443L;
     
     public UserFlow(int paid) {
-        super(MainFrame2.getInstance());
+        super(MainFrame.getInstance());
         
         List<BeanPlatformAccountMoney> money = CommonService.getPlatformAccountMoneyByPaid(paid);
         JTable table = new JTable();

@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
@@ -23,7 +23,7 @@ public class ReportDialog extends JDialog {
     private JEditorPane jep;
     
     public ReportDialog() {
-        super(MainFrame2.getInstance(), "报告");
+        super(MainFrame.getInstance(), "报告");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 

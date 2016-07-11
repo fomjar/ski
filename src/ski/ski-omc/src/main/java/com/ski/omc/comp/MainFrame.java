@@ -1,4 +1,4 @@
-package com.ski.omc.comp2;
+package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -20,13 +20,13 @@ import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.omc.UIToolkit;
 
-public class MainFrame2 extends JFrame {
+public class MainFrame extends JFrame {
 
     private static final long serialVersionUID = 8460467197557992622L;
     
-    private static MainFrame2 instance = null;
-    public static MainFrame2 getInstance() {
-        if (null == instance) instance = new MainFrame2();
+    private static MainFrame instance = null;
+    public static MainFrame getInstance() {
+        if (null == instance) instance = new MainFrame();
         return instance;
     }
     
@@ -35,7 +35,7 @@ public class MainFrame2 extends JFrame {
     private FjListPane<BeanChannelAccount>  users;
     private UserDetail                      detail;
     
-    public MainFrame2() {
+    public MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
         setSize(1280, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
