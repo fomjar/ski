@@ -26,7 +26,8 @@ public class ListCellDetailUser extends FjListCell<BeanChannelAccount> {
         
         JLabel      platf = new JLabel("[" + getPlatform(user.i_channel) + "] ");
         FjEditLabel infos = new FjEditLabel(String.format("用户名：%s 电话：%s", user.getDisplayName(), user.c_phone));
-        JLabel      money = new JLabel(String.format("%.2f元/%.2f元", puser.i_cash, puser.i_coupon));
+        float[]     prestatement = CommonService.prestatement(user.i_caid);
+        JLabel      money = new JLabel(String.format("当前余额：%.2f元/%.2f元 | 实时结算：%.2f元/%.2f元", puser.i_cash, puser.i_coupon, prestatement[0], prestatement[1]));
         
         platf.setFont(platf.getFont().deriveFont(Font.ITALIC));
         

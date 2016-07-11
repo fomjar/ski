@@ -62,7 +62,7 @@ public class UIToolkit {
 
     public static final Color COLOR_MODIFYING = Color.blue;
     
-    static {
+    public static void initFont() {
         UIManager.getLookAndFeelDefaults().put("Label.font",        FONT);
         UIManager.getLookAndFeelDefaults().put("Table.font",        FONT);
         UIManager.getLookAndFeelDefaults().put("TableHeader.font",  FONT);

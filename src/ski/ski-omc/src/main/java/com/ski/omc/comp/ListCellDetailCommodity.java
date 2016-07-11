@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -49,12 +50,14 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
         panel_oper.add(Box.createHorizontalStrut(4));
         panel_oper.add(UIToolkit.createDetailButton("帐", e->new ManageGameAccount(Integer.parseInt(c.c_arg0, 16)).setVisible(true)));
         panel_oper.add(Box.createHorizontalStrut(4));
-        panel_oper.add(UIToolkit.createDetailButton("退", e->{
+        JButton b = null;
+        panel_oper.add(b = UIToolkit.createDetailButton("退", e->{
             if (!c.isClose()) {
                 UIToolkit.closeCommodity(c.i_oid, c.i_csn);
                 MainFrame.getInstance().setDetailUser(CommonService.getOrderByOid(c.i_oid).i_caid);
             }
         }));
+        if (c.isClose()) b.setEnabled(false);
         
         setColorDefault(Color.white);
         setColorOver(Color.white);

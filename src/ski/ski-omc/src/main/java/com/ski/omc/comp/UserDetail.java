@@ -27,6 +27,7 @@ public class UserDetail extends JPanel {
         rents   = new FjList<BeanCommodity>();
         
         JPanel panel = new JPanel();
+        panel.setVisible(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.add(UIToolkit.createDetailArea("用户基本信息", basic,
                 UIToolkit.createDetailButton("充值", e->{
@@ -49,6 +50,7 @@ public class UserDetail extends JPanel {
     
     public void setUser(int caid) {
         this.user = CommonService.getChannelAccountByCaid(caid);
+        getComponent(0).setVisible(true);
         
         basic.removeAllCell();
         basic.addCell(new ListCellDetailUser(user));
