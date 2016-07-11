@@ -1,6 +1,7 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -29,17 +30,20 @@ public class ListCellGame extends FjListCell<BeanGame> {
         super(data);
         
         c_name_zh   = new JLabel(data.c_name_zh);
-        c_name_zh.setForeground(color_major);
         i_gid       = new JLabel(String.format("0x%08X", data.i_gid));
-        i_gid.setForeground(color_minor);
         i_price_a   = new JLabel("A: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
-        i_price_a.setForeground(color_major);
         i_price_b   = new JLabel("B: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
-        i_price_b.setForeground(color_major);
         t_sale      = new JLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
-        t_sale.setForeground(color_minor);
         c_country   = new JLabel(0 == data.c_country.length() ? "(没有国家)" : data.c_country);
+        
+        c_name_zh.setPreferredSize(new Dimension(1, 0));
+        c_name_zh.setForeground(color_major);
+        i_gid.setForeground(color_minor);
+        i_price_a.setForeground(color_major);
+        i_price_b.setForeground(color_major);
+        t_sale.setForeground(color_minor);
         c_country.setForeground(color_minor);
+        
         tags        = new JPanel();
         tags.setOpaque(false);
         

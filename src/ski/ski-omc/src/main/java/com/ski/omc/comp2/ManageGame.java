@@ -1,4 +1,4 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,7 +47,7 @@ public class ManageGame extends JDialog {
     private JPanel      pane_tag;
     
     public ManageGame(int gid) {
-        super(MainFrame.getInstance());
+        super(MainFrame2.getInstance());
         
         BeanGame game = CommonService.getGameByGid(gid);
         

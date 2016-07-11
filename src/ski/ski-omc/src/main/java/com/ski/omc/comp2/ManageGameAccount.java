@@ -1,9 +1,8 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
@@ -20,7 +19,6 @@ import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
-import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.omc.UIToolkit;
@@ -37,11 +35,10 @@ public class ManageGameAccount extends JDialog {
     private FjEditLabel c_user;
     private FjEditLabel c_pass;
     private FjEditLabel t_birth;
-    private FjListPane<String> pane_users;
     private FjListPane<String> pane_games;
     
     public ManageGameAccount(int gaid) {
-        super(MainFrame.getInstance());
+        super(MainFrame2.getInstance());
         
         BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
         
@@ -58,14 +55,12 @@ public class ManageGameAccount extends JDialog {
         c_pass = new FjEditLabel(account.c_pass_curr);
         t_birth = new FjEditLabel(0 == account.t_birth.length() ? "(没有生日)" : account.t_birth);
         
-        pane_users = new FjListPane<String>();
-        pane_users.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "在租用户"));
         pane_games = new FjListPane<String>();
         pane_games.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "包含游戏"));
         
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
-        panel_basic.setLayout(new GridLayout(4, 1));
+        panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
         panel_basic.add(UIToolkit.createBasicInfoLabel("GAID", i_gaid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账号", c_user));
         panel_basic.add(UIToolkit.createBasicInfoLabel("密码", c_pass));
@@ -75,7 +70,6 @@ public class ManageGameAccount extends JDialog {
         panel_north.setLayout(new BoxLayout(panel_north, BoxLayout.Y_AXIS));
         panel_north.add(toolbar);
         panel_north.add(panel_basic);
-        panel_north.add(pane_users);
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(panel_north, BorderLayout.NORTH);
@@ -207,20 +201,6 @@ public class ManageGameAccount extends JDialog {
     
     private void updateGameAccountGame() {
         int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
-        
-        BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(gaid, CommonService.RENT_TYPE_A));
-        BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(gaid, CommonService.RENT_TYPE_B));
-        pane_users.getList().removeAllCell();
-        if (null != user_a) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_a.i_caid, user_a.getDisplayName()), "[A类]");
-            cell.addActionListener(e->new ManageChannelAccount(user_a.i_caid).setVisible(true));
-            pane_users.getList().addCell(cell);
-        }
-        if (null != user_b) {
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", user_b.i_caid, user_b.getDisplayName()), "[B类]");
-            cell.addActionListener(e->new ManageChannelAccount(user_b.i_caid).setVisible(true));
-            pane_users.getList().addCell(cell);
-        }
 
         pane_games.getList().removeAllCell();
         CommonService.getGameAccountGameAll().forEach(bean->{

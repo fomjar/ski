@@ -1,4 +1,4 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -33,7 +33,7 @@ public class StepStepDialog extends JDialog {
     private JTextArea   jta_desc;
     
     public StepStepDialog(String... steps) {
-        super(MainFrame.getInstance());
+        super(MainFrame2.getInstance());
         
         this.steps = steps;
         this.index = 0;

@@ -1,4 +1,4 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

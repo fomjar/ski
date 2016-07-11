@@ -2,6 +2,7 @@ package com.fomjar.widget;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -42,8 +43,10 @@ public class FjEditLabel extends JComponent {
         listeners = new LinkedList<EditListener>();
         label = new JLabel();
         field = new JTextField();
-        setText(text);
         
+        label.setPreferredSize(new Dimension(10, 0));
+        
+        setText(text);
         setFont(label.getFont());
         setOpaque(false);
         setBackground(null);

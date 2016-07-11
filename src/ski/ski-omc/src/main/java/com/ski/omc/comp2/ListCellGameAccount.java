@@ -1,4 +1,4 @@
-package com.ski.omc.comp;
+package com.ski.omc.comp2;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -34,14 +34,15 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         super(data);
         
         c_user  = new JLabel(data.c_user);
-        c_user.setForeground(color_major);
         c_pass  = new JLabel(data.c_pass_curr);
-        c_pass.setForeground(color_major);
         t_birth = new JLabel(0 == data.t_birth.length() ? "(没有生日)" : data.t_birth);
-        t_birth.setForeground(color_minor);
         i_gaid  = new JLabel(String.format("0x%08X", data.i_gaid));
-        i_gaid.setForeground(color_minor);
         i_gaid.setHorizontalAlignment(SwingConstants.RIGHT);
+        
+        c_user.setForeground(color_major);
+        c_pass.setForeground(color_major);
+        t_birth.setForeground(color_minor);
+        i_gaid.setForeground(color_minor);
         
         BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_A));
         c_channel_account_a = new JLabel("A租用户: " + (null != user_a ? user_a.getDisplayName() : "-"));
@@ -54,7 +55,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         List<BeanGame> games = CommonService.getGameByGaid(data.i_gaid);
         c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-"));
         c_games.setForeground(color_minor);
-        c_games.setPreferredSize(new Dimension(280, 0));
+        c_games.setPreferredSize(new Dimension(360, 0));
         
         setLayout(new BorderLayout());
         JPanel panel1 = new JPanel();

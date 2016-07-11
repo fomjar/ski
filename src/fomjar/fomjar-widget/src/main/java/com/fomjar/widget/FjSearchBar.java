@@ -35,7 +35,7 @@ public class FjSearchBar extends JComponent {
         this.listeners = new LinkedList<FjSearchListener>();
         
         this.types.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, INSETS));
-        this.types.setPreferredSize(new Dimension(160, field.getHeight()));
+        this.types.setPreferredSize(new Dimension(120, field.getHeight()));
         setBorder(BorderFactory.createEmptyBorder(INSETS, INSETS, INSETS, INSETS));
         setLayout(new BorderLayout());
         add(this.types, BorderLayout.WEST);

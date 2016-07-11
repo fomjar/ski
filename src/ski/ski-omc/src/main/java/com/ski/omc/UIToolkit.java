@@ -5,14 +5,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -35,6 +35,7 @@ import javax.swing.UIManager;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+import com.fomjar.widget.FjListCell;
 import com.fomjar.widget.FjListCellString;
 import com.fomjar.widget.FjListPane;
 import com.fomjar.widget.FjSearchBar;
@@ -49,13 +50,11 @@ import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanTag;
-import com.ski.omc.comp.ManageGameAccount;
-import com.ski.omc.comp.ManageOrder;
-import com.ski.omc.comp.StepStepDialog;
+import com.ski.omc.comp2.ManageGameAccount;
+import com.ski.omc.comp2.StepStepDialog;
 
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
-import sun.awt.image.ToolkitImage;
 
 public class UIToolkit {
     
@@ -86,20 +85,13 @@ public class UIToolkit {
     
     public static void doLater(Runnable task) {pool.submit(task);}
     
-    public static Image loadImage(String path, double zoom) {
-        ToolkitImage  img0 = (ToolkitImage) Toolkit.getDefaultToolkit().getImage(UIToolkit.class.getResource(path));
-        BufferedImage img  = new BufferedImage((int) (img0.getWidth() * zoom), (int) (img0.getHeight() * zoom), BufferedImage.TYPE_INT_ARGB);
-        img.getGraphics().drawImage(img0, 0, 0, img.getWidth(), img.getHeight(), null);
-        return img;
-    }
-    
     public static JPanel createBasicInfoLabel(String label, JComponent field) {
         return createBasicInfoLabel(label, field, null, null);
     }
     
     public static JPanel createBasicInfoLabel(String label, JComponent field, String actionName, ActionListener action) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(160, 0));
+        jlabel.setPreferredSize(new Dimension(120, jlabel.getPreferredSize().height));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         
@@ -109,14 +101,60 @@ public class UIToolkit {
         jpanel.add(field, BorderLayout.CENTER);
         
         if (null != actionName) {
-            JButton jbutton = new JButton(actionName);
-            jbutton.setMargin(new Insets(0, 0, 0, 0));
+            JButton jbutton = createDetailButton(actionName, action);
             jbutton.setPreferredSize(new Dimension(jbutton.getPreferredSize().width, field.getPreferredSize().height));
-            jbutton.addActionListener(action);
             jpanel.add(jbutton, BorderLayout.EAST);
         }
         
         return jpanel;
+    }
+    
+    public static JButton createDetailButton(String name, ActionListener action) {
+        JButton button = new JButton(name);
+        button.setContentAreaFilled(false);
+        button.setMargin(new Insets(0, 0, 0, 0));
+        button.addActionListener(action);
+        return button;
+    }
+    
+    public static JComponent createDetailArea(String title, JComponent content, JButton... buttons) {
+        JLabel major = new JLabel(title);
+        major.setFont(major.getFont().deriveFont(Font.BOLD));
+        
+        JPanel panel_minor = new JPanel();
+        panel_minor.setOpaque(false);
+        panel_minor.setLayout(new BoxLayout(panel_minor, BoxLayout.X_AXIS));
+        if (null != buttons && 0 < buttons.length) {
+            for (JButton button : buttons) {
+                if (0 < panel_minor.getComponentCount()) panel_minor.add(Box.createHorizontalStrut(4));
+                panel_minor.add(button);
+            }
+        }
+        JLabel minor = new JLabel("-");
+        panel_minor.add(Box.createHorizontalStrut(12));
+        panel_minor.add(minor);
+        
+        FjListCell<Object> cell = new FjListCell<Object>();
+        cell.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 8));
+        cell.setLayout(new BorderLayout());
+        cell.add(major, BorderLayout.CENTER);
+        cell.add(panel_minor, BorderLayout.EAST);
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(cell, BorderLayout.NORTH);
+        panel.add(content, BorderLayout.CENTER);
+        
+        cell.addActionListener(e->{
+            if ("+".equals(minor.getText())) {
+                minor.setText("-");
+                content.setVisible(true);
+            } else if ("-".equals(minor.getText())) {
+                minor.setText("+");
+                content.setVisible(false);
+            }
+        });
+        return panel;
     }
     
     public static void createGame() {
@@ -228,10 +266,10 @@ public class UIToolkit {
             
             if (CommonService.isResponseSuccess(rsp)) {
                 result = c_user.getText();
-                if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建订单？", "提示", JOptionPane.YES_NO_OPTION)) {
+                if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.YES_NO_OPTION)) {
                     List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(c_user.getText());
-                    if (1 == users.size()) UIToolkit.createOrder(users.get(0));
-                    else UIToolkit.createOrder();
+                    if (1 == users.size()) UIToolkit.openCommodity(users.get(0).i_caid);
+                    else JOptionPane.showMessageDialog(null, "无法自动创建商品，请手动创建", "信息", JOptionPane.PLAIN_MESSAGE);
                 }
             }
             break;
@@ -239,77 +277,40 @@ public class UIToolkit {
         return result;
     }
     
-    public static void createOrder() {
-        createOrder(null);
-    }
-    
-    public static void createOrder(BeanChannelAccount user) {
-        JComboBox<String>   i_platform = new JComboBox<String>(new String[] {"0 - 淘宝", "1 - 微信"});
-        JLabel i_caid_label = new JLabel(null != user ? String.format("0x%08X - %s", user.i_caid, user.getDisplayName()) : "");
-        i_caid_label.setPreferredSize(new Dimension(240, 0));
-        JButton i_caid_button = new JButton("选择用户");
-        i_caid_button.setMargin(new Insets(0, 0, 0, 0));
-        i_caid_button.addActionListener(e->{
-            BeanChannelAccount account = chooseChannelAccount();
-            if (null == account) i_caid_label.setText("");
-            else i_caid_label.setText(String.format("0x%08X - %s", account.i_caid, account.getDisplayName()));
-        });
-        if (null == user) {
-            // auto choose channel account
-            i_caid_button.addAncestorListener(new AncestorListener() {
-                @Override
-                public void ancestorRemoved(AncestorEvent event) {}
-                @Override
-                public void ancestorMoved(AncestorEvent event) {}
-                @Override
-                public void ancestorAdded(AncestorEvent event) {
-                    for (ActionListener l : i_caid_button.getActionListeners()) l.actionPerformed(null);
-                }
-            });
-        }
-        
-        JPanel i_caid = new JPanel();
-        i_caid.setLayout(new BorderLayout());
-        i_caid.add(i_caid_label, BorderLayout.CENTER);
-        i_caid.add(i_caid_button, BorderLayout.EAST);
-        
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 1));
-        panel.add(i_platform);
-        panel.add(i_caid);
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建订单", JOptionPane.OK_CANCEL_OPTION)) {
-            if (0 == i_caid_label.getText().length()) {
-                JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
-                continue;
-            }
-            JSONObject args = new JSONObject();
-            args.put("platform", Integer.parseInt(i_platform.getSelectedItem().toString().split(" ")[0]));
-            args.put("caid", Integer.parseInt(i_caid_label.getText().split(" ")[0].split("x")[1], 16));
-            args.put("open", sdf.format(new Date()));
-            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            CommonService.updateOrder();
-            UIToolkit.showServerResponse(rsp);
-            
-            if (CommonService.isResponseSuccess(rsp)) {
-                if(JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(null, "现在创建商品？", "提示", JOptionPane.YES_NO_OPTION)) {
-                    List<BeanOrder> orders = CommonService.getOrderByCaid(args.getInt("caid")).stream().filter(order->!order.isClose()).collect(Collectors.toList());
-                    if (1 == orders.size()) {
-                        BeanOrder order = orders.get(0);
-                        UIToolkit.openCommodity(order.i_oid);
-                        new ManageOrder(order.i_oid).setVisible(true);
-                    }
-                    else JOptionPane.showMessageDialog(null, "不能确认刚才创建的订单，请手工打开再创建商品", "错误", JOptionPane.ERROR_MESSAGE);
-                }
-            }
-            break;
-        }
-    }
-    
     public static boolean skip_wa = false;
     
-    public static void openCommodity(int oid) {
+    public static void openCommodity(int caid) {
+        int oid = -1;
+        // 查找可用订单
+        for (BeanOrder order : CommonService.getOrderByCaid(caid)) {
+            if (!order.isClose()) {
+                oid = order.i_oid;
+                break;
+            }
+        }
+        if (-1 == oid) { // 没有找到可用订单
+            JSONObject args = new JSONObject();
+            args.put("caid",        caid);
+            args.put("platform",    CommonService.CHANNEL_TAOBAO);
+            args.put("open",        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                JOptionPane.showMessageDialog(null, "创建订单失败：" + CommonService.getResponseDesc(rsp), "错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            CommonService.updateOrder();
+        }
+        for (BeanOrder order : CommonService.getOrderByCaid(caid)) {
+            if (!order.isClose()) {
+                oid = order.i_oid;
+                break;
+            }
+        }
+        if (-1 == oid) {
+            JOptionPane.showMessageDialog(null, "没有找到可用订单", "错误", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
         JLabel              c_arg0      = new JLabel();
         c_arg0.setPreferredSize(new Dimension(300, 0));
@@ -898,7 +899,7 @@ public class UIToolkit {
         dialog.setTitle("选择用户");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setSize(300, 500);
+        dialog.setSize(400, 500);
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation((owner.width - dialog.getWidth()) / 2, (owner.height - dialog.getHeight()) / 2);
         dialog.getContentPane().setLayout(new BorderLayout());
@@ -941,6 +942,97 @@ public class UIToolkit {
         args.put("tag",         tag.c_tag);
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TAG_DEL, args);
         showServerResponse(rsp);
+    }
+    
+    public static void userRecharge(int paid) {
+        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
+        
+        JComboBox<String> type = new JComboBox<String>(new String[] {"充值", "充券", "退款"});
+        type.setEditable(false);
+        FjTextField remark = new FjTextField();
+        remark.setDefaultTips("备注");
+        FjTextField money = new FjTextField();
+        money.setDefaultTips("金额");
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 1));
+        panel.add(type);
+        panel.add(remark);
+        panel.add(money);
+        type.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                switch (type.getSelectedIndex()) {
+                case 0:
+                    remark.setText("【客服充值】");
+                    money.setText("150.00");
+                    break;
+                case 1:
+                    remark.setText("【客服充券】");
+                    money.setText("10.00");
+                    break;
+                case 2:
+                    remark.setText("【客服退款】");
+                    money.setText("-" + puser.i_cash);
+                    break;
+                }
+            }
+        });
+        type.setSelectedIndex(1);
+        type.setSelectedIndex(0);
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "充值", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == money.getText().length()) {
+                JOptionPane.showMessageDialog(null, "金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            JSONObject args = new JSONObject();
+            args.put("paid",    puser.i_paid);
+            if (0 < remark.getText().length()) args.put("remark",  remark.getText());
+            args.put("type",    0 == type.getSelectedIndex() ? CommonService.MONEY_CASH : 1 == type.getSelectedIndex() ? CommonService.MONEY_COUPON : 2 == type.getSelectedIndex() ? CommonService.MONEY_CASH : -1);
+            args.put("money",   Float.parseFloat(money.getText()));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
+            UIToolkit.showServerResponse(rsp);
+            CommonService.updatePlatformAccount();
+            break;
+        }
+    }
+    
+    public static void userBind(BeanChannelAccount user) {
+        BeanChannelAccount user2 = null;
+        int option = JOptionPane.CLOSED_OPTION;
+        while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择关联途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
+            switch (option) {
+            case JOptionPane.YES_OPTION:
+                String suser = UIToolkit.createChannelAccount();
+                if (null == suser) continue; // no choose
+                user2 = CommonService.getChannelAccountByUser(suser).get(0);
+                break;
+            case JOptionPane.NO_OPTION:
+                user2 = UIToolkit.chooseChannelAccount();
+                break;
+            }
+            if (null == user2) continue;
+            
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, String.format("即将关联用户“%s”和“%s”，关联之后将无法回退，继续？", user.getDisplayName(), user2.getDisplayName()), "提示", JOptionPane.OK_CANCEL_OPTION))
+                return;
+            
+            int paid_to = CommonService.getPlatformAccountByCaid(user.i_caid);
+            int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
+            if (paid_to == paid_from) {
+                JOptionPane.showMessageDialog(null, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            JSONObject args = new JSONObject();
+            args.put("paid_to", paid_to);
+            args.put("paid_from", paid_from);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
+            UIToolkit.showServerResponse(rsp);
+            
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
+            
+            break;
+        }
     }
     
     public static void showServerResponse(FjDscpMessage rsp) {

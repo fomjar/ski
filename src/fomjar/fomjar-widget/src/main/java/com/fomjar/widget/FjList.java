@@ -1,40 +1,41 @@
 package com.fomjar.widget;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class FjList<E> extends JComponent {
 
     private static final long serialVersionUID = -3914498112193542403L;
+    private JPanel cells;
     
     public FjList() {
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+        cells = new JPanel();
+        cells.setOpaque(false);
+        cells.setLayout(new BoxLayout(cells, BoxLayout.Y_AXIS));
         setOpaque(false);
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        add(Box.createVerticalGlue());
+        setLayout(new BorderLayout());
+        add(cells, BorderLayout.NORTH);
     }
     
     public void removeAllCell() {
-        super.removeAll();
-        add(Box.createVerticalGlue());
+        cells.removeAll();
         revalidate();
     }
     
     public void addCell(FjListCell<E> cell) {
-        remove(getComponentCount() - 1);
-        add(cell);
-        add(Box.createVerticalGlue());
+        cells.add(cell);
         revalidate();
     }
     
     public int getCellCount() {
-        return getCells().size();
+        return cells.getComponentCount();
     }
     
     public FjListCell<E> getCell(int index) {
@@ -43,11 +44,11 @@ public class FjList<E> extends JComponent {
     
     @SuppressWarnings("unchecked")
     public List<FjListCell<E>> getCells() {
-        List<FjListCell<E>> cells = new ArrayList<FjListCell<E>>(getComponentCount() - 1);
-        for (Component c : getComponents()) {
-            if (c instanceof FjListCell<?>) cells.add((FjListCell<E>) c);
-        }
-        return cells;
+        if (0 == getCellCount()) return new LinkedList<FjListCell<E>>();
+        
+        List<FjListCell<E>> list = new ArrayList<FjListCell<E>>(getCellCount() - 1);
+        for (Component c : cells.getComponents()) {list.add((FjListCell<E>) c);}
+        return list;
     }
 
 }

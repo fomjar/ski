@@ -5,7 +5,7 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 
 import com.ski.common.CommonService;
-import com.ski.omc.comp.MainFrame;
+import com.ski.omc.comp2.MainFrame2;
 
 public class Main {
     
@@ -22,8 +22,9 @@ public class Main {
             }
         }
         
-        initLog();
-        MainFrame.getInstance().setVisible(true);
+//        initLog();
+//        MainFrame.getInstance().setVisible(true);
+        MainFrame2.getInstance().setVisible(true);
     }
     
     public static void initLog() {
