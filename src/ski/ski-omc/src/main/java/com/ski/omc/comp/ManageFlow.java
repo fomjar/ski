@@ -15,11 +15,11 @@ import javax.swing.table.DefaultTableModel;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanPlatformAccountMoney;
 
-public class UserFlow extends JDialog {
+public class ManageFlow extends JDialog {
 
     private static final long serialVersionUID = 4379993252792720443L;
     
-    public UserFlow(int paid) {
+    public ManageFlow(int paid) {
         super(MainFrame.getInstance());
         
         List<BeanPlatformAccountMoney> money = CommonService.getPlatformAccountMoneyByPaid(paid);

@@ -1,6 +1,7 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.NoSuchElementException;
@@ -29,9 +30,9 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         
         plat.setFont(plat.getFont().deriveFont(Font.ITALIC));
         if (rent.getText().startsWith("00 /")) {
-            plat.setForeground(color_minor);
-            name.setForeground(color_minor);
-            rent.setForeground(color_minor);
+            plat.setForeground(Color.lightGray);
+            name.setForeground(Color.lightGray);
+            rent.setForeground(Color.lightGray);
         } else {
             plat.setForeground(color_major);
             name.setForeground(color_major);

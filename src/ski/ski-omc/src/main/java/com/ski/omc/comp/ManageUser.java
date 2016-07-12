@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
@@ -51,6 +52,7 @@ public class ManageUser extends JDialog {
         t_birth     = new FjEditLabel();
         
         JPanel panel_basic = new JPanel();
+        panel_basic.setBorder(BorderFactory.createEtchedBorder());
         panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户编号", i_caid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账    号", c_user));
@@ -63,12 +65,13 @@ public class ManageUser extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("出生日期", t_birth));
         
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(panel_basic, BorderLayout.CENTER);
+        getContentPane().add(panel_basic, BorderLayout.NORTH);
         
         setTitle(String.format("用户基本信息 - %s", user.getDisplayName()));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(300, 200));
+        pack();
+        setSize(new Dimension(300, getHeight()));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         

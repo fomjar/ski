@@ -46,12 +46,12 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
         JPanel panel_oper = new JPanel();
         panel_oper.setOpaque(false);
         panel_oper.setLayout(new BoxLayout(panel_oper, BoxLayout.X_AXIS));
-        panel_oper.add(UIToolkit.createDetailButton("报", e->new OCRDialog(c).setVisible(true)));
+        panel_oper.add(DetailPane.createToolBarButton("报", e->new OCRDialog(c).setVisible(true)));
         panel_oper.add(Box.createHorizontalStrut(4));
-        panel_oper.add(UIToolkit.createDetailButton("帐", e->new ManageGameAccount(Integer.parseInt(c.c_arg0, 16)).setVisible(true)));
+        panel_oper.add(DetailPane.createToolBarButton("帐", e->new ManageGameAccount(Integer.parseInt(c.c_arg0, 16)).setVisible(true)));
         panel_oper.add(Box.createHorizontalStrut(4));
         JButton b = null;
-        panel_oper.add(b = UIToolkit.createDetailButton("退", e->{
+        panel_oper.add(b = DetailPane.createToolBarButton("退", e->{
             if (!c.isClose()) {
                 UIToolkit.closeCommodity(c.i_oid, c.i_csn);
                 MainFrame.getInstance().setDetailUser(CommonService.getOrderByOid(c.i_oid).i_caid);

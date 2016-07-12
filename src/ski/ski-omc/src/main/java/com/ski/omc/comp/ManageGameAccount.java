@@ -135,13 +135,12 @@ public class ManageGameAccount extends JDialog {
                 return;
             }
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-            UIToolkit.showServerResponse(rsp);
-            if (CommonService.isResponseSuccess(rsp)) {
-                if (args.has("user"))       c_user.setForeground(Color.darkGray);
-                if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
-                if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
-                args.clear();
-            }
+            if (!UIToolkit.showServerResponse(rsp)) return;
+            
+            if (args.has("user"))       c_user.setForeground(Color.darkGray);
+            if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
+            if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
+            args.clear();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             UIToolkit.doLater(()->{
@@ -155,16 +154,16 @@ public class ManageGameAccount extends JDialog {
                 }
                 ((JButton) toolbar.getComponent(1)).setEnabled(false);
                 FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                UIToolkit.showServerResponse(rsp_wa);
-                if (CommonService.isResponseSuccess(rsp_wa)) {
-                    FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                    UIToolkit.showServerResponse(rsp_cdb);
-                    
-                    if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                    if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
-                    if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
-                    args.clear();
-                }
+                
+                if (!UIToolkit.showServerResponse(rsp_wa)) return;
+                
+                FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                if (!UIToolkit.showServerResponse(rsp_cdb)) return;
+                
+                if (args.has("user"))   c_user.setForeground(Color.darkGray);
+                if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+                if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
+                args.clear();
                 ((JButton) toolbar.getComponent(1)).setEnabled(true);
             });
         });
@@ -174,8 +173,8 @@ public class ManageGameAccount extends JDialog {
                 args.put("user", c_user.getText());
                 args.put("pass", c_pass.getText());
                 FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                UIToolkit.showServerResponse(rsp);
-                if (null != rsp && CommonService.isResponseSuccess(rsp)) args.clear();
+                if (UIToolkit.showServerResponse(rsp))  args.clear();
+                
                 ((JButton) toolbar.getComponent(2)).setEnabled(true);
             });
         });
@@ -192,9 +191,8 @@ public class ManageGameAccount extends JDialog {
             args.put("gaid", gaid);
             args.put("gid", gid);
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
-            UIToolkit.showServerResponse(rsp);
-            
             CommonService.updateGameAccountGame();
+            UIToolkit.showServerResponse(rsp);
             updateGameAccountGame();
         });
     }

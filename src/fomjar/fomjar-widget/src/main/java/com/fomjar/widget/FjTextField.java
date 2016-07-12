@@ -11,6 +11,14 @@ public class FjTextField extends JTextField {
     private static final long serialVersionUID = -1334812155892751398L;
     
     private String tipText;
+    
+    public FjTextField() {
+        super();
+    }
+    
+    public FjTextField(String text) {
+        super(text);
+    }
 
     public void setDefaultTips(String text) {
         this.tipText = text;

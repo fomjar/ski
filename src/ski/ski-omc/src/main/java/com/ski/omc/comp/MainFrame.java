@@ -33,7 +33,7 @@ public class MainFrame extends JFrame {
     private JToolBar                        toolbar;
     private JPanel                          toolbar_user;
     private FjListPane<BeanChannelAccount>  users;
-    private UserDetail                      detail;
+    private MainDetailPane                      detail;
     
     public MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
@@ -53,12 +53,12 @@ public class MainFrame extends JFrame {
         toolbar_user = new JPanel();
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         toolbar_user.setLayout(new BoxLayout(toolbar_user, BoxLayout.X_AXIS));
-        toolbar_user.add(UIToolkit.createDetailButton("新用户", e->{
+        toolbar_user.add(DetailPane.createToolBarButton("新用户", e->{
             UIToolkit.createChannelAccount();
             refresh();
         }));
         users   = new FjListPane<BeanChannelAccount>();
-        detail  = new UserDetail();
+        detail  = new MainDetailPane();
         
         users.enableSearchBar();
         users.getSearchBar().setSearchTypes(new String[] {"用户名", "手机号"});

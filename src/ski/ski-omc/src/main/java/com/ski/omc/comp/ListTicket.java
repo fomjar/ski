@@ -30,7 +30,7 @@ public class ListTicket extends JDialog {
         
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(500, 600));
+        setSize(new Dimension(600, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         

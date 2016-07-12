@@ -79,9 +79,9 @@ public class ManageGame extends JDialog {
         pane_basic.add(UIToolkit.createBasicInfoLabel("游戏编号", i_gid));
         pane_basic.add(UIToolkit.createBasicInfoLabel("游戏平台", c_platform));
         pane_basic.add(UIToolkit.createBasicInfoLabel("国    家", c_country));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon, "打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_icon.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}}));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("海报链接", c_url_poster, "打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_poster.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}}));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("购买链接", c_url_buy, "打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_buy.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}}));
+        pane_basic.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_icon.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
+        pane_basic.add(UIToolkit.createBasicInfoLabel("海报链接", c_url_poster, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_poster.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
+        pane_basic.add(UIToolkit.createBasicInfoLabel("购买链接", c_url_buy, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_buy.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
         pane_basic.add(UIToolkit.createBasicInfoLabel("发售日期", t_sale));
         pane_basic.add(UIToolkit.createBasicInfoLabel("中 文 名", c_name_zh));
         pane_basic.add(UIToolkit.createBasicInfoLabel("英 文 名", c_name_en));
@@ -260,18 +260,17 @@ public class ManageGame extends JDialog {
                 return;
             }
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
-            UIToolkit.showServerResponse(rsp);
-            if (CommonService.isResponseSuccess(rsp)) {
-                if (args.has("platform"))   c_platform.setForeground(Color.darkGray);
-                if (args.has("country"))    c_country.setForeground(Color.darkGray);
-                if (args.has("url_icon"))   c_url_icon.setForeground(Color.darkGray);
-                if (args.has("url_poster")) c_url_poster.setForeground(Color.darkGray);
-                if (args.has("url_buy"))    c_url_buy.setForeground(Color.darkGray);
-                if (args.has("sale"))       t_sale.setForeground(Color.darkGray);
-                if (args.has("name_zh"))    c_name_zh.setForeground(Color.darkGray);
-                if (args.has("name_en"))    c_name_en.setForeground(Color.darkGray);
-                args.clear();
-            }
+            if (!UIToolkit.showServerResponse(rsp)) return;
+            
+            if (args.has("platform"))   c_platform.setForeground(Color.darkGray);
+            if (args.has("country"))    c_country.setForeground(Color.darkGray);
+            if (args.has("url_icon"))   c_url_icon.setForeground(Color.darkGray);
+            if (args.has("url_poster")) c_url_poster.setForeground(Color.darkGray);
+            if (args.has("url_buy"))    c_url_buy.setForeground(Color.darkGray);
+            if (args.has("sale"))       t_sale.setForeground(Color.darkGray);
+            if (args.has("name_zh"))    c_name_zh.setForeground(Color.darkGray);
+            if (args.has("name_en"))    c_name_en.setForeground(Color.darkGray);
+            args.clear();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             FjTextField tag = new FjTextField();
