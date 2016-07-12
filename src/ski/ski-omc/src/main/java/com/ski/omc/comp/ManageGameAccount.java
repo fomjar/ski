@@ -173,8 +173,14 @@ public class ManageGameAccount extends JDialog {
                 args.put("user", c_user.getText());
                 args.put("pass", c_pass.getText());
                 FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
-                if (UIToolkit.showServerResponse(rsp))  args.clear();
+                if (CommonService.isResponseSuccess(rsp) && rsp.toString().contains(" binded"))
+                    JOptionPane.showMessageDialog(ManageGameAccount.this, "此账号已绑定", "信息", JOptionPane.PLAIN_MESSAGE);
+                else if (CommonService.isResponseSuccess(rsp) && rsp.toString().contains(" unbinded"))
+                    JOptionPane.showMessageDialog(ManageGameAccount.this, "此账号没有绑定", "信息", JOptionPane.PLAIN_MESSAGE);
+                else
+                    UIToolkit.showServerResponse(rsp);
                 
+                args.clear();
                 ((JButton) toolbar.getComponent(2)).setEnabled(true);
             });
         });

@@ -599,16 +599,19 @@ public class CommonService {
                     try {
                         return order.commodities.values()
                                 .stream()
-                                .filter(commodity->!commodity.isClose())
-                                .map(commodity->{
+                                .filter(c->!c.isClose())
+                                .map(c->{
                                     try {
-                                        long begin  = sdf.parse(commodity.t_begin).getTime();
+                                        long begin  = sdf.parse(c.t_begin).getTime();
                                         long end    = System.currentTimeMillis();
-                                        int  times  = (int) ((end - begin) / 1000 / 60 / 60 / 12);
-                                        if (times < 2) times = 2;
-                                        else times = times + 1;
-                                        
-                                        return (commodity.i_price / 2) * times;
+                                        int  hours  = (int) Math.ceil(((double) end - begin) / 1000 / 60 / 60); // 向上取整
+                                        hours -= 3; // 优惠3小时
+                                        if (hours <= 0) return 0.00f;
+                                        else {
+                                            int times = (int) Math.ceil(((double) hours) / 12);
+                                            if (times < 2) times = 2;
+                                            return times * (c.i_price / 2) * c.i_count;
+                                        }
                                     } catch (Exception e) {e.printStackTrace();}
                                     return 0.00f;
                                 })
