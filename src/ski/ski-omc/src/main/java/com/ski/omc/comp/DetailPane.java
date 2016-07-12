@@ -33,19 +33,14 @@ public class DetailPane extends JComponent {
         addToolBarButton(buttons);
         
         indicator = new JLabel("-");
-        indicator.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 0));
-        
-        JPanel panel_toolbar = new JPanel();
-        panel_toolbar.setOpaque(false);
-        panel_toolbar.setLayout(new BorderLayout());
-        panel_toolbar.add(toolbar, BorderLayout.CENTER);
-        panel_toolbar.add(indicator, BorderLayout.EAST);
+        indicator.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
         
         FjListCell<Object> panel_title = new FjListCell<Object>();
-        panel_title.setBorder(BorderFactory.createEmptyBorder(8, 4, 8, 8));
+        panel_title.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 12));
         panel_title.setLayout(new BorderLayout());
+        panel_title.add(indicator, BorderLayout.WEST);
         panel_title.add(this.title, BorderLayout.CENTER);
-        panel_title.add(panel_toolbar, BorderLayout.EAST);
+        panel_title.add(toolbar, BorderLayout.EAST);
         
         panel_title.addActionListener(e->{
             if ("+".equals(indicator.getText())) {
