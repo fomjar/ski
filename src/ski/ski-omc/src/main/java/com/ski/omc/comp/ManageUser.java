@@ -189,7 +189,7 @@ public class ManageUser extends JDialog {
         user = CommonService.getChannelAccountByCaid(user.i_caid);
         
         i_caid.setText(String.format("0x%08X", user.i_caid));
-        c_user.setText(user.getDisplayName());
+        c_user.setText(user.c_user);
         i_channel.setText(getChannel2String(user.i_channel));
         c_name.setText(0 == user.c_name.length() ? "(没有姓名)" : user.c_name);
         i_gender.setText(CommonService.GENDER_FEMALE == user.i_gender ? "女" : CommonService.GENDER_MALE == user.i_gender ? "男" : "人妖");

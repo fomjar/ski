@@ -1,25 +1,33 @@
 package com.ski.wca;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.ski.common.CommonDefinition;
 import com.ski.wca.monitor.TokenMonitor;
 
-import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
+import fomjar.server.msg.FjXmlMessage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -395,67 +403,118 @@ public class WechatInterface {
     private static final String MSG_PAY = "<xml>"
             + "<appid>%s</appid>"                           // 公众号APPID
             + "<mch_id>%s</mch_id>"                         // 微信支付分配的商户ID
+            + "<device_info>%s</device_info>"               // 终端设备号(门店号或收银设备ID)，注意：PC网页或公众号内支付请传"WEB"
             + "<nonce_str>%s</nonce_str>"                   // 随机字符串不长于32位
             + "<sign>%s</sign>"                             // 签名
             + "<body>%s</body>"                             // 商品描述：title-name
-            + "<detail><![CDATA[%s]]></detail>"             // 商品详情
             + "<attach>%s</attach>"                         // 附加字段，查询结果时显示
             + "<out_trade_no>%s</out_trade_no>"             // 商户订单号
-            + "<total_fee>1</total_fee>"                    // 交易总金额，单位：分
+            + "<total_fee>%d</total_fee>"                   // 交易总金额，单位：分
             + "<spbill_create_ip>%s</spbill_create_ip>"     // 本地IP
             + "<notify_url>%s</notify_url>"                 // 回调地址，不带参数
             + "<trade_type>%s</trade_type>"                 // 交易类型
+            + "<openid>%s</openid>"                         // jsapi必须传
             + "</xml>";
     
     public static final String TRADE_TYPE_JSAPI     = "JSAPI";  // 公众号
     public static final String TRADE_TYPE_NATIVE    = "NATIVE"; // 原生扫码
     public static final String TRADE_TYPE_APP       = "APP";    // APP
     
-    public static void pay(String appid, String mch_id, String body, String attach, String notify_url, String trade_type, PayGoods... goods) {
-        if (null == goods || 0 == goods.length) throw new IllegalArgumentException("there must be at least one goods");
-        
+    public static FjXmlMessage prepay(String body, String attach, int money, String host, String notify_url, String user) {
         String url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
-        JSONObject goods_detail = new JSONObject();
-        goods_detail.put("goods_detail", JSONArray.fromObject(goods));
-        String spbill_create_ip = "127.0.0.1";
-        try {spbill_create_ip = InetAddress.getLocalHost().getHostAddress();}
-        catch (UnknownHostException e) {e.printStackTrace();}
         String msg_pay = String.format(MSG_PAY,
-                appid,
-                mch_id,
+                FjServerToolkit.getServerConfig("wca.appid"),
+                FjServerToolkit.getServerConfig("wca.mch.id"),
+                "WEB",
                 Long.toHexString(System.currentTimeMillis()) + Long.toHexString(System.nanoTime()),
-                "%s",
+                "%s", // sign
                 body,
-                goods_detail.toString(),
                 attach,
                 new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) + String.valueOf(System.currentTimeMillis()).substring(10),
-                1 == goods.length ? (goods[0].count * goods[0].price) : Arrays.asList(goods).stream().map(goods0->goods0.count * goods0.price).reduce((goods1, goods2)->{return goods1 + goods2;}).get(),
-                spbill_create_ip,
+                money,
+                host,
                 notify_url,
-                trade_type);
-        FjMessage rsp = FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_XML, msg_pay));
-        System.out.println(rsp);
+                TRADE_TYPE_JSAPI,
+                user);
+        String sign = createSignature4Pay(new FjXmlMessage(msg_pay).xml());
+        msg_pay = String.format(msg_pay, sign);
+        logger.debug("prepay request: " + msg_pay);
+        FjXmlMessage rsp = (FjXmlMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_XML, msg_pay));
+        logger.debug("prepay response: " + rsp);
+        return rsp;
     }
     
-    public static class PayGoods {
-        
-        public String id;
-        public String name;
-        public int count;
-        public int price;
-        private JSONObject args;
-        
-        public PayGoods(String id, String name, int count, int price) {
-            args = new JSONObject();
-            args.put("goods_id",    this.id = id);
-            args.put("goods_name",  this.name = name);
-            args.put("quantity",    this.count = count);
-            args.put("price",       this.price = price);
-        }
-        
-        @Override
-        public String toString() {
-            return args.toString();
-        }
+    public static String createSignature4Config(String nonceStr, long timestamp, String url) {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("nonceStr",     nonceStr);
+        map.put("jsapi_ticket", TokenMonitor.getInstance().ticket());
+        map.put("timestamp",    String.valueOf(timestamp));
+        map.put("url",          url);
+        List<String> keys = new LinkedList<String>(map.keySet());
+        Collections.sort(keys);
+        StringBuilder sb = new StringBuilder();
+        keys.forEach(key->{
+            if (0 < sb.length()) sb.append("&");
+            sb.append(key);
+            sb.append("=");
+            sb.append(map.get(key));
+        });
+        StringBuilder result = new StringBuilder();
+        try {
+            MessageDigest digest = MessageDigest.getInstance("sha-1");
+            digest.update(sb.toString().getBytes());
+            byte[] digestbyte = digest.digest();
+            for (byte db : digestbyte) {
+                String dbh = Integer.toHexString(db & 0xFF);
+                if (dbh.length() < 2) result.append("0");
+                result.append(dbh);
+            }
+            return result.toString();
+        } catch (NoSuchAlgorithmException e) {logger.error("create signature by sha-1 failed", e);}
+        return "";
     }
+    
+    public static String createSignature4Pay(Document xml) {
+        Map<String, String> map = new HashMap<String, String>();
+        NodeList nodes = xml.getDocumentElement().getChildNodes();
+        for (int i = 0; i < nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+            
+            if (null == node.getFirstChild()) continue;
+            String name     = node.getNodeName();
+            String value    = node.getFirstChild().getNodeValue();
+            if (name.equals("sign")) continue;
+            if (null == value || 0 == value.length()) continue;
+            
+            map.put(name, value);
+        }
+        return createSignature4Pay(map);
+    }
+    
+    public static String createSignature4Pay(Map<String, String> map) {
+        List<String> keys = new LinkedList<String>(map.keySet());
+        Collections.sort(keys);
+        StringBuilder sb = new StringBuilder();
+        keys.forEach(key->{
+            if (0 < sb.length()) sb.append("&");
+            sb.append(key);
+            sb.append("=");
+            sb.append(map.get(key));
+        });
+        sb.append("&key=" + FjServerToolkit.getServerConfig("wca.mch.key"));
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(sb.toString().getBytes());
+            byte [] digestbyte = digest.digest();
+            StringBuilder result = new StringBuilder();
+            for (byte db : digestbyte) {
+                String dbh = Integer.toHexString(db & 0xFF);
+                if (dbh.length() < 2) result.append("0");
+                result.append(dbh);
+            }
+            return result.toString().toUpperCase();
+        } catch (NoSuchAlgorithmException e) {logger.error("create signature by md5 failed", e);}
+        return "";
+    }
+
 }

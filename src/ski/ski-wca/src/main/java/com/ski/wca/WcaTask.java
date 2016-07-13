@@ -45,7 +45,7 @@ public class WcaTask implements FjServerTask {
                 final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
                 wrapper.attach("conn", null); // give up connection
                 pool.submit(()->{
-                    try {WcWeb.dispatch(req, conn);}
+                    try {WcWeb.dispatch(server.name(), req, conn);}
                     catch (Exception e) {logger.error("error occurs when dispatch web message: " + msg, e);}
                     finally {try {conn.close();} catch (IOException e) {e.printStackTrace();}}
                 });

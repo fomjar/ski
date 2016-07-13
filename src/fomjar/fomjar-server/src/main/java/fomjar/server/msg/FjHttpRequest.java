@@ -46,7 +46,7 @@ public class FjHttpRequest extends FjHttpMessage {
         if (url().contains("//")) requesturl = url().substring(url().substring(url().indexOf("//") + 2).indexOf("/"));
         else requesturl = url();
         return String.format("%s %s HTTP/1.1\r\n"
-                + "Content-Type: %s\r\n"
+                + "Content-Type: %s;charset=UTF-8\r\n"
                 + "Content-Length: %d\r\n"
                 + "\r\n"
                 + "%s",
@@ -82,5 +82,28 @@ public class FjHttpRequest extends FjHttpMessage {
         
         if (null != urlargs) args.putAll(urlargs);
         return new FjJsonMessage(args);
+    }
+    
+    public FjXmlMessage toXmlMessage(SocketChannel conn) {
+        String xml = content();
+        if (null != xml && 0 < xml.length()) return new FjXmlMessage(xml);
+        
+        if ("POST".equals(method())) {
+            if (null == buf) buf = ByteBuffer.allocate(1024 * 1024);
+            long timeout = 1000L * 3;
+            long start = System.currentTimeMillis();
+            while ((null == xml || 0 == xml.length()) && System.currentTimeMillis() - start < timeout) {
+                try{Thread.sleep(50L);}
+                catch (InterruptedException e) {e.printStackTrace();}
+                buf.clear();
+                try {conn.read(buf);}
+                catch (IOException e) {e.printStackTrace();}
+                buf.flip();
+                if (!buf.hasRemaining()) continue;
+                
+                return new FjXmlMessage(Charset.forName("utf-8").decode(buf).toString());
+            }
+        }
+        return null;
     }
 }

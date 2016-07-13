@@ -7,37 +7,42 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/jquery.json.min.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
-        <script type='text/javascript' src='/ski-wcweb/ski-wca.js'></script>
         <script type='text/javascript'>
-            var inst = %x;
-            var user = %x;
+            var inst = '%x';
+            var user = '%x';
             function submit() {
                 var to_user     = $('#to_user').val();
                 var to_phone    = $('#to_phone').val();
+
                 if (0 == to_user.length) {
-                    $('#result_head').text("错误");
-                    $('#result_body').text('“淘宝昵称”不能为空');
-                    $('#dialog').show();
+                    showDialog('错误', '“淘宝昵称”不能为空');
                     return;
                 }
                 if (0 == to_phone.length) {
-                    $('#result_head').text("错误");
-                    $('#result_body').text('“手机号”不能为空');
-                    $('#dialog').show();
+                    showDialog('错误', '“手机号”不能为空');
                     return;
                 }
 
                 var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
-                $.get(base+'&to_user='+to_user+'&to_phone='+to_phone+'&step=apply', function(result) {
-                            if ('success' == result) {
+                $.post(base, $.toJSON({
+                            'step'     : 'apply',
+                            'to_user'  : to_user,
+                            'to_phone' : to_phone
+                        }), function(args) {
+                            if (0 == args.code) {
                                 window.location = base + '&step=success';
                             } else {
-                                $('#result_head').text("关联失败")
-                                $('#result_body').text(result);
-                                $('#dialog').show();
+                                showDialog("关联失败", args.desc);
                             }
                         });
+            }
+
+            function showDialog(head, body) {
+                $('#result_head').text(head);
+                $('#result_body').text(body);
+                $('#dialog').show();
             }
         </script>
     </head>

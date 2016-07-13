@@ -13,10 +13,11 @@ import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.accessibility.Accessible;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
-public class FjListCell<E> extends JComponent {
+public class FjListCell<E> extends JComponent implements Accessible {
     
     private static final long serialVersionUID = -5413153652935337627L;
     

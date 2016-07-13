@@ -19,7 +19,7 @@ public class FjHttpResponse extends FjHttpMessage {
     public String toString() {
         return String.format("HTTP/1.1 %d OK\r\n"
                 + "Server: fjserver/0.1\r\n"
-                + "Content-Type: %s\r\n"
+                + "Content-Type: %s;charset=UTF-8\r\n"
                 + "Content-Length: %d\r\n"
                 + "\r\n"
                 + "%s",

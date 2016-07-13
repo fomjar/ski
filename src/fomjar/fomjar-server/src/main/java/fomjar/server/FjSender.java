@@ -133,7 +133,7 @@ public class FjSender extends FjLoopTask {
     private static void initSslContext() {
         if (null != sslcontext) return;
         try {
-            sslcontext = SSLContext.getInstance("SSL");
+            sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, new TrustManager[]{new DefaultTrustManager()}, null);
             SSLContext.setDefault(sslcontext);
         } catch (GeneralSecurityException e) {logger.error("init ssl context failed!", e);}
