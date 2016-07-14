@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>搜索游戏</title>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript'>
+            var inst = '%x';
+            var user = '%x';
+            var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
+
+            function submit() {
+                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
+
+                if (0 == word.length) {
+                    $('#result')[0].innerHTML = '';
+                    return;
+                }
+
+                $.post(base, $.toJSON({
+                            'step'  : 'apply',
+                            'word'  : word
+                        }), function(args) {
+                            if (0 == args.code) {
+                                var title = document.createElement('div');
+                                title.setAttribute('class', 'weui_cells_title');
+                                title.innerText = '搜索结果';
+
+                                var cells = document.createElement('div');
+                                cells.setAttribute('class', 'weui_cells weui_cells_access');
+                                for (var i in args.desc) {
+                                    var game = args.desc[i];
+                                    var cell = "<a class='weui_cell' href=\"javascript:browseGame('" + game.gid + "');\">"
+                                            + "<div class='weui_cell_hd'><img style='width:20px;margin-right:5px;display:block' alt='' src='" + game.icon + "'></div>"
+                                            + "<div class='weui_cell_bd weui_cell_primary'>"
+                                            + "<p>" + game.name +"</p>"
+                                            + "</div>"
+                                            + "<div class='weui_cell_ft'>"
+                                            + "</div>"
+                                            + "</a>";
+                                    cells.innerHTML = cells.innerHTML + cell;
+                                }
+                                $('#result')[0].innerHTML = '';
+                                $('#result')[0].appendChild(title);
+                                $('#result')[0].appendChild(cells);
+                            } else {
+                                showDialog("搜索失败", args.desc);
+                            }
+                        });
+            }
+
+            function browseGame(gid) {
+                window.location = base + '&step=apply&gid=' + gid;
+            }
+
+            function showDialog(head, body) {
+                $('#result_head').text(head);
+                $('#result_body').text(body);
+                $('#dialog').show();
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='bd'>
+                <div class="weui_search_bar" id="search_bar">
+                    <div class="weui_search_outer">
+                        <div class="weui_search_inner">
+                            <i class="weui_icon_search"></i>
+                            <input class="weui_search_input" id="search_input" required="" type="search" placeholder="搜索" onkeyup="submit();" onfocus="$('#search_bar').addClass('weui_search_focusing');" onblur="if (0 == $('#search_input').val().length) $('#search_bar').removeClass('weui_search_focusing');">
+                            <a class="weui_icon_clear" id="search_clear" href="javascript:$('#search_input').val('');$('#search_input').focus();submit();"></a>
+                        </div>
+                        <label class="weui_search_text" id="search_text" for="search_input">
+                            <i class="weui_icon_search"></i>
+                            <span>搜索</span>
+                        </label>
+                    </div>
+                    <a class="weui_search_cancel" id="search_cancel" href="javascript:$('#search_input').val('');$('#search_input').blur();submit();">取消</a>
+                </div>
+                <div id='result'></div>
+            </div>
+        </div>
+        <div class="weui_dialog_alert" id="dialog" style='display:none'>
+            <div class="weui_mask"></div>
+            <div class="weui_dialog">
+                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
+                <div class="weui_dialog_bd" id='result_body'></div>
+                <div class="weui_dialog_ft">
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

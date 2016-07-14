@@ -6,12 +6,14 @@
         <title>关联淘宝</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
-        <script type='text/javascript' src='/ski-wcweb/jquery-3.0.0.min.js'></script>
-        <script type='text/javascript' src='/ski-wcweb/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
             var inst = '%x';
             var user = '%x';
+            var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
+
             function submit() {
                 var to_user     = $('#to_user').val();
                 var to_phone    = $('#to_phone').val();
@@ -25,7 +27,6 @@
                     return;
                 }
 
-                var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
                 $.post(base, $.toJSON({
                             'step'     : 'apply',
                             'to_user'  : to_user,

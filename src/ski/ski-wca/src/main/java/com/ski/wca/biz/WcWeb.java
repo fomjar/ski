@@ -22,6 +22,7 @@ import org.w3c.dom.NodeList;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.wca.WechatForm;
@@ -33,6 +34,7 @@ import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjXmlMessage;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class WcWeb {
@@ -75,6 +77,9 @@ public class WcWeb {
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT:
                     form = processQueryPlatformAccount(user);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
+                    form = processQueryGame(user, jreq.json());
                     break;
                 }
             }
@@ -224,6 +229,63 @@ public class WcWeb {
         }
         sb.append(WechatForm.createFormFoot());
         return new String[] {FjHttpRequest.CT_HTML, sb.toString()};
+    }
+    
+    private static String[] processQueryGame(int user, JSONObject args) {
+        String step = args.has("step") ? args.getString("step") : "setup";
+        String ct   = null;
+        String form = null;
+        switch (step) {
+        case "setup": {
+            String[] file = fetchFile("/query_game.html");
+            file[1] = String.format(file[1],
+                    CommonDefinition.ISIS.INST_ECOM_QUERY_GAME,
+                    user);
+            ct      = file[0];
+            form    = file[1];
+            break;
+        }
+        case "apply": {
+            if (args.has("word")) {
+                String word = args.getString("word");
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", 0);
+                JSONArray  args_desc = new JSONArray();
+                CommonService.getGameAll().values()
+                        .stream()
+                        .filter(game->game.c_name_zh.contains(word) || game.c_name_en.contains(word))
+                        .forEach(game->{
+                            JSONObject args_game = new JSONObject();
+                            args_game.put("gid",  Integer.toHexString(game.i_gid));
+                            args_game.put("icon", game.c_url_icon);
+                            args_game.put("name", game.getDiaplayName());
+                            args_desc.add(args_game);
+                        });
+                args_rsp.put("desc", args_desc);
+                ct      = FjHttpRequest.CT_JSON;
+                form = args_rsp.toString();
+            } else if (args.has("gid")) {
+                int      gid  = Integer.parseInt(args.getString("gid"), 16);
+                BeanGame game = CommonService.getGameByGid(gid);
+                String[] file = fetchFile("/query_game_by_gid.html");
+                ct      = file[0];
+                form    = String.format(file[1],
+                        CommonDefinition.ISIS.INST_ECOM_QUERY_GAME,
+                        user,
+                        gid,
+                        game.c_url_poster,
+                        game.c_name_zh,
+                        game.c_name_en,
+                        game.c_country,
+                        game.t_sale,
+                        game.c_platform,
+                        CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price,
+                        CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
+            }
+            break;
+        }
+        }
+        return new String[] {ct, form};
     }
     
     private static String[] processApplyPlatformAccountMoney(String server, String terminal, int user, JSONObject args) {

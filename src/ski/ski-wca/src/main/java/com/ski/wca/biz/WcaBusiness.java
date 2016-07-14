@@ -121,7 +121,9 @@ public class WcaBusiness {
         case "22":  // 搜索游戏
             try {
                 WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("搜索游戏", "搜索游戏", "https://www.baidu.com/", "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
+                        new WechatInterface.Article("搜索游戏", "搜索游戏",
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_GAME, user_wechat.i_caid),
+                                "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
                 });
             } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;

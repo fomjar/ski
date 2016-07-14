@@ -24,5 +24,9 @@ public class BeanGame {
     public String   t_sale;
     public String   c_name_zh;
     public String   c_name_en;
+    
+    public String getDiaplayName() {
+        return 0 == c_name_en.length() ? c_name_zh : String.format("%s(%s)", c_name_zh, c_name_en);
+    }
 
 }
