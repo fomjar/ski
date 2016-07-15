@@ -21,7 +21,6 @@ public class WaTask implements FjServerTask {
     
     public WaTask() {
         System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
-        AEMonitor.getInstance().start();
     }
 
     @Override
@@ -36,7 +35,7 @@ public class WaTask implements FjServerTask {
         JSONObject args = req.argsToJsonObject();
         logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), inst));
         
-        AE ae = AEMonitor.getInstance().getAe(inst);
+        AE ae = getAe(inst);
         if (null == ae) {
             logger.error(String.format("can not find an AE for instuction: 0x%08X", inst));
             response(server.name(), req, String.format("{'code':%d, 'desc':'can not find any ae for instuction: 0x%08X'}", CommonDefinition.CODE.CODE_WEB_AE_NOT_FOUND, inst));
@@ -67,6 +66,20 @@ public class WaTask implements FjServerTask {
                 driver.get(home);
             }
         }
+    }
+    
+    public AE getAe(int inst) {
+        String className = FjServerToolkit.getServerConfig(String.format("ae.0x%08X", inst));
+        try {
+            Class<?> clazz = Class.forName(className);
+            Object instance = clazz.newInstance();
+            if (!(instance instanceof AE)) {
+                logger.error("invalid ae class: " + clazz.getName());
+                return null;
+            }
+            return (AE) instance;
+        } catch (Exception e) {logger.error("error occurs when load ae class: " + className, e);}
+        return null;
     }
     
     private static void response(String server, FjDscpMessage req, Object args) {

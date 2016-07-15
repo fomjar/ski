@@ -6,19 +6,25 @@
   <packaging>pom</packaging>
   <modules>
   	<module>ski-common</module>
+  	<module>ski-omc</module>
   	<module>ski-wca</module>
     <module>ski-wsi</module>
+  	<module>ski-bcs</module>
     <module>ski-mma</module>
-    <module>ski-cdb</module>
   	<module>ski-wa</module>
-  	<module>ski-wa-ae</module>
-  	<module>ski-omc</module>
+    <module>ski-cdb</module>
   </modules>
-  <dependencies>
-  	<dependency>
-  		<groupId>fomjar</groupId>
-  		<artifactId>fomjar-server</artifactId>
-  		<version>0.0.1</version>
-  	</dependency>
-  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.2</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

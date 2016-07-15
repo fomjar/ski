@@ -5,12 +5,12 @@
     <artifactId>ski</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>ski-mma</artifactId>
+  <artifactId>ski-bcs</artifactId>
   <dependencies>
   	<dependency>
-     <groupId>ski</groupId>
-     <artifactId>ski-common</artifactId>
-     <version>0.0.1</version>
+  		<groupId>ski</groupId>
+  		<artifactId>ski-common</artifactId>
+  		<version>0.0.1</version>
   	</dependency>
   </dependencies>
   <build>

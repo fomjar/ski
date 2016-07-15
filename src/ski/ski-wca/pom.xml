@@ -6,29 +6,6 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>ski-wca</artifactId>
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <!-- not append assembly id in release file name -->
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <descriptors>
-                        <descriptor>../../fomjar/fomjar-server/package.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>package</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
     	<dependency>
     		<groupId>ski</groupId>
@@ -36,4 +13,27 @@
     		<version>0.0.1</version>
     	</dependency>
     </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <!-- not append assembly id in release file name -->
+          <appendAssemblyId>false</appendAssemblyId>
+          <descriptors>
+            <descriptor>../../fomjar/fomjar-server/package.xml</descriptor>
+          </descriptors>
+        </configuration>
+        <executions>
+          <execution>
+            <id>package</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
