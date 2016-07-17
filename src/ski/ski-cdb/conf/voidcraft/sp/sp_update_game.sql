@@ -57,6 +57,8 @@ begin
             name_zh,
             name_en
         );
+        
+        set c_desc = conv(di_gid, 10, 16);
     else
         select count(1)
           into di_count
@@ -127,8 +129,9 @@ begin
                  where i_gid = gid;
             end if;
         end if;
+
+        set c_desc = conv(gid, 10, 16);
     end if;
     set i_code = 0;
-    set c_desc = null;
 end //
 delimiter ;

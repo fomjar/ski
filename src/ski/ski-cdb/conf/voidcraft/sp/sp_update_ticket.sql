@@ -57,6 +57,8 @@ begin
             ifnull(state, 0),   -- open
             result
         );
+
+        set c_desc = conv(di_tid, 10, 16);
     else
         select count(1)
           into di_count
@@ -127,8 +129,9 @@ begin
                  where i_tid = tid;
             end if;
         end if;
+        
+        set c_desc = conv(tid, 10, 16);
     end if;
     set i_code = 0;
-    set c_desc = null;
 end //
 delimiter ;

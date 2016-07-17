@@ -1,5 +1,6 @@
 package fomjar.server;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
@@ -9,7 +10,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -21,8 +21,10 @@ public class FjReceiver extends FjLoopTask {
     
     private static Selector selector = null;
     
-    private static final Logger logger = Logger.getLogger(FjReceiver.class);
-    private static final int BUF_LEN = 1024 * 1024;
+    private static final Logger logger      = Logger.getLogger(FjReceiver.class);
+    private static final int    BUF_LEN     = 1024 * 4;
+    private static final long   TIMEOUT     = 100L * 1;
+    
     private FjMessageQueue mq;
     private int port;
     private ServerSocketChannel sock;
@@ -86,12 +88,25 @@ public class FjReceiver extends FjLoopTask {
                     if (port() != conn.socket().getLocalPort()) return;
                     
                     key.cancel();
-                    buf.clear();
-                    int n = conn.read(buf);
-                    buf.flip();
-                    String data = Charset.forName("utf-8").decode(buf).toString();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    {
+                        buf.clear();
+                        int     n = -1;
+                        long    begin = System.currentTimeMillis();
+                        while (0 <= (n = conn.read(buf)) && TIMEOUT > System.currentTimeMillis() - begin) {
+                            if (n > 0) {
+                                buf.flip();
+                                baos.write(buf.array(), buf.position(), buf.limit());
+                                buf.clear();
+                                begin = System.currentTimeMillis();
+                            }
+                        }
+                    }
+                    String data = baos.toString("utf-8");
+                    baos.close();
                     logger.debug("read raw data is: " + data);
-                    if (0 < n)
+                    
+                    if (0 < data.length())
                         mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
                                 .attach("conn", conn)
                                 .attach("raw", data));

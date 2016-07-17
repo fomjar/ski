@@ -55,8 +55,8 @@ public class WsiTask implements FjServerTask {
     private void process(String server, FjMessageWrapper wrapper) {
         FjHttpRequest hmsg = (FjHttpRequest) wrapper.message();
         SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
-        FjJsonMessage jmsg = hmsg.toJsonMessage(conn);
-        JSONObject args = jmsg.json();
+        JSONObject args = hmsg.contentToJson();
+        if (null != hmsg.urlArgs()) args.putAll(hmsg.urlArgs());
         
         if (!args.has("inst")) {
             logger.error("bad request: " + hmsg);

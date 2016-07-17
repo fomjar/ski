@@ -32,7 +32,6 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
-import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjXmlMessage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -42,6 +41,10 @@ public class WcWeb {
     private static final Logger logger = Logger.getLogger(WcWeb.class);
     public static final String URL_KEY = "/ski-wcweb";
     private static final String ROOT = "conf/form";
+    private static final String STEP_PREPARE    = "prepare";
+    private static final String STEP_SETUP      = "setup";
+    private static final String STEP_APPLY      = "apply";
+    private static final String STEP_SUCCESS    = "success";
     
     private WcWeb() {}
 
@@ -67,44 +70,61 @@ public class WcWeb {
         String url = req.url().contains("?") ? req.url().substring(0, req.url().indexOf("?")) : req.url();
         switch (url) {
         case URL_KEY: {
-            FjJsonMessage jreq = req.toJsonMessage(conn);
-            if (jreq.json().has("inst") && jreq.json().has("user")) {
-                int inst = Integer.parseInt(jreq.json().getString("inst"), 16);
-                int user = Integer.parseInt(jreq.json().getString("user"), 16);
+            JSONObject args = req.contentToJson();
+            if (null != req.urlArgs()) args.putAll(req.urlArgs());
+            
+            if (args.has("inst") && args.has("user")) {
+                int inst = Integer.parseInt(args.getString("inst"), 16);
+                int user = Integer.parseInt(args.getString("user"), 16);
                 switch(inst) {
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE:
-                    form = processApplyPlatformAccountMerge(user, jreq.json());
+                    form = processApplyPlatformAccountMerge(user, args);
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT:
                     form = processQueryPlatformAccount(user);
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
-                    form = processQueryGame(user, jreq.json());
+                    form = processQueryGame(user, args);
                     break;
+                case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
+                    form = processUpdateChannelAccount(server, user, args);
                 }
             }
             break;
         }
         case URL_KEY + "/pay/recharge": {
-            FjJsonMessage jreq = req.toJsonMessage(conn);
-            if (jreq.json().has("inst") && jreq.json().has("user")) {
-                int inst = Integer.parseInt(jreq.json().getString("inst"), 16);
-                int user = Integer.parseInt(jreq.json().getString("user"), 16);
+            JSONObject args = req.contentToJson();
+            if (null != req.urlArgs()) args.putAll(req.urlArgs());
+
+            if (args.has("inst") && args.has("user")) {
+                int inst = Integer.parseInt(args.getString("inst"), 16);
+                int user = Integer.parseInt(args.getString("user"), 16);
                 switch(inst) {
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
-                    String terminal = "127.0.0.1";
-                    try {terminal = ((InetSocketAddress) conn.getRemoteAddress()).getAddress().getHostAddress();}
-                    catch (IOException e) {logger.error("get user terminal address failed", e);}
-                    form = processApplyPlatformAccountMoney(server, terminal, user, jreq.json());
+                    form = processApplyPlatformAccountMoney_Recharge(server, user, args, conn);
+                    break;
+                }
+            }
+            break;
+        }
+        case URL_KEY + "/pay/refund": {
+            JSONObject args = req.contentToJson();
+            if (null != req.urlArgs()) args.putAll(req.urlArgs());
+            
+            if (args.has("inst") && args.has("user")) {
+                int inst = Integer.parseInt(args.getString("inst"), 16);
+                int user = Integer.parseInt(args.getString("user"), 16);
+                switch(inst) {
+                case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
+                    form = processApplyPlatformAccountMoney_Refund(server, user, args);
                     break;
                 }
             }
             break;
         }
         case URL_KEY + "/pay/recharge/success": {
-            FjXmlMessage xml = req.toXmlMessage(conn);
-            logger.error("user pay recharge: " + xml);
-            form = processPayRechargeSuccess(server, xml.xml());
+            Document xml = req.contentToXml();
+            form = processPayRechargeSuccess(server, xml);
             break;
         }
         default: {
@@ -123,7 +143,7 @@ public class WcWeb {
     }
     
     private static String[] processApplyPlatformAccountMerge(int user, JSONObject args) {
-        String step = args.has("step") ? args.getString("step") : "setup";
+        String step = args.has("step") ? args.getString("step") : STEP_SETUP;
         String ct   = null;
         String form = null;
         if (1 < CommonService.getChannelAccountRelated(user).size()) {  // 用户已经绑定过了
@@ -131,13 +151,13 @@ public class WcWeb {
             form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
         } else {
             switch (step) {
-            case "setup":
+            case STEP_SETUP:
                 ct = FjHttpRequest.CT_HTML;
                 String[] file = fetchFile("/apply_platform_account_merge.html");
                 ct      = file[0];
                 form    = String.format(file[1], CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user);
                 break;
-            case "apply":
+            case STEP_APPLY:
                 ct = FjHttpRequest.CT_JSON;
                 JSONObject form_args = new JSONObject();
                 String to_user  = args.getString("to_user");
@@ -178,7 +198,7 @@ public class WcWeb {
                     form = form_args.toString();
                 }
                 break;
-            case "success":
+            case STEP_SUCCESS:
                 ct = FjHttpRequest.CT_HTML;
                 form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
                 break;
@@ -213,13 +233,13 @@ public class WcWeb {
                                     String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.c_name_zh).collect(Collectors.joining("; "));
                                     {
                                         List<String[]> cells = new LinkedList<String[]>();
+                                        cells.add(new String[] {"在租游戏", games});
                                         cells.add(new String[] {"游戏账号", account.c_user});
                                         cells.add(new String[] {"当前密码", account.c_pass_curr});
                                         cells.add(new String[] {"租赁类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
-                                        cells.add(new String[] {"包含游戏", games});
                                         cells.add(new String[] {"租赁单价", c.i_price + "元/天"});
                                         cells.add(new String[] {"起租时间", c.t_begin});
-                                        sb.append(WechatForm.createFormCellGroup("在租游戏：" + games, cells, null));
+                                        sb.append(WechatForm.createFormCellGroup(null, cells, null));
                                         cells.clear();
                                         cells.add(new String[] {"账号操作", "退租", "javascript:;"});
                                         sb.append(WechatForm.createFormCellAccessGroup(null, cells, null));
@@ -232,11 +252,11 @@ public class WcWeb {
     }
     
     private static String[] processQueryGame(int user, JSONObject args) {
-        String step = args.has("step") ? args.getString("step") : "setup";
+        String step = args.has("step") ? args.getString("step") : STEP_SETUP;
         String ct   = null;
         String form = null;
         switch (step) {
-        case "setup": {
+        case STEP_SETUP: {
             String[] file = fetchFile("/query_game.html");
             file[1] = String.format(file[1],
                     CommonDefinition.ISIS.INST_ECOM_QUERY_GAME,
@@ -245,7 +265,7 @@ public class WcWeb {
             form    = file[1];
             break;
         }
-        case "apply": {
+        case STEP_APPLY: {
             if (args.has("word")) {
                 String word = args.getString("word");
                 JSONObject args_rsp = new JSONObject();
@@ -288,13 +308,54 @@ public class WcWeb {
         return new String[] {ct, form};
     }
     
-    private static String[] processApplyPlatformAccountMoney(String server, String terminal, int user, JSONObject args) {
-        String step = args.has("step") ? args.getString("step") : "setup";
+    private static String[] processUpdateChannelAccount(String server, int user, JSONObject args) {
+        JSONObject args_rsp = new JSONObject();
+        
+        if (!args.has("_channel") || !args.has("_user") || !args.has("_name")) {
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "参数不完整");
+            return new String[] {FjHttpRequest.CT_JSON, args_rsp.toString()};
+        }
+        
+        FjDscpMessage rsp = null;
+        {   // 创建用户
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("channel", args.getInt("_channel"));
+            args_cdb.put("user",    args.getString("_user"));
+            args_cdb.put("name",    args.getString("_name"));
+            rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+            
+            args_rsp.put("code", CommonService.getResponseCode(rsp));
+            args_rsp.put("desc", CommonService.getResponseDesc(rsp));
+        }
+        {   // 合并用户
+            boolean merge = args.has("_merge") ? args.getBoolean("_merge") : false;
+            if (merge) {
+                CommonService.updateChannelAccount();
+                CommonService.updatePlatformAccount();
+                CommonService.updatePlatformAccountMap();
+                CommonService.updatePlatformAccountMoney();
+                
+                int puser_alipay = CommonService.getPlatformAccountByCaid(Integer.parseInt(args_rsp.getString("desc"), 16));
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("paid_to", CommonService.getPlatformAccountByCaid(user));
+                args_cdb.put("paid_from", puser_alipay);
+                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
+                
+                args_rsp.put("code", CommonService.getResponseCode(rsp));
+                args_rsp.put("desc", CommonService.getResponseDesc(rsp));
+            }
+        }
+        return new String[] {FjHttpRequest.CT_JSON, args_rsp.toString()};
+    }
+    
+    private static String[] processApplyPlatformAccountMoney_Recharge(String server, int user, JSONObject args, SocketChannel conn) {
+        String step = args.has("step") ? args.getString("step") : STEP_SETUP;
         String ct   = null;
         String form = null;
         switch (step) {
-        case "setup": {
-            String[] file = fetchFile("/apply_platform_account_money.html");
+        case STEP_SETUP: {
+            String[] file = fetchFile("/apply_platform_account_money_recharge.html");
             ct              = file[0];
             long timestamp  = System.currentTimeMillis() / 1000;
             String nonceStr = Long.toHexString(System.currentTimeMillis());
@@ -308,8 +369,11 @@ public class WcWeb {
                     WechatInterface.createSignature4Config(nonceStr, timestamp, WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user)));
             break;
         }
-        case "apply": {
+        case STEP_APPLY: {
             String money = args.getString("money");
+            String terminal = "127.0.0.1";
+            try {terminal = ((InetSocketAddress) conn.getRemoteAddress()).getAddress().getHostAddress();}
+            catch (IOException e) {logger.error("get user terminal address failed", e);}
             String url = generateUrl(server, URL_KEY + "/pay/recharge/success", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user);
             url = url.substring(0, url.indexOf("?"));
             FjXmlMessage rsp = WechatInterface.prepay(
@@ -345,9 +409,55 @@ public class WcWeb {
             form    = json_prepay.toString();
             break;
         }
-        case "success": {
+        case STEP_SUCCESS: {
             ct = FjHttpRequest.CT_HTML;
             form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "充值成功", "现在可以到“我的账户”中查看账户余额，感谢您的支持", null, null);
+            break;
+        }
+        }
+        return new String[] {ct, form};
+    }
+    
+    private static String[] processApplyPlatformAccountMoney_Refund(String server, int user, JSONObject args) {
+        String step = args.has("step") ? args.getString("step") : STEP_SETUP;
+        String ct   = null;
+        String form = null;
+        BeanChannelAccount user_alipay  = null;
+        BeanPlatformAccount puser       = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
+        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelated(user);
+        for (BeanChannelAccount u : users) {
+            if (u.i_channel == CommonService.CHANNEL_ALIPAY) {
+                user_alipay = u;
+                break;
+            }
+        }
+        if (null == user_alipay) step = STEP_PREPARE;
+        
+        switch (step) {
+        case STEP_PREPARE: {
+            String[] file = fetchFile("/update_channel_account.html");
+            ct      = file[0];
+            form    = String.format(file[1],
+                    CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT,
+                    user,
+                    CommonService.CHANNEL_ALIPAY,
+                    true,   // merge
+                    generateUrl(server, URL_KEY + "/pay/refund", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user) + "&step=setup");
+            break;
+        }
+        case STEP_SETUP: {
+            String[] file = fetchFile("/apply_platform_account_money_refund.html");
+            ct      = file[0];
+            form    = String.format(file[1],
+                    CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY,
+                    user,
+                    user_alipay.c_user,
+                    user_alipay.c_name,
+                    puser.i_cash);
+            break;
+        }
+        case STEP_APPLY: {
+            logger.error("apply data: " + args);
             break;
         }
         }
@@ -380,6 +490,8 @@ public class WcWeb {
      * @param xml
      */
     private static String[] processPayRechargeSuccess(String server, Document xml) {
+        logger.error("user pay recharge: " + xml);
+        
         String user     = null;
         float  money    = 0.00f;
         String trade    = null;

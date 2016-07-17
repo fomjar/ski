@@ -141,6 +141,6 @@ begin
         end if;
     end if;
     set i_code = 0;
-    set c_desc = null;
+    set c_desc = conv(di_paid, 10, 16);
 end //
 delimiter ;

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>退款</title>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript'>
+            var inst    = '%x';
+            var user    = '%x';
+            var channel = %d;
+            var merge   = %b;
+            var notify  = '%s';
+
+            var base    = '/ski-wcweb?inst=' + inst + '&user=' + user;
+
+            function submit() {
+                var alipay_user = $('#user').val();
+                var alipay_name = $('#name').val();
+
+                if (0 == alipay_user.length) {
+                    showDialog('错误', '账号不能为空');
+                    return;
+                }
+                if (0 == alipay_name.length) {
+                    showDialog('错误', '姓名不能为空');
+                    return;
+                }
+
+                showToast('正在处理');
+                $.post(base, $.toJSON({
+                            '_channel'  : channel,  // channel_alipay
+                            '_user'     : alipay_user,
+                            '_name'     : alipay_name,
+                            '_merge'    : merge
+                        }), function(args) {
+                            hideToast();
+                            if (0 == args.code) {
+                                window.location = notify;
+                            } else {
+                                showDialog("提交失败", args.desc);
+                            }
+                        });
+            }
+
+            function showToast(text) {
+                $('#toast_text').text(text);
+                $('#toast').show();
+            }
+            function hideToast() {
+                $('#toast').hide();
+            }
+
+            function showDialog(head, body) {
+                $('#result_head').text(head);
+                $('#result_body').text(body);
+                $('#dialog').show();
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='hd'>
+                <h1 class='page_title'>补充信息</h1>
+            </div>
+            <div class='bd'>
+                <div class='weui_cells_title'>补充支付宝信息以便于我们为您自动打款</div>
+                <div class='weui_cells weui_cells_form'>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'>
+                            <label class='weui_label'>支付宝账号</label>
+                        </div>
+                        <div class='weui_cell_bd weui_cell_primary'>
+                            <input class='weui_input' placeholder='请输入支付宝账号' id='user'/>
+                        </div>
+                    </div>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'>
+                            <label class='weui_label'>真实姓名</label>
+                        </div>
+                        <div class='weui_cell_bd weui_cell_primary'>
+                            <input class='weui_input' placeholder='请输入您的真实姓名' id='name'/>
+                        </div>
+                    </div>
+                </div>
+                <div class='weui_cells_tips'>我们承诺保护您个人隐私，此信息仅用户退款</div>
+                <div class='weui_btn_area'>
+                    <a class='weui_btn weui_btn_primary' href="javascript:submit()">提交</a>
+                </div>
+            </div>
+        </div>
+        <div class="weui_dialog_alert" id="dialog" style='display:none'>
+            <div class="weui_mask"></div>
+            <div class="weui_dialog">
+                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
+                <div class="weui_dialog_bd" id='result_body'></div>
+                <div class="weui_dialog_ft">
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
+                </div>
+            </div>
+        </div>
+        <div class="weui_loading_toast" id="toast" style="display: none;">
+            <div class="weui_mask_transparent"></div>
+            <div class="weui_toast">
+                <div class="weui_loading">
+                    <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_10"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_11"></div>
+                </div>
+                <p class="weui_toast_content" id='toast_text'></p>
+            </div>
+        </div>
+    </body>
+</html>

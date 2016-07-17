@@ -20,6 +20,8 @@ import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.omc.UIToolkit;
 
+import net.sf.json.JSONObject;
+
 public class MainFrame extends JFrame {
 
     private static final long serialVersionUID = 8460467197557992622L;
@@ -49,6 +51,8 @@ public class MainFrame extends JFrame {
         toolbar.add(new JButton("游"));
         toolbar.add(new JButton("帐"));
         toolbar.add(new JButton("工"));
+        toolbar.addSeparator();
+        toolbar.add(new JButton("转"));
         
         toolbar_user = new JPanel();
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -87,6 +91,14 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(2)).addActionListener(e->new ListGame().setVisible(true));
         ((JButton) toolbar.getComponent(3)).addActionListener(e->new ListGameAccount().setVisible(true));
         ((JButton) toolbar.getComponent(4)).addActionListener(e->new ListTicket().setVisible(true));
+        ((JButton) toolbar.getComponent(6)).addActionListener(e->{
+            JSONObject args = new JSONObject();
+            args.put("user", "fomjar@gmail.com");
+            args.put("name", "杜逢佳");
+            args.put("money", "0.1");
+            args.put("remark", "测试转账");
+            System.out.println(CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_MONEY_TRANSFER, args));
+        });
         
         users.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(users.getList()) {
             @Override

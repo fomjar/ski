@@ -248,6 +248,13 @@ begin
 
             call sp_update_commodity_rent(i_code, c_desc, oid, di_csn, remark, price, count, _begin, _end, expense, arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
         end if;
+
+        if i_code is null then
+            set i_code = 0;
+        end if;
+        if i_code = 0 then
+            set c_desc = conv(di_csn, 10, 16);
+        end if;
     end if;
 end //
 delimiter ;

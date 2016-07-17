@@ -51,6 +51,8 @@ begin
             birth,
             ifnull(_create, now())
         );
+
+        set c_desc = conv(di_gaid, 10, 16);
     else
         select count(1)
           into di_count
@@ -107,8 +109,9 @@ begin
                  where i_gaid = gaid;
             end if;
         end if;
+
+        set c_desc = conv(gaid, 10, 16);
     end if;
     set i_code = 0;
-    set c_desc = null;
 end //
 delimiter ;

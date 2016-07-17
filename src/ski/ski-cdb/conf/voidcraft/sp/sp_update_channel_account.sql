@@ -61,6 +61,8 @@ begin
             birth,
             ifnull(_create, now())
         );
+        
+        set c_desc = conv(di_caid, 10, 16);
     else
         set di_caid = caid;
 
@@ -157,9 +159,13 @@ begin
         call sp_update_platform_account(i_code, c_desc, di_paid, '', null, null, null, null, null, null, null, null);
 
         call sp_update_platform_account_map(i_code, c_desc, di_paid, di_caid);
+    else
+        set i_code = 0;
     end if;
 
-    set i_code = 0;
-    set c_desc = null;
+    if i_code = 0 then
+        set c_desc = conv(di_caid, 10, 16);
+    end if;
+
 end //
 delimiter ;

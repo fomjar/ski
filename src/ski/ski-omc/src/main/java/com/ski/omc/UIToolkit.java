@@ -241,17 +241,8 @@ public class UIToolkit {
                 break;
             }
             
-            result = c_user.getText();
-            
-            List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(c_user.getText());
-            if (is_recharge_cash.isSelected() || is_recharge_coupon.isSelected()) {
-                if (1 != users.size()) {
-                    JOptionPane.showMessageDialog(null, "无法自动进行后续操作，请手动操作", "信息", JOptionPane.PLAIN_MESSAGE);
-                    break;
-                }
-            }
-            
-            BeanChannelAccount user = users.get(0);
+            int caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
             
             if (is_recharge_cash.isSelected()) {
                 args.clear();
@@ -308,16 +299,8 @@ public class UIToolkit {
                 showServerResponse(rsp);
                 return;
             }
-        }
-        for (BeanOrder order : CommonService.getOrderByCaid(caid)) {
-            if (!order.isClose()) {
-                oid = order.i_oid;
-                break;
-            }
-        }
-        if (-1 == oid) {
-            JOptionPane.showMessageDialog(null, "没有找到可用订单", "错误", JOptionPane.ERROR_MESSAGE);
-            return;
+            
+            oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
         }
         
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();

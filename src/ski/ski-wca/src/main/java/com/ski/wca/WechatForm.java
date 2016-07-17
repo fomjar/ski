@@ -53,8 +53,9 @@ public class WechatForm {
      */
     public static String createFormCellGroup(String group, List<String[]> cells, String tip) {
         StringBuilder sb = new StringBuilder();
-        if (null == group) group = "";
+        if (null != group) group = "";
         sb.append(String.format("<div class='weui_cells_title'>%s</div><div class='weui_cells'>", group));
+        
         if (null != cells) {
             for (String[] cell : cells) {
                 if (0 == cell.length) continue;
@@ -63,6 +64,7 @@ public class WechatForm {
             }
         }
         sb.append("</div>");
+        
         if (null != tip) sb.append(String.format("<div class='weui_cells_tips'>%s</div>", tip));
         return sb.toString();
     }

@@ -53,6 +53,7 @@ begin
          where i_paid = paid_from;
 
         set i_code = 0;
+        set c_desc = conv(paid_to, 10, 16);
     end if;
 end //
 delimiter ;

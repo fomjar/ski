@@ -73,7 +73,7 @@ public final class CommonDefinition {
         public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE  = 0x00002103;
         /** 平台账户充值 */
         public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY  = 0x00002104;
-        /** 申请转账，包含对方账户是确认转账，否则只获取对方账户信息并生成转账提示 */
+        /** 申请转账  */
         public static final int INST_ECOM_APPLY_MONEY_TRANSFER          = 0x00002105;
         // UPDATE
         /** 更新游戏 */

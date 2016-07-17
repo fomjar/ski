@@ -1,13 +1,7 @@
 package fomjar.server.msg;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.sf.json.JSONObject;
 
 
 public class FjHttpRequest extends FjHttpMessage {
@@ -54,56 +48,5 @@ public class FjHttpRequest extends FjHttpMessage {
                 contentType(),
                 contentLength(),
                 null == content() ? "" : content());
-    }
-    
-    private ByteBuffer buf = null;
-    
-    public FjJsonMessage toJsonMessage(SocketChannel conn) {
-        Map<String, String> urlargs = urlArgs();
-        JSONObject args = contentToJson();
-        
-        if ("POST".equals(method()) && args.isEmpty()) {
-            if (null == buf) buf = ByteBuffer.allocate(1024 * 1024);
-            long timeout = 1000L * 3;
-            long start = System.currentTimeMillis();
-            while (args.isEmpty() && System.currentTimeMillis() - start < timeout) {
-                try{Thread.sleep(50L);}
-                catch (InterruptedException e) {e.printStackTrace();}
-                buf.clear();
-                try {conn.read(buf);}
-                catch (IOException e) {e.printStackTrace();}
-                buf.flip();
-                if (!buf.hasRemaining()) continue;
-                
-                args = JSONObject.fromObject(Charset.forName("utf-8").decode(buf).toString());
-                break;
-            }
-        }
-        
-        if (null != urlargs) args.putAll(urlargs);
-        return new FjJsonMessage(args);
-    }
-    
-    public FjXmlMessage toXmlMessage(SocketChannel conn) {
-        String xml = content();
-        if (null != xml && 0 < xml.length()) return new FjXmlMessage(xml);
-        
-        if ("POST".equals(method())) {
-            if (null == buf) buf = ByteBuffer.allocate(1024 * 1024);
-            long timeout = 1000L * 3;
-            long start = System.currentTimeMillis();
-            while ((null == xml || 0 == xml.length()) && System.currentTimeMillis() - start < timeout) {
-                try{Thread.sleep(50L);}
-                catch (InterruptedException e) {e.printStackTrace();}
-                buf.clear();
-                try {conn.read(buf);}
-                catch (IOException e) {e.printStackTrace();}
-                buf.flip();
-                if (!buf.hasRemaining()) continue;
-                
-                return new FjXmlMessage(Charset.forName("utf-8").decode(buf).toString());
-            }
-        }
-        return null;
     }
 }
