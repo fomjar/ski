@@ -1,5 +1,6 @@
 package com.ski.wca;
 
+import java.awt.Color;
 import java.nio.channels.SocketChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -20,6 +21,7 @@ import org.w3c.dom.NodeList;
 import com.ski.common.CommonDefinition;
 import com.ski.wca.monitor.TokenMonitor;
 
+import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
@@ -134,7 +136,7 @@ public class WechatInterface {
     }
     
     private static void checkWechatCustomService() throws WechatPermissionDeniedException, WechatCustomServiceException {
-        FjJsonMessage rsp = customServiceGet();
+        FjJsonMessage rsp = customserviceGet();
         if (!rsp.json().containsKey("kf_list")) logger.warn("custom service maybe unavailable");
         else if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
     }
@@ -180,25 +182,25 @@ public class WechatInterface {
         return sendRequest("GET", url);
     }
     
-    public static FjJsonMessage customServiceAdd(String kfaccount) throws WechatPermissionDeniedException {
+    public static FjJsonMessage customserviceAdd(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
         String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("POST", url, kfaccount);
     }
     
-    public static FjJsonMessage customServiceUpdate(String kfaccount) throws WechatPermissionDeniedException {
+    public static FjJsonMessage customserviceUpdate(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
         String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("POST", url, kfaccount);
     }
     
-    public static FjJsonMessage customServiceDel(String kfaccount) throws WechatPermissionDeniedException {
+    public static FjJsonMessage customserviceDel(String kfaccount) throws WechatPermissionDeniedException {
         checkWechatPermission();
         String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url, kfaccount);
     }
     
-    public static FjJsonMessage customServiceGet() throws WechatPermissionDeniedException {
+    public static FjJsonMessage customserviceGet() throws WechatPermissionDeniedException {
         checkWechatPermission();
         String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), TokenMonitor.getInstance().token());
         return sendRequest("GET", url);
@@ -231,6 +233,11 @@ public class WechatInterface {
         }
         case "event": {
             event     = xml.getElementsByTagName("Event").item(0).getTextContent().trim();
+            if (event.equals("TEMPLATESENDJOBFINISH")) {    // 模板消息结果通知
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_NOTIFY);
+                args.put("content", event + " " + xml.getElementsByTagName("Status").item(0).getTextContent().trim());
+                break;
+            }
             event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent().trim();
             switch (event) {
             case "subscribe": {
@@ -322,7 +329,7 @@ public class WechatInterface {
         return req;
     }
     
-    public static FjJsonMessage customSendTextMessage(String user, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
+    public static FjJsonMessage messageCustomSendText(String user, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
         
@@ -337,7 +344,7 @@ public class WechatInterface {
         return sendRequest("POST", url, msg.toString());
     }
     
-    public static FjJsonMessage customSendNewsMessage(String user, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
+    public static FjJsonMessage messageCustomSendNews(String user, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
         checkWechatPermission();
         checkWechatCustomService();
         
@@ -352,6 +359,34 @@ public class WechatInterface {
         msg.put("msgtype", "news");
         msg.put("news", news);
         return sendRequest("POST", url, msg.toString());
+    }
+    
+    private static String TEMPLATE_COLOR = "#173177";
+    
+    public static void messageTemplateColor(Color color) {
+        TEMPLATE_COLOR = String.format("#%x%x%x", color.getRed(), color.getGreen(), color.getBlue());
+    }
+    
+    public static FjMessage messageTemplateSend(String user, String template, String url, Map<String, String> data) throws WechatPermissionDeniedException {
+        checkWechatPermission();
+        
+        String _url = String.format("https://%s/cgi-bin/message/template/send?access_token=%s", host(), TokenMonitor.getInstance().token());
+        
+        JSONObject datas = new JSONObject();
+        data.entrySet().forEach(entry->{
+            JSONObject v = new JSONObject();
+            v.put("value", entry.getValue());
+            v.put("color", TEMPLATE_COLOR);
+            datas.put(entry.getKey(), v);
+        });
+        
+        JSONObject msg = new JSONObject();
+        msg.put("touser", user);
+        msg.put("template_id", template);
+        msg.put("url", url);
+        msg.put("data", datas);
+        
+        return sendRequest("POST", _url, msg.toString());
     }
     
     public static FjJsonMessage userInfo(String user) throws WechatPermissionDeniedException {

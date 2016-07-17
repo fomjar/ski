@@ -28,6 +28,7 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(FjSender.class);
+    private static long TIMEOUT = 1000L * 3;
     private FjMessageQueue mq;
     
     public FjSender() {
@@ -112,7 +113,7 @@ public class FjSender extends FjLoopTask {
             }
             InputStream is = conn.getInputStream();
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            byte[] buf = new byte[1024];
+            byte[] buf = new byte[1024 * 4];
             int n = -1;
             while (0 < (n = is.read(buf))) baos.write(buf, 0, n);
             rsp = FjServerToolkit.createMessage(baos.toString("utf-8"));
@@ -123,8 +124,13 @@ public class FjSender extends FjLoopTask {
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
         ByteBuffer buf = ByteBuffer.wrap(rsp.toString().getBytes(Charset.forName("utf-8")));
-        try {while(buf.hasRemaining()) conn.write(buf);}
-        catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
+        try {
+            long begin = System.currentTimeMillis();
+            while(buf.hasRemaining() && TIMEOUT > System.currentTimeMillis() - begin) {
+                int n = conn.write(buf);
+                if (0 < n) begin = System.currentTimeMillis();
+            }
+        } catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
         finally {if (null != conn) try {conn.close();} catch (IOException e) {e.printStackTrace();}}
     }
     

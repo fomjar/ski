@@ -9,6 +9,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
@@ -19,8 +20,6 @@ import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.omc.UIToolkit;
-
-import net.sf.json.JSONObject;
 
 public class MainFrame extends JFrame {
 
@@ -35,7 +34,8 @@ public class MainFrame extends JFrame {
     private JToolBar                        toolbar;
     private JPanel                          toolbar_user;
     private FjListPane<BeanChannelAccount>  users;
-    private MainDetailPane                      detail;
+    private MainDetailPane                  detail;
+    private JProgressBar                    progress;
     
     public MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
@@ -51,8 +51,6 @@ public class MainFrame extends JFrame {
         toolbar.add(new JButton("游"));
         toolbar.add(new JButton("帐"));
         toolbar.add(new JButton("工"));
-        toolbar.addSeparator();
-        toolbar.add(new JButton("转"));
         
         toolbar_user = new JPanel();
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -68,6 +66,10 @@ public class MainFrame extends JFrame {
         users.getSearchBar().setSearchTypes(new String[] {"用户名", "手机号"});
         users.getSearchBar().setSearchTips("键入关键词搜索");
         
+        progress = new JProgressBar();
+        progress.setFont(UIToolkit.FONT);
+        progress.setStringPainted(true);
+        
         JPanel panel_user = new JPanel();
         panel_user.setLayout(new BorderLayout());
         panel_user.add(toolbar_user, BorderLayout.NORTH);
@@ -80,6 +82,7 @@ public class MainFrame extends JFrame {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(split, BorderLayout.CENTER);
+        getContentPane().add(progress, BorderLayout.SOUTH);
         
         listen();
         
@@ -91,14 +94,6 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(2)).addActionListener(e->new ListGame().setVisible(true));
         ((JButton) toolbar.getComponent(3)).addActionListener(e->new ListGameAccount().setVisible(true));
         ((JButton) toolbar.getComponent(4)).addActionListener(e->new ListTicket().setVisible(true));
-        ((JButton) toolbar.getComponent(6)).addActionListener(e->{
-            JSONObject args = new JSONObject();
-            args.put("user", "fomjar@gmail.com");
-            args.put("name", "杜逢佳");
-            args.put("money", "0.1");
-            args.put("remark", "测试转账");
-            System.out.println(CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_MONEY_TRANSFER, args));
-        });
         
         users.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(users.getList()) {
             @Override
@@ -121,30 +116,49 @@ public class MainFrame extends JFrame {
     private void refresh() {
         UIToolkit.doLater(()->{
             toolbar.getComponent(0).setEnabled(false);
-            
-            CommonService.updateGame();
-            CommonService.updateGameAccount();
-            CommonService.updateGameAccountGame();
-            CommonService.updateGameAccountRent();
-            CommonService.updateGameRentPrice();
-            
-            CommonService.updateChannelAccount();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            CommonService.updatePlatformAccountMoney();
-            
-            CommonService.updateOrder();
-            CommonService.updateTag();
-            CommonService.updateTicket();
-            
-            users.getList().removeAllCell();
-            CommonService.getChannelAccountAll().values().forEach(user->{
-                ListCellUser cell = new ListCellUser(user);
-                users.getList().addCell(cell);
-            });
-            users.getSearchBar().doSearch();
-            
-            if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
+
+            try {
+                int max = 12;
+                int cur = 0;
+                progress.setMaximum(max);
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载游戏...", cur, max));
+                CommonService.updateGame();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号...", cur, max));
+                CommonService.updateGameAccount();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号和游戏映射关系...", cur, max));
+                CommonService.updateGameAccountGame();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号租赁情况...", cur, max));
+                CommonService.updateGameAccountRent();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载游戏价格...", cur, max));
+                CommonService.updateGameRentPrice();
+                
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载渠道用户...", cur, max));
+                CommonService.updateChannelAccount();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户...", cur, max));
+                CommonService.updatePlatformAccount();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户与渠道用户映射关系...", cur, max));
+                CommonService.updatePlatformAccountMap();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户金额流水...", cur, max));
+                CommonService.updatePlatformAccountMoney();
+                
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载订单...", cur, max));
+                CommonService.updateOrder();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载TAG...", cur, max));
+                CommonService.updateTag();
+                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载工单...", cur, max));
+                CommonService.updateTicket();
+                
+                progress.setString("加载完成");
+                
+                users.getList().removeAllCell();
+                CommonService.getChannelAccountAll().values().forEach(user->{
+                    ListCellUser cell = new ListCellUser(user);
+                    users.getList().addCell(cell);
+                });
+                users.getSearchBar().doSearch();
+                
+                if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
+            } catch (Exception e) {progress.setString("加载失败：" + e.getMessage());}
             
             toolbar.getComponent(0).setEnabled(true);
         });

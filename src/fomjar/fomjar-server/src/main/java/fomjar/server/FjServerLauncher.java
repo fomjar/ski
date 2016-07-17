@@ -60,7 +60,7 @@ public class FjServerLauncher {
                     sn);
             try {
                 Process process = Runtime.getRuntime().exec(cmd0);
-                Thread.sleep(1000L * 3);
+                Thread.sleep(1000L * 1);
                 
                 byte[] buf = new byte[1024 * 4];
                 int    len = process.getInputStream().read(buf);

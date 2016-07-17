@@ -52,6 +52,12 @@
                 $('#result_body').text(body);
                 $('#dialog').show();
             }
+
+            function showDialog1(head, body) {
+                $('#result_head1').text(head);
+                $('#result_body1').text(body);
+                $('#dialog1').show();
+            }
         </script>
     </head>
     <body>
@@ -60,7 +66,7 @@
                 <h1 class='page_title'>退款</h1>
             </div>
             <div class='bd'>
-                <div class='weui_cells_title'>只能退“现金”部分的金额</div>
+                <div class='weui_cells_title'>1. 付款账号可以直接修改<br/>2. 也可以到“账户信息”中修改并永久生效<br/>3. 必须将所有在租账号退租才能退款<br/>4. 只能退“现金”部分的金额，参见“账户信息”</div>
                 <div class='weui_cells'>
                     <div class="weui_cell">
                         <div class="weui_cell_hd"><label class="weui_label">支付宝账号</label></div>
@@ -82,7 +88,7 @@
                     </div>
                 </div>
                 <div class='weui_btn_area'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:submit()">退款</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript:showDialog1('提示', '确定要退款吗？')">退款</a>
                 </div>
             </div>
         </div>
@@ -93,6 +99,17 @@
                 <div class="weui_dialog_bd" id='result_body'></div>
                 <div class="weui_dialog_ft">
                     <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
+                </div>
+            </div>
+        </div>
+        <div class="weui_dialog_confirm" id="dialog1" style='display:none'>
+            <div class="weui_mask"></div>
+            <div class="weui_dialog">
+                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head1'></strong></div>
+                <div class="weui_dialog_bd" id='result_body1'></div>
+                <div class="weui_dialog_ft">
+                    <a class="weui_btn_dialog default" href="javascript:$('#dialog1').hide();">取消</a>
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog1').hide();submit();">确定</a>
                 </div>
             </div>
         </div>

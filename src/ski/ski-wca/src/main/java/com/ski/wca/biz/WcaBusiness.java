@@ -35,14 +35,14 @@ public class WcaBusiness {
         
         switch (req.inst()) {
         case CommonDefinition.ISIS.INST_USER_RESPONSE: {
-            try {WechatInterface.customSendTextMessage(user, content);}
+            try {WechatInterface.messageCustomSendText(user, content);}
             catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + content, e);}
             break;
         }
         case CommonDefinition.ISIS.INST_USER_REQUEST:
             break;
         case CommonDefinition.ISIS.INST_USER_COMMAND:
-            dispatchMenu(server, user, content, conn);
+            dispatchCommand(server, user, content, conn);
             break;
         case CommonDefinition.ISIS.INST_USER_SUBSCRIBE:
             break;
@@ -51,6 +51,8 @@ public class WcaBusiness {
         case CommonDefinition.ISIS.INST_USER_GOTO:
             break;
         case CommonDefinition.ISIS.INST_USER_LOCATION:
+            break;
+        case CommonDefinition.ISIS.INST_USER_NOTIFY:
             break;
         default:
             break;
@@ -106,13 +108,13 @@ public class WcaBusiness {
         }
     }
     
-    private static void dispatchMenu(String server, String user, String content, SocketChannel conn) {
+    private static void dispatchCommand(String server, String user, String content, SocketChannel conn) {
         logger.debug(String.format("user: %s select menu: %s", user, content));
         BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
         switch (content) {
         case "21":  // 所有游戏
             try {
-                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("热门游戏", "热门游戏", "https://www.baidu.com/", "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
                         new WechatInterface.Article("最新大作", "最新大作", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
                 });
@@ -120,7 +122,7 @@ public class WcaBusiness {
             break;
         case "22":  // 搜索游戏
             try {
-                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("搜索游戏", "搜索游戏",
                                 WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_GAME, user_wechat.i_caid),
                                 "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
@@ -129,7 +131,7 @@ public class WcaBusiness {
             break;
         case "30":  // 关联淘宝
             try {
-                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("关联淘宝账号", "为了能够更便捷地为您提供服务，如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联",
                                 WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user_wechat.i_caid),
                                 "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
@@ -138,14 +140,15 @@ public class WcaBusiness {
             break;
         case "31":  // 我的账户
             try {
-                WechatInterface.customSendNewsMessage(user, new WechatInterface.Article[] {
+                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
                         new WechatInterface.Article("账户信息", "查看账户余额、优惠券、在租账号等信息", 
                                 WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, user_wechat.i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
                         new WechatInterface.Article("我要充值", "起租游戏之前需要先充值",
                                 WcWeb.generateUrl(server, WcWeb.URL_KEY + "/pay/recharge", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user_wechat.i_caid), "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
                         new WechatInterface.Article("我要退款", "申请将账户中的余额全额退款",
                                 WcWeb.generateUrl(server, WcWeb.URL_KEY + "/pay/refund", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user_wechat.i_caid), "http://findicons.com/icon/download/28731/coins/128/png?id=271105"),
-                        new WechatInterface.Article("消费记录", "查看过去的消费记录", "https://www.baidu.com/", "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),
+                        new WechatInterface.Article("消费记录", "查看过去的消费记录",
+                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, user_wechat.i_caid), "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),
                 });
             } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
             break;

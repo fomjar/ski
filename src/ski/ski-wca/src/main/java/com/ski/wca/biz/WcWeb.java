@@ -27,6 +27,7 @@ import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.wca.WechatForm;
 import com.ski.wca.WechatInterface;
+import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
@@ -88,6 +89,9 @@ public class WcWeb {
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
                     form = processUpdateChannelAccount(server, user, args);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
+                    form = processQueryOrder(user);
                 }
             }
             break;
@@ -211,6 +215,7 @@ public class WcWeb {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
         StringBuilder sb = new StringBuilder();
         sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "账户明细"));
+        
         {
             List<String[]> cells = new LinkedList<String[]>();
             cells.add(new String[] {"现金", puser.i_cash + "元"});
@@ -220,33 +225,42 @@ public class WcWeb {
             cells.add(new String[] {"优惠券(实时)", prestatement[1] + "元"});
             sb.append(WechatForm.createFormCellGroup("我的账户", cells, null));
         }
-        {
-            CommonService.getOrderByCaid(user)
-                    .stream()
-                    .filter(o->!o.isClose())
-                    .forEach(o->{
-                        o.commodities.values()
-                                .stream()
-                                .filter(c->!c.isClose())
-                                .forEach(c->{
-                                    BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                                    String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.c_name_zh).collect(Collectors.joining("; "));
-                                    {
-                                        List<String[]> cells = new LinkedList<String[]>();
-                                        cells.add(new String[] {"在租游戏", games});
-                                        cells.add(new String[] {"游戏账号", account.c_user});
-                                        cells.add(new String[] {"当前密码", account.c_pass_curr});
-                                        cells.add(new String[] {"租赁类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
-                                        cells.add(new String[] {"租赁单价", c.i_price + "元/天"});
-                                        cells.add(new String[] {"起租时间", c.t_begin});
-                                        sb.append(WechatForm.createFormCellGroup(null, cells, null));
-                                        cells.clear();
-                                        cells.add(new String[] {"账号操作", "退租", "javascript:;"});
-                                        sb.append(WechatForm.createFormCellAccessGroup(null, cells, null));
-                                    }
-                                });
-                    });
-        }
+        
+        CommonService.getChannelAccountRelated(user)
+                .stream()
+                .filter(u->u.i_caid != user)
+                .forEach(u->{
+                    List<String[]> cells = new LinkedList<String[]>();
+                    cells.add(new String[] {"账号", u.c_user});
+                    cells.add(new String[] {"姓名", u.c_name});
+                    sb.append(WechatForm.createFormCellGroup("关联账号：" + getChannelDesc(u.i_channel), cells, null));
+                });
+        
+        CommonService.getChannelAccountRelated(user)
+                .forEach(u->{
+                    CommonService.getOrderByCaid(u.i_caid)
+                            .stream()
+                            .filter(o->!o.isClose())
+                            .forEach(o->{
+                                o.commodities.values()
+                                        .stream()
+                                        .filter(c->!c.isClose())
+                                        .forEach(c->{
+                                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+                                            String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.getDiaplayName()).collect(Collectors.joining("; "));
+                                            
+                                            List<String[]> cells = new LinkedList<String[]>();
+                                            cells.add(new String[] {"在租游戏", games});
+                                            cells.add(new String[] {"游戏账号", account.c_user});
+                                            cells.add(new String[] {"当前密码", account.c_pass_curr});
+                                            cells.add(new String[] {"租赁类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
+                                            cells.add(new String[] {"租赁单价", c.i_price + "元/天"});
+                                            cells.add(new String[] {"起租时间", c.t_begin});
+                                            sb.append(WechatForm.createFormCellGroup("在租游戏：" + games, cells, null));
+                                            sb.append(WechatForm.createFormButton(WechatForm.BUTTON_WARN, "退租", "javascript:;"));
+                                        });
+                            });
+                });
         sb.append(WechatForm.createFormFoot());
         return new String[] {FjHttpRequest.CT_HTML, sb.toString()};
     }
@@ -349,6 +363,36 @@ public class WcWeb {
         return new String[] {FjHttpRequest.CT_JSON, args_rsp.toString()};
     }
     
+    private static String[] processQueryOrder(int user) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "消费信息"));
+        CommonService.getChannelAccountRelated(user)
+                .forEach(u->{
+                    CommonService.getOrderByCaid(u.i_caid)
+                            .stream()
+                            .forEach(o->{
+                                o.commodities.values()
+                                        .stream()
+                                        .filter(c->c.isClose())
+                                        .forEach(c->{
+                                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+                                            String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.getDiaplayName()).collect(Collectors.joining("; "));
+                                            
+                                            List<String[]> cells = new LinkedList<String[]>();
+                                            cells.add(new String[] {"账号", account.c_user});
+                                            cells.add(new String[] {"类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
+                                            cells.add(new String[] {"单价", c.i_price + "元/天"});
+                                            cells.add(new String[] {"起租时间", c.t_begin});
+                                            cells.add(new String[] {"退租时间", c.t_end});
+                                            cells.add(new String[] {"总价", c.i_expense + "元/天"});
+                                            sb.append(WechatForm.createFormCellGroup("租赁游戏：" + games, cells, null));
+                                        });
+                            });
+                });
+        sb.append(WechatForm.createFormFoot());
+        return new String[] {FjHttpRequest.CT_HTML, sb.toString()};
+    }
+    
     private static String[] processApplyPlatformAccountMoney_Recharge(String server, int user, JSONObject args, SocketChannel conn) {
         String step = args.has("step") ? args.getString("step") : STEP_SETUP;
         String ct   = null;
@@ -412,6 +456,8 @@ public class WcWeb {
         case STEP_SUCCESS: {
             ct = FjHttpRequest.CT_HTML;
             form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "充值成功", "现在可以到“我的账户”中查看账户余额，感谢您的支持", null, null);
+            
+            
             break;
         }
         }
@@ -490,23 +536,21 @@ public class WcWeb {
      * @param xml
      */
     private static String[] processPayRechargeSuccess(String server, Document xml) {
-        logger.error("user pay recharge: " + xml);
-        
-        String user     = null;
-        float  money    = 0.00f;
-        String trade    = null;
+        JSONObject args = new JSONObject();
         NodeList nodes = xml.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
             if (null == node.getFirstChild()) continue;
-            
-            if (node.getNodeName().equals("openid"))        user    = node.getFirstChild().getNodeValue();
-            if (node.getNodeName().equals("cash_fee"))      money   = Float.parseFloat(node.getFirstChild().getNodeValue()) / 100;
-            if (node.getNodeName().equals("out_trade_no"))  trade = node.getFirstChild().getNodeValue();
+            args.put(node.getNodeName(), node.getFirstChild().getNodeValue());
         }
-        if (!cache_trade.contains(trade)) {
-            cache_trade.add(trade);
-            int paid = CommonService.getPlatformAccountByCaid(CommonService.getChannelAccountByUser(user).get(0).i_caid);
+
+        logger.error("user pay recharge: " + args);
+        
+        if (!cache_trade.contains(args.getString("out_trade_no"))) {
+            cache_trade.add(args.getString("out_trade_no"));
+            BeanChannelAccount  user    = CommonService.getChannelAccountByUser(args.getString("openid")).get(0);
+            int                 paid    = CommonService.getPlatformAccountByCaid(user.i_caid);
+            float               money   = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("paid",    paid);
             args_cdb.put("remark",  "【微信充值】公众号充值" + money + "元");
@@ -518,6 +562,18 @@ public class WcWeb {
             msg_cdb.json().put("inst",  CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY);
             msg_cdb.json().put("args",  args_cdb);
             FjServerToolkit.getAnySender().send(msg_cdb);
+            
+            {   // 充值通知
+                Map<String, String> data = new HashMap<String, String>();
+                data.put("first", "您好！您已成功充值");
+                data.put("accountType", "充值账户");
+                data.put("account", user.c_name);
+                data.put("amount", String.valueOf(money) + "元");
+                data.put("result", "充值成功");
+                data.put("remark", FjServerToolkit.getServerConfig("wca.template.remark.recharge"));
+                try {WechatInterface.messageTemplateSend(args.getString("openid"), "suyalQ-RF8e_5sYzBx7gmm6HMQjvBKpBBjhBSLemKo0", null, data);}
+                catch (WechatPermissionDeniedException e) {logger.error("template message send failed: " + data, e);}
+            }
         }
         
         return new String[] {FjHttpRequest.CT_XML, "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>"};
@@ -534,7 +590,7 @@ public class WcWeb {
         FileInputStream         fis = null;
         ByteArrayOutputStream   baos = null;
         try {
-            byte[]  buf = new byte[1024];
+            byte[]  buf = new byte[1024 * 4];
             int     len = -1;
             fis     = new FileInputStream(file);
             baos    = new ByteArrayOutputStream();
@@ -575,5 +631,14 @@ public class WcWeb {
             json.put(node.getNodeName(), node.getFirstChild().getNodeValue());
         }
         return json;
+    }
+    
+    private static String getChannelDesc(int channel) {
+        switch (channel) {
+        case CommonService.CHANNEL_ALIPAY: return "支付宝";
+        case CommonService.CHANNEL_TAOBAO: return "淘宝";
+        case CommonService.CHANNEL_WECHAT: return "微信";
+        default: return "未  知";
+        }
     }
 }

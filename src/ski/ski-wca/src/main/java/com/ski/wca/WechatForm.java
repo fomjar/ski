@@ -27,7 +27,8 @@ public class WechatForm {
                 + "<title>%s</title>"
                 + "<link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.css'/>"
                 + "<link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>"
-                + "<script type='text/javascript' src='/ski-wcweb/jquery-3.0.0.min.js'></script>"
+                + "<script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>"
+                + "<script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>"
                 + "</head>"
                 + "<body><div class='%s'>", title, type));
         switch (type) {
@@ -53,7 +54,7 @@ public class WechatForm {
      */
     public static String createFormCellGroup(String group, List<String[]> cells, String tip) {
         StringBuilder sb = new StringBuilder();
-        if (null != group) group = "";
+        if (null == group) group = "";
         sb.append(String.format("<div class='weui_cells_title'>%s</div><div class='weui_cells'>", group));
         
         if (null != cells) {

@@ -14,6 +14,10 @@
             var user = '%x';
             var base = '/ski-wcweb?inst=' + inst + '&user=' + user;
 
+            $(document).ready(function() {
+                $('#search_input').focus();
+            });
+
             function submit() {
                 var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
 
@@ -22,10 +26,12 @@
                     return;
                 }
 
+                showToast('正在搜索');
                 $.post(base, $.toJSON({
                             'step'  : 'apply',
                             'word'  : word
                         }), function(args) {
+                            hideToast();
                             if (0 == args.code) {
                                 var title = document.createElement('div');
                                 title.setAttribute('class', 'weui_cells_title');
@@ -56,6 +62,14 @@
 
             function browseGame(gid) {
                 window.location = base + '&step=apply&gid=' + gid;
+            }
+
+            function showToast(text) {
+                $('#toast_text').text(text);
+                $('#toast').show();
+            }
+            function hideToast() {
+                $('#toast').hide();
             }
 
             function showDialog(head, body) {
@@ -93,6 +107,26 @@
                 <div class="weui_dialog_ft">
                     <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
                 </div>
+            </div>
+        </div>
+        <div class="weui_loading_toast" id="toast" style="display: none;">
+            <div class="weui_mask_transparent"></div>
+            <div class="weui_toast">
+                <div class="weui_loading">
+                    <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_10"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_11"></div>
+                </div>
+                <p class="weui_toast_content" id='toast_text'></p>
             </div>
         </div>
     </body>

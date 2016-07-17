@@ -51,7 +51,6 @@ public class ReportDialog extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             BufferedImage img = getReportAsImage();
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new ImageSelection(img), null);
-            JOptionPane.showMessageDialog(ReportDialog.this, "复制成功", "信息", JOptionPane.PLAIN_MESSAGE);
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             BufferedImage img = getReportAsImage();

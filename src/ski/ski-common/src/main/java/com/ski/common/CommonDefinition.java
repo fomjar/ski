@@ -35,6 +35,8 @@ public final class CommonDefinition {
         public static final int INST_USER_GOTO          = 0x00001006;
         /** 用户地理位置 */
         public static final int INST_USER_LOCATION      = 0x00001007;
+        /** 用户(结果)通知 */
+        public static final int INST_USER_NOTIFY        = 0x00001008;
         
         //////////////////////////////// 电商指令 ////////////////////////////////
         // QUERY

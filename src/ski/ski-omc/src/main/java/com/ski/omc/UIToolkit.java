@@ -75,7 +75,7 @@ public class UIToolkit {
         UIManager.getLookAndFeelDefaults().put("Menu.font",         FONT);
         UIManager.getLookAndFeelDefaults().put("MenuItem.font",     FONT);
         
-        // UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
+//        UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
     
     private static final ExecutorService pool = Executors.newCachedThreadPool();
