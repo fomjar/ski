@@ -63,11 +63,15 @@ public class ChartFrame extends JFrame {
         charts_order.setLayout(new BoxLayout(charts_order, BoxLayout.Y_AXIS));
         charts_order.add(createChartMoneyDistribution());
         charts_order.add(Box.createVerticalStrut(8));
-        charts_order.add(createChartCommodityTotalLastMonth());
-        charts_order.add(Box.createVerticalStrut(8));
-        charts_order.add(createChartCommodityEncreaseLastMonth());
-        charts_order.add(Box.createVerticalStrut(8));
         charts_order.add(createChartMoneyChangeLast2Week());
+        charts_order.add(Box.createVerticalStrut(8));
+        charts_order.add(createChartCommodityBeginTotalLastMonth());
+        charts_order.add(Box.createVerticalStrut(8));
+        charts_order.add(createChartCommodityBeginEncreaseLastMonth());
+        charts_order.add(Box.createVerticalStrut(8));
+        charts_order.add(createChartCommodityEndTotalLastMonth());
+        charts_order.add(Box.createVerticalStrut(8));
+        charts_order.add(createChartCommodityEndEncreaseLastMonth());
         
         charts = new JTabbedPane();
         charts.setFont(UIToolkit.FONT.deriveFont(12.0f));
@@ -76,7 +80,7 @@ public class ChartFrame extends JFrame {
             panel.setLayout(new BorderLayout());
             panel.add(charts_user, BorderLayout.NORTH);
             JScrollPane jsp = new JScrollPane(panel);
-            jsp.getVerticalScrollBar().setUnitIncrement(8);
+            jsp.getVerticalScrollBar().setUnitIncrement(16);
             charts.add("用户统计", jsp);
         }
         {
@@ -84,7 +88,7 @@ public class ChartFrame extends JFrame {
             panel.setLayout(new BorderLayout());
             panel.add(charts_order, BorderLayout.NORTH);
             JScrollPane jsp = new JScrollPane(panel);
-            jsp.getVerticalScrollBar().setUnitIncrement(8);
+            jsp.getVerticalScrollBar().setUnitIncrement(16);
             charts.add("订单统计", jsp);
         }
         
@@ -273,7 +277,7 @@ public class ChartFrame extends JFrame {
         return panel;
     }
     
-    private static JPanel createChartCommodityEncreaseLastMonth() {
+    private static JPanel createChartCommodityBeginEncreaseLastMonth() {
         int     total = 28;
         int[]   count = new int[total];
         
@@ -283,7 +287,7 @@ public class ChartFrame extends JFrame {
         CommonService.getOrderAll().values().forEach(o->{
             o.commodities.values().forEach(c->{
                 try {
-                    Date    date = parser.parse(o.t_open);
+                    Date    date = parser.parse(c.t_begin);
                     double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
                     if (delta >= total) return;
 
@@ -299,7 +303,7 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单增量曲线", "时间", "数量", dataset);
+        JFreeChart chart = ChartFactory.createLineChart("订单开启增量曲线", "时间", "数量", dataset);
         
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         
@@ -316,7 +320,7 @@ public class ChartFrame extends JFrame {
         return panel;
     }
     
-    private static JPanel createChartCommodityTotalLastMonth() {
+    private static JPanel createChartCommodityBeginTotalLastMonth() {
         int     total = 28;
         int[]   count = new int[total];
         
@@ -326,7 +330,7 @@ public class ChartFrame extends JFrame {
         CommonService.getOrderAll().values().forEach(o->{
             o.commodities.values().forEach(c->{
                 try {
-                    Date    date = parser.parse(o.t_open);
+                    Date    date = parser.parse(c.t_begin);
                     double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
                     if (delta >= total) return;
 
@@ -342,7 +346,97 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单总量曲线", "时间", "数量", dataset);
+        JFreeChart chart = ChartFactory.createLineChart("订单开启总量曲线", "时间", "数量", dataset);
+        
+        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.getRangeAxis().setUpperMargin(0.2);
+        
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setBaseItemLabelsVisible(true);
+        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
+        
+        JPanel panel = new ChartPanel(chart);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        return panel;
+    }
+    
+    private static JPanel createChartCommodityEndEncreaseLastMonth() {
+        int     total = 28;
+        int[]   count = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (0 == c.t_end.length()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) return;
+
+                    int day = (int) delta;
+                    count[day]++;
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        JFreeChart chart = ChartFactory.createLineChart("订单关闭增量曲线", "时间", "数量", dataset);
+        
+        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.getRangeAxis().setUpperMargin(0.2);
+        
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setBaseItemLabelsVisible(true);
+        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
+        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
+        
+        JPanel panel = new ChartPanel(chart);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        return panel;
+    }
+    
+    private static JPanel createChartCommodityEndTotalLastMonth() {
+        int     total = 28;
+        int[]   count = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (0 == c.t_end.length()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) return;
+
+                    int day = (int) delta;
+                    for (int i = 0; i <= day; i++) count[i]++;
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        JFreeChart chart = ChartFactory.createLineChart("订单关闭总量曲线", "时间", "数量", dataset);
         
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         
