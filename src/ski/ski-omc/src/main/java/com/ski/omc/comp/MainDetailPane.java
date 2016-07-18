@@ -63,14 +63,14 @@ public class MainDetailPane extends JPanel {
         pane_basic.setTitle(String.format("用户基本信息 (当前余额：%.2f元/%.2f元|实时结算：%.2f元/%.2f元)", puser.i_cash, puser.i_coupon, prestatement[0], prestatement[1]));
         
         binds.removeAllCell();
-        CommonService.getChannelAccountRelated(user.i_caid).forEach(user2->{
+        CommonService.getChannelAccountRelatedAll(user.i_caid).forEach(user2->{
             if (user2.i_caid == user.i_caid) return;
             
             binds.addCell(new ListCellDetailUser(user2));
         });
         
         rents.removeAllCell();
-        CommonService.getChannelAccountRelated(user.i_caid).forEach(user2->{
+        CommonService.getChannelAccountRelatedAll(user.i_caid).forEach(user2->{
             CommonService.getOrderByCaid(user2.i_caid).forEach(order->{
                 order.commodities.values()
                         .stream()
@@ -96,7 +96,7 @@ public class MainDetailPane extends JPanel {
         int renting = CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_A).size()
                 + CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_B).size();
         int all = 0;
-        try {all = CommonService.getOrderByCaid(data.i_caid).stream().map(order->order.commodities.size()).reduce((c1, c2)->c1+c2).get();}
+        try {all = CommonService.getOrderByCaid(data.i_caid).stream().map(order->order.commodities.size()).reduce(0, (c1, c2)->c1 + c2).intValue();}
         catch (NoSuchElementException e) {}
         return String.format("%d/%d", renting, all);
     }

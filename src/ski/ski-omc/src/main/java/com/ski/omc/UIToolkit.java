@@ -969,15 +969,15 @@ public class UIToolkit {
             public void itemStateChanged(ItemEvent e) {
                 switch (type.getSelectedIndex()) {
                 case 0:
-                    remark.setText("【客服充值】");
+                    remark.setText("【人工充值】");
                     money.setText("150.00");
                     break;
                 case 1:
-                    remark.setText("【客服充券】");
-                    money.setText("10.00");
+                    remark.setText("【人工充券】");
+                    money.setText("5.00");
                     break;
                 case 2:
-                    remark.setText("【客服退款】");
+                    remark.setText("【人工退款】");
                     money.setText("-" + puser.i_cash);
                     break;
                 }
@@ -1000,6 +1000,13 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
+//            if (0 == CommonService.getChannelAccountByPaid(paid)
+//                    .stream()
+//                    .filter(user->user.i_channel == CommonService.CHANNEL_ALIPAY)
+//                    .count()) {
+//                JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，请点击“确定”后关联支付宝账户", "信息", JOptionPane.PLAIN_MESSAGE);
+//                userBind(user);
+//            }
             JSONObject args = new JSONObject();
             args.put("paid",    puser.i_paid);
             if (0 < remark.getText().length()) args.put("remark",  remark.getText());

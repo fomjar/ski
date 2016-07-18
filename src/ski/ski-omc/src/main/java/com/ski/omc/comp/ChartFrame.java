@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -20,8 +19,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.CategoryLabelPositions;
-import org.jfree.chart.labels.ItemLabelAnchor;
-import org.jfree.chart.labels.ItemLabelPosition;
 import org.jfree.chart.labels.StandardCategoryItemLabelGenerator;
 import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
 import org.jfree.chart.plot.CategoryPlot;
@@ -30,7 +27,6 @@ import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
-import org.jfree.ui.TextAnchor;
 
 import com.ski.common.CommonService;
 import com.ski.omc.UIToolkit;
@@ -54,24 +50,19 @@ public class ChartFrame extends JFrame {
         charts_user     = new JPanel();
         charts_user.setLayout(new BoxLayout(charts_user, BoxLayout.Y_AXIS));
         charts_user.add(createChartUserDistribution());
-        charts_user.add(Box.createVerticalStrut(8));
-        charts_user.add(createChartUserTotalLastMonth());
-        charts_user.add(Box.createVerticalStrut(8));
         charts_user.add(createChartUserEncreaseLastMonth());
+        charts_user.add(createChartUserTotalLastMonth());
         
         charts_order    = new JPanel();
         charts_order.setLayout(new BoxLayout(charts_order, BoxLayout.Y_AXIS));
         charts_order.add(createChartMoneyDistribution());
-        charts_order.add(Box.createVerticalStrut(8));
-        charts_order.add(createChartMoneyChangeLast2Week());
-        charts_order.add(Box.createVerticalStrut(8));
-        charts_order.add(createChartCommodityBeginTotalLastMonth());
-        charts_order.add(Box.createVerticalStrut(8));
+        charts_order.add(createChartMoneyConsumeEncreaseLastMonth());
+        charts_order.add(createChartMoneyConsumeTotalLastMonth());
+        charts_order.add(createChartCommodityTypeDistribution());
         charts_order.add(createChartCommodityBeginEncreaseLastMonth());
-        charts_order.add(Box.createVerticalStrut(8));
-        charts_order.add(createChartCommodityEndTotalLastMonth());
-        charts_order.add(Box.createVerticalStrut(8));
         charts_order.add(createChartCommodityEndEncreaseLastMonth());
+        charts_order.add(createChartCommodityBeginTotalLastMonth());
+        charts_order.add(createChartCommodityEndTotalLastMonth());
         
         charts = new JTabbedPane();
         charts.setFont(UIToolkit.FONT.deriveFont(12.0f));
@@ -148,25 +139,12 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("用户增量曲线", "时间", "数量", dataset);
-        
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRangeAxis().setUpperMargin(0.2);
-        
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
-        
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("用户增量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartUserTotalLastMonth() {
         int     total = 28;
+        int[]   base  = new int[] {0};
         int[]   count = new int[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -176,7 +154,10 @@ public class ChartFrame extends JFrame {
             try {
                 Date    date = parser.parse(user.t_create);
                 double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
-                if (delta >= total) return;
+                if (delta >= total) {   // 过去的作为基数
+                    base[0]++;
+                    return;
+                }
 
                 int day = (int) delta;
                 for (int i = 0; i <= day; i++) count[i]++;
@@ -186,30 +167,27 @@ public class ChartFrame extends JFrame {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
         for (int i = total - 1; i >= 0; i--) {
-            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base[0] + count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("用户总量曲线", "时间", "数量", dataset);
-        
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRangeAxis().setUpperMargin(0.2);
-        
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
-        
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("用户总量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartMoneyDistribution() {
-        float count_cash    = CommonService.getPlatformAccountAll().values().stream().map(p->p.i_cash).reduce((c1, c2)->c1 + c2).get();
-        float count_coupon  = CommonService.getPlatformAccountAll().values().stream().map(p->p.i_coupon).reduce((c1, c2)->c1 + c2).get();
-        float count_consume = CommonService.getPlatformAccountMoneyAll().stream().filter(m->m.i_type == CommonService.MONEY_CONSUME).map(m->-m.i_money).reduce((m1, m2)->m1 + m2).get();
+        float count_cash    = CommonService.getPlatformAccountAll().values().stream().map(p->p.i_cash).reduce(0.00f, (c1, c2)->c1 + c2).floatValue();
+        float count_coupon  = CommonService.getPlatformAccountAll().values().stream().map(p->p.i_coupon).reduce(0.00f, (c1, c2)->c1 + c2).floatValue();
+        float count_consume = CommonService.getOrderAll().values()
+                .stream()
+                .map(o->{
+                    return o.commodities.values()
+                            .stream()
+                            .filter(c->c.isClose())
+                            .map(c->c.i_expense)
+                            .reduce(0.00f, (c1, c2)->c1 + c2)
+                            .floatValue();
+                })
+                .reduce(0.00f, (m1, m2)->m1 + m2)
+                .floatValue();
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("现金",  count_cash);
         dataset.setValue("优惠券", count_coupon);
@@ -221,60 +199,70 @@ public class ChartFrame extends JFrame {
         return panel;
     }
     
-    private static JPanel createChartMoneyChangeLast2Week() {
-        int     total = 14;
-        float[] count_consume   = new float[total];
-        float[] count_cash      = new float[total];
-        float[] count_coupon    = new float[total];
+    private static JPanel createChartMoneyConsumeEncreaseLastMonth() {
+        int     total = 28;
+        float[] count = new float[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date    today = new Date();
         long    oneday = 1000L * 60 * 60 * 24;
-        CommonService.getPlatformAccountMoneyAll().forEach(money->{
-            try {
-                Date    date = parser.parse(money.t_time);
-                double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
-                if (delta >= total) return;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (!c.isClose()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) return;
 
-                int day = (int) delta;
-                switch (money.i_type) {
-                case CommonService.MONEY_CONSUME:
-                    count_consume[day]  += money.i_money;
-                    break;
-                case CommonService.MONEY_CASH:
-                    count_cash[day]     += money.i_money;
-                    break;
-                case CommonService.MONEY_COUPON:
-                    count_coupon[day]   += money.i_money;
-                    break;
-                }
-            } catch (Exception e) {e.printStackTrace();}
+                    int day = (int) delta;
+                    count[day] += c.i_expense;
+                } catch (Exception e) {e.printStackTrace();}
+            });
         });
         
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
-        String series_cash      = "现金";
-        String series_coupon    = "优惠券";
-        String series_consume   = "消费";
         for (int i = total - 1; i >= 0; i--) {
-            dataset.addValue(count_cash[i],     series_cash,    formater.format(new Date(today.getTime() - i * oneday)));
-            dataset.addValue(count_coupon[i],   series_coupon,  formater.format(new Date(today.getTime() - i * oneday)));
-            dataset.addValue(-count_consume[i], series_consume, formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createBarChart3D("近两周的金额变化统计", "时间", "金额(单位：元)", dataset);
+        return createLineChartPanel(ChartFactory.createLineChart("营业额增量曲线", "时间", "数量", dataset));
+    }
+    
+    private static JPanel createChartMoneyConsumeTotalLastMonth() {
+        int     total = 28;
+        float[] base  = new float[] {0.00f};
+        float[] count = new float[total];
         
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (!c.isClose()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) {   // 过去的作为基数
+                        base[0] += c.i_expense;
+                        return;
+                    }
+
+                    int day = (int) delta;
+                    for (int i = 0; i <= day; i++) count[i] += c.i_expense;
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
         
-        CategoryPlot plot = chart.getCategoryPlot();
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        renderer.setBasePositiveItemLabelPosition(new ItemLabelPosition(ItemLabelAnchor.OUTSIDE12, TextAnchor.BASELINE_CENTER));
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(base[0] + count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+        }
         
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("营业额总量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartCommodityBeginEncreaseLastMonth() {
@@ -303,25 +291,12 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单开启增量曲线", "时间", "数量", dataset);
-        
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRangeAxis().setUpperMargin(0.2);
-        
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
-        
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启增量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartCommodityBeginTotalLastMonth() {
         int     total = 28;
+        int[]   base  = new int[] {0};
         int[]   count = new int[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -332,7 +307,10 @@ public class ChartFrame extends JFrame {
                 try {
                     Date    date = parser.parse(c.t_begin);
                     double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
-                    if (delta >= total) return;
+                    if (delta >= total) {   // 过去的作为基数
+                        base[0]++;
+                        return;
+                    }
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) count[i]++;
@@ -343,24 +321,10 @@ public class ChartFrame extends JFrame {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
         for (int i = total - 1; i >= 0; i--) {
-            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base[0] + count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单开启总量曲线", "时间", "数量", dataset);
-        
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRangeAxis().setUpperMargin(0.2);
-        
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
-        
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启总量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartCommodityEndEncreaseLastMonth() {
@@ -373,7 +337,7 @@ public class ChartFrame extends JFrame {
         CommonService.getOrderAll().values().forEach(o->{
             o.commodities.values().forEach(c->{
                 try {
-                    if (0 == c.t_end.length()) return;
+                    if (!c.isClose()) return;
                     
                     Date    date = parser.parse(c.t_end);
                     double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
@@ -391,25 +355,12 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单关闭增量曲线", "时间", "数量", dataset);
-        
-        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
-        
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.getRangeAxis().setUpperMargin(0.2);
-        
-        CategoryItemRenderer renderer = plot.getRenderer();
-        renderer.setBaseItemLabelsVisible(true);
-        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
-        ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
-        
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭增量曲线", "时间", "数量", dataset));
     }
     
     private static JPanel createChartCommodityEndTotalLastMonth() {
         int     total = 28;
+        int[]   base  = new int[] {0};
         int[]   count = new int[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -418,11 +369,14 @@ public class ChartFrame extends JFrame {
         CommonService.getOrderAll().values().forEach(o->{
             o.commodities.values().forEach(c->{
                 try {
-                    if (0 == c.t_end.length()) return;
+                    if (!c.isClose()) return;
                     
                     Date    date = parser.parse(c.t_end);
                     double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
-                    if (delta >= total) return;
+                    if (delta >= total) {   // 过去的作为基数
+                        base[0]++;
+                        return;
+                    }
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) count[i]++;
@@ -433,11 +387,27 @@ public class ChartFrame extends JFrame {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
         for (int i = total - 1; i >= 0; i--) {
-            dataset.addValue(count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base[0] + count[i], "最近一个月", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        JFreeChart chart = ChartFactory.createLineChart("订单关闭总量曲线", "时间", "数量", dataset);
-        
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭总量曲线", "时间", "数量", dataset));
+    }
+    
+    private static JPanel createChartCommodityTypeDistribution() {
+        int count_a = CommonService.getOrderAll().values().stream().map(o->o.commodities.values().stream().filter(c->"A".equals(c.c_arg1)).count()).reduce(0L, (c1, c2)->c1 + c2).intValue();
+        int count_b = CommonService.getOrderAll().values().stream().map(o->o.commodities.values().stream().filter(c->"B".equals(c.c_arg1)).count()).reduce(0L, (c1, c2)->c1 + c2).intValue();
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("A租用户", count_a);
+        dataset.setValue("B租用户", count_b);
+        JFreeChart chart = ChartFactory.createPieChart3D("订单类型分布", dataset);
+        ((PiePlot) chart.getPlot()).setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({1},{2})")); 
+        JPanel panel = new ChartPanel(chart);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        return panel;
+    }
+    
+    private static JPanel createLineChartPanel(JFreeChart chart) {
         chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         
         CategoryPlot plot = chart.getCategoryPlot();

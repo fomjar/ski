@@ -51,7 +51,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         int renting = CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_A).size()
                 + CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_B).size();
         int all = 0;
-        try {all = CommonService.getOrderByCaid(data.i_caid).stream().map(order->order.commodities.size()).reduce((c1, c2)->c1+c2).get();}
+        try {all = CommonService.getOrderByCaid(data.i_caid).stream().map(order->order.commodities.size()).reduce(0, (c1, c2)->c1 + c2).intValue();}
         catch (NoSuchElementException e) {}
         return String.format("%02d / %02d", renting, all);
     }

@@ -150,7 +150,7 @@ public class WcWeb {
         String step = args.has("step") ? args.getString("step") : STEP_SETUP;
         String ct   = null;
         String form = null;
-        if (1 < CommonService.getChannelAccountRelated(user).size()) {  // 用户已经绑定过了
+        if (1 < CommonService.getChannelAccountRelatedAll(user).size()) {  // 用户已经绑定过了
             ct = FjHttpRequest.CT_HTML;
             form = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
         } else {
@@ -226,7 +226,7 @@ public class WcWeb {
             sb.append(WechatForm.createFormCellGroup("我的账户", cells, null));
         }
         
-        CommonService.getChannelAccountRelated(user)
+        CommonService.getChannelAccountRelatedAll(user)
                 .stream()
                 .filter(u->u.i_caid != user)
                 .forEach(u->{
@@ -236,7 +236,7 @@ public class WcWeb {
                     sb.append(WechatForm.createFormCellGroup("关联账号：" + getChannelDesc(u.i_channel), cells, null));
                 });
         
-        CommonService.getChannelAccountRelated(user)
+        CommonService.getChannelAccountRelatedAll(user)
                 .forEach(u->{
                     CommonService.getOrderByCaid(u.i_caid)
                             .stream()
@@ -366,7 +366,7 @@ public class WcWeb {
     private static String[] processQueryOrder(int user) {
         StringBuilder sb = new StringBuilder();
         sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "消费信息"));
-        CommonService.getChannelAccountRelated(user)
+        CommonService.getChannelAccountRelatedAll(user)
                 .forEach(u->{
                     CommonService.getOrderByCaid(u.i_caid)
                             .stream()
@@ -470,7 +470,7 @@ public class WcWeb {
         String form = null;
         BeanChannelAccount user_alipay  = null;
         BeanPlatformAccount puser       = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user));
-        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelated(user);
+        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelatedAll(user);
         for (BeanChannelAccount u : users) {
             if (u.i_channel == CommonService.CHANNEL_ALIPAY) {
                 user_alipay = u;

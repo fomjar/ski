@@ -342,25 +342,53 @@ public class CommonService {
         }
     }
     
+    public static List<BeanChannelAccount> getChannelAccountByPaid(int paid) {
+        synchronized (cache_platform_account_map) {
+            return cache_platform_account_map
+                    .stream()
+                    .filter(bean->bean.i_paid == paid)
+                    .map(bean->getChannelAccountByCaid(bean.i_caid))
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static List<BeanChannelAccount> getChannelAccountByPhone(String phone) {
         synchronized (cache_channel_account) {
-            return cache_channel_account.values().stream().filter(account->account.c_phone.equals(phone)).collect(Collectors.toList());
+            return cache_channel_account.values()
+                    .stream()
+                    .filter(account->account.c_phone.equals(phone))
+                    .collect(Collectors.toList());
         }
     }
     
     public static List<BeanChannelAccount> getChannelAccountByUser(String user) {
         synchronized (cache_channel_account) {
-            return cache_channel_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+            return cache_channel_account.values()
+                    .stream()
+                    .filter(account->account.c_user.equals(user))
+                    .collect(Collectors.toList());
         }
     }
     
-    public static List<BeanChannelAccount> getChannelAccountRelated(int caid) {
+    public static List<BeanChannelAccount> getChannelAccountRelatedAll(int caid) {
         synchronized (cache_platform_account_map) {
             int paid = getPlatformAccountByCaid(caid);
             return cache_platform_account_map
                     .stream()
                     .filter(bean->paid == bean.i_paid)
-                    .map(bean->cache_channel_account.get(bean.i_caid))
+                    .map(bean->getChannelAccountByCaid(bean.i_caid))
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static List<BeanChannelAccount> getChannelAccountRelatedByChannel(int caid, int channel) {
+        synchronized (cache_platform_account_map) {
+            int paid = getPlatformAccountByCaid(caid);
+            return cache_platform_account_map
+                    .stream()
+                    .filter(bean->paid == bean.i_paid)
+                    .map(bean->getChannelAccountByCaid(bean.i_caid))
+                    .filter(user->user.i_channel == channel)
                     .collect(Collectors.toList());
         }
     }
@@ -403,7 +431,10 @@ public class CommonService {
     
     public static List<BeanGameAccount> getGameAccountByUserName(String user) {
         synchronized (cache_game_account) {
-            return cache_game_account.values().stream().filter(account->account.c_user.equals(user)).collect(Collectors.toList());
+            return cache_game_account.values()
+                    .stream()
+                    .filter(account->account.c_user.equals(user))
+                    .collect(Collectors.toList());
         }
     }
     
@@ -431,7 +462,10 @@ public class CommonService {
     
     public static List<BeanOrder> getOrderByCaid(int caid) {
         synchronized (cache_order) {
-            return cache_order.values().stream().filter(order->order.i_caid == caid).collect(Collectors.toList());
+            return cache_order.values()
+                    .stream()
+                    .filter(order->order.i_caid == caid)
+                    .collect(Collectors.toList());
         }
     }
     
@@ -627,13 +661,13 @@ public class CommonService {
                                     } catch (Exception e) {e.printStackTrace();}
                                     return 0.00f;
                                 })
-                                .reduce((cost1, cost2)->(cost1 + cost2))
-                                .get();
+                                .reduce(0.00f, (cost1, cost2)->(cost1 + cost2))
+                                .floatValue();
                     } catch (Exception e) {}
                     return 0.00f;
                 })
-                .reduce((cost1, cost2)->(cost1 + cost2))
-                .get();
+                .reduce(0.00f, (cost1, cost2)->(cost1 + cost2))
+                .floatValue();
         } catch (Exception e) {}
         
         if (cost <= coupon) {
