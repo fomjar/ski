@@ -51,6 +51,8 @@ public class MainFrame extends JFrame {
         toolbar.add(new JButton("游"));
         toolbar.add(new JButton("帐"));
         toolbar.add(new JButton("工"));
+        toolbar.addSeparator();
+        toolbar.add(new JButton("统"));
         
         toolbar_user = new JPanel();
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
@@ -94,6 +96,7 @@ public class MainFrame extends JFrame {
         ((JButton) toolbar.getComponent(2)).addActionListener(e->new ListGame().setVisible(true));
         ((JButton) toolbar.getComponent(3)).addActionListener(e->new ListGameAccount().setVisible(true));
         ((JButton) toolbar.getComponent(4)).addActionListener(e->new ListTicket().setVisible(true));
+        ((JButton) toolbar.getComponent(6)).addActionListener(e->new ChartFrame().setVisible(true));
         
         users.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(users.getList()) {
             @Override

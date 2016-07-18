@@ -37,7 +37,7 @@ public class ReportDialog extends JDialog {
         jep.setContentType("text/html");
         JScrollPane jsp = new JScrollPane(jep);
         jsp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         JToolBar toolbar = new JToolBar();
         toolbar.setFloatable(false);

@@ -441,6 +441,12 @@ public class CommonService {
         }
     }
     
+    public static Map<Integer, BeanPlatformAccount> getPlatformAccountAll() {
+        synchronized (cache_platform_account) {
+            return cache_platform_account;
+        }
+    }
+    
     public static int getPlatformAccountByCaid(int caid) {
         synchronized (cache_platform_account_map) {
             for (BeanPlatformAccountMap bean : cache_platform_account_map) {
@@ -459,6 +465,12 @@ public class CommonService {
     public static BeanPlatformAccount getPlatformAccountByPaid(int paid) {
         synchronized (cache_platform_account) {
             return cache_platform_account.get(paid);
+        }
+    }
+    
+    public static Set<BeanPlatformAccountMoney> getPlatformAccountMoneyAll() {
+        synchronized (cache_platform_account_money) {
+            return cache_platform_account_money;
         }
     }
     

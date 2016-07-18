@@ -48,6 +48,7 @@ import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanTag;
 import com.ski.omc.comp.ManageGameAccount;
+import com.ski.omc.comp.OCRDialog;
 import com.ski.omc.comp.StepStepDialog;
 
 import fomjar.server.msg.FjDscpMessage;
@@ -174,10 +175,10 @@ public class UIToolkit {
     
     /**
      * 
-     * @return 字段user
+     * @return caid
      */
-    public static String createChannelAccount() {
-        String result = null;
+    public static int createChannelAccount() {
+        int caid = -1;
         JComboBox<String>   i_channel = new JComboBox<String>(new String[] {"淘  宝", "微  信", "支付宝"}); // ordered
         i_channel.setEditable(false);
         FjTextField c_user  = new FjTextField();
@@ -241,7 +242,7 @@ public class UIToolkit {
                 break;
             }
             
-            int caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
             
             if (is_recharge_cash.isSelected()) {
@@ -274,7 +275,7 @@ public class UIToolkit {
             
             break;
         }
-        return result;
+        return caid;
     }
     
     public static boolean skip_wa = false;
@@ -468,6 +469,7 @@ public class UIToolkit {
             }
             // 2
             ssd.toNextStep();
+            int csn = -1;
             {
                 ssd.appendText("正在将租赁数据提交到数据库中...");
                 args.clear();
@@ -481,24 +483,29 @@ public class UIToolkit {
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 ssd.appendText(rsp.toString());
                 
-                if (CommonService.isResponseSuccess(rsp) && isRecharge) {
-                    BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByOid(oid));
-                    args.clear();
-                    args.put("paid",    puser.i_paid);
-                    args.put("remark",  "【起租充值】起租账号：" + account.c_user);
-                    args.put("type",    CommonService.MONEY_CASH);
-                    args.put("money",   recharge);
-                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
-                    ssd.appendText(rsp.toString());
+                if (CommonService.isResponseSuccess(rsp)) {
+                    csn = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+                    
+                    if (isRecharge) {
+                        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByOid(oid));
+                        args.clear();
+                        args.put("paid",    puser.i_paid);
+                        args.put("remark",  "【起租充值】起租账号：" + account.c_user);
+                        args.put("type",    CommonService.MONEY_CASH);
+                        args.put("money",   recharge);
+                        rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
+                        ssd.appendText(rsp.toString());
+                    }
+                    isSuccess.obj = true;
+                    CommonService.updateOrder();
+                    CommonService.updateGameAccountRent();
+                    CommonService.updatePlatformAccount();
+                    JOptionPane.showMessageDialog(null, "起租成功", "信息", JOptionPane.PLAIN_MESSAGE);
+                    ssd.appendText("提交完成");
                 }
-                ssd.appendText("提交完成");
             }
-            isSuccess.obj = true;
-            CommonService.updateOrder();
-            CommonService.updateGameAccountRent();
-            CommonService.updatePlatformAccount();
-            JOptionPane.showMessageDialog(null, "起租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
+            if (-1 != csn) new OCRDialog(CommonService.getOrderByOid(oid).commodities.get(csn)).setVisible(true);
         });
         ssd.setVisible(true);
         return isSuccess.obj;
@@ -619,6 +626,7 @@ public class UIToolkit {
             CommonService.updatePlatformAccount();
             JOptionPane.showMessageDialog(null, "退租成功", "信息", JOptionPane.PLAIN_MESSAGE);
             ssd.dispose();
+            new OCRDialog(CommonService.getOrderByOid(oid).commodities.get(commodity.i_csn)).setVisible(true);
         });
         ssd.setVisible(true);
     }
@@ -840,7 +848,7 @@ public class UIToolkit {
         dialog.setTitle("选择游戏账号(〇:空闲;●:已租)");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setSize(400, 500);
+        dialog.setSize(500, 500);
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation((owner.width - dialog.getWidth()) / 2, (owner.height - dialog.getHeight()) / 2);
         dialog.getContentPane().setLayout(new BorderLayout());
@@ -848,6 +856,7 @@ public class UIToolkit {
         dialog.getContentPane().add(pane, BorderLayout.CENTER);
         
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
+        CommonService.updateGameAccountRent();
         CommonService.getGameAccountAll().values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
                     ( (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
@@ -900,6 +909,7 @@ public class UIToolkit {
         Wrapper<BeanChannelAccount> wrapper = new Wrapper<BeanChannelAccount>();
         
         // 添加用户列表
+        CommonService.updateChannelAccount();
         CommonService.getChannelAccountAll().values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - [%s] %s",
                     account.i_caid,
@@ -1009,9 +1019,9 @@ public class UIToolkit {
         while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择关联途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
             switch (option) {
             case JOptionPane.YES_OPTION:
-                String suser = UIToolkit.createChannelAccount();
-                if (null == suser) continue; // no choose
-                user2 = CommonService.getChannelAccountByUser(suser).get(0);
+                int caid = UIToolkit.createChannelAccount();
+                if (-1 == caid) continue; // no choose
+                user2 = CommonService.getChannelAccountByCaid(caid);
                 break;
             case JOptionPane.NO_OPTION:
                 user2 = UIToolkit.chooseChannelAccount();
