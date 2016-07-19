@@ -26,10 +26,11 @@ public class WcaBusiness {
     private WcaBusiness() {}
     
     public static void dispatch(String server, FjDscpMessage req, SocketChannel conn) {
-        if (!req.argsToJsonObject().has("user")) return;
+        JSONObject args = req.argsToJsonObject();
+        if (!args.has("user")) return;
         
-        String user     = req.argsToJsonObject().getString("user");
-        String content  = req.argsToJsonObject().has("content") ? req.argsToJsonObject().getString("content") : null;
+        String user     = args.getString("user");
+        String content  = args.has("content") ? args.getString("content") : null;
         
         verifyUser(server, user);
         

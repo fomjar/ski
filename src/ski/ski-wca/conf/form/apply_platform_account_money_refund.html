@@ -31,9 +31,10 @@
                             '_name'     : $('#refund_name').val(),
                             '_money'    : $('#refund_money').text()
                         }), function(args) {
-                            hideToast();
                             if (0 == args.code) {
+                                window.location = args.desc;
                             } else {
+                                hideToast();
                                 showDialog("退款失败", args.desc);
                             }
                         });

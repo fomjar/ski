@@ -129,6 +129,7 @@ public final class CommonDefinition {
         public static final int CODE_WEB_TAOBAO_ORDER_NOT_FOUND        = 0x00002013; // 没有找到指定订单
         public static final int CODE_WEB_PSN_ACCOUNT_INCORRECT         = 0x00002031; // PSN登陆用户名或密码错误
         public static final int CODE_WEB_PSN_CHANGE_PASSWORD_FAILED    = 0x00002033; // PSN修改密码失败
+        public static final int CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL    = 0x00002034; // PSN账号状态异常
     }
 
 }

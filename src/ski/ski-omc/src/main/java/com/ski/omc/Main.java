@@ -1,5 +1,9 @@
 package com.ski.omc;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import com.ski.common.CommonService;
 import com.ski.omc.comp.MainFrame;
 
@@ -18,7 +22,13 @@ public class Main {
             }
         }
         
+        initLog();
         UIToolkit.initFont();
         MainFrame.getInstance().setVisible(true);
+    }
+    
+    private static void initLog() {
+        try {System.setOut(new PrintStream(new FileOutputStream("ski-omc.error", true)));}
+        catch (FileNotFoundException e) {e.printStackTrace();}
     }
 }

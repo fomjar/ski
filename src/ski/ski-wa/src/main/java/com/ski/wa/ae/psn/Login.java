@@ -5,6 +5,7 @@ import net.sf.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
@@ -27,15 +28,20 @@ public class Login implements AE {
         driver.findElement(By.id("signInInput_Password")).clear();
         driver.findElement(By.id("signInInput_Password")).sendKeys(args.getString("pass")); // 密码
         driver.findElement(By.id("signInButton")).click(); // 登陆
-        try {
-            driver.findElement(By.id("signInInput_SignInID"));    // 账号输入框存在即说明用户名密码错误
+        try {   // 账号输入框存在即说明用户名密码错误
+            driver.findElement(By.id("signInInput_SignInID"));
             code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_INCORRECT;
             desc = "user or pass is incorrect";
             return;
-        } catch (NoSuchElementException e) {
-            code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
-            desc = "login success";
-        }
+        } catch (NoSuchElementException e) {}
+        try {   // 如需登录，必须提供您的帐户信息更新。一封含有说明的 Email 已发送给 q0266@vcg.pub。您最多可能需要 24 小时收到该邮件。
+            WebElement element = driver.findElement(By.id("errorDivMsgDiv"));
+            code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL;
+            desc = element.getText();
+            return;
+        } catch (NoSuchElementException e) {}
+        code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
+        desc = "login success";
     }
 
     @Override
