@@ -42,12 +42,12 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         i_type      = new JLabel("[" + getType2String(data.i_type) + "] ");
         i_type.setFont(i_type.getFont().deriveFont(Font.ITALIC));
         c_title     = new JLabel(data.c_title);
-        c_title.setPreferredSize(new Dimension(50, 0));
+        c_title.setPreferredSize(new Dimension(1, 0));
         i_caid      = new JLabel(CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
         i_state     = new JLabel(" [" + getState2String(data.i_state) + "]");
         i_state.setFont(i_state.getFont().deriveFont(Font.ITALIC));
         c_content   = new JLabel(data.c_content);
-        c_content.setPreferredSize(new Dimension(50, 0));
+        c_content.setPreferredSize(new Dimension(1, 0));
         t_time      = new JLabel(" [" + String.format("%s ~ %s", data.t_open, data.t_close) + "]");
         int width   = 400;
         if (data.isClose()) setToolTipText(String.format("<html><h1 width='%dpx'>%s</h1><p width='%dpx'>%s</p><h1 width='%dpx'>%s</h1><p width='%dpx'>%s</p>",
@@ -101,6 +101,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         add(panel_down);
         
         addActionListener(e->{
+            JLabel      caid  = new JLabel("来源用户: " + CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
             JTextField  title = new JTextField(data.c_title);
             title.setEditable(false);
             JTextArea   content = new JTextArea(data.c_content);
@@ -111,9 +112,14 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             FjTextField result = new FjTextField();
             result.setDefaultTips("(请输入处理意见)");
             
+            JPanel head = new JPanel();
+            head.setLayout(new GridLayout(2, 1));
+            head.add(caid);
+            head.add(title);
+            
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
-            panel.add(title, BorderLayout.NORTH);
+            panel.add(head, BorderLayout.NORTH);
             panel.add(new JScrollPane(content), BorderLayout.CENTER);
             panel.add(result, BorderLayout.SOUTH);
             
@@ -141,6 +147,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         switch (type) {
         case CommonService.TICKET_TYPE_REFUND:  return "退款申请";
         case CommonService.TICKET_TYPE_ADVICE:  return "意见建议";
+        case CommonService.TICKET_TYPE_MEMORY:  return "备忘事项";
         default: return "未    知";
         }
     }

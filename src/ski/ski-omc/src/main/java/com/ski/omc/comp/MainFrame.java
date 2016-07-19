@@ -1,6 +1,7 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -44,7 +45,14 @@ public class MainFrame extends JFrame {
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
         
-        toolbar = new JToolBar();
+        toolbar = new JToolBar() {
+            private static final long serialVersionUID = 2704826017104493269L;
+            @Override
+            public void setEnabled(boolean b) {
+                super.setEnabled(b);
+                for (Component c : getComponents()) c.setEnabled(b);
+            }
+        };
         toolbar.setFloatable(false);
         toolbar.add(new JButton("刷"));
         toolbar.addSeparator();
@@ -118,7 +126,7 @@ public class MainFrame extends JFrame {
     
     private void refresh() {
         UIToolkit.doLater(()->{
-            toolbar.getComponent(0).setEnabled(false);
+            toolbar.setEnabled(false);
 
             try {
                 int max = 12;
@@ -163,7 +171,7 @@ public class MainFrame extends JFrame {
                 if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
             } catch (Exception e) {progress.setString("加载失败：" + e.getMessage());}
             
-            toolbar.getComponent(0).setEnabled(true);
+            toolbar.setEnabled(true);
         });
     }
     

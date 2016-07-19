@@ -650,7 +650,7 @@ public class UIToolkit {
             else i_caid.setText(String.format("0x%08X - %s", account1.i_caid, account1.getDisplayName()));
         });
         
-        JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议"}); // ordered
+        JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议", "备忘事项"}); // ordered
         FjTextField         c_title     = new FjTextField();
         c_title.setDefaultTips("工单标题");
         FjTextArea          c_content   = new FjTextArea();
@@ -1000,13 +1000,54 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "金额一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-//            if (0 == CommonService.getChannelAccountByPaid(paid)
-//                    .stream()
-//                    .filter(user->user.i_channel == CommonService.CHANNEL_ALIPAY)
-//                    .count()) {
-//                JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，请点击“确定”后关联支付宝账户", "信息", JOptionPane.PLAIN_MESSAGE);
-//                userBind(user);
-//            }
+            // 退款条件
+            if (2 == type.getSelectedIndex()) {
+                // 校验订单
+                if (0 < CommonService.getChannelAccountByPaid(paid)
+                        .stream()
+                        .map(user->
+                            CommonService.getOrderByCaid(user.i_caid)
+                                .stream()
+                                .map(o->o.commodities.values()
+                                        .stream()
+                                        .filter(c->!c.isClose())
+                                        .count())
+                                .collect(Collectors.summingLong(l->l))
+                                .intValue())
+                        .collect(Collectors.summingLong(l->l))
+                        .intValue()) {
+                    JOptionPane.showMessageDialog(null, "此用户或其关联用户仍有未关闭的订单，不能退款", "错误", JOptionPane.ERROR_MESSAGE);
+                    continue;
+                }
+                // 不存在关联的支付宝账户
+                if (0 == CommonService.getChannelAccountByPaid(paid)
+                        .stream()
+                        .filter(user->user.i_channel == CommonService.CHANNEL_ALIPAY)
+                        .count()) {
+                    JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，点击“确定”后将指定和关联支付宝账户。新创建用户时平台请选择“支付宝”", "信息", JOptionPane.PLAIN_MESSAGE);
+                    int caid = -1;
+                    while (-1 != (caid = userBind(paid))) {
+                        List<BeanChannelAccount> users = CommonService.getChannelAccountRelatedByChannel(caid, CommonService.CHANNEL_ALIPAY);
+                        if (users.isEmpty()) {
+                            JOptionPane.showMessageDialog(null, "仍然没有找到关联的支付宝账户，可能刚才关联的用户的平台类型不是“支付宝”，请重新关联", "错误", JOptionPane.ERROR_MESSAGE);
+                            continue;
+                        }
+                        BeanChannelAccount user_alipay = users.get(0);
+                        JSONObject args = new JSONObject();
+                        args.put("caid",    user_alipay.i_caid);
+                        args.put("type",    CommonService.TICKET_TYPE_REFUND);
+                        args.put("title",   "【人工】【退款】");
+                        args.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
+                                user_alipay.c_user,
+                                user_alipay.c_name,
+                                Float.parseFloat(money.getText()),
+                                "VC电玩游戏退款"));
+                        CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
+                        CommonService.updateTicket();
+                        break;
+                    }
+                }
+            }
             JSONObject args = new JSONObject();
             args.put("paid",    puser.i_paid);
             if (0 < remark.getText().length()) args.put("remark",  remark.getText());
@@ -1020,7 +1061,12 @@ public class UIToolkit {
         }
     }
     
-    public static void userBind(BeanChannelAccount user) {
+    /**
+     * 
+     * @param paid_to
+     * @return caid or -1 if canceled
+     */
+    public static int userBind(int paid_to) {
         BeanChannelAccount user2 = null;
         int option = JOptionPane.CLOSED_OPTION;
         while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择关联途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
@@ -1036,14 +1082,13 @@ public class UIToolkit {
             }
             if (null == user2) continue;
             
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, String.format("即将关联用户“%s”和“%s”，关联之后将无法回退，继续？", user.getDisplayName(), user2.getDisplayName()), "提示", JOptionPane.OK_CANCEL_OPTION))
-                return;
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "关联之后将无法回退，继续？", "提示", JOptionPane.OK_CANCEL_OPTION))
+                continue;
             
-            int paid_to = CommonService.getPlatformAccountByCaid(user.i_caid);
             int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
             if (paid_to == paid_from) {
                 JOptionPane.showMessageDialog(null, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
-                return;
+                continue;
             }
             
             JSONObject args = new JSONObject();
@@ -1056,6 +1101,8 @@ public class UIToolkit {
             UIToolkit.showServerResponse(rsp);
             break;
         }
+        if (null != user2) return user2.i_caid;
+        else return -1;
     }
     
     public static boolean showServerResponse(FjDscpMessage rsp) {

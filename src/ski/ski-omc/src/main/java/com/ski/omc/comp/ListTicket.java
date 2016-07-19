@@ -2,11 +2,14 @@ package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjListPane;
@@ -18,11 +21,14 @@ import com.ski.omc.UIToolkit;
 public class ListTicket extends JDialog {
 
     private static final long serialVersionUID = 1066704316297382763L;
-    private static final String SWITCH_TITLE_OPEN = "当前显示：未处理工单 (点击切换)";
-    private static final String SWITCH_TITLE_ALL  = "当前显示：全部工单 (点击切换)";
+    private static final String TOGGLE_TITLE_OPEN = "当前显示：开启工单(点击切换)";
+    private static final String TOGGLE_TITLE_ALL  = "当前显示：所有工单(点击切换)";
     
-    private JToolBar                toolbar;
-    private JButton                 toggle;
+    private JToolBar    toolbar;
+    private JCheckBox   filter_refund;
+    private JCheckBox   filter_advice;
+    private JCheckBox   filter_memory;
+    private JButton     toggle;
     private FjListPane<BeanTicket>  pane;
     
     public ListTicket() {
@@ -38,18 +44,43 @@ public class ListTicket extends JDialog {
         toolbar.setFloatable(false);
         toolbar.add(new JButton("新工单"));
         
-        toggle = new JButton(SWITCH_TITLE_OPEN);
+        filter_refund = new JCheckBox("退款申请", true);
+        filter_advice = new JCheckBox("意见建议", true);
+        filter_memory = new JCheckBox("备忘事项", true);
+        toggle = new JButton(TOGGLE_TITLE_OPEN);
+        toggle.setContentAreaFilled(false);
         toggle.setMargin(new Insets(0, 0, 0, 0));
+        
+        JPanel option_filter = new JPanel();
+        option_filter.setLayout(new GridLayout(1, 3));
+        option_filter.add(filter_refund);
+        option_filter.add(filter_advice);
+        option_filter.add(filter_memory);
+        JPanel options = new JPanel();
+        options.setLayout(new BorderLayout());
+        options.add(option_filter, BorderLayout.WEST);
+        options.add(toggle, BorderLayout.CENTER);
         
         pane = new FjListPane<BeanTicket>();
         pane.enableSearchBar();
         pane.getSearchBar().setSearchTips("键入关键词搜索");
-        pane.getSearchBar().add(toggle, BorderLayout.NORTH);
+        pane.getSearchBar().add(options, BorderLayout.NORTH);
         
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanTicket>(pane.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanTicket celldata) {
-                if (SWITCH_TITLE_OPEN.equals(toggle.getText()) && celldata.isClose()) return false;
+                if (TOGGLE_TITLE_OPEN.equals(toggle.getText()) && celldata.isClose()) return false;
+                switch (celldata.i_type) {
+                case CommonService.TICKET_TYPE_REFUND:
+                    if (!filter_refund.isSelected()) return false;
+                    break;
+                case CommonService.TICKET_TYPE_ADVICE:
+                    if (!filter_advice.isSelected()) return false;
+                    break;
+                case CommonService.TICKET_TYPE_MEMORY:
+                    if (!filter_memory.isSelected()) return false;
+                    break;
+                }
                 
                 int count = 0;
                 for (String word : words) {
@@ -67,16 +98,18 @@ public class ListTicket extends JDialog {
         
         toggle.addActionListener(e->{
             switch (toggle.getText()) {
-            case SWITCH_TITLE_OPEN:
-                toggle.setText(SWITCH_TITLE_ALL);
+            case TOGGLE_TITLE_OPEN:
+                toggle.setText(TOGGLE_TITLE_ALL);
                 break;
-            case SWITCH_TITLE_ALL:
-                toggle.setText(SWITCH_TITLE_OPEN);
+            case TOGGLE_TITLE_ALL:
+                toggle.setText(TOGGLE_TITLE_OPEN);
                 break;
             }
             pane.getSearchBar().doSearch();
-            pane.getList().repaint();
         });
+        filter_refund.addActionListener(e->pane.getSearchBar().doSearch());
+        filter_advice.addActionListener(e->pane.getSearchBar().doSearch());
+        filter_memory.addActionListener(e->pane.getSearchBar().doSearch());
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
