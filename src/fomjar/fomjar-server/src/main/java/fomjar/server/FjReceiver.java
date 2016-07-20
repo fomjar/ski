@@ -94,7 +94,7 @@ public class FjReceiver extends FjLoopTask {
                         int     n = -1;
                         long    begin = System.currentTimeMillis();
                         while (0 <= (n = conn.read(buf)) && TIMEOUT > System.currentTimeMillis() - begin) {
-                            if (n > 0) {
+                            if (0 < n) {
                                 buf.flip();
                                 baos.write(buf.array(), buf.position(), buf.limit());
                                 buf.clear();

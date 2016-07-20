@@ -294,8 +294,8 @@ public class WcWeb {
                         game.c_country,
                         game.t_sale,
                         game.c_platform,
-                        CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price,
-                        CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
+                        CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price,
+                        CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
             }
             break;
         }

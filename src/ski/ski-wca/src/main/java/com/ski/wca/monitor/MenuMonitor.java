@@ -51,11 +51,6 @@ public class MenuMonitor extends FjLoopTask {
     
     private void resetInterval() {
         long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval"));
-        setInterval(second);
-    }
-    
-    @Override
-    public void setInterval(long second) {
-        super.setInterval(second * 1000);
+        setInterval(second * 1000);
     }
 }

@@ -167,7 +167,7 @@ public class UIToolkit {
             CommonService.updateGameAccount();
             if (!UIToolkit.showServerResponse(rsp)) break;
         
-            List<BeanGameAccount> accounts = CommonService.getGameAccountByUserName(c_user.getText());
+            List<BeanGameAccount> accounts = CommonService.getGameAccountByUser(c_user.getText());
             if (1 == accounts.size()) new ManageGameAccount(accounts.get(0).i_gaid).setVisible(true);
             break;
         }
@@ -328,9 +328,9 @@ public class UIToolkit {
                 if (ItemEvent.SELECTED != e.getStateChange()) return;
                 
                 if (c_arg1.getSelectedItem().toString().contains("A")) {
-                    i_price.setText(CommonService.getRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_A) + "");
+                    i_price.setText(CommonService.getGameRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_A) + "");
                 } else if (c_arg1.getSelectedItem().toString().contains("B")) {
-                    i_price.setText(CommonService.getRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_B) + "");
+                    i_price.setText(CommonService.getGameRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_B) + "");
                 } else {
                     i_price.setText("0.00");
                 }
@@ -343,9 +343,9 @@ public class UIToolkit {
                 c_arg0.setText(String.format("0x%08X - %s (%s)", account.obj.i_gaid, account.obj.c_user,
                         CommonService.getGameByGaid(account.obj.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
-                if (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_A))
+                if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
-                if (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_B))
+                if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_B))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("B类");
                 if (0 == c_arg1.getModel().getSize()) {
                     c_arg0.setText("");
@@ -566,8 +566,8 @@ public class UIToolkit {
                     boolean isModify = true;
                     switch (commodity.c_arg1) {
                     case "A":
-                        if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
-                            BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getRentChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
+                        if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
+                            BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
                             JOptionPane.showMessageDialog(null,
                                     String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.getDisplayName()),
                                     "信息",
@@ -575,7 +575,7 @@ public class UIToolkit {
                         }
                         break;
                     case "B":
-                        if (CommonService.RENT_STATE_IDLE != CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
+                        if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
                             ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
                             isModify = false;
                         }
@@ -790,7 +790,7 @@ public class UIToolkit {
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = CommonService.getRentGameAccountAll()
+                    List<BeanGameAccount> accounts = CommonService.getGameAccountRentAll()
                             .stream()
                             .filter(rent->{
                                 if (CommonService.RENT_STATE_RENT != rent.i_state) return false;
@@ -845,7 +845,7 @@ public class UIToolkit {
         
         // 创建弹框
         JDialog dialog = new JDialog();
-        dialog.setTitle("选择游戏账号(〇:空闲;●:已租)");
+        dialog.setTitle("选择游戏账号(〇:空闲;●:占用)");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.setSize(500, 500);
@@ -859,8 +859,8 @@ public class UIToolkit {
         CommonService.updateGameAccountRent();
         CommonService.getGameAccountAll().values().forEach(account->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
-                    ( (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
-                    + (CommonService.RENT_STATE_IDLE == CommonService.getRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
+                    ( (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
+                    + (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
             JLabel games = new JLabel("包含游戏：" + CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
             games.setForeground(Color.gray);
             cell.add(games, BorderLayout.SOUTH);

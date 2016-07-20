@@ -28,7 +28,7 @@ public class Main {
     }
     
     private static void initLog() {
-        try {System.setOut(new PrintStream(new FileOutputStream("ski-omc.error", true)));}
+        try {System.setErr(new PrintStream(new FileOutputStream("ski-omc.err", true)));}
         catch (FileNotFoundException e) {e.printStackTrace();}
     }
 }

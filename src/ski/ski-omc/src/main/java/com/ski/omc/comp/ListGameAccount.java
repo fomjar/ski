@@ -86,7 +86,7 @@ public class ListGameAccount extends JDialog {
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
-                    List<BeanGameAccount> accounts = CommonService.getRentGameAccountAll()
+                    List<BeanGameAccount> accounts = CommonService.getGameAccountRentAll()
                             .stream()
                             .filter(rent->{
                                 if (CommonService.RENT_STATE_RENT != rent.i_state) return false;

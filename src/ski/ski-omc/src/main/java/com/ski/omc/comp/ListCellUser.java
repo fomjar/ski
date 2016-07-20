@@ -48,8 +48,8 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
     }
 
     private static String getMinorString(BeanChannelAccount data) {
-        int renting = CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_A).size()
-                + CommonService.getRentGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_B).size();
+        int renting = CommonService.getGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_A).size()
+                + CommonService.getGameAccountByCaid(data.i_caid, CommonService.RENT_TYPE_B).size();
         int all = 0;
         try {all = CommonService.getOrderByCaid(data.i_caid).stream().map(order->order.commodities.size()).reduce(0, (c1, c2)->c1 + c2).intValue();}
         catch (NoSuchElementException e) {}

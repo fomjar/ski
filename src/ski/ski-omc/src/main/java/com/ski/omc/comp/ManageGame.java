@@ -295,8 +295,8 @@ public class ManageGame extends JDialog {
     
     private void updatePrice() {
         int gid = Integer.parseInt(i_gid.getText().split("x")[1], 16);
-        i_price_a.setText((null != CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_A) ? CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
-        i_price_b.setText((null != CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_B) ? CommonService.getRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
+        i_price_a.setText((null != CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
+        i_price_b.setText((null != CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
     }
     
     private void updateTag() {

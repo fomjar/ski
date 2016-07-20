@@ -31,8 +31,8 @@ public class ListCellGame extends FjListCell<BeanGame> {
         
         c_name_zh   = new JLabel(data.c_name_zh);
         i_gid       = new JLabel(String.format("0x%08X", data.i_gid));
-        i_price_a   = new JLabel("A: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
-        i_price_b   = new JLabel("B: " + (null != CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
+        i_price_a   = new JLabel("A: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
+        i_price_b   = new JLabel("B: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
         t_sale      = new JLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
         c_country   = new JLabel(0 == data.c_country.length() ? "(没有国家)" : data.c_country);
         
