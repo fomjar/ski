@@ -13,6 +13,7 @@
     <module>ski-mma</module>
   	<module>ski-wa</module>
     <module>ski-cdb</module>
+    <module>ski-tools</module>
   </modules>
   <build>
     <plugins>
