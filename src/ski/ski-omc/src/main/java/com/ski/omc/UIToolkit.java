@@ -848,7 +848,7 @@ public class UIToolkit {
         dialog.setTitle("选择游戏账号(〇:空闲;●:占用)");
         dialog.setModal(true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        dialog.setSize(500, 500);
+        dialog.setSize(400, 500);
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         dialog.setLocation((owner.width - dialog.getWidth()) / 2, (owner.height - dialog.getHeight()) / 2);
         dialog.getContentPane().setLayout(new BorderLayout());
@@ -862,6 +862,7 @@ public class UIToolkit {
                     ( (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
                     + (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
             JLabel games = new JLabel("包含游戏：" + CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+            games.setPreferredSize(new Dimension(1, games.getPreferredSize().height));
             games.setForeground(Color.gray);
             cell.add(games, BorderLayout.SOUTH);
             cell.addActionListener(new ActionListener() {
@@ -1027,7 +1028,7 @@ public class UIToolkit {
                     JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，点击“确定”后将指定和关联支付宝账户。新创建用户时平台请选择“支付宝”", "信息", JOptionPane.PLAIN_MESSAGE);
                     int caid = -1;
                     while (-1 != (caid = userBind(paid))) {
-                        List<BeanChannelAccount> users = CommonService.getChannelAccountRelatedByChannel(caid, CommonService.CHANNEL_ALIPAY);
+                        List<BeanChannelAccount> users = CommonService.getChannelAccountRelatedByCaidNChannel(caid, CommonService.CHANNEL_ALIPAY);
                         if (users.isEmpty()) {
                             JOptionPane.showMessageDialog(null, "仍然没有找到关联的支付宝账户，可能刚才关联的用户的平台类型不是“支付宝”，请重新关联", "错误", JOptionPane.ERROR_MESSAGE);
                             continue;

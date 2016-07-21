@@ -32,7 +32,7 @@ public final class CommonDefinition {
         /** 用户通用命令 */
         public static final int INST_USER_COMMAND       = 0X00001005;
         /** 用户跳转界面/网页 */
-        public static final int INST_USER_GOTO          = 0x00001006;
+        public static final int INST_USER_VIEW          = 0x00001006;
         /** 用户地理位置 */
         public static final int INST_USER_LOCATION      = 0x00001007;
         /** 用户(结果)通知 */
@@ -66,6 +66,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_QUERY_TAG                     = 0x0000200C;
         /** 查询工单 */
         public static final int INST_ECOM_QUERY_TICKET                  = 0x0000200D;
+        /** 查询通知 */
+        public static final int INST_ECOM_QUERY_NOTIFICATION            = 0x0000200E;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -104,6 +106,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_UPDATE_TAG_DEL                = 0x0000240C;
         /** 更新工单 */
         public static final int INST_ECOM_UPDATE_TICKET                 = 0x0000240D;
+        /** 更新通知 */
+        public static final int INST_ECOM_UPDATE_NOTIFICATION           = 0x0000240E;
     }
     
     /**

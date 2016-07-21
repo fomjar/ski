@@ -219,13 +219,12 @@ public class WechatInterface {
         JSONObject args = new JSONObject();
         args.put("user", user_from);
         
-        String content   = null;
         String event     = null;
         String event_key = null;
         String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent().trim();
         switch (msg_type) {
         case "text": {
-            content = xml.getElementsByTagName("Content").item(0).getTextContent().trim();
+            String content = xml.getElementsByTagName("Content").item(0).getTextContent().trim();
             logger.info("INST_USER_REQUEST     - wechat:" + user_from + ":" + content);
             req.json().put("inst", CommonDefinition.ISIS.INST_USER_REQUEST);
             args.put("content", content);
@@ -235,7 +234,7 @@ public class WechatInterface {
             event     = xml.getElementsByTagName("Event").item(0).getTextContent().trim();
             if (event.equals("TEMPLATESENDJOBFINISH")) {    // 模板消息结果通知
                 req.json().put("inst", CommonDefinition.ISIS.INST_USER_NOTIFY);
-                args.put("content", event + " " + xml.getElementsByTagName("Status").item(0).getTextContent().trim());
+                args.put("status", event + " " + xml.getElementsByTagName("Status").item(0).getTextContent().trim());
                 break;
             }
             event_key = xml.getElementsByTagName("EventKey").item(0).getTextContent().trim();
@@ -253,13 +252,13 @@ public class WechatInterface {
             case "CLICK": {
                 logger.info("INST_USER_COMMAND     - wechat:" + user_from + ":" + event_key);
                 req.json().put("inst", CommonDefinition.ISIS.INST_USER_COMMAND);
-                args.put("content", event_key);
+                args.put("cmd", event_key);
                 break;
             }
             case "VIEW": {
-                logger.info("INST_USER_GOTO        - wechat:" + user_from);
-                req.json().put("inst", CommonDefinition.ISIS.INST_USER_GOTO);
-                args.put("content", event_key);
+                logger.info("INST_USER_VIEW        - wechat:" + user_from);
+                req.json().put("inst", CommonDefinition.ISIS.INST_USER_VIEW);
+                args.put("view", event_key);
                 break;
             }
             default:
@@ -275,7 +274,7 @@ public class WechatInterface {
             int    scale = Integer.parseInt(xml.getElementsByTagName("Scale").item(0).getTextContent());
             String label = xml.getElementsByTagName("Label").item(0).getTextContent();
             req.json().put("inst", CommonDefinition.ISIS.INST_USER_LOCATION);
-            args.put("content", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
+            args.put("location", JSONObject.fromObject(String.format("{'x':%f, 'y':%f, 'scale':%d, 'label':\"%s\"}", x, y, scale, label)));
             break;
         }
         case "image": {
@@ -322,7 +321,7 @@ public class WechatInterface {
             break;
         }
         default:
-            logger.error("unknown msg type: " + msg_type);
+            logger.error("unknown message type: " + msg_type);
             break;
         }
         req.json().put("args", args);

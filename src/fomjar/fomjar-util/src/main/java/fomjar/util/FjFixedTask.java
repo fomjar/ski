@@ -23,11 +23,10 @@ public abstract class FjFixedTask implements FjTask {
         pool.submit(()->{
             try {
                 perform();
+                curr.interrupt();
                 
                 try {onPerformDone(System.currentTimeMillis() - start);}
                 catch (Exception e) {e.printStackTrace();}
-                
-                curr.interrupt();
             } catch (Exception e) {e.printStackTrace();}
         });
         

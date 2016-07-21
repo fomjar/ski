@@ -66,8 +66,7 @@ public class MainFrame extends JFrame {
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         toolbar_user.setLayout(new BoxLayout(toolbar_user, BoxLayout.X_AXIS));
         toolbar_user.add(DetailPane.createToolBarButton("新用户", e->{
-            UIToolkit.createChannelAccount();
-            refresh();
+            if (-1 != UIToolkit.createChannelAccount()) refresh();
         }));
         users   = new FjListPane<BeanChannelAccount>();
         detail  = new MainDetailPane();

@@ -59,7 +59,7 @@ public class MainDetailPane extends JPanel {
         basic.removeAllCell();
         basic.addCell(new ListCellDetailUser(user));
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
-        float[]     prestatement = CommonService.prestatement(user.i_caid);
+        float[]     prestatement = CommonService.prestatementByCaid(user.i_caid);
         pane_basic.setTitle(String.format("用户基本信息 (当前余额：%.2f元/%.2f元|实时结算：%.2f元/%.2f元)", puser.i_cash, puser.i_coupon, prestatement[0], prestatement[1]));
         
         binds.removeAllCell();

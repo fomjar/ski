@@ -3,6 +3,7 @@ package com.ski.common;
 import java.text.SimpleDateFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -16,6 +17,7 @@ import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanGameAccountGame;
 import com.ski.common.bean.BeanGameAccountRent;
 import com.ski.common.bean.BeanGameRentPrice;
+import com.ski.common.bean.BeanNotification;
 import com.ski.common.bean.BeanOrder;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.common.bean.BeanPlatformAccountMap;
@@ -44,6 +46,7 @@ public class CommonService {
     private static final Set<BeanPlatformAccountMoney>      cache_platform_account_money    = new LinkedHashSet<BeanPlatformAccountMoney>();
     private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
     private static final Map<Integer, BeanTicket>           cache_ticket                    = new LinkedHashMap<Integer, BeanTicket>();
+    private static final Map<Integer, BeanNotification>     cache_notification              = new LinkedHashMap<Integer, BeanNotification>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -130,6 +133,17 @@ public class CommonService {
         }
     }
     
+    public static List<BeanChannelAccount> getChannelAccountByPaidNChannel(int paid, int channel) {
+        synchronized (cache_platform_account_map) {
+            return cache_platform_account_map
+                    .stream()
+                    .filter(bean->bean.i_paid == paid)
+                    .filter(bean->getChannelAccountByCaid(bean.i_caid).i_channel == channel)
+                    .map(bean->getChannelAccountByCaid(bean.i_caid))
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static List<BeanChannelAccount> getChannelAccountByPhone(String phone) {
         synchronized (cache_channel_account) {
             return cache_channel_account.values()
@@ -159,7 +173,7 @@ public class CommonService {
         }
     }
     
-    public static List<BeanChannelAccount> getChannelAccountRelatedByChannel(int caid, int channel) {
+    public static List<BeanChannelAccount> getChannelAccountRelatedByCaidNChannel(int caid, int channel) {
         synchronized (cache_platform_account_map) {
             int paid = getPlatformAccountByCaid(caid);
             return cache_platform_account_map
@@ -187,6 +201,12 @@ public class CommonService {
                     .map(rent->cache_game_account.get(rent.i_gaid))
                     .collect(Collectors.toList());
         }
+    }
+    
+    public static List<BeanGameAccount> getGameAccountByPaid(int paid, int type) {
+        List<BeanGameAccount> accounts = new LinkedList<BeanGameAccount>();
+        getChannelAccountByPaid(paid).forEach(u->accounts.addAll(getGameAccountByCaid(u.i_caid, type)));
+        return accounts;
     }
     
     public static BeanGameAccount getGameAccountByGaid(int gaid) {
@@ -311,6 +331,15 @@ public class CommonService {
         }
     }
     
+    public static List<BeanOrder> getOrderByPaid(int paid) {
+        synchronized (cache_order) {
+            return cache_order.values()
+                    .stream()
+                    .filter(o->getPlatformAccountByCaid(o.i_caid) == paid)
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static Map<Integer, BeanPlatformAccount> getPlatformAccountAll() {
         synchronized (cache_platform_account) {
             return cache_platform_account;
@@ -420,6 +449,16 @@ public class CommonService {
         return true;
     }
     
+    public static boolean isNotificationNotified(int caid, String content) {
+        synchronized (cache_notification) {
+            for (BeanNotification n : cache_notification.values()) {
+                if (n.i_caid == caid
+                        && n.c_content.equals(content)) return true;
+            }
+            return false;
+        }
+    }
+    
     public static boolean isResponseSuccess(FjDscpMessage rsp) {
         if (null == rsp) return false;
         
@@ -438,14 +477,18 @@ public class CommonService {
         return desc.toString();
     }
     
-    public static float[] prestatement(int caid) {
-        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
+    public static float[] prestatementByCaid(int caid) {
+        return prestatementByPaid(getPlatformAccountByCaid(caid));
+    }
+    
+    public static float[] prestatementByPaid(int paid) {
+        BeanPlatformAccount puser = getPlatformAccountByPaid(paid);
         float cash      = puser.i_cash;
         float coupon    = puser.i_coupon;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         float cost = 0.00f;
         try {
-            cost = CommonService.getOrderByCaid(caid)
+            cost = CommonService.getOrderByPaid(paid)
                 .stream()
                 .filter(order->!order.isClose())
                 .map(order->{
@@ -599,6 +642,21 @@ public class CommonService {
                 for (String line : lines) {
                     BeanGameRentPrice bean = new BeanGameRentPrice(line);
                     cache_game_rent_price.put(Integer.toHexString(bean.i_gid) + bean.i_type, bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateNotification() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_NOTIFICATION, null));
+        
+        synchronized (cache_notification) {
+            cache_notification.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanNotification bean = new BeanNotification(line);
+                    cache_notification.put(bean.i_nid, bean);
                 }
             }
         }

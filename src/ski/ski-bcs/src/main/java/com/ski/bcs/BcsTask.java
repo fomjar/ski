@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
+import com.ski.bcs.monitor.BcsMonitor;
 import com.ski.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
@@ -28,6 +29,10 @@ import net.sf.json.JSONObject;
 public class BcsTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(BcsTask.class);
+    
+    public BcsTask() {
+        new BcsMonitor().start();
+    }
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

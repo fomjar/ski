@@ -135,7 +135,7 @@ public class WcWeb {
     }
     
     private static void processApplyPlatformAccountMerge(WcwResponse response, WcwRequest request) {
-        if (!CommonService.getChannelAccountRelatedByChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {  // 用户已经绑定过了
+        if (!CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {  // 用户已经绑定过了
             response.type       = FjHttpRequest.CT_HTML;
             response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
             return;
@@ -205,7 +205,7 @@ public class WcWeb {
             List<String[]> cells = new LinkedList<String[]>();
             cells.add(new String[] {"现金", puser.i_cash + "元"});
             cells.add(new String[] {"优惠券", puser.i_coupon + "元"});
-            float[] prestatement = CommonService.prestatement(request.user);
+            float[] prestatement = CommonService.prestatementByCaid(request.user);
             cells.add(new String[] {"现金(实时)", prestatement[0] + "元"});
             cells.add(new String[] {"优惠券(实时)", prestatement[1] + "元"});
             sb.append(WechatForm.createFormCellGroup("我的账户", cells, null));
@@ -441,7 +441,7 @@ public class WcWeb {
     
     private static void processApplyPlatformAccountMoney_Refund(WcwResponse response, WcwRequest request) {
         BeanPlatformAccount puser       = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(request.user));
-        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelatedByChannel(request.user, CommonService.CHANNEL_ALIPAY);
+        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_ALIPAY);
         if (users.isEmpty()) request.step = STEP_PREPARE;
         
         switch (request.step) {

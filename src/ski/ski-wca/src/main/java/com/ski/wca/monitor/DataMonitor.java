@@ -31,17 +31,15 @@ public class DataMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         
-        try {
-            CommonService.updateChannelAccount();
-            CommonService.updateGame();
-            CommonService.updateGameAccount();
-            CommonService.updateGameAccountGame();
-            CommonService.updateGameAccountRent();
-            CommonService.updateGameRentPrice();
-            CommonService.updateOrder();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-        } catch (Exception e) {logger.error("update data failed", e);}
+        CommonService.updateChannelAccount();
+        CommonService.updateGame();
+        CommonService.updateGameAccount();
+        CommonService.updateGameAccountGame();
+        CommonService.updateGameAccountRent();
+        CommonService.updateGameRentPrice();
+        CommonService.updateOrder();
+        CommonService.updatePlatformAccount();
+        CommonService.updatePlatformAccountMap();
     }
     
     private void resetInterval() {

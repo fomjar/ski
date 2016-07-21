@@ -36,38 +36,39 @@ public class WcaTask implements FjServerTask {
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
         if (msg instanceof FjHttpRequest) {
-            FjHttpRequest req = (FjHttpRequest) msg;
-            if (req.url().startsWith(WcaBusiness.URL_KEY)) {
-                logger.debug("dispatch wechat message: " + msg);
-                processWechat(server.name(), wrapper);
-            } else if (req.url().startsWith(WcWeb.URL_KEY)) {
-                logger.debug("dispatch wechat web message: " + msg);
-                final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
-                wrapper.attach("conn", null); // give up connection
-                pool.submit(()->{
-                    try {WcWeb.dispatch(server.name(), req, conn);}
-                    catch (Exception e) {logger.error("error occurs when dispatch web message: " + msg, e);}
-                    finally {try {conn.close();} catch (IOException e) {e.printStackTrace();}}
-                });
-            } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
+            processWechat(server.name(), wrapper);
         } else if (msg instanceof FjDscpMessage) {
-            logger.debug("do nothing to ski message: " + msg);
+            logger.debug("dispatch ski message: " + msg);
+            WcaBusiness.dispatch(server.name(), (FjDscpMessage) msg);
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
     }
     
-    private static void processWechat(String server, FjMessageWrapper wrapper) {
-        if (((FjHttpRequest) wrapper.message()).urlArgs().containsKey("echostr")) {
-            WechatInterface.access(wrapper);
-            logger.info("wechat access");
-            return;
-        }
-        // 第一时间给微信响应
-        WechatInterface.sendResponse(FjHttpRequest.CT_TEXT, "success", (SocketChannel) wrapper.attachment("conn"));
-        
-        FjDscpMessage req = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
-        WcaBusiness.dispatch(server, req, (SocketChannel) wrapper.attachment("conn"));
+    private void processWechat(String server, FjMessageWrapper wrapper) {
+        FjHttpRequest hmsg = (FjHttpRequest) wrapper.message();
+        if (hmsg.url().startsWith(WcaBusiness.URL_KEY)) {
+            logger.debug("dispatch wechat message: " + wrapper.message());
+            if (((FjHttpRequest) wrapper.message()).urlArgs().containsKey("echostr")) {
+                WechatInterface.access(wrapper);
+                logger.info("wechat access");
+                return;
+            }
+            // 第一时间给微信响应
+            WechatInterface.sendResponse(FjHttpRequest.CT_TEXT, "success", (SocketChannel) wrapper.attachment("conn"));
+            
+            FjDscpMessage dmsg = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
+            WcaBusiness.dispatch(server, dmsg);
+        } else if (hmsg.url().startsWith(WcWeb.URL_KEY)) {
+            logger.debug("dispatch wechat web message: " + wrapper.message());
+            final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
+            wrapper.attach("conn", null); // give up connection
+            pool.submit(()->{
+                try {WcWeb.dispatch(server, hmsg, conn);}
+                catch (Exception e) {logger.error("error occurs when dispatch web message: " + hmsg, e);}
+                finally {try {conn.close();} catch (IOException e) {e.printStackTrace();}}
+            });
+        } else logger.error("unsupported http message:\n" + wrapper.attachment("raw"));
     }
 }
 

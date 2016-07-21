@@ -1,6 +1,6 @@
 package com.ski.wca.biz;
 
-import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,6 +16,7 @@ import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjJsonMessage;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class WcaBusiness {
@@ -23,33 +24,33 @@ public class WcaBusiness {
     private static final Logger logger = Logger.getLogger(WcaBusiness.class);
     public static final String URL_KEY = "/ski-wca";
     
+    private static final String RESPONSE_TYPE_TEXT      = "text";
+    private static final String RESPONSE_TYPE_NOTIFY    = "notify";
+    private static final String RESPONSE_TYPE_NEWS      = "news";
+    
     private WcaBusiness() {}
     
-    public static void dispatch(String server, FjDscpMessage req, SocketChannel conn) {
-        JSONObject args = req.argsToJsonObject();
+    public static void dispatch(String server, FjDscpMessage req) {
+        JSONObject  args    = req.argsToJsonObject();
         if (!args.has("user")) return;
         
-        String user     = args.getString("user");
-        String content  = args.has("content") ? args.getString("content") : null;
-        
+        String      user    = args.getString("user");
         verifyUser(server, user);
         
         switch (req.inst()) {
-        case CommonDefinition.ISIS.INST_USER_RESPONSE: {
-            try {WechatInterface.messageCustomSendText(user, content);}
-            catch (WechatInterfaceException e) {logger.error("send custom service message failed: " + content, e);}
+        case CommonDefinition.ISIS.INST_USER_RESPONSE:
+            dispatchResponse(user, args);
             break;
-        }
         case CommonDefinition.ISIS.INST_USER_REQUEST:
             break;
         case CommonDefinition.ISIS.INST_USER_COMMAND:
-            dispatchCommand(server, user, content, conn);
+            dispatchCommand(server, user, args);
             break;
         case CommonDefinition.ISIS.INST_USER_SUBSCRIBE:
             break;
         case CommonDefinition.ISIS.INST_USER_UNSUBSCRIBE:
             break;
-        case CommonDefinition.ISIS.INST_USER_GOTO:
+        case CommonDefinition.ISIS.INST_USER_VIEW:
             break;
         case CommonDefinition.ISIS.INST_USER_LOCATION:
             break;
@@ -109,10 +110,51 @@ public class WcaBusiness {
         }
     }
     
-    private static void dispatchCommand(String server, String user, String content, SocketChannel conn) {
-        logger.debug(String.format("user: %s select menu: %s", user, content));
-        BeanChannelAccount user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
-        switch (content) {
+    @SuppressWarnings("unchecked")
+    private static void dispatchResponse(String user, JSONObject args) {
+        String  type    = args.has("type") ? args.getString("type") : RESPONSE_TYPE_TEXT;
+        Object  content = args.get("content");
+        
+        switch (type) {
+        case RESPONSE_TYPE_TEXT: {
+            try {WechatInterface.messageCustomSendText(user, content.toString());}
+            catch (WechatInterfaceException e) {logger.error("send custom message failed: " + content, e);}
+            break;
+        }
+        case RESPONSE_TYPE_NOTIFY: {
+            JSONObject content_json = (JSONObject) content;
+            String template = content_json.getString("template");
+            String url      = content_json.has("url") ? content_json.getString("url") : null;
+            JSONObject data = content_json.getJSONObject("data");
+            try {WechatInterface.messageTemplateSend(user, template, url, data);}
+            catch (WechatPermissionDeniedException e) {logger.error("send template message failed: " + content, e);}
+            break;
+        }
+        case RESPONSE_TYPE_NEWS: {
+            JSONArray content_json = (JSONArray) content;
+            List<WechatInterface.Article> articles = new LinkedList<WechatInterface.Article>();
+            content_json.forEach(arg->{
+                JSONObject article = (JSONObject) arg;
+                articles.add(new WechatInterface.Article(article.getString("title"),
+                        article.getString("description"),
+                        article.getString("url"),
+                        article.getString("picurl")));
+            });
+            try {WechatInterface.messageCustomSendNews(user, articles.toArray(new WechatInterface.Article[articles.size()]));}
+            catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send news message failed: " + content, e);}
+            break;
+        }
+        default:
+            logger.error("unknown user response type: " + type);
+            break;
+        }
+    }
+    
+    private static void dispatchCommand(String server, String user, JSONObject args) {
+        String              cmd         = args.getString("cmd");
+        BeanChannelAccount  user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
+        
+        switch (cmd) {
         case "21":  // 所有游戏
             try {
                 WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {

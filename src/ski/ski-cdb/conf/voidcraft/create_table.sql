@@ -170,3 +170,12 @@ create table tbl_ticket (
     c_result    varchar(64)     -- 处理结果
 );
 
+-- 通知
+drop table if exists tbl_notification;
+create table tbl_notification (
+    i_nid       integer,        -- 通知编号
+    i_caid      integer,        -- 被通知的用户
+    c_content   varchar(64),    -- 通知内容
+    t_create    datetime        -- 创建通知的时间
+);
+

@@ -101,7 +101,8 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         add(panel_down);
         
         addActionListener(e->{
-            JLabel      caid  = new JLabel("来源用户: " + CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
+            JTextField  caid  = new JTextField(CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
+            caid.setEditable(false);
             JTextField  title = new JTextField(data.c_title);
             title.setEditable(false);
             JTextArea   content = new JTextArea(data.c_content);
@@ -114,7 +115,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             
             JPanel head = new JPanel();
             head.setLayout(new GridLayout(2, 1));
-            head.add(caid);
+            head.add(UIToolkit.createBasicInfoLabel("来源用户", caid));
             head.add(title);
             
             JPanel panel = new JPanel();
