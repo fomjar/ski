@@ -187,8 +187,24 @@ public class UIToolkit {
         JCheckBox   is_recharge_cash    = new JCheckBox("充值现金", true);
         FjTextField i_cash              = new FjTextField("150.00");
         JCheckBox   is_recharge_coupon  = new JCheckBox("充值优惠券", true);
-        FjTextField i_coupon            = new FjTextField("10.00");
+        FjTextField i_coupon            = new FjTextField("5.00");
         JCheckBox   is_open_commodity   = new JCheckBox("创建商品", true);
+        
+        i_channel.addItemListener(e->{
+            switch (i_channel.getSelectedIndex()) {
+            case 0:
+                is_recharge_cash.setSelected(true);
+                is_recharge_coupon.setSelected(true);
+                is_open_commodity.setSelected(true);
+                break;
+            case 1:
+            case 2:
+                is_recharge_cash.setSelected(false);
+                is_recharge_coupon.setSelected(false);
+                is_open_commodity.setSelected(false);
+                break;
+            }
+        });
         
         is_recharge_cash.addItemListener(e->i_cash.setEnabled(is_recharge_cash.isSelected()));
         is_recharge_cash.setPreferredSize(new Dimension(100, 0));
