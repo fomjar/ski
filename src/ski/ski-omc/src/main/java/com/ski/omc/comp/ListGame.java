@@ -46,7 +46,7 @@ public class ListGame extends JDialog {
             @Override
             public boolean isMatch(String type, String[] words, BeanGame celldata) {
                     int count = 0;
-                    for (String word : words) if (celldata.c_name_zh.contains(word)) count++;
+                    for (String word : words) if (celldata.getDiaplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
             }
         });

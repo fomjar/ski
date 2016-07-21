@@ -699,7 +699,7 @@ public class UIToolkit {
             @Override
             public boolean isMatch(String type, String[] words, String celldata) {
                 int count = 0;
-                for (String word : words) if (celldata.contains(word)) count++;
+                for (String word : words) if (celldata.toLowerCase().contains(word.toLowerCase())) count++;
                 return count == words.length;
             }
         });
@@ -760,7 +760,7 @@ public class UIToolkit {
                             .stream()
                             .filter(game->{
                                 int count = 0;
-                                for (String word : words) if (game.c_name_zh.contains(word)) count++;
+                                for (String word : words) if (game.c_name_zh.toLowerCase().contains(word.toLowerCase())) count++;
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -785,9 +785,9 @@ public class UIToolkit {
                     List<BeanChannelAccount> users = CommonService.getChannelAccountAll().values()
                             .stream()
                             .filter(user->{
-                                int count1 = 0;
-                                for (String word : words) if (user.getDisplayName().contains(word)) count1++;
-                                if (count1 == words.length) return true;
+                                int count = 0;
+                                for (String word : words) if (user.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
+                                if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
                     List<BeanGameAccount> accounts = CommonService.getGameAccountRentAll()
@@ -810,7 +810,7 @@ public class UIToolkit {
                 }
                 case "按账号名": {
                     int count = 0;
-                    for (String word : words) if (celldata.contains(word)) count++;
+                    for (String word : words) if (celldata.toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length &&  isMatchCheckBox(type_a, type_b, celldata);
                 }
                 default:
@@ -861,7 +861,7 @@ public class UIToolkit {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
                     ( (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
                     + (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
-            JLabel games = new JLabel("包含游戏：" + CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+            JLabel games = new JLabel(CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
             games.setPreferredSize(new Dimension(1, games.getPreferredSize().height));
             games.setForeground(Color.gray);
             cell.add(games, BorderLayout.SOUTH);
@@ -891,7 +891,7 @@ public class UIToolkit {
             @Override
             public boolean isMatch(String type, String[] words, String celldata) {
                 int count = 0;
-                for (String word : words) if (celldata.contains(word)) count++;
+                for (String word : words) if (celldata.toLowerCase().contains(word.toLowerCase())) count++;
                 return count == words.length;
             }
         });

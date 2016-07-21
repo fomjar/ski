@@ -13,12 +13,15 @@ import javax.swing.JPanel;
 public class FjList<E> extends JComponent {
 
     private static final long serialVersionUID = -3914498112193542403L;
+    
     private JPanel cells;
+    private boolean isSelectable;
     
     public FjList() {
         cells = new JPanel();
         cells.setOpaque(false);
         cells.setLayout(new BoxLayout(cells, BoxLayout.Y_AXIS));
+        isSelectable = false;
         setOpaque(false);
         setLayout(new BorderLayout());
         add(cells, BorderLayout.NORTH);
@@ -30,6 +33,7 @@ public class FjList<E> extends JComponent {
     }
     
     public void addCell(FjListCell<E> cell) {
+        cell.setList(this);
         cells.add(cell);
         revalidate();
     }
@@ -49,6 +53,17 @@ public class FjList<E> extends JComponent {
         List<FjListCell<E>> list = new ArrayList<FjListCell<E>>(getCellCount() - 1);
         for (Component c : cells.getComponents()) {list.add((FjListCell<E>) c);}
         return list;
+    }
+    
+    public void setSelectable(boolean isSelectable) {this.isSelectable = isSelectable;}
+    public boolean isSelectable() {return this.isSelectable;}
+    
+    void notifySelect(FjListCell<E> cell) {
+        if (!isSelectable) return;
+        if (this != cell.getList()) return;
+        
+        for (FjListCell<E> c : getCells()) c.setSelect(false);
+        cell.setSelect(true);
     }
 
 }

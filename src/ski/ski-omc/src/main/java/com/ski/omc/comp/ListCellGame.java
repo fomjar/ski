@@ -29,7 +29,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
     public ListCellGame(BeanGame data) {
         super(data);
         
-        c_name_zh   = new JLabel(data.c_name_zh);
+        c_name_zh   = new JLabel(data.getDiaplayName());
         i_gid       = new JLabel(String.format("0x%08X", data.i_gid));
         i_price_a   = new JLabel("A: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
         i_price_b   = new JLabel("B: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");

@@ -57,7 +57,7 @@ public class ListGameAccount extends JDialog {
                             .stream()
                             .filter(game->{
                                 int count = 0;
-                                for (String word : words) if (game.c_name_zh.contains(word)) count++;
+                                for (String word : words) if (game.getDiaplayName().toLowerCase().contains(word.toLowerCase())) count++;
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -82,7 +82,7 @@ public class ListGameAccount extends JDialog {
                             .stream()
                             .filter(user->{
                                 int count1 = 0;
-                                for (String word : words) if (user.getDisplayName().contains(word)) count1++;
+                                for (String word : words) if (user.getDisplayName().toLowerCase().contains(word.toLowerCase())) count1++;
                                 if (count1 == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -105,7 +105,7 @@ public class ListGameAccount extends JDialog {
                 }
                 case "按账号名": {
                     int count = 0;
-                    for (String word : words) if (celldata.c_user.contains(word)) count++;
+                    for (String word : words) if (celldata.c_user.toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 }
                 default:

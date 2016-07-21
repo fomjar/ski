@@ -71,6 +71,7 @@ public class MainFrame extends JFrame {
         users   = new FjListPane<BeanChannelAccount>();
         detail  = new MainDetailPane();
         
+        users.getList().setSelectable(true);
         users.enableSearchBar();
         users.getSearchBar().setSearchTypes(new String[] {"用户名", "手机号"});
         users.getSearchBar().setSearchTips("键入关键词搜索");
@@ -111,7 +112,7 @@ public class MainFrame extends JFrame {
                 int count = 0;
                 switch (type) {
                 case "用户名":
-                    for (String word : words) if (celldata.getDisplayName().contains(word)) count++;
+                    for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 case "手机号":
                     for (String word : words) if (celldata.c_phone.contains(word)) count++;

@@ -84,7 +84,7 @@ public class ListTicket extends JDialog {
                 
                 int count = 0;
                 for (String word : words) {
-                    if (celldata.c_title.contains(word) || celldata.c_content.contains(word))
+                    if (celldata.c_title.toLowerCase().contains(word.toLowerCase()) || celldata.c_content.toLowerCase().contains(word.toLowerCase()))
                         count++;
                 }
                 return count == words.length;

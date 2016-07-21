@@ -26,9 +26,9 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
     private JLabel c_pass;
     private JLabel t_birth;
     private JLabel i_gaid;
-    private JLabel c_channel_account_a;
-    private JLabel c_channel_account_b;
     private JLabel c_games;
+    private JLabel c_user_a;
+    private JLabel c_user_b;
     
     public ListCellGameAccount(BeanGameAccount data) {
         super(data);
@@ -36,6 +36,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         c_user  = new JLabel(data.c_user);
         c_pass  = new JLabel(data.c_pass_curr);
         t_birth = new JLabel(0 == data.t_birth.length() ? "(没有生日)" : data.t_birth);
+        t_birth.setHorizontalAlignment(SwingConstants.RIGHT);
         i_gaid  = new JLabel(String.format("0x%08X", data.i_gaid));
         i_gaid.setHorizontalAlignment(SwingConstants.RIGHT);
         
@@ -44,18 +45,18 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         t_birth.setForeground(color_minor);
         i_gaid.setForeground(color_minor);
         
-        BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_A));
-        c_channel_account_a = new JLabel("A租用户: " + (null != user_a ? user_a.getDisplayName() : "-"));
-        c_channel_account_a.setForeground(color_minor);
-        c_channel_account_a.setPreferredSize(new Dimension(100, 0));
-        BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_B));
-        c_channel_account_b = new JLabel("B租用户: " + (null != user_b ? user_b.getDisplayName() : "-"));
-        c_channel_account_b.setForeground(color_minor);
-        c_channel_account_b.setPreferredSize(new Dimension(100, 0));
         List<BeanGame> games = CommonService.getGameByGaid(data.i_gaid);
         c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-"));
         c_games.setForeground(color_minor);
         c_games.setPreferredSize(new Dimension(360, 0));
+        BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_A));
+        c_user_a = new JLabel("A租用户: " + (null != user_a ? user_a.getDisplayName() : "-"));
+        c_user_a.setForeground(color_minor);
+        c_user_a.setPreferredSize(new Dimension(100, 0));
+        BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_B));
+        c_user_b = new JLabel("B租用户: " + (null != user_b ? user_b.getDisplayName() : "-"));
+        c_user_b.setForeground(color_minor);
+        c_user_b.setPreferredSize(new Dimension(100, 0));
         
         setLayout(new BorderLayout());
         JPanel panel1 = new JPanel();
@@ -69,20 +70,15 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         JPanel panel2 = new JPanel();
         panel2.setOpaque(false);
         panel2.setLayout(new GridLayout(1, 2));
-        panel2.add(c_channel_account_a);
-        panel2.add(c_channel_account_b);
-        
-        JPanel panel3 = new JPanel();
-        panel3.setOpaque(false);
-        panel3.setLayout(new BorderLayout());
-        panel3.add(c_games, BorderLayout.WEST);
-        panel3.add(panel2, BorderLayout.CENTER);
+        panel2.add(c_user_a);
+        panel2.add(c_user_b);
         
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        panel.setLayout(new GridLayout(2, 1));
+        panel.setLayout(new GridLayout(3, 1));
         panel.add(panel1);
-        panel.add(panel3);
+        panel.add(c_games);
+        panel.add(panel2);
         
         add(panel, BorderLayout.CENTER);
         
