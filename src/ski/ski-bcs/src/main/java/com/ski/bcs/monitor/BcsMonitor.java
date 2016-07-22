@@ -66,7 +66,7 @@ public class BcsMonitor extends FjLoopTask {
             });
         });
         
-        // check money
+        // check cash
         CommonService.getPlatformAccountAll().values().forEach(puser->{
             boolean isCommodityOpen = false;
             for (BeanOrder o : CommonService.getOrderByPaid(puser.i_paid)) {
@@ -83,11 +83,11 @@ public class BcsMonitor extends FjLoopTask {
                         + CommonService.getGameAccountByPaid(puser.i_paid, CommonService.RENT_TYPE_B).size());
                 float[] statement   = CommonService.prestatementByPaid(puser.i_paid);
                 if (deposite >= statement[0]) {
-                    notifyMoney("bcs", puser.i_paid, "0元");
+                    notifyCash("bcs", puser.i_paid, "0元");
                 } else if (deposite >= statement[0] - 5) {
-                    notifyMoney("bcs", puser.i_paid, "5元");
+                    notifyCash("bcs", puser.i_paid, "5元");
                 } else if (deposite >= statement[0] - 10) {
-                    notifyMoney("bcs", puser.i_paid, "10元");
+                    notifyCash("bcs", puser.i_paid, "10元");
                 } else {
                     // normal
                 }
@@ -216,7 +216,7 @@ public class BcsMonitor extends FjLoopTask {
         });
     }
     
-    private static void notifyMoney(String server, int paid, String money_limit) {
+    private static void notifyCash(String server, int paid, String money_limit) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【用户账户余额提醒】|账户余额: %s", money_limit);
             if (CommonService.isNotificationNotified(user.i_caid, notify_content)) {

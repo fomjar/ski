@@ -75,10 +75,12 @@ public final class CommonDefinition {
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_LOCK       = 0x00002102;
         /** 平台账户合并操作 */
         public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE  = 0x00002103;
-        /** 平台账户充值 */
+        /** 平台账户充值/退款等 */
         public static final int INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY  = 0x00002104;
-        /** 申请转账  */
-        public static final int INST_ECOM_APPLY_MONEY_TRANSFER          = 0x00002105;
+        /** 起租 */
+        public static final int INST_ECOM_APPLY_RENT_BEGIN              = 0x00002106;
+        /** 退租 */
+        public static final int INST_ECOM_APPLY_RENT_END                = 0x00002107;
         // UPDATE
         /** 更新游戏 */
         public static final int INST_ECOM_UPDATE_GAME                   = 0x00002401;
