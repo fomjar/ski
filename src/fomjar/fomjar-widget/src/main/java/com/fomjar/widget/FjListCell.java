@@ -35,7 +35,7 @@ public class FjListCell<E> extends JComponent implements Accessible {
     private Color       c_press;
     private boolean     is_over;
     private boolean     is_press;
-    private boolean     is_select;
+    private boolean     is_selected;
     private E           data;
     private List<ActionListener> listeners;
     
@@ -51,7 +51,7 @@ public class FjListCell<E> extends JComponent implements Accessible {
         listeners   = new LinkedList<ActionListener>();
         is_over     = false;
         is_press    = false;
-        is_select   = false;
+        is_selected   = false;
         setData(data);
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(4,12,4,12));
@@ -89,15 +89,15 @@ public class FjListCell<E> extends JComponent implements Accessible {
     
     @Override
     protected void paintComponent(Graphics g) {
-        if (is_press || is_select)  g.setColor(c_press);
+        if (is_press || is_selected)  g.setColor(c_press);
         else if (is_over)           g.setColor(c_over);
         else                        g.setColor(c_default);
         g.fillRect(0, 0, getWidth(), getHeight());
         
-        if (!(is_press || is_select))   g.setColor(color_bright);
+        if (!(is_press || is_selected))   g.setColor(color_bright);
         else                            g.setColor(color_shadow);
         g.drawLine(0, 0, getWidth(), 0);
-        if (!(is_press || is_select))   g.setColor(color_shadow);
+        if (!(is_press || is_selected))   g.setColor(color_shadow);
         else                            g.setColor(color_bright);
         g.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
         
@@ -148,10 +148,10 @@ public class FjListCell<E> extends JComponent implements Accessible {
     public void setColorOver(Color color)       {c_over = color;}
     public void setColorPress(Color color)      {c_press = color;}
     
-    public void setSelect(boolean is_select) {
-        this.is_select = is_select;
+    public void setSelected(boolean is_selected) {
+        this.is_selected = is_selected;
         repaint();
     }
-    public boolean isSelect() {return is_select;};
+    public boolean isSelected() {return is_selected;};
     
 }

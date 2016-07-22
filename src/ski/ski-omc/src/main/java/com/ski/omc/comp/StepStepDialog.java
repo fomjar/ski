@@ -20,8 +20,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
-import com.ski.omc.UIToolkit;
-
 public class StepStepDialog extends JDialog {
 
     private static final long serialVersionUID = 4665927096547901460L;
@@ -38,7 +36,6 @@ public class StepStepDialog extends JDialog {
         this.steps = steps;
         this.index = 0;
         this.progress = new JProgressBar(0, steps.length);
-        this.progress.setFont(UIToolkit.FONT);
         this.progress.setValue(this.index);
         this.progress.setStringPainted(true);
         

@@ -65,7 +65,6 @@ public class ChartFrame extends JFrame {
         charts_order.add(createChartCommodityEndTotalLastMonth());
         
         charts = new JTabbedPane();
-        charts.setFont(UIToolkit.FONT.deriveFont(12.0f));
         {
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
@@ -89,15 +88,15 @@ public class ChartFrame extends JFrame {
     
     private static void initChartTheme() {
         //创建主题样式  
-        StandardChartTheme standardChartTheme = new StandardChartTheme("CN");  
+        StandardChartTheme standardChartTheme = new StandardChartTheme("CN");
         //设置标题字体  
-        standardChartTheme.setExtraLargeFont(UIToolkit.FONT.deriveFont(20.0f));  
+        standardChartTheme.setExtraLargeFont(UIToolkit.FONT.deriveFont(20.0f));
         //设置图例的字体  
-        standardChartTheme.setRegularFont(UIToolkit.FONT);  
+        standardChartTheme.setRegularFont(UIToolkit.FONT);
         //设置轴向的字体  
-        standardChartTheme.setLargeFont(UIToolkit.FONT);  
+        standardChartTheme.setLargeFont(UIToolkit.FONT);
         //应用主题样式  
-        ChartFactory.setChartTheme(standardChartTheme); 
+        ChartFactory.setChartTheme(standardChartTheme);
     }
     
     private static JPanel createChartUserDistribution() {

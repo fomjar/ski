@@ -16,6 +16,7 @@ public class FjList<E> extends JComponent {
     
     private JPanel cells;
     private boolean isSelectable;
+    private FjListCell<E> selectedCell;
     
     public FjList() {
         cells = new JPanel();
@@ -57,13 +58,15 @@ public class FjList<E> extends JComponent {
     
     public void setSelectable(boolean isSelectable) {this.isSelectable = isSelectable;}
     public boolean isSelectable() {return this.isSelectable;}
+    public FjListCell<E> getSelectedCell() {return selectedCell;}
     
     void notifySelect(FjListCell<E> cell) {
         if (!isSelectable) return;
         if (this != cell.getList()) return;
         
-        for (FjListCell<E> c : getCells()) c.setSelect(false);
-        cell.setSelect(true);
+        for (FjListCell<E> c : getCells()) c.setSelected(false);
+        cell.setSelected(true);
+        selectedCell = cell;
     }
 
 }

@@ -10,12 +10,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjListPane;
+import com.fomjar.widget.FjProgressBar;
 import com.fomjar.widget.FjSearchBar;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
@@ -36,7 +36,7 @@ public class MainFrame extends JFrame {
     private JPanel                          toolbar_user;
     private FjListPane<BeanChannelAccount>  users;
     private MainDetailPane                  detail;
-    private JProgressBar                    progress;
+    private FjProgressBar                   progress;
     
     public MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
@@ -76,9 +76,9 @@ public class MainFrame extends JFrame {
         users.getSearchBar().setSearchTypes(new String[] {"用户名", "手机号"});
         users.getSearchBar().setSearchTips("键入关键词搜索");
         
-        progress = new JProgressBar();
-        progress.setFont(UIToolkit.FONT);
+        progress = new FjProgressBar();
         progress.setStringPainted(true);
+        progress.openDaemon();
         
         JPanel panel_user = new JPanel();
         panel_user.setLayout(new BorderLayout());
@@ -129,34 +129,36 @@ public class MainFrame extends JFrame {
             toolbar.setEnabled(false);
 
             try {
+                int multi = 100;
                 int max = 12;
                 int cur = 0;
-                progress.setMaximum(max);
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载游戏...", cur, max));
+                String format = "(%d/%d)%s";
+                progress.setMaximum(max * multi);
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载游戏..."));
                 CommonService.updateGame();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号..."));
                 CommonService.updateGameAccount();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号和游戏映射关系...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号和游戏映射关系..."));
                 CommonService.updateGameAccountGame();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载账号租赁情况...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号租赁情况..."));
                 CommonService.updateGameAccountRent();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载游戏价格...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载游戏价格..."));
                 CommonService.updateGameRentPrice();
                 
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载渠道用户...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载渠道用户..."));
                 CommonService.updateChannelAccount();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户..."));
                 CommonService.updatePlatformAccount();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户与渠道用户映射关系...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户与渠道用户映射关系..."));
                 CommonService.updatePlatformAccountMap();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载平台用户金额流水...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户金额流水..."));
                 CommonService.updatePlatformAccountMoney();
                 
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载订单...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载订单..."));
                 CommonService.updateOrder();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载TAG...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载TAG..."));
                 CommonService.updateTag();
-                progress.setValue(++cur);   progress.setString(String.format("(%d/%d)正在加载工单...", cur, max));
+                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载工单..."));
                 CommonService.updateTicket();
                 
                 progress.setString("加载完成");
