@@ -23,7 +23,7 @@ public class FjListCell<E> extends JComponent implements Accessible {
     
     private   static final Color color_default      = new Color(230, 230, 230);
     private   static final Color color_over         = new Color(240, 240, 255);
-    private   static final Color color_press        = new Color(210, 210, 220);
+    private   static final Color color_press        = new Color(51, 153, 255);
     private   static final Color color_bright   = Color.white;
     private   static final Color color_shadow   = Color.lightGray;
     protected static final Color color_major    = Color.darkGray;

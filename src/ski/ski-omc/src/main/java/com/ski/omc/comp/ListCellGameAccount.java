@@ -1,7 +1,5 @@
 package com.ski.omc.comp;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,8 +33,9 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         
         c_user  = new JLabel(data.c_user);
         c_pass  = new JLabel(data.c_pass_curr);
+        c_pass.setHorizontalAlignment(SwingConstants.CENTER);
         t_birth = new JLabel(0 == data.t_birth.length() ? "(没有生日)" : data.t_birth);
-        t_birth.setHorizontalAlignment(SwingConstants.RIGHT);
+        t_birth.setHorizontalAlignment(SwingConstants.CENTER);
         i_gaid  = new JLabel(String.format("0x%08X", data.i_gaid));
         i_gaid.setHorizontalAlignment(SwingConstants.RIGHT);
         
@@ -48,17 +47,13 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         List<BeanGame> games = CommonService.getGameByGaid(data.i_gaid);
         c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")) : "-"));
         c_games.setForeground(color_minor);
-        c_games.setPreferredSize(new Dimension(360, 0));
         BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_A));
         c_user_a = new JLabel("A租用户: " + (null != user_a ? user_a.getDisplayName() : "-"));
         c_user_a.setForeground(color_minor);
-        c_user_a.setPreferredSize(new Dimension(100, 0));
         BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_B));
         c_user_b = new JLabel("B租用户: " + (null != user_b ? user_b.getDisplayName() : "-"));
         c_user_b.setForeground(color_minor);
-        c_user_b.setPreferredSize(new Dimension(100, 0));
         
-        setLayout(new BorderLayout());
         JPanel panel1 = new JPanel();
         panel1.setOpaque(false);
         panel1.setLayout(new GridLayout(1, 4));
@@ -73,14 +68,10 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         panel2.add(c_user_a);
         panel2.add(c_user_b);
         
-        JPanel panel = new JPanel();
-        panel.setOpaque(false);
-        panel.setLayout(new GridLayout(3, 1));
-        panel.add(panel1);
-        panel.add(c_games);
-        panel.add(panel2);
-        
-        add(panel, BorderLayout.CENTER);
+        setLayout(new GridLayout(3, 1));
+        add(panel1);
+        add(c_games);
+        add(panel2);
         
         registerListener();
     }

@@ -48,7 +48,6 @@ public class ListTicket extends JDialog {
         filter_advice = new JCheckBox("意见建议", true);
         filter_memory = new JCheckBox("备忘事项", true);
         toggle = new JButton(TOGGLE_TITLE_OPEN);
-        toggle.setContentAreaFilled(false);
         toggle.setMargin(new Insets(0, 0, 0, 0));
         
         JPanel option_filter = new JPanel();

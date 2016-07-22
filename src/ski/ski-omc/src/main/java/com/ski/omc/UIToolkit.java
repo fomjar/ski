@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
@@ -60,21 +61,25 @@ public class UIToolkit {
 
     public static final Color COLOR_MODIFYING = Color.blue;
     
-    public static void initFont() {
-        UIManager.getLookAndFeelDefaults().put("Label.font",        FONT);
-        UIManager.getLookAndFeelDefaults().put("Table.font",        FONT);
-        UIManager.getLookAndFeelDefaults().put("TableHeader.font",  FONT);
-        UIManager.getLookAndFeelDefaults().put("TextField.font",    FONT);
-        UIManager.getLookAndFeelDefaults().put("TextArea.font",     FONT);
-        UIManager.getLookAndFeelDefaults().put("TitledBorder.font", FONT);
-        UIManager.getLookAndFeelDefaults().put("CheckBox.font",     FONT);
-        UIManager.getLookAndFeelDefaults().put("RadioButton.font",  FONT);
-        UIManager.getLookAndFeelDefaults().put("ComboBox.font",     FONT);
-        UIManager.getLookAndFeelDefaults().put("Button.font",       FONT);
-        UIManager.getLookAndFeelDefaults().put("Panel.font",        FONT);
-        UIManager.getLookAndFeelDefaults().put("FilePane.font",     FONT);
-        UIManager.getLookAndFeelDefaults().put("Menu.font",         FONT);
-        UIManager.getLookAndFeelDefaults().put("MenuItem.font",     FONT);
+    public static void initUI() {
+        try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}
+        catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {e.printStackTrace();}
+        
+//        UIManager.getLookAndFeelDefaults().put("Label.font",        FONT);
+//        UIManager.getLookAndFeelDefaults().put("Table.font",        FONT);
+//        UIManager.getLookAndFeelDefaults().put("TableHeader.font",  FONT);
+//        UIManager.getLookAndFeelDefaults().put("TextField.font",    FONT);
+//        UIManager.getLookAndFeelDefaults().put("TextArea.font",     FONT);
+//        UIManager.getLookAndFeelDefaults().put("TitledBorder.font", FONT);
+//        UIManager.getLookAndFeelDefaults().put("CheckBox.font",     FONT);
+//        UIManager.getLookAndFeelDefaults().put("RadioButton.font",  FONT);
+//        UIManager.getLookAndFeelDefaults().put("ComboBox.font",     FONT);
+//        UIManager.getLookAndFeelDefaults().put("Button.font",       FONT);
+//        UIManager.getLookAndFeelDefaults().put("Panel.font",        FONT);
+//        UIManager.getLookAndFeelDefaults().put("FilePane.font",     FONT);
+//        UIManager.getLookAndFeelDefaults().put("Menu.font",         FONT);
+//        UIManager.getLookAndFeelDefaults().put("MenuItem.font",     FONT);
         
 //        UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
@@ -90,6 +95,7 @@ public class UIToolkit {
     public static JPanel createBasicInfoLabel(String label, JComponent field, JButton button) {
         JLabel jlabel = new JLabel(label);
         jlabel.setPreferredSize(new Dimension(120, jlabel.getPreferredSize().height));
+        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         

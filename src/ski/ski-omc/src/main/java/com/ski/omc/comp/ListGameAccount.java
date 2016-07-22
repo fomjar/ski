@@ -28,7 +28,7 @@ public class ListGameAccount extends JDialog {
         super(MainFrame.getInstance(), "账号清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(800, 600));
+        setSize(new Dimension(600, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         

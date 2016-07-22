@@ -54,13 +54,13 @@ public class MainFrame extends JFrame {
             }
         };
         toolbar.setFloatable(false);
-        toolbar.add(new JButton("刷"));
+        toolbar.add(new JButton("刷新"));
         toolbar.addSeparator();
-        toolbar.add(new JButton("游"));
-        toolbar.add(new JButton("帐"));
-        toolbar.add(new JButton("工"));
+        toolbar.add(new JButton("游戏"));
+        toolbar.add(new JButton("账号"));
+        toolbar.add(new JButton("工单"));
         toolbar.addSeparator();
-        toolbar.add(new JButton("统"));
+        toolbar.add(new JButton("统计"));
         
         toolbar_user = new JPanel();
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));

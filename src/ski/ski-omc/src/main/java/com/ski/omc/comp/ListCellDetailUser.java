@@ -35,11 +35,11 @@ public class ListCellDetailUser extends FjListCell<BeanChannelAccount> {
         JPanel oper = new JPanel();
         oper.setOpaque(false);
         oper.setLayout(new BoxLayout(oper, BoxLayout.X_AXIS));
-        oper.add(DetailPane.createToolBarButton("基", e->{
+        oper.add(DetailPane.createToolBarButton("信息", e->{
             if (null != user) new ManageUser(user.i_caid).setVisible(true);
         }));
         oper.add(Box.createHorizontalStrut(4));
-        oper.add(DetailPane.createToolBarButton("流", e->{
+        oper.add(DetailPane.createToolBarButton("流水", e->{
             if (null != user) new ManageFlow(CommonService.getPlatformAccountByCaid(user.i_caid));
         }));
         
@@ -48,7 +48,8 @@ public class ListCellDetailUser extends FjListCell<BeanChannelAccount> {
         add(oper, BorderLayout.EAST);
         
         setColorDefault(Color.white);
-        setColorOver(Color.white);
+        
+        passthroughMouseEvent(info);
     }
     
     private static String getPlatform(int channel) {

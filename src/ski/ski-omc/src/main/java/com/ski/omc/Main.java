@@ -23,7 +23,7 @@ public class Main {
         }
         
         initLog();
-        UIToolkit.initFont();
+        UIToolkit.initUI();
         MainFrame.getInstance().setVisible(true);
     }
     

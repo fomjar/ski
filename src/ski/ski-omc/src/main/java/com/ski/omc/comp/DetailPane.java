@@ -2,7 +2,6 @@ package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
@@ -26,6 +25,7 @@ public class DetailPane extends JComponent {
     public DetailPane(String title, JComponent content, JButton... buttons) {
         this.title = new JLabel(title);
         this.title.setFont(this.title.getFont().deriveFont(Font.BOLD));
+        this.title.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
         
         toolbar = new JPanel();
         toolbar.setOpaque(false);
@@ -33,10 +33,10 @@ public class DetailPane extends JComponent {
         addToolBarButton(buttons);
         
         indicator = new JLabel("-");
-        indicator.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 4));
+        indicator.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
         
         FjListCell<Object> panel_title = new FjListCell<Object>();
-        panel_title.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 12));
+        panel_title.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 12));
         panel_title.setLayout(new BorderLayout());
         panel_title.add(indicator, BorderLayout.WEST);
         panel_title.add(this.title, BorderLayout.CENTER);
@@ -77,8 +77,6 @@ public class DetailPane extends JComponent {
     
     public static JButton createToolBarButton(String name, ActionListener action) {
         JButton button = new JButton(name);
-        button.setContentAreaFilled(false);
-        button.setMargin(new Insets(0, 0, 0, 0));
         button.addActionListener(action);
         return button;
     }

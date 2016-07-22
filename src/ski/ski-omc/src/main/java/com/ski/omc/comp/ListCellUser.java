@@ -25,7 +25,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         
         plat = new JLabel("[" + getPlatform(data.i_channel) + "] ");
         name = new JLabel(data.getDisplayName());
-        name.setPreferredSize(new Dimension(0, 0));
+        name.setPreferredSize(new Dimension(1, 0));
         rent = new JLabel(getMinorString(data));
         
         plat.setFont(plat.getFont().deriveFont(Font.ITALIC));
