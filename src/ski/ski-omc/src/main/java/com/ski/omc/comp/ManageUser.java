@@ -52,7 +52,7 @@ public class ManageUser extends JDialog {
         t_birth     = new FjEditLabel();
         
         JPanel panel_basic = new JPanel();
-        panel_basic.setBorder(BorderFactory.createEtchedBorder());
+        panel_basic.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
         panel_basic.add(UIToolkit.createBasicInfoLabel("用户编号", i_caid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账    号", c_user));

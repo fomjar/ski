@@ -40,6 +40,12 @@ public class Login implements AE {
             desc = element.getText();
             return;
         } catch (NoSuchElementException e) {}
+        try {   // 发现验证码
+            driver.findElement(By.id("captchaContainer"));
+            code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+            desc = "unable to login for there is verify code";
+            return;
+        } catch (NoSuchElementException e) {}
         code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         desc = "login success";
     }

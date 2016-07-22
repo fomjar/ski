@@ -121,6 +121,7 @@ public final class CommonDefinition {
         public static final int CODE_SYS_SUCCESS           = 0x00000000; // 成功
         public static final int CODE_SYS_ILLEGAL_INST      = 0x00000001; // 非法指令
         public static final int CODE_SYS_ILLEGAL_ARGS      = 0x00000002; // 非法参数
+        public static final int CODE_SYS_UNAVAILABLE       = 0X00000003; // 系统不可用
         // DB
         public static final int CODE_DB_STATE_ABNORMAL     = 0x00001001; // 数据库状态异常
         public static final int CODE_DB_OPERATE_FAILED     = 0x00001002; // 数据库操作失败

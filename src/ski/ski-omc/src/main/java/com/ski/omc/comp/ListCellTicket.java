@@ -19,6 +19,7 @@ import com.fomjar.widget.FjListCell;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
+import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanTicket;
 import com.ski.omc.UIToolkit;
 
@@ -39,28 +40,18 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
     public ListCellTicket(BeanTicket data) {
         super(data);
         
+        BeanChannelAccount user = CommonService.getChannelAccountByCaid(data.i_caid);
         i_type      = new JLabel("[" + getType2String(data.i_type) + "] ");
         i_type.setFont(i_type.getFont().deriveFont(Font.ITALIC));
         c_title     = new JLabel(data.c_title);
         c_title.setPreferredSize(new Dimension(1, 0));
-        i_caid      = new JLabel(CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
+        i_caid      = new JLabel(user.getDisplayName() + " [" + getPlatform(user.i_channel) + "]");
         i_state     = new JLabel(" [" + getState2String(data.i_state) + "]");
         i_state.setFont(i_state.getFont().deriveFont(Font.ITALIC));
         c_content   = new JLabel(data.c_content);
         c_content.setPreferredSize(new Dimension(1, 0));
-        t_time      = new JLabel(" [" + String.format("%s ~ %s", data.t_open, data.t_close) + "]");
-        int width   = 400;
-        if (data.isClose()) setToolTipText(String.format("<html><h1 width='%dpx'>%s</h1><p width='%dpx'>%s</p><h1 width='%dpx'>%s</h1><p width='%dpx'>%s</p>",
-                width,
-                "处理意见",
-                width,
-                data.c_result,
-                width,
-                data.c_title,
-                width,
-                data.c_content));
-        else setToolTipText(String.format("<html><h1 width='%dpx'>%s</h1><p width='%dpx'>%s</p>", width, data.c_title, width, data.c_content));
-        
+        t_time      = new JLabel(String.format("[%19s ~ %19s]", data.t_open, data.t_close));
+
         if (data.isClose()) {
             i_type.setForeground(Color.lightGray);
             c_title.setForeground(Color.lightGray);
@@ -101,28 +92,29 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         add(panel_down);
         
         addActionListener(e->{
-            JTextField  caid  = new JTextField(CommonService.getChannelAccountByCaid(data.i_caid).getDisplayName());
+            JTextField  caid  = new JTextField(String.format("[%s] %s", getPlatform(user.i_channel), user.getDisplayName()));
             caid.setEditable(false);
-            JTextField  title = new JTextField(data.c_title);
-            title.setEditable(false);
-            JTextArea   content = new JTextArea(data.c_content);
+            JLabel      time  = new JLabel(String.format("%19s ~ %19s", data.t_open, data.t_close));
+            JLabel      title = new JLabel(data.c_title);
+            JTextArea   content = new JTextArea(data.c_content.replace("|", "\n"));
             content.setEditable(false);
-            content.setColumns(60);
             content.setLineWrap(true);
-            content.setRows(10);
+            content.setColumns(30);
+            content.setRows(6);
             FjTextField result = new FjTextField();
             result.setDefaultTips("(请输入处理意见)");
             
             JPanel head = new JPanel();
-            head.setLayout(new GridLayout(2, 1));
+            head.setLayout(new GridLayout(3, 1));
             head.add(UIToolkit.createBasicInfoLabel("来源用户", caid));
-            head.add(title);
+            head.add(UIToolkit.createBasicInfoLabel("时    间", time));
+            head.add(UIToolkit.createBasicInfoLabel("标    题", title));
             
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
             panel.add(head, BorderLayout.NORTH);
             panel.add(new JScrollPane(content), BorderLayout.CENTER);
-            panel.add(result, BorderLayout.SOUTH);
+            panel.add(UIToolkit.createBasicInfoLabel("处理意见", result), BorderLayout.SOUTH);
             
             if (data.isClose()) {
                 result.setEditable(false);
@@ -162,4 +154,12 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         }
     }
     
+    private static String getPlatform(int channel) {
+        switch (channel) {
+        case CommonService.CHANNEL_TAOBAO: return "淘  宝";
+        case CommonService.CHANNEL_WECHAT: return "微  信";
+        case CommonService.CHANNEL_ALIPAY: return "支付宝";
+        default: return "未  知";
+        }
+    }
 }

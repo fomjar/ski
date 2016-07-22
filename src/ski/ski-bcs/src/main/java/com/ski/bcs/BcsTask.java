@@ -49,7 +49,6 @@ public class BcsTask implements FjServerTask {
             }
             }
         } else if (msg instanceof FjHttpRequest) {
-//            JSONObject args = ((FjHttpRequest) msg).toJsonMessage((SocketChannel) wrapper.attachment("conn")).json();
             logger.error("http request: " + msg);
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));

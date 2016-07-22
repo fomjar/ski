@@ -94,8 +94,7 @@ public class UIToolkit {
     
     public static JPanel createBasicInfoLabel(String label, JComponent field, JButton button) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setPreferredSize(new Dimension(120, jlabel.getPreferredSize().height));
-        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
+        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 16));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         

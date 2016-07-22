@@ -85,7 +85,8 @@ public class MainFrame extends JFrame {
         panel_user.add(toolbar_user, BorderLayout.NORTH);
         panel_user.add(users, BorderLayout.CENTER);
         JScrollPane scroll = new JScrollPane(detail);
-        scroll.getVerticalScrollBar().setUnitIncrement(8);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.setBorder(null);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, panel_user, scroll);
         split.setDividerSize(2);
         split.setDividerLocation(getWidth() / 4);
@@ -129,36 +130,35 @@ public class MainFrame extends JFrame {
             toolbar.setEnabled(false);
 
             try {
-                int multi = 100;
                 int max = 12;
                 int cur = 0;
                 String format = "(%d/%d)%s";
-                progress.setMaximum(max * multi);
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载游戏..."));
+                progress.setMaximum(max);
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载游戏..."));
                 CommonService.updateGame();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载账号..."));
                 CommonService.updateGameAccount();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号和游戏映射关系..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载账号和游戏映射关系..."));
                 CommonService.updateGameAccountGame();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载账号租赁情况..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载账号租赁情况..."));
                 CommonService.updateGameAccountRent();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载游戏价格..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载游戏价格..."));
                 CommonService.updateGameRentPrice();
                 
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载渠道用户..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载渠道用户..."));
                 CommonService.updateChannelAccount();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载平台用户..."));
                 CommonService.updatePlatformAccount();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户与渠道用户映射关系..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载平台用户与渠道用户映射关系..."));
                 CommonService.updatePlatformAccountMap();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载平台用户金额流水..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载平台用户金额流水..."));
                 CommonService.updatePlatformAccountMoney();
                 
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载订单..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载订单..."));
                 CommonService.updateOrder();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载TAG..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载TAG..."));
                 CommonService.updateTag();
-                progress.setValue((++cur) * multi);   progress.setString(String.format(format, cur, max, "正在加载工单..."));
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载工单..."));
                 CommonService.updateTicket();
                 
                 progress.setString("加载完成");
