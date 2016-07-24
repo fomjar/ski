@@ -129,14 +129,26 @@ public final class CommonDefinition {
         public static final int CODE_DB_OPERATE_FAILED     = 0x00001002; // 数据库操作失败
         public static final int CODE_DB_INTERNAL_ERROR     = 0x00001003; // 数据库内部错误
         // WEB
-        public static final int CODE_WEB_AE_NOT_FOUND                  = 0x00002001; // 找不到对应的AE对象
-        public static final int CODE_WEB_AE_EXECUTE_FAILED             = 0x00002002; // AE执行失败
-        public static final int CODE_WEB_TAOBAO_ACCOUNT_INCORRECT      = 0x00002011; // 淘宝登陆用户名或密码错误
-        public static final int CODE_WEB_TAOBAO_ORDER_NO_NEW           = 0x00002012; // 没有新的淘宝订单
-        public static final int CODE_WEB_TAOBAO_ORDER_NOT_FOUND        = 0x00002013; // 没有找到指定订单
-        public static final int CODE_WEB_PSN_ACCOUNT_INCORRECT         = 0x00002031; // PSN登陆用户名或密码错误
-        public static final int CODE_WEB_PSN_CHANGE_PASSWORD_FAILED    = 0x00002033; // PSN修改密码失败
-        public static final int CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL    = 0x00002034; // PSN账号状态异常
+        public static final int CODE_WEB_AE_NOT_FOUND                   = 0x00002001; // 找不到对应的AE对象
+        public static final int CODE_WEB_AE_EXECUTE_FAILED              = 0x00002002; // AE执行失败
+        public static final int CODE_WEB_PSN_USER_OR_PASS_INCORRECT     = 0x00002031; // PSN用户名或密码错误
+        public static final int CODE_WEB_PSN_CHANGE_PASSWORD_FAILED     = 0x00002033; // PSN修改密码失败
+        public static final int CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL     = 0x00002034; // PSN账号状态异常
+        // USER
+        public static final int CODE_USER_NOT_ENOUGH_DEPOSIT            = 0x00003002; // 押金不足
+        public static final int CODE_USER_NOT_ENOUGH_ACCOUNT            = 0x00003003; // 账号不足
+        public static final int CODE_USER_OPEN_ORDER_FAILED             = 0x00003004; // 创建订单失败
+        public static final int CODE_USER_CLOSE_ORDER_FAILED            = 0x00003004; // 创建订单失败
+        public static final int CODE_USER_OPEN_COMMODITY_FAILED         = 0x00003005; // 创建商品失败
+        public static final int CODE_USER_CLOSE_COMMODITY_FAILED        = 0x00003005; // 创建商品失败
+        public static final int CODE_USER_MONEY_RECHARGE_FAILED         = 0x00003006; // 充值失败
+        public static final int CODE_USER_MONEY_REFUND_FAILED           = 0x00003006; // 退款失败
+        public static final int CODE_USER_ILLEGAL_MONEY                 = 0x00003001; // 非法金额
+        public static final int CODE_USER_ILLEGAL_ORDER                 = 0x00003006; // 非法订单
+        public static final int CODE_USER_ILLEGAL_ORDER_STATE           = 0x00003000; // 非法订单状态
+        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT          = 0x00003007; // 非法账号
+        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE    = 0X00003008; // 非法账号状态
+        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE = 0x00003009; // 非法用户状态
     }
 
 }

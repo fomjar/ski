@@ -27,7 +27,6 @@ import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.wca.WechatForm;
 import com.ski.wca.WechatInterface;
-import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
@@ -596,32 +595,17 @@ public class WcWeb {
         
         if (!cache_trade.contains(args.getString("out_trade_no"))) {
             cache_trade.add(args.getString("out_trade_no"));
-            BeanChannelAccount  user    = CommonService.getChannelAccountByUser(args.getString("openid")).get(0);
-            int                 paid    = CommonService.getPlatformAccountByCaid(user.i_caid);
-            float               money   = ((float) args.getInt("total_fee")) / 100;
+            BeanChannelAccount user = CommonService.getChannelAccountByUser(args.getString("openid")).get(0);
+            float money = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
-            args_cdb.put("paid",    paid);
-            args_cdb.put("remark",  "【微信充值】公众号充值" + money + "元");
-            args_cdb.put("type",    CommonService.MONEY_CASH);
+            args_cdb.put("caid",    user.i_caid);
             args_cdb.put("money",   money);
             FjDscpMessage msg_cdb = new FjDscpMessage();
-            msg_cdb.json().put("fs",    server);
-            msg_cdb.json().put("ts",    "cdb");
-            msg_cdb.json().put("inst",  CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY);
-            msg_cdb.json().put("args",  args_cdb);
+            msg_cdb.json().put("fs",   server);
+            msg_cdb.json().put("ts",   "bcs");
+            msg_cdb.json().put("inst", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY);
+            msg_cdb.json().put("args", args_cdb);
             FjServerToolkit.getAnySender().send(msg_cdb);
-            
-            {   // 充值通知
-                Map<String, String> data = new HashMap<String, String>();
-                data.put("first", "您好！您已成功充值");
-                data.put("accountType", "充值账户");
-                data.put("account", user.c_name);
-                data.put("amount", String.valueOf(money) + "元");
-                data.put("result", "充值成功");
-                data.put("remark", FjServerToolkit.getServerConfig("wca.template.remark.recharge"));
-                try {WechatInterface.messageTemplateSend(args.getString("openid"), "suyalQ-RF8e_5sYzBx7gmm6HMQjvBKpBBjhBSLemKo0", null, data);}
-                catch (WechatPermissionDeniedException e) {logger.error("template message send failed: " + data, e);}
-            }
         }
         
         response.type       = FjHttpRequest.CT_XML;

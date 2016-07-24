@@ -2,18 +2,17 @@ package com.fomjar.widget;
 
 import javax.swing.JProgressBar;
 
-public class FjProgressBar extends JProgressBar implements FjDaemon {
+public class FjProgressBar extends JProgressBar {
 
     private static final long serialVersionUID = 7597214081556427232L;
-    private Helper  helper;
-    private boolean daemon;
+    private FjWidgetEngine engine;
     private int     multiple;
     private long    speed;
     private float   value_cur;
     private int     value_tar;
     
     public FjProgressBar() {
-        helper      = new Helper();
+        engine      = new FjProgressBarEngine();
         multiple    = 100;
         speed       = 160L;
         value_cur   = 0.0f;
@@ -31,8 +30,8 @@ public class FjProgressBar extends JProgressBar implements FjDaemon {
     
     @Override
     public void setValue(int n) {
-        if (daemon) value_tar = n * multiple;
-        else super.setValue(n * multiple);
+        value_tar = n * multiple;
+        if (!engine.isRun()) engine.open();
     }
     
     /**
@@ -42,39 +41,21 @@ public class FjProgressBar extends JProgressBar implements FjDaemon {
      */
     public void setSpeed(long speed) {this.speed = speed;}
     public long getSpeed() {return speed;}
-    
-    @Override
-    public void openDaemon() {
-        if (daemon) return;
-        
-        daemon = true;
-        FjDaemonPool.pool().submit(helper);
-    }
 
-    @Override
-    public void closeDaemon() {
-        daemon = false;
-    }
-
-    private class Helper implements Runnable {
-        private static final long interval  = 20L;
+    private class FjProgressBarEngine extends FjWidgetEngine {
         @Override
-        public void run() {
-            while (daemon) {
-                if (Math.abs(FjProgressBar.this.getValue() - value_tar) == 1) {
-                    value_cur = value_tar;
-                } else if (FjProgressBar.this.getValue() != value_tar) {
-                    float total = value_tar - value_cur;
-                    float step  = total * interval / speed;
-                    value_cur += step;
-                }
-                
-                FjProgressBar.super.setValue((int) value_cur);
-                FjProgressBar.this.repaint();
-                
-                try {Thread.sleep(interval);}
-                catch (InterruptedException e) {e.printStackTrace();}
+        public void perform() {
+            if (Math.abs(FjProgressBar.this.getValue() - value_tar) == 1) {
+                value_cur = value_tar;
+                close();
+            } else if (FjProgressBar.this.getValue() != value_tar) {
+                float total = value_tar - value_cur;
+                float step  = total * getInterval() / speed;
+                value_cur += step;
             }
+            
+            FjProgressBar.super.setValue((int) value_cur);
+            FjProgressBar.this.repaint();
         }
     }
 

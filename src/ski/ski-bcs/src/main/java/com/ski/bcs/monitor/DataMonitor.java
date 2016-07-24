@@ -1,4 +1,4 @@
-package com.ski.wca.monitor;
+package com.ski.bcs.monitor;
 
 import org.apache.log4j.Logger;
 
@@ -20,7 +20,7 @@ public class DataMonitor extends FjLoopTask {
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.data.reload-interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.monitor.data.interval"));
         setInterval(second * 1000);
     }
     
@@ -37,7 +37,7 @@ public class DataMonitor extends FjLoopTask {
         CommonService.updatePlatformAccount();
         CommonService.updatePlatformAccountMap();
         CommonService.updateOrder();
+        CommonService.updateNotification();
     }
-
 
 }

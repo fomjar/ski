@@ -1,14 +1,25 @@
 package com.ski.bcs;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 
 import com.ski.bcs.monitor.BcsMonitor;
+import com.ski.bcs.monitor.DataMonitor;
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
+import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanCommodity;
+import com.ski.common.bean.BeanGameAccount;
+import com.ski.common.bean.BeanOrder;
+import com.ski.common.bean.BeanPlatformAccount;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
@@ -17,6 +28,7 @@ public class BcsTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(BcsTask.class);
     
     public BcsTask() {
+        new DataMonitor().start();
         new BcsMonitor().start();
     }
 
@@ -29,12 +41,10 @@ public class BcsTask implements FjServerTask {
         }
         
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        int         inst = dmsg.inst();
-        JSONObject  args = dmsg.argsToJsonObject();
-        switch (inst) {
+        switch (dmsg.inst()) {
         case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
             logger.error("request platform account money: " + msg);
-            processApplyPlatformAccountMoney(server.name(), args);
+            processApplyPlatformAccountMoney(server.name(), dmsg);
             break;
         case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN:
             logger.error("request rent begin: " + msg);
@@ -44,37 +54,317 @@ public class BcsTask implements FjServerTask {
             logger.error("request rent end: " + msg);
             processApplyRentEnd(server.name(), dmsg);
             break;
+        default:
+            break;
         }
     }
     
     private static void processApplyRentBegin(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
+        if (!args.has("platform") || !args.has("caid") || !args.has("gid") || !args.has("type")) {
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: platform, caid, gid, type");
+            return;
+        }
+        
+        int platform= args.getInt("platform");
         int caid    = args.getInt("caid");
         int gid     = args.getInt("gid");
-        int type    = args.getInt("type"); // a or b
+        int type    = args.getInt("type"); // class a or class b
+        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
 
-        // check cash
+        // check deposit
+        {
+            float deposite    = Float.parseFloat(FjServerToolkit.getServerConfig("bcs.deposite"))
+                    * (CommonService.getGameAccountByPaid(puser.i_paid, CommonService.RENT_TYPE_A).size()
+                            + CommonService.getGameAccountByPaid(puser.i_paid, CommonService.RENT_TYPE_B).size()
+                            + 1);
+            if (puser.i_cash < deposite) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_DEPOSIT, String.format("need %.2f have %.2f", deposite, puser.i_cash));
+                return;
+            }
+        }
+        
         // choose account
+        int gaid = -1;
+        {
+            int gaid_all = -1;  // 全空闲
+            int gaid_sin = -1;  // 单类别空闲
+            for (BeanGameAccount account : CommonService.getGameAccountByGid(gid)) {
+                int rent_a = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A);
+                int rent_b = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B);
+                if (CommonService.RENT_STATE_IDLE == rent_a && CommonService.RENT_STATE_IDLE == rent_b) {
+                    gaid_all = account.i_gaid;
+                    break;
+                }
+                if ((CommonService.RENT_STATE_IDLE == rent_a && type == CommonService.RENT_TYPE_A)
+                        || (CommonService.RENT_STATE_IDLE == rent_b && type == CommonService.RENT_TYPE_B)) {
+                    gaid_sin = account.i_gaid;
+                    break;
+                }
+            }
+            if (-1 != gaid_all)         gaid = gaid_all;
+            else if (-1 != gaid_sin)    gaid = gaid_sin;
+            else {
+                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "there is no account left");
+                return;
+            }
+        }
+        
+        // submit order
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("caid",        caid);
+            args_cdb.put("platform",    platform);
+            args_cdb.put("open",        sdf.format(new Date()));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)){
+                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_ORDER_FAILED, CommonService.getResponseDesc(rsp));
+                return;
+            }
+            int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            
+            args_cdb.clear();
+            args_cdb.put("oid", oid);
+//            args_cdb.put("remark", "");
+            args_cdb.put("price", CommonService.getGameRentPriceByGid(gid, type));
+            args_cdb.put("count", 1);
+            args_cdb.put("begin", sdf.format(new Date()));
+            args_cdb.put("arg0", Integer.toHexString(gaid));
+            args_cdb.put("arg1", CommonService.RENT_TYPE_A == type ? "A" : CommonService.RENT_TYPE_B == type ? "B" : "U");
+            rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_COMMODITY_FAILED, CommonService.getResponseDesc(rsp));
+                return;
+            }
+        }
+        response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
     
     private static void processApplyRentEnd(String server, FjDscpMessage request) {
+        JSONObject args = request.argsToJsonObject();
+        if (!args.has("caid") || !args.has("oid") || !args.has("csn")) {
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: caid, oid, csn");
+            return;
+        }
         
+        int caid = args.getInt("caid");
+        int oid  = args.getInt("oid");
+        int csn  = args.getInt("csn");
+        // check args
+        BeanCommodity c = null;
+        {
+            boolean isOrderMatch = false; 
+            for (BeanOrder o : CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(caid))) {
+                if (o.i_oid == oid && o.commodities.containsKey(csn)) {
+                    isOrderMatch = true;
+                    c = o.commodities.get(csn);
+                    break;
+                }
+            }
+            if (!isOrderMatch) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER, "order not found");
+                return;
+            }
+        }
+        // check account
+        BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+        {
+            JSONObject args_wa = new JSONObject();
+            args_wa.put("user", account.c_user);
+            args_wa.put("pass", account.c_pass_curr);
+            FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "user or password is incorrect");
+                return;
+            }
+            
+            switch (c.c_arg1) {
+            case "A":
+                if (rsp.toString().contains(" binded")) {
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "please unbind before rent end");
+                    return;
+                }
+                break;
+            case "B":
+                // do nothing
+                break;
+            }
+        }
+        // change password
+        {
+            String pass_new = CommonService.createGameAccountPassword();
+            BeanChannelAccount user_b = null;
+            boolean isModify = true;
+            switch (c.c_arg1) {
+            case "A":
+                if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
+                    user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
+                }
+                break;
+            case "B":
+                if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
+                    isModify = false;
+                }
+                break;
+            }
+            if (isModify) {
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("user",     account.c_user);
+                args_cdb.put("pass",     account.c_pass_curr);
+                args_cdb.put("pass_new", pass_new);
+                FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
+                    return;
+                }
+                
+                args_cdb.clear();
+                args_cdb.put("gaid", account.i_gaid);
+                args_cdb.put("pass_curr", pass_new);
+                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
+                    return;
+                }
+            }
+            
+            if (null != user_b) {
+                Notifier.notifyModifyNormally(server,
+                        CommonService.getPlatformAccountByCaid(user_b.i_caid),
+                        account.c_user + "(不认证)",
+                        "密码已被改为：" + pass_new);
+            }
+        }
+        // submit order
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("oid", oid);
+            args_cdb.put("csn", csn);
+            args_cdb.put("end", sdf.format(new Date()));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, CommonService.getResponseDesc(rsp));
+                return;
+            }
+            
+            boolean needCloseOrder = true;
+            for (BeanCommodity bc : CommonService.getOrderByOid(oid).commodities.values()) {
+                if (!bc.isClose()) {
+                    needCloseOrder = false;
+                    break;
+                }
+            }
+            if (needCloseOrder) {
+                args_cdb.clear();
+                args_cdb.put("oid", oid);
+                args_cdb.put("close", sdf.format(new Date()));
+                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_ORDER_FAILED, CommonService.getResponseDesc(rsp));
+                    return;
+                }
+            }
+        }
+        response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
     
-    private static void processApplyPlatformAccountMoney(String server, JSONObject args) {
+    private static void processApplyPlatformAccountMoney(String server, FjDscpMessage request) {
+        JSONObject args = request.argsToJsonObject();
+        if (!args.has("caid") || !args.has("money")) {
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: caid, money");
+            return;
+        }
+        
         float money = Float.parseFloat(args.getString("money"));
         
-        if (money > 0)      processApplyPlatformAccountMoney_Recharge(server, args);
-        else if (money < 0) processApplyPlatformAccountMoney_Refund(server, args);
-        else ;// discard
+        if (money > 0)      processApplyPlatformAccountMoney_Recharge(server, request);
+        else if (money < 0) processApplyPlatformAccountMoney_Refund(server, request);
+        else response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "money must be not 0");
     }
     
-    private static void processApplyPlatformAccountMoney_Recharge(String server, JSONObject args) {
-        
+    private static void processApplyPlatformAccountMoney_Recharge(String server, FjDscpMessage request) {
+        JSONObject args = request.argsToJsonObject();
+        int     caid    = args.getInt("caid");
+        float   money   = Float.parseFloat(args.getString("money"));
+        int     paid    = CommonService.getPlatformAccountByCaid(caid);
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("paid",    paid);
+        args_cdb.put("remark",  "【自动充值】");
+        args_cdb.put("type",    CommonService.MONEY_CASH);
+        args_cdb.put("money",   money);
+        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
+        if (!CommonService.isResponseSuccess(rsp)) {
+            response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_RECHARGE_FAILED, CommonService.getResponseDesc(rsp));
+            return;
+        }
+        response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
+        Notifier.notifyCashRecharge(server, paid, String.format("%.2f元", money));
     }
     
-    private static void processApplyPlatformAccountMoney_Refund(String server, JSONObject args) {
+    private static void processApplyPlatformAccountMoney_Refund(String server, FjDscpMessage request) {
+        JSONObject args = request.argsToJsonObject();
+        int     caid    = args.getInt("caid");
+        float   money   = Float.parseFloat(args.getString("money"));
+        int     paid    = CommonService.getPlatformAccountByCaid(caid);
+        // 校验订单
+        {
+            boolean isAllClose = true;
+            for (BeanOrder order : CommonService.getOrderByPaid(paid)) {
+                if (!order.isClose()) {
+                    isAllClose = false;
+                    break;
+                }
+            }
+            if (!isAllClose) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER_STATE, "close all orders first");
+                return;
+            }
+        }
+        // 校验用户
+        {
+            if (0 == CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).size()) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE, "bind a alipay user first");
+                return;
+            }
+        }
+        // 提交退款工单
+        {
+            BeanChannelAccount user_alipay = CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).get(0);
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("caid",    user_alipay.i_caid);
+            args_cdb.put("type",    CommonService.TICKET_TYPE_REFUND);
+            args_cdb.put("title",   "【自动】【退款】");
+            args_cdb.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
+                    user_alipay.c_user,
+                    user_alipay.c_name,
+                    money,
+                    "VC电玩游戏退款"));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
+                return;
+            }
+        }
+        response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
+        Notifier.notifyCashRefund(server, paid, String.format("%.2f元", money));
+    }
+    
+    private static void response(FjDscpMessage request, String server, int code, String desc) {
+        JSONObject args = new JSONObject();
+        args.put("code", code);
+        args.put("desc", desc);
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS == code) logger.debug("response success: " + args);
+        else logger.error("response fail: " + args);
         
+        FjDscpMessage response = new FjDscpMessage();
+        response.json().put("fs",   server);
+        response.json().put("ts",   request.fs());
+        response.json().put("sid",  request.sid());
+        response.json().put("inst", request.inst());
+        response.json().put("args", args);
+        FjServerToolkit.getAnySender().send(response);
     }
     
 //    private static void processMoneyTransfer(String server, JSONObject args) {

@@ -34,7 +34,7 @@ public class MainDetailPane extends JPanel {
                 DetailPane.createToolBarButton("充值", e->UIToolkit.userRecharge(CommonService.MONEY_CASH,    CommonService.getPlatformAccountByCaid(user.i_caid))),
                 DetailPane.createToolBarButton("充券", e->UIToolkit.userRecharge(CommonService.MONEY_COUPON,  CommonService.getPlatformAccountByCaid(user.i_caid))),
                 DetailPane.createToolBarButton("退款", e->UIToolkit.userRecharge(CommonService.MONEY_CONSUME, CommonService.getPlatformAccountByCaid(user.i_caid))),
-                DetailPane.createToolBarButton("关联", e->UIToolkit.userBind(CommonService.getPlatformAccountByCaid(user.i_caid))));
+                DetailPane.createToolBarButton("合并", e->UIToolkit.userMerge(CommonService.getPlatformAccountByCaid(user.i_caid))));
         pane_binds = new DetailPane("用户关联用户", binds);
         pane_rents = new DetailPane("用户在租游戏", rents,
                 DetailPane.createToolBarButton("起租", e->{

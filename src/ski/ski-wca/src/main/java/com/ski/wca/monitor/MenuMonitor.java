@@ -11,18 +11,7 @@ import fomjar.util.FjLoopTask;
 
 public class MenuMonitor extends FjLoopTask {
     
-    private static MenuMonitor instance = null;
-    public static MenuMonitor getInstance() {
-        if (null == instance) instance = new MenuMonitor();
-        return instance;
-    }
-    
-    
     private static final Logger logger = Logger.getLogger(MenuMonitor.class);
-    
-    private MenuMonitor() {
-        setDelay(10 * 1000L);
-    }
     
     public void start() {
         if (isRun()) {
@@ -30,6 +19,11 @@ public class MenuMonitor extends FjLoopTask {
             return;
         }
         new Thread(this, "monitor-menu").start();
+    }
+    
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval"));
+        setInterval(second * 1000);
     }
     
     @Override
@@ -48,9 +42,5 @@ public class MenuMonitor extends FjLoopTask {
         if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
         else logger.error("menu update failed: " + rsp);
     }
-    
-    private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.menu.reload-interval"));
-        setInterval(second * 1000);
-    }
+
 }

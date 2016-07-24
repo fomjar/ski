@@ -78,7 +78,6 @@ public class MainFrame extends JFrame {
         
         progress = new FjProgressBar();
         progress.setStringPainted(true);
-        progress.openDaemon();
         
         JPanel panel_user = new JPanel();
         panel_user.setLayout(new BorderLayout());

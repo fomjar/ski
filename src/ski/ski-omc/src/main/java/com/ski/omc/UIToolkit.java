@@ -84,9 +84,13 @@ public class UIToolkit {
 //        UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
     
-    private static final ExecutorService pool = Executors.newCachedThreadPool();
+    private static ExecutorService pool = null;
     
-    public static void doLater(Runnable task) {pool.submit(task);}
+    public static synchronized void doLater(Runnable task) {
+        if (null == pool) pool = Executors.newCachedThreadPool();
+        
+        pool.submit(task);
+    }
     
     public static JPanel createBasicInfoLabel(String label, JComponent field) {
         return createBasicInfoLabel(label, field, null);
@@ -302,30 +306,8 @@ public class UIToolkit {
     public static boolean skip_wa = false;
     
     public static void openCommodity(int caid) {
-        int oid = -1;
-        // 查找可用订单
-        for (BeanOrder order : CommonService.getOrderByCaid(caid)) {
-            if (!order.isClose()) {
-                oid = order.i_oid;
-                break;
-            }
-        }
-        if (-1 == oid) { // 没有找到可用订单
-            JSONObject args = new JSONObject();
-            args.put("caid",        caid);
-            args.put("platform",    CommonService.CHANNEL_TAOBAO);
-            args.put("open",        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
-            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            CommonService.updateOrder();
-            if (!CommonService.isResponseSuccess(rsp)){
-                showServerResponse(rsp);
-                return;
-            }
-            
-            oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
-        }
-        
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
+        JComboBox<String>   i_platform  = new JComboBox<String>(new String[] {"淘宝", "微信"}); // ordered
         JLabel              c_arg0      = new JLabel();
         c_arg0.setPreferredSize(new Dimension(300, 0));
         JButton             choose      = new JButton("选择游戏账号");
@@ -408,7 +390,8 @@ public class UIToolkit {
         panel1.add(i_recharge, BorderLayout.CENTER);
         
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 1));
+        panel.setLayout(new GridLayout(6, 1));
+        panel.add(i_platform);
         panel.add(panel0);
         panel.add(c_arg1);
         panel.add(i_price);
@@ -429,6 +412,18 @@ public class UIToolkit {
 //                JOptionPane.showMessageDialog(null, "B类账号起租要求A类已租，请先将此账号A类出租，然后再出租B类", "错误", JOptionPane.ERROR_MESSAGE);
 //                continue;
 //            }
+            JSONObject args = new JSONObject();
+            args.put("caid",        caid);
+            args.put("platform",    i_platform.getSelectedIndex());
+            args.put("open",        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
+            CommonService.updateOrder();
+            if (!CommonService.isResponseSuccess(rsp)){
+                showServerResponse(rsp);
+                return;
+            }
+            int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            
             if (!doOpenCommodity(
                     oid,
                     account.obj,
@@ -632,16 +627,33 @@ public class UIToolkit {
             // 3
             ssd.toNextStep();
             {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 ssd.appendText("正在将退租信息提交到数据库中，并处理结算...");
                 args.clear();
                 args.put("oid", oid);
                 args.put("csn", csn);
-                args.put("end", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
+                args.put("end", sdf.format(new Date()));
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
+                CommonService.updateOrder();
                 ssd.appendText(rsp.toString());
+                
+                boolean needCloseOrder = true;
+                for (BeanCommodity c : CommonService.getOrderByOid(oid).commodities.values()) {
+                    if (!c.isClose()) {
+                        needCloseOrder = false;
+                        break;
+                    }
+                }
+                if (needCloseOrder) {
+                    args.clear();
+                    args.put("oid", oid);
+                    args.put("close", sdf.format(new Date()));
+                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
+                    CommonService.updateOrder();
+                    ssd.appendText(rsp.toString());
+                }
                 ssd.appendText("提交完成");
             }
-            CommonService.updateOrder();
             CommonService.updateGameAccount();
             CommonService.updateGameAccountRent();
             CommonService.updatePlatformAccount();
@@ -1025,33 +1037,25 @@ public class UIToolkit {
             // 退款条件
             if (2 == type.getSelectedIndex()) {
                 // 校验订单
-                if (0 < CommonService.getChannelAccountByPaid(paid)
-                        .stream()
-                        .map(user->
-                            CommonService.getOrderByCaid(user.i_caid)
-                                .stream()
-                                .map(o->o.commodities.values()
-                                        .stream()
-                                        .filter(c->!c.isClose())
-                                        .count())
-                                .collect(Collectors.summingLong(l->l))
-                                .intValue())
-                        .collect(Collectors.summingLong(l->l))
-                        .intValue()) {
+                boolean isAllClose = true;
+                for (BeanOrder o : CommonService.getOrderByPaid(paid)) {
+                    if (!o.isClose()) {
+                        isAllClose = false;
+                        break;
+                    }
+                }
+                if (!isAllClose) {
                     JOptionPane.showMessageDialog(null, "此用户或其关联用户仍有未关闭的订单，不能退款", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
                 // 不存在关联的支付宝账户
-                if (0 == CommonService.getChannelAccountByPaid(paid)
-                        .stream()
-                        .filter(user->user.i_channel == CommonService.CHANNEL_ALIPAY)
-                        .count()) {
-                    JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，点击“确定”后将指定和关联支付宝账户。新创建用户时平台请选择“支付宝”", "信息", JOptionPane.PLAIN_MESSAGE);
+                if (0 == CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).size()) {
+                    JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，点击“确定”后将指定和合并支付宝账户。新创建用户时平台请选择“支付宝”", "信息", JOptionPane.PLAIN_MESSAGE);
                     int caid = -1;
-                    while (-1 != (caid = userBind(paid))) {
+                    while (-1 != (caid = userMerge(paid))) {
                         List<BeanChannelAccount> users = CommonService.getChannelAccountRelatedByCaidNChannel(caid, CommonService.CHANNEL_ALIPAY);
                         if (users.isEmpty()) {
-                            JOptionPane.showMessageDialog(null, "仍然没有找到关联的支付宝账户，可能刚才关联的用户的平台类型不是“支付宝”，请重新关联", "错误", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "仍然没有找到关联的支付宝账户，可能刚才合并的用户的平台类型不是“支付宝”，请重新关联", "错误", JOptionPane.ERROR_MESSAGE);
                             continue;
                         }
                         BeanChannelAccount user_alipay = users.get(0);
@@ -1088,10 +1092,10 @@ public class UIToolkit {
      * @param paid_to
      * @return caid or -1 if canceled
      */
-    public static int userBind(int paid_to) {
+    public static int userMerge(int paid_to) {
         BeanChannelAccount user2 = null;
         int option = JOptionPane.CLOSED_OPTION;
-        while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择关联途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
+        while (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(null, "请选择合并途径", "提示", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"创建新用户", "选择现有用户"}, "选择现有用户"))) {
             switch (option) {
             case JOptionPane.YES_OPTION:
                 int caid = UIToolkit.createChannelAccount();
@@ -1104,12 +1108,12 @@ public class UIToolkit {
             }
             if (null == user2) continue;
             
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "关联之后将无法回退，继续？", "提示", JOptionPane.OK_CANCEL_OPTION))
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "合并之后将无法回退，继续？", "提示", JOptionPane.OK_CANCEL_OPTION))
                 continue;
             
             int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
             if (paid_to == paid_from) {
-                JOptionPane.showMessageDialog(null, "即将关联的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(null, "即将合并的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             

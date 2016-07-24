@@ -6,4 +6,11 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>fomjar-widget</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>fomjar</groupId>
+  		<artifactId>fomjar-util</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
+  </dependencies>
 </project>

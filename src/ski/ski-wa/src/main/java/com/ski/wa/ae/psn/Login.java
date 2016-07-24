@@ -30,7 +30,7 @@ public class Login implements AE {
         driver.findElement(By.id("signInButton")).click(); // 登陆
         try {   // 账号输入框存在即说明用户名密码错误
             driver.findElement(By.id("signInInput_SignInID"));
-            code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_INCORRECT;
+            code = CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT;
             desc = "user or pass is incorrect";
             return;
         } catch (NoSuchElementException e) {}

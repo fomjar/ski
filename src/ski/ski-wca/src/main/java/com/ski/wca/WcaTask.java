@@ -26,9 +26,9 @@ public class WcaTask implements FjServerTask {
     private ExecutorService pool;
     
     public WcaTask() {
-        DataMonitor.getInstance().start();
+        new DataMonitor().start();
         TokenMonitor.getInstance().start();
-        MenuMonitor.getInstance().start();
+        new MenuMonitor().start();
         pool = Executors.newCachedThreadPool();
     }
     

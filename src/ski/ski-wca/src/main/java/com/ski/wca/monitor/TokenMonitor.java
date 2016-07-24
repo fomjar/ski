@@ -33,6 +33,17 @@ public class TokenMonitor extends FjLoopTask {
         new Thread(this, "monitor-token").start();
     }
     
+    private void resetInterval() {
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
+        setInterval(second);
+    }
+    
+    @Override
+    public void setInterval(long second) {
+        logger.debug("will try again after " + second + " seconds");
+        super.setInterval(second * 1000);
+    }
+    
     @Override
     public void perform() {
         token   = null;
@@ -55,17 +66,7 @@ public class TokenMonitor extends FjLoopTask {
         
         setInterval(token_msg.json().getInt("expires_in"));
     }
-    
-    private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.token.reload-interval"));
-        setInterval(second);
-    }
-    
-    @Override
-    public void setInterval(long second) {
-        logger.debug("will try again after " + second + " seconds");
-        super.setInterval(second * 1000);
-    }
+
     
     public String token() {return token;}
     
