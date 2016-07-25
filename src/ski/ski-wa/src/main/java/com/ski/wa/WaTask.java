@@ -44,20 +44,19 @@ public class WaTask implements FjServerTask {
         try {
             if (null == driver) driver = new InternetExplorerDriver(); // 每次重启窗口，因为IE会内存泄漏
             ae.execute(driver, args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", ae.code());
+            args_rsp.put("desc", ae.desc());
+            response(server.name(), req, args_rsp);
         } catch (Exception e) {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
             String desc = e.getMessage();
             if (desc.contains(" (WARNING:")) desc = desc.substring(0, desc.indexOf(" (WARNING:"));
             response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", CommonDefinition.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
-            return;
         } finally {
             driver.quit();
             driver = null;
         }
-        JSONObject args_rsp = new JSONObject();
-        args_rsp.put("code", ae.code());
-        args_rsp.put("desc", ae.desc());
-        response(server.name(), req, args_rsp);
         
         if (0 == server.mq().size()) {
             String home = FjServerToolkit.getServerConfig("wa.home");

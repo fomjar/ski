@@ -27,7 +27,9 @@ public class ListTicket extends JDialog {
     private JToolBar    toolbar;
     private JCheckBox   filter_refund;
     private JCheckBox   filter_advice;
-    private JCheckBox   filter_memory;
+    private JCheckBox   filter_notify;
+    private JCheckBox   filter_reserve;
+    private JCheckBox   filter_comment;
     private JButton     toggle;
     private FjListPane<BeanTicket>  pane;
     
@@ -44,17 +46,21 @@ public class ListTicket extends JDialog {
         toolbar.setFloatable(false);
         toolbar.add(new JButton("新工单"));
         
-        filter_refund = new JCheckBox("退款申请", true);
-        filter_advice = new JCheckBox("意见建议", true);
-        filter_memory = new JCheckBox("备忘事项", true);
+        filter_refund   = new JCheckBox("退款申请", true);
+        filter_advice   = new JCheckBox("意见建议", true);
+        filter_notify   = new JCheckBox("通知提醒", true);
+        filter_reserve  = new JCheckBox("预约预定", true);
+        filter_comment  = new JCheckBox("备忘纪要", true);
         toggle = new JButton(TOGGLE_TITLE_OPEN);
         toggle.setMargin(new Insets(0, 0, 0, 0));
         
         JPanel option_filter = new JPanel();
-        option_filter.setLayout(new GridLayout(1, 3));
+        option_filter.setLayout(new GridLayout(1, 5));
         option_filter.add(filter_refund);
         option_filter.add(filter_advice);
-        option_filter.add(filter_memory);
+        option_filter.add(filter_notify);
+        option_filter.add(filter_reserve);
+        option_filter.add(filter_comment);
         JPanel options = new JPanel();
         options.setLayout(new BorderLayout());
         options.add(option_filter, BorderLayout.WEST);
@@ -76,8 +82,14 @@ public class ListTicket extends JDialog {
                 case CommonService.TICKET_TYPE_ADVICE:
                     if (!filter_advice.isSelected()) return false;
                     break;
-                case CommonService.TICKET_TYPE_MEMORY:
-                    if (!filter_memory.isSelected()) return false;
+                case CommonService.TICKET_TYPE_NOTIFY:
+                    if (!filter_notify.isSelected()) return false;
+                    break;
+                case CommonService.TICKET_TYPE_RESERVE:
+                    if (!filter_reserve.isSelected()) return false;
+                    break;
+                case CommonService.TICKET_TYPE_COMMENT:
+                    if (!filter_comment.isSelected()) return false;
                     break;
                 }
                 
@@ -108,7 +120,7 @@ public class ListTicket extends JDialog {
         });
         filter_refund.addActionListener(e->pane.getSearchBar().doSearch());
         filter_advice.addActionListener(e->pane.getSearchBar().doSearch());
-        filter_memory.addActionListener(e->pane.getSearchBar().doSearch());
+        filter_notify.addActionListener(e->pane.getSearchBar().doSearch());
         
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);

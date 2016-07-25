@@ -194,8 +194,8 @@ public class BcsTask implements FjServerTask {
         // change password
         {
             String pass_new = CommonService.createGameAccountPassword();
+            BeanChannelAccount user_a = null;
             BeanChannelAccount user_b = null;
-            boolean isModify = true;
             switch (c.c_arg1) {
             case "A":
                 if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
@@ -204,11 +204,12 @@ public class BcsTask implements FjServerTask {
                 break;
             case "B":
                 if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
-                    isModify = false;
+                    user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_A));
                 }
                 break;
             }
-            if (isModify) {
+            
+            { // modify to psn
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("user",     account.c_user);
                 args_cdb.put("pass",     account.c_pass_curr);
@@ -218,22 +219,32 @@ public class BcsTask implements FjServerTask {
                     response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
                     return;
                 }
-                
-                args_cdb.clear();
+            }
+            
+            { // notify to db
+                JSONObject args_cdb = new JSONObject();
                 args_cdb.put("gaid", account.i_gaid);
                 args_cdb.put("pass_curr", pass_new);
-                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
                     response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
                     return;
                 }
             }
             
-            if (null != user_b) {
-                Notifier.notifyModifyNormally(server,
-                        CommonService.getPlatformAccountByCaid(user_b.i_caid),
-                        account.c_user + "(不认证)",
-                        "密码已被改为：" + pass_new);
+            { // notify
+                if (null != user_b) {
+                    Notifier.notifyModifyNormally(server,
+                            CommonService.getPlatformAccountByCaid(user_b.i_caid),
+                            account.c_user + "(不认证)",
+                            "密码已被改为：" + pass_new);
+                }
+                if (null != user_a) {
+                    Notifier.notifyModifyNormally(server,
+                            CommonService.getPlatformAccountByCaid(user_a.i_caid),
+                            account.c_user + "(认证)",
+                            "密码已被改为：" + pass_new);
+                }
             }
         }
         // submit order

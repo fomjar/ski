@@ -163,7 +163,7 @@ create table tbl_ticket (
     i_caid      integer,        -- 渠道用户ID
     t_open      datetime,       -- 打开时间
     t_close     datetime,       -- 关闭时间
-    i_type      tinyint,        -- 0-退款申请，1-意见建议，2-备忘事项
+    i_type      tinyint,        -- 0-退款申请，1-意见建议，2-通知提醒，3-备忘纪要，4-预约预定
     c_title     varchar(64),    -- 工单标题
     c_content   varchar(512),   -- 工单内容
     i_state     tinyint,        -- 工单状态：0-open, 1-close, 2-cancel

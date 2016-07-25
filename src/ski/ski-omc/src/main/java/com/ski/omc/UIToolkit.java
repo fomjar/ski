@@ -579,25 +579,21 @@ public class UIToolkit {
                 if (skip_wa) ssd.appendText("设定跳过");
                 else {
                     String pass_new = CommonService.createGameAccountPassword();
-                    boolean isModify = true;
+                    BeanChannelAccount user_a = null;
+                    BeanChannelAccount user_b = null;
                     switch (commodity.c_arg1) {
                     case "A":
                         if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B)) {
-                            BeanChannelAccount user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
-                            JOptionPane.showMessageDialog(null,
-                                    String.format("退租A类账号时需要修改密码，由于此账号B类正在出租，请现在将新密码(%s)通知给B租用户(%s)，之后点击“确定”继续", pass_new, user_b.getDisplayName()),
-                                    "信息",
-                                    JOptionPane.PLAIN_MESSAGE);
+                            user_b = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_B));
                         }
                         break;
                     case "B":
                         if (CommonService.RENT_STATE_IDLE != CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
-                            ssd.appendText("退租B类账号时，由于此账号A类正在出租，将跳过密码修改");
-                            isModify = false;
+                            user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(account.i_gaid, CommonService.RENT_TYPE_A));
                         }
                         break;
                     }
-                    if (isModify) {
+                    { // modify to psn
                         ssd.appendText("正在登录到PlayStation网站重设密码...");
                         args.clear();
                         args.put("user",     account.c_user);
@@ -612,15 +608,37 @@ public class UIToolkit {
                             }
                         }
                         ssd.appendText("重设成功");
+                    }
+                    { // modify to db
                         ssd.appendText("正在将新密码提交到数据库中...");
                         args.clear();
                         args.put("gaid", account.i_gaid);
                         args.put("pass_curr", pass_new);
-                        rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         ssd.appendText(rsp.toString());
                         ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
-                    } else {
-                        ssd.appendText("密码重设已跳过");
+                    }
+                    { // submit ticket
+                        if (null != user_b) {
+                            JSONObject args_cdb = new JSONObject();
+                            args_cdb.put("caid", user_b.i_caid);
+                            args_cdb.put("type", CommonService.TICKET_TYPE_NOTIFY);
+                            args_cdb.put("title", "【人工】【提醒】账号信息修改提醒");
+                            args_cdb.put("content", String.format("【账号信息修改提醒】|游戏账号: %s|修改内容: %s", account.c_user + "(不认证)", "密码已被改为：" + pass_new));
+                            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
+                            CommonService.updateTicket();
+                            ssd.appendText(rsp.toString());
+                        }
+                        if (null != user_a) {
+                            JSONObject args_cdb = new JSONObject();
+                            args_cdb.put("caid", user_a.i_caid);
+                            args_cdb.put("type", CommonService.TICKET_TYPE_NOTIFY);
+                            args_cdb.put("title", "【人工】【提醒】账号信息修改提醒");
+                            args_cdb.put("content", String.format("【账号信息修改提醒】|游戏账号: %s|修改内容: %s", account.c_user + "(认证)", "密码已被改为：" + pass_new));
+                            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
+                            CommonService.updateTicket();
+                            ssd.appendText(rsp.toString());
+                        }
                     }
                 }
             }
@@ -683,7 +701,7 @@ public class UIToolkit {
             else i_caid.setText(String.format("0x%08X - %s", account1.i_caid, account1.getDisplayName()));
         });
         
-        JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议", "备忘事项"}); // ordered
+        JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议", "通知提醒", "预约预定", "备忘纪要"}); // ordered
         FjTextField         c_title     = new FjTextField();
         c_title.setDefaultTips("工单标题");
         FjTextArea          c_content   = new FjTextArea();
@@ -714,8 +732,8 @@ public class UIToolkit {
             JSONObject args = new JSONObject();
             args.put("caid", Integer.parseInt(i_caid.getText().split(" ")[0].split("x")[1], 16));
             args.put("type", i_type.getSelectedIndex());
-            args.put("title", c_title.getText().replace("'", "^").replace("\"", "^").replace("\n", ""));
-            args.put("content", c_content.getText().replace("'", "^").replace("\"", "^").replace("\n", ""));
+            args.put("title", c_title.getText().replace("'", "^").replace("\"", "^").replace("\n", "|"));
+            args.put("content", c_content.getText().replace("'", "^").replace("\"", "^").replace("\n", "|"));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
             CommonService.updateTicket();
             UIToolkit.showServerResponse(rsp);
@@ -980,11 +998,11 @@ public class UIToolkit {
         showServerResponse(rsp);
     }
     
-    public static void userRecharge(int paid) {
-        userRecharge(CommonService.MONEY_CASH, paid);
+    public static void userMoney(int paid) {
+        userMoney(CommonService.MONEY_CASH, paid);
     }
     
-    public static void userRecharge(int money_type, int paid) {
+    public static void userMoney(int money_type, int paid) {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
         
         JComboBox<String> type = new JComboBox<String>(new String[] {"充值", "充券", "退款"});
@@ -1048,6 +1066,7 @@ public class UIToolkit {
                     JOptionPane.showMessageDialog(null, "此用户或其关联用户仍有未关闭的订单，不能退款", "错误", JOptionPane.ERROR_MESSAGE);
                     continue;
                 }
+                BeanChannelAccount user_alipay = null;
                 // 不存在关联的支付宝账户
                 if (0 == CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).size()) {
                     JOptionPane.showMessageDialog(null, "没有找到关联的支付宝账户，无法执行退款，点击“确定”后将指定和合并支付宝账户。新创建用户时平台请选择“支付宝”", "信息", JOptionPane.PLAIN_MESSAGE);
@@ -1058,20 +1077,24 @@ public class UIToolkit {
                             JOptionPane.showMessageDialog(null, "仍然没有找到关联的支付宝账户，可能刚才合并的用户的平台类型不是“支付宝”，请重新关联", "错误", JOptionPane.ERROR_MESSAGE);
                             continue;
                         }
-                        BeanChannelAccount user_alipay = users.get(0);
-                        JSONObject args = new JSONObject();
-                        args.put("caid",    user_alipay.i_caid);
-                        args.put("type",    CommonService.TICKET_TYPE_REFUND);
-                        args.put("title",   "【人工】【退款】");
-                        args.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
-                                user_alipay.c_user,
-                                user_alipay.c_name,
-                                Float.parseFloat(money.getText()),
-                                "VC电玩游戏退款"));
-                        CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
-                        CommonService.updateTicket();
+                        user_alipay = users.get(0);
                         break;
                     }
+                } else {
+                    user_alipay = CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).get(0);
+                }
+                { // submit ticket
+                    JSONObject args = new JSONObject();
+                    args.put("caid",    user_alipay.i_caid);
+                    args.put("type",    CommonService.TICKET_TYPE_REFUND);
+                    args.put("title",   "【人工】【退款】");
+                    args.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
+                            user_alipay.c_user,
+                            user_alipay.c_name,
+                            Float.parseFloat(money.getText()),
+                            "VC电玩游戏退款"));
+                    CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
+                    CommonService.updateTicket();
                 }
             }
             JSONObject args = new JSONObject();

@@ -140,7 +140,9 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         switch (type) {
         case CommonService.TICKET_TYPE_REFUND:  return "退款申请";
         case CommonService.TICKET_TYPE_ADVICE:  return "意见建议";
-        case CommonService.TICKET_TYPE_MEMORY:  return "备忘事项";
+        case CommonService.TICKET_TYPE_NOTIFY:  return "通知提醒";
+        case CommonService.TICKET_TYPE_RESERVE: return "预约预定";
+        case CommonService.TICKET_TYPE_COMMENT: return "备忘纪要";
         default: return "未    知";
         }
     }

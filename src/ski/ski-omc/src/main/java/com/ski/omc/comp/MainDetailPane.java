@@ -31,9 +31,9 @@ public class MainDetailPane extends JPanel {
         binds   = new FjList<BeanChannelAccount>();
         rents   = new FjList<BeanCommodity>();
         pane_basic = new DetailPane("用户基本信息", basic,
-                DetailPane.createToolBarButton("充值", e->UIToolkit.userRecharge(CommonService.MONEY_CASH,    CommonService.getPlatformAccountByCaid(user.i_caid))),
-                DetailPane.createToolBarButton("充券", e->UIToolkit.userRecharge(CommonService.MONEY_COUPON,  CommonService.getPlatformAccountByCaid(user.i_caid))),
-                DetailPane.createToolBarButton("退款", e->UIToolkit.userRecharge(CommonService.MONEY_CONSUME, CommonService.getPlatformAccountByCaid(user.i_caid))),
+                DetailPane.createToolBarButton("充值", e->UIToolkit.userMoney(CommonService.MONEY_CASH,    CommonService.getPlatformAccountByCaid(user.i_caid))),
+                DetailPane.createToolBarButton("充券", e->UIToolkit.userMoney(CommonService.MONEY_COUPON,  CommonService.getPlatformAccountByCaid(user.i_caid))),
+                DetailPane.createToolBarButton("退款", e->UIToolkit.userMoney(CommonService.MONEY_CONSUME, CommonService.getPlatformAccountByCaid(user.i_caid))),
                 DetailPane.createToolBarButton("合并", e->UIToolkit.userMerge(CommonService.getPlatformAccountByCaid(user.i_caid))));
         pane_binds = new DetailPane("用户关联用户", binds);
         pane_rents = new DetailPane("用户在租游戏", rents,

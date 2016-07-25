@@ -56,7 +56,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】账号租期定时提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -114,7 +114,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】用户账户余额提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -176,7 +176,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】用户账户充值提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -236,7 +236,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】用户账户退款提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -294,7 +294,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】账号绑定状态提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -354,7 +354,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】账号异常修改提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();
@@ -414,7 +414,7 @@ public class Notifier {
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_MEMORY);
+                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
                 args.put("title",   "【自动】【提醒】账号信息修改提醒");
                 args.put("content", notify_content);
                 FjDscpMessage msg = new FjDscpMessage();

@@ -71,7 +71,9 @@ public class CommonService {
     
     public static final int TICKET_TYPE_REFUND  = 0;
     public static final int TICKET_TYPE_ADVICE  = 1;
-    public static final int TICKET_TYPE_MEMORY  = 2;
+    public static final int TICKET_TYPE_NOTIFY  = 2;
+    public static final int TICKET_TYPE_RESERVE = 3;
+    public static final int TICKET_TYPE_COMMENT = 4;
     
     public static final int TICKET_STATE_OPEN   = 0;
     public static final int TICKET_STATE_CLOSE  = 1;
