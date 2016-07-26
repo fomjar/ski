@@ -3,47 +3,79 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>退款</title>
+        <title>关联账号</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
-        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var inst    = '%x';
-            var user    = '%x';
-            var channel = %d;
-            var merge   = %b;
-            var notify  = '%s';
+            var user    = %d;
+            var caid    = %s;   // decimal
+            var channel = %s;   // decimal
 
-            var base    = '/ski-wcweb?inst=' + inst + '&user=' + user;
+            var url_setup   = '/ski-wcweb?inst=2405&user=' + user.toString(16) + '&step=setup';
+            var url_apply   = '/ski-wcweb?inst=2405&user=' + user.toString(16) + '&step=apply';
 
-            function submit() {
-                var alipay_user = $('#user').val();
-                var alipay_name = $('#name').val();
+            $(document).ready(function() {
+                if (null != channel) {
+                    $('#channel').val(channel);
+                }
+                if (null != caid) {
+                    showToast('正在加载');
+                    $.post(url_setup, $.toJSON({
+                           'caid'   : caid.toString(16)
+                        }), function(args){
+                            hideToast();
+                            if (0 != args.code) {
+                                showDialog('加载失败', args.desc);
+                                return;
+                            }
+                            $('#user').val(args.desc.user);
+                            $('#name').val(args.desc.name);
+                        });
+                }
+            });
 
-                if (0 == alipay_user.length) {
+            function apply() {
+                var channel = $('#channel').val();
+                var _user = $('#user').val();
+                var name = $('#name').val();
+
+                if (0 == _user.length) {
                     showDialog('错误', '账号不能为空');
                     return;
                 }
-                if (0 == alipay_name.length) {
-                    showDialog('错误', '姓名不能为空');
+                if (0 == name.length) {
+                    showDialog('错误', '名称不能为空');
                     return;
                 }
 
                 showToast('正在处理');
-                $.post(base, $.toJSON({
-                            '_channel'  : channel,  // channel_alipay
-                            '_user'     : alipay_user,
-                            '_name'     : alipay_name,
-                            '_merge'    : merge
-                        }), function(args) {
-                            if (0 == args.code) {
-                                window.location = notify;
-                            } else {
-                                showDialog("提交失败", args.desc);
-                            }
-                        });
+                var param = null;
+                if (null == caid) {
+                    param = $.toJSON({
+                        'channel'   : channel.toString(16),
+                        '_user'     : _user,
+                        'name'      : name
+                    });
+                } else {
+                    param = $.toJSON({
+                        'caid'      : caid.toString(16),
+                        'channel'   : channel.toString(16),
+                        '_user'     : _user,
+                        'name'      : name
+                    });
+                }
+                $.post(url_apply, param,
+                    function(args) {
+                        hideToast();
+                        if (0 == args.code) {
+                            showDialog("提交成功");
+                        } else {
+                            showDialog("提交失败", args.desc);
+                        }
+                    });
             }
 
             function showToast(text) {
@@ -64,31 +96,42 @@
     <body>
         <div class='cell'>
             <div class='hd'>
-                <h1 class='page_title'>补充信息</h1>
+                <h1 class='page_title'>关联账号</h1>
             </div>
             <div class='bd'>
-                <div class='weui_cells_title'>补充支付宝信息以便于我们为您自动打款</div>
+                <div class='weui_cells_title'>添加的用户将跟您的微信账号进行绑定</div>
                 <div class='weui_cells weui_cells_form'>
-                    <div class='weui_cell'>
-                        <div class='weui_cell_hd'>
-                            <label class='weui_label'>支付宝账号</label>
+                    <div class="weui_cell weui_cell_select weui_select_after">
+                        <div class="weui_cell_hd">
+                            <label class="weui_label" for="">平台</label>
                         </div>
-                        <div class='weui_cell_bd weui_cell_primary'>
-                            <input class='weui_input' placeholder='请输入支付宝账号' id='user'/>
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <select name="select" class="weui_select" id='channel'>
+                                <option value="0">淘宝</option>
+                                <!--<option value="1">微信</option>-->
+                                <option value="2">支付宝</option>
+                            </select>
                         </div>
                     </div>
                     <div class='weui_cell'>
                         <div class='weui_cell_hd'>
-                            <label class='weui_label'>真实姓名</label>
+                            <label class='weui_label'>用户名</label>
                         </div>
                         <div class='weui_cell_bd weui_cell_primary'>
-                            <input class='weui_input' placeholder='请输入您的真实姓名' id='name'/>
+                            <input class='weui_input' placeholder='请输入用户名' id='user'/>
+                        </div>
+                    </div>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'>
+                            <label class='weui_label'>名称</label>
+                        </div>
+                        <div class='weui_cell_bd weui_cell_primary'>
+                            <input class='weui_input' placeholder='请输入您的名称' id='name'/>
                         </div>
                     </div>
                 </div>
-                <div class='weui_cells_tips'>我们承诺保护您个人隐私，此信息仅用户退款</div>
                 <div class='weui_btn_area'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:submit()">提交</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript:apply()">提交</a>
                 </div>
             </div>
         </div>

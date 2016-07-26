@@ -53,13 +53,12 @@ public class WsiTask implements FjServerTask {
     }
     
     private void process(String server, FjMessageWrapper wrapper) {
-        FjHttpRequest hmsg = (FjHttpRequest) wrapper.message();
+        FjHttpRequest req = (FjHttpRequest) wrapper.message();
         SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
-        JSONObject args = hmsg.contentToJson();
-        if (null != hmsg.urlArgs()) args.putAll(hmsg.urlArgs());
+        JSONObject args = req.argsToJson();
         
         if (!args.has("inst")) {
-            logger.error("bad request: " + hmsg);
+            logger.error("bad request: " + req);
             responseSimple( CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST, "没有指令", conn);
             return;
         }
@@ -71,7 +70,7 @@ public class WsiTask implements FjServerTask {
         else {
             try {inst = Integer.parseInt(instobj.toString(), 16);}
             catch (NumberFormatException e) {
-                logger.error("bad request: " + hmsg);
+                logger.error("bad request: " + req);
                 responseSimple(CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST, "非法指令", conn);
                 return;
             }

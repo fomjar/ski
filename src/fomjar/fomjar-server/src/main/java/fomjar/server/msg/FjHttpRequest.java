@@ -3,6 +3,8 @@ package fomjar.server.msg;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 
 public class FjHttpRequest extends FjHttpMessage {
     
@@ -32,6 +34,12 @@ public class FjHttpRequest extends FjHttpMessage {
             else result.put(param, null);
         }
         return result;
+    }
+    
+    public JSONObject argsToJson() {
+        JSONObject json = contentToJson();
+        json.putAll(urlArgs());
+        return json;
     }
 
     @Override

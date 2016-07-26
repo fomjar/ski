@@ -3,7 +3,6 @@ package com.ski.wca.monitor;
 import org.apache.log4j.Logger;
 
 import com.ski.wca.WechatInterface;
-import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjJsonMessage;
@@ -35,10 +34,8 @@ public class MenuMonitor extends FjLoopTask {
         
         String  menu_content = FjServerToolkit.getServerConfig("wca.menu.content");
         FjJsonMessage rsp = null;
-        try {
-            if (null == menu_content || 0 == menu_content.length()) rsp = WechatInterface.menuDelete();
-            else rsp = WechatInterface.menuCreate(menu_content);
-        } catch (WechatPermissionDeniedException e) {logger.error(e);}
+        if (null == menu_content || 0 == menu_content.length()) rsp = WechatInterface.menuDelete(TokenMonitor.getInstance().token());
+        else rsp = WechatInterface.menuCreate(TokenMonitor.getInstance().token(), menu_content);
         if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
         else logger.error("menu update failed: " + rsp);
     }

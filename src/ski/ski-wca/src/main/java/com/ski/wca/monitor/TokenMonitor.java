@@ -3,7 +3,6 @@ package com.ski.wca.monitor;
 import org.apache.log4j.Logger;
 
 import com.ski.wca.WechatInterface;
-import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjJsonMessage;
@@ -58,11 +57,9 @@ public class TokenMonitor extends FjLoopTask {
         token = token_msg.json().getString("access_token");
         logger.info("get wechat access token successfully: " + token_msg);
         
-        try {
-            FjJsonMessage ticket_msg = WechatInterface.ticket();
-            if (null == ticket_msg || !ticket_msg.json().containsKey("ticket")) logger.error("get wechat jsapi ticket failed: " + ticket_msg);
-            ticket = ticket_msg.json().getString("ticket");
-        } catch (WechatPermissionDeniedException e) {logger.error("get wechat jsapi ticket failed", e);}
+        FjJsonMessage ticket_msg = WechatInterface.ticket(TokenMonitor.getInstance().token());
+        if (null == ticket_msg || !ticket_msg.json().containsKey("ticket")) logger.error("get wechat jsapi ticket failed: " + ticket_msg);
+        ticket = ticket_msg.json().getString("ticket");
         
         setInterval(token_msg.json().getInt("expires_in"));
     }

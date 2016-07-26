@@ -8,16 +8,16 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
-            var inst        = '%x';
-            var user        = '%x';
+            var user        = %d;
             var appId       = '%s';
             var timestamp   = %d;
             var nonceStr    = '%s';
             var signature   = '%s';
 
-            var base = '/ski-wcweb/pay/recharge?inst=' + inst + '&user=' + user;
+            var url_apply = '/ski-wcweb/pay/recharge?inst=2104&user=' + user.toString(16) + '&step=apply';
 
             wx.config({
                     'debug'     : false,        // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
@@ -28,7 +28,7 @@
                     'jsApiList' : []            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
                 });
 
-            function submit() {
+            function apply() {
                 // 生成预支付订单
                 var money = $('#money').val();
                 if (0 == money.length) {
@@ -37,8 +37,7 @@
                 }
 
                 showToast('正在处理');
-                $.post(base, $.toJSON({
-                            'step'  : 'apply',
+                $.post(url_apply, $.toJSON({
                             'money' : money
                         }), function(prepay) {
                             hideToast();
@@ -52,7 +51,7 @@
                                     'signType'  : prepay.pay.signType,  // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
                                     'paySign'   : prepay.pay.paySign,   // 支付签名
                                     'success'   : function (res) {
-                                        window.location = base + '&step=success'; 
+                                        showDialog('充值成功', '');
                                     }
                                 });
                             } else {
@@ -105,7 +104,7 @@
                 </div>
                 <div class='weui_cells_tips'>账户余额可以全额退款，请放心充值</div>
                 <div class='weui_btn_area'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:submit();">充值</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript:apply();">充值</a>
                 </div>
             </div>
         </div>

@@ -30,13 +30,15 @@ public final class CommonDefinition {
         /** 用户取消订阅/取消关注 */
         public static final int INST_USER_UNSUBSCRIBE   = 0x00001004;
         /** 用户通用命令 */
-        public static final int INST_USER_COMMAND       = 0X00001005;
+        public static final int INST_USER_COMMAND       = 0x00001005;
         /** 用户跳转界面/网页 */
         public static final int INST_USER_VIEW          = 0x00001006;
         /** 用户地理位置 */
         public static final int INST_USER_LOCATION      = 0x00001007;
         /** 用户(结果)通知 */
         public static final int INST_USER_NOTIFY        = 0x00001008;
+        /** 用户认证 */
+        public static final int INST_USER_AUTHORIZE     = 0x00001009;
         
         //////////////////////////////// 电商指令 ////////////////////////////////
         // QUERY

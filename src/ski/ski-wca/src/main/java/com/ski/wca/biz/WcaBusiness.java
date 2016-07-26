@@ -11,7 +11,7 @@ import com.ski.common.bean.BeanChannelAccount;
 import com.ski.wca.WechatInterface;
 import com.ski.wca.WechatInterface.WechatCustomServiceException;
 import com.ski.wca.WechatInterface.WechatInterfaceException;
-import com.ski.wca.WechatInterface.WechatPermissionDeniedException;
+import com.ski.wca.monitor.TokenMonitor;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
@@ -79,13 +79,8 @@ public class WcaBusiness {
     
     private static void registerUser(String server, String user) {
         FjJsonMessage ui = null;
-        try {
-            ui = WechatInterface.userInfo(user);
-            logger.info("register a new wechat user: " + ui);
-        } catch (WechatPermissionDeniedException e) {
-            logger.error("get user info failed: " + user, e);
-            return;
-        }
+        ui = WechatInterface.userInfo(TokenMonitor.getInstance().token(), user);
+        logger.info("register a new wechat user: " + ui);
         
         JSONObject args = new JSONObject();
         args.put("channel", CommonService.CHANNEL_WECHAT);
@@ -117,7 +112,7 @@ public class WcaBusiness {
         
         switch (type) {
         case RESPONSE_TYPE_TEXT: {
-            try {WechatInterface.messageCustomSendText(user, content.toString());}
+            try {WechatInterface.messageCustomSendText(TokenMonitor.getInstance().token(), user, content.toString());}
             catch (WechatInterfaceException e) {logger.error("send custom message failed: " + content, e);}
             break;
         }
@@ -126,8 +121,7 @@ public class WcaBusiness {
             String template = content_json.getString("template");
             String url      = content_json.has("url") ? content_json.getString("url") : null;
             JSONObject data = content_json.getJSONObject("data");
-            try {WechatInterface.messageTemplateSend(user, template, url, data);}
-            catch (WechatPermissionDeniedException e) {logger.error("send template message failed: " + content, e);}
+            WechatInterface.messageTemplateSend(TokenMonitor.getInstance().token(), user, template, url, data);
             break;
         }
         case RESPONSE_TYPE_NEWS: {
@@ -140,8 +134,8 @@ public class WcaBusiness {
                         article.getString("url"),
                         article.getString("picurl")));
             });
-            try {WechatInterface.messageCustomSendNews(user, articles.toArray(new WechatInterface.Article[articles.size()]));}
-            catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send news message failed: " + content, e);}
+            try {WechatInterface.messageCustomSendNews(TokenMonitor.getInstance().token(), user, articles.toArray(new WechatInterface.Article[articles.size()]));}
+            catch (WechatCustomServiceException e) {logger.error("send news message failed: " + content, e);}
             break;
         }
         default:
@@ -151,50 +145,6 @@ public class WcaBusiness {
     }
     
     private static void dispatchCommand(String server, String user, JSONObject args) {
-        String              cmd         = args.getString("cmd");
-        BeanChannelAccount  user_wechat = CommonService.getChannelAccountByUser(user).get(0);    // 此处不会报错，微信用户肯定已创建
-        
-        switch (cmd) {
-        case "21":  // 所有游戏
-            try {
-                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("热门游戏", "热门游戏", "https://www.baidu.com/", "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
-                        new WechatInterface.Article("最新大作", "最新大作", "https://www.baidu.com/", "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
-                });
-            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
-            break;
-        case "22":  // 搜索游戏
-            try {
-                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("搜索游戏", "搜索游戏",
-                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_GAME, user_wechat.i_caid),
-                                "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
-                });
-            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
-            break;
-        case "30":  // 关联淘宝
-            try {
-                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("关联淘宝账号", "为了能够更便捷地为您提供服务，如果您曾经光临过“VC电玩”淘宝店，可以在此进行账号关联",
-                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, user_wechat.i_caid),
-                                "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
-                });
-            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
-            break;
-        case "31":  // 我的账户
-            try {
-                WechatInterface.messageCustomSendNews(user, new WechatInterface.Article[] {
-                        new WechatInterface.Article("账户信息", "查看账户余额、优惠券、在租账号等信息", 
-                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, user_wechat.i_caid), "http://findicons.com/icon/download/203236/stock_people/128/png?id=378556"),
-                        new WechatInterface.Article("我要充值", "起租游戏之前需要先充值",
-                                WcWeb.generateUrl(server, WcWeb.URL_KEY + "/pay/recharge", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user_wechat.i_caid), "http://findicons.com/icon/download/177279/currency_yuan_blue/128/png?id=177539"),
-                        new WechatInterface.Article("我要退款", "申请将账户中的余额全额退款",
-                                WcWeb.generateUrl(server, WcWeb.URL_KEY + "/pay/refund", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, user_wechat.i_caid), "http://findicons.com/icon/download/28731/coins/128/png?id=271105"),
-                        new WechatInterface.Article("消费记录", "查看过去的消费记录",
-                                WcWeb.generateUrl(server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, user_wechat.i_caid), "http://findicons.com/icon/download/93344/type_list/128/png?id=94878"),
-                });
-            } catch (WechatPermissionDeniedException | WechatCustomServiceException e) {logger.error("send custom service news message failed", e);}
-            break;
-        }
+
     }    
 }

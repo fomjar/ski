@@ -8,36 +8,37 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
-        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var inst            = '%x';
-            var user            = '%x';
-            var refund_user     = '%s';
-            var refund_name     = '%s';
-            var refund_money    = '%.2f';
-            var base            = '/ski-wcweb/pay/refund?inst=' + inst + '&user=' + user;
+            var user = %d;
+
+            var url_setup = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16) + '&step=setup';
+            var url_apply = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16) + '&step=apply';
 
             $(document).ready(function() {
-                $('#refund_user').val(refund_user);
-                $('#refund_name').val(refund_name);
-                $('#refund_money').text(refund_money);
+                showToast('正在加载');
+                $.get(url_setup, function(args) {
+                        hideToast();
+                        if (0 != args.code) {
+                            showDialog("加载失败", args.desc);
+                            return;
+                        }
+                        $('#user').text(args.desc.user);
+                        $('#name').text(args.desc.name);
+                        $('#money').text(args.desc.money + ' 元');
+                    });
             });
 
-            function submit() {
+            function apply() {
                 showToast('正在处理');
-                $.post(base, $.toJSON({
-                            'step'      : 'apply',
-                            '_user'     : $('#refund_user').val(),
-                            '_name'     : $('#refund_name').val(),
-                            '_money'    : $('#refund_money').text()
-                        }), function(args) {
-                            if (0 == args.code) {
-                                window.location = args.desc;
-                            } else {
-                                hideToast();
-                                showDialog("退款失败", args.desc);
-                            }
-                        });
+                $.get(url_apply, function(args) {
+                    hideToast();
+                    if (0 != args.code) {
+                        showDialog("退款失败", args.desc);
+                        return;
+                    }
+                    showDialog('退款成功', '');
+                });
             }
 
             function showToast(text) {
@@ -67,25 +68,28 @@
                 <h1 class='page_title'>退款</h1>
             </div>
             <div class='bd'>
-                <div class='weui_cells_title'>1. 付款账号可以直接修改<br/>2. 也可以到“账户信息”中修改并永久生效<br/>3. 必须将所有在租账号退租才能退款<br/>4. 只能退“现金”部分的金额，参见“账户信息”</div>
+                <div class='weui_cells_title'>
+                        1. 请仔细核对退款账号，如果不正确，请先到我的账户中进行修改<br/>
+                        2. 只能退“现金”部分的金额，参见“小金库”
+                </div>
                 <div class='weui_cells'>
                     <div class="weui_cell">
-                        <div class="weui_cell_hd"><label class="weui_label">支付宝账号</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <input class="weui_input" id='refund_user' placeholder="退款支付宝账号">
+                            <p>支付宝账号</p>
                         </div>
+                        <div class="weui_cell_ft" id='user'></div>
                     </div>
                     <div class="weui_cell">
-                        <div class="weui_cell_hd"><label class="weui_label">真实姓名</label></div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <input class="weui_input" id='refund_name' placeholder="支付宝账号注册姓名">
+                            <p>真实姓名</p>
                         </div>
+                        <div class="weui_cell_ft" id='name'></div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary">
                             <p>退款金额</p>
                         </div>
-                        <div class="weui_cell_ft" id='refund_money'></div>
+                        <div class="weui_cell_ft" id='money'></div>
                     </div>
                 </div>
                 <div class='weui_btn_area'>
@@ -110,7 +114,7 @@
                 <div class="weui_dialog_bd" id='result_body1'></div>
                 <div class="weui_dialog_ft">
                     <a class="weui_btn_dialog default" href="javascript:$('#dialog1').hide();">取消</a>
-                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog1').hide();submit();">确定</a>
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog1').hide();apply();">确定</a>
                 </div>
             </div>
         </div>

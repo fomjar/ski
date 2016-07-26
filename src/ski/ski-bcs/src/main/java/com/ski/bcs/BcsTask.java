@@ -347,12 +347,24 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("caid",    user_alipay.i_caid);
             args_cdb.put("type",    CommonService.TICKET_TYPE_REFUND);
             args_cdb.put("title",   "【自动】【退款】");
-            args_cdb.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
+            args_cdb.put("content", String.format("支付宝账号: %s|真实姓名: %s|退款金额: %.2f 元|退款备注: %s",
                     user_alipay.c_user,
                     user_alipay.c_name,
                     money,
                     "VC电玩游戏退款"));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
+                return;
+            }
+        }
+        { // 修改账户金额
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("paid",    paid);
+            args_cdb.put("remark",  "【自动退款】");
+            args_cdb.put("type",    CommonService.MONEY_CASH);
+            args_cdb.put("money",   money);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
             if (!CommonService.isResponseSuccess(rsp)) {
                 response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
                 return;

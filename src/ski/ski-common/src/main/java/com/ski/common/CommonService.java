@@ -164,6 +164,16 @@ public class CommonService {
         }
     }
     
+    public static List<BeanChannelAccount> getChannelAccountByUserNChannel(String user, int channel) {
+        synchronized (cache_channel_account) {
+            return cache_channel_account.values()
+                    .stream()
+                    .filter(account->account.c_user.equals(user))
+                    .filter(account->account.i_channel == channel)
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static List<BeanChannelAccount> getChannelAccountRelatedAll(int caid) {
         synchronized (cache_platform_account_map) {
             int paid = getPlatformAccountByCaid(caid);
@@ -479,6 +489,23 @@ public class CommonService {
         return desc.toString();
     }
     
+    public static float prestatementByCommodity(BeanCommodity c) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            long begin  = sdf.parse(c.t_begin).getTime();
+            long end    = System.currentTimeMillis();
+            int  hours  = (int) Math.ceil(((double) end - begin) / 1000 / 60 / 60); // 向上取整
+            hours -= 3; // 优惠3小时
+            if (hours <= 0) return 0.00f;
+            else {
+                int times = (int) Math.ceil(((double) hours) / 12);
+                if (times < 2) times = 2;
+                return times * (c.i_price / 2) * c.i_count;
+            }
+        } catch (Exception e) {e.printStackTrace();}
+        return 0.00f;
+    }
+    
     public static float[] prestatementByCaid(int caid) {
         return prestatementByPaid(getPlatformAccountByCaid(caid));
     }
@@ -487,8 +514,7 @@ public class CommonService {
         BeanPlatformAccount puser = getPlatformAccountByPaid(paid);
         float cash      = puser.i_cash;
         float coupon    = puser.i_coupon;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        float cost = 0.00f;
+        float cost      = 0.00f;
         try {
             cost = CommonService.getOrderByPaid(paid)
                 .stream()
@@ -498,21 +524,7 @@ public class CommonService {
                         return order.commodities.values()
                                 .stream()
                                 .filter(c->!c.isClose())
-                                .map(c->{
-                                    try {
-                                        long begin  = sdf.parse(c.t_begin).getTime();
-                                        long end    = System.currentTimeMillis();
-                                        int  hours  = (int) Math.ceil(((double) end - begin) / 1000 / 60 / 60); // 向上取整
-                                        hours -= 3; // 优惠3小时
-                                        if (hours <= 0) return 0.00f;
-                                        else {
-                                            int times = (int) Math.ceil(((double) hours) / 12);
-                                            if (times < 2) times = 2;
-                                            return times * (c.i_price / 2) * c.i_count;
-                                        }
-                                    } catch (Exception e) {e.printStackTrace();}
-                                    return 0.00f;
-                                })
+                                .map(c->prestatementByCommodity(c))
                                 .reduce(0.00f, (cost1, cost2)->(cost1 + cost2))
                                 .floatValue();
                     } catch (Exception e) {}

@@ -3,38 +3,38 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>游戏详情</title>
+        <title>小金库</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
-        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
             var user = %d;
-            var gid  = %d;
-            var url_setup = '/ski-wcweb?inst=2001&user=' + user.toString(16) + '&step=setup';
+
+            var url_setup       = '/ski-wcweb?inst=200b&user=' + user.toString(16) + '&step=setup';
+            var url_recharge    = '/ski-wcweb/pay/recharge?inst=2104&user=' + user.toString(16);
+            var url_refund      = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16);
 
             $(document).ready(function() {
                 showToast('正在加载');
-                $.post(url_setup,$.toJSON({
-                        'gid'   : gid.toString(16)
-                    }),
-                    function(args) {
+                $.get(url_setup, function(args){
                         hideToast();
                         if (0 != args.code) {
-                            showDialog("加载失败", args.desc);
+                            showDialog('加载失败', args.desc);
                             return;
                         }
-                        $('#url_poster').attr('src', args.desc.url_poster);
-                        $('#name_zh').text(args.desc.name_zh);
-                        $('#name_en').text(args.desc.name_en);
-                        $('#country').text(args.desc.country);
-                        $('#sale').text(args.desc.sale);
-                        $('#platform').text(args.desc.platform);
-                        $('#price_a').text(args.desc.price_a + " 元/天");
-                        $('#price_b').text(args.desc.price_b + " 元/天");
+                        $('#cash').text(args.desc.cash_rt + ' 元');
+                        $('#coupon').text(args.desc.coupon_rt + ' 元');
                     });
             });
+
+            function payRecharge() {
+                window.location = url_recharge;
+            }
+            function payRefund() {
+                window.location = url_refund;
+            }
 
             function showToast(text) {
                 $('#toast_text').text(text);
@@ -53,48 +53,27 @@
     </head>
     <body>
         <div class='cell'>
+            <div class='hd'>
+                <h1 class='page_title'>小金库</h1>
+            </div>
             <div class='bd'>
-                <img width='100%%' alt="游戏海报" src="" id='url_poster'>
                 <div class="weui_cells">
                     <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>中文名</p></div>
-                        <div class="weui_cell_ft" id='name_zh'></div>
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <p>现金</p>
+                        </div>
+                        <div class="weui_cell_ft" id='cash'></div>
                     </div>
                     <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>英文名</p></div>
-                        <div class="weui_cell_ft" id='name_en'></div>
+                        <div class="weui_cell_bd weui_cell_primary">
+                            <p>优惠券</p>
+                        </div>
+                        <div class="weui_cell_ft" id='coupon'></div>
                     </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>国家</p></div>
-                        <div class="weui_cell_ft" id='country'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>发售日期</p></div>
-                        <div class="weui_cell_ft" id='sale'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>所属平台</p></div>
-                        <div class="weui_cell_ft" id='platform'></div>
-                    </div>
-                </div>
-                <div class="weui_cells">
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>认证</p></div>
-                        <div class="weui_cell_ft" id='price_a'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>不认证</p></div>
-                        <div class="weui_cell_ft" id='price_b'></div>
-                    </div>
-                </div>
-                <div class="weui_cells weui_cells_access">
-                    <a class="weui_cell" href="javascript:;">
-                        <div class="weui_cell_bd weui_cell_primary"><p>租赁情况</p></div>
-                        <div class="weui_cell_ft"></div>
-                    </a>
                 </div>
                 <div class='weui_btn_area'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:submit()">我要租</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript:payRecharge()">我要充值</a>
+                    <a class='weui_btn weui_btn_warn' href="javascript:payRefund()">我要退款</a>
                 </div>
             </div>
         </div>

@@ -30,7 +30,7 @@ public class WechatForm {
                 + "<script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>"
                 + "<script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>"
                 + "</head>"
-                + "<body><div class='%s'>", title, type));
+                + "<body><div class='%s' style='height: 100%%'>", title, type));
         switch (type) {
         case FORM_CELL:
             sb.append(String.format("<div class='hd'><h1 class='page_title'>%s</h1></div><div class='bd'>", title));
@@ -148,7 +148,7 @@ public class WechatForm {
      */
     public static String createFormButton(String type, String name, String href) {
         if (null == href) href = "";
-        return String.format("<div class='weui_btn_area'><a class='weui_btn %s' href=\"javascript:%s\">%s</a></div>", type, href, name);
+        return String.format("<div class='weui_btn_area'><a class='weui_btn %s' href=\"%s\">%s</a></div>", type, href, name);
     }
     
     /**

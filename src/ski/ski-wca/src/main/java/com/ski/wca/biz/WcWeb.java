@@ -8,8 +8,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,13 +23,14 @@ import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanPlatformAccount;
-import com.ski.wca.WechatForm;
 import com.ski.wca.WechatInterface;
+import com.ski.wca.monitor.TokenMonitor;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjXmlMessage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -39,89 +38,73 @@ import net.sf.json.JSONObject;
 public class WcWeb {
     
     private static final Logger logger = Logger.getLogger(WcWeb.class);
+    
     public  static final String URL_KEY = "/ski-wcweb";
-    private static final String ROOT = "conf/form";
+    
     private static final String STEP_PREPARE    = "prepare";
     private static final String STEP_SETUP      = "setup";
     private static final String STEP_APPLY      = "apply";
-    private static final String STEP_SUCCESS    = "success";
-    
-    private WcWeb() {}
-
-    public static String generateUrl(String server, int inst, int user) {
-        return generateUrl(server, URL_KEY, inst, user);
-    }
-
-    public static String generateUrl(String server, String url, int inst, int user) {
-        FjAddress addr = FjServerToolkit.getSlb().getAddress(server);
-        return String.format("http://%s%s%s?inst=%s&user=%s",
-                addr.host,
-                80 == addr.port ? "" : (":" + addr.port),
-                url,
-                Integer.toHexString(inst),
-                Integer.toHexString(user));
-    }
     
     public static void dispatch(String server, FjHttpRequest req, SocketChannel conn) {
         logger.info("user request url: " + req.url());
         logger.debug("user request data: " + req.content());
         
-        String url = req.url().contains("?") ? req.url().substring(0, req.url().indexOf("?")) : req.url();
         WcwResponse response = new WcwResponse();
-        if (url.equals(URL_KEY + "/pay/recharge/success")) {
+        String url = req.url().contains("?") ? req.url().substring(0, req.url().indexOf("?")) : req.url();
+        switch (url) {
+        case URL_KEY:
+        case URL_KEY + "/pay/recharge":
+        case URL_KEY + "/pay/refund": {
+            JSONObject args = req.argsToJson();
+            if (!args.has("inst")) {
+                logger.error("illegal argument: no inst param: " + args);
+                break;
+            }
+            if (!args.has("user")) {
+                if (!args.has("code")) {
+                    fetchFile(response, "/authorize.html", FjServerToolkit.getServerConfig("wca.appid"));
+                    break;
+                }
+                String code = args.getString("code");
+                FjJsonMessage rsp = WechatInterface.snsOauth2(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"), code);
+                if (!rsp.json().has("openid")) {
+                    logger.error("user authorize failed: " + rsp);
+                    break;
+                }
+                
+                args.put("user", Integer.toHexString(CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid));
+            }
+            WcwRequest request = new WcwRequest(server, url, args, conn);
+            switch (request.inst) {
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
+                processQueryPlatformAccountMap(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
+                processUpdateChannelAccount(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
+                processQueryOrder(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY:
+                processQueryPlatformAccountMoney(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
+                processApplyPlatformAccountMoney(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
+                processQueryGame(response, request);
+                break;
+            }
+            break;
+        }
+        case URL_KEY + "/pay/recharge/success": {
             Document xml = req.contentToXml();
             processPayRechargeSuccess(response, server, xml);
-        } else {
-            JSONObject args = req.contentToJson();
-            if (null != req.urlArgs()) args.putAll(req.urlArgs());
-            WcwRequest request = new WcwRequest();
-            request.server = server;
-            if (args.has("inst")) request.inst = Integer.parseInt(args.getString("inst"), 16);
-            if (args.has("user")) request.user = Integer.parseInt(args.getString("user"), 16);
-            request.step = args.has("step") ? args.getString("step") : STEP_SETUP;
-            request.args = args;
-            request.conn = conn;
-            switch (url) {
-            case URL_KEY: {
-                switch(request.inst) {
-                case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE:
-                    processApplyPlatformAccountMerge(response, request);
-                    break;
-                case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT:
-                    processQueryPlatformAccount(response, request);
-                    break;
-                case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
-                    processQueryGame(response, request);
-                    break;
-                case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
-                    processUpdateChannelAccount(response, request);
-                    break;
-                case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
-                    processQueryOrder(response, request);
-                }
-                break;
-            }
-            case URL_KEY + "/pay/recharge": {
-                switch(request.inst) {
-                case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
-                    processApplyPlatformAccountMoney_Recharge(response, request);
-                    break;
-                }
-                break;
-            }
-            case URL_KEY + "/pay/refund": {
-                switch(request.inst) {
-                case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
-                    processApplyPlatformAccountMoney_Refund(response, request);
-                    break;
-                }
-                break;
-            }
-            default: {
-                fetchFile(response, req.url());
-                break;
-            }
-            }
+            break;
+        }
+        default:
+            fetchFile(response, req.url());
+            break;
         }
         
         if (null != response.content) {
@@ -133,261 +116,95 @@ public class WcWeb {
         }
     }
     
-    private static void processApplyPlatformAccountMerge(WcwResponse response, WcwRequest request) {
-        if (!CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {  // 用户已经绑定过了
-            response.type       = FjHttpRequest.CT_HTML;
-            response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
+    private static void fetchFile(WcwResponse response, String url, Object... args) {
+        File file = new File(FjServerToolkit.getServerConfig("wca.form.root") + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
+        if (!file.isFile()) {
+            logger.warn("not such file to fetch: " + file.getPath());
+            response.type   = FjHttpRequest.CT_TEXT;
             return;
         }
         
-        switch (request.step) {
-        case STEP_SETUP:
-            fetchFile(response, "/apply_platform_account_merge.html");
-            response.content = String.format(response.content,
-                    CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE,
-                    request.user);
-            break;
-        case STEP_APPLY:
-            response.type = FjHttpRequest.CT_JSON;
-            JSONObject content = new JSONObject();
-            String to_user  = request.args.getString("to_user");
-            String to_phone = request.args.getString("to_phone");
-            List<BeanChannelAccount> user_taobaos = CommonService.getChannelAccountByUser(to_user);
-            if (user_taobaos.isEmpty()) {
-                content.put("code", -1);
-                content.put("desc", "我们没有招待过此淘宝用户，请重新输入");
-                response.content = content.toString();
-                break;
-            }
-            
-            BeanChannelAccount user_taobao = user_taobaos.get(0);
-            if (CommonService.CHANNEL_TAOBAO != user_taobao.i_channel) {
-                content.put("code", -1);
-                content.put("desc", "我们没有招待过此淘宝用户，请重新输入");
-                response.content = content.toString();
-                break;
-            }
-            if (!user_taobao.c_phone.equals(to_phone)) {
-                content.put("code", -1);
-                content.put("desc", "填写的手机号跟淘宝上使用的手机不匹配，请重新输入");
-                response.content = content.toString();
-                break;
-            }
-            
-            {
-                JSONObject args_cdb = new JSONObject();
-                args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
-                args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(request.user));
-                FjDscpMessage req_cdb = new FjDscpMessage();
-                req_cdb.json().put("fs", "wcweb");
-                req_cdb.json().put("ts", "cdb");
-                req_cdb.json().put("inst", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE);
-                req_cdb.json().put("args", args_cdb);
-                FjServerToolkit.getAnySender().send(req_cdb);
-                content.put("code", 0);
-                response.content = content.toString();
-            }
-            break;
-        case STEP_SUCCESS:
-            response.type       = FjHttpRequest.CT_HTML;
-            response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "关联成功", "您的微信和淘宝已成功关联，现在可以到“我的账户”中查看相关信息，感谢您的支持", null, null);
-            break;
+        FileInputStream         fis = null;
+        ByteArrayOutputStream   baos = null;
+        try {
+            byte[]  buf = new byte[1024 * 4];
+            int     len = -1;
+            fis     = new FileInputStream(file);
+            baos    = new ByteArrayOutputStream();
+            while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
+            response.type       = getFileMime(file.getName());
+            response.content    = baos.toString("utf-8");
+            if (null != args && 0 < args.length) response.content = String.format(response.content, args);
+        } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
+        finally {
+            try {
+                fis.close();
+                baos.close();
+            } catch (IOException e) {e.printStackTrace();}
         }
     }
     
-    private static void processQueryPlatformAccount(WcwResponse response, WcwRequest request) {
-        BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(request.user));
-        StringBuilder sb = new StringBuilder();
-        sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "账户明细"));
-        
-        {
-            List<String[]> cells = new LinkedList<String[]>();
-            cells.add(new String[] {"现金", puser.i_cash + "元"});
-            cells.add(new String[] {"优惠券", puser.i_coupon + "元"});
-            float[] prestatement = CommonService.prestatementByCaid(request.user);
-            cells.add(new String[] {"现金(实时)", prestatement[0] + "元"});
-            cells.add(new String[] {"优惠券(实时)", prestatement[1] + "元"});
-            sb.append(WechatForm.createFormCellGroup("我的账户", cells, null));
-        }
-        
-        CommonService.getChannelAccountRelatedAll(request.user)
-                .stream()
-                .filter(u->u.i_caid != request.user)
-                .forEach(u->{
-                    List<String[]> cells = new LinkedList<String[]>();
-                    cells.add(new String[] {"账号", u.c_user});
-                    cells.add(new String[] {"姓名", u.c_name});
-                    sb.append(WechatForm.createFormCellGroup("关联账号：" + getChannelDesc(u.i_channel), cells, null));
-                });
-        
-        CommonService.getChannelAccountRelatedAll(request.user)
-                .forEach(u->{
-                    CommonService.getOrderByCaid(u.i_caid)
-                            .stream()
-                            .filter(o->!o.isClose())
-                            .forEach(o->{
-                                o.commodities.values()
-                                        .stream()
-                                        .filter(c->!c.isClose())
-                                        .forEach(c->{
-                                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                                            String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.getDiaplayName()).collect(Collectors.joining("; "));
-                                            
-                                            List<String[]> cells = new LinkedList<String[]>();
-                                            cells.add(new String[] {"在租游戏", games});
-                                            cells.add(new String[] {"游戏账号", account.c_user});
-                                            cells.add(new String[] {"当前密码", account.c_pass_curr});
-                                            cells.add(new String[] {"租赁类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
-                                            cells.add(new String[] {"租赁单价", c.i_price + "元/天"});
-                                            cells.add(new String[] {"起租时间", c.t_begin});
-                                            sb.append(WechatForm.createFormCellGroup("在租游戏：" + games, cells, null));
-                                            sb.append(WechatForm.createFormButton(WechatForm.BUTTON_WARN, "退租", "javascript:;"));
-                                        });
-                            });
-                });
-        sb.append(WechatForm.createFormFoot());
-        
-        response.type       = FjHttpRequest.CT_HTML;
-        response.content    = sb.toString();
+    public static String generateUrl(String server, int inst, int user) {
+        return generateUrl(server, URL_KEY, inst, user);
     }
     
-    private static void processQueryGame(WcwResponse response, WcwRequest request) {
-        switch (request.step) {
-        case STEP_SETUP: {
-            fetchFile(response, "/query_game.html");
-            response.content = String.format(response.content,
-                    CommonDefinition.ISIS.INST_ECOM_QUERY_GAME,
-                    request.user);
+    public static String generateUrl(String server, String url, int inst, int user) {
+        FjAddress addr = FjServerToolkit.getSlb().getAddress(server);
+        return String.format("http://%s%s%s?inst=%s&user=%s",
+                addr.host,
+                80 == addr.port ? "" : (":" + addr.port),
+                url,
+                Integer.toHexString(inst),
+                Integer.toHexString(user));
+    }
+    
+    private static String getChannelDesc(int channel) {
+        switch (channel) {
+        case CommonService.CHANNEL_TAOBAO: return "淘宝";
+        case CommonService.CHANNEL_WECHAT: return "微信";
+        case CommonService.CHANNEL_ALIPAY: return "支付宝";
+        default: return "未知";
+        }
+    }
+    
+    private static String getFileMime (String name) {
+        if (!name.contains(".")) return FjHttpRequest.CT_TEXT;
+        
+        String ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
+        switch (ext) {
+        case "html":
+        case "htm":     return FjHttpRequest.CT_HTML;
+        case "js":      return FjHttpRequest.CT_JS;
+        case "css":
+        case "less":    return FjHttpRequest.CT_CSS;
+        case "xml":     return FjHttpRequest.CT_XML;
+        case "json":    return FjHttpRequest.CT_JSON;
+        default:    return FjHttpRequest.CT_TEXT;
+        }
+    }
+    
+    private static void processApplyPlatformAccountMoney(WcwResponse response, WcwRequest request) {
+        switch (request.url) {
+        case URL_KEY + "/pay/recharge":
+            processApplyPlatformAccountMoney_Recharge(response, request);
+            break;
+        case URL_KEY + "/pay/refund":
+            processApplyPlatformAccountMoney_Refund(response, request);
             break;
         }
-        case STEP_APPLY: {
-            if (request.args.has("word")) {
-                String word = request.args.getString("word");
-                JSONObject content = new JSONObject();
-                content.put("code", 0);
-                JSONArray  args_desc = new JSONArray();
-                CommonService.getGameAll().values()
-                        .stream()
-                        .filter(game->game.c_name_zh.contains(word) || game.c_name_en.contains(word))
-                        .forEach(game->{
-                            JSONObject args_game = new JSONObject();
-                            args_game.put("gid",  Integer.toHexString(game.i_gid));
-                            args_game.put("icon", game.c_url_icon);
-                            args_game.put("name", game.getDiaplayName());
-                            args_desc.add(args_game);
-                        });
-                content.put("desc", args_desc);
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = content.toString();
-            } else if (request.args.has("gid")) {
-                int      gid  = Integer.parseInt(request.args.getString("gid"), 16);
-                BeanGame game = CommonService.getGameByGid(gid);
-                fetchFile(response, "/query_game_by_gid.html");
-                response.content = String.format(response.content,
-                        CommonDefinition.ISIS.INST_ECOM_QUERY_GAME,
-                        request.user,
-                        gid,
-                        game.c_url_poster,
-                        game.c_name_zh,
-                        game.c_name_en,
-                        game.c_country,
-                        game.t_sale,
-                        game.c_platform,
-                        CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price,
-                        CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
-            }
-            break;
-        }
-        }
     }
-    
-    private static void processUpdateChannelAccount(WcwResponse response, WcwRequest request) {
-        JSONObject content = new JSONObject();
-        
-        response.type = FjHttpRequest.CT_JSON;
-        if (!request.args.has("_channel") || !request.args.has("_user") || !request.args.has("_name")) {
-            content.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-            content.put("desc", "参数不完整");
-            response.content = content.toString();
-            return;
-        }
-        
-        FjDscpMessage rsp = null;
-        {   // 创建用户
-            JSONObject args_cdb = new JSONObject();
-            args_cdb.put("channel", request.args.getInt("_channel"));
-            args_cdb.put("user",    request.args.getString("_user"));
-            args_cdb.put("name",    request.args.getString("_name"));
-            rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
-            CommonService.updateChannelAccount();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            
-            content.put("code", CommonService.getResponseCode(rsp));
-            content.put("desc", CommonService.getResponseDesc(rsp));
-        }
-        {   // 合并用户
-            boolean merge = request.args.has("_merge") ? request.args.getBoolean("_merge") : false;
-            if (merge) {
-                int puser_alipay = CommonService.getPlatformAccountByCaid(Integer.parseInt(content.getString("desc"), 16));
-                JSONObject args_cdb = new JSONObject();
-                args_cdb.put("paid_to", CommonService.getPlatformAccountByCaid(request.user));
-                args_cdb.put("paid_from", puser_alipay);
-                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
-                CommonService.updatePlatformAccount();
-                CommonService.updatePlatformAccountMap();
-                
-                content.put("code", CommonService.getResponseCode(rsp));
-                content.put("desc", CommonService.getResponseDesc(rsp));
-            }
-        }
-        response.content = content.toString();
-    }
-    
-    private static void processQueryOrder(WcwResponse response, WcwRequest request) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(WechatForm.createFormHead(WechatForm.FORM_CELL, "消费信息"));
-        CommonService.getChannelAccountRelatedAll(request.user)
-                .forEach(u->{
-                    CommonService.getOrderByCaid(u.i_caid)
-                            .stream()
-                            .forEach(o->{
-                                o.commodities.values()
-                                        .stream()
-                                        .filter(c->c.isClose())
-                                        .forEach(c->{
-                                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                                            String games = CommonService.getGameByGaid(account.i_gaid).stream().map(g->g.getDiaplayName()).collect(Collectors.joining("; "));
-                                            
-                                            List<String[]> cells = new LinkedList<String[]>();
-                                            cells.add(new String[] {"账号", account.c_user});
-                                            cells.add(new String[] {"类型", "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知"});
-                                            cells.add(new String[] {"单价", c.i_price + "元/天"});
-                                            cells.add(new String[] {"起租时间", c.t_begin});
-                                            cells.add(new String[] {"退租时间", c.t_end});
-                                            cells.add(new String[] {"总价", c.i_expense + "元/天"});
-                                            sb.append(WechatForm.createFormCellGroup("租赁游戏：" + games, cells, null));
-                                        });
-                            });
-                });
-        sb.append(WechatForm.createFormFoot());
-        response.type       = FjHttpRequest.CT_HTML;
-        response.content    = sb.toString();
-    }
-    
+
     private static void processApplyPlatformAccountMoney_Recharge(WcwResponse response, WcwRequest request) {
         switch (request.step) {
-        case STEP_SETUP: {
-            fetchFile(response, "/apply_platform_account_money_recharge.html");
+        case STEP_PREPARE: {
             long timestamp  = System.currentTimeMillis() / 1000;
             String nonceStr = Long.toHexString(System.currentTimeMillis());
-            response.content = String.format(response.content,
-                    CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY,
+            fetchFile(response, "/apply_platform_account_money_recharge.html",
                     request.user,
                     FjServerToolkit.getServerConfig("wca.appid"),
                     timestamp,
                     nonceStr,
-                    WechatInterface.createSignature4Config(nonceStr, timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user)));
+                    WechatInterface.createSignature4Config(nonceStr, TokenMonitor.getInstance().ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user)));
             break;
         }
         case STEP_APPLY: {
@@ -430,134 +247,73 @@ public class WcWeb {
             response.content    = json_prepay.toString();
             break;
         }
-        case STEP_SUCCESS: {
-            response.type       = FjHttpRequest.CT_HTML;
-            response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "充值成功", "现在可以到“我的账户”中查看账户余额，感谢您的支持", null, null);
-            break;
-        }
         }
     }
     
     private static void processApplyPlatformAccountMoney_Refund(WcwResponse response, WcwRequest request) {
-        BeanPlatformAccount puser       = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(request.user));
-        List<BeanChannelAccount> users  = CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_ALIPAY);
-        if (users.isEmpty()) request.step = STEP_PREPARE;
+        String error = checkRefund(request.user);
+        if (null != error) {
+            fetchFile(response, "/message_warn.html", "退款失败", error, "");
+            return;
+        }
         
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/update_channel_account.html");
-            response.content = String.format(response.content,
-                    CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT,
-                    request.user,
-                    CommonService.CHANNEL_ALIPAY,
-                    true,   // merge
-                    generateUrl(request.server, URL_KEY + "/pay/refund", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user));
+            fetchFile(response, "/apply_platform_account_money_refund.html", request.user);
             break;
         }
         case STEP_SETUP: {
-            String error = null;
-            if (null != (error = checkRefund(response, puser))) {
-                response.type       = FjHttpRequest.CT_HTML;
-                response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_WARN, "退款失败", error, null, null);
-                break;
-            }
-            
-            BeanChannelAccount user_alipay = users.get(0);
-            fetchFile(response, "/apply_platform_account_money_refund.html");
-            response.content = String.format(response.content,
-                    CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY,
-                    request.user,
-                    user_alipay.c_user,
-                    user_alipay.c_name,
-                    puser.i_cash);
+            BeanChannelAccount user_alipay = CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_ALIPAY).get(0);
+            JSONObject desc = new JSONObject();
+            desc.put("user", user_alipay.c_user);
+            desc.put("name", user_alipay.c_name);
+            desc.put("money", CommonService.prestatementByCaid(request.user)[0]);
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
             break;
         }
         case STEP_APPLY: {
-            String error = null;
-            if (null != (error = checkRefund(response, puser))) {
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = String.format("{\"code\":-1,\"desc\":\"%s\"}", error);
-                break;
-            }
+            float money = CommonService.prestatementByCaid(request.user)[0];
+            JSONObject args = new JSONObject();
+            args.put("caid",    request.user);
+            args.put("money",   -money);
+            FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
             
-            String _user    = request.args.getString("_user");
-            String _name    = request.args.getString("_name");
-            float  _money   = Float.valueOf(request.args.getString("_money"));
-            {   // 扣款
-                JSONObject args = new JSONObject();
-                args.put("paid",    puser.i_paid);
-                args.put("remark",  "【自动退款】");
-                args.put("type",    CommonService.MONEY_CASH);
-                args.put("money",   -_money);
-                FjDscpMessage msg = new FjDscpMessage();
-                msg.json().put("fs",   request.server);
-                msg.json().put("ts",   "cdb");
-                msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY);
-                msg.json().put("args", args);
-                FjServerToolkit.getAnySender().send(msg);
-                CommonService.updatePlatformAccountMoney();
-            }
-            {   // 提工单
-                JSONObject args = new JSONObject();
-                args.put("caid",    request.user);
-                args.put("type",    CommonService.TICKET_TYPE_REFUND);
-                args.put("title",   "【自动】【退款】");
-                args.put("content", String.format("支付宝账号: %s | 真实姓名: %s | 退款金额: %.2f 元 | 退款备注: %s",
-                        _user,
-                        _name,
-                        _money,
-                        "VC电玩游戏退款"));
-                FjDscpMessage msg = new FjDscpMessage();
-                msg.json().put("fs",   request.server);
-                msg.json().put("ts",   "cdb");
-                msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET);
-                msg.json().put("args", args);
-                FjServerToolkit.getAnySender().send(msg);
-                logger.error("user pay refund: " + args);
-            }
-            {   // 反馈
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = String.format("{\"code\":0,\"desc\":\"%s\"}", generateUrl(request.server, URL_KEY + "/pay/refund", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user) + "&step=success");
-            }
+            response.type = FjHttpRequest.CT_JSON;
+            response.content = rsp.args().toString();
             break;
         }
-        case STEP_SUCCESS:
-            response.type       = FjHttpRequest.CT_HTML;
-            response.content    = WechatForm.createFormMessage(WechatForm.MESSAGE_SUCCESS, "退款成功", null, null, null);
         }
     }
     
-    private static String checkRefund(WcwResponse response, BeanPlatformAccount puser) {
-        if (0 == CommonService.getChannelAccountByPaid(puser.i_paid)
-                .stream()
-                .filter(user->user.i_channel == CommonService.CHANNEL_ALIPAY)
-                .count()) { // 检查账户
-            return "尚未关联支付宝账户，无法退款";
+    private static String checkRefund(int user) {
+        // 检查账户
+        if (CommonService.getChannelAccountRelatedByCaidNChannel(user, CommonService.CHANNEL_ALIPAY).isEmpty()) {
+            return "尚未关联支付宝账户，无法退款。请先添加关联的支付宝账户";
         }
+        float[] prestatement = CommonService.prestatementByCaid(user);
         // 检查余额
-        if (0.00f == puser.i_cash) {
+        if (0.00f == prestatement[0]) {
             return "您的账户里没有可退现金";
         }
+        if (0.00f > prestatement[0]) {
+            return "您的账户当前处于欠费状态";
+        }
         // 检查订单
-        if (0 < CommonService.getChannelAccountByPaid(puser.i_paid)
+        if (0 < CommonService.getOrderByCaid(user)
                 .stream()
-                .map(user->
-                    CommonService.getOrderByCaid(user.i_caid)
-                        .stream()
-                        .map(o->o.commodities.values()
-                                .stream()
-                                .filter(c->!c.isClose())
-                                .count())
-                        .collect(Collectors.summingLong(l->l))
-                        .intValue())
-                .collect(Collectors.summingLong(l->l))
-                .intValue()) {
+                .filter(o->!o.isClose())
+                .count()) {
             return "您的账户里仍有未关闭的订单";
         }
         return null;
     }
     
     private static Set<String> cache_trade = new HashSet<String>();
+
     /**
      * <xml>
      * <appid><![CDATA[wx9c65a26e4f512fd4]]></appid>
@@ -591,10 +347,10 @@ public class WcWeb {
             args.put(node.getNodeName(), node.getFirstChild().getNodeValue());
         }
 
-        logger.error("user pay recharge: " + args);
-        
         if (!cache_trade.contains(args.getString("out_trade_no"))) {
+            logger.error("user pay recharge: " + args);
             cache_trade.add(args.getString("out_trade_no"));
+            
             BeanChannelAccount user = CommonService.getChannelAccountByUser(args.getString("openid")).get(0);
             float money = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
@@ -612,46 +368,296 @@ public class WcWeb {
         response.content    = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
     }
     
-    private static void fetchFile(WcwResponse response, String url) {
-        File file = new File(ROOT + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
-        if (!file.isFile()) {
-            logger.warn("not such file to fetch: " + file.getPath());
-            response.type   = FjHttpRequest.CT_TEXT;
-            return;
+    private static void processQueryGame(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            if (!request.args.has("gid")) fetchFile(response, "/query_game.html", request.user);
+            else fetchFile(response, "/query_game_by_gid.html", request.user, Integer.parseInt(request.args.getString("gid"), 16));
+            break;
         }
-        
-        FileInputStream         fis = null;
-        ByteArrayOutputStream   baos = null;
-        try {
-            byte[]  buf = new byte[1024 * 4];
-            int     len = -1;
-            fis     = new FileInputStream(file);
-            baos    = new ByteArrayOutputStream();
-            while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
-            response.type       = getFileMime(file.getName());
-            response.content    = baos.toString("utf-8");
-        } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
-        finally {
-            try {
-                fis.close();
-                baos.close();
-            } catch (IOException e) {e.printStackTrace();}
+        case STEP_SETUP: {
+            if (!request.args.has("gid")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数错误");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+                break;
+            }
+            int      gid  = Integer.parseInt(request.args.getString("gid"), 16);
+            BeanGame game = CommonService.getGameByGid(gid);
+            JSONObject desc = new JSONObject();
+            desc.put("gid",             game.i_gid);
+            desc.put("platform",        game.c_platform);
+            desc.put("country",         game.c_country);
+            desc.put("url_icon",        game.c_url_icon);
+            desc.put("url_poster",      game.c_url_poster);
+            desc.put("url_buy",         game.c_url_buy);
+            desc.put("sale",            game.t_sale);
+            desc.put("name_zh",         game.c_name_zh);
+            desc.put("name_en",         game.c_name_en);
+            desc.put("display_name",    game.getDiaplayName());
+            desc.put("price_a",         CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price);
+            desc.put("price_b",         CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
+            
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
+        case STEP_APPLY: {
+            if (request.args.has("word")) {
+                String word = request.args.getString("word");
+                JSONArray  desc = new JSONArray();
+                CommonService.getGameAll().values()
+                        .stream()
+                        .filter(game->game.getDiaplayName().toLowerCase().contains(word.toLowerCase()))
+                        .forEach(game->{
+                            JSONObject obj = new JSONObject();
+                            obj.put("gid",          game.i_gid);
+                            obj.put("platform",     game.c_platform);
+                            obj.put("country",      game.c_country);
+                            obj.put("url_icon",     game.c_url_icon);
+                            obj.put("url_poster",   game.c_url_poster);
+                            obj.put("url_buy",      game.c_url_buy);
+                            obj.put("sale",         game.t_sale);
+                            obj.put("name_zh",      game.c_name_zh);
+                            obj.put("name_en",      game.c_name_en);
+                            obj.put("display_name", game.getDiaplayName());
+                            desc.add(obj);
+                        });
+                JSONObject args = new JSONObject();
+                args.put("code", 0);
+                args.put("desc", desc);
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+            } else {
+                JSONObject args = new JSONObject();
+                args.put("code", 0);
+                args.put("desc", "{}");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+            }
+            break;
+        }
         }
     }
     
-    private static String getFileMime (String name) {
-        if (!name.contains(".")) return FjHttpRequest.CT_TEXT;
-        
-        String ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
-        switch (ext) {
-        case "html":
-        case "htm":     return FjHttpRequest.CT_HTML;
-        case "js":      return FjHttpRequest.CT_JS;
-        case "css":
-        case "less":    return FjHttpRequest.CT_CSS;
-        case "xml":     return FjHttpRequest.CT_XML;
-        case "json":    return FjHttpRequest.CT_JSON;
-        default:    return FjHttpRequest.CT_TEXT;
+    private static void processQueryOrder(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            fetchFile(response, "/query_order.html", request.user);
+            break;
+        }
+        case STEP_SETUP: {
+            JSONArray desc = new JSONArray();
+            CommonService.getOrderByCaid(request.user).forEach(o->{
+                        o.commodities.values().forEach(c->{
+                            JSONObject obj = new JSONObject();
+                            obj.put("oid",      c.i_oid);
+                            obj.put("csn",      c.i_csn);
+                            obj.put("count",    c.i_count);
+                            obj.put("price",    c.i_price);
+                            obj.put("begin",    c.t_begin);
+                            obj.put("end",      c.t_end);
+                            obj.put("expense",  c.i_expense);
+                            obj.put("remark",   c.c_remark);
+                            obj.put("arg0",     c.c_arg0);
+                            obj.put("arg1",     c.c_arg1);
+                            obj.put("arg2",     c.c_arg2);
+                            obj.put("arg3",     c.c_arg3);
+                            obj.put("arg4",     c.c_arg4);
+                            obj.put("arg5",     c.c_arg5);
+                            obj.put("arg6",     c.c_arg6);
+                            obj.put("arg7",     c.c_arg7);
+                            obj.put("arg8",     c.c_arg8);
+                            obj.put("arg9",     c.c_arg9);
+                            
+                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+                            obj.put("account",  account.c_user);
+                            obj.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
+                            obj.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
+                            // 预结算
+                            if (!c.isClose()) {
+                                obj.put("expense", CommonService.prestatementByCommodity(c));
+                                obj.put("pass", account.c_pass_curr);
+                            }
+                            
+                            desc.add(obj);
+                        });
+                    });
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
+        }
+    }
+    
+    private static void processQueryPlatformAccountMap(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            fetchFile(response, "/query_platform_account_map.html", request.user);
+            break;
+        }
+        case STEP_SETUP: {
+            JSONObject args = new JSONObject();
+            JSONArray desc = new JSONArray();
+            CommonService.getChannelAccountRelatedAll(request.user).forEach(user->{
+                JSONObject obj = new JSONObject();
+                obj.put("caid",     user.i_caid);
+                obj.put("channel",  user.i_channel);
+                obj.put("user",     user.c_user);
+                obj.put("name",     user.c_name);
+                obj.put("phone",    user.c_phone);
+                obj.put("gender",   user.i_gender);
+                obj.put("birth",    user.t_birth);
+                obj.put("address",  user.c_address);
+                obj.put("zipcode",  user.c_zipcode);
+                obj.put("create",   user.t_create);
+                desc.add(obj);
+            });
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
+        }
+    }
+    
+    private static void processQueryPlatformAccountMoney(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            fetchFile(response, "/query_platform_account_money.html", request.user);
+            break;
+        }
+        case STEP_SETUP: {
+            BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(request.user));
+            JSONObject desc = new JSONObject();
+            desc.put("cash", puser.i_cash);
+            desc.put("coupon", puser.i_coupon);
+            float[] prestatement = CommonService.prestatementByPaid(puser.i_paid);
+            desc.put("cash_rt", prestatement[0]);
+            desc.put("coupon_rt", prestatement[1]);
+            
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
+        }
+    }
+    
+    private static void processUpdateChannelAccount(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            fetchFile(response, "/update_channel_account.html",
+                    request.user,
+                    request.args.has("caid") ? String.valueOf(Integer.parseInt(request.args.getString("caid"), 16)) : "null",
+                    request.args.has("channel") ? String.valueOf(Integer.parseInt(request.args.getString("channel"), 16)) : "null");
+            break;
+        }
+        case STEP_SETUP: {
+            int caid = Integer.parseInt(request.args.getString("caid"), 16);
+            BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
+            JSONObject desc = new JSONObject();
+            desc.put("caid",     user.i_caid);
+            desc.put("channel",  user.i_channel);
+            desc.put("user",     user.c_user);
+            desc.put("name",     user.c_name);
+            desc.put("phone",    user.c_phone);
+            desc.put("gender",   user.i_gender);
+            desc.put("birth",    user.t_birth);
+            desc.put("address",  user.c_address);
+            desc.put("zipcode",  user.c_zipcode);
+            desc.put("create",   user.t_create);
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            args.put("desc", desc);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
+        case STEP_APPLY: {
+            if (!request.args.has("channel") || !request.args.has("_user") || !request.args.has("name")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数不完整");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+                break;
+            }
+            int     caid    = request.args.has("caid") ? Integer.parseInt(request.args.getString("caid"), 16) : -1;
+            int     channel = request.args.getInt("channel");
+            String  user    = request.args.getString("_user");
+            String  name    = request.args.getString("name");
+            // 更新已有用户
+            if (-1 != caid) {
+                // 未找到已有用户
+                if (null == CommonService.getChannelAccountByCaid(caid)) {
+                    JSONObject args = new JSONObject();
+                    args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                    args.put("desc", "用户不存在");
+                    response.type       = FjHttpRequest.CT_JSON;
+                    response.content    = args.toString();
+                    break;
+                }
+            }
+            // 新创建用户但已有重复渠道用户
+            if (-1 == caid && !CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "已经关联了" + getChannelDesc(channel) + "用户，不能再重复关联");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+                break;
+            }
+            {   // 创建用户
+                JSONObject args_cdb = new JSONObject();
+                if (-1 != caid) args_cdb.put("caid", caid);
+                args_cdb.put("channel", channel);
+                args_cdb.put("user",    user);
+                args_cdb.put("name",    name);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+                
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    response.type       = FjHttpRequest.CT_JSON;
+                    response.content    = rsp.args().toString();
+                    break;
+                }
+                caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            }
+            // 合并用户
+            if (CommonService.getPlatformAccountByCaid(caid) != CommonService.getPlatformAccountByCaid(request.user)) {
+                CommonService.updateChannelAccount();
+                CommonService.updatePlatformAccount();
+                CommonService.updatePlatformAccountMap();
+                
+                int paid = CommonService.getPlatformAccountByCaid(caid);
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(request.user));
+                args_cdb.put("paid_from",   paid);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
+                
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    response.type       = FjHttpRequest.CT_JSON;
+                    response.content    = rsp.args().toString();
+                    break;
+                }
+            }
+            JSONObject args = new JSONObject();
+            args.put("code", 0);
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            break;
+        }
         }
     }
     
@@ -666,26 +672,30 @@ public class WcWeb {
         return json;
     }
     
-    private static String getChannelDesc(int channel) {
-        switch (channel) {
-        case CommonService.CHANNEL_TAOBAO: return "淘宝";
-        case CommonService.CHANNEL_WECHAT: return "微信";
-        case CommonService.CHANNEL_ALIPAY: return "支付宝";
-        default: return "未  知";
+    private WcWeb() {}
+    
+    private static class WcwRequest {
+        public String           server = null;
+        public int              inst = -1;
+        public int              user = -1;
+        public String           url  = null;
+        public String           step = null;
+        public JSONObject       args = null;
+        public SocketChannel    conn = null;
+        
+        public WcwRequest(String server, String url, JSONObject args, SocketChannel conn) {
+            this.server = server;
+            if (args.has("inst")) this.inst = Integer.parseInt(args.getString("inst"), 16);
+            if (args.has("user")) this.user = Integer.parseInt(args.getString("user"), 16);
+            this.url  = url;
+            this.step = args.has("step") ? args.getString("step") : STEP_PREPARE;
+            this.args = args;
+            this.conn = conn;
         }
     }
     
-    private static class WcwRequest {
-        public String           server;
-        public int              inst;
-        public int              user;
-        public String           step;
-        public JSONObject       args;
-        public SocketChannel    conn;
-    }
-    
     private static class WcwResponse {
-        public String type;
-        public String content;
+        public String type = FjHttpRequest.CT_TEXT;
+        public String content = null;
     }
 }

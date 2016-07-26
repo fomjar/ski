@@ -19,7 +19,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.ski.common.CommonDefinition;
-import com.ski.wca.monitor.TokenMonitor;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -59,33 +58,6 @@ public class WechatInterface {
         }
 
         public WechatInterfaceException(Throwable cause) {
-            super(cause);
-        }
-        
-    }
-    
-    public static class WechatPermissionDeniedException extends WechatInterfaceException {
-
-        private static final long serialVersionUID = 6641226267444874372L;
-
-        public WechatPermissionDeniedException() {
-            super();
-        }
-
-        public WechatPermissionDeniedException(String message, Throwable cause,
-                boolean enableSuppression, boolean writableStackTrace) {
-            super(message, cause, enableSuppression, writableStackTrace);
-        }
-
-        public WechatPermissionDeniedException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public WechatPermissionDeniedException(String message) {
-            super(message);
-        }
-
-        public WechatPermissionDeniedException(Throwable cause) {
             super(cause);
         }
         
@@ -131,12 +103,8 @@ public class WechatInterface {
         return host;
     }
     
-    private static void checkWechatPermission() throws WechatPermissionDeniedException {
-        if (null == TokenMonitor.getInstance().token()) throw new WechatPermissionDeniedException("havn't got access token yet");
-    }
-    
-    private static void checkWechatCustomService() throws WechatPermissionDeniedException, WechatCustomServiceException {
-        FjJsonMessage rsp = customserviceGet();
+    private static void checkWechatCustomService(String token) throws WechatCustomServiceException {
+        FjJsonMessage rsp = customserviceGet(token);
         if (!rsp.json().containsKey("kf_list")) logger.warn("custom service maybe unavailable");
         else if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
     }
@@ -164,45 +132,38 @@ public class WechatInterface {
         return sendRequest("GET", url);
     }
     
-    public static FjJsonMessage ticket() throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage ticket(String token) {
+        String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), token);
         return sendRequest("GET", url);
     }
     
-    public static FjJsonMessage menuCreate(String menu) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage menuCreate(String token, String menu) {
+        String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), token);
         return sendRequest("POST", url, menu);
     }
     
-    public static FjJsonMessage menuDelete() throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage menuDelete(String token) {
+        String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), token);
         return sendRequest("GET", url);
     }
     
-    public static FjJsonMessage customserviceAdd(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage customserviceAdd(String token, String kfaccount) {
+        String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), token);
         return sendRequest("POST", url, kfaccount);
     }
     
-    public static FjJsonMessage customserviceUpdate(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage customserviceUpdate(String token, String kfaccount) {
+        String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), token);
         return sendRequest("POST", url, kfaccount);
     }
     
-    public static FjJsonMessage customserviceDel(String kfaccount) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage customserviceDel(String token, String kfaccount) {
+        String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), token);
         return sendRequest("GET", url, kfaccount);
     }
     
-    public static FjJsonMessage customserviceGet() throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjJsonMessage customserviceGet(String token) {
+        String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), token);
         return sendRequest("GET", url);
     }
     
@@ -328,11 +289,10 @@ public class WechatInterface {
         return req;
     }
     
-    public static FjJsonMessage messageCustomSendText(String user, String content) throws WechatPermissionDeniedException, WechatCustomServiceException {
-        checkWechatPermission();
-        checkWechatCustomService();
+    public static FjJsonMessage messageCustomSendText(String token, String user, String content) throws WechatCustomServiceException {
+        checkWechatCustomService(token);
         
-        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), TokenMonitor.getInstance().token());
+        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), token);
         
         JSONObject text = new JSONObject();
         text.put("content", content);
@@ -343,11 +303,10 @@ public class WechatInterface {
         return sendRequest("POST", url, msg.toString());
     }
     
-    public static FjJsonMessage messageCustomSendNews(String user, Article... article) throws WechatPermissionDeniedException, WechatCustomServiceException {
-        checkWechatPermission();
-        checkWechatCustomService();
+    public static FjJsonMessage messageCustomSendNews(String token, String user, Article... article) throws WechatCustomServiceException {
+        checkWechatCustomService(token);
         
-        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), TokenMonitor.getInstance().token());
+        String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), token);
         
         JSONArray articles = new JSONArray();
         for (Article a : article) articles.add(a.toString());
@@ -366,10 +325,8 @@ public class WechatInterface {
         TEMPLATE_COLOR = String.format("#%x%x%x", color.getRed(), color.getGreen(), color.getBlue());
     }
     
-    public static FjMessage messageTemplateSend(String user, String template, String url, Map<String, String> data) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        
-        String _url = String.format("https://%s/cgi-bin/message/template/send?access_token=%s", host(), TokenMonitor.getInstance().token());
+    public static FjMessage messageTemplateSend(String token, String user, String template, String url, Map<String, String> data) {
+        String _url = String.format("https://%s/cgi-bin/message/template/send?access_token=%s", host(), token);
         
         JSONObject datas = new JSONObject();
         data.entrySet().forEach(entry->{
@@ -388,10 +345,13 @@ public class WechatInterface {
         return sendRequest("POST", _url, msg.toString());
     }
     
-    public static FjJsonMessage userInfo(String user) throws WechatPermissionDeniedException {
-        checkWechatPermission();
-        
-        String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), TokenMonitor.getInstance().token(), user);
+    public static FjJsonMessage userInfo(String token, String user) {
+        String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), token, user);
+        return sendRequest("GET", url);
+    }
+    
+    public static FjJsonMessage snsOauth2(String appid, String secret, String code) {
+        String url = String.format("https://%s/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", host(), appid, secret, code);
         return sendRequest("GET", url);
     }
     
@@ -454,6 +414,44 @@ public class WechatInterface {
     public static final String TRADE_TYPE_NATIVE    = "NATIVE"; // 原生扫码
     public static final String TRADE_TYPE_APP       = "APP";    // APP
     
+    /**
+     * request:
+     * <xml>
+     * <appid>wx2421b1c4370ec43b</appid>
+     * <attach>支付测试</attach>
+     * <body>JSAPI支付测试</body>
+     * <mch_id>10000100</mch_id>
+     * <detail><![CDATA[{ "goods_detail":[ { "goods_id":"iphone6s_16G", "wxpay_goods_id":"1001", "goods_name":"iPhone6s 16G", "quantity":1, "price":528800, "goods_category":"123456", "body":"苹果手机" }, { "goods_id":"iphone6s_32G", "wxpay_goods_id":"1002", "goods_name":"iPhone6s 32G", "quantity":1, "price":608800, "goods_category":"123789", "body":"苹果手机" } ] }]]></detail>
+     * <nonce_str>1add1a30ac87aa2db72f57a2375d8fec</nonce_str>
+     * <notify_url>http://wxpay.weixin.qq.com/pub_v2/pay/notify.v2.php</notify_url>
+     * <openid>oUpF8uMuAJO_M2pxb1Q9zNjWeS6o</openid>
+     * <out_trade_no>1415659990</out_trade_no>
+     * <spbill_create_ip>14.23.150.211</spbill_create_ip>
+     * <total_fee>1</total_fee><trade_type>JSAPI</trade_type>
+     * <sign>0CB01533B8C1EF103065174F50BCA001</sign>
+     * </xml> 
+     * 
+     * response:
+     * <xml>
+     * <return_code><![CDATA[SUCCESS]]></return_code>
+     * <return_msg><![CDATA[OK]]></return_msg>
+     * <appid><![CDATA[wx2421b1c4370ec43b]]></appid>
+     * <mch_id><![CDATA[10000100]]></mch_id>
+     * <nonce_str><![CDATA[IITRi8Iabbblz1Jc]]></nonce_str>
+     * <sign><![CDATA[7921E432F65EB8ED0CE9755F0E86D72F]]></sign>
+     * <result_code><![CDATA[SUCCESS]]></result_code>
+     * <prepay_id><![CDATA[wx201411101639507cbf6ffd8b0779950874]]></prepay_id>
+     * <trade_type><![CDATA[JSAPI]]></trade_type>
+     * </xml> 
+     * 
+     * @param body
+     * @param attach
+     * @param money
+     * @param host
+     * @param notify_url
+     * @param user
+     * @return
+     */
     public static FjXmlMessage prepay(String body, String attach, int money, String host, String notify_url, String user) {
         String url = "https://api.mch.weixin.qq.com/pay/unifiedorder";
         String msg_pay = String.format(MSG_PAY,
@@ -478,10 +476,10 @@ public class WechatInterface {
         return rsp;
     }
     
-    public static String createSignature4Config(String nonceStr, long timestamp, String url) {
+    public static String createSignature4Config(String nonceStr, String ticket, long timestamp, String url) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("nonceStr",     nonceStr);
-        map.put("jsapi_ticket", TokenMonitor.getInstance().ticket());
+        map.put("jsapi_ticket", ticket);
         map.put("timestamp",    String.valueOf(timestamp));
         map.put("url",          url);
         List<String> keys = new LinkedList<String>(map.keySet());
