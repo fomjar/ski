@@ -62,6 +62,7 @@ public class WcWeb {
             }
             if (!args.has("user")) {
                 if (!args.has("code")) {
+                    logger.error("illegal request, no user or code param: " + args);
                     break;
                 }
                 String code = args.getString("code");
