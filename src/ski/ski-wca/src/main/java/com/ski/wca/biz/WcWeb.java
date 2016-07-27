@@ -44,6 +44,7 @@ public class WcWeb {
     private static final String STEP_PREPARE    = "prepare";
     private static final String STEP_SETUP      = "setup";
     private static final String STEP_APPLY      = "apply";
+    private static final String STEP_SUCCESS    = "success";
     
     public static void dispatch(String server, FjHttpRequest req, SocketChannel conn) {
         logger.info("user request url: " + req.url());
@@ -272,7 +273,7 @@ public class WcWeb {
             desc.put("name", user_alipay.c_name);
             desc.put("money", CommonService.prestatementByCaid(request.user)[0]);
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -403,7 +404,25 @@ public class WcWeb {
             args.put("caid",        request.user);
             args.put("gid",         gid);
             args.put("type",        type);
-//            CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args);
+            FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonService.getResponseCode(rsp));
+                args_rsp.put("desc", CommonService.getResponseDesc(rsp));
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args_rsp.toString();
+                break;
+            }
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, request.user) + "&step=success");
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args_rsp.toString();
+            break;
+        }
+        case STEP_SUCCESS: {
+            fetchFile(response, "/message_success.html", "起租成功", "", "");
+            break;
         }
         }
     }
@@ -441,7 +460,7 @@ public class WcWeb {
             desc.put("price_b",         CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
             
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -469,13 +488,13 @@ public class WcWeb {
                             desc.add(obj);
                         });
                 JSONObject args = new JSONObject();
-                args.put("code", 0);
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args.put("desc", desc);
                 response.type       = FjHttpRequest.CT_JSON;
                 response.content    = args.toString();
             } else {
                 JSONObject args = new JSONObject();
-                args.put("code", 0);
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args.put("desc", "{}");
                 response.type       = FjHttpRequest.CT_JSON;
                 response.content    = args.toString();
@@ -529,7 +548,7 @@ public class WcWeb {
                         });
                     });
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -561,7 +580,7 @@ public class WcWeb {
                 obj.put("create",   user.t_create);
                 desc.add(obj);
             });
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -586,7 +605,7 @@ public class WcWeb {
             desc.put("coupon_rt", prestatement[1]);
             
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -619,7 +638,7 @@ public class WcWeb {
             desc.put("zipcode",  user.c_zipcode);
             desc.put("create",   user.t_create);
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
@@ -692,7 +711,7 @@ public class WcWeb {
                 }
             }
             JSONObject args = new JSONObject();
-            args.put("code", 0);
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = args.toString();
             break;

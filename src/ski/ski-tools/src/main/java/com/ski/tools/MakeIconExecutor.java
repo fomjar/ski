@@ -42,7 +42,7 @@ public class MakeIconExecutor implements ToolExecutor {
             try {
                 ImageIO.write(buffer, "png", new File(String.format("%s/output/%s.png", dir, name)));
                 System.out.println(" done!");
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.out.println(" fail!");
                 e.printStackTrace();
             }
