@@ -1,5 +1,8 @@
 package com.ski.wca.monitor;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import org.apache.log4j.Logger;
 
 import com.ski.wca.WechatInterface;
@@ -7,6 +10,8 @@ import com.ski.wca.WechatInterface;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjJsonMessage;
 import fomjar.util.FjLoopTask;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class MenuMonitor extends FjLoopTask {
     
@@ -29,15 +34,37 @@ public class MenuMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         
-        boolean menu_switch = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload-switch"));
-        if (!menu_switch) return;
+        boolean swich = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.menu.reload-switch"));
+        if (!swich) return;
         
-        String  menu_content = FjServerToolkit.getServerConfig("wca.menu.content");
-        FjJsonMessage rsp = null;
-        if (null == menu_content || 0 == menu_content.length()) rsp = WechatInterface.menuDelete(TokenMonitor.getInstance().token());
-        else rsp = WechatInterface.menuCreate(TokenMonitor.getInstance().token(), menu_content);
+        JSONObject menu = JSONObject.fromObject(FjServerToolkit.getServerConfig("wca.menu.content"));
+        replaceMenuUrl(menu);
+        
+        FjJsonMessage rsp = WechatInterface.menuCreate(TokenMonitor.getInstance().token(), menu.toString());
         if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
         else logger.error("menu update failed: " + rsp);
     }
-
+    
+    @SuppressWarnings("unchecked")
+    private static void replaceMenuUrl(Object menu) {
+        if (menu instanceof JSONObject) {
+            JSONObject json = (JSONObject) menu;
+            if (json.has("url")) {
+                Object url = json.get("url");
+                if (url instanceof String) {
+                    try {
+                        json.put("url", String.format("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base#wechat_redirect",
+                                FjServerToolkit.getServerConfig("wca.appid"),
+                                URLEncoder.encode(url.toString(), "utf-8")));
+                    } catch (UnsupportedEncodingException e) {logger.error("replace menu url failed: " + url, e);}
+                }
+            } else {
+                json.values().forEach(v->replaceMenuUrl(v));
+            }
+        } else if (menu instanceof JSONArray) {
+            JSONArray json = (JSONArray) menu;
+            json.forEach(o->replaceMenuUrl(o));
+        }
+    }
+    
 }

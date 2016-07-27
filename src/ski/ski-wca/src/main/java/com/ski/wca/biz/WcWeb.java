@@ -62,7 +62,6 @@ public class WcWeb {
             }
             if (!args.has("user")) {
                 if (!args.has("code")) {
-                    fetchFile(response, "/authorize.html", FjServerToolkit.getServerConfig("wca.appid"));
                     break;
                 }
                 String code = args.getString("code");
@@ -634,12 +633,11 @@ public class WcWeb {
                 }
                 caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             }
+            CommonService.updateChannelAccount();
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
             // 合并用户
             if (CommonService.getPlatformAccountByCaid(caid) != CommonService.getPlatformAccountByCaid(request.user)) {
-                CommonService.updateChannelAccount();
-                CommonService.updatePlatformAccount();
-                CommonService.updatePlatformAccountMap();
-                
                 int paid = CommonService.getPlatformAccountByCaid(caid);
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(request.user));
