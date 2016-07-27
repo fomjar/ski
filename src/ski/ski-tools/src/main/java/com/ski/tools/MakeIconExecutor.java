@@ -21,39 +21,64 @@ public class MakeIconExecutor implements ToolExecutor {
         int height  = Integer.parseInt(args[1]);
         String dir  = args.length > 2 ? args[2] : ".";
         
-        Map<Integer, Image> library = loadLibrary(dir);
-        for (File file : new File(dir + "/input").listFiles()) {
-            System.out.print(String.format("combining %-40s", file.getName().substring(file.getName().indexOf(".") + 1)));
-            Map<Integer, Image> library1 = new HashMap<Integer, Image>(library);
+        Map<Integer, Image> template = loadTemplate(dir);
+        Map<String, Map<Integer, Image>> inputs = loadInput(dir);
+        inputs.entrySet().forEach(input->{
+            String  name = input.getKey();
+            System.out.print(String.format("combining [%-40s]", name));
+            
+            Map<Integer, Image> combine = new HashMap<Integer, Image>(template);
+            combine.putAll(input.getValue());
+            
+            List<Integer> keys = new LinkedList<Integer>(combine.keySet());
+            Collections.sort(keys);
+            
+            BufferedImage buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = buffer.getGraphics();
+            keys.forEach(key->{
+                Image image = combine.get(key);
+                g.drawImage(image, 0, 0, null);
+            });
             try {
-                library1.put(Integer.parseInt(file.getName().split("\\.")[0]), ImageIO.read(file));
-                List<Integer> keys = new LinkedList<Integer>(library1.keySet());
-                Collections.sort(keys);
-                
-                BufferedImage buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                Graphics g = buffer.getGraphics();
-                keys.forEach(key->{
-                    Image image = library1.get(key);
-                    g.drawImage(image, 0, 0, null);
-                });
-                ImageIO.write(buffer, "png", new File(dir + "/output/" + file.getName().substring(file.getName().indexOf(".") + 1)));
+                ImageIO.write(buffer, "png", new File(String.format("%s/output/%s.png", dir, name)));
                 System.out.println(" done!");
-            } catch (NumberFormatException | IOException e) {
+            } catch (Exception e) {
                 System.out.println(" fail!");
                 e.printStackTrace();
             }
-        }
+        });
     }
     
-    private static Map<Integer, Image> loadLibrary(String dir) {
-        Map<Integer, Image> library = new HashMap<Integer, Image>();
-        for (File file : new File(dir + "/library").listFiles()) {
+    private static Map<Integer, Image> loadTemplate(String dir) {
+        Map<Integer, Image> template = new HashMap<Integer, Image>();
+        for (File file : new File(dir + "/template").listFiles()) {
+            if (file.getName().startsWith(".")) continue;
+            
             try {
-                Image image = ImageIO.read(file);
-                library.put(Integer.parseInt(file.getName().split("\\.")[0]), image);
+                Image   image = ImageIO.read(file);
+                int     index = Integer.parseInt(file.getName().split("\\.")[0]);
+                template.put(index, image);
             } catch (IOException e) {e.printStackTrace();}
         }
-        return library;
+        return template;
+    }
+    
+    private static Map<String, Map<Integer, Image>> loadInput(String dir) {
+        Map<String, Map<Integer, Image>> input = new HashMap<String, Map<Integer, Image>>();
+        for (File file : new File(dir + "/input").listFiles()) {
+            if (file.getName().startsWith(".")) continue;
+            
+            try {
+                Image   image   = ImageIO.read(file);
+                String  name    = file.getName().split("\\.")[0];
+                int     index   = Integer.parseInt(file.getName().split("\\.")[1]);
+                
+                if (!input.containsKey(name))
+                    input.put(name, new HashMap<Integer, Image>());
+                input.get(name).put(index, image);
+            } catch (IOException e) {e.printStackTrace();}
+        }
+        return input;
     }
     
 }

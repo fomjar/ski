@@ -556,18 +556,16 @@ public class UIToolkit {
                             return;
                         }
                     }
-                    switch (commodity.c_arg1) {
-                    case "A":
+                    if ((CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
+                            && CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))
+                            || (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
+                                    && CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))) {
                         if (rsp.toString().contains(" binded")) {
-                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "退租A类账号要求解绑，但此账号当前尚未解绑，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号AB类仅租了一种，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                                 ssd.dispose();
                                 return;
                             }
                         }
-                        break;
-                    case "B":
-                        ssd.appendText("退租B类账号没有绑定要求");
-                        break;
                     }
                     ssd.appendText("验证通过");
                 }

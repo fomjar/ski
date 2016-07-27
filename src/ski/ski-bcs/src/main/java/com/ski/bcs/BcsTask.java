@@ -179,16 +179,14 @@ public class BcsTask implements FjServerTask {
                 return;
             }
             
-            switch (c.c_arg1) {
-            case "A":
+            if ((CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
+                    && CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))
+                    || (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
+                            && CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))) {
                 if (rsp.toString().contains(" binded")) {
                     response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "please unbind before rent end");
                     return;
                 }
-                break;
-            case "B":
-                // do nothing
-                break;
             }
         }
         // change password

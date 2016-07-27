@@ -33,11 +33,16 @@
 
                             var cells = document.createElement('div');
                             cells.className = 'weui_cells';
-                            cells.innerHTML = "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>"
-                                            + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>名称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
 
                             if (1 != account.channel) {
-                                var cell_access = document.createElement('div');
+                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
+                            }
+
+                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>名称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
+
+                            var cell_access;
+                            if (1 != account.channel) {
+                                cell_access = document.createElement('div');
                                 cell_access.className = 'weui_cells weui_cells_access';
                                 var update = url_update + '&caid=' + account.caid.toString(16) + '&channel=' + account.channel.toString(16);
                                 cell_access.innerHTML = "<a class='weui_cell' href='" + update + "'><div class='weui_cell_bd weui_cell_primary'><p>修改</p></div><div class='weui_cell_ft'></div></a>";

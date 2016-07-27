@@ -76,23 +76,26 @@ public class WcWeb {
             }
             WcwRequest request = new WcwRequest(server, url, args, conn);
             switch (request.inst) {
-            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
-                processQueryPlatformAccountMap(response, request);
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
+                processApplyPlatformAccountMoney(response, request);
                 break;
-            case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
-                processUpdateChannelAccount(response, request);
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN:
+                processApplyRentBegin(response, request);
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
+                processQueryGame(response, request);
                 break;
             case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
                 processQueryOrder(response, request);
                 break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
+                processQueryPlatformAccountMap(response, request);
+                break;
             case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY:
                 processQueryPlatformAccountMoney(response, request);
                 break;
-            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
-                processApplyPlatformAccountMoney(response, request);
-                break;
-            case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
-                processQueryGame(response, request);
+            case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
+                processUpdateChannelAccount(response, request);
                 break;
             }
             break;
@@ -366,6 +369,43 @@ public class WcWeb {
         
         response.type       = FjHttpRequest.CT_XML;
         response.content    = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+    }
+    
+    private static void processApplyRentBegin(WcwResponse response, WcwRequest request) {
+        switch (request.step) {
+        case STEP_PREPARE: {
+            if (!request.args.has("gid")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数错误");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+                break;
+            }
+            int gid = Integer.parseInt(request.args.getString("gid"), 16);
+            fetchFile(response, "/apply_rent_begin.html", request.user, gid);
+            break;
+        }
+//        case STEP_SETUP: break;
+        case STEP_APPLY: {
+            if (!request.args.has("gid") || !request.args.has("type")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数错误");
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args.toString();
+                break;
+            }
+            int gid     = Integer.parseInt(request.args.getString("gid"), 16);
+            int type    = Integer.parseInt(request.args.getString("type"), 16);
+            JSONObject args = new JSONObject();
+            args.put("platform",    CommonService.CHANNEL_WECHAT);
+            args.put("caid",        request.user);
+            args.put("gid",         gid);
+            args.put("type",        type);
+//            CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args);
+        }
+        }
     }
     
     private static void processQueryGame(WcwResponse response, WcwRequest request) {
