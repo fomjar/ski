@@ -299,6 +299,19 @@ public class CommonService {
         }
     }
     
+    public static List<BeanGame> getGameByTag(String tag) {
+    	synchronized (cache_game) {
+    		return cache_game.values()
+    				.stream()
+    				.filter(game->0 < getTagByInstance(TAG_GAME, game.i_gid)
+    							.stream()
+    							.filter(t->t.c_tag.toLowerCase().contains(tag.toLowerCase()))
+    							.count())
+    				.collect(Collectors.toList());
+    							
+    	}
+    }
+    
     /**
      * 
      * @param gaid

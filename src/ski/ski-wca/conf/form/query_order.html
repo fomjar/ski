@@ -12,6 +12,7 @@
         <script type='text/javascript'>
             var user = %d;
             var url_setup = '/ski-wcweb?inst=2006&user=' + user.toString(16) + '&step=setup';
+            var url_rent_end = '/ski-wcweb?inst=2107&user=' + user.toString(16);
 
             $(document).ready(function() {
                 showToast('正在加载');
@@ -33,17 +34,28 @@
                         cells.className = 'weui_cells';
                         cells.innerHTML = "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + commodity.account + "</div></div>"
                                         + (typeof(commodity.pass) != 'undefined' ? "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>密码</p></div><div class='weui_cell_ft'>" + commodity.pass + "</div></div>" : '')
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>类型</p></div><div class='weui_cell_ft'>" + commodity.type + "</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>单价</p></div><div class='weui_cell_ft'>" + commodity.price + "元/天</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>起租</p></div><div class='weui_cell_ft'>" + commodity.begin + "</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>退租</p></div><div class='weui_cell_ft'>" + ('' == commodity.end ? '尚未退租' : commodity.end) + "</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>总计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>";
+                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁类型</p></div><div class='weui_cell_ft'>" + commodity.type + " (" + commodity.price + "元/天)</div></div>"
+                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>起租时间</p></div><div class='weui_cell_ft'>" + commodity.begin + "</div></div>"
+                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>退租时间</p></div><div class='weui_cell_ft'>" + ('' == commodity.end ? '尚未退租' : commodity.end) + "</div></div>"
+                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>消费总计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>";
+
+                        var rent_end;
+                        if ('' == commodity.end) {
+                            rent_end = document.createElement('div');
+                            rent_end.className = 'weui_btn_area';
+                            rent_end.innerHTML = "<a href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");' class='weui_btn weui_btn_primary'>退租</a>";
+                        }
 
                         $('#result')[0].appendChild(title);
                         $('#result')[0].appendChild(cells);
+                        if ('' == commodity.end) $('#result')[0].appendChild(rent_end);
                     }
                 });
             });
+
+            function rentEnd(oid, csn) {
+               window.location = url_rent_end + '&oid=' + oid.toString(16) + '&csn=' + csn.toString(16); 
+            }
 
             function showToast(text) {
                 $('#toast_text').text(text);

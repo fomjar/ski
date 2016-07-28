@@ -127,7 +127,7 @@ public class BcsTask implements FjServerTask {
             args_cdb.clear();
             args_cdb.put("oid", oid);
 //            args_cdb.put("remark", "");
-            args_cdb.put("price", CommonService.getGameRentPriceByGid(gid, type));
+            args_cdb.put("price", CommonService.getGameRentPriceByGid(gid, type).i_price);
             args_cdb.put("count", 1);
             args_cdb.put("begin", sdf.format(new Date()));
             args_cdb.put("arg0", Integer.toHexString(gaid));

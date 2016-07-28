@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanPlatformAccount;
@@ -83,6 +84,9 @@ public class WcWeb {
             case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN:
                 processApplyRentBegin(response, request);
                 break;
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
+            	processApplyRentEnd(response, request);
+            	break;
             case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
                 processQueryGame(response, request);
                 break;
@@ -427,6 +431,50 @@ public class WcWeb {
         }
     }
     
+    private static void processApplyRentEnd(WcwResponse response, WcwRequest request) {
+        if (!request.args.has("oid") || !request.args.has("csn")) {
+            JSONObject args = new JSONObject();
+            args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args.put("desc", "参数错误");
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args.toString();
+            return;
+        }
+        int oid = Integer.parseInt(request.args.getString("oid"), 16);
+        int csn = Integer.parseInt(request.args.getString("csn"), 16);
+    	switch (request.step) {
+    	case STEP_PREPARE: {
+    		fetchFile(response, "/apply_rent_end.html", request.user, oid, csn);
+    		break;
+    	}
+//    	case STEP_SETUP: break;
+    	case STEP_APPLY: {
+            JSONObject args = new JSONObject();
+            args.put("caid",    request.user);
+            args.put("oid", 	oid);
+            args.put("csn", 	csn);
+            FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, args);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonService.getResponseCode(rsp));
+                args_rsp.put("desc", CommonService.getResponseDesc(rsp));
+                response.type       = FjHttpRequest.CT_JSON;
+                response.content    = args_rsp.toString();
+                break;
+            }
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, request.user) + "&step=success");
+            response.type       = FjHttpRequest.CT_JSON;
+            response.content    = args_rsp.toString();
+    	}
+        case STEP_SUCCESS: {
+            fetchFile(response, "/message_success.html", "退租成功", "", "");
+            break;
+        }
+    	}
+    }
+    
     private static void processQueryGame(WcwResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
@@ -511,47 +559,87 @@ public class WcWeb {
             break;
         }
         case STEP_SETUP: {
-            JSONArray desc = new JSONArray();
-            CommonService.getOrderByCaid(request.user).forEach(o->{
-                        o.commodities.values().forEach(c->{
-                            JSONObject obj = new JSONObject();
-                            obj.put("oid",      c.i_oid);
-                            obj.put("csn",      c.i_csn);
-                            obj.put("count",    c.i_count);
-                            obj.put("price",    c.i_price);
-                            obj.put("begin",    c.t_begin);
-                            obj.put("end",      c.t_end);
-                            obj.put("expense",  c.i_expense);
-                            obj.put("remark",   c.c_remark);
-                            obj.put("arg0",     c.c_arg0);
-                            obj.put("arg1",     c.c_arg1);
-                            obj.put("arg2",     c.c_arg2);
-                            obj.put("arg3",     c.c_arg3);
-                            obj.put("arg4",     c.c_arg4);
-                            obj.put("arg5",     c.c_arg5);
-                            obj.put("arg6",     c.c_arg6);
-                            obj.put("arg7",     c.c_arg7);
-                            obj.put("arg8",     c.c_arg8);
-                            obj.put("arg9",     c.c_arg9);
-                            
-                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                            obj.put("account",  account.c_user);
-                            obj.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
-                            obj.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
-                            // 预结算
-                            if (!c.isClose()) {
-                                obj.put("expense", CommonService.prestatementByCommodity(c));
-                                obj.put("pass", account.c_pass_curr);
-                            }
-                            
-                            desc.add(obj);
-                        });
-                    });
-            JSONObject args = new JSONObject();
-            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+        	if (request.args.has("oid") && request.args.has("csn")) {
+        		int oid = Integer.parseInt(request.args.getString("oid"), 16);
+        		int csn = Integer.parseInt(request.args.getString("csn"), 16);
+        		BeanCommodity c = CommonService.getOrderByOid(oid).commodities.get(csn);
+        		JSONObject desc = new JSONObject();
+        		desc.put("oid",      c.i_oid);
+        		desc.put("csn",      c.i_csn);
+        		desc.put("count",    c.i_count);
+        		desc.put("price",    c.i_price);
+        		desc.put("begin",    c.t_begin);
+        		desc.put("end",      c.t_end);
+        		desc.put("expense",  c.i_expense);
+        		desc.put("remark",   c.c_remark);
+        		desc.put("arg0",     c.c_arg0);
+        		desc.put("arg1",     c.c_arg1);
+        		desc.put("arg2",     c.c_arg2);
+        		desc.put("arg3",     c.c_arg3);
+        		desc.put("arg4",     c.c_arg4);
+        		desc.put("arg5",     c.c_arg5);
+        		desc.put("arg6",     c.c_arg6);
+        		desc.put("arg7",     c.c_arg7);
+        		desc.put("arg8",     c.c_arg8);
+        		desc.put("arg9",     c.c_arg9);
+                
+                BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+                desc.put("account",  account.c_user);
+                desc.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
+                desc.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
+                // 预结算
+                if (!c.isClose()) {
+                	desc.put("expense", CommonService.prestatementByCommodity(c));
+                	desc.put("pass", account.c_pass_curr);
+                }
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.type       = FjHttpRequest.CT_JSON;
+	            response.content    = args.toString();
+        	} else {
+	            JSONArray desc = new JSONArray();
+	            CommonService.getOrderByCaid(request.user).forEach(o->{
+	                        o.commodities.values().forEach(c->{
+	                            JSONObject obj = new JSONObject();
+	                            obj.put("oid",      c.i_oid);
+	                            obj.put("csn",      c.i_csn);
+	                            obj.put("count",    c.i_count);
+	                            obj.put("price",    c.i_price);
+	                            obj.put("begin",    c.t_begin);
+	                            obj.put("end",      c.t_end);
+	                            obj.put("expense",  c.i_expense);
+	                            obj.put("remark",   c.c_remark);
+	                            obj.put("arg0",     c.c_arg0);
+	                            obj.put("arg1",     c.c_arg1);
+	                            obj.put("arg2",     c.c_arg2);
+	                            obj.put("arg3",     c.c_arg3);
+	                            obj.put("arg4",     c.c_arg4);
+	                            obj.put("arg5",     c.c_arg5);
+	                            obj.put("arg6",     c.c_arg6);
+	                            obj.put("arg7",     c.c_arg7);
+	                            obj.put("arg8",     c.c_arg8);
+	                            obj.put("arg9",     c.c_arg9);
+	                            
+	                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+	                            obj.put("account",  account.c_user);
+	                            obj.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
+	                            obj.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
+	                            // 预结算
+	                            if (!c.isClose()) {
+	                                obj.put("expense", CommonService.prestatementByCommodity(c));
+	                                obj.put("pass", account.c_pass_curr);
+	                            }
+	                            
+	                            desc.add(obj);
+	                        });
+	                    });
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.type       = FjHttpRequest.CT_JSON;
+	            response.content    = args.toString();
+        	}
             break;
         }
         }
