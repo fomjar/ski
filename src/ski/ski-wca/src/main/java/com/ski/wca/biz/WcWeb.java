@@ -255,6 +255,10 @@ public class WcWeb {
             response.content    = json_prepay.toString();
             break;
         }
+        case STEP_SUCCESS: {
+            fetchFile(response, "/message_success.html", "充值成功", "", "");
+            break;
+        }
         }
     }
     
@@ -286,6 +290,10 @@ public class WcWeb {
             
             response.type = FjHttpRequest.CT_JSON;
             response.content = rsp.args().toString();
+            break;
+        }
+        case STEP_SUCCESS: {
+            fetchFile(response, "/message_success.html", "退款成功", "", "");
             break;
         }
         }
