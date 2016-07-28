@@ -478,78 +478,67 @@ public class WcWeb {
     private static void processQueryGame(WcwResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            if (!request.args.has("gid")) fetchFile(response, "/query_game.html", request.user);
-            else fetchFile(response, "/query_game_by_gid.html", request.user, Integer.parseInt(request.args.getString("gid"), 16));
+            if (request.args.has("gid")) fetchFile(response, "/query_game_by_gid.html", request.user, Integer.parseInt(request.args.getString("gid"), 16));
+            else if (request.args.has("tag")) fetchFile(response, "/query_game_by_tag.html", request.user, request.args.getString("tag"));
+            else fetchFile(response, "/query_game.html", request.user);
             break;
         }
         case STEP_SETUP: {
-            if (!request.args.has("gid")) {
-                JSONObject args = new JSONObject();
-                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-                args.put("desc", "参数错误");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
-                break;
-            }
-            int      gid  = Integer.parseInt(request.args.getString("gid"), 16);
-            BeanGame game = CommonService.getGameByGid(gid);
-            JSONObject desc = new JSONObject();
-            desc.put("gid",             game.i_gid);
-            desc.put("platform",        game.c_platform);
-            desc.put("country",         game.c_country);
-            desc.put("url_icon",        game.c_url_icon);
-            desc.put("url_poster",      game.c_url_poster);
-            desc.put("url_buy",         game.c_url_buy);
-            desc.put("sale",            game.t_sale);
-            desc.put("name_zh",         game.c_name_zh);
-            desc.put("name_en",         game.c_name_en);
-            desc.put("display_name",    game.getDiaplayName());
-            desc.put("price_a",         CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price);
-            desc.put("price_b",         CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price);
-            
-            JSONObject args = new JSONObject();
-            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
-            break;
-        }
-        case STEP_APPLY: {
-            if (request.args.has("word")) {
+        	if (request.args.has("word")) {
                 String word = request.args.getString("word");
-                JSONArray  desc = new JSONArray();
+                JSONArray desc = new JSONArray();
                 CommonService.getGameAll().values()
                         .stream()
                         .filter(game->game.getDiaplayName().toLowerCase().contains(word.toLowerCase()))
-                        .forEach(game->{
-                            JSONObject obj = new JSONObject();
-                            obj.put("gid",          game.i_gid);
-                            obj.put("platform",     game.c_platform);
-                            obj.put("country",      game.c_country);
-                            obj.put("url_icon",     game.c_url_icon);
-                            obj.put("url_poster",   game.c_url_poster);
-                            obj.put("url_buy",      game.c_url_buy);
-                            obj.put("sale",         game.t_sale);
-                            obj.put("name_zh",      game.c_name_zh);
-                            obj.put("name_en",      game.c_name_en);
-                            obj.put("display_name", game.getDiaplayName());
-                            desc.add(obj);
-                        });
+                        .forEach(game->desc.add(gameToJson(game)));
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args.put("desc", desc);
                 response.type       = FjHttpRequest.CT_JSON;
                 response.content    = args.toString();
+            } else if (request.args.has("tag")) {
+            	String tag = request.args.getString("tag");
+            	JSONArray desc = new JSONArray();
+            	CommonService.getGameByTag(tag).forEach(game->desc.add(gameToJson(game)));
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.type       = FjHttpRequest.CT_JSON;
+	            response.content    = args.toString();
+            } else if (request.args.has("gid")) {
+	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
+	            response.type       = FjHttpRequest.CT_JSON;
+	            response.content    = args.toString();
             } else {
                 JSONObject args = new JSONObject();
-                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-                args.put("desc", "{}");
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数错误");
                 response.type       = FjHttpRequest.CT_JSON;
                 response.content    = args.toString();
             }
             break;
         }
         }
+    }
+    
+    private static JSONObject gameToJson(BeanGame game) {
+    	JSONObject json = new JSONObject();
+    	json.put("gid",             game.i_gid);
+    	json.put("platform",        game.c_platform);
+    	json.put("country",         game.c_country);
+    	json.put("url_icon",        game.c_url_icon);
+    	json.put("url_poster",      game.c_url_poster);
+    	json.put("url_buy",         game.c_url_buy);
+    	json.put("sale",            game.t_sale);
+    	json.put("name_zh",         game.c_name_zh);
+    	json.put("name_en",         game.c_name_en);
+    	json.put("display_name",    game.getDiaplayName());
+    	json.put("price_a",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A).i_price);
+    	json.put("price_b",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B).i_price);
+    	return json;
     }
     
     private static void processQueryOrder(WcwResponse response, WcwRequest request) {
@@ -563,76 +552,16 @@ public class WcWeb {
         		int oid = Integer.parseInt(request.args.getString("oid"), 16);
         		int csn = Integer.parseInt(request.args.getString("csn"), 16);
         		BeanCommodity c = CommonService.getOrderByOid(oid).commodities.get(csn);
-        		JSONObject desc = new JSONObject();
-        		desc.put("oid",      c.i_oid);
-        		desc.put("csn",      c.i_csn);
-        		desc.put("count",    c.i_count);
-        		desc.put("price",    c.i_price);
-        		desc.put("begin",    c.t_begin);
-        		desc.put("end",      c.t_end);
-        		desc.put("expense",  c.i_expense);
-        		desc.put("remark",   c.c_remark);
-        		desc.put("arg0",     c.c_arg0);
-        		desc.put("arg1",     c.c_arg1);
-        		desc.put("arg2",     c.c_arg2);
-        		desc.put("arg3",     c.c_arg3);
-        		desc.put("arg4",     c.c_arg4);
-        		desc.put("arg5",     c.c_arg5);
-        		desc.put("arg6",     c.c_arg6);
-        		desc.put("arg7",     c.c_arg7);
-        		desc.put("arg8",     c.c_arg8);
-        		desc.put("arg9",     c.c_arg9);
-                
-                BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-                desc.put("account",  account.c_user);
-                desc.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
-                desc.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
-                // 预结算
-                if (!c.isClose()) {
-                	desc.put("expense", CommonService.prestatementByCommodity(c));
-                	desc.put("pass", account.c_pass_curr);
-                }
+        		
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
+	            args.put("desc", commodityToJson(c));
 	            response.type       = FjHttpRequest.CT_JSON;
 	            response.content    = args.toString();
         	} else {
 	            JSONArray desc = new JSONArray();
 	            CommonService.getOrderByCaid(request.user).forEach(o->{
-	                        o.commodities.values().forEach(c->{
-	                            JSONObject obj = new JSONObject();
-	                            obj.put("oid",      c.i_oid);
-	                            obj.put("csn",      c.i_csn);
-	                            obj.put("count",    c.i_count);
-	                            obj.put("price",    c.i_price);
-	                            obj.put("begin",    c.t_begin);
-	                            obj.put("end",      c.t_end);
-	                            obj.put("expense",  c.i_expense);
-	                            obj.put("remark",   c.c_remark);
-	                            obj.put("arg0",     c.c_arg0);
-	                            obj.put("arg1",     c.c_arg1);
-	                            obj.put("arg2",     c.c_arg2);
-	                            obj.put("arg3",     c.c_arg3);
-	                            obj.put("arg4",     c.c_arg4);
-	                            obj.put("arg5",     c.c_arg5);
-	                            obj.put("arg6",     c.c_arg6);
-	                            obj.put("arg7",     c.c_arg7);
-	                            obj.put("arg8",     c.c_arg8);
-	                            obj.put("arg9",     c.c_arg9);
-	                            
-	                            BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
-	                            obj.put("account",  account.c_user);
-	                            obj.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
-	                            obj.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
-	                            // 预结算
-	                            if (!c.isClose()) {
-	                                obj.put("expense", CommonService.prestatementByCommodity(c));
-	                                obj.put("pass", account.c_pass_curr);
-	                            }
-	                            
-	                            desc.add(obj);
-	                        });
+	                        o.commodities.values().forEach(c->desc.add(commodityToJson(c)));
 	                    });
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
@@ -643,6 +572,40 @@ public class WcWeb {
             break;
         }
         }
+    }
+    
+    private static JSONObject commodityToJson(BeanCommodity c) {
+        JSONObject json = new JSONObject();
+        json.put("oid",      c.i_oid);
+        json.put("csn",      c.i_csn);
+        json.put("count",    c.i_count);
+        json.put("price",    c.i_price);
+        json.put("begin",    c.t_begin);
+        json.put("end",      c.t_end);
+        json.put("expense",  c.i_expense);
+        json.put("remark",   c.c_remark);
+        json.put("arg0",     c.c_arg0);
+        json.put("arg1",     c.c_arg1);
+        json.put("arg2",     c.c_arg2);
+        json.put("arg3",     c.c_arg3);
+        json.put("arg4",     c.c_arg4);
+        json.put("arg5",     c.c_arg5);
+        json.put("arg6",     c.c_arg6);
+        json.put("arg7",     c.c_arg7);
+        json.put("arg8",     c.c_arg8);
+        json.put("arg9",     c.c_arg9);
+        
+        BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
+        json.put("account",  account.c_user);
+        json.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
+        json.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
+        // 预结算
+        if (!c.isClose()) {
+            json.put("expense", CommonService.prestatementByCommodity(c));
+            json.put("pass", account.c_pass_curr);
+        }
+        
+        return json;
     }
     
     private static void processQueryPlatformAccountMap(WcwResponse response, WcwRequest request) {

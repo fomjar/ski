@@ -37,6 +37,7 @@ public class DataMonitor extends FjLoopTask {
         CommonService.updatePlatformAccount();
         CommonService.updatePlatformAccountMap();
         CommonService.updateOrder();
+        CommonService.updateTag();
     }
 
 
