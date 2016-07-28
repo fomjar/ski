@@ -38,7 +38,8 @@ public class FjHttpRequest extends FjHttpMessage {
     
     public JSONObject argsToJson() {
         JSONObject json = contentToJson();
-        json.putAll(urlArgs());
+        Map<String, String> url_args = urlArgs();
+        if (null != url_args) json.putAll(url_args);
         return json;
     }
 

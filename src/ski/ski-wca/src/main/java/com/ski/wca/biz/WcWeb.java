@@ -259,12 +259,6 @@ public class WcWeb {
     }
     
     private static void processApplyPlatformAccountMoney_Refund(WcwResponse response, WcwRequest request) {
-        String error = checkRefund(request.user);
-        if (null != error) {
-            fetchFile(response, "/message_warn.html", "退款失败", error, "");
-            return;
-        }
-        
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/apply_platform_account_money_refund.html", request.user);
@@ -295,29 +289,6 @@ public class WcWeb {
             break;
         }
         }
-    }
-    
-    private static String checkRefund(int user) {
-        // 检查账户
-        if (CommonService.getChannelAccountRelatedByCaidNChannel(user, CommonService.CHANNEL_ALIPAY).isEmpty()) {
-            return "尚未关联支付宝账户，无法退款。请先添加关联的支付宝账户";
-        }
-        float[] prestatement = CommonService.prestatementByCaid(user);
-        // 检查余额
-        if (0.00f == prestatement[0]) {
-            return "您的账户里没有可退现金";
-        }
-        if (0.00f > prestatement[0]) {
-            return "您的账户当前处于欠费状态";
-        }
-        // 检查订单
-        if (0 < CommonService.getOrderByCaid(user)
-                .stream()
-                .filter(o->!o.isClose())
-                .count()) {
-            return "您的账户里仍有未关闭的订单";
-        }
-        return null;
     }
     
     private static Set<String> cache_trade = new HashSet<String>();

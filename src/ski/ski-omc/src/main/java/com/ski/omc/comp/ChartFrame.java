@@ -37,6 +37,7 @@ public class ChartFrame extends JFrame {
     private JTabbedPane charts;
     private JPanel      charts_user;
     private JPanel      charts_order;
+    private JPanel		charts_sale;
     
     public ChartFrame() {
         setTitle("数据统计");
@@ -47,22 +48,25 @@ public class ChartFrame extends JFrame {
         
         initChartTheme();
         
-        charts_user     = new JPanel();
+        charts_user = new JPanel();
         charts_user.setLayout(new BoxLayout(charts_user, BoxLayout.Y_AXIS));
         charts_user.add(createChartUserDistribution());
         charts_user.add(createChartUserEncreaseLastMonth());
         charts_user.add(createChartUserTotalLastMonth());
         
-        charts_order    = new JPanel();
+        charts_order = new JPanel();
         charts_order.setLayout(new BoxLayout(charts_order, BoxLayout.Y_AXIS));
-        charts_order.add(createChartMoneyDistribution());
-        charts_order.add(createChartMoneyConsumeEncreaseLastMonth());
-        charts_order.add(createChartMoneyConsumeTotalLastMonth());
         charts_order.add(createChartCommodityTypeDistribution());
         charts_order.add(createChartCommodityBeginEncreaseLastMonth());
         charts_order.add(createChartCommodityEndEncreaseLastMonth());
         charts_order.add(createChartCommodityBeginTotalLastMonth());
         charts_order.add(createChartCommodityEndTotalLastMonth());
+        
+        charts_sale = new JPanel();
+        charts_sale.setLayout(new BoxLayout(charts_sale, BoxLayout.Y_AXIS));
+        charts_sale.add(createChartMoneyDistribution());
+        charts_sale.add(createChartMoneyConsumeEncreaseLastMonth());
+        charts_sale.add(createChartMoneyConsumeTotalLastMonth());
         
         charts = new JTabbedPane();
         {
@@ -80,6 +84,14 @@ public class ChartFrame extends JFrame {
             JScrollPane jsp = new JScrollPane(panel);
             jsp.getVerticalScrollBar().setUnitIncrement(16);
             charts.add("订单统计", jsp);
+        }
+        {
+            JPanel panel = new JPanel();
+            panel.setLayout(new BorderLayout());
+            panel.add(charts_sale, BorderLayout.NORTH);
+            JScrollPane jsp = new JScrollPane(panel);
+            jsp.getVerticalScrollBar().setUnitIncrement(16);
+            charts.add("销售统计", jsp);
         }
         
         getContentPane().setLayout(new BorderLayout());
