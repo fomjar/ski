@@ -24,7 +24,7 @@ public class FjHttpRequest extends FjHttpMessage {
     public String url() {return url;}
     
     public Map<String, String> urlArgs() {
-        if (!url().contains("?")) return null;
+        if (!url().contains("?")) return new HashMap<String, String>();
         
         String paramLine = url().split("\\?")[1];
         String[] params = paramLine.split("&");
@@ -38,8 +38,7 @@ public class FjHttpRequest extends FjHttpMessage {
     
     public JSONObject argsToJson() {
         JSONObject json = contentToJson();
-        Map<String, String> url_args = urlArgs();
-        if (null != url_args) json.putAll(url_args);
+        json.putAll(urlArgs());
         return json;
     }
 

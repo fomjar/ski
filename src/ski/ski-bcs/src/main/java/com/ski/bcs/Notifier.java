@@ -39,7 +39,7 @@ public class Notifier {
                 data.put("keyword2",    "正常"); // 业务状态
                 data.put("remark",      "请关注您的账户余额，避免欠费。");
                 JSONObject content = new JSONObject();
-                content.put("template", "x013YAKdSrHnpNRxtzdpxRTyendpDrua-9tCnvCheq4");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.time"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -97,7 +97,7 @@ public class Notifier {
                 data.put("keyword2",    "正常"); // 业务状态
                 data.put("remark",      "请关注您的账户余额，避免欠费。");
                 JSONObject content = new JSONObject();
-                content.put("template", "x013YAKdSrHnpNRxtzdpxRTyendpDrua-9tCnvCheq4");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.cash.notenough"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -159,7 +159,7 @@ public class Notifier {
                 data.put("result",      "充值成功");
                 data.put("remark",      "您可以到账户信息中查看账户余额，祝您游戏愉快！");
                 JSONObject content = new JSONObject();
-                content.put("template", "suyalQ-RF8e_5sYzBx7gmm6HMQjvBKpBBjhBSLemKo0");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.cash.recharge"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -219,7 +219,7 @@ public class Notifier {
                 data.put("refund",  moneyInfo);
                 data.put("remark",  "退款将在2小时内到账，欢迎您下次光临！");
                 JSONObject content = new JSONObject();
-                content.put("template", "peejfadIY8KyPeFJdAPRuSUl7AESPOJekKm8BNIo1hs");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.cash.refund"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -277,7 +277,7 @@ public class Notifier {
                 data.put("keyword2",    nowIsBind ? "已被绑定" : "尚未绑定"); // 业务状态
                 data.put("remark",      String.format("请及时按照租赁类型%s您的账号，以免造成不必要的麻烦，谢谢合作。", nowIsBind ? "解绑" : "绑定"));
                 JSONObject content = new JSONObject();
-                content.put("template", "x013YAKdSrHnpNRxtzdpxRTyendpDrua-9tCnvCheq4");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.bind.abnormally"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -337,7 +337,7 @@ public class Notifier {
                 data.put("keyword2",    modifyInfo); // 业务状态
                 data.put("remark",      "请及时将账号信息改回，以免造成不必要的麻烦，谢谢合作。");
                 JSONObject content = new JSONObject();
-                content.put("template", "x013YAKdSrHnpNRxtzdpxRTyendpDrua-9tCnvCheq4");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.modify.abnormally"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);
@@ -397,7 +397,7 @@ public class Notifier {
                 data.put("keyword2",    modifyInfo); // 业务状态
                 data.put("remark",      "请重新登陆账号以便继续游戏，对您带来的不变深表歉意。");
                 JSONObject content = new JSONObject();
-                content.put("template", "x013YAKdSrHnpNRxtzdpxRTyendpDrua-9tCnvCheq4");
+                content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.modify.normally"));
                 content.put("data",     data);
                 JSONObject args = new JSONObject();
                 args.put("user",    user.c_user);

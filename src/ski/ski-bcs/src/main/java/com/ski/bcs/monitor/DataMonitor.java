@@ -20,7 +20,7 @@ public class DataMonitor extends FjLoopTask {
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("wca.monitor.data.interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("bcs.monitor.data.interval"));
         setInterval(second * 1000);
     }
     
