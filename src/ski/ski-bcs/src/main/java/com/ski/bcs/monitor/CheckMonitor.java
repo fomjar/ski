@@ -17,23 +17,23 @@ import fomjar.server.msg.FjDscpMessage;
 import fomjar.util.FjLoopTask;
 import net.sf.json.JSONObject;
 
-public class BcsMonitor extends FjLoopTask {
+public class CheckMonitor extends FjLoopTask {
     
-    private static final Logger logger = Logger.getLogger(BcsMonitor.class);
+    private static final Logger logger = Logger.getLogger(CheckMonitor.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public BcsMonitor() {}
+    public CheckMonitor() {}
     
     public void start() {
         if (isRun()) {
-            logger.warn("monitor-bcs has already started");
+            logger.warn("monitor-check has already started");
             return;
         }
-        new Thread(this, "monitor-bcs").start();
+        new Thread(this, "monitor-check").start();
     }
     
     private void resetInterval() {
-        long second = Long.parseLong(FjServerToolkit.getServerConfig("bcs.monitor.bcs.interval"));
+        long second = Long.parseLong(FjServerToolkit.getServerConfig("bcs.monitor.check.interval"));
         setInterval(second * 1000);
     }
 

@@ -11,7 +11,7 @@ import fomjar.util.FjLoopTask;
 public class TokenMonitor extends FjLoopTask {
     
     private static TokenMonitor instance = null;
-    public static TokenMonitor getInstance() {
+    public static synchronized TokenMonitor getInstance() {
         if (null == instance) instance = new TokenMonitor();
         
         return instance;

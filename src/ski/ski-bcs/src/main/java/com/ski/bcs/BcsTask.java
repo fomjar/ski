@@ -5,7 +5,8 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import com.ski.bcs.monitor.BcsMonitor;
+import com.ski.bcs.monitor.CheckMonitor;
+import com.ski.bcs.monitor.CacheMonitor;
 import com.ski.bcs.monitor.DataMonitor;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
@@ -29,7 +30,8 @@ public class BcsTask implements FjServerTask {
     
     public BcsTask() {
         new DataMonitor().start();
-        new BcsMonitor().start();
+        new CheckMonitor().start();
+        CacheMonitor.getInstance().start();
     }
 
     @Override
@@ -151,6 +153,7 @@ public class BcsTask implements FjServerTask {
         int caid = args.getInt("caid");
         int oid  = args.getInt("oid");
         int csn  = args.getInt("csn");
+        BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
         // check args
         BeanCommodity c = null;
         {
@@ -167,6 +170,13 @@ public class BcsTask implements FjServerTask {
                 return;
             }
         }
+        // check cache
+        {
+        	if (CacheMonitor.getInstance().isCacheRentEndFailForPass(user)) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "user or password is incorrect, please try after 10 minutes");
+                return;
+        	}
+        }
         // check account
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
         {
@@ -176,6 +186,10 @@ public class BcsTask implements FjServerTask {
             FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
             if (!CommonService.isResponseSuccess(rsp)) {
                 response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "user or password is incorrect");
+                if (CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT == CommonService.getResponseCode(rsp)) {
+                	if (!CacheMonitor.getInstance().isCacheRentEndFailForPass(user))
+                		CacheMonitor.getInstance().putCacheRentEndFailForPass(user);
+                }
                 return;
             }
             

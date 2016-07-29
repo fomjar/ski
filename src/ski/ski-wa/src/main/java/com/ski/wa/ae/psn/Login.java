@@ -23,6 +23,13 @@ public class Login implements AE {
             return;
         }
         driver.get("https://account.sonyentertainmentnetwork.com/login.action");
+        try {   // 发现验证码
+            driver.findElement(By.id("captchaContainer"));
+            code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+            desc = "unable to login for there is verify code";
+            return;
+        } catch (NoSuchElementException e) {}
+        
         driver.findElement(By.id("signInInput_SignInID")).clear();
         driver.findElement(By.id("signInInput_SignInID")).sendKeys(args.getString("user")); // 账号
         driver.findElement(By.id("signInInput_Password")).clear();
@@ -38,12 +45,6 @@ public class Login implements AE {
             WebElement element = driver.findElement(By.id("errorDivMsgDiv"));
             code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL;
             desc = element.getText();
-            return;
-        } catch (NoSuchElementException e) {}
-        try {   // 发现验证码
-            driver.findElement(By.id("captchaContainer"));
-            code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
-            desc = "unable to login for there is verify code";
             return;
         } catch (NoSuchElementException e) {}
         code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
