@@ -1,11 +1,15 @@
 package fomjar.util;
 
+import org.apache.log4j.Logger;
+
 /**
  * 循环任务基础支持，支持精确的启动延时和间隔定时
  * 
  * @author fomjar
  */
 public abstract class FjLoopTask implements FjTask {
+	
+	private static final Logger logger = Logger.getLogger(FjLoopTask.class);
 
     private long delay;
     private long interval;
@@ -76,7 +80,7 @@ public abstract class FjLoopTask implements FjTask {
             long start = System.currentTimeMillis();
             
             try {perform();}
-            catch (Exception e) {e.printStackTrace();}
+            catch (Exception e) {logger.error("perform failed", e);}
             
             long end = System.currentTimeMillis();
             long delta = end - start;
