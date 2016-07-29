@@ -1,19 +1,19 @@
 delete from tbl_instruction where i_inst = (conv('00002402', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002402', 16, 10) + 0), 'sp', 2, "sp_update_game_account(?, ?, $gaid, '$user', '$pass_a', '$pass_b', '$pass_curr', '$birth', '$create')");
+insert into tbl_instruction values((conv('00002402', 16, 10) + 0), 'sp', 2, "sp_update_game_account(?, ?, $gaid, '$remark', '$user', '$pass', '$name', '$birth', '$create')");
 
 -- 更新订单
 delimiter //
 drop procedure if exists sp_update_game_account //
 create procedure sp_update_game_account (
-    out i_code      integer,
-    out c_desc      mediumblob,
-    in  gaid        integer,        -- 游戏账户ID，对应产品实例
-    in  user        varchar(32),    -- 用户名
-    in  pass_a      varchar(32),    -- 密码A
-    in  pass_b      varchar(32),    -- 密码B
-    in  pass_curr   varchar(32),    -- 当前密码
-    in  birth       date,           -- 出生日期
-    in  _create     datetime        -- 创建时间
+    out i_code  integer,
+    out c_desc  mediumblob,
+    in  gaid    integer,        -- 游戏账户ID，对应产品实例
+    in  remark  varchar(64),    -- 备注
+    in  user    varchar(32),    -- 用户名
+    in  pass    varchar(32),    -- 当前密码
+    in  name    varchar(32),    -- 名称/昵称
+    in  birth   date,           -- 出生日期
+    in  _create datetime        -- 创建时间
 )
 begin
     declare di_gaid     integer default -1;
@@ -36,18 +36,18 @@ begin
 
         insert into tbl_game_account (
             i_gaid,
+            c_remark,
             c_user,
-            c_pass_a,
-            c_pass_b,
-            c_pass_curr,
+            c_pass,
+            c_name,
             t_birth,
             t_create
         ) values (
             di_gaid,
+            remark,
             user,
-            pass_a,
-            pass_b,
-            pass_curr,
+            pass,
+            name,
             birth,
             ifnull(_create, now())
         );
@@ -62,40 +62,40 @@ begin
         if di_count <= 0 then
             insert into tbl_game_account (
                 i_gaid,
+                c_remark,
                 c_user,
-                c_pass_a,
-                c_pass_b,
-                c_pass_curr,
+                c_pass,
+                c_name,
                 t_birth,
                 t_create
             ) values (
                 gaid,
+                remark,
                 user,
-                pass_a,
-                pass_b,
-                pass_curr,
+                pass,
+                name,
                 birth,
                 ifnull(_create, now())
             );
         else
+            if remark is not null then
+                update tbl_game_account
+                   set c_remark = remark
+                 where i_gaid = gaid;
+            end if;
             if user is not null then
                 update tbl_game_account
                    set c_user = user
                  where i_gaid = gaid;
             end if;
-            if pass_a is not null then
+            if pass is not null then
                 update tbl_game_account
-                   set c_pass_a = pass_a
+                   set c_pass = pass
                  where i_gaid = gaid;
             end if;
-            if pass_b is not null then
+            if name is not null then
                 update tbl_game_account
-                   set c_pass_b = pass_b
-                 where i_gaid = gaid;
-            end if;
-            if pass_curr is not null then
-                update tbl_game_account
-                   set c_pass_curr = pass_curr
+                   set c_name = name
                  where i_gaid = gaid;
             end if;
             if birth is not null then

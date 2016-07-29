@@ -182,7 +182,7 @@ public class BcsTask implements FjServerTask {
         {
             JSONObject args_wa = new JSONObject();
             args_wa.put("user", account.c_user);
-            args_wa.put("pass", account.c_pass_curr);
+            args_wa.put("pass", account.c_pass);
             FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
             if (!CommonService.isResponseSuccess(rsp)) {
                 response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "user or password is incorrect");
@@ -224,7 +224,7 @@ public class BcsTask implements FjServerTask {
             { // modify to psn
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("user",     account.c_user);
-                args_cdb.put("pass",     account.c_pass_curr);
+                args_cdb.put("pass",     account.c_pass);
                 args_cdb.put("pass_new", pass_new);
                 FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
@@ -236,7 +236,7 @@ public class BcsTask implements FjServerTask {
             { // notify to db
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("gaid", account.i_gaid);
-                args_cdb.put("pass_curr", pass_new);
+                args_cdb.put("pass", pass_new);
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
                     response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");

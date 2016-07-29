@@ -44,10 +44,10 @@ create table tbl_platform_account_money (
 drop table if exists tbl_game_account;
 create table tbl_game_account (
     i_gaid      integer,        -- 游戏账户ID，对应产品实例
+    c_remark    varchar(64),    -- 备注
     c_user      varchar(32),    -- 用户名
-    c_pass_a    varchar(32),    -- 密码A
-    c_pass_b    varchar(32),    -- 密码B
-    c_pass_curr varchar(32),    -- 当前密码
+    c_pass      varchar(32),    -- 密码
+    c_name      varchar(32),    -- 名字/昵称
     t_birth     date,           -- 出生日期
     t_create    datetime        -- 创建时间
 );

@@ -34,6 +34,8 @@ public class ManageGameAccount extends JDialog {
     private FjEditLabel i_gaid;
     private FjEditLabel c_user;
     private FjEditLabel c_pass;
+    private FjEditLabel c_name;
+    private FjEditLabel c_remark;
     private FjEditLabel t_birth;
     private FjListPane<String> pane_games;
     
@@ -52,8 +54,10 @@ public class ManageGameAccount extends JDialog {
         toolbar.add(new JButton("添加游戏"));
         i_gaid = new FjEditLabel(String.format("0x%08X", account.i_gaid), false);
         c_user = new FjEditLabel(account.c_user);
-        c_pass = new FjEditLabel(account.c_pass_curr);
-        t_birth = new FjEditLabel(0 == account.t_birth.length() ? "(没有生日)" : account.t_birth);
+        c_pass = new FjEditLabel(account.c_pass);
+        c_name = new FjEditLabel(account.c_name);
+        c_remark = new FjEditLabel(account.c_remark);
+        t_birth = new FjEditLabel(account.t_birth);
         
         pane_games = new FjListPane<String>();
         pane_games.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "包含游戏"));
@@ -64,6 +68,8 @@ public class ManageGameAccount extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("GAID", i_gaid));
         panel_basic.add(UIToolkit.createBasicInfoLabel("账号", c_user));
         panel_basic.add(UIToolkit.createBasicInfoLabel("密码", c_pass));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("昵称", c_name));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("备注", c_remark));
         panel_basic.add(UIToolkit.createBasicInfoLabel("生日", t_birth));
         
         JPanel panel_north = new JPanel();
@@ -108,11 +114,34 @@ public class ManageGameAccount extends JDialog {
             @Override
             public void finishEdit(String old_value, String new_value) {
                 args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
-                args.put("pass_curr", new_value);   // for cdb
                 args.put("user", c_user.getText()); // for wa
                 args.put("pass", old_value);        // for wa
                 args.put("pass_new", new_value);    // for wa
                 c_pass.setForeground(UIToolkit.COLOR_MODIFYING);
+            }
+            @Override
+            public void cancelEdit(String value) {}
+        });
+        c_name.addEditListener(new EditListener() {
+            @Override
+            public void startEdit(String value) {}
+            @Override
+            public void finishEdit(String old_value, String new_value) {
+                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("name", new_value);
+                c_name.setForeground(UIToolkit.COLOR_MODIFYING);
+            }
+            @Override
+            public void cancelEdit(String value) {}
+        });
+        c_remark.addEditListener(new EditListener() {
+            @Override
+            public void startEdit(String value) {}
+            @Override
+            public void finishEdit(String old_value, String new_value) {
+                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("remark", new_value);
+                c_remark.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -134,12 +163,15 @@ public class ManageGameAccount extends JDialog {
                 JOptionPane.showMessageDialog(ManageGameAccount.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
                 return;
             }
+            if (args.has("pass_new")) args.put("pass", args.getString("pass_new"));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             if (!UIToolkit.showServerResponse(rsp)) return;
             
-            if (args.has("user"))       c_user.setForeground(Color.darkGray);
-            if (args.has("pass_curr"))  c_pass.setForeground(Color.darkGray);
-            if (args.has("birth"))      t_birth.setForeground(Color.darkGray);
+            if (args.has("user"))   c_user.setForeground(Color.darkGray);
+            if (args.has("pass"))	c_pass.setForeground(Color.darkGray);
+            if (args.has("name"))	c_name.setForeground(Color.darkGray);
+            if (args.has("remark"))	c_remark.setForeground(Color.darkGray);
+            if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
             args.clear();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
@@ -157,11 +189,14 @@ public class ManageGameAccount extends JDialog {
                 
                 if (!UIToolkit.showServerResponse(rsp_wa)) return;
                 
+                args.put("pass", args.getString("pass_new"));
                 FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                 if (!UIToolkit.showServerResponse(rsp_cdb)) return;
                 
                 if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+                if (args.has("pass"))	c_pass.setForeground(Color.darkGray);
+                if (args.has("name"))	c_name.setForeground(Color.darkGray);
+                if (args.has("remark"))	c_remark.setForeground(Color.darkGray);
                 if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
                 args.clear();
                 ((JButton) toolbar.getComponent(1)).setEnabled(true);

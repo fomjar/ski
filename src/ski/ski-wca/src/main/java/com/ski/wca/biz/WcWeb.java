@@ -581,7 +581,7 @@ public class WcWeb {
         // 预结算
         if (!c.isClose()) {
             json.put("expense", CommonService.prestatementByCommodity(c));
-            json.put("pass", account.c_pass_curr);
+            json.put("pass", account.c_pass);
         }
         
         return json;

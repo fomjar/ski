@@ -29,7 +29,7 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
                 CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).get(0).c_name_zh,
                 CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16)).c_user,
                 c.c_arg1,
-                CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16)).c_pass_curr));
+                CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16)).c_pass));
         basic.setPreferredSize(new Dimension(0, 0));
         assit   = new JLabel(String.format("%.2f元/天 | %.2f元 | %s",
                 c.i_price,

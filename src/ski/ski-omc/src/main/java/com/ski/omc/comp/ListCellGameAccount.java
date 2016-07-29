@@ -32,7 +32,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         super(data);
         
         c_user  = new JLabel(data.c_user);
-        c_pass  = new JLabel(data.c_pass_curr);
+        c_pass  = new JLabel(data.c_pass);
         c_pass.setHorizontalAlignment(SwingConstants.CENTER);
         t_birth = new JLabel(0 == data.t_birth.length() ? "(没有生日)" : data.t_birth);
         t_birth.setHorizontalAlignment(SwingConstants.CENTER);

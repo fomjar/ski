@@ -129,7 +129,7 @@ public class CheckMonitor extends FjLoopTask {
                                             int paid = CommonService.getPlatformAccountByCaid(o.i_caid);
                                             JSONObject args = new JSONObject();
                                             args.put("user", account.c_user);
-                                            args.put("pass", account.c_pass_curr);
+                                            args.put("pass", account.c_pass);
                                             FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                                             if (CommonService.isResponseSuccess(rsp)) {
                                                 if ("A".equals(c.c_arg1) && rsp.toString().contains(" unbinded")) {

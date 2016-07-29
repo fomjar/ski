@@ -169,9 +169,9 @@ public class UIToolkit {
                 continue;
             }
             JSONObject args = new JSONObject();
-            if (0 != c_user.getText().length())     args.put("user",        c_user.getText());
-            if (0 != c_pass.getText().length())     args.put("pass_curr",   c_pass.getText());
-            if (0 != t_birth.getText().length())    args.put("birth",       t_birth.getText());
+            if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
+            if (0 != c_pass.getText().length())     args.put("pass",	c_pass.getText());
+            if (0 != t_birth.getText().length())    args.put("birth",   t_birth.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             CommonService.updateGameAccount();
             if (!UIToolkit.showServerResponse(rsp)) break;
@@ -453,7 +453,7 @@ public class UIToolkit {
                 else {
                     args.clear();
                     args.put("user", account.c_user);
-                    args.put("pass", account.c_pass_curr);
+                    args.put("pass", account.c_pass);
                     FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                     ssd.appendText(rsp.toString());
                     if (!CommonService.isResponseSuccess(rsp)) {
@@ -547,7 +547,7 @@ public class UIToolkit {
                 else {
                     args.clear();
                     args.put("user", account.c_user);
-                    args.put("pass", account.c_pass_curr);
+                    args.put("pass", account.c_pass);
                     FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args);
                     ssd.appendText(rsp.toString());
                     if (!CommonService.isResponseSuccess(rsp)) {
@@ -595,7 +595,7 @@ public class UIToolkit {
                         ssd.appendText("正在登录到PlayStation网站重设密码...");
                         args.clear();
                         args.put("user",     account.c_user);
-                        args.put("pass",     account.c_pass_curr);
+                        args.put("pass",     account.c_pass);
                         args.put("pass_new", pass_new);
                         FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         ssd.appendText(rsp.toString());
@@ -611,7 +611,7 @@ public class UIToolkit {
                         ssd.appendText("正在将新密码提交到数据库中...");
                         args.clear();
                         args.put("gaid", account.i_gaid);
-                        args.put("pass_curr", pass_new);
+                        args.put("pass", pass_new);
                         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                         ssd.appendText(rsp.toString());
                         ssd.appendText("提交成功，新密码：\"" + pass_new + "\"");
