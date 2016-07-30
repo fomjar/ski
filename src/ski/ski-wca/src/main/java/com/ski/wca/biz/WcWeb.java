@@ -506,14 +506,24 @@ public class WcWeb {
     private static JSONObject gameToJson(BeanGame game) {
     	JSONObject json = new JSONObject();
     	json.put("gid",             game.i_gid);
-    	json.put("platform",        game.c_platform);
-    	json.put("country",         game.c_country);
-    	json.put("url_icon",        game.c_url_icon);
-    	json.put("url_poster",      game.c_url_poster);
-    	json.put("url_buy",         game.c_url_buy);
-    	json.put("sale",            game.t_sale);
-    	json.put("name_zh",         game.c_name_zh);
+    	json.put("name_zh_cn",		game.c_name_zh_cn);
+    	json.put("name_zh_hk",		game.c_name_zh_hk);
     	json.put("name_en",         game.c_name_en);
+    	json.put("name_ja",         game.c_name_ja);
+    	json.put("name_ko",         game.c_name_ko);
+    	json.put("name_other",		game.c_name_other);
+    	json.put("platform",        game.c_platform);
+    	json.put("category",		game.c_category);
+    	json.put("language",		game.c_language);
+    	json.put("size",			game.c_size);
+    	json.put("vendor",			game.c_vendor);
+    	json.put("sale",            game.t_sale);
+    	json.put("url_icon",        game.c_url_icon);
+    	json.put("url_cover",       game.c_url_cover);
+    	json.put("url_poster",      game.c_url_poster);
+    	json.put("introduction",    game.c_introduction);
+    	json.put("version",      	game.c_version);
+    	
     	json.put("display_name",    game.getDiaplayName());
     	json.put("price_a",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A).i_price);
     	json.put("price_b",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B).i_price);

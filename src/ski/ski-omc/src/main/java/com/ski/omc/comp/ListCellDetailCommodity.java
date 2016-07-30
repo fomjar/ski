@@ -26,7 +26,7 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
     
     public ListCellDetailCommodity(BeanCommodity c) {
         basic   = new FjEditLabel(String.format("%s | %s-%s/%s",
-                CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).get(0).c_name_zh,
+                CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).get(0).c_name_zh_cn,
                 CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16)).c_user,
                 c.c_arg1,
                 CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16)).c_pass));

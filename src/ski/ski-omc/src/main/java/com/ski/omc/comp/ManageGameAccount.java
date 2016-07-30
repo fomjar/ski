@@ -223,7 +223,7 @@ public class ManageGameAccount extends JDialog {
             BeanGame game = UIToolkit.chooseGame();
             if (null == game) return;
             
-            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh, "信息", JOptionPane.OK_CANCEL_OPTION))
+            if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh_cn, "信息", JOptionPane.OK_CANCEL_OPTION))
                 return;
             
             int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
@@ -245,7 +245,7 @@ public class ManageGameAccount extends JDialog {
         CommonService.getGameAccountGameAll().forEach(bean->{
             if (gaid == bean.i_gaid) {
                 BeanGame game = CommonService.getGameByGid(bean.i_gid);
-                pane_games.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh)));
+                pane_games.getList().addCell(new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh_cn)));
             }
         });
     }

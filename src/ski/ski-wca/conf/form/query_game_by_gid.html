@@ -27,9 +27,8 @@
                             return;
                         }
                         $('#url_poster').attr('src', args.desc.url_poster);
-                        $('#name_zh').text(args.desc.name_zh);
+                        $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
-                        $('#country').text(args.desc.country);
                         $('#sale').text(args.desc.sale);
                         $('#platform').text(args.desc.platform);
                         $('#price_a').text(args.desc.price_a + " 元/天");
@@ -68,7 +67,7 @@
                 <div class="weui_cells">
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary"><p>中文名</p></div>
-                        <div class="weui_cell_ft" id='name_zh'></div>
+                        <div class="weui_cell_ft" id='name_zh_cn'></div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary"><p>英文名</p></div>

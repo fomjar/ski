@@ -18,31 +18,28 @@ public class ListCellGame extends FjListCell<BeanGame> {
     
     private static final long serialVersionUID = 6352907380098820766L;
     
-    private JLabel  c_name_zh;
+    private JLabel  c_name;
     private JLabel  i_gid;
     private JLabel  i_price_a;
     private JLabel  i_price_b;
     private JLabel  t_sale;
-    private JLabel  c_country;
     private JPanel  tags;
     
     public ListCellGame(BeanGame data) {
         super(data);
         
-        c_name_zh   = new JLabel(data.getDiaplayName());
+        c_name   = new JLabel(data.getDiaplayName());
         i_gid       = new JLabel(String.format("0x%08X", data.i_gid));
         i_price_a   = new JLabel("A: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
         i_price_b   = new JLabel("B: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
         t_sale      = new JLabel(0 == data.t_sale.length() ? "(没有发售时间)" : data.t_sale);
-        c_country   = new JLabel(0 == data.c_country.length() ? "(没有国家)" : data.c_country);
         
-        c_name_zh.setPreferredSize(new Dimension(1, 0));
-        c_name_zh.setForeground(color_major);
+        c_name.setPreferredSize(new Dimension(1, 0));
+        c_name.setForeground(color_major);
         i_gid.setForeground(color_minor);
         i_price_a.setForeground(color_major);
         i_price_b.setForeground(color_major);
         t_sale.setForeground(color_minor);
-        c_country.setForeground(color_minor);
         
         tags        = new JPanel();
         tags.setOpaque(false);
@@ -62,7 +59,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         JPanel panelt = new JPanel();
         panelt.setOpaque(false);
         panelt.setLayout(new BorderLayout());
-        panelt.add(c_name_zh, BorderLayout.CENTER);
+        panelt.add(c_name, BorderLayout.CENTER);
         panelt.add(tags, BorderLayout.EAST);
         
         JPanel panel0 = new JPanel();
@@ -73,11 +70,10 @@ public class ListCellGame extends FjListCell<BeanGame> {
         
         JPanel panel1 = new JPanel();
         panel1.setOpaque(false);
-        panel1.setLayout(new GridLayout(1, 4));
+        panel1.setLayout(new GridLayout(1, 3));
         panel1.add(i_price_a);
         panel1.add(i_price_b);
         panel1.add(t_sale);
-        panel1.add(c_country);
         
         setLayout(new GridLayout(2, 1));
         add(panel0);

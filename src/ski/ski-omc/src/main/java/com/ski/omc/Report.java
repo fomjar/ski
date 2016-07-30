@@ -32,7 +32,7 @@ public class Report {
         if (!commodity.isClose()) rows.add(new String[] {"<div style='font-weight: bold; background-color: #FFFF00'>当前密码</div>",
                 "<div style='font-weight: bold; background-color: #FFFF00'>" + account.c_pass + "</div>"});
         rows.add(new String[] {"租赁类型",  "A".equals(commodity.c_arg1) ? "认证" : "B".equals(commodity.c_arg1) ? "不认证" : "未知"});
-        rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh).collect(Collectors.joining(", "))});
+        rows.add(new String[] {"包含游戏",  (null == games || games.isEmpty()) ? "-" : games.stream().map(game->game.c_name_zh_cn).collect(Collectors.joining(", "))});
         rows.add(new String[] {"租赁单价",  df.format(commodity.i_price) + "元/天"});
         rows.add(new String[] {"起租时间",  commodity.t_begin});
         if (commodity.isClose()) rows.add(new String[] {"退租时间", commodity.t_end});

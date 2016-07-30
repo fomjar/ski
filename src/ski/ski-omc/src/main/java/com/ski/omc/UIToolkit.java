@@ -116,28 +116,16 @@ public class UIToolkit {
     }
     
     public static void createGame() {
-        FjTextField c_country   = new FjTextField();
-        FjTextField t_sale      = new FjTextField();
-        FjTextField c_name_zh   = new FjTextField();
-        c_country.setDefaultTips("国家");
-        t_sale.setDefaultTips("发售日期");
-        c_name_zh.setDefaultTips("简体中文名");
+        FjTextField c_name_zh_cn	= new FjTextField();
+        c_name_zh_cn.setDefaultTips("简体中文名");
         
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(3, 1));
-        panel.add(c_country);
-        panel.add(t_sale);
-        panel.add(c_name_zh);
-        
-        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
-            if (0 == c_name_zh.getText().length()) {
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, c_name_zh_cn, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
+            if (0 == c_name_zh_cn.getText().length()) {
                 JOptionPane.showMessageDialog(null, "游戏名称一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             JSONObject args = new JSONObject();
-            if (0 != c_country.getText().length())  args.put("country", c_country.getText());
-            if (0 != t_sale.getText().length())     args.put("sale",    t_sale.getText());
-            if (0 != c_name_zh.getText().length())  args.put("name_zh", c_name_zh.getText());
+            if (0 != c_name_zh_cn.getText().length())  args.put("name_zh_cn", c_name_zh_cn.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
             CommonService.updateGame();
             UIToolkit.showServerResponse(rsp);
@@ -344,7 +332,7 @@ public class UIToolkit {
         choose.addActionListener(e->{
             while (null != (account.obj = chooseGameAccount())) {
                 c_arg0.setText(String.format("0x%08X - %s (%s)", account.obj.i_gaid, account.obj.c_user,
-                        CommonService.getGameByGaid(account.obj.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; "))));
+                        CommonService.getGameByGaid(account.obj.i_gaid).stream().map(game->game.c_name_zh_cn).collect(Collectors.joining("; "))));
                 ((DefaultComboBoxModel<String>) c_arg1.getModel()).removeAllElements();
                 if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.obj.i_gaid, CommonService.RENT_TYPE_A))
                     ((DefaultComboBoxModel<String>) c_arg1.getModel()).addElement("A类");
@@ -768,7 +756,7 @@ public class UIToolkit {
         
         // 添加游戏列表
         CommonService.getGameAll().values().forEach(game->{
-            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh));
+            FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.c_name_zh_cn));
             cell.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -809,7 +797,7 @@ public class UIToolkit {
                             .stream()
                             .filter(game->{
                                 int count = 0;
-                                for (String word : words) if (game.c_name_zh.toLowerCase().contains(word.toLowerCase())) count++;
+                                for (String word : words) if (game.c_name_zh_cn.toLowerCase().contains(word.toLowerCase())) count++;
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());
@@ -910,7 +898,7 @@ public class UIToolkit {
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", account.i_gaid, account.c_user),
                     ( (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A) ? "[A:〇]" : "[A:●]")
                     + (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B) ? "[B:〇]" : "[B:●]")));
-            JLabel games = new JLabel(CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh).collect(Collectors.joining("; ")));
+            JLabel games = new JLabel(CommonService.getGameByGaid(account.i_gaid).stream().map(game->game.c_name_zh_cn).collect(Collectors.joining("; ")));
             games.setPreferredSize(new Dimension(1, games.getPreferredSize().height));
             games.setForeground(Color.gray);
             cell.add(games, BorderLayout.SOUTH);

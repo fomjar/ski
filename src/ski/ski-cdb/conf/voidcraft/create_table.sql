@@ -82,14 +82,23 @@ create table tbl_game_account_rent_history (
 drop table if exists tbl_game;
 create table tbl_game (
     i_gid           integer,        -- 游戏ID
+    c_name_zh_cn    varchar(64),    -- 简体中文名
+    c_name_zh_hk    varchar(64),    -- 繁体中文名
+    c_name_en       varchar(64),    -- 英文名
+    c_name_ja       varchar(64),    -- 日文名
+    c_name_ko       varchar(64),    -- 韩文名
+    c_name_other    varchar(64),    -- 其他语言名
     c_platform      varchar(16),    -- 游戏和账号所属平台：PS4、XBOX ONE、PS5、XBOX TWO、PS3、XBOX 360
-    c_country       varchar(32),    -- 国家
-    c_url_icon      varchar(128),   -- 图标URL
-    c_url_poster    varchar(128),   -- 海报URL
-    c_url_buy       varchar(128),   -- 采购网址
+    c_category      varchar(64),    -- 分类(多种)
+    c_language      varchar(32),    -- 语言(多种)
+    c_size          varchar(16),    -- 大小
+    c_vendor        varchar(32),    -- 发行商
     t_sale          date,           -- 发售日期
-    c_name_zh       varchar(64),    -- 中文名
-    c_name_en       varchar(64)     -- 英文名
+    c_url_icon      varchar(128),   -- 图标URL
+    c_url_cover     varchar(128),   -- 封面URL
+    c_url_poster    text,           -- 海报(多个)
+    c_introduction  text,           -- 游戏说明
+    c_version       text            -- 版本说明
 );
 
 -- 订单
