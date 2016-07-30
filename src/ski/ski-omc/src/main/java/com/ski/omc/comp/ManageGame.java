@@ -32,22 +32,38 @@ public class ManageGame extends JDialog {
 
     private static final long serialVersionUID = 6823417802672054421L;
     
+    private BeanGame 	game;
+    
     private JToolBar    toolbar;
+    
     private FjEditLabel i_gid;
-    private FjEditLabel c_platform;
-    private FjEditLabel c_url_icon;
-    private FjEditLabel c_url_poster;
-    private FjEditLabel t_sale;
     private FjEditLabel c_name_zh_cn;
+    private FjEditLabel	c_name_zh_hk;
     private FjEditLabel c_name_en;
+    private FjEditLabel c_name_ja;
+    private FjEditLabel c_name_ko;
+    private FjEditLabel c_name_other;
+    private FjEditLabel c_platform;
+    private FjEditLabel c_category;
+    private FjEditLabel c_language;
+    private FjEditLabel c_size;
+    private FjEditLabel c_vendor;
+    private FjEditLabel t_sale;
+    private FjEditLabel c_url_icon;
+    private FjEditLabel c_url_cover;
+    private JPanel 		c_url_poster;
+    private FjEditLabel c_introduction;
+    private FjEditLabel c_version;
+    
     private FjEditLabel i_price_a;
     private FjEditLabel i_price_b;
+    
     private JPanel      pane_tag;
     
     public ManageGame(int gid) {
         super(MainFrame.getInstance());
         
-        BeanGame game = CommonService.getGameByGid(gid);
+        game = CommonService.getGameByGid(gid);
         
         toolbar         = new JToolBar();
         toolbar.setFloatable(false);
@@ -59,7 +75,7 @@ public class ManageGame extends JDialog {
         c_name_en       = new FjEditLabel(0 == game.c_name_en.length() ? "(没有英文名)" : game.c_name_en);
         c_platform      = new FjEditLabel(0 == game.c_platform.length() ? "(没有平台)" : game.c_platform);
         c_url_icon      = new FjEditLabel(0 == game.c_url_icon.length() ? "(没有链接)" : game.c_url_icon);
-        c_url_poster    = new FjEditLabel(0 == game.c_url_poster.length() ? "(没有链接)" : game.c_url_poster);
+        c_url_cover    	= new FjEditLabel(0 == game.c_url_poster.length() ? "(没有链接)" : game.c_url_poster);
         t_sale          = new FjEditLabel(0 == game.t_sale.length() ? "(没有发售时间)" : game.t_sale);
         
         i_price_a       = new FjEditLabel();
@@ -77,7 +93,7 @@ public class ManageGame extends JDialog {
         pane_basic.add(UIToolkit.createBasicInfoLabel("英 文 名", c_name_en));
         pane_basic.add(UIToolkit.createBasicInfoLabel("游戏平台", c_platform));
         pane_basic.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_icon.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("海报链接", c_url_poster, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_poster.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
+        pane_basic.add(UIToolkit.createBasicInfoLabel("海报链接", c_url_cover, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_cover.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
         pane_basic.add(UIToolkit.createBasicInfoLabel("发售日期", t_sale));
         
         JPanel pane_price = new JPanel();
@@ -105,6 +121,7 @@ public class ManageGame extends JDialog {
         
         registerListener();
         
+        updateBasic();
         updatePrice();
         updateTag();
     }
@@ -136,14 +153,14 @@ public class ManageGame extends JDialog {
             @Override
             public void cancelEdit(String value) {}
         });
-        c_url_poster.addEditListener(new FjEditLabel.EditListener() {
+        c_url_cover.addEditListener(new FjEditLabel.EditListener() {
             @Override
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
                 args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("url_poster", c_url_poster.getText());
-                c_url_poster.setForeground(UIToolkit.COLOR_MODIFYING);
+                args.put("url_poster", c_url_cover.getText());
+                c_url_cover.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
             public void cancelEdit(String value) {}
@@ -234,7 +251,7 @@ public class ManageGame extends JDialog {
             
             if (args.has("platform"))   c_platform.setForeground(Color.darkGray);
             if (args.has("url_icon"))   c_url_icon.setForeground(Color.darkGray);
-            if (args.has("url_poster")) c_url_poster.setForeground(Color.darkGray);
+            if (args.has("url_poster")) c_url_cover.setForeground(Color.darkGray);
             if (args.has("sale"))       t_sale.setForeground(Color.darkGray);
             if (args.has("name_zh_cn"))	c_name_zh_cn.setForeground(Color.darkGray);
             if (args.has("name_en"))    c_name_en.setForeground(Color.darkGray);
@@ -261,16 +278,23 @@ public class ManageGame extends JDialog {
         });
     }
     
+    private void updateBasic() {
+        c_name_zh_cn    = new FjEditLabel(0 == game.c_name_zh_cn.length() ? "(没有中文名)" : game.c_name_zh_cn);
+        c_name_en       = new FjEditLabel(0 == game.c_name_en.length() ? "(没有英文名)" : game.c_name_en);
+        c_platform      = new FjEditLabel(0 == game.c_platform.length() ? "(没有平台)" : game.c_platform);
+        c_url_icon      = new FjEditLabel(0 == game.c_url_icon.length() ? "(没有链接)" : game.c_url_icon);
+        c_url_cover    	= new FjEditLabel(0 == game.c_url_poster.length() ? "(没有链接)" : game.c_url_poster);
+        t_sale          = new FjEditLabel(0 == game.t_sale.length() ? "(没有发售时间)" : game.t_sale);
+    }
+    
     private void updatePrice() {
-        int gid = Integer.parseInt(i_gid.getText().split("x")[1], 16);
-        i_price_a.setText((null != CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
-        i_price_b.setText((null != CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
+        i_price_a.setText((null != CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
+        i_price_b.setText((null != CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
     }
     
     private void updateTag() {
-        int gid = Integer.parseInt(i_gid.getText().split("x")[1], 16);
         pane_tag.removeAll();
-        CommonService.getTagByInstance(CommonService.TAG_GAME, gid)
+        CommonService.getTagByInstance(CommonService.TAG_GAME, game.i_gid)
                 .stream()
                 .forEach(tag->{
                     JButton btn = new JButton(tag.c_tag);

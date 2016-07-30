@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -98,11 +101,12 @@ public class UIToolkit {
     
     public static JPanel createBasicInfoLabel(String label, JComponent field, JButton button) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 16));
+        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         
         JPanel jpanel = new JPanel();
+        jpanel.setOpaque(false);
         jpanel.setLayout(new BorderLayout());
         jpanel.add(jlabel, BorderLayout.WEST);
         jpanel.add(field, BorderLayout.CENTER);
@@ -1154,5 +1158,15 @@ public class UIToolkit {
             JOptionPane.showMessageDialog(null, "服务器响应：" + CommonService.getResponseDesc(rsp), "错误", JOptionPane.PLAIN_MESSAGE);
             return false;
         }
+    }
+    
+    public static ImageIcon LoadImage(String url) {
+    	try {return new ImageIcon(new URL(url));}
+    	catch (MalformedURLException e) {e.printStackTrace();}
+    	return null;
+    }
+    
+    public static void scaleFont(JComponent c, float scale) {
+    	c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scale));
     }
 }
