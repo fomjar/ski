@@ -2,6 +2,7 @@ package com.ski.omc;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -15,12 +16,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -31,6 +34,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -101,7 +105,7 @@ public class UIToolkit {
     
     public static JPanel createBasicInfoLabel(String label, JComponent field, JButton button) {
         JLabel jlabel = new JLabel(label);
-        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 16));
+        jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 16));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
         
@@ -970,6 +974,49 @@ public class UIToolkit {
         dialog.setVisible(true);
         
         return wrapper.obj;
+    }
+    
+    public static String chooseSingleValue(String[] values_all, String value_cur) {
+    	JPanel panel = new JPanel();
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    	
+    	JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {});
+    	JDialog dialog = optionPane.createDialog(null, "请选择");
+    	
+    	Wrapper<String> result = new Wrapper<String>();
+    	for (String value : values_all) {
+    		JRadioButton button = new JRadioButton(value);
+    		if (value.equals(value_cur)) button.setSelected(true);
+    		button.addActionListener(e->{
+    			result.obj = button.getText();
+    			dialog.dispose();
+			});
+    	}
+    	return result.obj;
+    }
+    
+    public static List<String> chooseMultipleValue(String[] values_all, String[] values_cur) {
+    	JPanel panel = new JPanel();
+    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+    	for (String value : values_all) {
+    		JCheckBox checkBox = new JCheckBox(value);
+    		for (String vc : values_cur) {
+    			if (value.equals(vc)) {
+    				checkBox.setSelected(true);
+    				break;
+    			}
+    		}
+    		panel.add(checkBox);
+    	}
+    	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "请选择", JOptionPane.OK_CANCEL_OPTION)) {
+    		List<String> result = new LinkedList<String>();
+    		for (Component c : panel.getComponents()) {
+    			JCheckBox checkBox = (JCheckBox) c;
+    			if (checkBox.isSelected()) result.add(checkBox.getText());
+    		}
+    		return result;
+    	}
+    	return null;
     }
     
     private static class Wrapper<E> {

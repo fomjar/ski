@@ -2,20 +2,26 @@ package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjEditLabel;
@@ -36,29 +42,31 @@ public class ManageGame extends JDialog {
     
     private JToolBar    toolbar;
     
-    private FjEditLabel i_gid;
-    private FjEditLabel c_name_zh_cn;
-    private FjEditLabel	c_name_zh_hk;
-    private FjEditLabel c_name_en;
-    private FjEditLabel c_name_ja;
-    private FjEditLabel c_name_ko;
-    private FjEditLabel c_name_other;
-    private FjEditLabel c_platform;
-    private FjEditLabel c_category;
-    private FjEditLabel c_language;
-    private FjEditLabel c_size;
-    private FjEditLabel c_vendor;
-    private FjEditLabel t_sale;
-    private FjEditLabel c_url_icon;
-    private FjEditLabel c_url_cover;
+    private JTextField 	i_gid;
+    private JTextField 	c_name_zh_cn;
+    private JTextField	c_name_zh_hk;
+    private JTextField 	c_name_en;
+    private JTextField 	c_name_ja;
+    private JTextField 	c_name_ko;
+    private JTextField 	c_name_other;
+    private JTextField 	c_platform;
+    private JTextField 	c_category;
+    private JTextField 	c_language;
+    private JTextField 	c_size;
+    private JTextField 	c_vendor;
+    private JTextField 	t_sale;
+    private JTextField 	c_url_icon;
+    private JLabel		c_url_icon_label;
+    private JTextField 	c_url_cover;
+    private JLabel		c_url_cover_label;
     private JPanel 		c_url_poster;
-    private FjEditLabel c_introduction;
-    private FjEditLabel c_version;
+    private JTextArea 	c_introduction;
+    private JTextArea 	c_version;
     
-    private FjEditLabel i_price_a;
+    private FjEditLabel	i_price_a;
     private FjEditLabel i_price_b;
     
-    private JPanel      pane_tag;
+    private JPanel      panel_tag;
     
     public ManageGame(int gid) {
         super(MainFrame.getInstance());
@@ -70,47 +78,98 @@ public class ManageGame extends JDialog {
         toolbar.add(new JButton("更新"));
         toolbar.add(new JButton("加标签"));
         
-        i_gid           = new FjEditLabel(String.format("0x%08X", game.i_gid), false);
-        c_name_zh_cn    = new FjEditLabel(0 == game.c_name_zh_cn.length() ? "(没有中文名)" : game.c_name_zh_cn);
-        c_name_en       = new FjEditLabel(0 == game.c_name_en.length() ? "(没有英文名)" : game.c_name_en);
-        c_platform      = new FjEditLabel(0 == game.c_platform.length() ? "(没有平台)" : game.c_platform);
-        c_url_icon      = new FjEditLabel(0 == game.c_url_icon.length() ? "(没有链接)" : game.c_url_icon);
-        c_url_cover    	= new FjEditLabel(0 == game.c_url_poster.length() ? "(没有链接)" : game.c_url_poster);
-        t_sale          = new FjEditLabel(0 == game.t_sale.length() ? "(没有发售时间)" : game.t_sale);
+        i_gid           = new JTextField();
+        i_gid.setEditable(false);
+        i_gid.setForeground(Color.gray);
+        c_name_zh_cn    = new JTextField();
+        c_name_zh_hk    = new JTextField();
+        c_name_en       = new JTextField();
+        c_name_ja       = new JTextField();
+        c_name_ko       = new JTextField();
+        c_name_other    = new JTextField();
+        c_platform      = new JTextField();
+        c_category      = new JTextField();
+        c_language      = new JTextField();
+        c_size          = new JTextField();
+        c_vendor		= new JTextField();
+        t_sale			= new JTextField();
+        
+        c_url_icon      = new JTextField();
+        c_url_icon_label = new JLabel();
+        c_url_cover    	= new JTextField();
+        c_url_cover_label = new JLabel();
+        c_url_poster	= new JPanel();
+        
+        c_introduction	= new JTextArea();
+        c_introduction.setLineWrap(true);
+        c_introduction.setRows(3);
+        c_version		= new JTextArea();
+        c_version.setLineWrap(true);
+        c_version.setRows(3);
         
         i_price_a       = new FjEditLabel();
         i_price_b       = new FjEditLabel();
         
-        pane_tag        = new JPanel();
-        pane_tag.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "TAG"));
-        pane_tag.setLayout(new FlowLayout(FlowLayout.LEADING));
+        panel_tag        = new JPanel();
         
-        JPanel pane_basic = new JPanel();
-        pane_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
-        pane_basic.setLayout(new GridLayout(8, 1));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("游戏编号", i_gid));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("中 文 名", c_name_zh_cn));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("英 文 名", c_name_en));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("游戏平台", c_platform));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_icon.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("海报链接", c_url_cover, DetailPane.createToolBarButton("打开", e->{try{Desktop.getDesktop().browse(new URI(c_url_cover.getText()));}catch(URISyntaxException|IOException e1) {e1.printStackTrace();}})));
-        pane_basic.add(UIToolkit.createBasicInfoLabel("发售日期", t_sale));
+        JPanel panel_basic = new JPanel();
+        panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
+        panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏编号", i_gid));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("简中名称", c_name_zh_cn));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("繁中名称", c_name_zh_hk));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("英文名称", c_name_en));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("日文名称", c_name_ja));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("韩文名称", c_name_ko));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("其他名称", c_name_other));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏平台", c_platform));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏分类", c_category));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏语言", c_language));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏大小", c_size));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("发行组织", c_vendor));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("发行日期", t_sale));
         
-        JPanel pane_price = new JPanel();
-        pane_price.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "价格管理"));
-        pane_price.setLayout(new GridLayout(2, 1));
-        pane_price.add(UIToolkit.createBasicInfoLabel("A 类租赁", i_price_a));
-        pane_price.add(UIToolkit.createBasicInfoLabel("B 类租赁", i_price_b));
+        JPanel panel_url = new JPanel();
+        panel_url.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "图片管理"));
+        panel_url.setLayout(new BoxLayout(panel_url, BoxLayout.Y_AXIS));
+        panel_url.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon));
+        panel_url.add(c_url_icon_label);
+        panel_url.add(UIToolkit.createBasicInfoLabel("封面链接", c_url_cover));
+        panel_url.add(c_url_cover_label);
+        c_url_poster.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "海报"));
+        panel_url.add(c_url_poster);
+        
+        JScrollPane panel_introduction = new JScrollPane(c_introduction);
+        panel_introduction.getVerticalScrollBar().setUnitIncrement(20);
+        panel_introduction.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "游戏简介"));
+        
+        JScrollPane panel_version = new JScrollPane(c_version);
+        panel_version.getVerticalScrollBar().setUnitIncrement(20);
+        panel_version.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "版本说明"));
+        
+        JPanel panel_price = new JPanel();
+        panel_price.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "价格管理"));
+        panel_price.setLayout(new BoxLayout(panel_price, BoxLayout.Y_AXIS));
+        panel_price.add(UIToolkit.createBasicInfoLabel("A 类租赁", i_price_a));
+        panel_price.add(UIToolkit.createBasicInfoLabel("B 类租赁", i_price_b));
+        
+        panel_tag.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "TAG"));
+        panel_tag.setLayout(new FlowLayout(FlowLayout.LEADING));
         
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        panel.add(toolbar, BorderLayout.NORTH);
-        panel.add(pane_basic, BorderLayout.CENTER);
-        panel.add(pane_price, BorderLayout.SOUTH);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(panel_basic);
+        panel.add(panel_url);
+        panel.add(panel_introduction);
+        panel.add(panel_version);
+        panel.add(panel_price);
+        panel.add(panel_tag);
         
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(panel, BorderLayout.NORTH);
-        getContentPane().add(pane_tag, BorderLayout.CENTER);
+        getContentPane().add(toolbar, BorderLayout.NORTH);
+        JScrollPane jsp = new JScrollPane(panel);
+        jsp.getVerticalScrollBar().setUnitIncrement(20);
+        getContentPane().add(jsp, BorderLayout.CENTER);
         
         setTitle(String.format("管理游戏 - %s", game.c_name_zh_cn));
         setModal(false);
@@ -129,118 +188,27 @@ public class ManageGame extends JDialog {
     private JSONObject args = new JSONObject();
     
     private void registerListener() {
-        c_platform.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("platform", c_platform.getText());
-                c_platform.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_url_icon.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("url_icon", c_url_icon.getText());
-                c_url_icon.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_url_cover.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("url_poster", c_url_cover.getText());
-                c_url_cover.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        t_sale.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("sale", t_sale.getText());
-                t_sale.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_name_zh_cn.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("name_zh_cn", c_name_zh_cn.getText());
-                c_name_zh_cn.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        c_name_en.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("name_en", c_name_en.getText());
-                c_name_en.setForeground(UIToolkit.COLOR_MODIFYING);
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        
-        i_price_a.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                if (new_value.contains("元/天")) new_value = new_value.replace("元/天", "");
-                new_value = new_value.trim();
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("type", CommonService.RENT_TYPE_A);
-                args.put("price", Float.parseFloat(new_value));
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
-                CommonService.updateGameRentPrice();
-                UIToolkit.showServerResponse(rsp);
-                updatePrice();
-                args.clear();
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        i_price_b.addEditListener(new FjEditLabel.EditListener() {
-            @Override
-            public void startEdit(String value) {}
-            @Override
-            public void finishEdit(String old_value, String new_value) {
-                if (new_value.contains("元/天")) new_value = new_value.replace("元/天", "");
-                new_value = new_value.trim();
-                args.put("gid", Integer.parseInt(i_gid.getText().split("x")[1], 16));
-                args.put("type", CommonService.RENT_TYPE_B);
-                args.put("price", Float.parseFloat(new_value));
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
-                CommonService.updateGameRentPrice();
-                UIToolkit.showServerResponse(rsp);
-                updatePrice();
-                args.clear();
-            }
-            @Override
-            public void cancelEdit(String value) {}
-        });
-        
+    	c_platform.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				List<String> platforms = UIToolkit.chooseMultipleValue(new String[] {"PS3", "PS4", "PSV", "XBOXONE", "XBOX360"}, c_platform.getText().split(" "));
+				if (null != platforms) c_platform.setText(platforms.stream().collect(Collectors.joining(" ")));
+			}
+		});
+    	c_category.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				List<String> categories = UIToolkit.chooseMultipleValue(new String[] {"角色扮演", "策略", "动作", "冒险", "恐怖", "射击", "模拟", "赛车", "运动", "休闲", "其他"}, c_category.getText().split(" "));
+				if (null != categories) c_category.setText(categories.stream().collect(Collectors.joining(" ")));
+			}
+		});
+    	c_language.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				List<String> languages = UIToolkit.chooseMultipleValue(new String[] {"简体中文", "繁体中文", "英文", "日文", "韩文", "其他"}, c_language.getText().split(" "));
+				if (null != languages) c_language.setText(languages.stream().collect(Collectors.joining(" ")));
+			}
+		});
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             if (args.isEmpty()) {
                 JOptionPane.showMessageDialog(ManageGame.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
@@ -279,12 +247,22 @@ public class ManageGame extends JDialog {
     }
     
     private void updateBasic() {
-        c_name_zh_cn    = new FjEditLabel(0 == game.c_name_zh_cn.length() ? "(没有中文名)" : game.c_name_zh_cn);
-        c_name_en       = new FjEditLabel(0 == game.c_name_en.length() ? "(没有英文名)" : game.c_name_en);
-        c_platform      = new FjEditLabel(0 == game.c_platform.length() ? "(没有平台)" : game.c_platform);
-        c_url_icon      = new FjEditLabel(0 == game.c_url_icon.length() ? "(没有链接)" : game.c_url_icon);
-        c_url_cover    	= new FjEditLabel(0 == game.c_url_poster.length() ? "(没有链接)" : game.c_url_poster);
-        t_sale          = new FjEditLabel(0 == game.t_sale.length() ? "(没有发售时间)" : game.t_sale);
+    	i_gid.setText(String.format("0x%08X", game.i_gid));
+        c_name_zh_cn.setText(game.c_name_zh_cn);
+        c_name_zh_hk.setText(game.c_name_zh_hk);
+        c_name_en.setText(game.c_name_en);
+        c_name_ja.setText(game.c_name_ja);
+        c_name_ko.setText(game.c_name_ko);
+        c_name_other.setText(game.c_name_other);
+        c_platform.setText(game.c_platform);
+        c_category.setText(game.c_category);
+        c_language.setText(game.c_language);
+        c_size.setText(game.c_size);
+        c_vendor.setText(game.c_vendor);
+        t_sale.setText(game.t_sale);
+        c_url_icon.setText(game.c_url_icon);
+        c_url_cover.setText(game.c_url_poster);
+        t_sale.setText(game.t_sale);
     }
     
     private void updatePrice() {
@@ -293,7 +271,7 @@ public class ManageGame extends JDialog {
     }
     
     private void updateTag() {
-        pane_tag.removeAll();
+        panel_tag.removeAll();
         CommonService.getTagByInstance(CommonService.TAG_GAME, game.i_gid)
                 .stream()
                 .forEach(tag->{
@@ -304,9 +282,32 @@ public class ManageGame extends JDialog {
                         CommonService.updateTag();
                         updateTag();
                     });
-                    pane_tag.add(btn);
+                    panel_tag.add(btn);
                 });
-        pane_tag.revalidate();
-        pane_tag.repaint();
+        panel_tag.revalidate();
+        panel_tag.repaint();
+    }
+    
+    private static class PosterPanel extends JPanel {
+    	
+    	private JTextField 	url;
+    	private JLabel		img;
+    	
+    	public PosterPanel(String url) {
+    		this.url = new JTextField();
+    		this.img = new JLabel();
+    		setUrl(url);
+    		
+    		this.url.addActionListener(e->setUrl(this.url.getText()));
+    		
+    		setLayout(new BorderLayout());
+    		add(this.url, BorderLayout.NORTH);
+    		add(this.img, BorderLayout.CENTER);
+    	}
+    	
+    	public void setUrl(String url) {
+    		this.url.setText(url);
+    		this.img.setIcon(UIToolkit.LoadImage(url));
+    	}
     }
 }
