@@ -17,7 +17,7 @@ begin
     declare c_category      varchar(64)     default null;   -- 分类(多种)
     declare c_language      varchar(32)     default null;   -- 语言(多种)
     declare c_size          varchar(16)     default null;   -- 大小
-    declare c_vendor        varchar(32)     default null;   -- 发行商
+    declare c_vendor        varchar(64)     default null;   -- 发行商
     declare t_sale          date            default null;   -- 发售日期
     declare c_url_icon      varchar(250)    default null;   -- 图标URL
     declare c_url_cover     varchar(250)    default null;   -- 封面URL

@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -23,6 +25,7 @@ import com.ski.omc.UIToolkit;
 public class ListCellGame extends FjListCell<BeanGame> {
     
     private static final long serialVersionUID = 6352907380098820766L;
+    private static final ExecutorService pool = Executors.newFixedThreadPool(10);
     
     private JLabel 	c_url_icon;
     private JLabel  c_name;
@@ -110,12 +113,13 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private void update() {
     	BeanGame data = getData();
     	
-        UIToolkit.doLater(()->{
-        	if (0 < data.c_url_icon.length()) {
+        pool.submit(()->{
+        	try {
+        		if (!isVisible()) return;
 	        	ImageIcon icon = UIToolkit.LoadImage(data.c_url_icon);
 	        	icon.setImage(icon.getImage().getScaledInstance(c_url_icon.getWidth(), c_url_icon.getHeight(), Image.SCALE_DEFAULT));
 	        	c_url_icon.setIcon(icon);
-        	}
+        	} catch (Exception e) {e.printStackTrace();}
         });
         c_name.setText(data.getDiaplayName());
         i_gid.setText(String.format("0x%08X", data.i_gid));

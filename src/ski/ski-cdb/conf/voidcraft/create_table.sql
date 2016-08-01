@@ -92,7 +92,7 @@ create table tbl_game (
     c_category      varchar(64),    -- 分类(多种)
     c_language      varchar(32),    -- 语言(多种)
     c_size          varchar(16),    -- 大小
-    c_vendor        varchar(32),    -- 发行商
+    c_vendor        varchar(64),    -- 发行商
     t_sale          date,           -- 发售日期
     c_url_icon      varchar(250),   -- 图标URL
     c_url_cover     varchar(250),   -- 封面URL

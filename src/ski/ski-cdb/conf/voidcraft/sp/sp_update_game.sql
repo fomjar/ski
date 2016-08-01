@@ -18,7 +18,7 @@ create procedure sp_update_game (
     in  category        varchar(64),    -- 分类(多种)
     in  language        varchar(32),    -- 语言(多种)
     in  size            varchar(16),    -- 大小
-    in  vendor          varchar(32),    -- 发行商
+    in  vendor          varchar(64),    -- 发行商
     in  sale            date,           -- 发售日期
     in  url_icon        varchar(250),   -- 图标URL
     in  url_cover       varchar(250),   -- 封面URL

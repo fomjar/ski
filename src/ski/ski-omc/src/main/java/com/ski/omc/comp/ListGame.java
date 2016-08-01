@@ -13,11 +13,11 @@ import com.fomjar.widget.FjSearchBar;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
-import com.ski.omc.comp.ListCellGame;
 
 public class ListGame extends JDialog {
 
     private static final long serialVersionUID = -4974710094129285415L;
+    
     private JToolBar                toolbar;
     private FjListPane<BeanGame>    pane;
     
@@ -25,7 +25,7 @@ public class ListGame extends JDialog {
         super(MainFrame.getInstance(), "游戏清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 600));
+        setSize(new Dimension(500, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
