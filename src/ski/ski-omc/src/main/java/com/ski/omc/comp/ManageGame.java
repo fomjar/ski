@@ -5,10 +5,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,6 +61,7 @@ public class ManageGame extends JDialog {
     private JTextField 	c_url_cover;
     private JLabel		c_url_cover_label;
     private JPanel 		c_url_poster;
+    private JButton		c_url_poster_add;
     private JTextArea 	c_introduction;
     private JTextArea 	c_version;
     
@@ -99,6 +101,7 @@ public class ManageGame extends JDialog {
         c_url_cover    	= new JTextField();
         c_url_cover_label = new JLabel();
         c_url_poster	= new JPanel();
+        c_url_poster_add = new JButton("增加海报");
         
         c_introduction	= new JTextArea();
         c_introduction.setLineWrap(true);
@@ -106,6 +109,23 @@ public class ManageGame extends JDialog {
         c_version		= new JTextArea();
         c_version.setLineWrap(true);
         c_version.setRows(3);
+        
+        i_gid.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_zh_cn.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_zh_hk.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_en.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_ja.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_ko.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_name_other.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_platform.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_category.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_language.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_size.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_vendor.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        t_sale.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_url_icon.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_url_cover.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_url_poster_add.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         
         i_price_a       = new FjEditLabel();
         i_price_b       = new FjEditLabel();
@@ -126,18 +146,23 @@ public class ManageGame extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("游戏分类", c_category));
         panel_basic.add(UIToolkit.createBasicInfoLabel("游戏语言", c_language));
         panel_basic.add(UIToolkit.createBasicInfoLabel("游戏大小", c_size));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("发行组织", c_vendor));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("开发组织", c_vendor));
         panel_basic.add(UIToolkit.createBasicInfoLabel("发行日期", t_sale));
         
         JPanel panel_url = new JPanel();
         panel_url.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "图片管理"));
         panel_url.setLayout(new BoxLayout(panel_url, BoxLayout.Y_AXIS));
         panel_url.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon));
-        panel_url.add(c_url_icon_label);
+        panel_url.add(new JScrollPane(c_url_icon_label));
         panel_url.add(UIToolkit.createBasicInfoLabel("封面链接", c_url_cover));
-        panel_url.add(c_url_cover_label);
+        panel_url.add(new JScrollPane(c_url_cover_label));
+        c_url_poster.setLayout(new BoxLayout(c_url_poster, BoxLayout.Y_AXIS));
         c_url_poster.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "海报"));
-        panel_url.add(c_url_poster);
+        c_url_poster.add(c_url_poster_add);
+        JPanel panel_poster = new JPanel();
+        panel_poster.setLayout(new BorderLayout());
+        panel_poster.add(c_url_poster, BorderLayout.CENTER);
+        panel_url.add(panel_poster);
         
         JScrollPane panel_introduction = new JScrollPane(c_introduction);
         panel_introduction.getVerticalScrollBar().setUnitIncrement(20);
@@ -185,13 +210,11 @@ public class ManageGame extends JDialog {
         updateTag();
     }
     
-    private JSONObject args = new JSONObject();
-    
     private void registerListener() {
     	c_platform.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				List<String> platforms = UIToolkit.chooseMultipleValue(new String[] {"PS3", "PS4", "PSV", "XBOXONE", "XBOX360"}, c_platform.getText().split(" "));
+				List<String> platforms = UIToolkit.chooseMultipleValue(new String[] {"PC", "PS3", "PS4", "PSV", "XBOXONE", "XBOX360"}, c_platform.getText().split(" "));
 				if (null != platforms) c_platform.setText(platforms.stream().collect(Collectors.joining(" ")));
 			}
 		});
@@ -209,21 +232,62 @@ public class ManageGame extends JDialog {
 				if (null != languages) c_language.setText(languages.stream().collect(Collectors.joining(" ")));
 			}
 		});
+    	c_url_icon.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				UIToolkit.doLater(()->{
+					c_url_icon_label.setIcon(UIToolkit.LoadImage(c_url_icon.getText()));
+					ManageGame.this.revalidate();
+				});
+			}
+		});
+    	c_url_cover.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				UIToolkit.doLater(()->{
+					c_url_cover_label.setIcon(UIToolkit.LoadImage(c_url_cover.getText()));
+					ManageGame.this.revalidate();
+				});
+			}
+		});
+    	c_url_poster_add.addActionListener(e->{
+    		c_url_poster.add(new PosterPanel());
+    		c_url_poster.revalidate();
+    	});
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
-            if (args.isEmpty()) {
-                JOptionPane.showMessageDialog(ManageGame.this, "没有可更新的内容", "信息", JOptionPane.PLAIN_MESSAGE);
-                return;
-            }
+        	JSONObject args = new JSONObject();
+        	args.put("gid", game.i_gid);
+        	args.put("name_zh_cn", c_name_zh_cn.getText());
+        	args.put("name_zh_hk", c_name_zh_hk.getText());
+        	args.put("name_en", c_name_en.getText());
+        	args.put("name_ja", c_name_ja.getText());
+        	args.put("name_ko", c_name_ko.getText());
+        	args.put("name_other", c_name_other.getText());
+        	args.put("platform", c_platform.getText());
+        	args.put("category", c_category.getText());
+        	args.put("language", c_language.getText());
+        	args.put("size", c_size.getText());
+        	args.put("vendor", c_vendor.getText());
+        	args.put("sale", t_sale.getText());
+        	args.put("url_icon", c_url_icon.getText());
+        	args.put("url_cover", c_url_cover.getText());
+        	String poster = Arrays.asList(c_url_poster.getComponents())
+        			.stream()
+        			.filter(c->c instanceof PosterPanel)
+        			.map(c->(PosterPanel) c)
+        			.map(p->p.getUrl())
+        			.collect(Collectors.joining(" "));
+        	args.put("url_poster", poster);
+        	
+        	args.put("introduction", c_introduction.getText().replace("\n", "|"));
+        	args.put("version", c_version.getText().replace("\n", "|"));
+        	
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
             if (!UIToolkit.showServerResponse(rsp)) return;
             
-            if (args.has("platform"))   c_platform.setForeground(Color.darkGray);
-            if (args.has("url_icon"))   c_url_icon.setForeground(Color.darkGray);
-            if (args.has("url_poster")) c_url_cover.setForeground(Color.darkGray);
-            if (args.has("sale"))       t_sale.setForeground(Color.darkGray);
-            if (args.has("name_zh_cn"))	c_name_zh_cn.setForeground(Color.darkGray);
-            if (args.has("name_en"))    c_name_en.setForeground(Color.darkGray);
-            args.clear();
+            CommonService.updateGame();
+            game = CommonService.getGameByGid(game.i_gid);
+            updateBasic();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             FjTextField tag = new FjTextField();
@@ -260,9 +324,17 @@ public class ManageGame extends JDialog {
         c_size.setText(game.c_size);
         c_vendor.setText(game.c_vendor);
         t_sale.setText(game.t_sale);
+        
         c_url_icon.setText(game.c_url_icon);
-        c_url_cover.setText(game.c_url_poster);
-        t_sale.setText(game.t_sale);
+        UIToolkit.doLater(()->c_url_icon_label.setIcon(UIToolkit.LoadImage(c_url_icon.getText())));
+        c_url_cover.setText(game.c_url_cover);
+        UIToolkit.doLater(()->c_url_cover_label.setIcon(UIToolkit.LoadImage(c_url_cover.getText())));
+        for (String poster : game.c_url_poster.split(" ")) {
+        	if (0 < poster.length()) c_url_poster.add(new PosterPanel(poster));
+        }
+        
+        c_introduction.setText(game.c_introduction.replace("|", "\n"));
+        c_version.setText(game.c_version.replace("|", "\n"));
     }
     
     private void updatePrice() {
@@ -288,26 +360,57 @@ public class ManageGame extends JDialog {
         panel_tag.repaint();
     }
     
-    private static class PosterPanel extends JPanel {
+    private class PosterPanel extends JPanel {
     	
-    	private JTextField 	url;
+		private static final long serialVersionUID = -2572068071678674205L;
+		
+		private JTextField 	url;
+    	private JButton		del;
     	private JLabel		img;
+    	
+    	public PosterPanel() {
+    		this(null);
+    	}
     	
     	public PosterPanel(String url) {
     		this.url = new JTextField();
+    		this.url.setPreferredSize(new Dimension(1, this.url.getPreferredSize().height));
+    		this.del = new JButton("删除");
     		this.img = new JLabel();
-    		setUrl(url);
     		
-    		this.url.addActionListener(e->setUrl(this.url.getText()));
+    		this.url.addKeyListener(new KeyAdapter() {
+    			@Override
+    			public void keyReleased(KeyEvent e) {
+            		UIToolkit.doLater(()->{
+            			PosterPanel.this.img.setIcon(UIToolkit.LoadImage(PosterPanel.this.url.getText()));
+            			revalidate();
+            		});
+    			}
+			});
     		
     		setLayout(new BorderLayout());
-    		add(this.url, BorderLayout.NORTH);
-    		add(this.img, BorderLayout.CENTER);
+    		JPanel panel = new JPanel();
+    		panel.setLayout(new BorderLayout());
+    		panel.add(this.url, BorderLayout.CENTER);
+    		panel.add(this.del, BorderLayout.EAST);
+    		add(panel, BorderLayout.NORTH);
+    		add(new JScrollPane(this.img), BorderLayout.CENTER);
+    		
+    		this.del.addActionListener(e->{
+    			c_url_poster.remove(this);
+    			c_url_poster.revalidate();
+    		});
+    		
+    		if (null != url) {
+        		UIToolkit.doLater(()->{
+        			this.img.setIcon(UIToolkit.LoadImage(url));
+        			revalidate();
+        		});
+    		}
     	}
     	
-    	public void setUrl(String url) {
-    		this.url.setText(url);
-    		this.img.setIcon(UIToolkit.LoadImage(url));
+    	public String getUrl() {
+    		return this.url.getText();
     	}
     }
 }

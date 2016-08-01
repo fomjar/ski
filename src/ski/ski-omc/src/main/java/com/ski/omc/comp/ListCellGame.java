@@ -5,9 +5,12 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -88,6 +91,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         
         JPanel panel_main = new JPanel();
         panel_main.setOpaque(false);
+        panel_main.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
         panel_main.setLayout(new BoxLayout(panel_main, BoxLayout.Y_AXIS));
         panel_main.add(panel_name);
         panel_main.add(panel_category);
@@ -106,7 +110,13 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private void update() {
     	BeanGame data = getData();
     	
-        UIToolkit.doLater(()->c_url_icon.setIcon(UIToolkit.LoadImage(data.c_url_icon)));
+        UIToolkit.doLater(()->{
+        	if (0 < data.c_url_icon.length()) {
+	        	ImageIcon icon = UIToolkit.LoadImage(data.c_url_icon);
+	        	icon.setImage(icon.getImage().getScaledInstance(c_url_icon.getWidth(), c_url_icon.getHeight(), Image.SCALE_DEFAULT));
+	        	c_url_icon.setIcon(icon);
+        	}
+        });
         c_name.setText(data.getDiaplayName());
         i_gid.setText(String.format("0x%08X", data.i_gid));
         c_category.setText("游戏分类: " + (0 == data.c_category.length() ? "(没有分类)" : data.c_category));

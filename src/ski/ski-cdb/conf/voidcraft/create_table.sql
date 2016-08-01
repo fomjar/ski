@@ -94,8 +94,8 @@ create table tbl_game (
     c_size          varchar(16),    -- 大小
     c_vendor        varchar(32),    -- 发行商
     t_sale          date,           -- 发售日期
-    c_url_icon      varchar(128),   -- 图标URL
-    c_url_cover     varchar(128),   -- 封面URL
+    c_url_icon      varchar(250),   -- 图标URL
+    c_url_cover     varchar(250),   -- 封面URL
     c_url_poster    text,           -- 海报(多个)
     c_introduction  text,           -- 游戏说明
     c_version       text            -- 版本说明

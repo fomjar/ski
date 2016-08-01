@@ -20,8 +20,8 @@ create procedure sp_update_game (
     in  size            varchar(16),    -- 大小
     in  vendor          varchar(32),    -- 发行商
     in  sale            date,           -- 发售日期
-    in  url_icon        varchar(128),   -- 图标URL
-    in  url_cover       varchar(128),   -- 封面URL
+    in  url_icon        varchar(250),   -- 图标URL
+    in  url_cover       varchar(250),   -- 封面URL
     in  url_poster      text,           -- 海报(多个)
     in  introduction    text,           -- 游戏说明
     in  version         text            -- 版本说明

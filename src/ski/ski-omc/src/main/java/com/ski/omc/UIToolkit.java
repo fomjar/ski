@@ -1208,8 +1208,12 @@ public class UIToolkit {
     }
     
     public static ImageIcon LoadImage(String url) {
-    	try {return new ImageIcon(new URL(url));}
+    	try {
+    		ImageIcon icon = new ImageIcon(new URL(url));
+    		return icon;
+    	}
     	catch (MalformedURLException e) {e.printStackTrace();}
+    	catch (Exception e) {e.printStackTrace();}
     	return null;
     }
     

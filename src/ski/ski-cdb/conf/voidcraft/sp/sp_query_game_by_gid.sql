@@ -19,8 +19,8 @@ begin
     declare c_size          varchar(16)     default null;   -- 大小
     declare c_vendor        varchar(32)     default null;   -- 发行商
     declare t_sale          date            default null;   -- 发售日期
-    declare c_url_icon      varchar(128)    default null;   -- 图标URL
-    declare c_url_cover     varchar(128)    default null;   -- 封面URL
+    declare c_url_icon      varchar(250)    default null;   -- 图标URL
+    declare c_url_cover     varchar(250)    default null;   -- 封面URL
     declare c_url_poster    text            default null;   -- 海报(多个)
     declare c_introduction  text            default null;   -- 游戏说明
     declare c_version       text            default null;   -- 版本说明
