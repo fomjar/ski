@@ -57,7 +57,7 @@ public class ListGameAccount extends JDialog {
                             .stream()
                             .filter(game->{
                                 int count = 0;
-                                for (String word : words) if (game.getDiaplayName().toLowerCase().contains(word.toLowerCase())) count++;
+                                for (String word : words) if (game.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                                 if (count == words.length) return true;
                                 else return false;
                             }).collect(Collectors.toList());

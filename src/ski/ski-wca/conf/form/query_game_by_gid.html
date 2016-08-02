@@ -26,7 +26,7 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#url_poster').attr('src', args.desc.url_poster);
+                        $('#url_cover').attr('src', args.desc.url_cover);
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
                         $('#sale').text(args.desc.sale);
@@ -63,7 +63,7 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <img width='100%%' alt="游戏海报" src="" id='url_poster'>
+                <img width='100%%' alt="游戏海报" src="" id='url_cover'>
                 <div class="weui_cells">
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary"><p>中文名</p></div>

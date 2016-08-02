@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 
 import com.fomjar.widget.FjEditLabel;
+import com.fomjar.widget.FjEditLabel.EditListener;
 import com.fomjar.widget.FjTextField;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
@@ -265,6 +266,46 @@ public class ManageGame extends JDialog {
     		c_url_poster.add(new PosterPanel());
     		c_url_poster.revalidate();
     	});
+    	
+    	i_price_a.addEditListener(new EditListener() {
+			@Override
+			public void startEdit(String value) {}
+			@Override
+			public void finishEdit(String old_value, String new_value) {
+				String price = new_value;
+				if (price.endsWith("元/天")) price = price.substring(0, price.length() - 3);
+				JSONObject args = new JSONObject();
+				args.put("gid", game.i_gid);
+				args.put("type", CommonService.RENT_TYPE_A);
+				args.put("price", Float.parseFloat(price.trim()));
+				FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
+				CommonService.updateGameRentPrice();
+				UIToolkit.showServerResponse(rsp);
+				updatePrice();
+			}
+			@Override
+			public void cancelEdit(String value) {}
+		});
+    	i_price_b.addEditListener(new EditListener() {
+			@Override
+			public void startEdit(String value) {}
+			@Override
+			public void finishEdit(String old_value, String new_value) {
+				String price = new_value;
+				if (price.endsWith("元/天")) price = price.substring(0, price.length() - 3);
+				JSONObject args = new JSONObject();
+				args.put("gid", game.i_gid);
+				args.put("type", CommonService.RENT_TYPE_B);
+				args.put("price", Float.parseFloat(price.trim()));
+				FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_RENT_PRICE, args);
+				CommonService.updateGameRentPrice();
+				UIToolkit.showServerResponse(rsp);
+				updatePrice();
+			}
+			@Override
+			public void cancelEdit(String value) {}
+		});
+    	
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
         	JSONObject args = new JSONObject();
         	args.put("gid", game.i_gid);

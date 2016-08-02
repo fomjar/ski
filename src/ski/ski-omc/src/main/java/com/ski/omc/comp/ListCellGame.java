@@ -122,7 +122,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
 	        	c_url_icon.setIcon(icon);
         	} catch (Exception e) {e.printStackTrace();}
         });
-        c_name.setText(data.getDiaplayName());
+        c_name.setText(data.getDisplayName());
         i_gid.setText(String.format("0x%08X", data.i_gid));
         c_category.setText("游戏分类: " + (0 == data.c_category.length() ? "(没有分类)" : data.c_category));
         t_sale.setText("发售时间: " + (0 == data.t_sale.length() ? "(没有时间)" : data.t_sale));

@@ -65,7 +65,7 @@ begin
             c_introduction,
             c_version
         ) values (
-            gid,
+            di_gid,
             name_zh_cn,
             name_zh_hk,
             name_en,

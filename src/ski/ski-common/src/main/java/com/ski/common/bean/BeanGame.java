@@ -1,5 +1,8 @@
 package com.ski.common.bean;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public class BeanGame {
     
     public BeanGame(String line) {
@@ -43,8 +46,11 @@ public class BeanGame {
     public String	c_introduction;
     public String 	c_version;
     
-    public String getDiaplayName() {
-        return 0 == c_name_en.length() ? c_name_zh_cn : String.format("%s(%s)", c_name_zh_cn, c_name_en);
+    public String getDisplayName() {
+    	return String.format("%s %s %s",
+    			c_name_zh_cn,
+    			0 < c_name_en.length() ? String.format("(%s)", c_name_en) : "",
+    			0 < c_name_other.length() ? String.format("(%s)", Arrays.asList(c_name_other.split(" ")).stream().collect(Collectors.joining("/"))) : "");
     }
 
 }

@@ -32,18 +32,20 @@
                                 return;
                             }
                             var title = document.createElement('div');
-                            title.setAttribute('class', 'weui_cells_title');
+                            title.setAttribute('class', 'weui_panel_hd');
                             title.innerText = '搜索结果';
 
                             var cells = document.createElement('div');
-                            cells.setAttribute('class', 'weui_cells weui_cells_access');
+                            cells.setAttribute('class', 'weui_panel_bd');
                             for (var i in args.desc) {
                                 var game = args.desc[i];
-                                var cell = "<a class='weui_cell' href=\"javascript:browseGame(" + game.gid + ");\">"
-                                        + "<div class='weui_cell_hd'><img style='width:20px;margin-right:5px;display:block' alt='' src='" + game.url_icon + "'></div>"
-                                        + "<div class='weui_cell_bd weui_cell_primary'><p>" + game.display_name +"</p></div>"
-                                        + "<div class='weui_cell_ft'></div>"
-                                        + "</a>";
+                                var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
+                                             + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
+                                             + "<div class='weui_media_bd'>"
+                                                + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
+                                                + "<p class='weui_media_desc'>" + game.introduction + "</p>"
+                                             + "</div>"
+                                         + "</a>";
                                 cells.innerHTML = cells.innerHTML + cell;
                             }
                             $('#result')[0].innerHTML = '';
@@ -72,7 +74,7 @@
         </script>
     </head>
     <body>
-        <div class='cell'>
+        <div class='panel'>
             <div class='bd'>
                 <div class="weui_search_bar" id="search_bar">
                     <div class="weui_search_outer">
@@ -88,7 +90,8 @@
                     </div>
                     <a class="weui_search_cancel" id="search_cancel" href="javascript:$('#search_input').val('');$('#search_input').blur();setup();">取消</a>
                 </div>
-                <div id='result'></div>
+                <div class="weui_panel weui_panel_access" id='result'>
+                </div>
             </div>
         </div>
         <div class="weui_dialog_alert" id="dialog" style='display:none'>

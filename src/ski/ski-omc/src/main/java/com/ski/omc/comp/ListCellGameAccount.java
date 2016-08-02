@@ -45,7 +45,7 @@ public class ListCellGameAccount extends FjListCell<BeanGameAccount> {
         i_gaid.setForeground(color_minor);
         
         List<BeanGame> games = CommonService.getGameByGaid(data.i_gaid);
-        c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.c_name_zh_cn).collect(Collectors.joining("; ")) : "-"));
+        c_games = new JLabel("包含游戏:" + (!games.isEmpty() ? games.stream().map(game->game.getDisplayName()).collect(Collectors.joining("; ")) : "-"));
         c_games.setForeground(color_minor);
         BeanChannelAccount user_a = CommonService.getChannelAccountByCaid(CommonService.getChannelAccountByGaid(data.i_gaid, CommonService.RENT_TYPE_A));
         c_user_a = new JLabel("A租用户: " + (null != user_a ? user_a.getDisplayName() : "-"));

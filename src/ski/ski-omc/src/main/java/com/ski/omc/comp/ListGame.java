@@ -25,7 +25,7 @@ public class ListGame extends JDialog {
         super(MainFrame.getInstance(), "游戏清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(500, 600));
+        setSize(new Dimension(600, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
@@ -46,7 +46,7 @@ public class ListGame extends JDialog {
             @Override
             public boolean isMatch(String type, String[] words, BeanGame celldata) {
                     int count = 0;
-                    for (String word : words) if (celldata.getDiaplayName().toLowerCase().contains(word.toLowerCase())) count++;
+                    for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
             }
         });

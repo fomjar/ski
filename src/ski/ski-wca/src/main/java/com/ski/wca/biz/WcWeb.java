@@ -468,7 +468,7 @@ public class WcWeb {
                 JSONArray desc = new JSONArray();
                 CommonService.getGameAll().values()
                         .stream()
-                        .filter(game->game.getDiaplayName().toLowerCase().contains(word.toLowerCase()))
+                        .filter(game->game.getDisplayName().toLowerCase().contains(word.toLowerCase()))
                         .forEach(game->desc.add(gameToJson(game)));
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
@@ -520,11 +520,11 @@ public class WcWeb {
     	json.put("sale",            game.t_sale);
     	json.put("url_icon",        game.c_url_icon);
     	json.put("url_cover",       game.c_url_cover);
-    	json.put("url_poster",      game.c_url_poster);
+    	json.put("url_poster",      JSONArray.fromObject(game.c_url_poster.split(" ")));
     	json.put("introduction",    game.c_introduction);
     	json.put("version",      	game.c_version);
     	
-    	json.put("display_name",    game.getDiaplayName());
+    	json.put("display_name",    game.getDisplayName());
     	json.put("price_a",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A).i_price);
     	json.put("price_b",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B).i_price);
     	return json;
@@ -587,7 +587,7 @@ public class WcWeb {
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
         json.put("account",  account.c_user);
         json.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
-        json.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDiaplayName()).collect(Collectors.joining("; ")));
+        json.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDisplayName()).collect(Collectors.joining("; ")));
         // 预结算
         if (!c.isClose()) {
             json.put("expense", CommonService.prestatementByCommodity(c));
