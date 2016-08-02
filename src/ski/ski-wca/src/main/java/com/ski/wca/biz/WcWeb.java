@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -201,6 +202,8 @@ public class WcWeb {
             break;
         }
     }
+    
+    private static Set<Integer> cache_user_recharge = new HashSet<Integer>();
 
     private static void processApplyPlatformAccountMoney_Recharge(WcwResponse response, WcwRequest request) {
         switch (request.step) {
@@ -249,8 +252,10 @@ public class WcWeb {
             json_pay.put("package",     "prepay_id=" + json_prepay.getString("prepay_id"));
             json_pay.put("signType",    "MD5");
             json_pay.put("paySign",     paySign);
-            
             json_prepay.put("pay", json_pay);
+            
+            cache_user_recharge.add(request.user);
+            
             response.type       = FjHttpRequest.CT_JSON;
             response.content    = json_prepay.toString();
             break;
@@ -299,8 +304,6 @@ public class WcWeb {
         }
     }
     
-    private static Set<String> cache_trade = new HashSet<String>();
-
     /**
      * <xml>
      * <appid><![CDATA[wx9c65a26e4f512fd4]]></appid>
@@ -334,11 +337,14 @@ public class WcWeb {
             args.put(node.getNodeName(), node.getFirstChild().getNodeValue());
         }
 
-        if (!cache_trade.contains(args.getString("out_trade_no"))) {
-            logger.error("user pay recharge: " + args);
-            cache_trade.add(args.getString("out_trade_no"));
+        List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(args.getString("openid"), CommonService.CHANNEL_WECHAT);
+        if (users.isEmpty()) return;
+        
+        BeanChannelAccount user = users.get(0);
+        if (cache_user_recharge.contains(user.i_caid)) {
+        	cache_user_recharge.remove(user.i_caid);
             
-            BeanChannelAccount user = CommonService.getChannelAccountByUser(args.getString("openid")).get(0);
+        	logger.error("user pay recharge: " + args);
             float money = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("caid",    user.i_caid);
