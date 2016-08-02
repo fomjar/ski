@@ -27,8 +27,10 @@
                             return;
                         }
                         $('#display_name').text(args.desc.display_name);
-                        $('#type_a').text('认证 (' + args.desc.price_a + '元/天)');
-                        $('#type_b').text('不认证 (' + args.desc.price_b + '元/天)');
+
+                        if (args.desc.rent_a) $('#type')[0].innerHTML = "<option value='0'>认证 - " + args.desc.price_a + "元/天</option>";
+                        if (args.desc.rent_b) $('#type')[0].innerHTML += "<option value='1'>不认证 - " + args.desc.price_b + "元/天</option>";
+                        if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
                     });
             });
 
@@ -86,14 +88,11 @@
                             <label class="weui_label" for="">租赁类型</label>
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <select name="select" class="weui_select" id='type'>
-                                <option value="0" selected='selected' id='type_a'></option> <!-- hex value -->
-                                <option value="1" id='type_b'></option> <!-- hex value -->
-                            </select>
+                            <select name="select" class="weui_select" id='type'></select>
                         </div>
                     </div>
                 </div>
-                <div class='weui_btn_area'>
+                <div class='weui_btn_area' id='rent_begin'>
                     <a class='weui_btn weui_btn_primary' href="javascript:apply();">起租</a>
                 </div>
             </div>

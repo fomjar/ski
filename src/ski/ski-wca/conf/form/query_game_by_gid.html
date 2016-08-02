@@ -29,10 +29,24 @@
                         $('#url_cover').attr('src', args.desc.url_cover);
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
+                        $('#category').text(args.desc.category);
+                        $('#vendor').text(args.desc.vendor);
                         $('#sale').text(args.desc.sale);
-                        $('#platform').text(args.desc.platform);
-                        $('#price_a').text(args.desc.price_a + " 元/天");
-                        $('#price_b').text(args.desc.price_b + " 元/天");
+                        $('#introduction').text(args.desc.introduction);
+
+                        if (args.desc.rent_a) {
+                            $('#rent')[0].innerHTML = "<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'><p>认证</p></div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.price_a + " 元/天</div>"
+                                    + "</div>";
+                        }
+                        if (args.desc.rent_b) {
+                            $('#rent')[0].innerHTML += "<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'><p>不认证</p></div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.price_b + " 元/天</div>"
+                                    + "</div>";
+                        }
+                        if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
                     });
             });
 
@@ -63,10 +77,18 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <img width='100%%' alt="游戏海报" src="" id='url_cover'>
+                <article class='weui_article'>
+                    <p><img width='100%%' alt="游戏海报" src="" id='url_cover'></p>
+                    <section>
+                        <h1>游戏介绍</h1>
+                        <section>
+                            <section>
+                                <p id='introduction'></p>
+                    </section></section></section>
+                </article>
                 <div class="weui_cells">
                     <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>中文名</p></div>
+                        <div class="weui_cell_bd weui_cell_primary"><p>简体中文名</p></div>
                         <div class="weui_cell_ft" id='name_zh_cn'></div>
                     </div>
                     <div class="weui_cell">
@@ -74,35 +96,21 @@
                         <div class="weui_cell_ft" id='name_en'></div>
                     </div>
                     <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>国家</p></div>
-                        <div class="weui_cell_ft" id='country'></div>
+                        <div class="weui_cell_bd weui_cell_primary"><p>游戏类型</p></div>
+                        <div class="weui_cell_ft" id='category'></div>
+                    </div>
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>发行商</p></div>
+                        <div class="weui_cell_ft" id='vendor'></div>
                     </div>
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary"><p>发售日期</p></div>
                         <div class="weui_cell_ft" id='sale'></div>
                     </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>所属平台</p></div>
-                        <div class="weui_cell_ft" id='platform'></div>
-                    </div>
                 </div>
-                <div class="weui_cells">
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>认证</p></div>
-                        <div class="weui_cell_ft" id='price_a'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>不认证</p></div>
-                        <div class="weui_cell_ft" id='price_b'></div>
-                    </div>
+                <div class="weui_cells" id='rent'>
                 </div>
-                <div class="weui_cells weui_cells_access">
-                    <a class="weui_cell" href="javascript:;">
-                        <div class="weui_cell_bd weui_cell_primary"><p>租赁情况</p></div>
-                        <div class="weui_cell_ft"></div>
-                    </a>
-                </div>
-                <div class='weui_btn_area'>
+                <div class='weui_btn_area' id='rent_begin'>
                     <a class='weui_btn weui_btn_primary' href="javascript:rentBegin();">我要租</a>
                 </div>
             </div>

@@ -24,6 +24,7 @@ import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
+import com.ski.common.bean.BeanGameRentPrice;
 import com.ski.common.bean.BeanPlatformAccount;
 import com.ski.wca.WechatInterface;
 import com.ski.wca.monitor.TokenMonitor;
@@ -153,11 +154,11 @@ public class WcWeb {
         }
     }
     
-    public static String generateUrl(String server, int inst, int user) {
+    private static String generateUrl(String server, int inst, int user) {
         return generateUrl(server, URL_KEY, inst, user);
     }
     
-    public static String generateUrl(String server, String url, int inst, int user) {
+    private static String generateUrl(String server, String url, int inst, int user) {
         FjAddress addr = FjServerToolkit.getSlb().getAddress(server);
         return String.format("http://%s%s%s?inst=%s&user=%s",
                 addr.host,
@@ -531,8 +532,13 @@ public class WcWeb {
     	json.put("version",      	game.c_version);
     	
     	json.put("display_name",    game.getDisplayName());
-    	json.put("price_a",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A).i_price);
-    	json.put("price_b",         CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B).i_price);
+    	BeanGameRentPrice price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
+    	json.put("price_a",         null != price_a ? price_a.i_price : 0.0f);
+    	BeanGameRentPrice price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
+    	json.put("price_b",         null != price_b ? price_b.i_price : 0.0f);
+    	
+    	json.put("rent_a", 			CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
+    	json.put("rent_b", 			CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
     	return json;
     }
     

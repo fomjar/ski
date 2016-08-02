@@ -9,6 +9,27 @@
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <style type="text/css">
+        td {
+            white-space: nowrap;
+        }
+        .rent_enable {
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #00C802;
+            -webkit-border-radius   : 6px;
+            -moz-border-radius      : 6px;
+        }
+        .rent_disable {
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #B2B2B2;
+            -webkit-border-radius   : 6px;
+            -moz-border-radius      : 6px;
+        }
+        </style>
         <script type='text/javascript'>
             var user = %d;
             var tag  = '%s';
@@ -35,7 +56,11 @@
                             var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
                                          + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
                                          + "<div class='weui_media_bd'>"
-                                            + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
+                                            + "<table width='100%%'><tr>"
+                                                + "<td><h4 class='weui_media_title'>" + game.name_zh_cn + "</h4></td>"
+                                                + "<td width='40px'><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
+                                                + "<td width='40px'><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
+                                            + "</tr></table>"
                                             + "<p class='weui_media_desc'>" + game.introduction + "</p>"
                                          + "</div>"
                                      + "</a>";
