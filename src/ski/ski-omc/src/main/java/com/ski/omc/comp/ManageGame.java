@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -75,6 +77,13 @@ public class ManageGame extends JDialog {
         
         game = CommonService.getGameByGid(gid);
         
+        setTitle(String.format("管理游戏 - %s", game.c_name_zh_cn));
+        setModal(false);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(new Dimension(400, 440));
+        Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
+        
         toolbar         = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("更新"));
@@ -125,7 +134,6 @@ public class ManageGame extends JDialog {
         t_sale.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_url_icon.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_url_cover.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
-        c_url_poster_add.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         
         i_price_a       = new FjEditLabel();
         i_price_b       = new FjEditLabel();
@@ -149,16 +157,26 @@ public class ManageGame extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("开发组织", c_vendor));
         panel_basic.add(UIToolkit.createBasicInfoLabel("发行日期", t_sale));
         
+        JPanel panel_url_icon = new JPanel();
+        panel_url_icon.setLayout(new BorderLayout());
+        panel_url_icon.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon), BorderLayout.NORTH);
+        panel_url_icon.add(c_url_icon_label, BorderLayout.SOUTH);
+        JPanel panel_url_cover = new JPanel();
+        panel_url_cover.setLayout(new BorderLayout());
+        panel_url_cover.add(UIToolkit.createBasicInfoLabel("封面链接", c_url_cover), BorderLayout.NORTH);
+        panel_url_cover.add(c_url_cover_label, BorderLayout.SOUTH);
         JPanel panel_url = new JPanel();
-        panel_url.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "图片管理"));
         panel_url.setLayout(new BoxLayout(panel_url, BoxLayout.Y_AXIS));
-        panel_url.add(UIToolkit.createBasicInfoLabel("图标链接", c_url_icon));
-        panel_url.add(new JScrollPane(c_url_icon_label));
-        panel_url.add(UIToolkit.createBasicInfoLabel("封面链接", c_url_cover));
-        panel_url.add(new JScrollPane(c_url_cover_label));
+        panel_url.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "图片管理"));
+        panel_url.add(panel_url_icon);
+        panel_url.add(panel_url_cover);
+        
         c_url_poster.setLayout(new BoxLayout(c_url_poster, BoxLayout.Y_AXIS));
         c_url_poster.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "海报"));
-        c_url_poster.add(c_url_poster_add);
+        JPanel panel_url_poster_add = new JPanel();
+        panel_url_poster_add.setLayout(new BorderLayout());
+        panel_url_poster_add.add(c_url_poster_add, BorderLayout.CENTER);
+        c_url_poster.add(panel_url_poster_add);
         JPanel panel_poster = new JPanel();
         panel_poster.setLayout(new BorderLayout());
         panel_poster.add(c_url_poster, BorderLayout.CENTER);
@@ -196,13 +214,6 @@ public class ManageGame extends JDialog {
         jsp.getVerticalScrollBar().setUnitIncrement(20);
         getContentPane().add(jsp, BorderLayout.CENTER);
         
-        setTitle(String.format("管理游戏 - %s", game.c_name_zh_cn));
-        setModal(false);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 440));
-        Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
-        
         registerListener();
         
         updateBasic();
@@ -236,7 +247,7 @@ public class ManageGame extends JDialog {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				UIToolkit.doLater(()->{
-					c_url_icon_label.setIcon(UIToolkit.LoadImage(c_url_icon.getText()));
+					c_url_icon_label.setIcon(new ImageIcon(UIToolkit.LoadImage(c_url_icon.getText())));
 					ManageGame.this.revalidate();
 				});
 			}
@@ -245,7 +256,7 @@ public class ManageGame extends JDialog {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				UIToolkit.doLater(()->{
-					c_url_cover_label.setIcon(UIToolkit.LoadImage(c_url_cover.getText()));
+					c_url_cover_label.setIcon(new ImageIcon(UIToolkit.LoadImage(c_url_cover.getText())));
 					ManageGame.this.revalidate();
 				});
 			}
@@ -326,9 +337,13 @@ public class ManageGame extends JDialog {
         t_sale.setText(game.t_sale);
         
         c_url_icon.setText(game.c_url_icon);
-        UIToolkit.doLater(()->c_url_icon_label.setIcon(UIToolkit.LoadImage(c_url_icon.getText())));
+        UIToolkit.doLater(()->{
+        	c_url_icon_label.setIcon(new ImageIcon(UIToolkit.LoadImage(c_url_icon.getText())));
+        });
         c_url_cover.setText(game.c_url_cover);
-        UIToolkit.doLater(()->c_url_cover_label.setIcon(UIToolkit.LoadImage(c_url_cover.getText())));
+        UIToolkit.doLater(()->{
+        	c_url_cover_label.setIcon(new ImageIcon(UIToolkit.LoadImage(c_url_cover.getText())));
+        });
         for (String poster : game.c_url_poster.split(" ")) {
         	if (0 < poster.length()) c_url_poster.add(new PosterPanel(poster));
         }
@@ -382,7 +397,7 @@ public class ManageGame extends JDialog {
     			@Override
     			public void keyReleased(KeyEvent e) {
             		UIToolkit.doLater(()->{
-            			PosterPanel.this.img.setIcon(UIToolkit.LoadImage(PosterPanel.this.url.getText()));
+            			PosterPanel.this.img.setIcon(new ImageIcon(imageFitWidth(UIToolkit.LoadImage(PosterPanel.this.url.getText()), ManageGame.this.getWidth() - 50)));
             			revalidate();
             		});
     			}
@@ -394,7 +409,7 @@ public class ManageGame extends JDialog {
     		panel.add(this.url, BorderLayout.CENTER);
     		panel.add(this.del, BorderLayout.EAST);
     		add(panel, BorderLayout.NORTH);
-    		add(new JScrollPane(this.img), BorderLayout.CENTER);
+    		add(this.img, BorderLayout.SOUTH);
     		
     		this.del.addActionListener(e->{
     			c_url_poster.remove(this);
@@ -402,8 +417,9 @@ public class ManageGame extends JDialog {
     		});
     		
     		if (null != url) {
+    			this.url.setText(url);
         		UIToolkit.doLater(()->{
-        			this.img.setIcon(UIToolkit.LoadImage(url));
+        			this.img.setIcon(new ImageIcon(imageFitWidth(UIToolkit.LoadImage(this.url.getText()), ManageGame.this.getWidth() - 50)));
         			revalidate();
         		});
     		}
@@ -412,5 +428,10 @@ public class ManageGame extends JDialog {
     	public String getUrl() {
     		return this.url.getText();
     	}
+    }
+    
+    private static Image imageFitWidth(Image img, int width) {
+    	int height = img.getHeight(null) * width / img.getWidth(null);
+    	return img.getScaledInstance(width, height, Image.SCALE_DEFAULT);
     }
 }

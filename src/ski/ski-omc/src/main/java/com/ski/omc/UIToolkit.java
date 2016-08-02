@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -18,14 +19,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -96,7 +99,10 @@ public class UIToolkit {
     public static synchronized void doLater(Runnable task) {
         if (null == pool) pool = Executors.newCachedThreadPool();
         
-        pool.submit(task);
+        pool.submit(()->{
+        	try {task.run();}
+        	catch (Exception e) {e.printStackTrace();}
+        });
     }
     
     public static JPanel createBasicInfoLabel(String label, JComponent field) {
@@ -1207,14 +1213,21 @@ public class UIToolkit {
         }
     }
     
-    public static ImageIcon LoadImage(String url) {
-    	try {
-    		ImageIcon icon = new ImageIcon(new URL(url));
-    		return icon;
+    private static final Map<String, Image> cache_image = new ConcurrentHashMap<String, Image>();
+    
+    public static Image LoadImage(String url) {
+    	if (!cache_image.containsKey(url)) {
+	    	try {
+	    		Image img = ImageIO.read(new URL(url));
+	    		cache_image.put(url, img);
+	    		return img;
+	    	}
+	    	catch (MalformedURLException e) {e.printStackTrace();}
+	    	catch (Exception e) {e.printStackTrace();}
+	    	return null;
+    	} else {
+    		return cache_image.get(url);
     	}
-    	catch (MalformedURLException e) {e.printStackTrace();}
-    	catch (Exception e) {e.printStackTrace();}
-    	return null;
     }
     
     public static void scaleFont(JComponent c, float scale) {

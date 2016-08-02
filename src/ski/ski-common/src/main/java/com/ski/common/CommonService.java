@@ -289,6 +289,7 @@ public class CommonService {
                     .stream()
                     .filter(gag->gag.i_gaid == gaid)
                     .map(gag->cache_game.get(gag.i_gid))
+                    .filter(game->null != game)
                     .collect(Collectors.toList());
         }
     }

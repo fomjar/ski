@@ -27,6 +27,8 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private static final long serialVersionUID = 6352907380098820766L;
     private static final ExecutorService pool = Executors.newFixedThreadPool(10);
     
+    private static final int ICON_SIZE = 55;
+    
     private JLabel 	c_url_icon;
     private JLabel  c_name;
     private JLabel  i_gid;
@@ -48,7 +50,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         i_price_b   = new JLabel();
         tags        = new JPanel();
         
-        c_url_icon.setPreferredSize(new Dimension(55, 55));
+        c_url_icon.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
         c_name.setPreferredSize(new Dimension(1, 0));
         c_name.setFont(c_name.getFont().deriveFont(Font.BOLD));
         c_category.setForeground(color_minor);
@@ -115,9 +117,8 @@ public class ListCellGame extends FjListCell<BeanGame> {
     	
         pool.submit(()->{
         	try {
-        		if (!isVisible()) return;
-	        	ImageIcon icon = UIToolkit.LoadImage(data.c_url_icon);
-	        	icon.setImage(icon.getImage().getScaledInstance(c_url_icon.getWidth(), c_url_icon.getHeight(), Image.SCALE_DEFAULT));
+        		Image img = UIToolkit.LoadImage(data.c_url_icon);
+	        	ImageIcon icon = new ImageIcon(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT));
 	        	c_url_icon.setIcon(icon);
         	} catch (Exception e) {e.printStackTrace();}
         });
