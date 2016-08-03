@@ -19,6 +19,7 @@ import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
 
 public class WcaTask implements FjServerTask {
     
@@ -55,7 +56,7 @@ public class WcaTask implements FjServerTask {
                 return;
             }
             // 第一时间给微信响应
-            WechatInterface.sendResponse(FjHttpRequest.CT_TEXT, "success", (SocketChannel) wrapper.attachment("conn"));
+            WechatInterface.sendResponse(new FjHttpResponse(null, 200, null, "success"), (SocketChannel) wrapper.attachment("conn"));
             
             FjDscpMessage dmsg = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
             WcaBusiness.dispatch(server, dmsg);

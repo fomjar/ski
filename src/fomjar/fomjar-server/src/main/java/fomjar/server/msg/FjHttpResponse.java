@@ -1,31 +1,47 @@
 package fomjar.server.msg;
 
-public class FjHttpResponse extends FjHttpMessage {
-    
-    private int code;
-    
-    public FjHttpResponse() {this(200, null, null);}
-    
-    public FjHttpResponse(String contentType, String content) {this(200, contentType, content);}
+import java.util.HashMap;
+import java.util.Map;
 
-    public FjHttpResponse(int code, String contentType, String content) {
+public class FjHttpResponse extends FjHttpMessage {
+	
+	private static final Map<Integer, String> desc = new HashMap<Integer, String>();
+	
+	static {
+		desc.put(200, "OK");
+		desc.put(302, "Object moved");
+	}
+	
+	public static FjHttpResponse parse(String data) {
+		String[] head 		= data.split("\r\n")[0].split(" ");
+		String[] contents   = data.split("\r\n\r\n");
+        String   attrs		= contents[0].substring(data.indexOf("\r\n") + 2);
+        String   content 	= contents.length > 1 ? contents[1] : null;
+        FjHttpResponse response = new FjHttpResponse(head[0], Integer.parseInt(head[1]), null, content);
+        for (String attr : attrs.split("\r\n")) {
+        	String[] kv = attr.split(":");
+        	String   k  = kv[0].trim();
+        	String   v  = attr.substring(kv[0].length() + 1).trim();
+        	response.attr().put(k, v);
+        }
+        return response;
+	}
+	
+	private String 	protocal;
+    private int 	code;
+    
+    public FjHttpResponse(String protocal, int code, String contentType, String content) {
         super(contentType, content);
-        this.code = code;
+        this.protocal	= null == protocal ? "HTTP/1.1" : protocal;
+        this.code 		= code;
     }
     
-    public int code() {return code;}
-    
+    public String 	protocal() 		{return protocal;}
+    public int 		code() 			{return code;}
+    public void 	code(int code)	{this.code = code;}
+
     @Override
-    public String toString() {
-        return String.format("HTTP/1.1 %d OK\r\n"
-                + "Server: fjserver/0.1\r\n"
-                + "Content-Type: %s;charset=UTF-8\r\n"
-                + "Content-Length: %d\r\n"
-                + "\r\n"
-                + "%s",
-                code(),
-                contentType(),
-                contentLength(),
-                null == content() ? "" : content());
+    protected String head() {
+    	return String.format("HTTP/1.1 %d %s", code(), desc.get(code()));
     }
 }

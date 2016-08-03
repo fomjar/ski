@@ -1,27 +1,45 @@
 package fomjar.server.msg;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-
 public class FjHttpRequest extends FjHttpMessage {
+	
+	public static FjHttpRequest parse(String data) {
+        String[] head 		= data.split("\r\n")[0].split(" ");
+		String[] contents   = data.split("\r\n\r\n");
+        String   attrs		= contents[0].substring(data.indexOf("\r\n") + 2);
+        String   content 	= contents.length > 1 ? contents[1] : null;
+        FjHttpRequest request = new FjHttpRequest(head[0].trim(), head[1].trim(), null, content);
+        for (String attr : attrs.split("\r\n")) {
+        	String[] kv = attr.split(":");
+        	String   k  = kv[0].trim();
+        	String   v  = attr.substring(kv[0].length() + 1).trim();
+        	request.attr().put(k, v);
+        }
+        return request;
+	}
     
     private String method;
     private String url;
     
-    public FjHttpRequest(String method, String url) {this(method, url, null, null);}
-    
     public FjHttpRequest(String method, String url, String contentType, String content) {
         super(contentType, content);
         this.method = method;
-        this.url    = url;
+        try {this.url = URLDecoder.decode(url, "utf-8");}
+        catch (UnsupportedEncodingException e) {
+        	this.url = url;
+			e.printStackTrace();
+		}
     }
     
-    public String method() {return method;}
-    
-    public String url() {return url;}
+    public String method()	{return method;}
+    public String url() 	{return url;}
+    public String path()	{return url().contains("?") ? url().substring(0, url.indexOf("?")) : url();}
     
     public Map<String, String> urlArgs() {
         if (!url().contains("?")) return new HashMap<String, String>();
@@ -43,18 +61,10 @@ public class FjHttpRequest extends FjHttpMessage {
     }
 
     @Override
-    public String toString() {
+    protected String head() {
         String requesturl = null;
         if (url().contains("//")) requesturl = url().substring(url().substring(url().indexOf("//") + 2).indexOf("/"));
         else requesturl = url();
-        return String.format("%s %s HTTP/1.1\r\n"
-                + "Content-Type: %s;charset=UTF-8\r\n"
-                + "Content-Length: %d\r\n"
-                + "\r\n"
-                + "%s",
-                method(), requesturl,
-                contentType(),
-                contentLength(),
-                null == content() ? "" : content());
+        return String.format("%s %s HTTP/1.1", method(), requesturl);
     }
 }

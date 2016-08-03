@@ -33,6 +33,7 @@ import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServerToolkit.FjAddress;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjXmlMessage;
 import net.sf.json.JSONArray;
@@ -49,17 +50,16 @@ public class WcWeb {
     private static final String STEP_APPLY      = "apply";
     private static final String STEP_SUCCESS    = "success";
     
-    public static void dispatch(String server, FjHttpRequest req, SocketChannel conn) {
-        logger.info("user request url: " + req.url());
-        logger.debug("user request data: " + req.content());
+    public static void dispatch(String server, FjHttpRequest hreq, SocketChannel conn) {
+        logger.info("user request url: " + hreq.url());
+        logger.debug("user request data: " + hreq.content());
         
-        WcwResponse response = new WcwResponse();
-        String url = req.url().contains("?") ? req.url().substring(0, req.url().indexOf("?")) : req.url();
-        switch (url) {
+        FjHttpResponse response = new FjHttpResponse(null, 200, null, null);
+        switch (hreq.path()) {
         case URL_KEY:
         case URL_KEY + "/pay/recharge":
         case URL_KEY + "/pay/refund": {
-            JSONObject args = req.argsToJson();
+            JSONObject args = hreq.argsToJson();
             if (!args.has("inst")) {
                 logger.error("illegal argument: no inst param: " + args);
                 break;
@@ -69,16 +69,17 @@ public class WcWeb {
                     logger.error("illegal request, no user or code param: " + args);
                     break;
                 }
-                String code = args.getString("code");
-                FjJsonMessage rsp = WechatInterface.snsOauth2(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"), code);
-                if (!rsp.json().has("openid")) {
-                    logger.error("user authorize failed: " + rsp);
+                if (!authorize(args)) {
+                    logger.error("user authorize failed: " + args);
                     break;
                 }
-                
-                args.put("user", Integer.toHexString(CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid));
             }
-            WcwRequest request = new WcwRequest(server, url, args, conn);
+            
+            if (args.has("code")) {
+            	redirect(response, server, hreq.path(), Integer.parseInt(args.getString("inst"), 16), Integer.parseInt(args.getString("user"), 16));
+            	break;
+            }
+            WcwRequest request = new WcwRequest(server, hreq.path(), args, conn);
             switch (request.inst) {
             case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
                 processApplyPlatformAccountMoney(response, request);
@@ -108,29 +109,38 @@ public class WcWeb {
             break;
         }
         case URL_KEY + "/pay/recharge/success": {
-            Document xml = req.contentToXml();
+            Document xml = hreq.contentToXml();
             processPayRechargeSuccess(response, server, xml);
             break;
         }
         default:
-            fetchFile(response, req.url());
+            fetchFile(response, hreq.url());
             break;
         }
         
-        if (null != response.content) {
-            logger.debug("user response data: " + response.content);
-            WechatInterface.sendResponse(response.type, response.content, conn);
-        } else {
-            try {conn.close();}
-            catch (IOException e) {e.printStackTrace();}
-        }
+        logger.debug("user response data: " + response);
+        WechatInterface.sendResponse(response, conn);
     }
     
-    private static void fetchFile(WcwResponse response, String url, Object... args) {
+    private static boolean authorize(JSONObject args) {
+        String code = args.getString("code");
+        FjJsonMessage rsp = WechatInterface.snsOauth2(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"), code);
+        if (!rsp.json().has("openid")) return false;
+        
+        args.put("user", Integer.toHexString(CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid));
+        return true;
+    }
+    
+    private static void redirect(FjHttpResponse response, String server, String path, int inst, int user) {
+    	response.code(302);
+    	response.attr().put("Location", generateUrl(server, path, inst, user));
+    	logger.debug("user redirect data: " + response);
+    }
+    
+    private static void fetchFile(FjHttpResponse response, String url, Object... args) {
         File file = new File(FjServerToolkit.getServerConfig("wca.form.root") + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
         if (!file.isFile()) {
             logger.warn("not such file to fetch: " + file.getPath());
-            response.type   = FjHttpRequest.CT_TEXT;
             return;
         }
         
@@ -142,9 +152,9 @@ public class WcWeb {
             fis     = new FileInputStream(file);
             baos    = new ByteArrayOutputStream();
             while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
-            response.type       = getFileMime(file.getName());
-            response.content    = baos.toString("utf-8");
-            if (null != args && 0 < args.length) response.content = String.format(response.content, args);
+            response.attr().put("Content-Type", getFileMime(file.getName()));
+            response.content(baos.toString("utf-8"));
+            if (null != args && 0 < args.length) response.content(String.format(response.content(), args));
         } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
         finally {
             try {
@@ -158,12 +168,12 @@ public class WcWeb {
         return generateUrl(server, URL_KEY, inst, user);
     }
     
-    private static String generateUrl(String server, String url, int inst, int user) {
+    private static String generateUrl(String server, String path, int inst, int user) {
         FjAddress addr = FjServerToolkit.getSlb().getAddress(server);
         return String.format("http://%s%s%s?inst=%s&user=%s",
                 addr.host,
                 80 == addr.port ? "" : (":" + addr.port),
-                url,
+                path,
                 Integer.toHexString(inst),
                 Integer.toHexString(user));
     }
@@ -178,23 +188,23 @@ public class WcWeb {
     }
     
     private static String getFileMime (String name) {
-        if (!name.contains(".")) return FjHttpRequest.CT_TEXT;
+        if (!name.contains(".")) return FjHttpRequest.CT_TEXT_PLAIN;
         
         String ext = name.substring(name.lastIndexOf(".") + 1).toLowerCase();
         switch (ext) {
         case "html":
-        case "htm":     return FjHttpRequest.CT_HTML;
-        case "js":      return FjHttpRequest.CT_JS;
+        case "htm":     return FjHttpRequest.CT_TEXT_HTML;
+        case "js":      return FjHttpRequest.CT_APPL_JS;
         case "css":
-        case "less":    return FjHttpRequest.CT_CSS;
-        case "xml":     return FjHttpRequest.CT_XML;
-        case "json":    return FjHttpRequest.CT_JSON;
-        default:    return FjHttpRequest.CT_TEXT;
+        case "less":    return FjHttpRequest.CT_TEXT_CSS;
+        case "xml":     return FjHttpRequest.CT_TEXT_XML;
+        case "json":    return FjHttpRequest.CT_APPL_JSON;
+        default:    return FjHttpRequest.CT_TEXT_PLAIN;
         }
     }
     
-    private static void processApplyPlatformAccountMoney(WcwResponse response, WcwRequest request) {
-        switch (request.url) {
+    private static void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
+        switch (request.path) {
         case URL_KEY + "/pay/recharge":
             processApplyPlatformAccountMoney_Recharge(response, request);
             break;
@@ -206,7 +216,7 @@ public class WcWeb {
     
     private static Set<Integer> cache_user_recharge = new HashSet<Integer>();
 
-    private static void processApplyPlatformAccountMoney_Recharge(WcwResponse response, WcwRequest request) {
+    private static void processApplyPlatformAccountMoney_Recharge(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             long timestamp  = System.currentTimeMillis() / 1000;
@@ -257,8 +267,8 @@ public class WcWeb {
             
             cache_user_recharge.add(request.user);
             
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = json_prepay.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(json_prepay.toString());
             break;
         }
         case STEP_SUCCESS: {
@@ -268,7 +278,7 @@ public class WcWeb {
         }
     }
     
-    private static void processApplyPlatformAccountMoney_Refund(WcwResponse response, WcwRequest request) {
+    private static void processApplyPlatformAccountMoney_Refund(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/apply_platform_account_money_refund.html", request.user);
@@ -283,8 +293,8 @@ public class WcWeb {
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             break;
         }
         case STEP_APPLY: {
@@ -294,8 +304,8 @@ public class WcWeb {
             args.put("money",   -money);
             FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
             
-            response.type = FjHttpRequest.CT_JSON;
-            response.content = rsp.args().toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(rsp.args().toString());
             break;
         }
         case STEP_SUCCESS: {
@@ -329,7 +339,7 @@ public class WcWeb {
      * 
      * @param xml
      */
-    private static void processPayRechargeSuccess(WcwResponse response, String server, Document xml) {
+    private static void processPayRechargeSuccess(FjHttpResponse response, String server, Document xml) {
         JSONObject args = new JSONObject();
         NodeList nodes = xml.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -358,19 +368,19 @@ public class WcWeb {
             FjServerToolkit.getAnySender().send(msg_cdb);
         }
         
-        response.type       = FjHttpRequest.CT_XML;
-        response.content    = "<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>";
+        response.attr().put("Content-Type", FjHttpRequest.CT_TEXT_XML);
+        response.content("<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>");
     }
     
-    private static void processApplyRentBegin(WcwResponse response, WcwRequest request) {
+    private static void processApplyRentBegin(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             if (!request.args.has("gid")) {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
                 break;
             }
             int gid = Integer.parseInt(request.args.getString("gid"), 16);
@@ -383,8 +393,8 @@ public class WcWeb {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
                 break;
             }
             int gid     = Integer.parseInt(request.args.getString("gid"), 16);
@@ -399,15 +409,15 @@ public class WcWeb {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonService.getResponseCode(rsp));
                 args_rsp.put("desc", CommonService.getResponseDesc(rsp));
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args_rsp.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args_rsp.toString());
                 break;
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, request.user) + "&step=success");
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args_rsp.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args_rsp.toString());
             break;
         }
         case STEP_SUCCESS: {
@@ -417,13 +427,13 @@ public class WcWeb {
         }
     }
     
-    private static void processApplyRentEnd(WcwResponse response, WcwRequest request) {
+    private static void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
         if (!request.args.has("oid") || !request.args.has("csn")) {
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
             args.put("desc", "参数错误");
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             return;
         }
         int oid = Integer.parseInt(request.args.getString("oid"), 16);
@@ -444,15 +454,15 @@ public class WcWeb {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonService.getResponseCode(rsp));
                 args_rsp.put("desc", CommonService.getResponseDesc(rsp));
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args_rsp.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args_rsp.toString());
                 break;
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, request.user) + "&step=success");
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args_rsp.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args_rsp.toString());
     	}
         case STEP_SUCCESS: {
             fetchFile(response, "/message_success.html", "退租成功", "", "");
@@ -461,7 +471,7 @@ public class WcWeb {
     	}
     }
     
-    private static void processQueryGame(WcwResponse response, WcwRequest request) {
+    private static void processQueryGame(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             if (request.args.has("gid")) fetchFile(response, "/query_game_by_gid.html", request.user, Integer.parseInt(request.args.getString("gid"), 16));
@@ -480,8 +490,8 @@ public class WcWeb {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args.put("desc", desc);
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
             } else if (request.args.has("tag")) {
             	String tag = request.args.getString("tag");
             	JSONArray desc = new JSONArray();
@@ -489,21 +499,21 @@ public class WcWeb {
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", desc);
-	            response.type       = FjHttpRequest.CT_JSON;
-	            response.content    = args.toString();
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args.toString());
             } else if (request.args.has("gid")) {
 	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
-	            response.type       = FjHttpRequest.CT_JSON;
-	            response.content    = args.toString();
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args.toString());
             } else {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
             }
             break;
         }
@@ -542,7 +552,7 @@ public class WcWeb {
     	return json;
     }
     
-    private static void processQueryOrder(WcwResponse response, WcwRequest request) {
+    private static void processQueryOrder(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/query_order.html", request.user);
@@ -557,8 +567,8 @@ public class WcWeb {
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", commodityToJson(c));
-	            response.type       = FjHttpRequest.CT_JSON;
-	            response.content    = args.toString();
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args.toString());
         	} else {
 	            JSONArray desc = new JSONArray();
 	            CommonService.getOrderByCaid(request.user).forEach(o->{
@@ -567,8 +577,8 @@ public class WcWeb {
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", desc);
-	            response.type       = FjHttpRequest.CT_JSON;
-	            response.content    = args.toString();
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args.toString());
         	}
             break;
         }
@@ -609,7 +619,7 @@ public class WcWeb {
         return json;
     }
     
-    private static void processQueryPlatformAccountMap(WcwResponse response, WcwRequest request) {
+    private static void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/query_platform_account_map.html", request.user);
@@ -634,14 +644,14 @@ public class WcWeb {
             });
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             break;
         }
         }
     }
     
-    private static void processQueryPlatformAccountMoney(WcwResponse response, WcwRequest request) {
+    private static void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/query_platform_account_money.html", request.user);
@@ -659,14 +669,14 @@ public class WcWeb {
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             break;
         }
         }
     }
     
-    private static void processUpdateChannelAccount(WcwResponse response, WcwRequest request) {
+    private static void processUpdateChannelAccount(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/update_channel_account.html",
@@ -692,8 +702,8 @@ public class WcWeb {
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             break;
         }
         case STEP_APPLY: {
@@ -701,36 +711,42 @@ public class WcWeb {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数不完整");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
                 break;
             }
             int     caid    = request.args.has("caid") ? Integer.parseInt(request.args.getString("caid"), 16) : -1;
             int     channel = request.args.getInt("channel");
             String  user    = request.args.getString("_user");
             String  name    = request.args.getString("name");
-            // 更新已有用户
-            if (-1 != caid) {
+            
+            if (-1 != caid) { // 更新已有用户
                 // 未找到已有用户
                 if (null == CommonService.getChannelAccountByCaid(caid)) {
                     JSONObject args = new JSONObject();
                     args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                     args.put("desc", "用户不存在");
-                    response.type       = FjHttpRequest.CT_JSON;
-                    response.content    = args.toString();
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(args.toString());
+                    break;
+                }
+            } else { // 新创建用户
+                // 已有重复渠道用户
+                if (!CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()) {
+                    JSONObject args = new JSONObject();
+                    args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                    args.put("desc", "已经关联了" + getChannelDesc(channel) + "用户，不能再重复关联");
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(args.toString());
                     break;
                 }
             }
-            // 新创建用户但已有重复渠道用户
-            if (-1 == caid && !CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()) {
-                JSONObject args = new JSONObject();
-                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-                args.put("desc", "已经关联了" + getChannelDesc(channel) + "用户，不能再重复关联");
-                response.type       = FjHttpRequest.CT_JSON;
-                response.content    = args.toString();
-                break;
-            }
-            {   // 创建用户
+            // 此平台下当前没有关联用户且可以找到此平台下同名用户，则会将它们关联
+            if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()
+            		&&!CommonService.getChannelAccountByUserNChannel(user, channel).isEmpty())
+            	caid = CommonService.getChannelAccountByUserNChannel(user, channel).get(0).i_caid;
+            
+            { // 创建或更新用户
                 JSONObject args_cdb = new JSONObject();
                 if (-1 != caid) args_cdb.put("caid", caid);
                 args_cdb.put("channel", channel);
@@ -739,8 +755,8 @@ public class WcWeb {
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
                 
                 if (!CommonService.isResponseSuccess(rsp)) {
-                    response.type       = FjHttpRequest.CT_JSON;
-                    response.content    = rsp.args().toString();
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(rsp.args().toString());
                     break;
                 }
                 caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
@@ -748,7 +764,7 @@ public class WcWeb {
             CommonService.updateChannelAccount();
             CommonService.updatePlatformAccount();
             CommonService.updatePlatformAccountMap();
-            // 合并用户
+            // 新用户与当前用户合并
             if (CommonService.getPlatformAccountByCaid(caid) != CommonService.getPlatformAccountByCaid(request.user)) {
                 int paid = CommonService.getPlatformAccountByCaid(caid);
                 JSONObject args_cdb = new JSONObject();
@@ -757,15 +773,15 @@ public class WcWeb {
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
                 
                 if (!CommonService.isResponseSuccess(rsp)) {
-                    response.type       = FjHttpRequest.CT_JSON;
-                    response.content    = rsp.args().toString();
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(rsp.args().toString());
                     break;
                 }
             }
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            response.type       = FjHttpRequest.CT_JSON;
-            response.content    = args.toString();
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
             break;
         }
         }
@@ -788,24 +804,19 @@ public class WcWeb {
         public String           server = null;
         public int              inst = -1;
         public int              user = -1;
-        public String           url  = null;
+        public String           path  = null;
         public String           step = null;
         public JSONObject       args = null;
         public SocketChannel    conn = null;
         
-        public WcwRequest(String server, String url, JSONObject args, SocketChannel conn) {
+        public WcwRequest(String server, String path, JSONObject args, SocketChannel conn) {
             this.server = server;
             if (args.has("inst")) this.inst = Integer.parseInt(args.getString("inst"), 16);
             if (args.has("user")) this.user = Integer.parseInt(args.getString("user"), 16);
-            this.url  = url;
+            this.path  = path;
             this.step = args.has("step") ? args.getString("step") : STEP_PREPARE;
             this.args = args;
             this.conn = conn;
         }
-    }
-    
-    private static class WcwResponse {
-        public String type = FjHttpRequest.CT_TEXT;
-        public String content = null;
     }
 }

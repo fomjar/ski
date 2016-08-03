@@ -124,7 +124,8 @@ public class WechatInterface {
      * @param wrapper
      */
     public static void access(FjMessageWrapper wrapper) {
-        sendResponse(FjHttpRequest.CT_TEXT, ((FjHttpRequest) wrapper.message()).urlArgs().get("echostr"), (SocketChannel) wrapper.attachment("conn"));
+    	FjHttpResponse response = new FjHttpResponse(null, 200, null, ((FjHttpRequest) wrapper.message()).urlArgs().get("echostr"));
+        sendResponse(response, (SocketChannel) wrapper.attachment("conn"));
     }
     
     public static FjJsonMessage token(String appid, String secret) {
@@ -361,13 +362,13 @@ public class WechatInterface {
     
     public static FjJsonMessage sendRequest(String method, String url, String content) {
         logger.debug(">> " + (null != content ? content.replace("\r\n", "") : null));
-        FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, FjHttpRequest.CT_JSON, content));
+        FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, FjHttpRequest.CT_APPL_JSON, content));
         logger.debug("<< " + rsp);
         return rsp;
     }
     
-    public static void sendResponse(String contentType, String content, SocketChannel conn) {
-        FjSender.sendHttpResponse(new FjHttpResponse(contentType, content), conn);
+    public static void sendResponse(FjHttpResponse response, SocketChannel conn) {
+        FjSender.sendHttpResponse(response, conn);
     }
     
     public static class Article {
@@ -471,7 +472,7 @@ public class WechatInterface {
         String sign = createSignature4Pay(new FjXmlMessage(msg_pay).xml());
         msg_pay = String.format(msg_pay, sign);
         logger.debug("prepay request: " + msg_pay);
-        FjXmlMessage rsp = (FjXmlMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_XML, msg_pay));
+        FjXmlMessage rsp = (FjXmlMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_TEXT_XML, msg_pay));
         logger.debug("prepay response: " + rsp);
         return rsp;
     }

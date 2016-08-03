@@ -362,7 +362,7 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("content", String.format("支付宝账号: %s|真实姓名: %s|退款金额: %.2f 元|退款备注: %s",
                     user_alipay.c_user,
                     user_alipay.c_name,
-                    money,
+                    -money,
                     "VC电玩游戏退款"));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
             if (!CommonService.isResponseSuccess(rsp)) {
@@ -383,7 +383,7 @@ public class BcsTask implements FjServerTask {
             }
         }
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
-        Notifier.notifyCashRefund(server, paid, String.format("%.2f元", money));
+        Notifier.notifyCashRefund(server, paid, String.format("%.2f元", -money));
     }
     
     private static void response(FjDscpMessage request, String server, int code, String desc) {

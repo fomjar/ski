@@ -3,8 +3,6 @@ package fomjar.server;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -208,19 +206,10 @@ public class FjServerToolkit {
         if (data.startsWith("GET")
                 || data.startsWith("POST")
                 || data.startsWith("HEAD")) {
-            String[] title = data.split("\r\n")[0].split(" ");
-            String content = null;
-            if (data.contains("\r\n\r\n") && 1 < data.split("\r\n\r\n").length) content = data.split("\r\n\r\n")[1];
-            try {return new FjHttpRequest(title[0], URLDecoder.decode(title[1], "utf-8"), null, content);}
-            catch (UnsupportedEncodingException e) {
-            	logger.error("decode http request url failed: " + title[1], e);
-            	return new FjHttpRequest(title[0], title[1], null, content);
-            }
+        	return FjHttpRequest.parse(data);
         }
         if (data.startsWith("HTTP/")) {
-            int code = Integer.parseInt(data.split("\r\n")[0].split(" ")[1]);
-            String content = data.contains("\r\n\r\n") ? data.split("\r\n\r\n")[1] : null;
-            return new FjHttpResponse(code, null, content);
+        	return FjHttpResponse.parse(data);
         }
         if (data.startsWith("{")) {
             FjJsonMessage jmsg = new FjJsonMessage(data);

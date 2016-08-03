@@ -564,7 +564,7 @@ public class CommonService {
         args.put("report", report);
         args.put("inst", inst);
         System.out.println(">> " + args);
-        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_JSON, args.toString());
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_APPL_JSON, args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
         System.out.println("<< " + rsp);
         return rsp;

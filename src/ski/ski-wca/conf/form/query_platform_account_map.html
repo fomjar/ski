@@ -34,23 +34,26 @@
                             var cells = document.createElement('div');
                             cells.className = 'weui_cells';
 
-                            if (1 != account.channel) {
+                            switch (account.channel) {
+                            case 0: // 淘宝
+                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
+                                break;
+                            case 1: // 微信
+                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
+                                break;
+                            case 2: // 支付宝
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
+                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>真实姓名</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
+                                break;
                             }
 
-                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>名称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
-
-                            var cell_access;
                             if (1 != account.channel) {
-                                cell_access = document.createElement('div');
-                                cell_access.className = 'weui_cells weui_cells_access';
                                 var update = url_update + '&caid=' + account.caid.toString(16) + '&channel=' + account.channel.toString(16);
-                                cell_access.innerHTML = "<a class='weui_cell' href='" + update + "'><div class='weui_cell_bd weui_cell_primary'><p>修改</p></div><div class='weui_cell_ft'></div></a>";
+                                cells.innerHTML += "<a class='weui_cell' href='" + update + "'><div class='weui_cell_bd weui_cell_primary'><p>修改</p></div><div class='weui_cell_ft'></div></a>";
                             }
 
                             $('#result')[0].appendChild(title);
                             $('#result')[0].appendChild(cells);
-                            if (1 != account.channel) $('#result')[0].appendChild(cell_access);
                         }
                     });
             });

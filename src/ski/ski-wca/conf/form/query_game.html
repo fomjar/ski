@@ -35,6 +35,13 @@
             var url_setup = '/ski-wcweb?inst=2001&user=' + user.toString(16) + '&step=setup';
             var url_detail = '/ski-wcweb?inst=2001&user=' + user.toString(16);
 
+            $(document).ready(function() {
+                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
+                if (0 < word.length) {
+                    setup();
+                }
+            });
+
             function setup() {
                 var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
 

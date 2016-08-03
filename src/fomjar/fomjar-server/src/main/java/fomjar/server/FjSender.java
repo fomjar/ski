@@ -106,10 +106,10 @@ public class FjSender extends FjLoopTask {
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type",   req.contentType());
             conn.setRequestProperty("Content-Length", String.valueOf(req.contentLength()));
-            if (null != req.content()) {
-                OutputStream os = conn.getOutputStream();
-                os.write(req.content().getBytes(Charset.forName("utf-8")));
-                os.flush();
+            if (0 < req.contentLength()) {
+	            OutputStream os = conn.getOutputStream();
+	            os.write(req.content().getBytes(Charset.forName("utf-8")));
+	            os.flush();
             }
             InputStream is = conn.getInputStream();
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);

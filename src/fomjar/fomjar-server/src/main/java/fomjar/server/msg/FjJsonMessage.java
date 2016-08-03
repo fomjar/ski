@@ -30,7 +30,7 @@ public class FjJsonMessage implements FjMessage {
      * @param json 给定的json数据对象
      */
     public FjJsonMessage(Object json) {
-        if (null == json) this.json = new JSONObject();
+        if (null == json || 0 == json.toString().length()) this.json = new JSONObject();
         else if (json instanceof JSONObject) this.json = (JSONObject) json;
         else this.json = JSONObject.fromObject(json);
     }

@@ -192,6 +192,9 @@ public class Notifier {
     }
 
     public static void notifyCashRefund(String server, int paid, String moneyInfo) {
+    	// 保证每个平台只通知一次
+    	boolean[] isWechatNotified = new boolean[] {false};
+    	boolean[] isTaobaoNotified = new boolean[] {false};
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【用户账户退款提醒】|退款金额: %s", moneyInfo);
 //            if (CommonService.isNotificationNotified(user.i_caid, notify_content)) {
@@ -213,6 +216,9 @@ public class Notifier {
             logger.info(String.format("notify cash refund: paid=0x%08X, money=%s", paid, moneyInfo));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
+            	if (isWechatNotified[0]) break;
+            	isWechatNotified[0] = true;
+            	
                 JSONObject data = new JSONObject();
                 data.put("first",   String.format("尊敬的 %s ，您好！您已成功退款 %s。", user.c_name, moneyInfo));
                 data.put("reason",  "自动退款");
@@ -234,6 +240,9 @@ public class Notifier {
                 break;
             }
             case CommonService.CHANNEL_TAOBAO: {
+            	if (isTaobaoNotified[0]) break;
+            	isTaobaoNotified[0] = true;
+            	
                 JSONObject args = new JSONObject();
                 args.put("caid",    user.i_caid);
                 args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
