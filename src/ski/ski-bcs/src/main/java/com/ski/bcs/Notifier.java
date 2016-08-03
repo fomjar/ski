@@ -194,7 +194,6 @@ public class Notifier {
     public static void notifyCashRefund(String server, int paid, String moneyInfo) {
     	// 保证每个平台只通知一次
     	boolean[] isWechatNotified = new boolean[] {false};
-    	boolean[] isTaobaoNotified = new boolean[] {false};
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【用户账户退款提醒】|退款金额: %s", moneyInfo);
 //            if (CommonService.isNotificationNotified(user.i_caid, notify_content)) {
@@ -223,7 +222,7 @@ public class Notifier {
                 data.put("first",   String.format("尊敬的 %s ，您好！您已成功退款 %s。", user.c_name, moneyInfo));
                 data.put("reason",  "自动退款");
                 data.put("refund",  moneyInfo);
-                data.put("remark",  "退款将在2小时内到账，欢迎您下次光临！");
+                data.put("remark",  "退款已通过红包发送，请查收，欢迎您下次光临！");
                 JSONObject content = new JSONObject();
                 content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.cash.refund"));
                 content.put("data",     data);
@@ -239,23 +238,23 @@ public class Notifier {
                 FjServerToolkit.getAnySender().send(msg);
                 break;
             }
-            case CommonService.CHANNEL_TAOBAO: {
-            	if (isTaobaoNotified[0]) break;
-            	isTaobaoNotified[0] = true;
-            	
-                JSONObject args = new JSONObject();
-                args.put("caid",    user.i_caid);
-                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
-                args.put("title",   "【自动】【提醒】用户账户退款提醒");
-                args.put("content", notify_content);
-                FjDscpMessage msg = new FjDscpMessage();
-                msg.json().put("fs",   server);
-                msg.json().put("ts",   "cdb");
-                msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET);
-                msg.json().put("args", args);
-                FjServerToolkit.getAnySender().send(msg);
-                break;
-            }
+//            case CommonService.CHANNEL_TAOBAO: {
+//            	if (isTaobaoNotified[0]) break;
+//            	isTaobaoNotified[0] = true;
+//            	
+//                JSONObject args = new JSONObject();
+//                args.put("caid",    user.i_caid);
+//                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
+//                args.put("title",   "【自动】【提醒】用户账户退款提醒");
+//                args.put("content", notify_content);
+//                FjDscpMessage msg = new FjDscpMessage();
+//                msg.json().put("fs",   server);
+//                msg.json().put("ts",   "cdb");
+//                msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET);
+//                msg.json().put("args", args);
+//                FjServerToolkit.getAnySender().send(msg);
+//                break;
+//            }
             }
         });
     }

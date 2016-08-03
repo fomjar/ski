@@ -285,10 +285,7 @@ public class WcWeb {
             break;
         }
         case STEP_SETUP: {
-            BeanChannelAccount user_alipay = CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_ALIPAY).get(0);
             JSONObject desc = new JSONObject();
-            desc.put("user", user_alipay.c_user);
-            desc.put("name", user_alipay.c_name);
             desc.put("money", CommonService.prestatementByCaid(request.user)[0]);
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
@@ -303,9 +300,20 @@ public class WcWeb {
             args.put("caid",    request.user);
             args.put("money",   -money);
             FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
+            JSONObject rsp_args = rsp.argsToJsonObject();
             
+            if (CommonService.isResponseSuccess(rsp)) {
+            	// 发红包
+                String terminal = "127.0.0.1";
+                try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
+                catch (IOException e) {logger.error("get user terminal address failed", e);}
+            	FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩", CommonService.getChannelAccountByCaid(request.user).c_user, money, "VC电玩游戏退款", terminal, "VC电玩活动有好礼", "关注VC电玩");
+            	rsp_args.put("redpack", xml2json(rsp_redpack.xml()));
+            }
+            
+            logger.error("user pay refund: " + rsp_args);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(rsp.args().toString());
+            response.content(rsp_args.toString());
             break;
         }
         case STEP_SUCCESS: {
@@ -460,9 +468,10 @@ public class WcWeb {
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, request.user) + "&step=success");
+            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, request.user) + "&step=success&oid=" + Integer.toHexString(oid) + "&csn=" + Integer.toHexString(csn));
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
             response.content(args_rsp.toString());
+            break;
     	}
         case STEP_SUCCESS: {
             fetchFile(response, "/message_success.html", "退租成功", "", "");
@@ -571,7 +580,7 @@ public class WcWeb {
 	            response.content(args.toString());
         	} else {
 	            JSONArray desc = new JSONArray();
-	            CommonService.getOrderByCaid(request.user).forEach(o->{
+	            CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(request.user)).forEach(o->{
 	                        o.commodities.values().forEach(c->desc.add(commodityToJson(c)));
 	                    });
 	            JSONObject args = new JSONObject();

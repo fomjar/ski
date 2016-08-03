@@ -267,6 +267,7 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("csn", csn);
             args_cdb.put("end", sdf.format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
+            CommonService.updateOrder();
             if (!CommonService.isResponseSuccess(rsp)) {
                 response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, CommonService.getResponseDesc(rsp));
                 return;
@@ -345,31 +346,43 @@ public class BcsTask implements FjServerTask {
                 return;
             }
         }
-        // 校验用户
+        // 校验余额
         {
-            if (0 == CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).size()) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE, "bind a alipay user first");
+        	BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
+        	if (0 >= puser.i_cash) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "cash is 0");
                 return;
-            }
-        }
-        // 提交退款工单
-        {
-            BeanChannelAccount user_alipay = CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).get(0);
-            JSONObject args_cdb = new JSONObject();
-            args_cdb.put("caid",    user_alipay.i_caid);
-            args_cdb.put("type",    CommonService.TICKET_TYPE_REFUND);
-            args_cdb.put("title",   "【自动】【退款】");
-            args_cdb.put("content", String.format("支付宝账号: %s|真实姓名: %s|退款金额: %.2f 元|退款备注: %s",
-                    user_alipay.c_user,
-                    user_alipay.c_name,
-                    -money,
-                    "VC电玩游戏退款"));
-            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
-            if (!CommonService.isResponseSuccess(rsp)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
+        	}
+        	if (-money > puser.i_cash) {
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "not enough cash to refund");
                 return;
-            }
+        	}
         }
+//        // 校验用户
+//        {
+//            if (0 == CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).size()) {
+//                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE, "bind a alipay user first");
+//                return;
+//            }
+//        }
+//        // 提交退款工单
+//        {
+//            BeanChannelAccount user_alipay = CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_ALIPAY).get(0);
+//            JSONObject args_cdb = new JSONObject();
+//            args_cdb.put("caid",    user_alipay.i_caid);
+//            args_cdb.put("type",    CommonService.TICKET_TYPE_REFUND);
+//            args_cdb.put("title",   "【自动】【退款】");
+//            args_cdb.put("content", String.format("支付宝账号: %s|真实姓名: %s|退款金额: %.2f 元|退款备注: %s",
+//                    user_alipay.c_user,
+//                    user_alipay.c_name,
+//                    -money,
+//                    "VC电玩游戏退款"));
+//            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args_cdb);
+//            if (!CommonService.isResponseSuccess(rsp)) {
+//                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
+//                return;
+//            }
+//        }
         { // 修改账户金额
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("paid",    paid);

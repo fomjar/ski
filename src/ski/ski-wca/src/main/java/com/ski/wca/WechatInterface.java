@@ -477,6 +477,82 @@ public class WechatInterface {
         return rsp;
     }
     
+    private static final String MSG_REDPACK = "<xml>"
+    		+ "<sign><![CDATA[%s]]></sign>"
+    		+ "<mch_billno><![CDATA[%s]]></mch_billno>"
+    		+ "<mch_id><![CDATA[%s]]></mch_id>"
+    		+ "<wxappid><![CDATA[%s]]></wxappid>"
+    		+ "<send_name><![CDATA[%s]]></send_name>"
+    		+ "<re_openid><![CDATA[%s]]></re_openid>"
+    		+ "<total_amount><![CDATA[%d]]></total_amount>"
+    		+ "<total_num><![CDATA[1]]></total_num>"
+    		+ "<wishing><![CDATA[%s]]></wishing>"
+    		+ "<client_ip><![CDATA[%s]]></client_ip>"
+    		+ "<act_name><![CDATA[%s]]></act_name>"
+    		+ "<remark><![CDATA[%s]]></remark>"
+    		+ "<nonce_str><![CDATA[%s]]></nonce_str>"
+    		+ "</xml>";
+    
+    /**
+     * request:
+     * <xml>
+     * <sign><![CDATA[E1EE61A91C8E90F299DE6AE075D60A2D]]></sign>
+     * <mch_billno><![CDATA[0010010404201411170000046545]]></mch_billno>
+     * <mch_id><![CDATA[888]]></mch_id>
+     * <wxappid><![CDATA[wxcbda96de0b165486]]></wxappid>
+     * <send_name><![CDATA[send_name]]></send_name>
+     * <re_openid><![CDATA[onqOjjmM1tad-3ROpncN-yUfa6uI]]></re_openid>
+     * <total_amount><![CDATA[200]]></total_amount>
+     * <total_num><![CDATA[1]]></total_num>
+     * <wishing><![CDATA[恭喜发财]]></wishing>
+     * <client_ip><![CDATA[127.0.0.1]]></client_ip>
+     * <act_name><![CDATA[新年红包]]></act_name>
+     * <remark><![CDATA[新年红包]]></remark>
+     * <nonce_str><![CDATA[50780e0cca98c8c8e814883e5caa672e]]></nonce_str>
+     * </xml>
+     * 
+     * response:
+     * <xml>
+     * <return_code><![CDATA[SUCCESS]]></return_code>
+     * <return_msg><![CDATA[发放成功.]]></return_msg>
+     * <result_code><![CDATA[SUCCESS]]></result_code>
+     * <err_code><![CDATA[0]]></err_code>
+     * <err_code_des><![CDATA[发放成功.]]></err_code_des>
+     * <mch_billno><![CDATA[0010010404201411170000046545]]></mch_billno>
+     * <mch_id>10010404</mch_id>
+     * <wxappid><![CDATA[wx6fa7e3bab7e15415]]></wxappid>
+     * <re_openid><![CDATA[onqOjjmM1tad-3ROpncN-yUfa6uI]]></re_openid>
+     * <total_amount>1</total_amount>
+     * <send_listid>100000000020150520314766074200</send_listid>
+     * <send_time>20150520102602</send_time>
+     * </xml>
+     * 
+     * @return
+     */
+    public static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
+        String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack";
+        String nonce_str = Long.toHexString(System.currentTimeMillis());
+        String msg_redpack = String.format(MSG_REDPACK,
+        		"%s", // sign
+        		String.format("%s%s%s", FjServerToolkit.getServerConfig("wca.mch.id"), new SimpleDateFormat("yyyyMMdd").format(new Date()), String.valueOf(System.currentTimeMillis()).substring(0, 10)),
+        		FjServerToolkit.getServerConfig("wca.mch.id"),
+                FjServerToolkit.getServerConfig("wca.appid"),
+                sendername,
+                user,
+                (int) (money * 100),
+                wishing,
+                host,
+                activity,
+                remark,
+                nonce_str);
+        String sign = createSignature4Pay(new FjXmlMessage(msg_redpack).xml());
+        msg_redpack = String.format(msg_redpack, sign);
+        logger.debug("send red pack request: " + msg_redpack);
+        FjXmlMessage rsp = (FjXmlMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_TEXT_XML, msg_redpack));
+        logger.debug("send red pack response: " + rsp);
+        return rsp;
+    }
+    
     public static String createSignature4Config(String nonceStr, String ticket, long timestamp, String url) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("nonceStr",     nonceStr);

@@ -42,6 +42,6 @@ public class FjHttpResponse extends FjHttpMessage {
 
     @Override
     protected String head() {
-    	return String.format("HTTP/1.1 %d %s", code(), desc.get(code()));
+    	return String.format("%s %d %s", protocal(), code(), desc.get(code()));
     }
 }

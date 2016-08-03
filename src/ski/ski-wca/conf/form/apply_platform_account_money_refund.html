@@ -24,8 +24,6 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#user').text(args.desc.user);
-                        $('#name').text(args.desc.name);
                         $('#money').text(args.desc.money + ' 元');
                     });
             });
@@ -69,23 +67,8 @@
                 <h1 class='page_title'>退款</h1>
             </div>
             <div class='bd'>
-                <div class='weui_cells_title'>
-                        1. 请仔细核对退款账号，如果不正确，请先到我的账户中进行修改<br/>
-                        2. 只能退“现金”部分的金额，参见“小金库”
-                </div>
+                <div class='weui_cells_title'>只能退“现金”部分的金额，参见“小金库”</div>
                 <div class='weui_cells'>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary">
-                            <p>支付宝账号</p>
-                        </div>
-                        <div class="weui_cell_ft" id='user'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary">
-                            <p>真实姓名</p>
-                        </div>
-                        <div class="weui_cell_ft" id='name'></div>
-                    </div>
                     <div class="weui_cell">
                         <div class="weui_cell_bd weui_cell_primary">
                             <p>退款金额</p>

@@ -33,6 +33,10 @@
                         $('#type').text(args.desc.type + '(' + args.desc.price + '元/天)');
                         $('#begin').text(args.desc.begin);
                         $('#expense').text(args.desc.expense + '元');
+
+                        if (0 < args.desc.end.length) {
+                            $('#rent_end').hide();
+                        }
                     });
             });
 
@@ -103,7 +107,7 @@
                         <div class="weui_cell_ft" id='expense'></div>
                     </div>
                 </div>
-                <div class='weui_btn_area'>
+                <div class='weui_btn_area' id='rent_end'>
                     <a class='weui_btn weui_btn_primary' href="javascript:showDialog1('提示', '确定要退租吗？');">退租</a>
                 </div>
             </div>

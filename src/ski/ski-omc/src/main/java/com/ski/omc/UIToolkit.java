@@ -81,7 +81,7 @@ public class UIToolkit {
 //        UIManager.getLookAndFeelDefaults().put("TableHeader.font",  FONT);
 //        UIManager.getLookAndFeelDefaults().put("TextField.font",    FONT);
 //        UIManager.getLookAndFeelDefaults().put("TextArea.font",     FONT);
-//        UIManager.getLookAndFeelDefaults().put("TitledBorder.font", FONT);
+//        UIManager.getLookAndFeelDefaults().put("T`itledBorder.font", FONT);
 //        UIManager.getLookAndFeelDefaults().put("CheckBox.font",     FONT);
 //        UIManager.getLookAndFeelDefaults().put("RadioButton.font",  FONT);
 //        UIManager.getLookAndFeelDefaults().put("ComboBox.font",     FONT);
@@ -197,7 +197,7 @@ public class UIToolkit {
         FjTextField c_name  = new FjTextField();
         JCheckBox   is_recharge_cash    = new JCheckBox("充值现金", true);
         FjTextField i_cash              = new FjTextField("150.00");
-        JCheckBox   is_recharge_coupon  = new JCheckBox("充值优惠券", true);
+        JCheckBox   is_recharge_coupon  = new JCheckBox("充值优惠券", false);
         FjTextField i_coupon            = new FjTextField("5.00");
         JCheckBox   is_open_commodity   = new JCheckBox("创建商品", true);
         
@@ -205,7 +205,7 @@ public class UIToolkit {
             switch (i_channel.getSelectedIndex()) {
             case 0:
                 is_recharge_cash.setSelected(true);
-                is_recharge_coupon.setSelected(true);
+                is_recharge_coupon.setSelected(false);
                 is_open_commodity.setSelected(true);
                 break;
             case 1:
@@ -285,7 +285,7 @@ public class UIToolkit {
                 }
             }
             
-            if (is_recharge_cash.isSelected()) {
+            if (is_recharge_coupon.isSelected()) {
                 args.clear();
                 args.put("paid", CommonService.getPlatformAccountByCaid(user.i_caid));
                 args.put("remark", "【客服充券】创建新用户");
