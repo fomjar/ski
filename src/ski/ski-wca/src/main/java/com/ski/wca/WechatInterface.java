@@ -1,9 +1,19 @@
 package com.ski.wca;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.channels.SocketChannel;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -12,6 +22,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.SSLContexts;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -32,6 +52,7 @@ import fomjar.server.msg.FjXmlMessage;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+@SuppressWarnings("deprecation")
 public class WechatInterface {
     
     private static final Logger logger = Logger.getLogger(WechatInterface.class);
@@ -529,7 +550,9 @@ public class WechatInterface {
      * 
      * @return
      */
-    public static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
+	public static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
+		if (money > 200.0f) return null;
+		
         String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack";
         String nonce_str = Long.toHexString(System.currentTimeMillis());
         String msg_redpack = String.format(MSG_REDPACK,
@@ -548,11 +571,31 @@ public class WechatInterface {
         String sign = createSignature4Pay(new FjXmlMessage(msg_redpack).xml());
         msg_redpack = String.format(msg_redpack, sign);
         logger.debug("send red pack request: " + msg_redpack);
-        FjXmlMessage rsp = (FjXmlMessage) FjSender.sendHttpRequest(new FjHttpRequest("POST", url, FjHttpRequest.CT_TEXT_XML, msg_redpack));
-        logger.debug("send red pack response: " + rsp);
-        return rsp;
+		try {
+			KeyStore keyStore = KeyStore.getInstance("PKCS12");
+			FileInputStream is = new FileInputStream(new File("conf/cert/apiclient_cert.p12"));
+			keyStore.load(is, FjServerToolkit.getServerConfig("wca.mch.id").toCharArray());
+			SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, FjServerToolkit.getServerConfig("wca.mch.id").toCharArray()).build();
+	        // Allow TLSv1 protocol only
+	        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[] { "TLSv1" }, null, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+	        CloseableHttpClient httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            HttpPost httppost = new HttpPost(url);
+            httppost.setEntity(new StringEntity(msg_redpack, "utf-8"));
+            CloseableHttpResponse response = httpclient.execute(httppost);
+            HttpEntity entity = response.getEntity();
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent()));
+            StringBuilder result = new StringBuilder();
+            String text;
+            while ((text = bufferedReader.readLine()) != null) result.append(text + "\r\n");
+            httpclient.getConnectionManager().shutdown();
+            logger.debug("send red pack response: " + result.toString());
+            return new FjXmlMessage(result.toString());
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | KeyManagementException | UnrecoverableKeyException e) {
+        	logger.error("send red pack railed", e);
+        }
+        return null;
     }
-    
+	
     public static String createSignature4Config(String nonceStr, String ticket, long timestamp, String url) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("nonceStr",     nonceStr);

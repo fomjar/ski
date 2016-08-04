@@ -8,9 +8,12 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
@@ -42,6 +45,8 @@ import net.sf.json.JSONObject;
 public class WcWeb {
     
     private static final Logger logger = Logger.getLogger(WcWeb.class);
+    
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
     
     public  static final String URL_KEY = "/ski-wcweb";
     
@@ -76,7 +81,7 @@ public class WcWeb {
             }
             
             if (args.has("code")) {
-            	redirect(response, server, hreq.path(), Integer.parseInt(args.getString("inst"), 16), Integer.parseInt(args.getString("user"), 16));
+            	redirect(response, server, hreq.path(), args);
             	break;
             }
             WcwRequest request = new WcwRequest(server, hreq.path(), args, conn);
@@ -131,9 +136,24 @@ public class WcWeb {
         return true;
     }
     
-    private static void redirect(FjHttpResponse response, String server, String path, int inst, int user) {
+    @SuppressWarnings("unchecked")
+	private static void redirect(FjHttpResponse response, String server, String path, JSONObject args) {
+    	int inst = Integer.parseInt(args.getString("inst"), 16);
+    	int user = Integer.parseInt(args.getString("user"), 16);
+    	String url = generateUrl(server, path, inst, user);
+    	StringBuilder sb = new StringBuilder(url);
+    	args.entrySet().forEach(entry->{
+    		String key = ((Map.Entry<String, String>) entry).getKey();
+    		String val = ((Map.Entry<String, String>) entry).getValue();
+    		if (key.equals("inst")
+    				|| key.equals("user")
+    				|| key.equals("code")		// comes from wechat
+    				|| key.equals("state"))		// comes from wechat
+    			return;
+    		sb.append(String.format("&%s=%s", key, val));
+    	});
     	response.code(302);
-    	response.attr().put("Location", generateUrl(server, path, inst, user));
+    	response.attr().put("Location", sb.toString());
     	logger.debug("user redirect data: " + response);
     }
     
@@ -304,11 +324,10 @@ public class WcWeb {
             
             if (CommonService.isResponseSuccess(rsp)) {
             	// 发红包
-                String terminal = "127.0.0.1";
-                try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
-                catch (IOException e) {logger.error("get user terminal address failed", e);}
-            	FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩", CommonService.getChannelAccountByCaid(request.user).c_user, money, "VC电玩游戏退款", terminal, "VC电玩活动有好礼", "关注VC电玩");
-            	rsp_args.put("redpack", xml2json(rsp_redpack.xml()));
+            	String terminal = "127.0.0.1";
+            	try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
+            	catch (IOException e) {logger.error("get user terminal address failed", e);}
+            	sendredpack(terminal, CommonService.getChannelAccountByCaid(request.user).c_user, money);
             }
             
             logger.error("user pay refund: " + rsp_args);
@@ -317,10 +336,38 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退款成功", "", "");
+            fetchFile(response, "/message_success.html", "退款成功", "退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！", "");
             break;
         }
         }
+    }
+    
+    private static void sendredpack(String terminal, String user, float money) {
+    	float max = Float.parseFloat(FjServerToolkit.getServerConfig("wca.redpack.max"));
+    	long  interval = Long.parseLong(FjServerToolkit.getServerConfig("wca.redpack.interval"));
+    	pool.submit(()->{
+    		try {
+    			float m = money;
+    			List<Float> moneys = new LinkedList<Float>();
+    			while (m > max) {
+    				moneys.add(max);
+    				m -= max;
+    			}
+    			moneys.add(m);
+    			
+    			for (int i = 0; i < moneys.size(); i++) {
+    				FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩",
+    						user,
+    						moneys.get(i),
+    						String.format("VC电玩游戏退款(%d/%d)", i + 1, moneys.size()),
+    						terminal,
+    						"VC电玩活动送好礼",
+    						"关注VC电玩");
+    				logger.error("send red pack: " + rsp_redpack);
+    				Thread.sleep(interval * 1000L);
+    			}
+    		} catch (Exception e) {logger.error("error occurs when send redpack", e);}
+    	});
     }
     
     /**
