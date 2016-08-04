@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002401', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, '$name_zh_cn', '$name_zh_hk', '$name_en', '$name_ja', '$name_ko', '$name_other', '$platform', '$category', '$language', '$size', '$vendor', '$sale', '$url_icon', '$url_cover', '$url_poster', '$introduction', '$version')");
+insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, \"$name_zh_cn\", \"$name_zh_hk\", \"$name_en\", \"$name_ja\", \"$name_ko\", \"$name_other\", \"$platform\", \"$category\", \"$language\", \"$size\", \"$vendor\", \"$sale\", \"$url_icon\", \"$url_cover\", \"$url_poster\", \"$introduction\", \"$version\", \"$vedio\")");
 
 -- 更新游戏
 delimiter //
@@ -24,7 +24,8 @@ create procedure sp_update_game (
     in  url_cover       varchar(250),   -- 封面URL
     in  url_poster      text,           -- 海报(多个)
     in  introduction    text,           -- 游戏说明
-    in  version         text            -- 版本说明
+    in  version         text,           -- 版本说明
+    in  vedio           text            -- 视频脚本
 )
 begin
     declare di_gid      integer default -1;
@@ -63,7 +64,8 @@ begin
             c_url_cover,
             c_url_poster,
             c_introduction,
-            c_version
+            c_version,
+            c_vedio
         ) values (
             di_gid,
             name_zh_cn,
@@ -82,7 +84,8 @@ begin
             url_cover,
             url_poster,
             introduction,
-            version
+            version,
+            vedio
         );
         
         set c_desc = conv(di_gid, 10, 16);
@@ -111,7 +114,8 @@ begin
                 c_url_cover,
                 c_url_poster,
                 c_introduction,
-                c_version
+                c_version,
+                c_vedio
             ) values (
                 gid,
                 name_zh_cn,
@@ -130,7 +134,8 @@ begin
                 url_cover,
                 url_poster,
                 introduction,
-                version
+                version,
+                vedio
             );
         else
             if name_zh_cn is not null then
@@ -216,6 +221,11 @@ begin
             if version is not null then
                 update tbl_game
                    set c_version = version
+                 where i_gid = gid;
+            end if;
+            if vedio is not null then
+                update tbl_game
+                   set c_vedio = vedio
                  where i_gid = gid;
             end if;
         end if;

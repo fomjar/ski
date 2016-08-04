@@ -67,6 +67,7 @@ public class ManageGame extends JDialog {
     private JButton		c_url_poster_add;
     private JTextArea 	c_introduction;
     private JTextArea 	c_version;
+    private JTextField  c_vedio;
     
     private FjEditLabel	i_price_a;
     private FjEditLabel i_price_b;
@@ -119,6 +120,8 @@ public class ManageGame extends JDialog {
         c_version		= new JTextArea();
         c_version.setLineWrap(true);
         c_version.setRows(3);
+        
+        c_vedio = new JTextField();
         
         i_gid.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_name_zh_cn.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
@@ -206,6 +209,7 @@ public class ManageGame extends JDialog {
         panel.add(panel_url);
         panel.add(panel_introduction);
         panel.add(panel_version);
+        panel.add(UIToolkit.createBasicInfoLabel("视频脚本", c_vedio));
         panel.add(panel_price);
         panel.add(panel_tag);
         
@@ -308,36 +312,37 @@ public class ManageGame extends JDialog {
     	
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
         	JSONObject args = new JSONObject();
-        	args.put("gid", game.i_gid);
-        	args.put("name_zh_cn", c_name_zh_cn.getText());
-        	args.put("name_zh_hk", c_name_zh_hk.getText());
-        	args.put("name_en", c_name_en.getText());
-        	args.put("name_ja", c_name_ja.getText());
-        	args.put("name_ko", c_name_ko.getText());
-        	args.put("name_other", c_name_other.getText());
-        	args.put("platform", c_platform.getText());
-        	args.put("category", c_category.getText());
-        	args.put("language", c_language.getText());
-        	args.put("size", c_size.getText());
-        	args.put("vendor", c_vendor.getText());
-        	args.put("sale", t_sale.getText());
-        	args.put("url_icon", c_url_icon.getText());
-        	args.put("url_cover", c_url_cover.getText());
+        	args.put("gid", 		game.i_gid);
+        	args.put("name_zh_cn", 	c_name_zh_cn.getText());
+        	args.put("name_zh_hk", 	c_name_zh_hk.getText());
+        	args.put("name_en", 	c_name_en.getText());
+        	args.put("name_ja", 	c_name_ja.getText());
+        	args.put("name_ko", 	c_name_ko.getText());
+        	args.put("name_other", 	c_name_other.getText());
+        	args.put("platform", 	c_platform.getText());
+        	args.put("category", 	c_category.getText());
+        	args.put("language", 	c_language.getText());
+        	args.put("size", 		c_size.getText());
+        	args.put("vendor", 		c_vendor.getText());
+        	args.put("sale", 		t_sale.getText());
+        	args.put("url_icon", 	c_url_icon.getText());
+        	args.put("url_cover", 	c_url_cover.getText());
         	String poster = Arrays.asList(c_url_poster.getComponents())
         			.stream()
         			.filter(c->c instanceof PosterPanel)
         			.map(c->(PosterPanel) c)
         			.map(p->p.getUrl())
         			.collect(Collectors.joining(" "));
-        	args.put("url_poster", poster);
+        	args.put("url_poster", 	poster);
         	
         	args.put("introduction", c_introduction.getText().replace("\n", "|"));
-        	args.put("version", c_version.getText().replace("\n", "|"));
+        	args.put("version", 	c_version.getText().replace("\n", "|"));
+        	args.put("vedio", 		c_vedio.getText().replace("\"", "'"));
         	
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
+            CommonService.updateGame();
             if (!UIToolkit.showServerResponse(rsp)) return;
             
-            CommonService.updateGame();
             game = CommonService.getGameByGid(game.i_gid);
             updateBasic();
         });
@@ -391,6 +396,7 @@ public class ManageGame extends JDialog {
         
         c_introduction.setText(game.c_introduction.replace("|", "\n"));
         c_version.setText(game.c_version.replace("|", "\n"));
+        c_vedio.setText(game.c_vedio);
     }
     
     private void updatePrice() {

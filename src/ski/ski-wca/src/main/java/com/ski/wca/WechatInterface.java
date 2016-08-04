@@ -550,7 +550,7 @@ public class WechatInterface {
      * 
      * @return
      */
-	public static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
+	public synchronized static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
 		if (money > 200.0f) return null;
 		
         String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack";
@@ -583,11 +583,13 @@ public class WechatInterface {
             httppost.setEntity(new StringEntity(msg_redpack, "utf-8"));
             CloseableHttpResponse response = httpclient.execute(httppost);
             HttpEntity entity = response.getEntity();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(entity.getContent()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(entity.getContent()));
             StringBuilder result = new StringBuilder();
             String text;
-            while ((text = bufferedReader.readLine()) != null) result.append(text + "\r\n");
-            httpclient.getConnectionManager().shutdown();
+            while ((text = br.readLine()) != null) result.append(text + "\r\n");
+            br.close();
+			is.close();
+			httpclient.getConnectionManager().shutdown();
             logger.debug("send red pack response: " + result.toString());
             return new FjXmlMessage(result.toString());
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | KeyManagementException | UnrecoverableKeyException e) {

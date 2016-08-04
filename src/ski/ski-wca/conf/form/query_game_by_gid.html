@@ -6,8 +6,10 @@
         <title>游戏详情</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/lib/jquery.skippr.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.skippr.min.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
             var user = %d;
@@ -26,13 +28,25 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#url_cover').attr('src', args.desc.url_cover);
+                        $('#poster').append("<div style='background-image: url(" + args.desc.url_cover + ")'/>");
+                        if (0 < args.desc.url_poster.length) {
+                            for (var i in args.desc.url_poster) {
+                                var poster = args.desc.url_poster[i];
+                                if (0 == poster.length) continue;
+
+                                $('#poster').append("<div style='background-image: url(" + poster + ")'/>");
+                            }
+                        }
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
                         $('#category').text(args.desc.category);
                         $('#vendor').text(args.desc.vendor);
                         $('#sale').text(args.desc.sale);
                         $('#introduction').text(args.desc.introduction);
+
+                        if (0 < args.desc.vedio.length) {
+                            $('#vedio')[0].innerHTML = "<embed allowfullscreen='true' src='" + args.desc.vedio + "'/>";
+                        }
 
                         if (args.desc.rent_a) {
                             $('#rent')[0].innerHTML = "<div class='weui_cell'>"
@@ -47,6 +61,19 @@
                                     + "</div>";
                         }
                         if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
+
+                        $('#poster').skippr({
+                            transition: 'slide',
+                            speed: 1000,
+                            easing: 'easeOutQuart',
+                            navType: 'block',
+                            childrenElementType: 'div',
+                            arrows: false,
+                            autoPlay: true,
+                            autoPlayDuration: 3000,
+                            keyboardOnAlways: true,
+                            hidePrevious: false
+                        });
                     });
             });
 
@@ -78,13 +105,21 @@
         <div class='cell'>
             <div class='bd'>
                 <article class='weui_article'>
-                    <p><img width='100%%' alt="游戏海报" src="" id='url_cover'></p>
+                    <p>
+                        <div style='width: 100%%; height: 200px'>
+                            <div id='poster'></div>
+                        </div>
+                    <p>
                     <section>
                         <h1>游戏介绍</h1>
                         <section>
                             <section>
                                 <p id='introduction'></p>
-                    </section></section></section>
+                            </section>
+                            <section align='center' id='vedio'>
+                            </section>
+                        </section>
+                    </section>
                 </article>
                 <div class="weui_cells">
                     <div class="weui_cell">

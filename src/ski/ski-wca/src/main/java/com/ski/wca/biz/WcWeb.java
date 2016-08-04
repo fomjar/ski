@@ -596,6 +596,7 @@ public class WcWeb {
     	json.put("url_poster",      JSONArray.fromObject(game.c_url_poster.split(" ")));
     	json.put("introduction",    game.c_introduction);
     	json.put("version",      	game.c_version);
+    	json.put("vedio", 			game.c_vedio);
     	
     	json.put("display_name",    game.getDisplayName());
     	BeanGameRentPrice price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);

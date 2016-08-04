@@ -25,6 +25,7 @@ public class BeanGame {
         this.c_url_poster   = fields[15];
         this.c_introduction = fields[16];
         this.c_version   	= fields[17];
+        this.c_vedio		= fields[18];
     }
     
     public int      i_gid;
@@ -45,6 +46,7 @@ public class BeanGame {
     public String   c_url_poster;
     public String	c_introduction;
     public String 	c_version;
+    public String	c_vedio;
     
     public String getDisplayName() {
     	return String.format("%s %s %s",

@@ -24,10 +24,11 @@ begin
     declare c_url_poster    text            default null;   -- 海报(多个)
     declare c_introduction  text            default null;   -- 游戏说明
     declare c_version       text            default null;   -- 版本说明
+    declare c_vedio         text            default null;   -- 视频脚本
 
     declare done            integer default 0;
     declare rs              cursor for
-                            select g.i_gid, g.c_name_zh_cn, g.c_name_zh_hk, g.c_name_en, g.c_name_ja, g.c_name_ko, g.c_name_other, g.c_platform, g.c_category, g.c_language, g.c_size, g.c_vendor, g.t_sale, g.c_url_icon, g.c_url_cover, g.c_url_poster, g.c_introduction, g.c_version
+                            select g.i_gid, g.c_name_zh_cn, g.c_name_zh_hk, g.c_name_en, g.c_name_ja, g.c_name_ko, g.c_name_other, g.c_platform, g.c_category, g.c_language, g.c_size, g.c_vendor, g.t_sale, g.c_url_icon, g.c_url_cover, g.c_url_poster, g.c_introduction, g.c_version, g.c_vedio
                               from tbl_game g
                              where g.i_gid = gid
                              order by g.c_name_zh_cn;
@@ -37,7 +38,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version;
+    fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -80,10 +81,12 @@ begin
                 '\t',
                 ifnull(c_introduction, ''),
                 '\t',
-                ifnull(c_version, '')
+                ifnull(c_version, ''),
+                '\t',
+                ifnull(c_vedio, '')
         );
 
-        fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version;
+        fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio;
     end while;
     /* 关闭游标 */
     close rs;

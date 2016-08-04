@@ -2,9 +2,9 @@
 drop table if exists tbl_instruction;
 create table tbl_instruction (
     i_inst  integer,
-    c_mode  char(5),      -- st:执行sql语句 sp:执行存储过程
-    i_out   tinyint,      -- 出参个数
-    c_sql   varchar(255)  -- 格式：先出参，后入参，出参以英文的?代替，入参使用$打头，入参名称必须与消息中的参数名称完全相同
+    c_mode  char(5),    -- st:执行sql语句 sp:执行存储过程
+    i_out   tinyint,    -- 出参个数
+    c_sql   text        -- 格式：先出参，后入参，出参以英文的?代替，入参使用$打头，入参名称必须与消息中的参数名称完全相同
 );
 
 -- 平台账户信息
@@ -98,7 +98,8 @@ create table tbl_game (
     c_url_cover     varchar(250),   -- 封面URL
     c_url_poster    text,           -- 海报(多个)
     c_introduction  text,           -- 游戏说明
-    c_version       text            -- 版本说明
+    c_version       text,           -- 版本说明
+    c_vedio         text            -- 视频脚本
 );
 
 -- 订单
