@@ -1,12 +1,12 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -133,9 +133,12 @@ public class ListCellGame extends FjListCell<BeanGame> {
 		        .stream()
 		        .forEach(tag->{
 		            JButton btn = new JButton(tag.c_tag);
-		            btn.setFont(btn.getFont().deriveFont(8.0f));
-		            btn.setMargin(new Insets(0, 0, 0, 0));
-		            btn.setContentAreaFilled(false);
+		            btn.setBorder(BorderFactory.createLineBorder(Color.gray));
+		            btn.setFont(btn.getFont().deriveFont(10.0f));
+                    btn.addActionListener(e->{
+                        UIToolkit.deleteTag(tag);
+                        update();
+                    });
 		            tags.add(btn);
 		        });
         tags.revalidate();

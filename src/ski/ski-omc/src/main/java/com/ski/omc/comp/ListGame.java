@@ -35,7 +35,8 @@ public class ListGame extends JDialog {
         
         pane = new FjListPane<BeanGame>();
         pane.enableSearchBar();
-        pane.getSearchBar().setSearchTips("键入游戏名搜索");
+        pane.getSearchBar().setSearchTypes(new String[] {"游戏名", "标签名"});
+        pane.getSearchBar().setSearchTips("键入关键字搜索");
         
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createGame();
@@ -45,9 +46,26 @@ public class ListGame extends JDialog {
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGame>(pane.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanGame celldata) {
+            	switch (type) {
+            	case "游戏名": {
                     int count = 0;
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
+            	}
+            	case "标签名": {
+            		return 0 < CommonService.getTagByType(CommonService.TAG_GAME)
+            				.stream()
+            				.filter(tag->{
+            					int count = 0;
+                                for (String word : words) if (tag.c_tag.toLowerCase().contains(word.toLowerCase())) count++;
+                                return count == words.length;
+            				})
+            				.filter(tag->tag.i_instance == celldata.i_gid)
+            				.count();
+            	}
+        		default:
+        			return true;
+            	}
             }
         });
         

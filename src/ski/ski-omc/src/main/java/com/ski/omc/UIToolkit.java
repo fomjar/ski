@@ -1038,6 +1038,7 @@ public class UIToolkit {
         args.put("instance",    tag.i_instance);
         args.put("tag",         tag.c_tag);
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TAG_DEL, args);
+        CommonService.updateTag();
         showServerResponse(rsp);
     }
     

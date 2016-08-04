@@ -407,7 +407,6 @@ public class ManageGame extends JDialog {
                     btn.setContentAreaFilled(false);
                     btn.addActionListener(e->{
                         UIToolkit.deleteTag(tag);
-                        CommonService.updateTag();
                         updateTag();
                     });
                     panel_tag.add(btn);
