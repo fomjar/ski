@@ -11,6 +11,25 @@
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.skippr.min.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <style type="text/css">
+        .blur {
+            -webkit-filter: blur(12px); /* Chrome, Opera */
+               -moz-filter: blur(12px);
+                -ms-filter: blur(12px);
+                    filter: blur(12px);
+        }
+        .field {
+            width           : 200px;
+            color           : #cccccc;
+            padding-right   : 16px;
+            text-align      : right;
+            text-shadow     : black 1px 1px 0px;
+            white-space     : nowrap;
+            overflow        : hidden;
+            text-overflow   : ellipsis; 
+            -o-text-overflow: ellipsis; 
+        }
+        </style>
         <script type='text/javascript'>
             var user = %d;
             var gid  = %d;
@@ -28,25 +47,45 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#poster').append("<div style='background-image: url(" + args.desc.url_cover + ")'/>");
+
+                        setTitle(args.desc.name_zh_cn);
+
+                        $('#head_area').css('background-image', 'url(' + args.desc.url_cover + ')');
+                        $('#head_area').css('background-size', 'cover');
+                        $('#head_area').addClass('blur');
+
+                        $('#url_cover').append("<img width='100px' height='100px' src='" + args.desc.url_cover + "'></img>")
+                        $('#name_zh_cn').text(args.desc.name_zh_cn);
+                        $('#name_en').text(args.desc.name_en);
+                        $('#category').text(args.desc.category);
+                        $('#sale').text(args.desc.sale);
+                        $('#introduction').html('<p>' + args.desc.introduction.replace(/\|/g, '</p><p>') + '</p>');
+
+                        if (0 < args.desc.vedio.length) {
+                            $('#poster_container').css('height', '200px');
+                            $('#url_poster').append("<div style='background: black'><video width='100%%' height='100%%' controls autobuffer src='" + args.desc.vedio + "'/></div>");
+                        }
                         if (0 < args.desc.url_poster.length) {
                             for (var i in args.desc.url_poster) {
                                 var poster = args.desc.url_poster[i];
                                 if (0 == poster.length) continue;
 
-                                $('#poster').append("<div style='background-image: url(" + poster + ")'/>");
+                                $('#poster_container').css('height', '200px');
+                                $('#url_poster').append("<div style='background-image: url(" + poster + ")'/>");
                             }
                         }
-                        $('#name_zh_cn').text(args.desc.name_zh_cn);
-                        $('#name_en').text(args.desc.name_en);
-                        $('#category').text(args.desc.category);
-                        $('#vendor').text(args.desc.vendor);
-                        $('#sale').text(args.desc.sale);
-                        $('#introduction').text(args.desc.introduction);
-
-                        if (0 < args.desc.vedio.length) {
-                            $('#vedio')[0].innerHTML = "<embed allowfullscreen='true' src='" + args.desc.vedio + "'/>";
-                        }
+                        $('#url_poster').skippr({
+                            transition: 'fade',
+                            speed: 200,
+                            easing: 'easeOutQuart',
+                            navType: 'bubble',
+                            childrenElementType: 'div',
+                            arrows: true,
+                            autoPlay: true,
+                            autoPlayDuration: 5000,
+                            keyboardOnAlways: true,
+                            hidePrevious: false
+                        });
 
                         if (args.desc.rent_a) {
                             $('#rent')[0].innerHTML = "<div class='weui_cell'>"
@@ -61,24 +100,40 @@
                                     + "</div>";
                         }
                         if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
-
-                        $('#poster').skippr({
-                            transition: 'slide',
-                            speed: 1000,
-                            easing: 'easeOutQuart',
-                            navType: 'block',
-                            childrenElementType: 'div',
-                            arrows: false,
-                            autoPlay: true,
-                            autoPlayDuration: 3000,
-                            keyboardOnAlways: true,
-                            hidePrevious: false
-                        });
                     });
             });
 
+            function setTitle(title) {
+               //利用iframe的onload事件刷新页面
+               document.title = title;
+               var iframe = document.createElement('iframe');
+               iframe.style.visibility = 'hidden';
+               iframe.style.width = '1px';
+               iframe.style.height = '1px';
+               iframe.onload = function () {
+                   setTimeout(function () {
+                       document.body.removeChild(iframe);
+                   }, 0);
+               };
+               document.body.appendChild(iframe);
+            }
+
             function rentBegin() {
                 window.location = url_rent_begin;
+            }
+            
+            function tabToIntr() {
+                $('#tab_bar_intr').addClass('weui_bar_item_on');
+                $('#tab_bar_rent').removeClass('weui_bar_item_on');
+                $('#tab_bd_intr').show();
+                $('#tab_bd_rent').hide();
+            }
+
+            function tabToRent() {
+                $('#tab_bar_intr').removeClass('weui_bar_item_on');
+                $('#tab_bar_rent').addClass('weui_bar_item_on');
+                $('#tab_bd_intr').hide();
+                $('#tab_bd_rent').show();
             }
 
             function showToast(text) {
@@ -104,49 +159,42 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <article class='weui_article'>
-                    <p>
-                        <div style='width: 100%%; height: 200px'>
-                            <div id='poster'></div>
+                <div style='position: fixed; top: 0px; width: 100%%; height: 140px'>
+                    <div style='position: absolute; width: 100%%; height: 100%%; background: gray'></div>
+                    <div id='head_area' style='position: absolute; width: 100%%; height: 100%%'></div>
+                    <table style='position: absolute; width: 100%%;  padding: 20px'>
+                        <tr height='30'>
+                            <td rowspan='4' width='1px' height='1px' id='url_cover'></td>
+                            <td align='right'><div id='name_zh_cn' class='field' style='font-weight: 500'></div></td>
+                        </tr>
+                        <tr height='30'><td align='right'><div id='name_en' class='field' style='font-weight: 200'></div></td></tr>
+                        <tr height='20'><td align='right'><div id='category' class='field' style='font-weight: 200; font-size: 80%%'></div></td></tr>
+                        <tr height='20'><td align='right'><div id='sale' class='field' style='font-weight: 200; font-size: 80%%'></div></td></tr>
+                    </table>
+                </div>
+                <div class="weui_tab" style='position: relative; top: 140px'>
+                    <div class="weui_navbar">
+                        <div id='tab_bar_intr' class="weui_navbar_item weui_bar_item_on" onclick="tabToIntr()">游戏介绍</div>
+                        <div id='tab_bar_rent' class="weui_navbar_item" onclick="tabToRent()">游戏租赁 </div>
+                    </div>
+                    <div class="weui_tab_bd" style='background: white'>
+                        <div id='tab_bd_intr' style='display'>
+                            <article class='weui_article'>
+                                <p>
+                                    <div id='poster_container' style='width: 100%%'>
+                                        <div id='url_poster'></div>
+                                    </div>
+                                <p>
+                                <section id='introduction' />
+                            </article>
                         </div>
-                    <p>
-                    <section>
-                        <h1>游戏介绍</h1>
-                        <section>
-                            <section>
-                                <p id='introduction'></p>
-                            </section>
-                            <section align='center' id='vedio'>
-                            </section>
-                        </section>
-                    </section>
-                </article>
-                <div class="weui_cells">
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>简体中文名</p></div>
-                        <div class="weui_cell_ft" id='name_zh_cn'></div>
+                        <div id='tab_bd_rent' style='display: none'>
+                            <div class="weui_cells" id='rent'> </div>
+                            <div class='weui_btn_area' id='rent_begin'>
+                                <a class='weui_btn weui_btn_primary' href="javascript:rentBegin();">我要租</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>英文名</p></div>
-                        <div class="weui_cell_ft" id='name_en'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>游戏类型</p></div>
-                        <div class="weui_cell_ft" id='category'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>发行商</p></div>
-                        <div class="weui_cell_ft" id='vendor'></div>
-                    </div>
-                    <div class="weui_cell">
-                        <div class="weui_cell_bd weui_cell_primary"><p>发售日期</p></div>
-                        <div class="weui_cell_ft" id='sale'></div>
-                    </div>
-                </div>
-                <div class="weui_cells" id='rent'>
-                </div>
-                <div class='weui_btn_area' id='rent_begin'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:rentBegin();">我要租</a>
                 </div>
             </div>
         </div>

@@ -36,20 +36,42 @@
             var url_detail = '/ski-wcweb?inst=2001&user=' + user.toString(16);
 
             $(document).ready(function() {
-                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
-                if (0 < word.length) {
-                    setup();
-                }
+                setup();
             });
 
-            function setup() {
-                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
+            function preset() {
+                $.post(url_setup, $.toJSON({
+                            'tag'  : '预置'
+                        }), function(args) {
 
-                if (0 == word.length) {
-                    $('#result')[0].innerHTML = '';
-                    return;
-                }
+                            var title = document.createElement('div');
+                            title.setAttribute('class', 'weui_panel_hd');
+                            title.innerText = '热门游戏';
 
+                            var cells = document.createElement('div');
+                            cells.setAttribute('class', 'weui_panel_bd');
+                            for (var i in args.desc) {
+                                var game = args.desc[i];
+                                var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
+                                             + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
+                                             + "<div class='weui_media_bd'>"
+                                                + "<table width='100%%'><tr>"
+                                                    + "<td><h4 class='weui_media_title'>" + game.name_zh_cn + "</h4></td>"
+                                                    + "<td width='40px'><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
+                                                    + "<td width='40px'><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
+                                                + "</tr></table>"
+                                                + "<p class='weui_media_desc'>" + game.introduction + "</p>"
+                                             + "</div>"
+                                         + "</a>";
+                                cells.innerHTML = cells.innerHTML + cell;
+                            }
+                            $('#result')[0].innerHTML = '';
+                            $('#result')[0].appendChild(title);
+                            $('#result')[0].appendChild(cells);
+                        });
+            }
+
+            function search(word) {
                 showToast('正在搜索');
                 $.post(url_setup, $.toJSON({
                             'word'  : word
@@ -84,6 +106,17 @@
                             $('#result')[0].appendChild(title);
                             $('#result')[0].appendChild(cells);
                         });
+            }
+
+            function setup() {
+                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
+
+                if (0 == word.length) {
+                    preset();
+                } else {
+                    search(word);
+                }
+
             }
 
             function browseGame(gid) {
