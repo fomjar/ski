@@ -107,8 +107,8 @@ public class WcWeb {
             case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY:
                 processQueryPlatformAccountMoney(response, request);
                 break;
-            case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT:
-                processUpdateChannelAccount(response, request);
+            case CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP:
+                processUpdatePlatformAccountMap(response, request);
                 break;
             }
             break;
@@ -196,15 +196,6 @@ public class WcWeb {
                 path,
                 Integer.toHexString(inst),
                 Integer.toHexString(user));
-    }
-    
-    private static String getChannelDesc(int channel) {
-        switch (channel) {
-        case CommonService.CHANNEL_TAOBAO: return "淘宝";
-        case CommonService.CHANNEL_WECHAT: return "微信";
-        case CommonService.CHANNEL_ALIPAY: return "支付宝";
-        default: return "未知";
-        }
     }
     
     private static String getFileMime (String name) {
@@ -733,36 +724,13 @@ public class WcWeb {
         }
     }
     
-    private static void processUpdateChannelAccount(FjHttpResponse response, WcwRequest request) {
+    private static void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/update_channel_account.html",
-                    request.user,
-                    request.args.has("caid") ? String.valueOf(Integer.parseInt(request.args.getString("caid"), 16)) : "null",
-                    request.args.has("channel") ? String.valueOf(Integer.parseInt(request.args.getString("channel"), 16)) : "null");
+            fetchFile(response, "/update_platform_account_map.html", request.user);
             break;
         }
-        case STEP_SETUP: {
-            int caid = Integer.parseInt(request.args.getString("caid"), 16);
-            BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
-            JSONObject desc = new JSONObject();
-            desc.put("caid",     user.i_caid);
-            desc.put("channel",  user.i_channel);
-            desc.put("user",     user.c_user);
-            desc.put("name",     user.c_name);
-            desc.put("phone",    user.c_phone);
-            desc.put("gender",   user.i_gender);
-            desc.put("birth",    user.t_birth);
-            desc.put("address",  user.c_address);
-            desc.put("zipcode",  user.c_zipcode);
-            desc.put("create",   user.t_create);
-            JSONObject args = new JSONObject();
-            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args.put("desc", desc);
-            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
-            break;
-        }
+//        case STEP_SETUP: break;
         case STEP_APPLY: {
             if (!request.args.has("channel") || !request.args.has("_user") || !request.args.has("name")) {
                 JSONObject args = new JSONObject();
@@ -772,73 +740,40 @@ public class WcWeb {
                 response.content(args.toString());
                 break;
             }
-            int     caid    = request.args.has("caid") ? Integer.parseInt(request.args.getString("caid"), 16) : -1;
             int     channel = request.args.getInt("channel");
             String  user    = request.args.getString("_user");
-            String  name    = request.args.getString("name");
             
-            if (-1 != caid) { // 更新已有用户
-                // 未找到已有用户
-                if (null == CommonService.getChannelAccountByCaid(caid)) {
-                    JSONObject args = new JSONObject();
-                    args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-                    args.put("desc", "用户不存在");
-                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                    response.content(args.toString());
-                    break;
-                }
-            } else { // 新创建用户
-                // 已有重复渠道用户
-                if (!CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()) {
-                    JSONObject args = new JSONObject();
-                    args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-                    args.put("desc", "已经关联了" + getChannelDesc(channel) + "用户，不能再重复关联");
-                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                    response.content(args.toString());
-                    break;
-                }
-            }
-            // 此平台下当前没有关联用户且可以找到此平台下同名用户，则会将它们关联
-            if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, channel).isEmpty()
-            		&&!CommonService.getChannelAccountByUserNChannel(user, channel).isEmpty())
-            	caid = CommonService.getChannelAccountByUserNChannel(user, channel).get(0).i_caid;
-            
-            { // 创建或更新用户
-                JSONObject args_cdb = new JSONObject();
-                if (-1 != caid) args_cdb.put("caid", caid);
-                args_cdb.put("channel", channel);
-                args_cdb.put("user",    user);
-                args_cdb.put("name",    name);
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
-                
-                if (!CommonService.isResponseSuccess(rsp)) {
+            switch (channel) {
+            	case CommonService.CHANNEL_TAOBAO: {
+            		if (CommonService.getChannelAccountByUserNChannel(user, channel).isEmpty()) {
+                        JSONObject args = new JSONObject();
+                        args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                        args.put("desc", "此淘宝用户不存在");
+                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                        response.content(args.toString());
+                        break;
+            		}
+            		BeanChannelAccount user_taobao = CommonService.getChannelAccountByUserNChannel(user, channel).get(0);
+                    int paid = CommonService.getPlatformAccountByCaid(user_taobao.i_caid);
+                    if (CommonService.getPlatformAccountByCaid(request.user) == paid) {
+                        JSONObject args = new JSONObject();
+                        args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                        args.put("desc", "已经关联过此淘宝用户");
+                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                        response.content(args.toString());
+                        break;
+                    }
+                    
+                    JSONObject args_cdb = new JSONObject();
+                    args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(request.user));
+                    args_cdb.put("paid_from",   paid);
+                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
+                    
                     response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                     response.content(rsp.args().toString());
-                    break;
-                }
-                caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            		break;
+            	}
             }
-            CommonService.updateChannelAccount();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            // 新用户与当前用户合并
-            if (CommonService.getPlatformAccountByCaid(caid) != CommonService.getPlatformAccountByCaid(request.user)) {
-                int paid = CommonService.getPlatformAccountByCaid(caid);
-                JSONObject args_cdb = new JSONObject();
-                args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(request.user));
-                args_cdb.put("paid_from",   paid);
-                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
-                
-                if (!CommonService.isResponseSuccess(rsp)) {
-                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                    response.content(rsp.args().toString());
-                    break;
-                }
-            }
-            JSONObject args = new JSONObject();
-            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
             break;
         }
         }

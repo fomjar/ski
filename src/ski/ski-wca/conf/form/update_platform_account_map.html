@@ -10,64 +10,13 @@
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var user    = %d;
-            var caid    = %s;   // decimal
-            var channel = %s;   // decimal
-
-            var url_setup   = '/ski-wcweb?inst=2405&user=' + user.toString(16) + '&step=setup';
-            var url_apply   = '/ski-wcweb?inst=2405&user=' + user.toString(16) + '&step=apply';
+            var user = %d;
+            var url_apply = '/ski-wcweb?inst=240a&user=' + user.toString(16) + '&step=apply';
 
             $(document).ready(function() {
-                if (null != channel) {
-                    $('#channel').val(channel);
-                    $('#channel').attr('disabled', 'disabled');
-                }
-                if (null != caid) { // update user
-                    showToast('正在加载');
-                    $.post(url_setup, $.toJSON({
-                           'caid'   : caid.toString(16)
-                        }), function(args){
-                            hideToast();
-                            if (0 != args.code) {
-                                showDialog('加载失败', args.desc);
-                                return;
-                            }
-                            switch (args.desc.channel) {
-                            case 0: // 淘宝
-                                $('#label_user').text('昵称');
-                                $('#cell_name').hide();
-                                break;
-                            case 1: // 微信
-                                break;
-                            case 2: // 支付宝
-                                $('#label_user').text('帐号');
-                                $('#label_name').text('真实姓名');
-                                break;
-                            }
-                            $('#user').val(args.desc.user);
-                            $('#name').val(args.desc.name);
-                        });
-                } else { // create user
-                    $('#channel').val('0');
-                    $('#label_user').text('昵称');
-                    $('#cell_name').hide();
-
-                    $('#channel').change(function() {
-                        switch ($('#channel').val()) {
-                        case '0':
-                            $('#label_user').text('昵称');
-                            $('#cell_name').hide();
-                            break;
-                        case '1':
-                            break;
-                        case '2':
-                            $('#label_user').text('帐号');
-                            $('#label_name').text('真实姓名');
-                            $('#cell_name').show();
-                            break;
-                        }
-                    });
-                }
+                $('#channel').val('0');
+                $('#label_user').text('昵称');
+                $('#cell_name').hide();
             });
 
             function apply() {
@@ -76,31 +25,22 @@
                 var name = $('#name').val();
 
                 if (0 == _user.length) {
-                    showDialog('错误', '账号不能为空');
+                    showDialog('错误', '昵称不能为空');
                     return;
                 }
 
                 showToast('正在处理');
                 var param = null;
-                if (null == caid) {
-                    param = $.toJSON({
-                        'channel'   : channel.toString(16),
-                        '_user'     : _user,
-                        'name'      : name
-                    });
-                } else {
-                    param = $.toJSON({
-                        'caid'      : caid.toString(16),
-                        'channel'   : channel.toString(16),
-                        '_user'     : _user,
-                        'name'      : name
-                    });
-                }
+                param = $.toJSON({
+                    'channel'   : channel.toString(16),
+                    '_user'     : _user,
+                    'name'      : name
+                });
                 $.post(url_apply, param,
                     function(args) {
                         hideToast();
                         if (0 == args.code) {
-                            showDialog("提交成功");
+                            showDialog("提交成功", '');
                         } else {
                             showDialog("提交失败", args.desc);
                         }
@@ -138,7 +78,7 @@
                             <select name="select" class="weui_select" id='channel'>
                                 <option value="0">淘宝</option>
                                 <!--<option value="1">微信</option>-->
-                                <option value="2">支付宝</option>
+                                <!--<option value="2">支付宝</option>-->
                             </select>
                         </div>
                     </div>
