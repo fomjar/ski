@@ -63,7 +63,7 @@
 
                         if (0 < args.desc.vedio.length) {
                             $('#poster_container').css('height', '200px');
-                            $('#url_poster').append("<div style='background: black'><video width='100%%' height='100%%' controls autobuffer src='" + args.desc.vedio + "'/></div>");
+                            $('#url_poster').append("<video width='100%%' height='100%%' controls autobuffer src='" + args.desc.vedio + "'/>");
                         }
                         if (0 < args.desc.url_poster.length) {
                             for (var i in args.desc.url_poster) {
@@ -81,7 +81,7 @@
                             navType: 'bubble',
                             childrenElementType: 'div',
                             arrows: true,
-                            autoPlay: true,
+                            autoPlay: false,
                             autoPlayDuration: 5000,
                             keyboardOnAlways: true,
                             hidePrevious: false
@@ -159,12 +159,12 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <div style='position: fixed; top: 0px; width: 100%%; height: 140px'>
-                    <div style='position: absolute; width: 100%%; height: 100%%; background: gray'></div>
+                <div style='position: fixed; top: 0px; width: 100%%; height: 150px'>
+                    <div style='position: absolute; width: 100%%; height: 100%%; background: black'></div>
                     <div id='head_area' style='position: absolute; width: 100%%; height: 100%%'></div>
                     <table style='position: absolute; width: 100%%;  padding: 20px'>
                         <tr height='30'>
-                            <td rowspan='4' width='1px' height='1px' id='url_cover'></td>
+                            <td rowspan='4' width='1px' height='1px' id='url_cover' style='padding: 5px'></td>
                             <td align='right'><div id='name_zh_cn' class='field' style='font-weight: 500'></div></td>
                         </tr>
                         <tr height='30'><td align='right'><div id='name_en' class='field' style='font-weight: 200'></div></td></tr>
@@ -172,16 +172,16 @@
                         <tr height='20'><td align='right'><div id='sale' class='field' style='font-weight: 200; font-size: 80%%'></div></td></tr>
                     </table>
                 </div>
-                <div class="weui_tab" style='position: relative; top: 140px'>
+                <div class="weui_tab" style='position: relative; top: 150px'>
                     <div class="weui_navbar">
                         <div id='tab_bar_intr' class="weui_navbar_item weui_bar_item_on" onclick="tabToIntr()">游戏介绍</div>
                         <div id='tab_bar_rent' class="weui_navbar_item" onclick="tabToRent()">游戏租赁 </div>
                     </div>
                     <div class="weui_tab_bd" style='background: white'>
-                        <div id='tab_bd_intr' style='display'>
+                        <div id='tab_bd_intr' style=''>
                             <article class='weui_article'>
                                 <p>
-                                    <div id='poster_container' style='width: 100%%'>
+                                    <div id='poster_container' style='width: 100%%; background: black'>
                                         <div id='url_poster'></div>
                                     </div>
                                 <p>
