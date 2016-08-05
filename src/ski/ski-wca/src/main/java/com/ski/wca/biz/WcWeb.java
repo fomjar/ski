@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -657,7 +656,7 @@ public class WcWeb {
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
         json.put("account",  account.c_user);
         json.put("type",     "A".equals(c.c_arg1) ? "认证" : "B".equals(c.c_arg1) ? "不认证" : "未知");
-        json.put("game",     CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).stream().map(game->game.getDisplayName()).collect(Collectors.joining("; ")));
+        json.put("game",     gameToJson(CommonService.getGameByGaid(account.i_gaid).get(0)));
         // 预结算
         if (!c.isClose()) {
             json.put("expense", CommonService.prestatementByCommodity(c));

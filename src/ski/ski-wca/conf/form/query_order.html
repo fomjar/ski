@@ -13,6 +13,7 @@
             var user = %d;
             var url_setup = '/ski-wcweb?inst=2006&user=' + user.toString(16) + '&step=setup';
             var url_rent_end = '/ski-wcweb?inst=2107&user=' + user.toString(16);
+            var url_query_game = '/ski-wcweb?inst=2001&user=' + user.toString(16);
 
             $(document).ready(function() {
                 showToast('正在加载');
@@ -26,13 +27,10 @@
                     for (var i in args.desc) {
                         var commodity = args.desc[i];
 
-                        var title = document.createElement('div');
-                        title.className = 'weui_cells_title';
-                        title.innerText = commodity.game;
-
                         var cells = document.createElement('div');
                         cells.className = 'weui_cells';
-                        cells.innerHTML = "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + commodity.account + "</div></div>"
+                        cells.innerHTML = "<a class='weui_cell' href='" + (url_query_game + '&gid=' + commodity.game.gid.toString(16)) + "'><div class='weui_cell_bd weui_cell_primary'><p>" + commodity.game.display_name + "</p></div><div class='weui_cell_ft'></div></a>"
+                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + commodity.account + "</div></div>"
                                         + (typeof(commodity.pass) != 'undefined' ? "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>密码</p></div><div class='weui_cell_ft'>" + commodity.pass + "</div></div>" : '')
                                         + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁类型</p></div><div class='weui_cell_ft'>" + commodity.type + " (" + commodity.price + "元/天)</div></div>"
                                         + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>起租时间</p></div><div class='weui_cell_ft'>" + commodity.begin + "</div></div>"
@@ -46,7 +44,6 @@
                             rent_end.innerHTML = "<a href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");' class='weui_btn weui_btn_primary'>退租</a>";
                         }
 
-                        $('#result')[0].appendChild(title);
                         $('#result')[0].appendChild(cells);
                         if ('' == commodity.end) $('#result')[0].appendChild(rent_end);
                     }
