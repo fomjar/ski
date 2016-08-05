@@ -19,15 +19,17 @@
                     filter: blur(12px);
         }
         .field {
-            width           : 200px;
+            width           : 100%%;
             color           : #cccccc;
-            padding-right   : 16px;
+            padding-right   : 15px;
             text-align      : right;
             text-shadow     : black 1px 1px 0px;
             white-space     : nowrap;
             overflow        : hidden;
             text-overflow   : ellipsis; 
             -o-text-overflow: ellipsis; 
+            position        : absolute;
+            margin-left     : -25px;
         }
         </style>
         <script type='text/javascript'>
@@ -50,9 +52,9 @@
 
                         setTitle(args.desc.name_zh_cn);
 
-                        $('#head_area').css('background-image', 'url(' + args.desc.url_cover + ')');
-                        $('#head_area').css('background-size', 'cover');
-                        $('#head_area').addClass('blur');
+                        $('#blur_cover').css('background-image', 'url(' + args.desc.url_cover + ')');
+                        $('#blur_cover').css('background-size', 'cover');
+                        $('#blur_cover').addClass('blur');
 
                         $('#url_cover').append("<img width='100px' height='100px' src='" + args.desc.url_cover + "'></img>")
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
@@ -161,16 +163,13 @@
             <div class='bd'>
                 <div style='position: fixed; top: 0px; width: 100%%; height: 150px'>
                     <div style='position: absolute; width: 100%%; height: 100%%; background: black'></div>
-                    <div id='head_area' style='position: absolute; width: 100%%; height: 100%%'></div>
-                    <table style='position: absolute; width: 100%%;  padding: 20px'>
-                        <tr height='30'>
-                            <td rowspan='4' width='1px' height='1px' id='url_cover' style='padding: 5px'></td>
-                            <td align='right'><div id='name_zh_cn' class='field' style='font-weight: 500'></div></td>
-                        </tr>
-                        <tr height='30'><td align='right'><div id='name_en' class='field' style='font-weight: 200'></div></td></tr>
-                        <tr height='20'><td align='right'><div id='category' class='field' style='font-weight: 200; font-size: 80%%'></div></td></tr>
-                        <tr height='20'><td align='right'><div id='sale' class='field' style='font-weight: 200; font-size: 80%%'></div></td></tr>
-                    </table>
+
+                    <div id='blur_cover'    style='position: absolute; width: 100%%; height: 100%%'></div>
+                    <div id='url_cover'     style='position: absolute; margin-top: 25px; margin-left: 25px'></div>
+                    <div id='name_zh_cn'    class='field' style='margin-top: 25px; font-weight: 500'></div>
+                    <div id='name_en'       class='field' style='margin-top: 50px; font-weight: 200'></div>
+                    <div id='category'      class='field' style='margin-top: 90px; font-weight: 200; font-size: 80%%'></div>
+                    <div id='sale'          class='field' style='margin-top: 110px; font-weight: 200; font-size: 80%%'></div>
                 </div>
                 <div class="weui_tab" style='position: relative; top: 150px'>
                     <div class="weui_navbar">
@@ -180,11 +179,11 @@
                     <div class="weui_tab_bd" style='background: white'>
                         <div id='tab_bd_intr' style=''>
                             <article class='weui_article'>
-                                <p>
+                                <section>
                                     <div id='poster_container' style='width: 100%%; background: black'>
                                         <div id='url_poster'></div>
                                     </div>
-                                <p>
+                                </section>
                                 <section id='introduction' />
                             </article>
                         </div>
