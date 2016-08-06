@@ -466,7 +466,7 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "起租成功", "", "");
+            fetchFile(response, "/message_success.html", "起租成功", "请到“正在玩”中查看帐号详情", "");
             break;
         }
         }
@@ -511,7 +511,7 @@ public class WcWeb {
             break;
     	}
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退租成功", "", "");
+            fetchFile(response, "/message_success.html", "退租成功", "请到“正在玩”中查看结算详情", "");
             break;
         }
     	}

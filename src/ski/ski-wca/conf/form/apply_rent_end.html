@@ -28,7 +28,7 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#game').text(args.desc.game);
+                        $('#game').text(args.desc.game.name_zh_cn);
                         $('#account').text(args.desc.account);
                         $('#type').text(args.desc.type + '(' + args.desc.price + '元/天)');
                         $('#begin').text(args.desc.begin);
