@@ -89,6 +89,6 @@ public class WaTask implements FjServerTask {
         rsp.json().put("inst", req.inst());
         rsp.json().put("args", args);
         FjServerToolkit.getAnySender().send(rsp);
-        logger.debug("response message: " + rsp);
+        logger.info("response message: " + rsp);
     }
 }
