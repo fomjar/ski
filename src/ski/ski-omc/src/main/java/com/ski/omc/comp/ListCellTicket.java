@@ -5,15 +5,20 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import com.fomjar.widget.FjListCell;
 import com.fomjar.widget.FjTextField;
@@ -99,10 +104,16 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             JTextArea   content = new JTextArea(data.c_content.replace("|", "\n"));
             content.setEditable(false);
             content.setLineWrap(true);
-            content.setColumns(30);
-            content.setRows(6);
             FjTextField result = new FjTextField();
             result.setDefaultTips("(请输入处理意见)");
+            JButton		btn_accept = new JButton("接受");
+            JButton		btn_refuse = new JButton("拒绝");
+            JButton		btn_cancel = new JButton("取消");
+			JPanel buttons = new JPanel();
+			buttons.setLayout(new GridLayout(1, 3));
+			buttons.add(btn_accept);
+			buttons.add(btn_refuse);
+			buttons.add(btn_cancel);
             
             JPanel head = new JPanel();
             head.setLayout(new GridLayout(3, 1));
@@ -116,23 +127,48 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             panel.add(new JScrollPane(content), BorderLayout.CENTER);
             panel.add(UIToolkit.createBasicInfoLabel("处理意见", result), BorderLayout.SOUTH);
             
+            JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "处理工单");
+            dialog.setSize(400, 300);
+            Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+            dialog.setLocation((screen.width - dialog.getWidth()) / 2, (screen.height - dialog.getHeight()) / 2);
+            dialog.setModal(false);
+            dialog.setLayout(new BorderLayout());
+            dialog.add(panel, BorderLayout.CENTER);
+            dialog.add(buttons, BorderLayout.SOUTH);
+            
+            ActionListener a = new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dialog.dispose();
+					
+					if (btn_cancel == e.getSource()) return;
+					
+					int state = CommonService.TICKET_STATE_OPEN;
+					if (btn_accept == e.getSource()) 		state = CommonService.TICKET_STATE_CLOSE;
+					else if (btn_refuse == e.getSource()) 	state = CommonService.TICKET_STATE_CANCEL;
+					
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    JSONObject args = new JSONObject();
+                    args.put("tid", 	data.i_tid);
+                    args.put("close", 	sdf.format(new Date()));
+                    args.put("state", 	state);
+                    args.put("result", 	result.getText());
+                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
+                    CommonService.updateTicket();
+                    UIToolkit.showServerResponse(rsp);
+                    ListTicket.getInstance().refresh();
+                }
+			};
+			btn_accept.addActionListener(a);
+			btn_refuse.addActionListener(a);
+			btn_cancel.addActionListener(a);
+            
             if (data.isClose()) {
                 result.setEditable(false);
                 result.setText("[" + getState2String(data.i_state) + "] " + data.c_result);
-                JOptionPane.showMessageDialog(null, panel, "处理结果", JOptionPane.PLAIN_MESSAGE);
-            } else {
-                int option = JOptionPane.CLOSED_OPTION;
-                if (JOptionPane.CLOSED_OPTION != (option = JOptionPane.showOptionDialog(ListCellTicket.this, panel, "处理工单", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, new String[] {"接受", "拒绝"}, "接受"))) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    JSONObject args = new JSONObject();
-                    args.put("tid", data.i_tid);
-                    args.put("close", sdf.format(new Date()));
-                    args.put("state", option == JOptionPane.YES_OPTION ? CommonService.TICKET_STATE_CLOSE : CommonService.TICKET_STATE_CANCEL);
-                    args.put("result", result.getText());
-                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
-                    UIToolkit.showServerResponse(rsp);
-                }
+                buttons.setVisible(false);
             }
+            dialog.setVisible(true);
         });
     }
     

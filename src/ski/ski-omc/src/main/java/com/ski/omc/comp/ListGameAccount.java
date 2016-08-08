@@ -21,10 +21,17 @@ import com.ski.omc.UIToolkit;
 public class ListGameAccount extends JDialog {
 
     private static final long serialVersionUID = 8198733950250010530L;
+    
+    private static ListGameAccount instance = null;
+    public static synchronized ListGameAccount getInstance() {
+    	if (null == instance) instance = new ListGameAccount();
+    	return instance;
+    }
+    
     private JToolBar                    toolbar;
     private FjListPane<BeanGameAccount> pane;
     
-    public ListGameAccount() {
+    private ListGameAccount() {
         super(MainFrame.getInstance(), "账号清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -121,7 +128,7 @@ public class ListGameAccount extends JDialog {
         refresh();
     }
     
-    private void refresh() {
+    public void refresh() {
         pane.getList().removeAllCell();
         CommonService.getGameAccountAll().values().forEach(data->pane.getList().addCell(new ListCellGameAccount(data)));
     }

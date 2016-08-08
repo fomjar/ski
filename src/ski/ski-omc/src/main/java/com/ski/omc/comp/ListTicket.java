@@ -21,6 +21,13 @@ import com.ski.omc.UIToolkit;
 public class ListTicket extends JDialog {
 
     private static final long serialVersionUID = 1066704316297382763L;
+    
+    private static ListTicket instance = null;
+    public static synchronized ListTicket getInstance() {
+    	if (null == instance) instance = new ListTicket();
+    	return instance;
+    }
+    
     private static final String TOGGLE_TITLE_OPEN = "当前显示：开启工单(点击切换)";
     private static final String TOGGLE_TITLE_ALL  = "当前显示：所有工单(点击切换)";
     
@@ -33,7 +40,7 @@ public class ListTicket extends JDialog {
     private JButton     toggle;
     private FjListPane<BeanTicket>  pane;
     
-    public ListTicket() {
+    private ListTicket() {
         super(MainFrame.getInstance(), "工单清单");
         
         setModal(false);
@@ -129,15 +136,11 @@ public class ListTicket extends JDialog {
         refresh();
     }
     
-    private void refresh() {
+    public void refresh() {
         pane.getList().removeAllCell();
         CommonService.getTicketAll().values().forEach(data->{
             ListCellTicket cell = new ListCellTicket(data);
             pane.getList().addCell(cell);
-            cell.addActionListener(e->{
-                CommonService.updateTicket();
-                refresh();
-            });
         });
         
         pane.getSearchBar().doSearch();

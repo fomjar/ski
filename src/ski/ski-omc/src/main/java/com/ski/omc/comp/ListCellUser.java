@@ -29,22 +29,16 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         rent = new JLabel(getMinorString(data));
         
         plat.setFont(plat.getFont().deriveFont(Font.ITALIC));
-        if (rent.getText().startsWith("00 /")) {
-            plat.setForeground(Color.lightGray);
-            name.setForeground(Color.lightGray);
-            rent.setForeground(Color.lightGray);
-        } else {
-            plat.setForeground(color_major);
-            name.setForeground(color_major);
-            rent.setForeground(color_major);
-        }
         
         setLayout(new BorderLayout());
         add(plat, BorderLayout.WEST);
         add(name, BorderLayout.CENTER);
         add(rent, BorderLayout.EAST);
-        
+
         addActionListener(e->MainFrame.getInstance().setDetailUser(data.i_caid));
+        
+        if (rent.getText().startsWith("00 /")) setForeground(Color.lightGray);
+        else setForeground(color_major);
     }
 
     private static String getMinorString(BeanChannelAccount data) {

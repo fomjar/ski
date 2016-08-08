@@ -15,13 +15,19 @@ import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
 
 public class ListGame extends JDialog {
-
+	
     private static final long serialVersionUID = -4974710094129285415L;
+    
+    private static ListGame instance = null;
+    public static synchronized ListGame getInstance() {
+    	if (null == instance) instance = new ListGame();
+    	return instance;
+    }
     
     private JToolBar                toolbar;
     private FjListPane<BeanGame>    pane;
     
-    public ListGame() {
+    private ListGame() {
         super(MainFrame.getInstance(), "游戏清单");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -76,7 +82,7 @@ public class ListGame extends JDialog {
         refresh();
     }
     
-    private void refresh() {
+    public void refresh() {
         pane.getList().removeAllCell();
         CommonService.getGameAll().values().forEach(data->pane.getList().addCell(new ListCellGame(data)));
     }

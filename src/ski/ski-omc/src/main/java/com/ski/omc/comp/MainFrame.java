@@ -1,9 +1,12 @@
 package com.ski.omc.comp;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -66,7 +69,7 @@ public class MainFrame extends JFrame {
         toolbar_user.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
         toolbar_user.setLayout(new BoxLayout(toolbar_user, BoxLayout.X_AXIS));
         toolbar_user.add(DetailPane.createToolBarButton("新用户", e->{
-            if (-1 != UIToolkit.createChannelAccount()) refresh();
+            if (-1 != UIToolkit.createChannelAccount()) refreshUser();
         }));
         users   = new FjListPane<BeanChannelAccount>();
         detail  = new MainDetailPane();
@@ -101,9 +104,9 @@ public class MainFrame extends JFrame {
     
     private void listen() {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->refresh());
-        ((JButton) toolbar.getComponent(2)).addActionListener(e->new ListGame().setVisible(true));
-        ((JButton) toolbar.getComponent(3)).addActionListener(e->new ListGameAccount().setVisible(true));
-        ((JButton) toolbar.getComponent(4)).addActionListener(e->new ListTicket().setVisible(true));
+        ((JButton) toolbar.getComponent(2)).addActionListener(e->ListGame.getInstance().setVisible(true));
+        ((JButton) toolbar.getComponent(3)).addActionListener(e->ListGameAccount.getInstance().setVisible(true));
+        ((JButton) toolbar.getComponent(4)).addActionListener(e->ListTicket.getInstance().setVisible(true));
         ((JButton) toolbar.getComponent(6)).addActionListener(e->new ChartFrame().setVisible(true));
         
         users.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(users.getList()) {
@@ -162,18 +165,31 @@ public class MainFrame extends JFrame {
                 
                 progress.setString("加载完成");
                 
-                users.getList().removeAllCell();
-                CommonService.getChannelAccountAll().values().forEach(user->{
-                    ListCellUser cell = new ListCellUser(user);
-                    users.getList().addCell(cell);
-                });
-                users.getSearchBar().doSearch();
-                
-                if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
+                refreshUser();
             } catch (Exception e) {progress.setString("加载失败：" + e.getMessage());}
             
             toolbar.setEnabled(true);
         });
+    }
+    
+    public void refreshUser() {
+    	int caid = null != users.getList().getSelectedCell() ? users.getList().getSelectedCell().getData().i_caid : -1;
+    	
+        users.getList().removeAllCell();
+        List<ListCellUser> user_hl = new LinkedList<ListCellUser>();
+        List<ListCellUser> user_ll = new LinkedList<ListCellUser>();
+        CommonService.getChannelAccountAll().values().forEach(user->{
+            ListCellUser cell = new ListCellUser(user);
+            if (user.i_caid == caid) cell.setSelected(true);
+            
+            if (cell.getForeground() == Color.lightGray) user_ll.add(cell);
+            else user_hl.add(cell);
+        });
+        user_hl.forEach(user->users.getList().addCell(user));
+        user_ll.forEach(user->users.getList().addCell(user));
+        users.getSearchBar().doSearch();
+        
+        if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
     }
     
     public void setDetailUser(int caid) {

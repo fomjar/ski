@@ -362,6 +362,7 @@ public class ManageGame extends JDialog {
                 CommonService.updateTag();
                 UIToolkit.showServerResponse(rsp);
                 updateTag();
+                ListGame.getInstance().refresh();
                 break;
             }
         });
