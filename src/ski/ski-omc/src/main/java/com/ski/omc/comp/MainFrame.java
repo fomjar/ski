@@ -41,7 +41,7 @@ public class MainFrame extends JFrame {
     private MainDetailPane                  detail;
     private FjProgressBar                   progress;
     
-    public MainFrame() {
+    private MainFrame() {
         setTitle(String.format("SKI-OMC-%s [%s]", CommonDefinition.VERSION, CommonService.getWsiUrl()));
         setSize(1280, 800);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
