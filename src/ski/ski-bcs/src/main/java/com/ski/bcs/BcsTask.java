@@ -64,7 +64,8 @@ public class BcsTask implements FjServerTask {
     private static void processApplyRentBegin(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("platform") || !args.has("caid") || !args.has("gid") || !args.has("type")) {
-            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: platform, caid, gid, type");
+        	logger.error(String.format("illegal arguments: " + args));
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
         
@@ -81,7 +82,8 @@ public class BcsTask implements FjServerTask {
                             + CommonService.getGameAccountByPaid(puser.i_paid, CommonService.RENT_TYPE_B).size()
                             + 1);
             if (puser.i_cash < deposite) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_DEPOSIT, String.format("need %.2f have %.2f", deposite, puser.i_cash));
+            	logger.error(String.format("not enough cash for rent begin: args %s need %.2f but have %.2f", args, deposite, puser.i_cash));
+                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_DEPOSIT, String.format("余额不足无法起租", deposite, puser.i_cash));
                 return;
             }
         }
@@ -107,7 +109,8 @@ public class BcsTask implements FjServerTask {
             if (-1 != gaid_all)         gaid = gaid_all;
             else if (-1 != gaid_sin)    gaid = gaid_sin;
             else {
-                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "there is no account left");
+            	logger.error(String.format("game account not enough for rent begin: args", args));
+                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "该游戏已没有剩余帐号可租");
                 return;
             }
         }
@@ -121,7 +124,8 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("open",        sdf.format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args_cdb);
             if (!CommonService.isResponseSuccess(rsp)){
-                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_ORDER_FAILED, CommonService.getResponseDesc(rsp));
+            	logger.error(String.format("submit order failed for rent begin: args = %s, rsp = %s", args, rsp));
+                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_ORDER_FAILED, "提交订单失败，请稍后重试");
                 return;
             }
             int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
@@ -136,7 +140,8 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("arg1", CommonService.RENT_TYPE_A == type ? "A" : CommonService.RENT_TYPE_B == type ? "B" : "U");
             rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
             if (!CommonService.isResponseSuccess(rsp)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_COMMODITY_FAILED, CommonService.getResponseDesc(rsp));
+            	logger.error(String.format("submit commodity failed for rent begin: args = %s, rsp = %s", args, rsp));
+                response(request, server, CommonDefinition.CODE.CODE_USER_OPEN_COMMODITY_FAILED, "提交订单失败，请稍后重试");
                 return;
             }
         }
@@ -146,7 +151,8 @@ public class BcsTask implements FjServerTask {
     private static void processApplyRentEnd(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("caid") || !args.has("oid") || !args.has("csn")) {
-            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: caid, oid, csn");
+        	logger.error("illegal arguments: " + args);
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
         
@@ -166,14 +172,16 @@ public class BcsTask implements FjServerTask {
                 }
             }
             if (!isOrderMatch) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER, "order not found");
+            	logger.error("order not found for rent end: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER, "没有找到此订单");
                 return;
             }
         }
         // check cache
         {
         	if (CacheMonitor.getInstance().isCacheRentEndFailForPass(user)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "user or password is incorrect, please try after 10 minutes");
+        		logger.error("user or pass incorrect for rent end, try later after 10 minutes: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "用户名或密码错误，请10分钟之后再试");
                 return;
         	}
         }
@@ -185,7 +193,8 @@ public class BcsTask implements FjServerTask {
             args_wa.put("pass", account.c_pass);
             FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
             if (!CommonService.isResponseSuccess(rsp)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "user or password is incorrect");
+        		logger.error("user or pass incorrect for rent end, try later after 10 minutes: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "用户名或密码错误");
                 if (CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT == CommonService.getResponseCode(rsp)) {
                 	if (!CacheMonitor.getInstance().isCacheRentEndFailForPass(user))
                 		CacheMonitor.getInstance().putCacheRentEndFailForPass(user);
@@ -198,7 +207,8 @@ public class BcsTask implements FjServerTask {
                     || (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
                             && CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))) {
                 if (rsp.toString().contains(" binded")) {
-                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "please unbind before rent end");
+                	logger.error("unbind account before end end: args = " + args);
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "退租前请先解绑帐号");
                     return;
                 }
             }
@@ -228,7 +238,8 @@ public class BcsTask implements FjServerTask {
                 args_cdb.put("pass_new", pass_new);
                 FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
-                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
+                	logger.error(String.format("change password to psn failed: args = %s, rsp = %s", args, rsp));
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "操作失败，请稍后重试");
                     return;
                 }
             }
@@ -239,7 +250,8 @@ public class BcsTask implements FjServerTask {
                 args_cdb.put("pass", pass_new);
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
-                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "change password failed");
+                	logger.error(String.format("change password to cdb failed: args = %s, rsp = %s", args, rsp));
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "操作失败，请稍后重试");
                     return;
                 }
             }
@@ -269,7 +281,8 @@ public class BcsTask implements FjServerTask {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
             CommonService.updateOrder();
             if (!CommonService.isResponseSuccess(rsp)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, CommonService.getResponseDesc(rsp));
+            	logger.error(String.format("submit commodity failed: args = %s, rsp = %s", args, rsp));
+                response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, "提交订单失败，请稍后重试");
                 return;
             }
             
@@ -286,7 +299,8 @@ public class BcsTask implements FjServerTask {
                 args_cdb.put("close", sdf.format(new Date()));
                 rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args_cdb);
                 if (!CommonService.isResponseSuccess(rsp)) {
-                    response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_ORDER_FAILED, CommonService.getResponseDesc(rsp));
+                	logger.error(String.format("submit order failed: args = %s, rsp = %s", args, rsp));
+                    response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_ORDER_FAILED, "提交订单失败，请稍后重试");
                     return;
                 }
             }
@@ -297,7 +311,8 @@ public class BcsTask implements FjServerTask {
     private static void processApplyPlatformAccountMoney(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("caid") || !args.has("money")) {
-            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "legal args: caid, money");
+        	logger.error("illegal arguments: " + args);
+            response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
         
@@ -305,7 +320,10 @@ public class BcsTask implements FjServerTask {
         
         if (money > 0)      processApplyPlatformAccountMoney_Recharge(server, request);
         else if (money < 0) processApplyPlatformAccountMoney_Refund(server, request);
-        else response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "money must be not 0");
+        else {
+        	logger.error("illegal money: args = " + args);
+        	response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "无效金额");
+        }
     }
     
     private static void processApplyPlatformAccountMoney_Recharge(String server, FjDscpMessage request) {
@@ -321,7 +339,8 @@ public class BcsTask implements FjServerTask {
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
         CommonService.updatePlatformAccount();
         if (!CommonService.isResponseSuccess(rsp)) {
-            response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_RECHARGE_FAILED, CommonService.getResponseDesc(rsp));
+        	logger.error(String.format("recharge failed: args = %s, rsp = %s", args, rsp));
+            response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_RECHARGE_FAILED, "充值失败，请稍后重试");
             return;
         }
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
@@ -343,7 +362,8 @@ public class BcsTask implements FjServerTask {
                 }
             }
             if (!isAllClose) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER_STATE, "close all orders first");
+            	logger.error("close all order before rent end: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER_STATE, "退款前请先关闭所有订单");
                 return;
             }
         }
@@ -351,11 +371,13 @@ public class BcsTask implements FjServerTask {
         {
         	BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
         	if (0 >= puser.i_cash) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "cash is 0");
+            	logger.error("no cash to refund: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "余额已为0元，无法退款");
                 return;
         	}
         	if (-money > puser.i_cash) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "not enough cash to refund");
+            	logger.error("refund must be smaller than cash: args = " + args);
+                response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "退款金额不能大于余额");
                 return;
         	}
         }
@@ -393,7 +415,8 @@ public class BcsTask implements FjServerTask {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
             CommonService.updatePlatformAccount();
             if (!CommonService.isResponseSuccess(rsp)) {
-                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
+            	logger.error(String.format("pay refund failed, args = %s, rsp = %s", args, rsp));
+                response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, "退款失败，请稍后重试");
                 return;
             }
         }

@@ -68,21 +68,20 @@ public class WcaBusiness {
      * @return true for pass
      */
     private static void verifyUser(String server, String user) {
-        List<BeanChannelAccount> users = CommonService.getChannelAccountByUser(user);
-        if (!users.isEmpty()
-                && CommonService.CHANNEL_WECHAT == users.get(0).i_channel)
-            return;
+        List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(user, CommonService.CHANNEL_WECHAT);
+        int caid = -1;
+        if (!users.isEmpty()) caid = users.get(0).i_caid;
         
-        registerUser(server, user);
-        CommonService.updateChannelAccount();
+        updateUser(server, caid, user);
+        if (-1 == caid) CommonService.updateChannelAccount();
     }
     
-    private static void registerUser(String server, String user) {
+    private static void updateUser(String server, int caid, String user) {
         FjJsonMessage ui = null;
         ui = WechatInterface.userInfo(TokenMonitor.getInstance().token(), user);
-        logger.info("register a new wechat user: " + ui);
         
         JSONObject args = new JSONObject();
+        if (-1 != caid) args.put("caid", caid);
         args.put("channel", CommonService.CHANNEL_WECHAT);
         args.put("user",    user);
         args.put("name",    ui.json().getString("nickname"));
