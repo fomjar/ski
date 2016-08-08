@@ -76,7 +76,7 @@ public class MainFrame extends JFrame {
         
         users.getList().setSelectable(true);
         users.enableSearchBar();
-        users.getSearchBar().setSearchTypes(new String[] {"用户名", "手机号"});
+        users.getSearchBar().setSearchTypes(new String[] {"全搜索", "搜淘宝", "搜微信", "支付宝"});
         users.getSearchBar().setSearchTips("键入关键词搜索");
         
         progress = new FjProgressBar();
@@ -114,11 +114,20 @@ public class MainFrame extends JFrame {
             public boolean isMatch(String type, String[] words, BeanChannelAccount celldata) {
                 int count = 0;
                 switch (type) {
-                case "用户名":
+                case "全搜索":
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
-                case "手机号":
-                    for (String word : words) if (celldata.c_phone.contains(word)) count++;
+                case "搜淘宝":
+                	if (celldata.i_channel != CommonService.CHANNEL_TAOBAO) return false;
+                    for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
+                    return count == words.length;
+                case "搜微信":
+                	if (celldata.i_channel != CommonService.CHANNEL_WECHAT) return false;
+                    for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
+                    return count == words.length;
+                case "支付宝":
+                	if (celldata.i_channel != CommonService.CHANNEL_ALIPAY) return false;
+                    for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 default:
                     return true;
