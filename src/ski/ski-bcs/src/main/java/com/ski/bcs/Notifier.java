@@ -73,7 +73,7 @@ public class Notifier {
     
     public static void notifyCashNotEnough(String server, int paid, String money_limit) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
-            String notify_content = String.format("【用户账户余额提醒】|账户余额: %s", money_limit);
+            String notify_content = String.format("【用户账户余额提醒】|账户余额(除押金): %s", money_limit);
             if (CommonService.isNotificationNotified(user.i_caid, notify_content)) {
                 return;
             } else {
@@ -379,7 +379,7 @@ public class Notifier {
     
     public static void notifyModifyNormally(String server, int paid, String accountInfo, String modifyInfo) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
-            String notify_content = String.format("【账号信息修改提醒】|游戏账号: %s|修改内容: %s", accountInfo, modifyInfo);
+            String notify_content = String.format("【账号信息修改提醒】|亲，您的租赁帐号 %s 因认证/非认证用户变更，%s，请您使用新密码登入。|操作步骤：电源->切换用户->选择VC电玩帐号登入；设定->PlayStation Network->登陆->输入新密码；即可。", accountInfo, modifyInfo);
 //            if (CommonService.isNotificationNotified(user.i_caid, notify_content)) {
 //                return;
 //            } else {
@@ -400,10 +400,10 @@ public class Notifier {
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
                 JSONObject data = new JSONObject();
-                data.put("first",       String.format("尊敬的 %s ，您好！您的在租账号 %s %s。", user.c_name, accountInfo, modifyInfo));
+                data.put("first",       String.format("尊敬的 %s ，您好！亲，您的租赁帐号 %s 因认证/非认证用户变更，%s，请您使用新密码登入。", user.c_name, accountInfo, modifyInfo));
                 data.put("keyword1",    "账号状态检测"); // 业务进度
                 data.put("keyword2",    modifyInfo); // 业务状态
-                data.put("remark",      "请重新登陆账号以便继续游戏，对您带来的不变深表歉意。");
+                data.put("remark",      "操作步骤：电源->切换用户->选择VC电玩帐号登入；设定->PlayStation Network->登陆->输入新密码；即可。");
                 JSONObject content = new JSONObject();
                 content.put("template", FjServerToolkit.getServerConfig("bcs.notify.template.modify.normally"));
                 content.put("data",     data);

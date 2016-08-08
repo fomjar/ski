@@ -249,13 +249,13 @@ public class BcsTask implements FjServerTask {
                     Notifier.notifyModifyNormally(server,
                             CommonService.getPlatformAccountByCaid(user_b.i_caid),
                             account.c_user + "(不认证)",
-                            "密码已被改为：" + pass_new);
+                            "密码已更新为：" + pass_new);
                 }
                 if (null != user_a) {
                     Notifier.notifyModifyNormally(server,
                             CommonService.getPlatformAccountByCaid(user_a.i_caid),
                             account.c_user + "(认证)",
-                            "密码已被改为：" + pass_new);
+                            "密码已更新为：" + pass_new);
                 }
             }
         }
@@ -319,6 +319,7 @@ public class BcsTask implements FjServerTask {
         args_cdb.put("type",    CommonService.MONEY_CASH);
         args_cdb.put("money",   money);
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
+        CommonService.updatePlatformAccount();
         if (!CommonService.isResponseSuccess(rsp)) {
             response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_RECHARGE_FAILED, CommonService.getResponseDesc(rsp));
             return;
@@ -390,6 +391,7 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("type",    CommonService.MONEY_CASH);
             args_cdb.put("money",   money);
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
+            CommonService.updatePlatformAccount();
             if (!CommonService.isResponseSuccess(rsp)) {
                 response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, CommonService.getResponseDesc(rsp));
                 return;
