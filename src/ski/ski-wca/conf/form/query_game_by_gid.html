@@ -13,23 +13,24 @@
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <style type="text/css">
         .blur {
-            -webkit-filter: blur(12px); /* Chrome, Opera */
-               -moz-filter: blur(12px);
-                -ms-filter: blur(12px);
-                    filter: blur(12px);
+            -webkit-filter: blur(45px); /* Chrome, Opera */
+               -moz-filter: blur(45px);
+                -ms-filter: blur(45px);
+                    filter: blur(45px);
         }
         .field {
+            position        : absolute;
             width           : 100%%;
-            color           : #cccccc;
-            padding-right   : 15px;
+            margin-left     : -25px;
+            padding-right   : 10px; // 防止阴影被裁
+            font-size       : 18px;
+            color           : #ffffff;
             text-align      : right;
-            text-shadow     : black 1px 1px 0px;
+            text-shadow     : black 1px 1px 2px;
             white-space     : nowrap;
             overflow        : hidden;
             text-overflow   : ellipsis; 
             -o-text-overflow: ellipsis; 
-            position        : absolute;
-            margin-left     : -25px;
         }
         </style>
         <script type='text/javascript'>
@@ -56,7 +57,7 @@
                         $('#blur_cover').css('background-size', 'cover');
                         $('#blur_cover').addClass('blur');
 
-                        $('#url_cover').append("<img width='100px' height='100px' src='" + args.desc.url_cover + "'></img>")
+                        $('#url_cover').append("<img width='110px' height='110px' src='" + args.desc.url_cover + "'></img>")
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
                         $('#category').text(args.desc.category);
@@ -159,25 +160,23 @@
         </script>
     </head>
     <body>
-        <div class='cell'>
-            <div class='bd'>
+        <div class='cell' style='height: 100%%'>
+            <div class='bd' style='height: 100%%'>
                 <div style='position: fixed; top: 0px; width: 100%%; height: 150px'>
-                    <div style='position: absolute; width: 100%%; height: 100%%; background: black'></div>
-
-                    <div id='blur_cover'    style='position: absolute; width: 100%%; height: 100%%'></div>
-                    <div id='url_cover'     style='position: absolute; margin-top: 25px; margin-left: 25px'></div>
-                    <div id='name_zh_cn'    class='field' style='margin-top: 25px; font-weight: 500'></div>
-                    <div id='name_en'       class='field' style='margin-top: 50px; font-weight: 200'></div>
-                    <div id='category'      class='field' style='margin-top: 90px; font-weight: 200; font-size: 80%%'></div>
-                    <div id='sale'          class='field' style='margin-top: 110px; font-weight: 200; font-size: 80%%'></div>
+                    <div id='blur_cover'    style='position: absolute; margin-top: -10%%; margin-left: -10%%; width: 120%%; height: 300%%'></div>
+                    <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
+                    <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
+                    <div id='name_en'       class='field' style='margin-top: 45px; font-weight: 200'></div>
+                    <div id='category'      class='field' style='margin-top: 85px; font-weight: 200; font-size: 14px'></div>
+                    <div id='sale'          class='field' style='margin-top: 105px; font-weight: 200; font-size: 14px'></div>
                 </div>
-                <div class="weui_tab" style='position: relative; top: 150px'>
+                <div class="weui_tab" style='top: 150px; background: white'>
                     <div class="weui_navbar">
                         <div id='tab_bar_intr' class="weui_navbar_item weui_bar_item_on" onclick="tabToIntr()">游戏介绍</div>
                         <div id='tab_bar_rent' class="weui_navbar_item" onclick="tabToRent()">游戏租赁 </div>
                     </div>
-                    <div class="weui_tab_bd" style='background: white'>
-                        <div id='tab_bd_intr' style=''>
+                    <div class="weui_tab_bd">
+                        <div id='tab_bd_intr'>
                             <article class='weui_article'>
                                 <section>
                                     <div id='poster_container' style='width: 100%%; background: black'>

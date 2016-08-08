@@ -145,6 +145,13 @@ public class WcaBusiness {
     }
     
     private static void dispatchCommand(String server, String user, JSONObject args) {
-
+    	switch (args.getString("cmd")) {
+    	case "cs": {
+    		String content = "请淘宝搜索\"VC电玩\"联系我们，非常感谢您的宝贵意见！";
+    		try {WechatInterface.messageCustomSendText(TokenMonitor.getInstance().token(), user, content);}
+    		catch (WechatCustomServiceException e) {logger.error("send custom text message failed: " + content, e);}
+    		break;
+    	}
+    	}
     }    
 }
