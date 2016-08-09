@@ -23,7 +23,6 @@
                         showDialog("加载失败", args.desc);
                         return;
                     }
-                    $('#result')[0].innerHTML = '';
                     for (var i in args.desc) {
                         var commodity = args.desc[i];
 
@@ -46,8 +45,8 @@
                             rent_end.innerHTML = "<a href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");' class='weui_btn weui_btn_primary'>退租</a>";
                         }
 
-                        $('#result')[0].appendChild(cells);
-                        if ('' == commodity.end) $('#result')[0].appendChild(rent_end);
+                        $('#result').append(cells);
+                        if ('' == commodity.end) $('#result').append(rent_end);
                     }
                 });
             });

@@ -112,6 +112,7 @@ public class ListTicket extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createTicket();
             refresh();
+            ListTicket.getInstance().refresh();
         });
         
         toggle.addActionListener(e->{

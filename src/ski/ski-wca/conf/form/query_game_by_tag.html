@@ -50,7 +50,7 @@
                             return;
                         }
                         var cells = document.createElement('div');
-                        cells.setAttribute('class', 'weui_panel_bd');
+                        cells.className = 'weui_panel_bd';
                         for (var i in args.desc) {
                             var game = args.desc[i];
                             var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
@@ -66,8 +66,7 @@
                                      + "</a>";
                             cells.innerHTML = cells.innerHTML + cell;
                         }
-                        $('#result')[0].innerHTML = '';
-                        $('#result')[0].appendChild(cells);
+                        $('#result').html(cells);
                     });
             });
 

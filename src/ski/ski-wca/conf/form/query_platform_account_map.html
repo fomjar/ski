@@ -23,7 +23,6 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
-                        $('#result')[0].innerHTML = '';
                         for (var i in args.desc) {
                             var account = args.desc[i];
 
@@ -47,8 +46,8 @@
                                 break;
                             }
 
-                            $('#result')[0].appendChild(title);
-                            $('#result')[0].appendChild(cells);
+                            $('#result').append(title);
+                            $('#result').append(cells);
                         }
                     });
             });

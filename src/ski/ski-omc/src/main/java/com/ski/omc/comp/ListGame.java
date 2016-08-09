@@ -47,6 +47,7 @@ public class ListGame extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createGame();
             refresh();
+            ListGame.getInstance().refresh();
         });
         
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGame>(pane.getList()) {

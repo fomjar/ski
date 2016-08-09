@@ -438,6 +438,12 @@ public class CommonService {
         }
     }
     
+    public static BeanTicket getTicketByTid(int tid) {
+    	synchronized (cache_ticket) {
+    		return cache_ticket.get(tid);
+    	}
+    }
+    
     public static List<BeanTicket> getTicketByCaid(int caid) {
         synchronized (cache_ticket) {
             return cache_ticket.values()
@@ -445,6 +451,15 @@ public class CommonService {
                     .filter(ticket->ticket.i_caid == caid)
                     .collect(Collectors.toList());
         }
+    }
+    
+    public static List<BeanTicket> getTicketByPaid(int paid) {
+    	synchronized (cache_ticket) {
+    		return cache_ticket.values()
+    				.stream()
+    				.filter(t->isChannelAccountBelongsToPaid(t.i_caid, paid))
+    				.collect(Collectors.toList());
+    	}
     }
     
     public static List<BeanTicket> getTicketByType(int type) {
@@ -473,6 +488,15 @@ public class CommonService {
             }
         }
         return true;
+    }
+    
+    public static boolean isChannelAccountBelongsToPaid(int caid, int paid) {
+    	synchronized (cache_platform_account_map) {
+    		for (BeanPlatformAccountMap map : cache_platform_account_map) {
+    			if (map.i_caid == caid && map.i_paid == paid) return true;
+    		}
+    		return false;
+    	}
     }
     
     public static boolean isNotificationNotified(int caid, String content) {

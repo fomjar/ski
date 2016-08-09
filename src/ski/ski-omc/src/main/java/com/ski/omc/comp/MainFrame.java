@@ -104,9 +104,9 @@ public class MainFrame extends JFrame {
     
     private void listen() {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->refresh());
-        ((JButton) toolbar.getComponent(2)).addActionListener(e->ListGame.getInstance().setVisible(true));
-        ((JButton) toolbar.getComponent(3)).addActionListener(e->ListGameAccount.getInstance().setVisible(true));
-        ((JButton) toolbar.getComponent(4)).addActionListener(e->ListTicket.getInstance().setVisible(true));
+        ((JButton) toolbar.getComponent(2)).addActionListener(e->{ListGame.getInstance().setVisible(true);ListGame.getInstance().refresh();});
+        ((JButton) toolbar.getComponent(3)).addActionListener(e->{ListGameAccount.getInstance().setVisible(true);ListGameAccount.getInstance().refresh();});
+        ((JButton) toolbar.getComponent(4)).addActionListener(e->{ListTicket.getInstance().setVisible(true);ListTicket.getInstance().refresh();});
         ((JButton) toolbar.getComponent(6)).addActionListener(e->new ChartFrame().setVisible(true));
         
         users.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanChannelAccount>(users.getList()) {
@@ -200,6 +200,8 @@ public class MainFrame extends JFrame {
         
         if (null != detail.getUser()) detail.setUser(detail.getUser().i_caid);
     }
+    
+    public int getDetailUser() {return detail.getUser().i_caid;}
     
     public void setDetailUser(int caid) {
         detail.setUser(caid);

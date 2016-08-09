@@ -91,16 +91,16 @@
                         });
 
                         if (args.desc.rent_a) {
-                            $('#rent')[0].innerHTML = "<div class='weui_cell'>"
+                            $('#rent').html("<div class='weui_cell'>"
                                     + "<div class='weui_cell_bd weui_cell_primary'><p>认证</p></div>"
                                     + "<div class='weui_cell_ft'>" + args.desc.price_a + " 元/天</div>"
-                                    + "</div>";
+                                    + "</div>");
                         }
                         if (args.desc.rent_b) {
-                            $('#rent')[0].innerHTML += "<div class='weui_cell'>"
+                            $('#rent').append("<div class='weui_cell'>"
                                     + "<div class='weui_cell_bd weui_cell_primary'><p>不认证</p></div>"
                                     + "<div class='weui_cell_ft'>" + args.desc.price_b + " 元/天</div>"
-                                    + "</div>";
+                                    + "</div>");
                         }
                         if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
                     });

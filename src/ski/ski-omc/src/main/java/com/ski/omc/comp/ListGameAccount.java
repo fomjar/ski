@@ -51,6 +51,7 @@ public class ListGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createGameAccount();
             refresh();
+            ListGameAccount.getInstance().refresh();
         });
         
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGameAccount>(pane.getList()) {
