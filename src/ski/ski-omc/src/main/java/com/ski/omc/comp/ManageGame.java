@@ -391,6 +391,7 @@ public class ManageGame extends JDialog {
         UIToolkit.doLater(()->{
         	c_url_cover_label.setIcon(new ImageIcon(UIToolkit.LoadImage(c_url_cover.getText())));
         });
+        c_url_poster.removeAll();
         for (String poster : game.c_url_poster.split(" ")) {
         	if (0 < poster.length()) c_url_poster.add(new PosterPanel(poster));
         }
