@@ -47,10 +47,7 @@
                         'csn'   : csn.toString(16)
                     }), function(args) {
                         hideToast();
-                        if (12296 == args.code) {
-                            showDialog('操作失败', '账号或密码错误，请10分钟后再试');
-                            return;
-                        } else if (0 != args.code) {
+                        if (0 != args.code) {
                             showDialog('操作失败', args.desc);
                             return;
                         }
@@ -68,12 +65,12 @@
 
             function showDialog(head, body) {
                 $('#result_head').text(head);
-                $('#result_body').text(body);
+                $('#result_body').html(body);
                 $('#dialog').show();
             }
             function showDialog1(head, body) {
                 $('#result_head1').text(head);
-                $('#result_body1').text(body);
+                $('#result_body1').html(body);
                 $('#dialog1').show();
             }
         </script>
@@ -108,7 +105,7 @@
                     </div>
                 </div>
                 <div class='weui_btn_area' id='rent_end'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:showDialog1('提示', '确定要退租吗？退租操作耗时较长，请耐心等待！');">退租</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript:showDialog1('提示', '<strong>提示：退租操作耗时较长，请耐心等待！</strong><br/>确定要退租吗？');">退租</a>
                 </div>
             </div>
         </div>

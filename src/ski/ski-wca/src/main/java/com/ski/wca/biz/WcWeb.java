@@ -282,7 +282,7 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "充值成功", "", "");
+            fetchFile(response, "/message_success.html", "充值成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, request.user));
             break;
         }
         }
@@ -326,7 +326,7 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退款成功", "退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！", "");
+            fetchFile(response, "/message_success.html", "退款成功", "退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, request.user));
             break;
         }
         }
@@ -466,7 +466,7 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "起租成功", "请到“正在玩”中查看帐号详情", "");
+            fetchFile(response, "/message_success.html", "起租成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, request.user));
             break;
         }
         }
@@ -511,7 +511,7 @@ public class WcWeb {
             break;
     	}
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退租成功", "请到“正在玩”中查看结算详情", "");
+            fetchFile(response, "/message_success.html", "退租成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, request.user));
             break;
         }
     	}
@@ -746,7 +746,7 @@ public class WcWeb {
             	case CommonService.CHANNEL_TAOBAO: {
             		if (CommonService.getChannelAccountByUserNChannel(user, channel).isEmpty()) {
                         JSONObject args = new JSONObject();
-                        args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
                         args.put("desc", "此淘宝用户不存在");
                         response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                         response.content(args.toString());
@@ -756,8 +756,16 @@ public class WcWeb {
                     int paid = CommonService.getPlatformAccountByCaid(user_taobao.i_caid);
                     if (CommonService.getPlatformAccountByCaid(request.user) == paid) {
                         JSONObject args = new JSONObject();
-                        args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
                         args.put("desc", "已经关联过此淘宝用户");
+                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                        response.content(args.toString());
+                        break;
+                    }
+                    if (!CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_WECHAT).isEmpty()) {
+                        JSONObject args = new JSONObject();
+                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
+                        args.put("desc", "无法关联多个微信用户");
                         response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                         response.content(args.toString());
                         break;
