@@ -202,15 +202,21 @@ public class BcsTask implements FjServerTask {
                 return;
             }
             
-            if ((CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
-                    && CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))
-                    || (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
-                            && CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))) {
+            switch (c.c_arg1) {
+            case "A":
                 if (rsp.toString().contains(" binded")) {
-                	logger.error("unbind account before end end: args = " + args);
+                	logger.error("unbind account before A rent end: args = " + args);
                     response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "退租前请先解绑帐号");
                     return;
                 }
+            	break;
+            case "B":
+            	if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
+                	logger.error("unbind account before only B rent end: args = " + args);
+                    response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "退租前请先解绑帐号");
+                    return;
+            	}
+            	break;
             }
         }
         // change password

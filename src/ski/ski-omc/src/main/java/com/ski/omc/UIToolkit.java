@@ -558,17 +558,27 @@ public class UIToolkit {
                             return;
                         }
                     }
-                    if ((CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
-                            && CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))
-                            || (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
-                                    && CommonService.RENT_STATE_RENT == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B))) {
+                    switch (commodity.c_arg1) {
+                    case "A":
                         if (rsp.toString().contains(" binded")) {
-                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号AB类仅租了一种，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "A类退租要求解绑，但此帐号当前尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
                                 ssd.dispose();
                                 return;
                             }
                         }
+                    	break;
+                    case "B":
+                        if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
+		                    if (rsp.toString().contains(" binded")) {
+		                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号仅有B租，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+		                            ssd.dispose();
+		                            return;
+		                        }
+		                    }
+		                }
+                    	break;
                     }
+                    
                     ssd.appendText("验证通过");
                 }
             }
