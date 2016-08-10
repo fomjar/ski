@@ -11,40 +11,76 @@
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
             var user = %d;
+            var url_setup = '/ski-wcweb?inst=240a&user=' + user.toString(16) + '&step=setup';
             var url_apply = '/ski-wcweb?inst=240a&user=' + user.toString(16) + '&step=apply';
 
-            $(document).ready(function() {
-                $('#channel').val('0');
-                $('#label_user').text('昵称');
-                $('#cell_name').hide();
-            });
+            function setup() {
+                var phone = $('#phone').val();
+                if (!verifyPhone(phone)) return;
+
+                if ($('#btn_setup').hasClass('weui_btn_disabled')) return;
+
+                var time = 60;
+                var text_origin = $('#btn_setup').text();
+
+                $('#btn_setup').addClass('weui_btn_disabled');
+                $('#btn_setup').text('重试(' + time + ')');
+                var timer = setInterval(function() {
+                    time--;
+                    $('#btn_setup').text('重试(' + time + ')');
+                    if(time <= 0) {
+                        clearInterval(timer);
+                        $('#btn_setup').removeClass('weui_btn_disabled');
+                        $('#btn_setup').text(text_origin);
+                    }
+                },1000); 
+
+                $.post(url_setup, $.toJSON({
+                        'phone' : phone
+                    }),
+                    function(args) {
+                        if (0 != args.code) {
+                            showDialog('获取失败', args.desc);
+                        }
+                    });
+            }
 
             function apply() {
-                var channel = $('#channel').val();
-                var _user = $('#user').val();
-                var name = $('#name').val();
+                var phone = $('#phone').val();
+                var verify = $('#verify').val();
 
-                if (0 == _user.length) {
-                    showDialog('错误', '昵称不能为空');
+                if (!verifyPhone(phone)) return;
+
+                if (0 == verify.length) {
+                    showDialog('错误', '验证码不能为空');
                     return;
                 }
 
                 showToast('正在处理');
-                var param = null;
-                param = $.toJSON({
-                    'channel'   : channel.toString(16),
-                    '_user'     : _user,
-                    'name'      : name
-                });
-                $.post(url_apply, param,
+                $.post(url_apply, $.toJSON({
+                        'phone'     : phone,
+                        'verify'    : verify
+                    }),
                     function(args) {
                         hideToast();
                         if (0 == args.code) {
-                            showDialog("提交成功", '');
+                            showDialog("验证通过", '');
                         } else {
-                            showDialog("提交失败", args.desc);
+                            showDialog("验证不通过", args.desc);
                         }
                     });
+            }
+
+            function verifyPhone(phone) {
+                if (0 == phone.length) {
+                    showDialog('错误', '手机不能为空');
+                    return false;
+                }
+                if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))) {
+                    showDialog('错误', '手机号码不合法');
+                    return false;
+                }
+                return true;
             }
 
             function showToast(text) {
@@ -68,35 +104,16 @@
                 <h1 class='page_title'>关联账号</h1>
             </div>
             <div class='bd'>
-                <div class='weui_cells_title'>添加的用户将跟您的微信账号进行绑定</div>
+                <div class='weui_cells_title'>认证手机以便于跟您的淘宝帐号关联</div>
                 <div class='weui_cells weui_cells_form'>
-                    <div class="weui_cell weui_cell_select weui_select_after">
-                        <div class="weui_cell_hd">
-                            <label class="weui_label" for="">平台</label>
-                        </div>
-                        <div class="weui_cell_bd weui_cell_primary">
-                            <select name="select" class="weui_select" id='channel'>
-                                <option value="0">淘宝</option>
-                                <!--<option value="1">微信</option>-->
-                                <!--<option value="2">支付宝</option>-->
-                            </select>
-                        </div>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'><label class='weui_label'></label>手机</div>
+                        <div class='weui_cell_bd weui_cell_primary'><input class='weui_input' id='phone'/></div>
                     </div>
                     <div class='weui_cell'>
-                        <div class='weui_cell_hd'>
-                            <label class='weui_label' id='label_user'></label>
-                        </div>
-                        <div class='weui_cell_bd weui_cell_primary'>
-                            <input class='weui_input' id='user'/>
-                        </div>
-                    </div>
-                    <div class='weui_cell' id='cell_name'>
-                        <div class='weui_cell_hd'>
-                            <label class='weui_label' id='label_name'></label>
-                        </div>
-                        <div class='weui_cell_bd weui_cell_primary'>
-                            <input class='weui_input' id='name'/>
-                        </div>
+                        <div class='weui_cell_hd'><label class='weui_label'></label>验证码</div>
+                        <div class='weui_cell_bd weui_cell_primary'><input class='weui_input' id='verify'/></div>
+                        <a class='weui_btn weui_btn_mini weui_btn_primary' href="javascript:setup()" id='btn_setup'>获取</a>
                     </div>
                 </div>
                 <div class='weui_btn_area'>

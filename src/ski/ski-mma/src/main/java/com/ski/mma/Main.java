@@ -6,7 +6,7 @@ public class Main {
     
     public static void main(String[] args) {
         FjServerToolkit.startConfigMonitor();
-        FjServerToolkit.startServer("mma-sm").addServerTask(new MmaSmTask());
+        FjServerToolkit.startServer(args[0]).addServerTask(new MmaTask());
     }
 
 }

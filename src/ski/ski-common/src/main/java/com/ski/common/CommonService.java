@@ -155,6 +155,16 @@ public class CommonService {
         }
     }
     
+    public static List<BeanChannelAccount> getChannelAccountByPhoneNChannel(String phone, int channel) {
+        synchronized (cache_channel_account) {
+            return cache_channel_account.values()
+                    .stream()
+                    .filter(account->account.c_phone.equals(phone))
+                    .filter(account->account.i_channel == channel)
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static List<BeanChannelAccount> getChannelAccountByUser(String user) {
         synchronized (cache_channel_account) {
             return cache_channel_account.values()

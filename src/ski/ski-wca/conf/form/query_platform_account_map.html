@@ -39,6 +39,7 @@
                                 break;
                             case 1: // 微信
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
+                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>手机</p></div><div class='weui_cell_ft'>" + account.phone + "</div></div>";
                                 break;
                             case 2: // 支付宝
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
@@ -75,7 +76,7 @@
             <div class='bd'>
                 <div id='result'></div>
                 <div class="weui_btn_area">
-                    <a class="weui_btn weui_btn_primary" href="javascript: window.location=url_update;">添加账号</a>
+                    <a class="weui_btn weui_btn_primary" href="javascript: window.location=url_update;">更新手机</a>
                 </div>
             </div>
         </div>

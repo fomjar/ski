@@ -669,6 +669,10 @@ public class WcWeb {
     private static void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
+        	if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {
+        		processUpdatePlatformAccountMap(response, request);
+        		break;
+        	}
             fetchFile(response, "/query_platform_account_map.html", request.user);
             break;
         }
@@ -723,15 +727,53 @@ public class WcWeb {
         }
     }
     
+    private static Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
     private static void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/update_platform_account_map.html", request.user);
             break;
         }
-//        case STEP_SETUP: break;
+        case STEP_SETUP: {
+        	if (!request.args.has("phone")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数不完整");
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
+                break;
+        	}
+        	String phone	= request.args.getString("phone");
+        	String time 	= String.valueOf(System.currentTimeMillis());
+        	String verify 	= time.substring(time.length() - 4);
+        	{
+	        	JSONObject args_mma = new JSONObject();
+	        	args_mma.put("phone", phone);
+	        	args_mma.put("verify", verify);
+	        	FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_USER_AUTHORIZE, args_mma);
+	        	if (!CommonService.isResponseSuccess(rsp)) {
+		            JSONObject args = new JSONObject();
+		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+		            args.put("desc", "发送失败，请稍候重试");
+		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+		            response.content(args.toString());
+		            break;
+	        	}
+        	}
+        	
+        	cache_verify_code.put(request.user, verify);
+        	
+        	{
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", null);
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args.toString());
+        	}
+        	break;
+        }
         case STEP_APPLY: {
-            if (!request.args.has("channel") || !request.args.has("_user") || !request.args.has("name")) {
+            if (!request.args.has("phone") || !request.args.has("verify")) {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数不完整");
@@ -739,48 +781,53 @@ public class WcWeb {
                 response.content(args.toString());
                 break;
             }
-            int     channel = request.args.getInt("channel");
-            String  user    = request.args.getString("_user");
+            String  phone 	= request.args.getString("phone");
+            String  verify  = request.args.getString("verify");
+            if (!cache_verify_code.containsKey(request.user)
+            		|| !verify.equals(cache_verify_code.get(request.user))) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                args.put("desc", "校验失败");
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
+                break;
+            }
+            cache_verify_code.remove(request.user);
             
-            switch (channel) {
-            	case CommonService.CHANNEL_TAOBAO: {
-            		if (CommonService.getChannelAccountByUserNChannel(user, channel).isEmpty()) {
-                        JSONObject args = new JSONObject();
-                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
-                        args.put("desc", "此淘宝用户不存在");
-                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                        response.content(args.toString());
-                        break;
-            		}
-            		BeanChannelAccount user_taobao = CommonService.getChannelAccountByUserNChannel(user, channel).get(0);
-                    int paid = CommonService.getPlatformAccountByCaid(user_taobao.i_caid);
-                    if (CommonService.getPlatformAccountByCaid(request.user) == paid) {
-                        JSONObject args = new JSONObject();
-                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
-                        args.put("desc", "已经关联过此淘宝用户");
-                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                        response.content(args.toString());
-                        break;
-                    }
-                    if (!CommonService.getChannelAccountByPaidNChannel(paid, CommonService.CHANNEL_WECHAT).isEmpty()) {
-                        JSONObject args = new JSONObject();
-                        args.put("code", CommonDefinition.CODE.CODE_USER_ILLEGAL_CHANNEL_ACCOUNT);
-                        args.put("desc", "无法关联多个微信用户");
-                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                        response.content(args.toString());
-                        break;
-                    }
-                    
+            { // 更新手机号
+            	JSONObject args_cdb = new JSONObject();
+            	args_cdb.put("caid", request.user);
+            	args_cdb.put("phone", phone);
+	        	FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+	        	if (!CommonService.isResponseSuccess(rsp)) {
+		            JSONObject args= new JSONObject();
+		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+		            args.put("desc", "更新手机失败，请稍候重试");
+		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+		            response.content(args.toString());
+		            break;
+	        	}
+            }
+            
+            List<BeanChannelAccount> users_taobao = CommonService.getChannelAccountByPhoneNChannel(phone, CommonService.CHANNEL_TAOBAO);
+            if (1 == users_taobao.size()) { // 尝试关联
+            	BeanChannelAccount user_taobao = users_taobao.get(0);
+            	if (CommonService.getChannelAccountRelatedByCaidNChannel(user_taobao.i_caid, CommonService.CHANNEL_WECHAT).isEmpty()) { // 淘宝用户尚未被关联
                     JSONObject args_cdb = new JSONObject();
-                    args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(request.user));
-                    args_cdb.put("paid_from",   paid);
+                    args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(request.user));
+                    args_cdb.put("paid_to",		CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
                     FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
-                    
-                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                    response.content(rsp.args().toString());
-            		break;
+    	        	if (!CommonService.isResponseSuccess(rsp)) {
+    		            JSONObject args = new JSONObject();
+    		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+    		            args.put("desc", "关联淘宝用户失败，请稍候重试");
+    		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+    		            response.content(args.toString());
+    		            break;
+    	        	}
             	}
             }
+            
             break;
         }
         }

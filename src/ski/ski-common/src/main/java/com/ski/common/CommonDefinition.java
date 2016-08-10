@@ -137,21 +137,22 @@ public final class CommonDefinition {
         public static final int CODE_WEB_PSN_CHANGE_PASSWORD_FAILED     = 0x00002033; // PSN修改密码失败
         public static final int CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL     = 0x00002034; // PSN账号状态异常
         // USER
-        public static final int CODE_USER_NOT_ENOUGH_DEPOSIT            = 0x00003002; // 押金不足
-        public static final int CODE_USER_NOT_ENOUGH_ACCOUNT            = 0x00003003; // 账号不足
-        public static final int CODE_USER_OPEN_ORDER_FAILED             = 0x00003004; // 创建订单失败
+        public static final int CODE_USER_NOT_ENOUGH_DEPOSIT            = 0x00003001; // 押金不足
+        public static final int CODE_USER_NOT_ENOUGH_ACCOUNT            = 0x00003002; // 账号不足
+        public static final int CODE_USER_OPEN_ORDER_FAILED             = 0x00003003; // 创建订单失败
         public static final int CODE_USER_CLOSE_ORDER_FAILED            = 0x00003004; // 创建订单失败
         public static final int CODE_USER_OPEN_COMMODITY_FAILED         = 0x00003005; // 创建商品失败
-        public static final int CODE_USER_CLOSE_COMMODITY_FAILED        = 0x00003005; // 创建商品失败
-        public static final int CODE_USER_MONEY_RECHARGE_FAILED         = 0x00003006; // 充值失败
-        public static final int CODE_USER_MONEY_REFUND_FAILED           = 0x00003006; // 退款失败
-        public static final int CODE_USER_ILLEGAL_MONEY                 = 0x00003001; // 非法金额
-        public static final int CODE_USER_ILLEGAL_ORDER                 = 0x00003006; // 非法订单
-        public static final int CODE_USER_ILLEGAL_ORDER_STATE           = 0x00003000; // 非法订单状态
-        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT          = 0x00003007; // 非法账号
-        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE    = 0x00003008; // 非法账号状态
-        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT		= 0x00003009; // 非法用户
-        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE = 0x00003010; // 非法用户状态
+        public static final int CODE_USER_CLOSE_COMMODITY_FAILED        = 0x00003006; // 创建商品失败
+        public static final int CODE_USER_MONEY_RECHARGE_FAILED         = 0x00003007; // 充值失败
+        public static final int CODE_USER_MONEY_REFUND_FAILED           = 0x00003008; // 退款失败
+        public static final int CODE_USER_ILLEGAL_MONEY                 = 0x00003009; // 非法金额
+        public static final int CODE_USER_ILLEGAL_ORDER                 = 0x0000300A; // 非法订单
+        public static final int CODE_USER_ILLEGAL_ORDER_STATE           = 0x0000300B; // 非法订单状态
+        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT          = 0x0000300C; // 非法账号
+        public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE    = 0x0000300D; // 非法账号状态
+        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT		= 0x0000300E; // 非法用户
+        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE = 0x0000300F; // 非法用户状态
+        public static final int CODE_USER_AUTHORIZE_FAILED				= 0X00003010; // 认证失败
     }
 
 }
