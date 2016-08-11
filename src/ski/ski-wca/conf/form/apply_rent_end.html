@@ -8,19 +8,20 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-            var oid  = %d;
-            var csn  = %d;
-            var url_setup = '/ski-wcweb?inst=2006&user=' + user.toString(16) + '&step=setup';
-            var url_apply = '/ski-wcweb?inst=2107&user=' + user.toString(16) + '&step=apply';
+            var oid = ski.cookie('oid');
+            var csn = ski.cookie('csn');
+            var url_setup = '/ski-wcweb?inst=2006&step=setup';
+            var url_apply = '/ski-wcweb?inst=2107&step=apply';
 
             $(document).ready(function() {
                 showToast('正在加载');
-                $.post(url_setup,$.toJSON({
-                        'oid'   : oid.toString(16),
-                        'csn'   : csn.toString(16)
+                $.post(url_setup, $.toJSON({
+                        'oid'   : oid,
+                        'csn'   : csn
                     }),
                     function(args) {
                         hideToast();
@@ -43,8 +44,8 @@
             function apply() {
                 showToast('正在操作');
                 $.post(url_apply, $.toJSON({
-                        'oid'   : oid.toString(16),
-                        'csn'   : csn.toString(16)
+                        'oid'   : oid,
+                        'csn'   : csn
                     }), function(args) {
                         hideToast();
                         if (0 != args.code) {

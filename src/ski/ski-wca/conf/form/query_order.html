@@ -8,12 +8,12 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-            var url_setup = '/ski-wcweb?inst=2006&user=' + user.toString(16) + '&step=setup';
-            var url_rent_end = '/ski-wcweb?inst=2107&user=' + user.toString(16);
-            var url_query_game = '/ski-wcweb?inst=2001&user=' + user.toString(16);
+            var url_setup       = '/ski-wcweb?inst=2006&step=setup';
+            var url_rent_end    = '/ski-wcweb?inst=2107';
+            var url_query_game  = '/ski-wcweb?inst=2001';
 
             $(document).ready(function() {
                 showToast('正在加载');

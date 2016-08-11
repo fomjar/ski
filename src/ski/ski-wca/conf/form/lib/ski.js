@@ -1,10 +1,15 @@
-var ski = {};
+var ski = {
 
-ski.getChannelDesc = function(channel) {
-    switch (channel) {
-        case 0: return '淘宝';
-        case 1: return '微信';
-        case 2: return '支付宝';
-        default: return '未知';
-    }
+    cookie : function(key, val)  {
+        switch (arguments.length) {
+        case 1:
+            return $.cookie(key);
+        case 2:
+            var origin = $.cookie(key);
+            $.cookie(key, val, { path: "/"});
+            return origin;
+        }
+    },
+
+    user : function() {return this.cookie('user');}
 };

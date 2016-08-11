@@ -10,6 +10,8 @@
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.skippr.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <style type="text/css">
         .blur {
@@ -20,7 +22,7 @@
         }
         .field {
             position        : absolute;
-            width           : 100%%;
+            width           : 100%;
             margin-left     : -25px;
             padding-right   : 10px; /* 防止阴影被裁 */
             font-size       : 18px;
@@ -34,15 +36,14 @@
         }
         </style>
         <script type='text/javascript'>
-            var user = %d;
-            var gid  = %d;
-            var url_setup = '/ski-wcweb?inst=2001&user=' + user.toString(16) + '&step=setup';
-            var url_rent_begin = '/ski-wcweb?inst=2106&user=' + user.toString(16) + '&gid=' + gid.toString(16);
+            var gid = ski.cookie('gid');
+            var url_setup       = '/ski-wcweb?inst=2001&step=setup';
+            var url_rent_begin  = '/ski-wcweb?inst=2106&gid=' + gid;
 
             $(document).ready(function() {
                 showToast('正在加载');
                 $.post(url_setup,$.toJSON({
-                        'gid'   : gid.toString(16)
+                        'gid'   : gid
                     }),
                     function(args) {
                         hideToast();
@@ -66,7 +67,7 @@
 
                         if (0 < args.desc.vedio.length) {
                             $('#poster_container').css('height', '200px');
-                            $('#url_poster').append("<video width='100%%' height='100%%' controls autobuffer src='" + args.desc.vedio + "'/>");
+                            $('#url_poster').append("<video width='100%' height='100%' controls autobuffer src='" + args.desc.vedio + "'/>");
                         }
                         if (0 < args.desc.url_poster.length) {
                             for (var i in args.desc.url_poster) {
@@ -166,8 +167,8 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <div style='position: fixed; top: 0px; width: 100%%; height: 300px'>
-                    <div id='blur_cover'    style='position: absolute; margin-top: -20%%; margin-left: -20%%; width: 140%%; height: 100%%'></div>
+                <div style='position: fixed; top: 0px; width: 100%; height: 300px'>
+                    <div id='blur_cover'    style='position: absolute; margin-top: -20%; margin-left: -20%; width: 140%; height: 100%'></div>
                     <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
                     <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
                     <div id='name_en'       class='field' style='margin-top: 45px; font-weight: 200'></div>
@@ -183,7 +184,7 @@
                         <div id='tab_bd_intr'>
                             <article class='weui_article'>
                                 <section>
-                                    <div id='poster_container' style='width: 100%%; background: black'>
+                                    <div id='poster_container' style='width: 100%; background: black'>
                                         <div id='url_poster'></div>
                                     </div>
                                 </section>

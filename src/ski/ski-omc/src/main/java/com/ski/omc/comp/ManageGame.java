@@ -176,13 +176,10 @@ public class ManageGame extends JDialog {
         panel_url.add(panel_url_cover);
         
         c_url_poster.setLayout(new BoxLayout(c_url_poster, BoxLayout.Y_AXIS));
-        c_url_poster.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "海报"));
-        JPanel panel_url_poster_add = new JPanel();
-        panel_url_poster_add.setLayout(new BorderLayout());
-        panel_url_poster_add.add(c_url_poster_add, BorderLayout.CENTER);
-        c_url_poster.add(panel_url_poster_add);
         JPanel panel_poster = new JPanel();
+        panel_poster.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "海报"));
         panel_poster.setLayout(new BorderLayout());
+        panel_poster.add(c_url_poster_add, BorderLayout.NORTH);
         panel_poster.add(c_url_poster, BorderLayout.CENTER);
         panel_url.add(panel_poster);
         

@@ -49,6 +49,8 @@ public class WcWeb {
     
     public  static final String URL_KEY = "/ski-wcweb";
     
+    private static final int ANONYMOUS	= -1;
+    
     private static final String STEP_PREPARE    = "prepare";
     private static final String STEP_SETUP      = "setup";
     private static final String STEP_APPLY      = "apply";
@@ -68,22 +70,17 @@ public class WcWeb {
                 logger.error("illegal argument: no inst param: " + args);
                 break;
             }
-            if (!args.has("user")) {
-                if (!args.has("code")) {
-                    logger.error("illegal request, no user or code param: " + args);
-                    break;
-                }
-                if (!authorize(args)) {
-                    logger.error("user authorize failed: " + args);
-                    break;
-                }
-            }
-            
+            int user = ANONYMOUS;            
             if (args.has("code")) {
-            	redirect(response, server, hreq.path(), args);
+                if (ANONYMOUS == (user = authorize(args))) break;
+                
+            	redirect(response, server, hreq.path(), user, args);
             	break;
             }
-            WcwRequest request = new WcwRequest(server, hreq.path(), args, conn);
+            if (hreq.cookie().containsKey("user")) user = Integer.parseInt(hreq.cookie().get("user"), 16);
+            else if (args.containsKey("user")) user = Integer.parseInt(args.getString("user"), 16);
+            
+            WcwRequest request = new WcwRequest(server, hreq.path(), user, args, conn);
             switch (request.inst) {
             case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
                 processApplyPlatformAccountMoney(response, request);
@@ -126,20 +123,21 @@ public class WcWeb {
         WechatInterface.sendResponse(response, conn);
     }
     
-    private static boolean authorize(JSONObject args) {
+    private static int authorize(JSONObject args) {
         String code = args.getString("code");
         FjJsonMessage rsp = WechatInterface.snsOauth2(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"), code);
-        if (!rsp.json().has("openid")) return false;
+        if (!rsp.json().has("openid")) {
+        	logger.error("user authorize failed: " + rsp);
+        	return ANONYMOUS;
+        }
         
-        args.put("user", Integer.toHexString(CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid));
-        return true;
+        return CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid;
     }
     
     @SuppressWarnings("unchecked")
-	private static void redirect(FjHttpResponse response, String server, String path, JSONObject args) {
+	private static void redirect(FjHttpResponse response, String server, String path, int user, JSONObject args) {
     	int inst = Integer.parseInt(args.getString("inst"), 16);
-    	int user = Integer.parseInt(args.getString("user"), 16);
-    	String url = generateUrl(server, path, inst, user);
+    	String url = generateUrl(server, path, inst);
     	StringBuilder sb = new StringBuilder(url);
     	args.entrySet().forEach(entry->{
     		String key = ((Map.Entry<String, String>) entry).getKey();
@@ -153,10 +151,11 @@ public class WcWeb {
     	});
     	response.code(302);
     	response.attr().put("Location", sb.toString());
+    	response.setcookie("user", Integer.toHexString(user));
     	logger.debug("user redirect data: " + response);
     }
     
-    private static void fetchFile(FjHttpResponse response, String url, Object... args) {
+    private static void fetchFile(FjHttpResponse response, String url) {
         File file = new File(FjServerToolkit.getServerConfig("wca.form.root") + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
         if (!file.isFile()) {
             logger.warn("not such file to fetch: " + file.getPath());
@@ -173,7 +172,6 @@ public class WcWeb {
             while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
             response.attr().put("Content-Type", getFileMime(file.getName()));
             response.content(baos.toString("utf-8"));
-            if (null != args && 0 < args.length) response.content(String.format(response.content(), args));
         } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
         finally {
             try {
@@ -183,18 +181,17 @@ public class WcWeb {
         }
     }
     
-    private static String generateUrl(String server, int inst, int user) {
-        return generateUrl(server, URL_KEY, inst, user);
+    private static String generateUrl(String server, int inst) {
+        return generateUrl(server, URL_KEY, inst);
     }
     
-    private static String generateUrl(String server, String path, int inst, int user) {
+    private static String generateUrl(String server, String path, int inst) {
         FjAddress addr = FjServerToolkit.getSlb().getAddress(server);
-        return String.format("http://%s%s%s?inst=%s&user=%s",
+        return String.format("http://%s%s%s?inst=%s",
                 addr.host,
                 80 == addr.port ? "" : (":" + addr.port),
                 path,
-                Integer.toHexString(inst),
-                Integer.toHexString(user));
+                Integer.toHexString(inst));
     }
     
     private static String getFileMime (String name) {
@@ -230,13 +227,12 @@ public class WcWeb {
         switch (request.step) {
         case STEP_PREPARE: {
             long timestamp  = System.currentTimeMillis() / 1000;
-            String nonceStr = Long.toHexString(System.currentTimeMillis());
-            fetchFile(response, "/apply_platform_account_money_recharge.html",
-                    request.user,
-                    FjServerToolkit.getServerConfig("wca.appid"),
-                    timestamp,
-                    nonceStr,
-                    WechatInterface.createSignature4Config(nonceStr, TokenMonitor.getInstance().ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user)));
+            String noncestr = Long.toHexString(System.currentTimeMillis());
+            fetchFile(response, "/apply_platform_account_money_recharge.html");
+            response.setcookie("appid", 	FjServerToolkit.getServerConfig("wca.appid"));
+            response.setcookie("timestamp", String.valueOf(timestamp));
+            response.setcookie("noncestr",	noncestr);
+            response.setcookie("signature", WechatInterface.createSignature4Config(noncestr, TokenMonitor.getInstance().ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY)));
             break;
         }
         case STEP_APPLY: {
@@ -244,7 +240,7 @@ public class WcWeb {
             String terminal = "127.0.0.1";
             try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
             catch (IOException e) {logger.error("get user terminal address failed", e);}
-            String url = generateUrl(request.server, URL_KEY + "/pay/recharge/success", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, request.user);
+            String url = generateUrl(request.server, URL_KEY + "/pay/recharge/success", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY);
             url = url.substring(0, url.indexOf("?"));
             FjXmlMessage rsp = WechatInterface.prepay(
                     "VC电玩-充值",
@@ -282,7 +278,11 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "充值成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, request.user));
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"success");
+            response.setcookie("msg_title", 	"充值成功");
+            response.setcookie("msg_content", 	"");
+            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
             break;
         }
         }
@@ -291,7 +291,7 @@ public class WcWeb {
     private static void processApplyPlatformAccountMoney_Refund(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/apply_platform_account_money_refund.html", request.user);
+            fetchFile(response, "/apply_platform_account_money_refund.html");
             break;
         }
         case STEP_SETUP: {
@@ -326,7 +326,11 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退款成功", "退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY, request.user));
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",		"success");
+            response.setcookie("msg_title", 	"退款成功");
+            response.setcookie("msg_content",	"退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！");
+            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
             break;
         }
         }
@@ -429,7 +433,8 @@ public class WcWeb {
                 break;
             }
             int gid = Integer.parseInt(request.args.getString("gid"), 16);
-            fetchFile(response, "/apply_rent_begin.html", request.user, gid);
+            fetchFile(response, "/apply_rent_begin.html");
+            response.setcookie("gid", Integer.toHexString(gid));
             break;
         }
 //        case STEP_SETUP: break;
@@ -460,40 +465,44 @@ public class WcWeb {
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, request.user) + "&step=success");
+            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN) + "&step=success");
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
             response.content(args_rsp.toString());
             break;
         }
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "起租成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, request.user));
+            fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"success");
+            response.setcookie("msg_title", 	"起租成功");
+            response.setcookie("msg_content",	"");
+            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
             break;
         }
         }
     }
     
     private static void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
-        if (!request.args.has("oid") || !request.args.has("csn")) {
-            JSONObject args = new JSONObject();
-            args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-            args.put("desc", "参数错误");
-            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
-            return;
-        }
-        int oid = Integer.parseInt(request.args.getString("oid"), 16);
-        int csn = Integer.parseInt(request.args.getString("csn"), 16);
     	switch (request.step) {
     	case STEP_PREPARE: {
-    		fetchFile(response, "/apply_rent_end.html", request.user, oid, csn);
+            if (!request.args.has("oid") || !request.args.has("csn")) {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args.put("desc", "参数错误");
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args.toString());
+                return;
+            }
+    		fetchFile(response, "/apply_rent_end.html");
+    		response.setcookie("oid", request.args.getString("oid"));
+    		response.setcookie("csn", request.args.getString("csn"));
     		break;
     	}
 //    	case STEP_SETUP: break;
     	case STEP_APPLY: {
             JSONObject args = new JSONObject();
             args.put("caid",    request.user);
-            args.put("oid", 	oid);
-            args.put("csn", 	csn);
+            args.put("oid", 	Integer.parseInt(request.args.getString("oid"), 16));
+            args.put("csn", 	Integer.parseInt(request.args.getString("csn"), 16));
             FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, args);
             if (!CommonService.isResponseSuccess(rsp)) {
                 JSONObject args_rsp = new JSONObject();
@@ -505,13 +514,17 @@ public class WcWeb {
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, request.user) + "&step=success&oid=" + Integer.toHexString(oid) + "&csn=" + Integer.toHexString(csn));
+            args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END) + "&step=success");
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
             response.content(args_rsp.toString());
             break;
     	}
         case STEP_SUCCESS: {
-            fetchFile(response, "/message_success.html", "退租成功", "", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER, request.user));
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type", 		"success");
+            response.setcookie("msg_title", 	"退租成功");
+            response.setcookie("msg_content",	" ");
+            response.setcookie("msg_url",		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
             break;
         }
     	}
@@ -520,9 +533,13 @@ public class WcWeb {
     private static void processQueryGame(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            if (request.args.has("gid")) fetchFile(response, "/query_game_by_gid.html", request.user, Integer.parseInt(request.args.getString("gid"), 16));
-            else if (request.args.has("tag")) fetchFile(response, "/query_game_by_tag.html", request.user, request.args.getString("tag"));
-            else fetchFile(response, "/query_game.html", request.user);
+            if (request.args.has("gid")) {
+            	fetchFile(response, "/query_game_by_gid.html");
+            	response.setcookie("gid", request.args.getString("gid"));
+            } else if (request.args.has("tag")) {
+            	fetchFile(response, "/query_game_by_tag.html");
+            	response.setcookie("tag", request.args.getString("tag"));
+            } else fetchFile(response, "/query_game.html");
             break;
         }
         case STEP_SETUP: {
@@ -602,7 +619,7 @@ public class WcWeb {
     private static void processQueryOrder(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/query_order.html", request.user);
+            fetchFile(response, "/query_order.html");
             break;
         }
         case STEP_SETUP: {
@@ -673,7 +690,7 @@ public class WcWeb {
         		processUpdatePlatformAccountMap(response, request);
         		break;
         	}
-            fetchFile(response, "/query_platform_account_map.html", request.user);
+            fetchFile(response, "/query_platform_account_map.html");
             break;
         }
         case STEP_SETUP: {
@@ -705,7 +722,7 @@ public class WcWeb {
     private static void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/query_platform_account_money.html", request.user);
+            fetchFile(response, "/query_platform_account_money.html");
             break;
         }
         case STEP_SETUP: {
@@ -731,7 +748,7 @@ public class WcWeb {
     private static void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
-            fetchFile(response, "/update_platform_account_map.html", request.user);
+            fetchFile(response, "/update_platform_account_map.html");
             break;
         }
         case STEP_SETUP: {
@@ -847,19 +864,19 @@ public class WcWeb {
     private WcWeb() {}
     
     private static class WcwRequest {
-        public String           server = null;
-        public int              inst = -1;
-        public int              user = -1;
-        public String           path  = null;
-        public String           step = null;
-        public JSONObject       args = null;
-        public SocketChannel    conn = null;
+        public String           	server = null;
+        public int              	inst = -1;
+        public int              	user = ANONYMOUS;
+        public String           	path  = null;
+        public String           	step = null;
+        public JSONObject       	args = null;
+        public SocketChannel    	conn = null;
         
-        public WcwRequest(String server, String path, JSONObject args, SocketChannel conn) {
+        public WcwRequest(String server, String path, int user, JSONObject args, SocketChannel conn) {
             this.server = server;
-            if (args.has("inst")) this.inst = Integer.parseInt(args.getString("inst"), 16);
-            if (args.has("user")) this.user = Integer.parseInt(args.getString("user"), 16);
-            this.path  = path;
+            this.inst = Integer.parseInt(args.getString("inst"), 16);
+            this.user = user;
+            this.path = path;
             this.step = args.has("step") ? args.getString("step") : STEP_PREPARE;
             this.args = args;
             this.conn = conn;

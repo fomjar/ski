@@ -8,17 +8,18 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-            var gid  = %d;
-            var url_setup = '/ski-wcweb?inst=2001&user=' + user.toString(16) + '&step=setup';
-            var url_apply = '/ski-wcweb?inst=2106&user=' + user.toString(16) + '&step=apply';
+            var gid = ski.cookie('gid');
+            var url_setup = '/ski-wcweb?inst=2001&step=setup';
+            var url_apply = '/ski-wcweb?inst=2106&step=apply';
 
             $(document).ready(function() {
                 showToast('正在加载');
                 $.post(url_setup,$.toJSON({
-                        'gid'   : gid.toString(16)
+                        'gid'   : gid
                     }),
                     function(args) {
                         hideToast();
@@ -37,7 +38,7 @@
             function apply() {
                 showToast('正在操作');
                 $.post(url_apply, $.toJSON({
-                        'gid'   : gid.toString(16),
+                        'gid'   : gid,
                         'type'  : $('#type').val() // hex
                     }), function(args) {
                         hideToast();

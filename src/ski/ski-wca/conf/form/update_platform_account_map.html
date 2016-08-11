@@ -8,11 +8,11 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-            var url_setup = '/ski-wcweb?inst=240a&user=' + user.toString(16) + '&step=setup';
-            var url_apply = '/ski-wcweb?inst=240a&user=' + user.toString(16) + '&step=apply';
+            var url_setup = '/ski-wcweb?inst=240a&step=setup';
+            var url_apply = '/ski-wcweb?inst=240a&step=apply';
 
             function setup() {
                 var phone = $('#phone').val();

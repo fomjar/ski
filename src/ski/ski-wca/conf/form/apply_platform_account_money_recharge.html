@@ -8,17 +8,17 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
-            var user        = %d;
-            var appId       = '%s';
-            var timestamp   = %d;
-            var nonceStr    = '%s';
-            var signature   = '%s';
+            var appId       = ski.cookie('appid');
+            var timestamp   = ski.cookie('timestamp');
+            var nonceStr    = ski.cookie('noncestr');
+            var signature   = ski.cookie('signature');
 
-            var url_apply = '/ski-wcweb/pay/recharge?inst=2104&user=' + user.toString(16) + '&step=apply';
-            var url_success = '/ski-wcweb/pay/recharge?inst=2104&user=' + user.toString(16) + '&step=success';
+            var url_apply   = '/ski-wcweb/pay/recharge?inst=2104&step=apply';
+            var url_success = '/ski-wcweb/pay/recharge?inst=2104&step=success';
 
             wx.config({
                     'debug'     : false,        // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。

@@ -8,13 +8,12 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-
-            var url_setup = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16) + '&step=setup';
-            var url_apply = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16) + '&step=apply';
-            var url_success = '/ski-wcweb/pay/refund?inst=2104&user=' + user.toString(16) + '&step=success';
+            var url_setup   = '/ski-wcweb/pay/refund?inst=2104&step=setup';
+            var url_apply   = '/ski-wcweb/pay/refund?inst=2104&step=apply';
+            var url_success = '/ski-wcweb/pay/refund?inst=2104&step=success';
 
             $(document).ready(function() {
                 showToast('正在加载');

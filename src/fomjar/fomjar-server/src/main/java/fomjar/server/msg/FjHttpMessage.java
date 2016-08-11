@@ -3,6 +3,7 @@ package fomjar.server.msg;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
 
@@ -18,9 +19,10 @@ public abstract class FjHttpMessage implements FjMessage {
     public static final String CT_APPL_JSON  	= "application/json";
     public static final String CT_APPL_JS    	= "application/x-javascript";
     
-    private Map<String, String> attr;
-    private String contentType;
-    private String content;
+    private Map<String, String>	attr;
+    private Map<String, Map<String, String>>	setcookie;
+    private String	contentType;
+    private String	content;
     
     public FjHttpMessage() {this(null, null);}
     
@@ -28,6 +30,7 @@ public abstract class FjHttpMessage implements FjMessage {
     	this.contentType	= null == contentType ? CT_TEXT_PLAIN : contentType;
         this.content 		= null == content ? "" : content;
         this.attr 			= new HashMap<String, String>();
+        this.setcookie		= new HashMap<String, Map<String, String>>();
     }
     
     protected abstract String head();
@@ -40,6 +43,32 @@ public abstract class FjHttpMessage implements FjMessage {
     public void			content(String content) {this.content = content;}
     public JSONObject   contentToJson() 		{return new FjJsonMessage(content()).json();}
     public Document     contentToXml()  		{return new FjXmlMessage(content()).xml();}
+    
+    public Map<String, String> cookie() {
+    	Map<String, String> cookie = new HashMap<String, String>();
+    	
+    	if (attr().containsKey("Cookie")) {
+	    	String cookie_string = attr().get("Cookie");
+	    	if (0 < cookie_string.length()) {
+	    		for (String c : cookie_string.split(";")) {
+	    			if (0 < c.trim().length() && c.contains("=")) {
+		    			String k = c.split("=")[0].trim();
+		    			String v = c.substring(c.indexOf("=") + 1).trim();
+		    			cookie.put(k, v);
+	    			}
+	    		}
+	    	}
+    	}
+    	return cookie;
+    }
+    
+    public void setcookie(String key, String val) {
+    	if (setcookie.containsKey(key)) setcookie.remove(key);
+    	
+    	Map<String, String> cookie = new HashMap<String, String>();
+    	cookie.put(key, val);
+    	setcookie.put(key, cookie);
+    }
 
     @Override
     public String toString() {
@@ -54,6 +83,14 @@ public abstract class FjHttpMessage implements FjMessage {
     		else
         		sb.append(String.format("%s: %s\r\n", entry.getKey(), entry.getValue()));
     			
+    	});
+    	setcookie.values().forEach(cookie->{
+    		sb.append(String.format("Set-Cookie: %s\r\n",
+    				cookie.entrySet()
+    						.stream()
+    						.map(entry->String.format("%s=%s", entry.getKey(), entry.getValue()))
+    						.collect(Collectors.joining("; "))
+    		));
     	});
     	sb.append("\r\n");
     	sb.append(content());

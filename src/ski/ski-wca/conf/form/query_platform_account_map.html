@@ -8,11 +8,11 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript'>
-            var user = %d;
-            var url_setup   = '/ski-wcweb?inst=200a&user=' + user.toString(16) + '&step=setup';
-            var url_update  = '/ski-wcweb?inst=240a&user=' + user.toString(16);
+            var url_setup   = '/ski-wcweb?inst=200a&step=setup';
+            var url_update  = '/ski-wcweb?inst=240a';
 
             $(document).ready(function() {
                 showToast('正在加载');
@@ -28,7 +28,7 @@
 
                             var title = document.createElement('div');
                             title.className = 'weui_cells_title';
-                            title.innerText = ski.getChannelDesc(account.channel);
+                            title.innerText = getChannelDesc(account.channel);
 
                             var cells = document.createElement('div');
                             cells.className = 'weui_cells';
@@ -52,6 +52,15 @@
                         }
                     });
             });
+
+            function getChannelDesc (channel) {
+                switch (channel) {
+                case 0:     return '淘宝';
+                case 1:     return '微信';
+                case 2:     return '支付宝';
+                default:    return '未知';
+                }
+            }
 
             function showToast(text) {
                 $('#toast_text').text(text);

@@ -8,6 +8,8 @@
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
         <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <style type="text/css">
         td {
@@ -31,9 +33,8 @@
         }
         </style>
         <script type='text/javascript'>
-            var user = %d;
-            var url_setup = '/ski-wcweb?inst=2001&user=' + user.toString(16) + '&step=setup';
-            var url_detail = '/ski-wcweb?inst=2001&user=' + user.toString(16);
+            var url_setup  = '/ski-wcweb?inst=2001&step=setup';
+            var url_detail = '/ski-wcweb?inst=2001';
 
             $(document).ready(function() {
                 setup();
@@ -58,7 +59,7 @@
                                                 + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
                                                 + "<p class='weui_media_desc'>" + game.introduction + "</p>"
                                              + "</div>"
-                                             + "<div style='position: absolute; width: 80px; top: 20px; right: 20px'><table width='100%%'><tr>"
+                                             + "<div style='position: absolute; width: 80px; top: 20px; right: 20px'><table width='100%'><tr>"
                                                  + "<td><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
                                                  + "<td><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
                                              + "</tr></table></div>"
@@ -94,7 +95,7 @@
                                                 + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
                                                 + "<p class='weui_media_desc'>" + game.introduction + "</p>"
                                              + "</div>"
-                                             + "<div style='position: absolute; width: 80px; top: 20px; right: 20px'><table width='100%%'><tr>"
+                                             + "<div style='position: absolute; width: 80px; top: 20px; right: 20px'><table width='100%'><tr>"
                                                  + "<td><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
                                                  + "<td><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
                                              + "</tr></table></div>"

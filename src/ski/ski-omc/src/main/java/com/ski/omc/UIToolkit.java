@@ -568,13 +568,12 @@ public class UIToolkit {
                         }
                     	break;
                     case "B":
-                        if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)) {
-		                    if (rsp.toString().contains(" binded")) {
-		                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号仅有B租，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-		                            ssd.dispose();
-		                            return;
-		                        }
-		                    }
+                        if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
+                        		&& rsp.toString().contains(" binded")) {
+	                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号仅有B租，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+	                            ssd.dispose();
+	                            return;
+	                        }
 		                }
                     	break;
                     }
