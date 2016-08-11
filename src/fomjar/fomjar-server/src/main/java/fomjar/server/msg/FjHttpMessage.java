@@ -1,5 +1,8 @@
 package fomjar.server.msg;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +56,11 @@ public abstract class FjHttpMessage implements FjMessage {
 	    		for (String c : cookie_string.split(";")) {
 	    			if (0 < c.trim().length() && c.contains("=")) {
 		    			String k = c.split("=")[0].trim();
+	    				
 		    			String v = c.substring(c.indexOf("=") + 1).trim();
+	    				try {v = URLDecoder.decode(v, "utf-8");}
+	    				catch (UnsupportedEncodingException e) {e.printStackTrace();}
+	    				
 		    			cookie.put(k, v);
 	    			}
 	    		}
@@ -66,6 +73,9 @@ public abstract class FjHttpMessage implements FjMessage {
     	if (setcookie.containsKey(key)) setcookie.remove(key);
     	
     	Map<String, String> cookie = new HashMap<String, String>();
+		try {val = URLEncoder.encode(val, "utf-8");}
+		catch (UnsupportedEncodingException e) {e.printStackTrace();}
+		
     	cookie.put(key, val);
     	setcookie.put(key, cookie);
     }
