@@ -189,3 +189,12 @@ create table tbl_notification (
     t_create    datetime        -- 创建通知的时间
 );
 
+-- 访问记录
+drop table if exists tbl_access_record;
+create table tbl_access_record (
+    i_caid      integer,        -- 渠道用户
+    c_remote    varchar(250),   -- 远程主机
+    c_local     varchar(250),   -- 本地主机和资源
+    t_time      datetime        -- 访问事件
+);
+

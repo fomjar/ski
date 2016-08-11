@@ -61,6 +61,7 @@ public class Report {
             }
             ocr.append(createReportTable("玩前必读", rows, 1));
         }
+        ocr.append(createReportFoot(user.getDisplayName()));
         return ocr.toString();
     }
     
@@ -74,11 +75,9 @@ public class Report {
                 + ".category {height: 30px; text-align: left; padding-left: 8px; background-color: #888888; color: #EEEEEE; font-size: 105%%}"
                 + "</style>"
                 + "<title>%s</title></head>"
-                + "<body><table><tr><td class='title'><h1>%s</h1>"
-                + "<div style='text-align: right; font-size: 85%%'>——此报告由\"SKI系统\"于 %s 自动生成</div></td></tr></table>",
+                + "<body><table><tr><td class='title'><h1>%s</h1></td></tr></table>",
                 title,
-                title,
-                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                title);
     }
     
     public static String createReportTable(String category, List<Object> data, int maxcol) {
@@ -101,5 +100,14 @@ public class Report {
         }
         sb.append("</table>");
         return sb.toString();
+    }
+    
+    public static String createReportFoot(String foot) {
+    	return String.format("<table style='font-size: 90%%'><tr>"
+    			+ "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-left: 4px; text-align: left'>%s</td>"
+    			+ "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-right: 4px; text-align: right'>此报告由 SKI系统 于 %s 自动生成</td>"
+    			+ "</tr></table>",
+    			foot,
+    			new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
     }
 }

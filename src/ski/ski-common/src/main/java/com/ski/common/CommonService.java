@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.ski.common.bean.BeanAccessRecord;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
@@ -47,6 +48,7 @@ public class CommonService {
     private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
     private static final Map<Integer, BeanTicket>           cache_ticket                    = new LinkedHashMap<Integer, BeanTicket>();
     private static final Map<Integer, BeanNotification>     cache_notification              = new LinkedHashMap<Integer, BeanNotification>();
+    private static final Set<BeanAccessRecord>				cache_access_record				= new LinkedHashSet<BeanAccessRecord>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -103,6 +105,22 @@ public class CommonService {
         
         return String.format("vcg%d%d%d%d%d", number[0], number[1], number[2], number[3], number[4]);
     }
+    
+    public static Set<BeanAccessRecord> getAccessRecordAll() {
+    	synchronized (cache_access_record) {
+    		return cache_access_record;
+    	}
+    }
+    
+    public static List<BeanAccessRecord> getAccessRecordByCaid(int caid) {
+    	synchronized (cache_access_record) {
+    		return cache_access_record
+    				.stream()
+    				.filter(access->access.i_caid == caid)
+    				.collect(Collectors.toList());
+    	}
+    }
+    
     public static Map<Integer, BeanChannelAccount> getChannelAccountAll() {
         synchronized (cache_channel_account) {
             return cache_channel_account;
@@ -606,6 +624,21 @@ public class CommonService {
     
     private static String wsi_host = null;
     public static void setWsiHost(String host) {wsi_host = host;}
+    
+    public static void updateAccessRecord() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_ACCESS_RECORD, null));
+        
+        synchronized (cache_access_record) {
+        	cache_access_record.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanAccessRecord bean = new BeanAccessRecord(line);
+                    cache_access_record.add(bean);
+                }
+            }
+        }
+    }
     
     public static void updateChannelAccount() {
         String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, null));

@@ -80,6 +80,8 @@ public class WcWeb {
             if (hreq.cookie().containsKey("user")) user = Integer.parseInt(hreq.cookie().get("user"), 16);
             else if (args.containsKey("user")) user = Integer.parseInt(args.getString("user"), 16);
             
+            recordaccess(user, conn, server, hreq.url());
+            
             WcwRequest request = new WcwRequest(server, hreq.path(), user, args, conn);
             switch (request.inst) {
             case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
@@ -208,6 +210,29 @@ public class WcWeb {
         case "json":    return FjHttpRequest.CT_APPL_JSON;
         default:    return FjHttpRequest.CT_TEXT_PLAIN;
         }
+    }
+    
+    private static void recordaccess(int user, SocketChannel conn, String server, String url) {
+    	try {
+			String remote = String.format("%15s|%6d",
+					((InetSocketAddress)conn.getRemoteAddress()).getHostName(),
+					((InetSocketAddress)conn.getRemoteAddress()).getPort());
+			String local = String.format("%25s|%6d|%10s|%s",
+					((InetSocketAddress)conn.getLocalAddress()).getHostName(),
+					((InetSocketAddress)conn.getLocalAddress()).getPort(),
+					server,
+					url);
+			JSONObject args = new JSONObject();
+			args.put("caid", 	user);
+			args.put("remote", 	remote);
+			args.put("local", 	local);
+			FjDscpMessage msg = new FjDscpMessage();
+			msg.json().put("fs", server);
+			msg.json().put("ts", "cdb");
+			msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_ACCESS_RECORD);
+			msg.json().put("args", args);
+			FjServerToolkit.getAnySender().send(msg);
+		} catch (IOException e) {e.printStackTrace();}
     }
     
     private static void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
