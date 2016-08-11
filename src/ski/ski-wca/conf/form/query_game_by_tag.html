@@ -50,6 +50,10 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
+                        var title = document.createElement('div');
+                        title.className = 'weui_panel_hd';
+                        title.innerText = tag;
+                            
                         var cells = document.createElement('div');
                         cells.className = 'weui_panel_bd';
                         for (var i in args.desc) {
@@ -60,14 +64,15 @@
                                             + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
                                             + "<p class='weui_media_desc'>" + game.introduction + "</p>"
                                          + "</div>"
-                                         + "<div style='position: absolute; width: 80px; top: 20px; right: 20px'><table width='100%'><tr>"
+                                         + "<div style='position: absolute; width: 70px; top: 20px; right: 20px'><table width='100%'><tr>"
                                              + "<td><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
                                              + "<td><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
                                          + "</tr></table></div>"
                                      + "</a>";
                             cells.innerHTML = cells.innerHTML + cell;
                         }
-                        $('#result').html(cells);
+                        $('#result').html(title);
+                        $('#result').append(cells);
                     });
             });
 
@@ -93,7 +98,7 @@
     <body>
         <div class='panel'>
             <div class='bd'>
-                <div class="weui_panel weui_panel_access" id='result'>
+                <div class="weui_panel weui_panel_access" style='margin-top: 0px' id='result'>
                 </div>
             </div>
         </div>

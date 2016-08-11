@@ -141,7 +141,7 @@ public class MainFrame extends JFrame {
             toolbar.setEnabled(false);
 
             try {
-                int max = 12;
+                int max = 13;
                 int cur = 0;
                 String format = "(%d/%d)%s";
                 progress.setMaximum(max);
@@ -171,6 +171,8 @@ public class MainFrame extends JFrame {
                 CommonService.updateTag();
                 progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载工单..."));
                 CommonService.updateTicket();
+                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载访问记录..."));
+                CommonService.updateAccessRecord();
                 
                 progress.setString("加载完成");
                 
