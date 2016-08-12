@@ -560,14 +560,12 @@ public class CommonService {
         try {
             long begin  = sdf.parse(c.t_begin).getTime();
             long end    = System.currentTimeMillis();
-            int  hours  = (int) Math.ceil(((double) end - begin) / 1000 / 60 / 60); // 向上取整
-            hours -= 3; // 优惠3小时
-            if (hours <= 0) return 0.00f;
-            else {
-                int times = (int) Math.ceil(((double) hours) / 12);
-                if (times < 2) times = 2;
-                return times * (c.i_price / 2) * c.i_count;
-            }
+            long millis = end - begin - 20 * 60 * 1000L; // 优惠20分钟
+            if (millis <= 0) return 0.00f;
+            int hours = (int) Math.ceil((double) millis / 1000 / 60 / 60); // 向上取整
+            int times = (int) Math.ceil(((double) hours) / 12);
+            if (times < 2) times = 2;
+            return times * (c.i_price / 2) * c.i_count;
         } catch (Exception e) {e.printStackTrace();}
         return 0.00f;
     }

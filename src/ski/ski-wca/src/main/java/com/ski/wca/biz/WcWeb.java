@@ -870,6 +870,12 @@ public class WcWeb {
             	}
             }
             
+            JSONObject args= new JSONObject();
+            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args.put("desc", null);
+            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+            response.content(args.toString());
+            
             break;
         }
         }
