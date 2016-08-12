@@ -101,6 +101,9 @@ public class FjSender extends FjLoopTask {
             URL httpurl = new URL(req.url());
             if (req.url().startsWith("https")) initSslContext();
             conn = (HttpURLConnection) httpurl.openConnection();
+            conn.setConnectTimeout((int) TIMEOUT);
+            conn.setReadTimeout((int) TIMEOUT);
+            
             conn.setRequestMethod(req.method());
             conn.setDoInput(true);
             conn.setDoOutput(true);
