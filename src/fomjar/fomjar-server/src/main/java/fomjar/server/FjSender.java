@@ -28,7 +28,8 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(FjSender.class);
-    private static long TIMEOUT = 1000L * 3;
+    private static long TIMEOUT_I = 1000L * 20;
+    private static long TIMEOUT_O = 1000L * 3;
     private FjMessageQueue mq;
     
     public FjSender() {
@@ -101,8 +102,8 @@ public class FjSender extends FjLoopTask {
             URL httpurl = new URL(req.url());
             if (req.url().startsWith("https")) initSslContext();
             conn = (HttpURLConnection) httpurl.openConnection();
-            conn.setConnectTimeout((int) TIMEOUT);
-            conn.setReadTimeout((int) TIMEOUT);
+            conn.setConnectTimeout((int) TIMEOUT_I);
+            conn.setReadTimeout((int) TIMEOUT_I);
             
             conn.setRequestMethod(req.method());
             conn.setDoInput(true);
@@ -129,7 +130,7 @@ public class FjSender extends FjLoopTask {
         ByteBuffer buf = ByteBuffer.wrap(rsp.toString().getBytes(Charset.forName("utf-8")));
         try {
             long begin = System.currentTimeMillis();
-            while(buf.hasRemaining() && TIMEOUT > System.currentTimeMillis() - begin) {
+            while(buf.hasRemaining() && TIMEOUT_O > System.currentTimeMillis() - begin) {
                 int n = conn.write(buf);
                 if (0 < n) begin = System.currentTimeMillis();
             }
