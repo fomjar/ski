@@ -160,7 +160,7 @@ public class BcsTask implements FjServerTask {
         int oid  = args.getInt("oid");
         int csn  = args.getInt("csn");
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
-        // check args
+        // check order
         BeanCommodity c = null;
         {
             boolean isOrderMatch = false; 
@@ -176,6 +176,10 @@ public class BcsTask implements FjServerTask {
                 response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER, "没有找到此订单");
                 return;
             }
+        }
+        if (CommonService.getOrderByOid(oid).commodities.get(csn).isClose()) {
+            response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_ORDER, "订单已关闭");
+            return;
         }
         // check cache
         {

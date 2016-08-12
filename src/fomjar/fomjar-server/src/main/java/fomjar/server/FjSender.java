@@ -28,7 +28,7 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(FjSender.class);
-    private static long TIMEOUT_I = 1000L * 20;
+    private static long TIMEOUT_I = 1000L * 60;
     private static long TIMEOUT_O = 1000L * 3;
     private FjMessageQueue mq;
     

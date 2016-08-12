@@ -545,10 +545,14 @@ public class CommonService {
     }
     
     public static int getResponseCode(FjDscpMessage rsp) {
+    	if (null == rsp) return -1;
+    	
         return rsp.argsToJsonObject().getInt("code");
     }
     
     public static String getResponseDesc(FjDscpMessage rsp) {
+    	if (null == rsp) return null;
+    	
         JSONObject args = rsp.argsToJsonObject();
         Object desc = args.get("desc");
         if (desc instanceof JSONArray) return ((JSONArray) desc).getString(0);
