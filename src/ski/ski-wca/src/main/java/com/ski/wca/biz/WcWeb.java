@@ -133,7 +133,10 @@ public class WcWeb {
         	return ANONYMOUS;
         }
         
-        return CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT).get(0).i_caid;
+        List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT);
+        if (users.isEmpty()) return ANONYMOUS;
+        
+        return users.get(0).i_caid;
     }
     
     @SuppressWarnings("unchecked")

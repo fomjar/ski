@@ -26,26 +26,45 @@
                     for (var i in args.desc) {
                         var commodity = args.desc[i];
 
-                        var cells = document.createElement('div');
-                        cells.className = 'weui_cells';
-                        cells.innerHTML = "<a class='weui_cell' href='" + (url_query_game + '&gid=' + commodity.game.gid.toString(16)) + "'>"
-                                                + "<div class='weui_cell_bd weui_cell_primary'><p>《" + commodity.game.name_zh_cn + "》</p></div>"
-                                                + "<div class='weui_cell_ft'>" + commodity.account + "</div>"
-                                        + "</a>"
-                                        + (typeof(commodity.pass) != 'undefined' ? "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>密码</p></div><div class='weui_cell_ft'>" + commodity.pass + "</div></div>" : "")
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁类型</p></div><div class='weui_cell_ft'>" + commodity.type + " (" + commodity.price + "元/天)</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁时间</p></div><div class='weui_cell_ft'>" + commodity.begin.substring(5) + " ~ " + ('' == commodity.end ? '(尚未退租)' : commodity.end.substring(5)) + "</div></div>"
-                                        + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>消费总计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>";
-
                         if ('' == commodity.end) {
-                            var rent_end = document.createElement('div');
-                            rent_end.className = 'weui_btn_area';
-                            rent_end.style.margin = '0';
-                            rent_end.innerHTML = "<a href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");' class='weui_btn weui_btn_primary'>退租</a>";
+                            var cells = document.createElement('div');
+                            cells.className = 'weui_cells';
+                            cells.innerHTML = "<a class='weui_media_box weui_media_appmsg' href=\"javascript: $('#commodity_" + commodity.oid + "_" + commodity.csn + "').is(':visible') ? $('#commodity_" + commodity.oid + "_" + commodity.csn + "').hide() : $('#commodity_" + commodity.oid + "_" + commodity.csn + "').show()\">"
+                                                + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + commodity.game.url_icon + "'></div>"
+                                                + "<div class='weui_media_bd'>"
+                                                   + "<h4 class='weui_media_title'>" + commodity.game.name_zh_cn + "</h4>"
+                                                   + "<p class='weui_media_desc'>"
+                                                        + "帐号密码: " + commodity.account + " / " + commodity.pass + "<br/>"
+                                                        + "起租时间: " + commodity.begin
+                                                   + "</p>"
+                                                + "</div>"
+                                            + "</a>";
+                            cells.innerHTML += "<div class='weui_cells' style='margin-top: 0px; display: none' id='commodity_" + commodity.oid + "_" + commodity.csn + "'>"
+                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁类型</p></div><div class='weui_cell_ft'>" + commodity.type + "(" + commodity.price + "元/天)" +  "</div></div>"
+                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>费用小计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>"
+                                                    + "<div class='weui_cell'><div class='weui_btn_area' style='width: 100%; margin: 0px'>"
+                                                        + "<table width='100%'><tr>"
+                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:browseGame(" + commodity.game.gid + ");'>查看游戏</a></td>"
+                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");'>我要退租</a></td>"
+                                                        + "</tr></table>"
+                                                    + "</div></div>"
+                                            + "</div>";
 
                             $('#result_now').append(cells);
-                            $('#result_now').append(rent_end);
                         } else {
+                            var cells = document.createElement('div');
+                            cells.className = 'weui_cell';
+                            cells.innerHTML = "<a class='weui_media_box weui_media_appmsg' style='width: 100%; padding: 0px' href='javascript:browseGame(" + commodity.game.gid + ");'>"
+                                                + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + commodity.game.url_icon + "'></div>"
+                                                + "<div class='weui_media_bd'>"
+                                                   + "<h4 class='weui_media_title'>" + commodity.game.name_zh_cn + "</h4>"
+                                                   + "<p class='weui_media_desc'>"
+                                                       + "时间: " + commodity.begin.substring(5) + " ~ " + commodity.end.substring(5) + "<br/>"
+                                                       + "消费: " + commodity.expense + "元 - " + commodity.type + "(" + commodity.price + "元/天)"
+                                                   + "</p>"
+                                                + "</div>"
+                                            + "</a>";
+
                             $('#result_old').append(cells);
                         }
                     }
@@ -54,6 +73,10 @@
 
             function rentEnd(oid, csn) {
                window.location = url_rent_end + '&oid=' + oid.toString(16) + '&csn=' + csn.toString(16); 
+            }
+
+            function browseGame(gid) {
+                window.location = url_query_game + '&gid=' + gid.toString(16);
             }
 
             function switchToNow() {
@@ -94,8 +117,8 @@
                         <div class="weui_navbar_item" id='result_old_label' onclick='switchToOld()'>已退租</div>
                     </div>
                     <div class="weui_tab_bd">
-                        <div id='result_now'></div>
-                        <div style='display:none' id='result_old'></div>
+                        <div class='weui_panel_bd' id='result_now'></div>
+                        <div class='weui_cells' id='result_old' style='display: none'></div>
                     </div>
                 </div>
             </div>
