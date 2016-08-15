@@ -2,6 +2,8 @@ package com.ski.bcs;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -83,7 +85,7 @@ public class BcsTask implements FjServerTask {
                             + 1);
             if (puser.i_cash < deposite) {
             	logger.error(String.format("not enough cash for rent begin: args %s need %.2f but have %.2f", args, deposite, puser.i_cash));
-                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_DEPOSIT, String.format("余额不足无法起租", deposite, puser.i_cash));
+                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_DEPOSIT, "余额不足无法起租");
                 return;
             }
         }
@@ -91,28 +93,47 @@ public class BcsTask implements FjServerTask {
         // choose account
         int gaid = -1;
         {
-            int gaid_all = -1;  // 全空闲
-            int gaid_sin = -1;  // 单类别空闲
+            List<Integer> gaid_all = new LinkedList<Integer>();  // 全空闲
+            List<Integer> gaid_sin = new LinkedList<Integer>();  // 单类别空闲
             for (BeanGameAccount account : CommonService.getGameAccountByGid(gid)) {
                 int rent_a = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A);
                 int rent_b = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B);
-                if (CommonService.RENT_STATE_IDLE == rent_a && CommonService.RENT_STATE_IDLE == rent_b) {
-                    gaid_all = account.i_gaid;
-                    break;
-                }
+                if (CommonService.RENT_STATE_IDLE == rent_a && CommonService.RENT_STATE_IDLE == rent_b)
+                    gaid_all.add(account.i_gaid);
                 if ((CommonService.RENT_STATE_IDLE == rent_a && type == CommonService.RENT_TYPE_A)
-                        || (CommonService.RENT_STATE_IDLE == rent_b && type == CommonService.RENT_TYPE_B)) {
-                    gaid_sin = account.i_gaid;
+                        || (CommonService.RENT_STATE_IDLE == rent_b && type == CommonService.RENT_TYPE_B))
+                    gaid_sin.add(account.i_gaid);
+            }
+            if (!gaid_all.isEmpty()) gaid = gaid_all.get(0);
+            else if (!gaid_sin.isEmpty()) {
+            	for (int id : gaid_sin) {
+            		BeanGameAccount account = CommonService.getGameAccountByGaid(id);
+                    JSONObject args_wa = new JSONObject();
+                    args_wa.put("user", account.c_user);
+                    args_wa.put("pass", account.c_pass);
+                    FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                		logger.error("user or pass incorrect for rent begin:" + account.c_user + ", try next");
+                		continue;
+                    }
+                    if (type == CommonService.RENT_TYPE_A && rsp.toString().contains(" binded")) {
+                		logger.error("account binded before a rent begin:" + account.c_user + ", try next");
+                		continue;
+                    }
+                    if (type == CommonService.RENT_TYPE_B && rsp.toString().contains(" unbinded")) {
+                		logger.error("account unbinded before b rent begin:" + account.c_user + ", try next");
+                		continue;
+                    }
+                    gaid = id;
                     break;
-                }
+            	}
             }
-            if (-1 != gaid_all)         gaid = gaid_all;
-            else if (-1 != gaid_sin)    gaid = gaid_sin;
-            else {
-            	logger.error(String.format("game account not enough for rent begin: args", args));
-                response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "该游戏已没有剩余帐号可租");
-                return;
-            }
+            
+        	if (-1 == gaid) {
+	        	logger.error(String.format("game account not enough for rent begin: args", args));
+	            response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "该游戏已没有剩余帐号可租");
+	            return;
+        	}
         }
         
         // submit order

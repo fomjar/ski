@@ -51,7 +51,7 @@ public class Notifier {
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
-                break;
+//                break;	// no break
             }
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
@@ -109,7 +109,7 @@ public class Notifier {
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
-                break;
+//                break;	// no break
             }
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
@@ -297,7 +297,7 @@ public class Notifier {
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
-                break;
+//                break; // no break
             }
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
@@ -357,7 +357,7 @@ public class Notifier {
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
-                break;
+//                break;	// no break
             }
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
@@ -417,7 +417,7 @@ public class Notifier {
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
-                break;
+//                break; // no break
             }
             case CommonService.CHANNEL_TAOBAO: {
                 JSONObject args = new JSONObject();
