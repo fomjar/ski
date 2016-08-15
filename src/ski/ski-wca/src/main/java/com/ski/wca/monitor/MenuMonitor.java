@@ -52,6 +52,7 @@ public class MenuMonitor extends FjLoopTask {
             if (json.has("url")) {
                 Object url = json.get("url");
                 if (url instanceof String) {
+                	if (!url.toString().contains(FjServerToolkit.getSlb().getAddress("wca").host)) return;
                     try {
                         json.put("url", String.format("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&redirect_uri=%s&response_type=code&scope=snsapi_base#wechat_redirect",
                                 FjServerToolkit.getServerConfig("wca.appid"),

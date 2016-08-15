@@ -37,22 +37,37 @@
                                         + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁时间</p></div><div class='weui_cell_ft'>" + commodity.begin.substring(5) + " ~ " + ('' == commodity.end ? '(尚未退租)' : commodity.end.substring(5)) + "</div></div>"
                                         + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>消费总计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>";
 
-                        var rent_end;
                         if ('' == commodity.end) {
-                            rent_end = document.createElement('div');
+                            var rent_end = document.createElement('div');
                             rent_end.className = 'weui_btn_area';
                             rent_end.style.margin = '0';
                             rent_end.innerHTML = "<a href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");' class='weui_btn weui_btn_primary'>退租</a>";
-                        }
 
-                        $('#result').append(cells);
-                        if ('' == commodity.end) $('#result').append(rent_end);
+                            $('#result_now').append(cells);
+                            $('#result_now').append(rent_end);
+                        } else {
+                            $('#result_old').append(cells);
+                        }
                     }
                 });
             });
 
             function rentEnd(oid, csn) {
                window.location = url_rent_end + '&oid=' + oid.toString(16) + '&csn=' + csn.toString(16); 
+            }
+
+            function switchToNow() {
+                $('#result_now_label').addClass('weui_bar_item_on');
+                $('#result_old_label').removeClass('weui_bar_item_on');
+                $('#result_now').show();
+                $('#result_old').hide();
+            }
+
+            function switchToOld() {
+                $('#result_now_label').removeClass('weui_bar_item_on');
+                $('#result_old_label').addClass('weui_bar_item_on');
+                $('#result_now').hide();
+                $('#result_old').show();
             }
 
             function showToast(text) {
@@ -71,11 +86,18 @@
         </script>
     </head>
     <body>
-        <div class='cell'>
-            <div class='hd'>
-                <h1 class='page_title'>我的游戏</h1>
-            </div>
-            <div class='bd' id='result'>
+        <div class='navbar'>
+            <div class='bd' style='height: 100%'>
+                <div class="weui_tab">
+                    <div class="weui_navbar">
+                        <div class="weui_navbar_item weui_bar_item_on" id='result_now_label' onclick='switchToNow()'>正在玩</div>
+                        <div class="weui_navbar_item" id='result_old_label' onclick='switchToOld()'>已退租</div>
+                    </div>
+                    <div class="weui_tab_bd">
+                        <div id='result_now'></div>
+                        <div style='display:none' id='result_old'></div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="weui_dialog_alert" id="dialog" style='display:none'>

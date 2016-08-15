@@ -337,7 +337,29 @@ public class CommonService {
     							.filter(t->t.c_tag.toLowerCase().contains(tag.toLowerCase()))
     							.count())
     				.collect(Collectors.toList());
-    							
+    	}
+    }
+    
+    public static List<BeanGame> getGameByCategory(String... category) {
+    	synchronized (cache_game) {
+    		return cache_game.values()
+    				.stream()
+    				.filter(game->{
+    					for (String c : category) {
+    						if (!game.c_category.toLowerCase().contains(c.toLowerCase())) return false;
+    					}
+    					return true;
+    				})
+    				.collect(Collectors.toList());
+    	}
+    }
+    
+    public static List<BeanGame> getGameByVendor(String vendor) {
+    	synchronized (cache_game) {
+    		return cache_game.values()
+    				.stream()
+    				.filter(game->game.c_vendor.toLowerCase().contains(vendor.toLowerCase()))
+    				.collect(Collectors.toList());
     	}
     }
     

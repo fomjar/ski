@@ -78,18 +78,6 @@
                                 $('#url_poster').append("<div style='background-image: url(" + poster + ")'/>");
                             }
                         }
-                        $('#url_poster').skippr({
-                            transition: 'fade',
-                            speed: 200,
-                            easing: 'easeOutQuart',
-                            navType: 'bubble',
-                            childrenElementType: 'div',
-                            arrows: true,
-                            autoPlay: false,
-                            autoPlayDuration: 5000,
-                            keyboardOnAlways: true,
-                            hidePrevious: false
-                        });
 
                         if (args.desc.rent_a) {
                             $('#rent').html("<div class='weui_cell'>"
@@ -108,6 +96,22 @@
                             $('#rent').html("<div style='height: 200px; line-height: 200px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
                             $('#rent_begin').hide();
                         }
+
+                        $('#url_poster').skippr({
+                            transition: 'fade',
+                            speed: 200,
+                            easing: 'easeOutQuart',
+                            navType: 'bubble',
+                            childrenElementType: 'div',
+                            arrows: true,
+                            autoPlay: false,
+                            autoPlayDuration: 5000,
+                            keyboardOnAlways: true,
+                            hidePrevious: false
+                        });
+
+                        $('.weui_tab').animate({top : '150px'}, 'slow');
+
                     });
             });
 
@@ -175,7 +179,7 @@
                     <div id='category'      class='field' style='margin-top: 85px; font-weight: 200; font-size: 14px'></div>
                     <div id='sale'          class='field' style='margin-top: 105px; font-weight: 200; font-size: 14px'></div>
                 </div>
-                <div class="weui_tab" style='top: 150px; background: white'>
+                <div class="weui_tab" style='background: white'>
                     <div class="weui_navbar">
                         <div id='tab_bar_intr' class="weui_navbar_item weui_bar_item_on" onclick="tabToIntr()">游戏介绍</div>
                         <div id='tab_bar_rent' class="weui_navbar_item" onclick="tabToRent()">游戏租赁 </div>
