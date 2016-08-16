@@ -3,7 +3,6 @@ package fomjar.server.msg;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,19 +18,24 @@ public abstract class FjHttpMessage implements FjMessage {
 	public static final String CT_TEXT_HTML  	= "text/html";
     public static final String CT_TEXT_PLAIN  	= "text/plain";
     public static final String CT_TEXT_XML   	= "text/xml";
+    public static final String CT_IMAG_JPG		= "image/jpg";
+    public static final String CT_IMAG_BMP		= "image/bmp";
+    public static final String CT_IMAG_PNG		= "image/png";
+    public static final String CT_IMAG_GIF		= "image/gif";
     public static final String CT_APPL_JSON  	= "application/json";
     public static final String CT_APPL_JS    	= "application/x-javascript";
     
     private Map<String, String>	attr;
     private Map<String, Map<String, String>>	setcookie;
     private String	contentType;
-    private String	content;
+    private byte[]	content;
     
     public FjHttpMessage() {this(null, null);}
     
-    public FjHttpMessage(String contentType, String content) {
+    public FjHttpMessage(String contentType, Object content) {
     	this.contentType	= null == contentType ? CT_TEXT_PLAIN : contentType;
-        this.content 		= null == content ? "" : content;
+        try {this.content	= null == content ? new byte[] {} : content instanceof byte[] ? (byte[])content : content.toString().getBytes("utf-8");}
+        catch (UnsupportedEncodingException e) {e.printStackTrace();}
         this.attr 			= new HashMap<String, String>();
         this.setcookie		= new HashMap<String, Map<String, String>>();
     }
@@ -39,13 +43,28 @@ public abstract class FjHttpMessage implements FjMessage {
     protected abstract String head();
     
     public Map<String, String> attr() 	{return attr;};
-    public int 			contentLength() {return content.getBytes(Charset.forName("utf-8")).length;}
+    public int 			contentLength() {return content().length;}
     public String 		contentType() 	{return attr().containsKey("Content-Type") ? attr.get("Content-Type") : contentType;}
-    public String       content()       {return content;}
+    public byte[]       content()       {return content;}
     
-    public void			content(String content) {this.content = content;}
-    public JSONObject   contentToJson() 		{return new FjJsonMessage(content()).json();}
-    public Document     contentToXml()  		{return new FjXmlMessage(content()).xml();}
+    public void			content(Object content) {
+    	if (content instanceof byte[]) {
+    		this.content = (byte[]) content;
+    	} else {
+	    	try {this.content = content.toString().getBytes("utf-8");}
+	    	catch (UnsupportedEncodingException e) {e.printStackTrace();}
+    	}
+    }
+    public JSONObject   contentToJson() 		{
+	    	try {return new FjJsonMessage(new String(content(), "utf-8")).json();}
+	    	catch (UnsupportedEncodingException e) {e.printStackTrace();}
+	    	return null;
+    }
+    public Document     contentToXml()  		{
+    	try {return new FjXmlMessage(new String(content(), "utf-8")).xml();}
+    	catch (UnsupportedEncodingException e) {e.printStackTrace();}
+    	return null;
+    }
     
     public Map<String, String> cookie() {
     	Map<String, String> cookie = new HashMap<String, String>();
@@ -103,7 +122,6 @@ public abstract class FjHttpMessage implements FjMessage {
     		));
     	});
     	sb.append("\r\n");
-    	sb.append(content());
     	return sb.toString();
     }
 }

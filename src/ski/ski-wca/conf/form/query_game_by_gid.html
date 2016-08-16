@@ -110,7 +110,9 @@
                             hidePrevious: false
                         });
 
-                        $('.weui_tab').animate({top : '150px'}, 'slow');
+                        setTimeout(function() {
+                            $('.weui_tab').animate({top : '150px'});
+                        }, 400);
 
                     });
             });

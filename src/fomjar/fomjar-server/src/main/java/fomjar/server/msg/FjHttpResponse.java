@@ -30,7 +30,7 @@ public class FjHttpResponse extends FjHttpMessage {
 	private String 	protocal;
     private int 	code;
     
-    public FjHttpResponse(String protocal, int code, String contentType, String content) {
+    public FjHttpResponse(String protocal, int code, String contentType, Object content) {
         super(contentType, content);
         this.protocal	= null == protocal ? "HTTP/1.1" : protocal;
         this.code 		= code;

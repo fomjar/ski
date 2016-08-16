@@ -27,7 +27,7 @@ public class FjHttpRequest extends FjHttpMessage {
     private String method;
     private String url;
     
-    public FjHttpRequest(String method, String url, String contentType, String content) {
+    public FjHttpRequest(String method, String url, String contentType, Object content) {
         super(contentType, content);
         this.method = method;
         try {this.url = URLDecoder.decode(url, "utf-8");}

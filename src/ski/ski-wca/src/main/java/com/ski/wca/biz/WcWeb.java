@@ -176,7 +176,7 @@ public class WcWeb {
             baos    = new ByteArrayOutputStream();
             while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
             response.attr().put("Content-Type", getFileMime(file.getName()));
-            response.content(baos.toString("utf-8"));
+            response.content(baos.toByteArray());
         } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
         finally {
             try {
@@ -211,6 +211,11 @@ public class WcWeb {
         case "less":    return FjHttpRequest.CT_TEXT_CSS;
         case "xml":     return FjHttpRequest.CT_TEXT_XML;
         case "json":    return FjHttpRequest.CT_APPL_JSON;
+        case "jpg":
+        case "jpeg":	return FjHttpRequest.CT_IMAG_JPG;
+        case "bmp":		return FjHttpRequest.CT_IMAG_BMP;
+        case "png":		return FjHttpRequest.CT_IMAG_PNG;
+        case "gif":		return FjHttpRequest.CT_IMAG_GIF;
         default:    return FjHttpRequest.CT_TEXT_PLAIN;
         }
     }
@@ -302,7 +307,7 @@ public class WcWeb {
             cache_user_recharge.add(request.user);
             
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(json_prepay.toString());
+            response.content(json_prepay);
             break;
         }
         case STEP_SUCCESS: {
@@ -329,7 +334,7 @@ public class WcWeb {
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
+            response.content(args);
             break;
         }
         case STEP_APPLY: {
@@ -350,7 +355,7 @@ public class WcWeb {
             
             logger.error("user pay refund: " + rsp_args);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(rsp_args.toString());
+            response.content(rsp_args);
             break;
         }
         case STEP_SUCCESS: {
@@ -457,7 +462,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 break;
             }
             int gid = Integer.parseInt(request.args.getString("gid"), 16);
@@ -472,7 +477,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 break;
             }
             int gid     = Integer.parseInt(request.args.getString("gid"), 16);
@@ -488,14 +493,14 @@ public class WcWeb {
                 args_rsp.put("code", CommonService.getResponseCode(rsp));
                 args_rsp.put("desc", CommonService.getResponseDesc(rsp));
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args_rsp.toString());
+                response.content(args_rsp);
                 break;
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN) + "&step=success");
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args_rsp.toString());
+            response.content(args_rsp);
             break;
         }
         case STEP_SUCCESS: {
@@ -517,7 +522,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 return;
             }
     		fetchFile(response, "/apply_rent_end.html");
@@ -537,14 +542,14 @@ public class WcWeb {
                 args_rsp.put("code", CommonService.getResponseCode(rsp));
                 args_rsp.put("desc", CommonService.getResponseDesc(rsp));
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args_rsp.toString());
+                response.content(args_rsp);
                 break;
             }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END) + "&step=success");
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args_rsp.toString());
+            response.content(args_rsp);
             break;
     	}
         case STEP_SUCCESS: {
@@ -582,7 +587,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args.put("desc", desc);
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
             } else if (request.args.has("tag")) {
             	String tag = request.args.getString("tag");
             	JSONArray desc = new JSONArray();
@@ -591,20 +596,20 @@ public class WcWeb {
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", desc);
 	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args.toString());
+	            response.content(args);
             } else if (request.args.has("gid")) {
 	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
 	            JSONObject args = new JSONObject();
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
 	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args.toString());
+	            response.content(args);
             } else {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数错误");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
             }
             break;
         }
@@ -660,7 +665,7 @@ public class WcWeb {
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", commodityToJson(c));
 	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args.toString());
+	            response.content(args);
         	} else {
 	            JSONArray desc = new JSONArray();
 	            CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(request.user)).forEach(o->{
@@ -670,7 +675,7 @@ public class WcWeb {
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", desc);
 	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args.toString());
+	            response.content(args);
         	}
             break;
         }
@@ -741,7 +746,7 @@ public class WcWeb {
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
+            response.content(args);
             break;
         }
         }
@@ -766,7 +771,7 @@ public class WcWeb {
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", desc);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
+            response.content(args);
             break;
         }
         }
@@ -785,7 +790,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数不完整");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 break;
         	}
         	String phone	= request.args.getString("phone");
@@ -801,7 +806,7 @@ public class WcWeb {
 		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
 		            args.put("desc", "发送失败，请稍候重试");
 		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-		            response.content(args.toString());
+		            response.content(args);
 		            break;
 	        	}
         	}
@@ -813,7 +818,7 @@ public class WcWeb {
 	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
 	            args.put("desc", null);
 	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args.toString());
+	            response.content(args);
         	}
         	break;
         }
@@ -823,7 +828,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数不完整");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 break;
             }
             String  phone 	= request.args.getString("phone");
@@ -834,7 +839,7 @@ public class WcWeb {
                 args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                 args.put("desc", "校验失败");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-                response.content(args.toString());
+                response.content(args);
                 break;
             }
             cache_verify_code.remove(request.user);
@@ -849,7 +854,7 @@ public class WcWeb {
 		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
 		            args.put("desc", "更新手机失败，请稍候重试");
 		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-		            response.content(args.toString());
+		            response.content(args);
 		            break;
 	        	}
             }
@@ -867,7 +872,7 @@ public class WcWeb {
     		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
     		            args.put("desc", "关联淘宝用户失败，请稍候重试");
     		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-    		            response.content(args.toString());
+    		            response.content(args);
     		            break;
     	        	}
             	}
@@ -877,7 +882,7 @@ public class WcWeb {
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args.put("desc", null);
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-            response.content(args.toString());
+            response.content(args);
             
             break;
         }

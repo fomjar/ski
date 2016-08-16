@@ -112,7 +112,7 @@ public class FjSender extends FjLoopTask {
             conn.setRequestProperty("Content-Length", String.valueOf(req.contentLength()));
             if (0 < req.contentLength()) {
 	            OutputStream os = conn.getOutputStream();
-	            os.write(req.content().getBytes(Charset.forName("utf-8")));
+	            os.write(req.content());
 	            os.flush();
             }
             InputStream is = conn.getInputStream();
@@ -127,8 +127,12 @@ public class FjSender extends FjLoopTask {
     }
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
-        ByteBuffer buf = ByteBuffer.wrap(rsp.toString().getBytes(Charset.forName("utf-8")));
         try {
+        	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        	baos.write(rsp.toString().getBytes("utf-8"));
+        	baos.write(rsp.content());
+        	
+            ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
             long begin = System.currentTimeMillis();
             while(buf.hasRemaining() && TIMEOUT_O > System.currentTimeMillis() - begin) {
                 int n = conn.write(buf);
