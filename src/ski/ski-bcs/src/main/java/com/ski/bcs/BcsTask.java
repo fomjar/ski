@@ -317,25 +317,6 @@ public class BcsTask implements FjServerTask {
                 response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, "提交订单失败，请稍后重试");
                 return;
             }
-            
-            boolean needCloseOrder = true;
-            for (BeanCommodity bc : CommonService.getOrderByOid(oid).commodities.values()) {
-                if (!bc.isClose()) {
-                    needCloseOrder = false;
-                    break;
-                }
-            }
-            if (needCloseOrder) {
-                args_cdb.clear();
-                args_cdb.put("oid", oid);
-                args_cdb.put("close", sdf.format(new Date()));
-                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args_cdb);
-                if (!CommonService.isResponseSuccess(rsp)) {
-                	logger.error(String.format("submit order failed: args = %s, rsp = %s", args, rsp));
-                    response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_ORDER_FAILED, "提交订单失败，请稍后重试");
-                    return;
-                }
-            }
         }
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }

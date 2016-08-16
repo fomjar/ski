@@ -29,6 +29,7 @@ create procedure sp_update_commodity (
 begin
     declare di_csn      integer default -1;
     declare di_count    integer default -1;
+    declare di_caid     integer default -1;
 
     if oid is null then
         set i_code = -1;
@@ -176,6 +177,12 @@ begin
                            set t_end = _end
                          where i_oid = oid
                            and i_csn = di_csn;
+                        
+                        select i_caid
+                          into di_caid
+                          from tbl_order
+                         where i_oid = oid;
+                        select fn_check_and_close_order(di_caid);
                     end if;
                     if expense is not null then
                         update tbl_commodity
@@ -258,3 +265,33 @@ begin
     end if;
 end //
 delimiter ;
+
+
+-- 指定商品租赁结算
+delimiter //
+drop function if exists fn_check_and_close_order //
+create function fn_check_and_close_order (
+    caid    integer
+)
+returns integer
+begin
+    declare di_count    integer default 0;
+
+    select count(1)
+      into di_count
+      from tbl_order o, tbl_commodity c
+     where o.i_caid = caid
+       and o.i_oid = c.i_oid
+       and c.t_end is null;
+
+    if di_count = 0 then
+        update tbl_order
+           set t_close = now()
+         where i_caid = caid
+           and t_close is null;
+    end if;
+
+    return 0;
+end //
+delimiter ;
+

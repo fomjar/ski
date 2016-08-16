@@ -663,22 +663,6 @@ public class UIToolkit {
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 CommonService.updateOrder();
                 ssd.appendText(rsp.toString());
-                
-                boolean needCloseOrder = true;
-                for (BeanCommodity c : CommonService.getOrderByOid(oid).commodities.values()) {
-                    if (!c.isClose()) {
-                        needCloseOrder = false;
-                        break;
-                    }
-                }
-                if (needCloseOrder) {
-                    args.clear();
-                    args.put("oid", oid);
-                    args.put("close", sdf.format(new Date()));
-                    rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
-                    CommonService.updateOrder();
-                    ssd.appendText(rsp.toString());
-                }
                 ssd.appendText("提交完成");
             }
             CommonService.updateGameAccount();
