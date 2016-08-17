@@ -5,8 +5,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -61,11 +64,16 @@ public class ChartFrame extends JFrame {
         
         charts_order = new JPanel();
         charts_order.setLayout(new BoxLayout(charts_order, BoxLayout.Y_AXIS));
-        charts_order.add(createChartCommodityTypeDistribution());
-        charts_order.add(createChartCommodityBeginEncreaseLastMonth());
-        charts_order.add(createChartCommodityEndEncreaseLastMonth());
-        charts_order.add(createChartCommodityBeginTotalLastMonth());
-        charts_order.add(createChartCommodityEndTotalLastMonth());
+        charts_order.add(createChartCommodityTypeDistributionByCommodityType());
+        charts_order.add(createChartCommodityTypeDistributionByUserType());
+        charts_order.add(createChartCommodityBeginEncreaseLastMonthByCommodityType());
+        charts_order.add(createChartCommodityEndEncreaseLastMonthByCommodityType());
+        charts_order.add(createChartCommodityBeginEncreaseLastMonthByUserType());
+        charts_order.add(createChartCommodityEndEncreaseLastMonthByUserType());
+        charts_order.add(createChartCommodityBeginTotalLastMonthByCommodityType());
+        charts_order.add(createChartCommodityEndTotalLastMonthByCommodityType());
+        charts_order.add(createChartCommodityBeginTotalLastMonthByUserType());
+        charts_order.add(createChartCommodityEndTotalLastMonthByUserType());
         
         charts_sale = new JPanel();
         charts_sale.setLayout(new BoxLayout(charts_sale, BoxLayout.Y_AXIS));
@@ -329,7 +337,7 @@ public class ChartFrame extends JFrame {
         return createLineChartPanel(ChartFactory.createLineChart("营业额总量曲线", "时间", "数量", dataset));
     }
     
-    private static JPanel createChartCommodityBeginEncreaseLastMonth() {
+    private static JPanel createChartCommodityBeginEncreaseLastMonthByCommodityType() {
         int     total = 28;
         int[]   count = new int[total];
         int[]	count_a = new int[total];
@@ -363,10 +371,46 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count_b[i], "B类订单", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        return createLineChartPanel(ChartFactory.createLineChart("订单开启增量曲线", "时间", "数量", dataset));
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启增量曲线(按订单类型)", "时间", "数量", dataset));
+    }
+    private static JPanel createChartCommodityBeginEncreaseLastMonthByUserType() {
+        int     total = 28;
+        int[]   count = new int[total];
+        int[]	count_tb = new int[total];
+        int[]	count_wc = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    Date    date = parser.parse(c.t_begin);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) return;
+
+                    int day = (int) delta;
+                    count[day]++;
+                    switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                    case CommonService.CHANNEL_TAOBAO: count_tb[day]++; break;
+                    case CommonService.CHANNEL_WECHAT: count_wc[day]++; break;
+                    }
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(count[i], "所有订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(count_tb[i], "淘宝订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(count_wc[i], "微信订单", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启增量曲线(按用户类型)", "时间", "数量", dataset));
     }
     
-    private static JPanel createChartCommodityBeginTotalLastMonth() {
+    private static JPanel createChartCommodityBeginTotalLastMonthByCommodityType() {
         int     total = 28;
         int[]   base  = new int[] {0};
         int[]   base_a  = new int[] {0};
@@ -412,10 +456,58 @@ public class ChartFrame extends JFrame {
             dataset.addValue(base_b[0] + count_b[i], "B类订单", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        return createLineChartPanel(ChartFactory.createLineChart("订单开启总量曲线", "时间", "数量", dataset));
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启总量曲线(按订单类型)", "时间", "数量", dataset));
+    }
+    private static JPanel createChartCommodityBeginTotalLastMonthByUserType() {
+        int     total = 28;
+        int[]   base  = new int[] {0};
+        int[]   base_tb  = new int[] {0};
+        int[]   base_wc  = new int[] {0};
+        int[]   count = new int[total];
+        int[]   count_tb = new int[total];
+        int[]   count_wc = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    Date    date = parser.parse(c.t_begin);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) {   // 过去的作为基数
+                        base[0]++;
+                        switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                        case CommonService.CHANNEL_TAOBAO: base_tb[0]++; break;
+                        case CommonService.CHANNEL_WECHAT: base_wc[0]++; break;
+                        }
+                        return;
+                    }
+
+                    int day = (int) delta;
+                    for (int i = 0; i <= day; i++) {
+                    	count[i]++;
+                        switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                        case CommonService.CHANNEL_TAOBAO: count_tb[i]++; break;
+                        case CommonService.CHANNEL_WECHAT: count_wc[i]++; break;
+                        }
+                    }
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(base[0] + count[i], "所有订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base_tb[0] + count_tb[i], "淘宝订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base_wc[0] + count_wc[i], "微信订单", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        return createLineChartPanel(ChartFactory.createLineChart("订单开启总量曲线(按用户类型)", "时间", "数量", dataset));
     }
     
-    private static JPanel createChartCommodityEndEncreaseLastMonth() {
+    private static JPanel createChartCommodityEndEncreaseLastMonthByCommodityType() {
         int     total = 28;
         int[]   count = new int[total];
         int[]   count_a = new int[total];
@@ -451,10 +543,50 @@ public class ChartFrame extends JFrame {
             dataset.addValue(count_b[i], "B类订单", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        return createLineChartPanel(ChartFactory.createLineChart("订单关闭增量曲线", "时间", "数量", dataset));
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭增量曲线(按订单类型)", "时间", "数量", dataset));
     }
     
-    private static JPanel createChartCommodityEndTotalLastMonth() {
+    private static JPanel createChartCommodityEndEncreaseLastMonthByUserType() {
+        int     total = 28;
+        int[]   count = new int[total];
+        int[]   count_tb = new int[total];
+        int[]   count_wc = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (!c.isClose()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) return;
+
+                    int day = (int) delta;
+                    count[day]++;
+                    switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                    case CommonService.CHANNEL_TAOBAO: count_tb[day]++; break;
+                    case CommonService.CHANNEL_WECHAT: count_wc[day]++; break;
+                    }
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(count[i], "所有订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(count_tb[i], "淘宝订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(count_wc[i], "微信订单", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭增量曲线(按用户类型)", "时间", "数量", dataset));
+    }
+    
+    
+    private static JPanel createChartCommodityEndTotalLastMonthByCommodityType() {
         int     total = 28;
         int[]   base  = new int[] {0};
         int[]   base_a  = new int[] {0};
@@ -502,22 +634,89 @@ public class ChartFrame extends JFrame {
             dataset.addValue(base_b[0] + count_b[i], "B类订单", formater.format(new Date(today.getTime() - i * oneday)));
         }
         
-        return createLineChartPanel(ChartFactory.createLineChart("订单关闭总量曲线", "时间", "数量", dataset));
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭总量曲线(按订单类型)", "时间", "数量", dataset));
     }
     
-    private static JPanel createChartCommodityTypeDistribution() {
+    private static JPanel createChartCommodityEndTotalLastMonthByUserType() {
+        int     total = 28;
+        int[]   base  = new int[] {0};
+        int[]   base_tb  = new int[] {0};
+        int[]   base_wc  = new int[] {0};
+        int[]   count = new int[total];
+        int[]   count_tb = new int[total];
+        int[]   count_wc = new int[total];
+        
+        SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date    today = new Date();
+        long    oneday = 1000L * 60 * 60 * 24;
+        CommonService.getOrderAll().values().forEach(o->{
+            o.commodities.values().forEach(c->{
+                try {
+                    if (!c.isClose()) return;
+                    
+                    Date    date = parser.parse(c.t_end);
+                    double  delta = Math.ceil((double) today.getTime() / oneday) - Math.ceil((double) date.getTime() / oneday);
+                    if (delta >= total) {   // 过去的作为基数
+                        base[0]++;
+                        switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                        case CommonService.CHANNEL_TAOBAO: base_tb[0]++; break;
+                        case CommonService.CHANNEL_WECHAT: base_wc[0]++; break;
+                        }
+                        return;
+                    }
+
+                    int day = (int) delta;
+                    for (int i = 0; i <= day; i++) {
+                    	count[i]++;
+                    	switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                    	case CommonService.CHANNEL_TAOBAO: count_tb[i]++; break;
+                    	case CommonService.CHANNEL_WECHAT: count_wc[i]++; break;
+                    	}
+                    }
+                } catch (Exception e) {e.printStackTrace();}
+            });
+        });
+        
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        SimpleDateFormat formater = new SimpleDateFormat("MM月dd日");
+        for (int i = total - 1; i >= 0; i--) {
+            dataset.addValue(base[0] + count[i], "所有订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base_tb[0] + count_tb[i], "淘宝订单", formater.format(new Date(today.getTime() - i * oneday)));
+            dataset.addValue(base_wc[0] + count_wc[i], "微信订单", formater.format(new Date(today.getTime() - i * oneday)));
+        }
+        
+        return createLineChartPanel(ChartFactory.createLineChart("订单关闭总量曲线(按用户类型)", "时间", "数量", dataset));
+    }
+    
+    
+    private static JPanel createChartCommodityTypeDistributionByCommodityType() {
         int count_a = CommonService.getOrderAll().values().stream().map(o->o.commodities.values().stream().filter(c->"A".equals(c.c_arg1)).count()).reduce(0L, (c1, c2)->c1 + c2).intValue();
         int count_b = CommonService.getOrderAll().values().stream().map(o->o.commodities.values().stream().filter(c->"B".equals(c.c_arg1)).count()).reduce(0L, (c1, c2)->c1 + c2).intValue();
 
         DefaultPieDataset dataset = new DefaultPieDataset();
         dataset.setValue("A租用户", count_a);
         dataset.setValue("B租用户", count_b);
-        JFreeChart chart = ChartFactory.createPieChart3D("订单类型分布", dataset);
+        JFreeChart chart = ChartFactory.createPieChart3D("订单类型分布(按订单类型)", dataset);
         ((PiePlot) chart.getPlot()).setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({1},{2})")); 
         JPanel panel = new ChartPanel(chart);
         panel.setBorder(BorderFactory.createLineBorder(Color.black));
         return panel;
     }
+    
+    private static JPanel createChartCommodityTypeDistributionByUserType() {
+        int count_tb = CommonService.getOrderAll().values().stream().filter(o->CommonService.getChannelAccountByCaid(o.i_caid).i_channel == CommonService.CHANNEL_TAOBAO).map(o->o.commodities.size()).reduce(0, (c1, c2)->c1 + c2).intValue();
+        int count_wc = CommonService.getOrderAll().values().stream().filter(o->CommonService.getChannelAccountByCaid(o.i_caid).i_channel == CommonService.CHANNEL_WECHAT).map(o->o.commodities.size()).reduce(0, (c1, c2)->c1 + c2).intValue();
+
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("淘宝用户", count_tb);
+        dataset.setValue("微信用户", count_wc);
+        JFreeChart chart = ChartFactory.createPieChart3D("订单类型分布(按用户类型)", dataset);
+        ((PiePlot) chart.getPlot()).setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({1},{2})")); 
+        JPanel panel = new ChartPanel(chart);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        return panel;
+    }
+
     
     private static JPanel createChartAccessDistribution() {
     	int[] inst_apply_platform_account_money = new int[] {0};
@@ -589,15 +788,17 @@ public class ChartFrame extends JFrame {
     		else count.put(gid, count.get(gid) + 1);
     	});
     	
-        DefaultPieDataset dataset = new DefaultPieDataset();
-        count.forEach((gid, c)->{
-        	dataset.setValue(CommonService.getGameByGid(gid).c_name_zh_cn, c);
-        });
-        JFreeChart chart = ChartFactory.createPieChart3D("游戏访问分布", dataset);
-        ((PiePlot) chart.getPlot()).setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({1},{2})")); 
-        JPanel panel = new ChartPanel(chart);
-        panel.setBorder(BorderFactory.createLineBorder(Color.black));
-        return panel;
+    	List<Integer> keys = new ArrayList<Integer>(count.keySet());
+    	Collections.sort(keys, (k1, k2)->count.get(k2) - count.get(k1));
+    	
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+    	for (int i = 19; i >= 0; i--) {
+    		int gid = keys.get(i);
+    		int c   = count.get(gid);
+            dataset.addValue(c, "游戏访问量", CommonService.getGameByGid(gid).c_name_zh_cn);
+    	}
+    	
+        return createBarChartPanel(ChartFactory.createBarChart3D("游戏访问TOP20", "游戏", "访问量", dataset));
     }
     
     private static JPanel createLineChartPanel(JFreeChart chart) {
@@ -610,6 +811,21 @@ public class ChartFrame extends JFrame {
         renderer.setBaseItemLabelsVisible(true);
         renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         ((LineAndShapeRenderer) renderer).setBaseShapesVisible(true);
+        
+        JPanel panel = new ChartPanel(chart);
+        panel.setBorder(BorderFactory.createLineBorder(Color.black));
+        return panel;
+    }
+    
+    private static JPanel createBarChartPanel(JFreeChart chart) {
+        chart.getCategoryPlot().getDomainAxis().setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.getRangeAxis().setUpperMargin(0.2);
+        
+        CategoryItemRenderer renderer = plot.getRenderer();
+        renderer.setBaseItemLabelsVisible(true);
+        renderer.setBaseItemLabelGenerator(new StandardCategoryItemLabelGenerator());
         
         JPanel panel = new ChartPanel(chart);
         panel.setBorder(BorderFactory.createLineBorder(Color.black));
