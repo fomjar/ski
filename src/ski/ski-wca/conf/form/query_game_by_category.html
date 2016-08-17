@@ -3,63 +3,81 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>⚙淘宝＋</title>
+        <title></title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <style type="text/css">
+        td {
+            white-space: nowrap;
+        }
+        .rent_enable {
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #00C802;
+            -webkit-border-radius   : 6px;
+            -moz-border-radius      : 6px;
+        }
+        .rent_disable {
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #B2B2B2;
+            -webkit-border-radius   : 6px;
+            -moz-border-radius      : 6px;
+        }
+        </style>
         <script type='text/javascript'>
-            var url_setup   = '/ski-wcweb?inst=200a&step=setup';
-            var url_update  = '/ski-wcweb?inst=240a';
+            var category = ski.cookie('category');
+            var url_setup   = '/ski-wcweb?inst=2001&step=setup';
+            var url_detail  = '/ski-wcweb?inst=2001';
+
+            document.title = category;
 
             $(document).ready(function() {
                 showToast('正在加载');
-                $.get(url_setup,
+                $.post(url_setup,$.toJSON({
+                        'category'   : category
+                    }),
                     function(args) {
                         hideToast();
                         if (0 != args.code) {
                             showDialog("加载失败", args.desc);
                             return;
                         }
+                        var title = document.createElement('div');
+                        title.className = 'weui_panel_hd';
+                        title.innerText = category;
+                            
+                        var cells = document.createElement('div');
+                        cells.className = 'weui_panel_bd';
                         for (var i in args.desc) {
-                            var account = args.desc[i];
-
-                            var title = document.createElement('div');
-                            title.className = 'weui_cells_title';
-                            title.innerText = getChannelDesc(account.channel);
-
-                            var cells = document.createElement('div');
-                            cells.className = 'weui_cells';
-
-                            switch (account.channel) {
-                            case 0: // 淘宝
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
-                                break;
-                            case 1: // 微信
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>手机</p></div><div class='weui_cell_ft'>" + account.phone + "</div></div>";
-                                break;
-                            case 2: // 支付宝
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>真实姓名</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
-                                break;
-                            }
-
-                            $('#result').append(title);
-                            $('#result').append(cells);
+                            var game = args.desc[i];
+                            var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
+                                         + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
+                                         + "<div class='weui_media_bd'>"
+                                            + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
+                                            + "<p class='weui_media_desc'>" + game.introduction + "</p>"
+                                         + "</div>"
+                                         + "<div style='position: absolute; width: 70px; top: 20px; right: 20px'><table width='100%'><tr>"
+                                             + "<td><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
+                                             + "<td><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
+                                         + "</tr></table></div>"
+                                     + "</a>";
+                            cells.innerHTML = cells.innerHTML + cell;
                         }
+                        $('#result').html(title);
+                        $('#result').append(cells);
                     });
             });
 
-            function getChannelDesc (channel) {
-                switch (channel) {
-                case 0:     return '淘宝';
-                case 1:     return '微信';
-                case 2:     return '支付宝';
-                default:    return '未知';
-                }
+            function browseGame(gid) {
+                window.location = url_detail + '&gid=' + gid.toString(16);
             }
 
             function showToast(text) {
@@ -78,14 +96,9 @@
         </script>
     </head>
     <body>
-        <div class='cell'>
-            <div class='hd'>
-                <h1 class='page_title'>我的账号</h1>
-            </div>
+        <div class='panel'>
             <div class='bd'>
-                <div id='result'></div>
-                <div class="weui_btn_area">
-                    <a class="weui_btn weui_btn_primary" href="javascript: window.location=url_update;">更新手机</a>
+                <div class="weui_panel weui_panel_access" style='margin-top: 0px' id='result'>
                 </div>
             </div>
         </div>

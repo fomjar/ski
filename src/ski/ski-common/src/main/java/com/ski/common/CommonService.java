@@ -346,9 +346,9 @@ public class CommonService {
     				.stream()
     				.filter(game->{
     					for (String c : category) {
-    						if (!game.c_category.toLowerCase().contains(c.toLowerCase())) return false;
+    						if (game.c_category.toLowerCase().contains(c.toLowerCase())) return true;
     					}
-    					return true;
+    					return false;
     				})
     				.collect(Collectors.toList());
     	}
@@ -359,6 +359,15 @@ public class CommonService {
     		return cache_game.values()
     				.stream()
     				.filter(game->game.c_vendor.toLowerCase().contains(vendor.toLowerCase()))
+    				.collect(Collectors.toList());
+    	}
+    }
+    
+    public static List<BeanGame> getGameByLanguage(String language) {
+    	synchronized (cache_game) {
+    		return cache_game.values()
+    				.stream()
+    				.filter(game->game.c_language.toLowerCase().contains(language.toLowerCase()))
     				.collect(Collectors.toList());
     	}
     }

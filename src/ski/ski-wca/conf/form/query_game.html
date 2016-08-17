@@ -3,7 +3,7 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>搜索游戏</title>
+        <title>🔍全搜索</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
@@ -41,34 +41,15 @@
             });
 
             function preset() {
-                $.post(url_setup, $.toJSON({
-                            'tag'  : '预置'
-                        }), function(args) {
-
-                            var title = document.createElement('div');
-                            title.className = 'weui_panel_hd';
-                            title.innerText = '热门游戏';
-
-                            var cells = document.createElement('div');
-                            cells.className = 'weui_panel_bd';
-                            for (var i in args.desc) {
-                                var game = args.desc[i];
-                                var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:browseGame(" + game.gid + ");\">"
-                                             + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
-                                             + "<div class='weui_media_bd'>"
-                                                + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
-                                                + "<p class='weui_media_desc'>" + game.introduction + "</p>"
-                                             + "</div>"
-                                             + "<div style='position: absolute; width: 70px; top: 20px; right: 20px'><table width='100%'><tr>"
-                                                 + "<td><div class='" + (game.rent_a ? "rent_enable" : "rent_disable") + "'>认证</div></td>"
-                                                 + "<td><div class='" + (game.rent_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
-                                             + "</tr></table></div>"
-                                         + "</a>";
-                                cells.innerHTML = cells.innerHTML + cell;
-                            }
-                            $('#result').html(title);
-                            $('#result').append(cells);
-                        });
+                $('#result').html(
+                    "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&tag=十佳精彩游戏'>  <img width='100%' src='/ski-wcweb/res/十佳精彩游戏.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&tag=微信ONLY'>      <img width='100%' src='/ski-wcweb/res/微信ONLY.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&tag=大牌游戏'>      <img width='100%' src='/ski-wcweb/res/大牌游戏.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&tag=游戏艺术'>      <img width='100%' src='/ski-wcweb/res/游戏艺术.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&category=动作'>     <img width='100%' src='/ski-wcweb/res/动作游戏.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&category=赛车'>     <img width='100%' src='/ski-wcweb/res/速度与激情.jpg'/></a></div>"
+                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='/ski-wcweb?inst=2001&category=角色扮演'> <img width='100%' src='/ski-wcweb/res/精彩的角色扮演游戏.jpg'/></a></div>"
+                );
             }
 
             function search(word) {

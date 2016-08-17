@@ -569,6 +569,12 @@ public class WcWeb {
             if (request.args.has("gid")) {
             	fetchFile(response, "/query_game_by_gid.html");
             	response.setcookie("gid", request.args.getString("gid"));
+            } else if (request.args.has("category")) {
+            	fetchFile(response, "/query_game_by_category.html");
+            	response.setcookie("category", request.args.getString("category"));
+            } else if (request.args.has("language")) {
+            	fetchFile(response, "/query_game_by_language.html");
+            	response.setcookie("language", request.args.getString("language"));
             } else if (request.args.has("tag")) {
             	fetchFile(response, "/query_game_by_tag.html");
             	response.setcookie("tag", request.args.getString("tag"));
@@ -576,7 +582,41 @@ public class WcWeb {
             break;
         }
         case STEP_SETUP: {
-        	if (request.args.has("word")) {
+        	if (request.args.has("gid")) {
+	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args);
+            } else if (request.args.has("category")) {
+            	String[] categorys = request.args.getString("category").split("_");
+            	JSONArray desc = new JSONArray();
+            	CommonService.getGameByCategory(categorys).forEach(game->desc.add(gameToJson(game)));
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args);
+            } else if (request.args.has("language")) {
+            	String language = request.args.getString("language");
+            	JSONArray desc = new JSONArray();
+            	CommonService.getGameByLanguage(language).forEach(game->desc.add(gameToJson(game)));
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args);
+            } else if (request.args.has("tag")) {
+            	String tag = request.args.getString("tag");
+            	JSONArray desc = new JSONArray();
+            	CommonService.getGameByTag(tag).forEach(game->desc.add(gameToJson(game)));
+	            JSONObject args = new JSONObject();
+	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+	            args.put("desc", desc);
+	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+	            response.content(args);
+            } else if (request.args.has("word")) {
                 String word = request.args.getString("word");
                 JSONArray desc = new JSONArray();
                 CommonService.getGameAll().values()
@@ -588,22 +628,6 @@ public class WcWeb {
                 args.put("desc", desc);
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);
-            } else if (request.args.has("tag")) {
-            	String tag = request.args.getString("tag");
-            	JSONArray desc = new JSONArray();
-            	CommonService.getGameByTag(tag).forEach(game->desc.add(gameToJson(game)));
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
-            } else if (request.args.has("gid")) {
-	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
             } else {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
@@ -766,6 +790,16 @@ public class WcWeb {
             float[] prestatement = CommonService.prestatementByPaid(puser.i_paid);
             desc.put("cash_rt", prestatement[0]);
             desc.put("coupon_rt", prestatement[1]);
+            float deposite = CommonService.getOrderByPaid(puser.i_paid)
+            		.stream()
+            		.map(o->o.commodities.values()
+            					.stream()
+            					.filter(c->!c.isClose())
+            					.count()
+            		)
+            		.reduce(0L, (o1, o2)->o1 + o2)
+            		* Float.parseFloat(FjServerToolkit.getServerConfig("wca.deposite"));
+            desc.put("deposite", deposite);
             
             JSONObject args = new JSONObject();
             args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
