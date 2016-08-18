@@ -12,6 +12,9 @@ public class Main {
         case "makeicon":
             e = new MakeIconExecutor();
             break;
+        case "makeintr":
+        	e = new MakeIntrExecutor();
+        	break;
         }
         e.execute(arg);
     }
