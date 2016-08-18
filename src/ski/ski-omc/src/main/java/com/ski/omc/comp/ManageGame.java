@@ -234,7 +234,7 @@ public class ManageGame extends JDialog {
     	c_category.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
-				List<String> categories = UIToolkit.chooseMultipleValue(new String[] {"角色扮演", "策略", "动作", "冒险", "恐怖", "射击", "模拟", "赛车", "运动", "休闲", "音乐", "其他"}, c_category.getText().split(" "));
+				List<String> categories = UIToolkit.chooseMultipleValue(new String[] {"角色扮演", "策略", "动作", "冒险", "恐怖", "射击", "模拟", "赛车", "运动", "休闲", "音乐", "格斗", "其他"}, c_category.getText().split(" "));
 				if (null != categories) c_category.setText(categories.stream().collect(Collectors.joining(" ")));
 			}
 		});

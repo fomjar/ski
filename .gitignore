@@ -216,3 +216,5 @@ pip-log.txt
 .mr.developer.cfg
 
 *.err
+
+src/ski/ski-wca/conf/form/.swo
