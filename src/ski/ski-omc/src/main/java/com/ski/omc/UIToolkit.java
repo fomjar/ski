@@ -254,6 +254,10 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
+            if (0 == c_phone.getText().length()) {
+                JOptionPane.showMessageDialog(null, "电话一定要填", "错误", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
             
             JSONObject args = new JSONObject();
             args.put("channel", i_channel.getSelectedIndex());

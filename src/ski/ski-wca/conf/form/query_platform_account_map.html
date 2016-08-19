@@ -23,6 +23,8 @@
                             showDialog("加载失败", args.desc);
                             return;
                         }
+
+                        var hasTaobao = false;
                         for (var i in args.desc) {
                             var account = args.desc[i];
 
@@ -35,20 +37,23 @@
 
                             switch (account.channel) {
                             case 0: // 淘宝
+                                hasTaobao = true;
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
                                 break;
                             case 1: // 微信
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
                                 cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>手机</p></div><div class='weui_cell_ft'>" + account.phone + "</div></div>";
                                 break;
-                            case 2: // 支付宝
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>账号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
-                                cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>真实姓名</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
-                                break;
                             }
 
                             $('#result').append(title);
                             $('#result').append(cells);
+                        }
+                        if (!hasTaobao) {
+                            $('#result').append("<div class='weui_cells'><p style='padding: 15px; color: gray; font-size: 80%'>"
+                                    + "TIPS:<br/>"
+                                    + "如果您曾在\"VC电玩\"淘宝店铺消费，请联系淘宝客服录入手机号。<br/>"
+                                    + "录入手机之后可以关联到您的消费记录、账户余额等信息哦～<p></div>");
                         }
                     });
             });
