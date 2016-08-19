@@ -198,3 +198,7 @@ create table tbl_access_record (
     t_time      datetime        -- 访问事件
 );
 
+-- drop table if exists tbl_reserve_config;
+-- create table tbl_reserve_config (
+--     i_
+-- );

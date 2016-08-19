@@ -25,7 +25,6 @@
             width           : 100%;
             margin-left     : -25px;
             padding-right   : 10px; /* 防止阴影被裁 */
-            font-size       : 18px;
             color           : #ffffff;
             text-align      : right;
             text-shadow     : black 1px 1px 2px;
@@ -58,10 +57,11 @@
                         $('#blur_cover').css('background-size', 'cover');
                         $('#blur_cover').addClass('blur');
 
-                        $('#url_cover').append("<img width='110px' height='110px' src='" + args.desc.url_cover + "'></img>")
+                        $('#url_cover').append(ski.ui.createCover(110, 110, args.desc.url_cover))
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
                         $('#category').text(args.desc.category);
+                        $('#language').text(args.desc.language);
                         $('#sale').text(args.desc.sale);
                         $('#introduction').html('<p>' + args.desc.introduction.replace(/\|/g, '</p><p>') + '</p>');
 
@@ -173,13 +173,14 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <div style='position: fixed; top: 0px; width: 100%; height: 300px'>
+                <div style='position: fixed; top: 0px; width: 100%; height: 300px; font-size: 16px'>
                     <div id='blur_cover'    style='position: absolute; margin-top: -20%; margin-left: -20%; width: 140%; height: 100%'></div>
                     <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
                     <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
-                    <div id='name_en'       class='field' style='margin-top: 45px; font-weight: 200'></div>
-                    <div id='category'      class='field' style='margin-top: 85px; font-weight: 200; font-size: 14px'></div>
-                    <div id='sale'          class='field' style='margin-top: 105px; font-weight: 200; font-size: 14px'></div>
+                    <div id='name_en'       class='field' style='margin-top: 40px; font-weight: 200'></div>
+                    <div id='category'      class='field' style='margin-top: 78px; font-weight: 200; font-size: 80%'></div>
+                    <div id='language'      class='field' style='margin-top: 96px; font-weight: 200; font-size: 80%'></div>
+                    <div id='sale'          class='field' style='margin-top: 114px; font-weight: 200; font-size: 80%'></div>
                 </div>
                 <div class="weui_tab" style='background: white'>
                     <div class="weui_navbar">
