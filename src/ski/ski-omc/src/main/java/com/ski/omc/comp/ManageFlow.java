@@ -22,6 +22,7 @@ public class ManageFlow extends JDialog {
     public ManageFlow(int paid) {
         super(MainFrame.getInstance());
         
+        CommonService.updatePlatformAccountMoney();
         List<BeanPlatformAccountMoney> money = CommonService.getPlatformAccountMoneyByPaid(paid);
         JTable table = new JTable();
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();

@@ -1142,7 +1142,6 @@ public class UIToolkit {
             args.put("money",   Float.parseFloat(money.getText()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args);
             CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMoney();
             UIToolkit.showServerResponse(rsp);
             break;
         }

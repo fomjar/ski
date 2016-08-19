@@ -141,7 +141,7 @@ public class MainFrame extends JFrame {
             toolbar.setEnabled(false);
 
             try {
-                int max = 13;
+                int max = 11;
                 int cur = 0;
                 String format = "(%d/%d)%s";
                 progress.setMaximum(max);
@@ -162,8 +162,6 @@ public class MainFrame extends JFrame {
                 CommonService.updatePlatformAccount();
                 progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载平台用户与渠道用户映射关系..."));
                 CommonService.updatePlatformAccountMap();
-                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载平台用户金额流水..."));
-                CommonService.updatePlatformAccountMoney();
                 
                 progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载订单..."));
                 CommonService.updateOrder();
@@ -171,8 +169,6 @@ public class MainFrame extends JFrame {
                 CommonService.updateTag();
                 progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载工单..."));
                 CommonService.updateTicket();
-                progress.setValue(++cur);   progress.setString(String.format(format, cur, max, "正在加载访问记录..."));
-                CommonService.updateAccessRecord();
                 
                 progress.setString("加载完成");
                 
