@@ -22,6 +22,8 @@ public class Main {
             }
         }
         
+        if (!UIToolkit.login()) return;
+        
         initLog();
         UIToolkit.initUI();
         MainFrame.getInstance().setVisible(true);

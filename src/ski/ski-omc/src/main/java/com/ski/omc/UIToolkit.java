@@ -37,6 +37,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
@@ -1226,5 +1227,14 @@ public class UIToolkit {
     
     public static void scaleFont(JComponent c, float scale) {
     	c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scale));
+    }
+    
+    public static boolean login() {
+    	JPasswordField field = new JPasswordField();
+    	String password = "ski-1234";
+    	while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, field, "请输入管理密码", JOptionPane.OK_CANCEL_OPTION)) {
+    		if (password.equals(new String(field.getPassword()))) return true;
+    	}
+    	return false;
     }
 }
