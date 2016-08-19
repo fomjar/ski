@@ -78,7 +78,10 @@ public class WcWeb {
             	break;
             }
             if (hreq.cookie().containsKey("user")) user = Integer.parseInt(hreq.cookie().get("user"), 16);
-            else if (args.containsKey("user")) user = Integer.parseInt(args.getString("user"), 16);
+            else if (args.containsKey("user")) {
+            	user = Integer.parseInt(args.getString("user"), 16);
+            	response.setcookie("user", Integer.toHexString(user));
+            }
             
             recordaccess(user, conn, server, hreq.url());
             
