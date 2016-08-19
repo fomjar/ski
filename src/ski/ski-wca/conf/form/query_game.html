@@ -121,8 +121,8 @@
     <body>
         <div class='panel'>
             <div class='bd'>
-                <div class="weui_search_bar" id="search_bar">
-                    <div class="weui_search_outer">
+                <div class="weui_search_bar" style='position: fixed; z-index: 500; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
+                    <div class="weui_search_outer" style='background: lightgray'>
                         <div class="weui_search_inner">
                             <i class="weui_icon_search"></i>
                             <input class="weui_search_input" id="search_input" required="" type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" onfocus="$('#search_bar').addClass('weui_search_focusing');" onblur="if (0 == $('#search_input').val().length) $('#search_bar').removeClass('weui_search_focusing');">
@@ -135,7 +135,7 @@
                     </div>
                     <a class="weui_search_cancel" id="search_cancel" href="javascript:$('#search_input').val('');$('#search_input').blur();setup();">取消</a>
                 </div>
-                <div class="weui_panel weui_panel_access" style='margin-top: 0px' id='result'>
+                <div class="weui_panel weui_panel_access" style='position: relative; top: 34px' id='result'>
                 </div>
             </div>
         </div>
