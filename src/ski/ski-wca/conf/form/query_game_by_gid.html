@@ -79,19 +79,20 @@
                             }
                         }
 
-                        if (args.desc.rent_a) {
+                        if (args.desc.rent_a && 0 != args.desc.price_a) {
                             $('#rent').html("<div class='weui_cell'>"
                                     + "<div class='weui_cell_bd weui_cell_primary'><p>认证</p></div>"
                                     + "<div class='weui_cell_ft'>" + args.desc.price_a + " 元/天</div>"
                                     + "</div>");
                         }
-                        if (args.desc.rent_b) {
+                        if (args.desc.rent_b && 0 != args.desc.price_b) {
                             $('#rent').append("<div class='weui_cell'>"
                                     + "<div class='weui_cell_bd weui_cell_primary'><p>不认证</p></div>"
                                     + "<div class='weui_cell_ft'>" + args.desc.price_b + " 元/天</div>"
                                     + "</div>");
                         }
-                        if (!args.desc.rent_a && !args.desc.rent_b) {
+                        if ((!args.desc.rent_a || 0 == args.desc.price_a)
+                                && (!args.desc.rent_b || 0 == args.desc.price_b)) {
                             $('#rent').removeClass('weui_cells');
                             $('#rent').html("<div style='height: 200px; line-height: 200px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
                             $('#rent_begin').hide();
