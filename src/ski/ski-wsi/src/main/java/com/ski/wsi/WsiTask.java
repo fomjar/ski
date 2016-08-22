@@ -27,12 +27,19 @@ public class WsiTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WsiTask.class);
     
-    private Map<String, CacheConn> cache;
+    private Map<String, CacheConn> 	cache;
+    private CacheMonitor			monitor;
     
-    public WsiTask() {
+	@Override
+	public void initialize(FjServer server) {
         cache = new HashMap<String, CacheConn>();
-        new Thread(new CacheMonitor(), "cache").start();
-    }
+        new Thread(monitor = new CacheMonitor(), "cache").start();
+	}
+
+	@Override
+	public void destroy(FjServer server) {
+		monitor.close();
+	}
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

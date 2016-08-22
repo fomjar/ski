@@ -41,6 +41,12 @@ public class CdbTask implements FjServerTask {
         public int          code    = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         public String       desc    = null;
     }
+
+	@Override
+	public void initialize(FjServer server) {}
+
+	@Override
+	public void destroy(FjServer server) {}
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

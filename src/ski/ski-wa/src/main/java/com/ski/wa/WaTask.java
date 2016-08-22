@@ -19,9 +19,13 @@ public class WaTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(WaTask.class);
     private WebDriver driver;
     
-    public WaTask() {
+	@Override
+	public void initialize(FjServer server) {
         System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
-    }
+	}
+
+	@Override
+	public void destroy(FjServer server) {}
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

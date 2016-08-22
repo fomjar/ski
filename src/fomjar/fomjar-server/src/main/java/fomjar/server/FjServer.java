@@ -2,8 +2,8 @@ package fomjar.server;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -14,21 +14,32 @@ public class FjServer extends FjLoopTask {
     private static final Logger logger = Logger.getLogger(FjServer.class);
     private String name;
     private FjMessageQueue mq;
-    private List<FjServerTask> tasks;
+    private Map<String, FjServerTask> tasks;
     
     public FjServer(String name, FjMessageQueue mq) {
         this.name = name;
         this.mq = mq;
-        tasks = new LinkedList<FjServerTask>();
+        tasks = new LinkedHashMap<String, FjServerTask>();
     }
     
     public String name() {return name;}
     
     public FjMessageQueue mq() {return mq;}
     
-    public void addServerTask(FjServerTask task) {
+    public FjServerTask addServerTask(FjServerTask task) {
         if (null == task) throw new NullPointerException();
-        synchronized (tasks) {tasks.add(task);}
+        synchronized (tasks) {
+        	FjServerTask old = tasks.put(task.getClass().getName(), task);
+        	
+        	if (null != old) {
+        		try {old.destroy(this);}
+        		catch (Exception e) {logger.error("destroy task failed", e);}
+        	}
+        	try {task.initialize(this);}
+        	catch (Exception e) {logger.error("initialize task failed", e);}
+        	
+        	return old;
+    	}
     }
 
     @Override
@@ -37,7 +48,7 @@ public class FjServer extends FjLoopTask {
         while (null == (wrapper = mq.poll()));
         
         synchronized (tasks) {
-            for (FjServerTask task : tasks) {
+            for (FjServerTask task : tasks.values()) {
                 try {task.onMessage(this, wrapper);}
                 catch (Exception e) {logger.error("error occurs on message: " + wrapper.message(), e);}
             }
@@ -50,7 +61,9 @@ public class FjServer extends FjLoopTask {
     }
     
     public static interface FjServerTask {
-        void onMessage(FjServer server, FjMessageWrapper wrapper);
+    	void initialize	(FjServer server);
+    	void destroy	(FjServer server);
+        void onMessage	(FjServer server, FjMessageWrapper wrapper);
     }
 
 }

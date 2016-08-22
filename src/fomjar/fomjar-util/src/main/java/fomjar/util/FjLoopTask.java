@@ -14,6 +14,7 @@ public abstract class FjLoopTask implements FjTask {
     private long delay;
     private long interval;
     private boolean isRun;
+    private Thread thread;
     
     /**
      * 初始化一个循环任务，其启动延时和间隔定时均为0
@@ -67,11 +68,18 @@ public abstract class FjLoopTask implements FjTask {
     /**
      * 关闭并推出此循环任务
      */
-    public void close() {isRun = false;}
+    public void close() {
+    	isRun = false;
+    	if (null != thread) {
+	    	thread.interrupt();
+	    	thread = null;
+    	}
+	}
 
     @Override
     public void run() {
         isRun = true;
+        thread = Thread.currentThread();
         
         try {Thread.sleep(getDelay());}
         catch (InterruptedException e) {e.printStackTrace();}

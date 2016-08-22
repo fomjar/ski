@@ -47,28 +47,15 @@ public class FjServerLauncher {
             return;
         }
         
-        String       cp  = collectClassPath();
-        String       jvm = collectJvmOptions(args);
-        List<String> sns = collectServerName(args);
-        String       cmd = "java %s -cp %s com.ski.%s.Main %s";
-        for (String sn : sns) {
-            String mod  = sn.split("-")[0];
-            String cmd0 = String.format(cmd,
-                    jvm,
-                    cp,
-                    mod,
-                    sn);
-            try {
-                Process process = Runtime.getRuntime().exec(cmd0);
-                Thread.sleep(1000L * 1);
-                
-                byte[] buf = new byte[1024 * 4];
-                int    len = process.getInputStream().read(buf);
-                System.out.print(new String(buf, 0, len));
-            } catch (Exception e) {
-                System.err.println("start server failed: " + sn);
-                e.printStackTrace();
-            }
-        }
+        String       	cp  	= collectClassPath();
+        String       	jvm 	= collectJvmOptions(args);
+        List<String> 	sns 	= collectServerName(args);
+        String       	cmd 	= "java %s -cp %s fomjar.server.FjServerMain";
+        StringBuilder 	cmd0 	= new StringBuilder(String.format(cmd, jvm, cp));
+        
+        for (String sn : sns) cmd0.append(" " + sn);
+        
+        try {Runtime.getRuntime().exec(cmd0.toString());}
+        catch (Exception e) {System.err.println("start server failed: " + cmd0);}
     }
 }

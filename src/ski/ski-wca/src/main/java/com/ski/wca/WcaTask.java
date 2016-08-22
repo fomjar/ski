@@ -26,12 +26,21 @@ public class WcaTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(WcaTask.class);
     private ExecutorService pool;
     
-    public WcaTask() {
-        new DataMonitor().start();
+	@Override
+	public void initialize(FjServer server) {
+        DataMonitor.getInstance().start();
         TokenMonitor.getInstance().start();
-        new MenuMonitor().start();
+        MenuMonitor.getInstance().start();
         pool = Executors.newCachedThreadPool();
-    }
+	}
+
+	@Override
+	public void destroy(FjServer server) {
+        DataMonitor.getInstance().close();
+        TokenMonitor.getInstance().close();
+        MenuMonitor.getInstance().close();
+		pool.shutdownNow();
+	}
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

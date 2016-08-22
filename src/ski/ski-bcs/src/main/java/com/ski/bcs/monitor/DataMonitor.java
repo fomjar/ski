@@ -11,6 +11,14 @@ public class DataMonitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(DataMonitor.class);
     
+    private static DataMonitor instance = null;
+    public synchronized static DataMonitor getInstance() {
+    	if (null == instance) instance = new DataMonitor();
+    	return instance;
+    }
+    
+    private DataMonitor() {}
+    
     public void start() {
         if (isRun()) {
             logger.warn("monitor-data has already started");

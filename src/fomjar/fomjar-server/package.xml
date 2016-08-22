@@ -27,6 +27,12 @@
             <outputDirectory>${project.artifactId}/tools</outputDirectory>
         </fileSet>
     </fileSets>
+	<files>
+		<file>
+			<source>target/${project.artifactId}-${project.version}.jar</source>
+			<outputDirectory>${project.artifactId}/task</outputDirectory>
+		</file>
+	</files>
     <dependencySets>
         <dependencySet>
             <outputDirectory>${project.artifactId}/lib</outputDirectory>

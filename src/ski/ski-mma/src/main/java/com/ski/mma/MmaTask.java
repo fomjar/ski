@@ -17,8 +17,11 @@ public class MmaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(MmaTask.class);
     
-    public MmaTask() {
-    }
+	@Override
+	public void initialize(FjServer server) {}
+
+	@Override
+	public void destroy(FjServer server) {}
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper){

@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import com.ski.bcs.monitor.CheckMonitor;
 import com.ski.bcs.monitor.CacheMonitor;
+import com.ski.bcs.monitor.CheckMonitor;
 import com.ski.bcs.monitor.DataMonitor;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
@@ -29,13 +29,21 @@ import net.sf.json.JSONObject;
 public class BcsTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(BcsTask.class);
-    
-    public BcsTask() {
-        new DataMonitor().start();
-        new CheckMonitor().start();
-        CacheMonitor.getInstance().start();
-    }
 
+	@Override
+	public void initialize(FjServer server) {
+        DataMonitor.getInstance().start();
+        CheckMonitor.getInstance().start();
+        CacheMonitor.getInstance().start();
+	}
+
+	@Override
+	public void destroy(FjServer server) {
+        DataMonitor.getInstance().close();
+        CheckMonitor.getInstance().close();
+        CacheMonitor.getInstance().close();
+	}
+    
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();

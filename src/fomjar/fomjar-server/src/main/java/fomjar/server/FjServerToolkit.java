@@ -33,7 +33,7 @@ public class FjServerToolkit {
         if (null == config_monitor) config_monitor = new FjConfigMonitor();
         
         config_monitor.perform();
-        if (!config_monitor.isRun()) new Thread(config_monitor, "monitor-fjconfig").start();
+        if (!config_monitor.isRun()) new Thread(config_monitor, "fjconfig-monitor").start();
     }
     
     private static Properties loadOneConfig(String absolutePath) {
@@ -161,9 +161,9 @@ public class FjServerToolkit {
         FjServer server = new FjServer(name, mq);
         FjReceiver receiver = new FjReceiver(mq, address.port);
         FjSender sender = new FjSender();
-        new Thread(sender,   name + "-fjsender").start();
-        new Thread(server,   name + "-fjserver").start();
-        new Thread(receiver, name + "-fjreceiver").start();
+        new Thread(sender,   "fjsender-" + name).start();
+        new Thread(server,   "fjserver-" + name).start();
+        new Thread(receiver, "fjreceiver-" + name).start();
         if (null == g_server)   g_server = new HashMap<String, FjServer>();
         if (null == g_sender)   g_sender = new HashMap<String, FjSender>();
         if (null == g_receiver) g_receiver = new HashMap<String, FjReceiver>();
@@ -183,9 +183,9 @@ public class FjServerToolkit {
         FjSender sender     = g_sender.get(name);
         FjServer server     = g_server.get(name);
         FjReceiver receiver = g_receiver.get(name);
-        sender.close();
-        server.close();
-        receiver.close();
+        if (null != sender) sender.close();
+        if (null != server) server.close();
+        if (null != receiver) receiver.close();
         logger.error("server: " + name + " stopped");
         return server;
     }

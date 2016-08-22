@@ -17,6 +17,14 @@ public class MenuMonitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(MenuMonitor.class);
     
+    private static MenuMonitor instance = null;
+    public synchronized static MenuMonitor getInstance() {
+    	if (null == instance) instance = new MenuMonitor();
+    	return instance;
+    }
+    
+    private MenuMonitor() {}
+    
     public void start() {
         if (isRun()) {
             logger.warn("monitor-menu has already started");
