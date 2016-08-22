@@ -247,6 +247,14 @@ public class WcWeb {
     }
     
     private static void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.path) {
         case URL_KEY + "/pay/recharge":
             processApplyPlatformAccountMoney_Recharge(response, request);
@@ -458,6 +466,14 @@ public class WcWeb {
     }
     
     private static void processApplyRentBegin(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.step) {
         case STEP_PREPARE: {
             if (!request.args.has("gid")) {
@@ -467,6 +483,10 @@ public class WcWeb {
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);
                 break;
+            }
+            if (0 == CommonService.getChannelAccountByCaid(request.user).c_phone.length()) {
+            	processUpdatePlatformAccountMap(response, request);
+            	break;
             }
             int gid = Integer.parseInt(request.args.getString("gid"), 16);
             fetchFile(response, "/apply_rent_begin.html");
@@ -518,6 +538,14 @@ public class WcWeb {
     }
     
     private static void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
     	switch (request.step) {
     	case STEP_PREPARE: {
             if (!request.args.has("oid") || !request.args.has("csn")) {
@@ -677,6 +705,14 @@ public class WcWeb {
     }
     
     private static void processQueryOrder(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/query_order.html");
@@ -744,6 +780,14 @@ public class WcWeb {
     }
     
     private static void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.step) {
         case STEP_PREPARE: {
         	if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {
@@ -780,8 +824,20 @@ public class WcWeb {
     }
     
     private static void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.step) {
         case STEP_PREPARE: {
+            if (0 == CommonService.getChannelAccountByCaid(request.user).c_phone.length()) {
+            	processUpdatePlatformAccountMap(response, request);
+            	break;
+            }
             fetchFile(response, "/query_platform_account_money.html");
             break;
         }
@@ -816,6 +872,14 @@ public class WcWeb {
     
     private static Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
     private static void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
+    	if (ANONYMOUS == request.user) {
+        	fetchFile(response, "/message.html");
+        	response.setcookie("msg_type", 		"warn");
+            response.setcookie("msg_title", 	"谢绝游客");
+            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url", 		"");
+            return;
+    	}
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/update_platform_account_map.html");
