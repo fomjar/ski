@@ -107,9 +107,7 @@ public class CommonService {
     }
     
     public static Set<BeanAccessRecord> getAccessRecordAll() {
-    	synchronized (cache_access_record) {
-    		return cache_access_record;
-    	}
+		return new LinkedHashSet<BeanAccessRecord>(cache_access_record);
     }
     
     public static List<BeanAccessRecord> getAccessRecordByCaid(int caid) {
@@ -122,9 +120,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanChannelAccount> getChannelAccountAll() {
-        synchronized (cache_channel_account) {
-            return cache_channel_account;
-        }
+        return new LinkedHashMap<Integer, BeanChannelAccount>(cache_channel_account);
     }
     
     public static BeanChannelAccount getChannelAccountByCaid(int caid){
@@ -226,9 +222,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanGameAccount> getGameAccountAll() {
-        synchronized (cache_game_account) {
-            return cache_game_account;
-        }
+        return new LinkedHashMap<Integer, BeanGameAccount>(cache_game_account);
     }
     
     public static List<BeanGameAccount> getGameAccountByCaid(int caid, int type) {
@@ -282,15 +276,11 @@ public class CommonService {
     }
     
     public static Set<BeanGameAccountGame> getGameAccountGameAll() {
-        synchronized (cache_game_account_game) {
-            return cache_game_account_game;
-        }
+        return new LinkedHashSet<BeanGameAccountGame>(cache_game_account_game);
     }
     
     public static Set<BeanGameAccountRent> getGameAccountRentAll() {
-        synchronized (cache_game_account_rent) {
-            return cache_game_account_rent;
-        }
+        return new LinkedHashSet<BeanGameAccountRent>(cache_game_account_rent);
     }
     
     public static int getGameAccountRentStateByGaid(int gaid, int type) {
@@ -306,9 +296,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanGame> getGameAll() {
-        synchronized (cache_game) {
-            return cache_game;
-        }
+        return new LinkedHashMap<Integer, BeanGame>(cache_game);
     }
     
     public static List<BeanGame> getGameByGaid(int gaid) {
@@ -396,9 +384,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanOrder> getOrderAll() {
-        synchronized (cache_order) {
-            return cache_order;
-        }
+        return new LinkedHashMap<Integer, BeanOrder>(cache_order);
     }
     
     public static List<BeanOrder> getOrderByCaid(int caid) {
@@ -426,9 +412,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanPlatformAccount> getPlatformAccountAll() {
-        synchronized (cache_platform_account) {
-            return cache_platform_account;
-        }
+        return new LinkedHashMap<Integer, BeanPlatformAccount>(cache_platform_account);
     }
     
     public static int getPlatformAccountByCaid(int caid) {
@@ -453,9 +437,7 @@ public class CommonService {
     }
     
     public static Set<BeanPlatformAccountMoney> getPlatformAccountMoneyAll() {
-        synchronized (cache_platform_account_money) {
-            return cache_platform_account_money;
-        }
+        return new LinkedHashSet<BeanPlatformAccountMoney>(cache_platform_account_money);
     }
     
     public static List<BeanPlatformAccountMoney> getPlatformAccountMoneyByPaid(int paid) {
@@ -468,9 +450,7 @@ public class CommonService {
     }
     
     public static Set<BeanTag> getTagAll() {
-        synchronized (cache_tag) {
-            return cache_tag;
-        }
+        return new LinkedHashSet<BeanTag>(cache_tag);
     }
     
     public static List<BeanTag> getTagByInstance(int type, int instance) {
@@ -492,9 +472,7 @@ public class CommonService {
     }
     
     public static Map<Integer, BeanTicket> getTicketAll() {
-        synchronized (cache_ticket) {
-            return cache_ticket;
-        }
+        return new LinkedHashMap<Integer, BeanTicket>(cache_ticket);
     }
     
     public static BeanTicket getTicketByTid(int tid) {

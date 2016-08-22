@@ -78,6 +78,7 @@ public class BcsTask implements FjServerTask {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
 
         // check deposit
+        CommonService.updateGameAccountRent();
         {
             float deposite    = Float.parseFloat(FjServerToolkit.getServerConfig("bcs.deposite"))
                     * (CommonService.getGameAccountByPaid(puser.i_paid, CommonService.RENT_TYPE_A).size()
@@ -181,7 +182,9 @@ public class BcsTask implements FjServerTask {
         int oid  = args.getInt("oid");
         int csn  = args.getInt("csn");
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
+        
         // check order
+        CommonService.updateOrder();
         BeanCommodity c = null;
         {
             boolean isOrderMatch = false; 
@@ -211,6 +214,7 @@ public class BcsTask implements FjServerTask {
         	}
         }
         // check account
+        CommonService.updateGameAccount();
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
         {
             JSONObject args_wa = new JSONObject();
@@ -311,7 +315,6 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("csn", csn);
             args_cdb.put("end", sdf.format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args_cdb);
-            CommonService.updateOrder();
             if (!CommonService.isResponseSuccess(rsp)) {
             	logger.error(String.format("submit commodity failed: args = %s, rsp = %s", args, rsp));
                 response(request, server, CommonDefinition.CODE.CODE_USER_CLOSE_COMMODITY_FAILED, "提交订单失败，请稍后重试");
@@ -350,7 +353,6 @@ public class BcsTask implements FjServerTask {
         args_cdb.put("type",    CommonService.MONEY_CASH);
         args_cdb.put("money",   money);
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
-        CommonService.updatePlatformAccount();
         if (!CommonService.isResponseSuccess(rsp)) {
         	logger.error(String.format("recharge failed: args = %s, rsp = %s", args, rsp));
             response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_RECHARGE_FAILED, "充值失败，请稍后重试");
@@ -365,7 +367,9 @@ public class BcsTask implements FjServerTask {
         int     caid    = args.getInt("caid");
         float   money   = Float.parseFloat(args.getString("money"));
         int     paid    = CommonService.getPlatformAccountByCaid(caid);
+        
         // 校验订单
+        CommonService.updateOrder();
         {
             boolean isAllClose = true;
             for (BeanOrder order : CommonService.getOrderByPaid(paid)) {
@@ -380,7 +384,9 @@ public class BcsTask implements FjServerTask {
                 return;
             }
         }
+        
         // 校验余额
+        CommonService.updatePlatformAccount();
         {
         	BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
         	if (0 >= puser.i_cash) {
