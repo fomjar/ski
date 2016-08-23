@@ -102,7 +102,7 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 				list_normal.add(getGameAccountDesc(gaid));
 			}
 			// 防止IP被封
-			try {Thread.sleep(30 * 1000L);}
+			try {Thread.sleep(10 * 1000L);}
 			catch (Exception e) {e.printStackTrace();}
 		});
 		
