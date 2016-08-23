@@ -43,13 +43,16 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 			out = new PrintStream(new FileOutputStream(g_file));
 		} catch (FileNotFoundException e) {e.printStackTrace();}
 		
-		print(String.format("%-40s", "fetching game data..."));
+		print(String.format("%-40s", "fetching game..."));
 		CommonService.updateGame();
 		println(" done!");
-		print(String.format("%-40s", "fetching game account data..."));
+		print(String.format("%-40s", "fetching game account..."));
 		CommonService.updateGameAccount();
 		println(" done!");
-		print(String.format("%-40s", "fetching game account rent data..."));
+		print(String.format("%-40s", "fetching game account game..."));
+		CommonService.updateGameAccountGame();
+		println(" done!");
+		print(String.format("%-40s", "fetching game account rent..."));
 		CommonService.updateGameAccountRent();
 		println(" done!");
 		
@@ -128,12 +131,12 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 	
 	private static void printGameAccountsOneClass(String desc, List<String> accounts) {
 		Collections.sort(accounts);
-		println(String.format("====================\n以下帐号为：%s，共 %d 个。\n====================", desc, accounts.size()));
+		println(String.format("====================\n以下帐号为：%-20s，共 %d 个。\n====================", desc, accounts.size()));
 		accounts.forEach(s->println(s));
 	}
 	
 	private static String getGameAccountDesc(int gaid) {
-		return String.format("%15s\t[%30s]\t\tA:%s B:%s",
+		return String.format("%-15s [%-30s] A:%s B:%s",
 				CommonService.getGameAccountByGaid(gaid).c_user,
 				(CommonService.getGameByGaid(gaid).isEmpty() ? "无游戏" : CommonService.getGameByGaid(gaid).get(0).c_name_zh_cn),
 				getGameAccountRentDesc(gaid, CommonService.RENT_TYPE_A),
