@@ -28,9 +28,13 @@ public class WcaBusiness {
     private static final String RESPONSE_TYPE_NOTIFY    = "notify";
     private static final String RESPONSE_TYPE_NEWS      = "news";
     
-    private WcaBusiness() {}
+    private TokenMonitor mon_token;
     
-    public static void dispatch(String server, FjDscpMessage req) {
+    public WcaBusiness(TokenMonitor mon_token) {
+    	this.mon_token = mon_token;
+    }
+    
+    public void dispatch(String server, FjDscpMessage req) {
         JSONObject  args    = req.argsToJsonObject();
         if (!args.has("user")) return;
         
@@ -67,7 +71,7 @@ public class WcaBusiness {
      * @param user
      * @return true for pass
      */
-    private static void verifyUser(String server, String user) {
+    private void verifyUser(String server, String user) {
         List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(user, CommonService.CHANNEL_WECHAT);
         int caid = -1;
         if (!users.isEmpty()) caid = users.get(0).i_caid;
@@ -76,9 +80,9 @@ public class WcaBusiness {
         if (-1 == caid) CommonService.updateChannelAccount();
     }
     
-    private static void updateUser(String server, int caid, String user) {
+    private void updateUser(String server, int caid, String user) {
         FjJsonMessage ui = null;
-        ui = WechatInterface.userInfo(TokenMonitor.getInstance().token(), user);
+        ui = WechatInterface.userInfo(mon_token.token(), user);
         
         JSONObject args = new JSONObject();
         if (-1 != caid) args.put("caid", caid);
@@ -105,13 +109,13 @@ public class WcaBusiness {
     }
     
     @SuppressWarnings("unchecked")
-    private static void dispatchResponse(String user, JSONObject args) {
+    private void dispatchResponse(String user, JSONObject args) {
         String  type    = args.has("type") ? args.getString("type") : RESPONSE_TYPE_TEXT;
         Object  content = args.get("content");
         
         switch (type) {
         case RESPONSE_TYPE_TEXT: {
-            try {WechatInterface.messageCustomSendText(TokenMonitor.getInstance().token(), user, content.toString());}
+            try {WechatInterface.messageCustomSendText(mon_token.token(), user, content.toString());}
             catch (WechatInterfaceException e) {logger.error("send custom message failed: " + content, e);}
             break;
         }
@@ -120,7 +124,7 @@ public class WcaBusiness {
             String template = content_json.getString("template");
             String url      = content_json.has("url") ? content_json.getString("url") : null;
             JSONObject data = content_json.getJSONObject("data");
-            WechatInterface.messageTemplateSend(TokenMonitor.getInstance().token(), user, template, url, data);
+            WechatInterface.messageTemplateSend(mon_token.token(), user, template, url, data);
             break;
         }
         case RESPONSE_TYPE_NEWS: {
@@ -133,7 +137,7 @@ public class WcaBusiness {
                         article.getString("url"),
                         article.getString("picurl")));
             });
-            try {WechatInterface.messageCustomSendNews(TokenMonitor.getInstance().token(), user, articles.toArray(new WechatInterface.Article[articles.size()]));}
+            try {WechatInterface.messageCustomSendNews(mon_token.token(), user, articles.toArray(new WechatInterface.Article[articles.size()]));}
             catch (WechatCustomServiceException e) {logger.error("send news message failed: " + content, e);}
             break;
         }

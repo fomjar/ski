@@ -17,13 +17,11 @@ public class MenuMonitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(MenuMonitor.class);
     
-    private static MenuMonitor instance = null;
-    public synchronized static MenuMonitor getInstance() {
-    	if (null == instance) instance = new MenuMonitor();
-    	return instance;
-    }
+    private TokenMonitor mon_token;
     
-    private MenuMonitor() {}
+    public MenuMonitor(TokenMonitor mon_token) {
+    	this.mon_token = mon_token;
+    }
     
     public void start() {
         if (isRun()) {
@@ -48,7 +46,7 @@ public class MenuMonitor extends FjLoopTask {
         JSONObject menu = JSONObject.fromObject(FjServerToolkit.getServerConfig("wca.menu.content"));
         replaceMenuUrl(menu);
         
-        FjJsonMessage rsp = WechatInterface.menuCreate(TokenMonitor.getInstance().token(), menu.toString());
+        FjJsonMessage rsp = WechatInterface.menuCreate(mon_token.token(), menu.toString());
         if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
         else logger.error("menu update failed: " + rsp);
     }

@@ -29,19 +29,23 @@ import net.sf.json.JSONObject;
 public class BcsTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(BcsTask.class);
+    
+    private DataMonitor 	mon_data 	= new DataMonitor();
+    private CheckMonitor 	mon_check 	= new CheckMonitor();
+    private CacheMonitor 	mon_cache 	= new CacheMonitor();
 
 	@Override
 	public void initialize(FjServer server) {
-        DataMonitor.getInstance().start();
-        CheckMonitor.getInstance().start();
-        CacheMonitor.getInstance().start();
+		mon_data.start();
+		mon_check.start();
+		mon_cache.start();
 	}
 
 	@Override
 	public void destroy(FjServer server) {
-        DataMonitor.getInstance().close();
-        CheckMonitor.getInstance().close();
-        CacheMonitor.getInstance().close();
+		mon_data.close();
+		mon_check.close();
+		mon_cache.close();
 	}
     
     @Override
@@ -178,7 +182,7 @@ public class BcsTask implements FjServerTask {
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
     
-    private static void processApplyRentEnd(String server, FjDscpMessage request) {
+    private void processApplyRentEnd(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("caid") || !args.has("oid") || !args.has("csn")) {
         	logger.error("illegal arguments: " + args);
@@ -215,7 +219,7 @@ public class BcsTask implements FjServerTask {
         }
         // check cache
         {
-        	if (CacheMonitor.getInstance().isCacheRentEndFailForPass(user)) {
+        	if (mon_cache.isCacheRentEndFailForPass(user)) {
         		logger.error("user or pass incorrect for rent end, try later after 10 minutes: args = " + args);
                 response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE, "用户名或密码错误，请10分钟之后再试");
                 return;
@@ -233,8 +237,8 @@ public class BcsTask implements FjServerTask {
         		logger.error("user or pass incorrect for rent end, try later after 10 minutes: args = " + args);
                 response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_GAME_ACCOUNT, "用户名或密码错误");
                 if (CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT == CommonService.getResponseCode(rsp)) {
-                	if (!CacheMonitor.getInstance().isCacheRentEndFailForPass(user))
-                		CacheMonitor.getInstance().putCacheRentEndFailForPass(user);
+                	if (!mon_cache.isCacheRentEndFailForPass(user))
+                		mon_cache.putCacheRentEndFailForPass(user);
                 }
                 return;
             }

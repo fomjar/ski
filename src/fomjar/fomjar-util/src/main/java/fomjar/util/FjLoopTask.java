@@ -69,6 +69,9 @@ public abstract class FjLoopTask implements FjTask {
      * 关闭并推出此循环任务
      */
     public void close() {
+    	// must sleep here, or fail, don't know why
+    	try {Thread.sleep(10L);}
+    	catch (InterruptedException e) {e.printStackTrace();}
     	isRun = false;
     	if (null != thread) {
 	    	thread.interrupt();

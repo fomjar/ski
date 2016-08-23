@@ -26,19 +26,28 @@ public class WcaTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(WcaTask.class);
     private ExecutorService pool;
     
+    private DataMonitor 	mon_data	= new DataMonitor();
+    private TokenMonitor 	mon_token 	= new TokenMonitor();
+    private MenuMonitor 	mon_menu 	= new MenuMonitor(mon_token);
+    
+    private WcaBusiness		biz;
+    private WcWeb			web;
+    
 	@Override
 	public void initialize(FjServer server) {
-        DataMonitor.getInstance().start();
-        TokenMonitor.getInstance().start();
-        MenuMonitor.getInstance().start();
+		mon_data.start();
+		mon_token.start();
+		mon_menu.start();
         pool = Executors.newCachedThreadPool();
+        biz = new WcaBusiness(mon_token);
+        web = new WcWeb(mon_token);
 	}
 
 	@Override
 	public void destroy(FjServer server) {
-        DataMonitor.getInstance().close();
-        TokenMonitor.getInstance().close();
-        MenuMonitor.getInstance().close();
+		mon_data.close();
+		mon_token.close();
+		mon_menu.close();
 		pool.shutdownNow();
 	}
     
@@ -49,7 +58,7 @@ public class WcaTask implements FjServerTask {
             processWechat(server.name(), wrapper);
         } else if (msg instanceof FjDscpMessage) {
             logger.debug("dispatch ski message: " + msg);
-            WcaBusiness.dispatch(server.name(), (FjDscpMessage) msg);
+            biz.dispatch(server.name(), (FjDscpMessage) msg);
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
@@ -68,13 +77,13 @@ public class WcaTask implements FjServerTask {
             WechatInterface.sendResponse(new FjHttpResponse(null, 200, null, "success"), (SocketChannel) wrapper.attachment("conn"));
             
             FjDscpMessage dmsg = WechatInterface.customConvertRequest(server, (FjHttpRequest) wrapper.message());
-            WcaBusiness.dispatch(server, dmsg);
+            biz.dispatch(server, dmsg);
         } else if (hmsg.url().startsWith(WcWeb.URL_KEY)) {
             logger.debug("dispatch wechat web message: " + wrapper.message());
             final SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
             wrapper.attach("conn", null); // give up connection
             pool.submit(()->{
-                try {WcWeb.dispatch(server, hmsg, conn);}
+                try {web.dispatch(server, hmsg, conn);}
                 catch (Exception e) {logger.error("error occurs when dispatch web message: " + hmsg, e);}
                 finally {try {conn.close();} catch (IOException e) {e.printStackTrace();}}
             });

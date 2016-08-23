@@ -22,14 +22,6 @@ public class CheckMonitor extends FjLoopTask {
     private static final Logger logger = Logger.getLogger(CheckMonitor.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
-    private static CheckMonitor instance = null;
-    public synchronized static CheckMonitor getInstance() {
-    	if (null == instance) instance = new CheckMonitor();
-    	return instance;
-    }
-    
-    private CheckMonitor() {}
-    
     public void start() {
         if (isRun()) {
             logger.warn("monitor-check has already started");

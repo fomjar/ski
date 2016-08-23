@@ -56,7 +56,13 @@ public class WcWeb {
     private static final String STEP_APPLY      = "apply";
     private static final String STEP_SUCCESS    = "success";
     
-    public static void dispatch(String server, FjHttpRequest hreq, SocketChannel conn) {
+    private TokenMonitor mon_token;
+    
+    public WcWeb(TokenMonitor mon_token) {
+    	this.mon_token = mon_token;
+    }
+    
+    public void dispatch(String server, FjHttpRequest hreq, SocketChannel conn) {
         logger.info("user request url: " + hreq.url());
         logger.debug("user request data: " + hreq.content());
         
@@ -246,7 +252,7 @@ public class WcWeb {
 		} catch (IOException e) {e.printStackTrace();}
     }
     
-    private static void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
+    private void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
     	if (ANONYMOUS == request.user) {
         	fetchFile(response, "/message.html");
         	response.setcookie("msg_type", 		"warn");
@@ -265,9 +271,9 @@ public class WcWeb {
         }
     }
     
-    private static Set<Integer> cache_user_recharge = new HashSet<Integer>();
+    private Set<Integer> cache_user_recharge = new HashSet<Integer>();
 
-    private static void processApplyPlatformAccountMoney_Recharge(FjHttpResponse response, WcwRequest request) {
+    private void processApplyPlatformAccountMoney_Recharge(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             long timestamp  = System.currentTimeMillis() / 1000;
@@ -276,7 +282,7 @@ public class WcWeb {
             response.setcookie("appid", 	FjServerToolkit.getServerConfig("wca.appid"));
             response.setcookie("timestamp", String.valueOf(timestamp));
             response.setcookie("noncestr",	noncestr);
-            response.setcookie("signature", WechatInterface.createSignature4Config(noncestr, TokenMonitor.getInstance().ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY)));
+            response.setcookie("signature", WechatInterface.createSignature4Config(noncestr, mon_token.ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY)));
             break;
         }
         case STEP_APPLY: {
@@ -432,7 +438,7 @@ public class WcWeb {
      * 
      * @param xml
      */
-    private static void processPayRechargeSuccess(FjHttpResponse response, String server, Document xml) {
+    private void processPayRechargeSuccess(FjHttpResponse response, String server, Document xml) {
         JSONObject args = new JSONObject();
         NodeList nodes = xml.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -465,7 +471,7 @@ public class WcWeb {
         response.content("<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>");
     }
     
-    private static void processApplyRentBegin(FjHttpResponse response, WcwRequest request) {
+    private void processApplyRentBegin(FjHttpResponse response, WcwRequest request) {
     	if (ANONYMOUS == request.user) {
         	fetchFile(response, "/message.html");
         	response.setcookie("msg_type", 		"warn");
@@ -779,7 +785,7 @@ public class WcWeb {
         return json;
     }
     
-    private static void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
+    private void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
     	if (ANONYMOUS == request.user) {
         	fetchFile(response, "/message.html");
         	response.setcookie("msg_type", 		"warn");
@@ -823,7 +829,7 @@ public class WcWeb {
         }
     }
     
-    private static void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
+    private void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
     	if (ANONYMOUS == request.user) {
         	fetchFile(response, "/message.html");
         	response.setcookie("msg_type", 		"warn");
@@ -870,8 +876,9 @@ public class WcWeb {
         }
     }
     
-    private static Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
-    private static void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
+    private Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
+    
+    private void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
     	if (ANONYMOUS == request.user) {
         	fetchFile(response, "/message.html");
         	response.setcookie("msg_type", 		"warn");
@@ -1000,8 +1007,6 @@ public class WcWeb {
         }
         return json;
     }
-    
-    private WcWeb() {}
     
     private static class WcwRequest {
         public String           	server = null;

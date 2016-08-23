@@ -10,19 +10,10 @@ import fomjar.util.FjLoopTask;
 
 public class TokenMonitor extends FjLoopTask {
     
-    private static TokenMonitor instance = null;
-    public static synchronized TokenMonitor getInstance() {
-        if (null == instance) instance = new TokenMonitor();
-        
-        return instance;
-    }
-    
     private static final Logger logger = Logger.getLogger(TokenMonitor.class);
     
     private String token;
     private String ticket;
-    
-    private TokenMonitor() {}
     
     public void start() {
         if (isRun()) {
@@ -57,7 +48,7 @@ public class TokenMonitor extends FjLoopTask {
         token = token_msg.json().getString("access_token");
         logger.info("get wechat access token successfully: " + token_msg);
         
-        FjJsonMessage ticket_msg = WechatInterface.ticket(TokenMonitor.getInstance().token());
+        FjJsonMessage ticket_msg = WechatInterface.ticket(token());
         if (null == ticket_msg || !ticket_msg.json().containsKey("ticket")) logger.error("get wechat jsapi ticket failed: " + ticket_msg);
         ticket = ticket_msg.json().getString("ticket");
         

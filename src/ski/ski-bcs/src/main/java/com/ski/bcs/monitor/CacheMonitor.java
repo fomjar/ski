@@ -16,15 +16,9 @@ public class CacheMonitor extends FjLoopTask {
 	
 	private static final Logger logger = Logger.getLogger(CacheMonitor.class);
 	
-	private static CacheMonitor instance = null;
-	public static synchronized CacheMonitor getInstance() {
-		if (null == instance) instance = new CacheMonitor();
-		return instance;
-	}
-	
 	public Map<String, Cache> cache_rent_end_fail_for_pass;
 	
-	private CacheMonitor() {
+	public CacheMonitor() {
 		cache_rent_end_fail_for_pass = new HashMap<String, Cache>();
 	}
 	
