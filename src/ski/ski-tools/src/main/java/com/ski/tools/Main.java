@@ -1,21 +1,35 @@
 package com.ski.tools;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import com.ski.common.CommonService;
 
 public class Main {
     
     public static void main(String[] args) {
         String      cmd = args[0];
-        String[]    arg = Arrays.copyOfRange(args, 1, args.length);
+        Map<String, String> arg = new LinkedHashMap<String, String>();
+        for (int i = 1; i < args.length; i++) {
+        	String[] kv = args[i].split("=");
+        	String k = kv[0];
+        	String v = args[i].substring(k.length() + 1);
+        	arg.put(k, v);
+        }
         ToolExecutor  e = null;
         switch (cmd) {
-        case "makeicon":
-            e = new MakeIconExecutor();
+        case "mc":
+            e = new ExecutorMakeCover();
             break;
-        case "makeintr":
-        	e = new MakeIntrExecutor();
+        case "mi":
+        	e = new ExecutorMakeIntroduction();
+        	break;
+        case "cga":
+        	e = new ExecutorCheckGameAccount();
         	break;
         }
+        
+		CommonService.setWsiHost("ski.craftvoid.com");
         e.execute(arg);
     }
 

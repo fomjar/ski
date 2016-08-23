@@ -22,10 +22,9 @@ import javax.imageio.ImageIO;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanGame;
 
-public class MakeIntrExecutor implements ToolExecutor {
+public class ExecutorMakeIntroduction implements ToolExecutor {
 	
 	private static int 		g_width 	= 750;
-	private static String 	g_dir		= ".";
 	private static int 		g_top		= 150;
 	private static int 		g_margin	= 30;
 	private static int 		g_cover 	= 180;
@@ -33,34 +32,34 @@ public class MakeIntrExecutor implements ToolExecutor {
 	private static Color  	g_bg		= new Color(2, 0, 20);
 	private static Color  	g_fg		= Color.white;
 	private static Font		g_font		= new Font("黑体", Font.PLAIN, 20);
+	private static String 	g_base		= ".";
 	private static String	g_format	= "jpg";
 	
-	public MakeIntrExecutor() {
-		CommonService.setWsiHost("ski.craftvoid.com");
-	}
-
 	@Override
-	public void execute(String[] args) {
-		for (int i = 0; i < args.length; i++) {
-			String name;
-			     if (args[i].startsWith(name = "width="))	g_width 	= Integer.parseInt(args[i].substring(name.length()));
-			else if (args[i].startsWith(name = "top=")) 	g_top 		= Integer.parseInt(args[i].substring(name.length()));
-			else if (args[i].startsWith(name = "margin=")) 	g_margin 	= Integer.parseInt(args[i].substring(name.length()));
-			else if (args[i].startsWith(name = "cover=")) 	g_cover 	= Integer.parseInt(args[i].substring(name.length()));
-			else if (args[i].startsWith(name = "poster=")) 	g_poster 	= Integer.parseInt(args[i].substring(name.length()));
-			else if (args[i].startsWith(name = "bg=")) 		g_bg 		= new Color(Integer.parseInt(args[i].substring(name.length())));
-			else if (args[i].startsWith(name = "fg=")) 		g_fg 		= new Color(Integer.parseInt(args[i].substring(name.length())));
-			else if (args[i].startsWith(name = "font=")) 	g_font 		= g_font.deriveFont(Float.parseFloat(args[i].substring(name.length())));
-			else if (args[i].startsWith(name = "dir=")) 	g_dir 		= args[i].substring(name.length());
-			else if (args[i].startsWith(name = "format=")) 	g_format 	= args[i].substring(name.length());
-			else System.out.println("unknown argument: " + args[i]);
-		}
+	public void execute(Map<String, String> args) {
+		args.forEach((k, v)->{
+			switch (k) {
+			case "width":	g_width 	= Integer.parseInt(v);						break;
+			case "top":		g_top 		= Integer.parseInt(v);						break;
+			case "margin":	g_margin 	= Integer.parseInt(v);						break;
+			case "cover":	g_cover 	= Integer.parseInt(v);						break;
+			case "poster":	g_poster 	= Integer.parseInt(v);						break;
+			case "bg":		g_bg 		= new Color(Integer.parseInt(v));			break;
+			case "fg":		g_fg 		= new Color(Integer.parseInt(v));			break;
+			case "font":	g_font 		= g_font.deriveFont(Float.parseFloat(v));	break;
+			case "base":	g_base 		= v;										break;
+			case "format":	g_format 	= v;										break;
+			default:
+				System.out.println(String.format("unknown argument: %s:%s", k, v));
+				break;
+			}
+		});
 		
 		System.out.print(String.format("%-40s", "fetching game data..."));
 		CommonService.updateGame();
 		System.out.println(" done!");
 		
-		CommonService.getGameAll().values().parallelStream().forEach(game->makeIntr(game, g_width, g_dir));
+		CommonService.getGameAll().values().parallelStream().forEach(game->makeIntr(game, g_width, g_base));
 	}
 	
 	private static void makeIntr(BeanGame game, int width, String dir) {

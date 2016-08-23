@@ -13,16 +13,27 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-public class MakeIconExecutor implements ToolExecutor {
+public class ExecutorMakeCover implements ToolExecutor {
+	
+	private static int 		g_width		= 500;
+	private static int 		g_height	= 500;
+	private static String	g_base		= ".";
     
     @Override
-    public void execute(String[] args) {
-        int width   = Integer.parseInt(args[0]);
-        int height  = Integer.parseInt(args[1]);
-        String dir  = args.length > 2 ? args[2] : ".";
+    public void execute(Map<String, String> args) {
+    	args.forEach((k, v)->{
+    		switch (k) {
+    		case "width":	g_width 	= Integer.parseInt(v);	break;
+    		case "height":	g_height 	= Integer.parseInt(v);	break;
+    		case "base":	g_base 		= v;					break;
+			default:
+				System.out.println(String.format("unknown argument: %s:%s", k, v));
+				break;
+    		}
+    	});
         
-        Map<Integer, Image> template = loadTemplate(dir);
-        Map<String, Map<Integer, Image>> inputs = loadInput(dir);
+        Map<Integer, Image> template = loadTemplate(g_base);
+        Map<String, Map<Integer, Image>> inputs = loadInput(g_base);
         inputs.entrySet().forEach(input->{
             String  name = input.getKey();
             System.out.print(String.format("combining [%-40s]", name));
@@ -33,14 +44,14 @@ public class MakeIconExecutor implements ToolExecutor {
             List<Integer> keys = new LinkedList<Integer>(combine.keySet());
             Collections.sort(keys);
             
-            BufferedImage buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage buffer = new BufferedImage(g_width, g_height, BufferedImage.TYPE_INT_ARGB);
             Graphics g = buffer.getGraphics();
             keys.forEach(key->{
                 Image image = combine.get(key);
                 g.drawImage(image, 0, 0, null);
             });
             try {
-                ImageIO.write(buffer, "png", new File(String.format("%s/output/%s.png", dir, name)));
+                ImageIO.write(buffer, "png", new File(String.format("%s/output/%s.png", g_base, name)));
                 System.out.println(" done!");
             } catch (IOException e) {
                 System.out.println(" fail!");

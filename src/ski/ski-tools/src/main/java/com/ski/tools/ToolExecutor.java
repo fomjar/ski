@@ -1,7 +1,9 @@
 package com.ski.tools;
 
+import java.util.Map;
+
 public interface ToolExecutor {
     
-    void execute(String[] args);
+    void execute(Map<String, String> args);
     
 }
