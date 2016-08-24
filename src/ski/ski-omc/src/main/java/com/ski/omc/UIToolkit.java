@@ -101,8 +101,8 @@ public class UIToolkit {
         if (null == pool) pool = Executors.newCachedThreadPool();
         
         pool.submit(()->{
-        	try {task.run();}
-        	catch (Exception e) {e.printStackTrace();}
+            try {task.run();}
+            catch (Exception e) {e.printStackTrace();}
         });
     }
     
@@ -131,7 +131,7 @@ public class UIToolkit {
     }
     
     public static void createGame() {
-        FjTextField c_name_zh_cn	= new FjTextField();
+        FjTextField c_name_zh_cn    = new FjTextField();
         c_name_zh_cn.setDefaultTips("简体中文名");
         
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, c_name_zh_cn, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
@@ -173,7 +173,7 @@ public class UIToolkit {
             }
             JSONObject args = new JSONObject();
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
-            if (0 != c_pass.getText().length())     args.put("pass",	c_pass.getText());
+            if (0 != c_pass.getText().length())     args.put("pass",    c_pass.getText());
             if (0 != t_birth.getText().length())    args.put("birth",   t_birth.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             CommonService.updateGameAccount();
@@ -571,16 +571,16 @@ public class UIToolkit {
                                 return;
                             }
                         }
-                    	break;
+                        break;
                     case "B":
                         if (CommonService.RENT_STATE_IDLE == CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A)
-                        		&& rsp.toString().contains(" binded")) {
-	                        if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号仅有B租，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
-	                            ssd.dispose();
-	                            return;
-	                        }
-		                }
-                    	break;
+                                && rsp.toString().contains(" binded")) {
+                            if (JOptionPane.NO_OPTION == JOptionPane.showConfirmDialog(null, "当前此账号仅有B租，并且尚未解绑，退租有风险，仍要继续吗？", "错误", JOptionPane.YES_NO_OPTION)) {
+                                ssd.dispose();
+                                return;
+                            }
+                        }
+                        break;
                     }
                     
                     ssd.appendText("验证通过");
@@ -981,46 +981,46 @@ public class UIToolkit {
     }
     
     public static String chooseSingleValue(String[] values_all, String value_cur) {
-    	JPanel panel = new JPanel();
-    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    	
-    	JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {});
-    	JDialog dialog = optionPane.createDialog(null, "请选择");
-    	
-    	Wrapper<String> result = new Wrapper<String>();
-    	for (String value : values_all) {
-    		JRadioButton button = new JRadioButton(value);
-    		if (value.equals(value_cur)) button.setSelected(true);
-    		button.addActionListener(e->{
-    			result.obj = button.getText();
-    			dialog.dispose();
-			});
-    	}
-    	return result.obj;
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {});
+        JDialog dialog = optionPane.createDialog(null, "请选择");
+        
+        Wrapper<String> result = new Wrapper<String>();
+        for (String value : values_all) {
+            JRadioButton button = new JRadioButton(value);
+            if (value.equals(value_cur)) button.setSelected(true);
+            button.addActionListener(e->{
+                result.obj = button.getText();
+                dialog.dispose();
+            });
+        }
+        return result.obj;
     }
     
     public static List<String> chooseMultipleValue(String[] values_all, String[] values_cur) {
-    	JPanel panel = new JPanel();
-    	panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-    	for (String value : values_all) {
-    		JCheckBox checkBox = new JCheckBox(value);
-    		for (String vc : values_cur) {
-    			if (value.equals(vc)) {
-    				checkBox.setSelected(true);
-    				break;
-    			}
-    		}
-    		panel.add(checkBox);
-    	}
-    	if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "请选择", JOptionPane.OK_CANCEL_OPTION)) {
-    		List<String> result = new LinkedList<String>();
-    		for (Component c : panel.getComponents()) {
-    			JCheckBox checkBox = (JCheckBox) c;
-    			if (checkBox.isSelected()) result.add(checkBox.getText());
-    		}
-    		return result;
-    	}
-    	return null;
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        for (String value : values_all) {
+            JCheckBox checkBox = new JCheckBox(value);
+            for (String vc : values_cur) {
+                if (value.equals(vc)) {
+                    checkBox.setSelected(true);
+                    break;
+                }
+            }
+            panel.add(checkBox);
+        }
+        if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "请选择", JOptionPane.OK_CANCEL_OPTION)) {
+            List<String> result = new LinkedList<String>();
+            for (Component c : panel.getComponents()) {
+                JCheckBox checkBox = (JCheckBox) c;
+                if (checkBox.isSelected()) result.add(checkBox.getText());
+            }
+            return result;
+        }
+        return null;
     }
     
     private static class Wrapper<E> {
@@ -1214,30 +1214,30 @@ public class UIToolkit {
     private static final Map<String, Image> cache_image = new ConcurrentHashMap<String, Image>();
     
     public static Image LoadImage(String url) {
-    	if (!cache_image.containsKey(url)) {
-	    	try {
-	    		Image img = ImageIO.read(new URL(url));
-	    		cache_image.put(url, img);
-	    		return img;
-	    	}
-	    	catch (MalformedURLException e) {e.printStackTrace();}
-	    	catch (Exception e) {e.printStackTrace();}
-	    	return null;
-    	} else {
-    		return cache_image.get(url);
-    	}
+        if (!cache_image.containsKey(url)) {
+            try {
+                Image img = ImageIO.read(new URL(url));
+                cache_image.put(url, img);
+                return img;
+            }
+            catch (MalformedURLException e) {e.printStackTrace();}
+            catch (Exception e) {e.printStackTrace();}
+            return null;
+        } else {
+            return cache_image.get(url);
+        }
     }
     
     public static void scaleFont(JComponent c, float scale) {
-    	c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scale));
+        c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scale));
     }
     
     public static boolean login() {
-    	JPasswordField field = new JPasswordField();
-    	String password = "ski-1234";
-    	while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, field, "请输入管理密码", JOptionPane.OK_CANCEL_OPTION)) {
-    		if (password.equals(new String(field.getPassword()))) return true;
-    	}
-    	return false;
+        JPasswordField field = new JPasswordField();
+        String password = "ski-1234";
+        while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, field, "请输入管理密码", JOptionPane.OK_CANCEL_OPTION)) {
+            if (password.equals(new String(field.getPassword()))) return true;
+        }
+        return false;
     }
 }

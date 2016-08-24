@@ -6,8 +6,8 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 public abstract class FjFixedTask implements FjTask {
-	
-	private static final Logger logger = Logger.getLogger(FjFixedTask.class);
+    
+    private static final Logger logger = Logger.getLogger(FjFixedTask.class);
     
     private static ExecutorService pool = null;
     

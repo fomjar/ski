@@ -8,21 +8,21 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 public class FjHttpRequest extends FjHttpMessage {
-	
-	public static FjHttpRequest parse(String data) {
-        String[] head 		= data.split("\r\n")[0].split(" ");
-		String[] contents   = data.split("\r\n\r\n");
-        String   attrs		= contents[0].substring(data.indexOf("\r\n") + 2);
-        String   content 	= contents.length > 1 ? contents[1] : null;
+    
+    public static FjHttpRequest parse(String data) {
+        String[] head         = data.split("\r\n")[0].split(" ");
+        String[] contents   = data.split("\r\n\r\n");
+        String   attrs        = contents[0].substring(data.indexOf("\r\n") + 2);
+        String   content     = contents.length > 1 ? contents[1] : null;
         FjHttpRequest request = new FjHttpRequest(head[0].trim(), head[1].trim(), null, content);
         for (String attr : attrs.split("\r\n")) {
-        	String[] kv = attr.split(":");
-        	String   k  = kv[0].trim();
-        	String   v  = attr.substring(kv[0].length() + 1).trim();
-        	request.attr().put(k, v);
+            String[] kv = attr.split(":");
+            String   k  = kv[0].trim();
+            String   v  = attr.substring(kv[0].length() + 1).trim();
+            request.attr().put(k, v);
         }
         return request;
-	}
+    }
     
     private String method;
     private String url;
@@ -32,14 +32,14 @@ public class FjHttpRequest extends FjHttpMessage {
         this.method = method;
         try {this.url = URLDecoder.decode(url, "utf-8");}
         catch (UnsupportedEncodingException e) {
-        	this.url = url;
-			e.printStackTrace();
-		}
+            this.url = url;
+            e.printStackTrace();
+        }
     }
     
-    public String method()	{return method;}
-    public String url() 	{return url;}
-    public String path()	{return url().contains("?") ? url().substring(0, url.indexOf("?")) : url();}
+    public String method()    {return method;}
+    public String url()     {return url;}
+    public String path()    {return url().contains("?") ? url().substring(0, url.indexOf("?")) : url();}
     
     public Map<String, String> urlArgs() {
         if (!url().contains("?")) return new HashMap<String, String>();

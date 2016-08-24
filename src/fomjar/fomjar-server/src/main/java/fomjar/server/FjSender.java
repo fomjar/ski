@@ -111,9 +111,9 @@ public class FjSender extends FjLoopTask {
             conn.setRequestProperty("Content-Type",   req.contentType());
             conn.setRequestProperty("Content-Length", String.valueOf(req.contentLength()));
             if (0 < req.contentLength()) {
-	            OutputStream os = conn.getOutputStream();
-	            os.write(req.content());
-	            os.flush();
+                OutputStream os = conn.getOutputStream();
+                os.write(req.content());
+                os.flush();
             }
             InputStream is = conn.getInputStream();
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
@@ -128,10 +128,10 @@ public class FjSender extends FjLoopTask {
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
         try {
-        	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        	baos.write(rsp.toString().getBytes("utf-8"));
-        	baos.write(rsp.content());
-        	
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            baos.write(rsp.toString().getBytes("utf-8"));
+            baos.write(rsp.content());
+            
             ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
             long begin = System.currentTimeMillis();
             while(buf.hasRemaining() && TIMEOUT_O > System.currentTimeMillis() - begin) {

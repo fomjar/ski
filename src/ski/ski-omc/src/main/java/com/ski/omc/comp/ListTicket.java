@@ -24,8 +24,8 @@ public class ListTicket extends JDialog {
     
     private static ListTicket instance = null;
     public static synchronized ListTicket getInstance() {
-    	if (null == instance) instance = new ListTicket();
-    	return instance;
+        if (null == instance) instance = new ListTicket();
+        return instance;
     }
     
     private static final String TOGGLE_TITLE_OPEN = "当前显示：开启工单(点击切换)";

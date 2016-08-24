@@ -168,9 +168,9 @@ public class ManageGameAccount extends JDialog {
             if (!UIToolkit.showServerResponse(rsp)) return;
             
             if (args.has("user"))   c_user.setForeground(Color.darkGray);
-            if (args.has("pass"))	c_pass.setForeground(Color.darkGray);
-            if (args.has("name"))	c_name.setForeground(Color.darkGray);
-            if (args.has("remark"))	c_remark.setForeground(Color.darkGray);
+            if (args.has("pass"))    c_pass.setForeground(Color.darkGray);
+            if (args.has("name"))    c_name.setForeground(Color.darkGray);
+            if (args.has("remark"))    c_remark.setForeground(Color.darkGray);
             if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
             args.clear();
         });
@@ -194,9 +194,9 @@ public class ManageGameAccount extends JDialog {
                 if (!UIToolkit.showServerResponse(rsp_cdb)) return;
                 
                 if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                if (args.has("pass"))	c_pass.setForeground(Color.darkGray);
-                if (args.has("name"))	c_name.setForeground(Color.darkGray);
-                if (args.has("remark"))	c_remark.setForeground(Color.darkGray);
+                if (args.has("pass"))    c_pass.setForeground(Color.darkGray);
+                if (args.has("name"))    c_name.setForeground(Color.darkGray);
+                if (args.has("remark"))    c_remark.setForeground(Color.darkGray);
                 if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
                 args.clear();
                 ((JButton) toolbar.getComponent(1)).setEnabled(true);

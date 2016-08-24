@@ -26,30 +26,30 @@ public class WcaTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(WcaTask.class);
     private ExecutorService pool;
     
-    private DataMonitor 	mon_data	= new DataMonitor();
-    private TokenMonitor 	mon_token 	= new TokenMonitor();
-    private MenuMonitor 	mon_menu 	= new MenuMonitor(mon_token);
+    private DataMonitor     mon_data    = new DataMonitor();
+    private TokenMonitor     mon_token     = new TokenMonitor();
+    private MenuMonitor     mon_menu     = new MenuMonitor(mon_token);
     
-    private WcaBusiness		biz;
-    private WcWeb			web;
+    private WcaBusiness        biz;
+    private WcWeb            web;
     
-	@Override
-	public void initialize(FjServer server) {
-		mon_data.start();
-		mon_token.start();
-		mon_menu.start();
+    @Override
+    public void initialize(FjServer server) {
+        mon_data.start();
+        mon_token.start();
+        mon_menu.start();
         pool = Executors.newCachedThreadPool();
         biz = new WcaBusiness(mon_token);
         web = new WcWeb(mon_token);
-	}
+    }
 
-	@Override
-	public void destroy(FjServer server) {
-		mon_data.close();
-		mon_token.close();
-		mon_menu.close();
-		pool.shutdownNow();
-	}
+    @Override
+    public void destroy(FjServer server) {
+        mon_data.close();
+        mon_token.close();
+        mon_menu.close();
+        pool.shutdownNow();
+    }
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {

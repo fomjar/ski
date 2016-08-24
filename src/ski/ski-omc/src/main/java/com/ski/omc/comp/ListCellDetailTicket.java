@@ -16,9 +16,9 @@ import com.ski.common.bean.BeanTicket;
 
 public class ListCellDetailTicket extends FjListCell<BeanTicket> {
 
-	private static final long serialVersionUID = 7022627587968587017L;
+    private static final long serialVersionUID = 7022627587968587017L;
 
-	public ListCellDetailTicket(BeanTicket ticket) {
+    public ListCellDetailTicket(BeanTicket ticket) {
         JLabel      type = new JLabel("[" + getTypeDesc(ticket.i_type) + "] ");
         FjEditLabel info = new FjEditLabel(String.format("%s %s", ticket.c_title, ticket.c_content));
         
@@ -42,22 +42,22 @@ public class ListCellDetailTicket extends FjListCell<BeanTicket> {
         
         setColorDefault(Color.white);
         if (ticket.isClose()) {
-        	type.setForeground(Color.lightGray);
-        	info.setForeground(Color.lightGray);
+            type.setForeground(Color.lightGray);
+            info.setForeground(Color.lightGray);
         }
         
         passthroughMouseEvent(info);
     }
     
-	private static String getTypeDesc(int type) {
-		switch (type) {
-		case CommonService.TICKET_TYPE_ADVICE: 	return "意见建议";
-		case CommonService.TICKET_TYPE_COMMENT: return "备忘既要";
-		case CommonService.TICKET_TYPE_NOTIFY: 	return "通知提醒";
-		case CommonService.TICKET_TYPE_REFUND: 	return "退款申请";
-		case CommonService.TICKET_TYPE_RESERVE: return "预约预定";
-		default: return "未    知";
-		}
-	}
+    private static String getTypeDesc(int type) {
+        switch (type) {
+        case CommonService.TICKET_TYPE_ADVICE:     return "意见建议";
+        case CommonService.TICKET_TYPE_COMMENT: return "备忘既要";
+        case CommonService.TICKET_TYPE_NOTIFY:     return "通知提醒";
+        case CommonService.TICKET_TYPE_REFUND:     return "退款申请";
+        case CommonService.TICKET_TYPE_RESERVE: return "预约预定";
+        default: return "未    知";
+        }
+    }
 
 }

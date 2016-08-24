@@ -43,9 +43,9 @@ public class ChartFrame extends JFrame {
     private JTabbedPane charts;
     private JPanel      charts_user;
     private JPanel      charts_order;
-    private JPanel		charts_sale;
-    private JPanel		charts_access;
-    private JPanel		charts_game;
+    private JPanel        charts_sale;
+    private JPanel        charts_access;
+    private JPanel        charts_game;
     
     public ChartFrame() {
         setTitle("数据统计");
@@ -317,11 +317,11 @@ public class ChartFrame extends JFrame {
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) {
-                    	count[i] += c.i_expense;
-                    	switch (c.c_arg1) {
-                    	case "A": count_a[i] += c.i_expense; break;
-                    	case "B": count_b[i] += c.i_expense; break;
-                    	}
+                        count[i] += c.i_expense;
+                        switch (c.c_arg1) {
+                        case "A": count_a[i] += c.i_expense; break;
+                        case "B": count_b[i] += c.i_expense; break;
+                        }
                     }
                 } catch (Exception e) {e.printStackTrace();}
             });
@@ -341,8 +341,8 @@ public class ChartFrame extends JFrame {
     private static JPanel createChartCommodityBeginEncreaseLastMonthByCommodityType() {
         int     total = 28;
         int[]   count = new int[total];
-        int[]	count_a = new int[total];
-        int[]	count_b = new int[total];
+        int[]    count_a = new int[total];
+        int[]    count_b = new int[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date    today = new Date();
@@ -377,8 +377,8 @@ public class ChartFrame extends JFrame {
     private static JPanel createChartCommodityBeginEncreaseLastMonthByUserType() {
         int     total = 28;
         int[]   count = new int[total];
-        int[]	count_tb = new int[total];
-        int[]	count_wc = new int[total];
+        int[]    count_tb = new int[total];
+        int[]    count_wc = new int[total];
         
         SimpleDateFormat parser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date    today = new Date();
@@ -439,7 +439,7 @@ public class ChartFrame extends JFrame {
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) {
-                    	count[i]++;
+                        count[i]++;
                         switch (c.c_arg1) {
                         case "A": count_a[i]++; break;
                         case "B": count_b[i]++; break;
@@ -487,7 +487,7 @@ public class ChartFrame extends JFrame {
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) {
-                    	count[i]++;
+                        count[i]++;
                         switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
                         case CommonService.CHANNEL_TAOBAO: count_tb[i]++; break;
                         case CommonService.CHANNEL_WECHAT: count_wc[i]++; break;
@@ -617,11 +617,11 @@ public class ChartFrame extends JFrame {
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) {
-                    	count[i]++;
-                    	switch (c.c_arg1) {
-                    	case "A": count_a[i]++; break;
-                    	case "B": count_b[i]++; break;
-                    	}
+                        count[i]++;
+                        switch (c.c_arg1) {
+                        case "A": count_a[i]++; break;
+                        case "B": count_b[i]++; break;
+                        }
                     }
                 } catch (Exception e) {e.printStackTrace();}
             });
@@ -668,11 +668,11 @@ public class ChartFrame extends JFrame {
 
                     int day = (int) delta;
                     for (int i = 0; i <= day; i++) {
-                    	count[i]++;
-                    	switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
-                    	case CommonService.CHANNEL_TAOBAO: count_tb[i]++; break;
-                    	case CommonService.CHANNEL_WECHAT: count_wc[i]++; break;
-                    	}
+                        count[i]++;
+                        switch (CommonService.getChannelAccountByCaid(o.i_caid).i_channel) {
+                        case CommonService.CHANNEL_TAOBAO: count_tb[i]++; break;
+                        case CommonService.CHANNEL_WECHAT: count_wc[i]++; break;
+                        }
                     }
                 } catch (Exception e) {e.printStackTrace();}
             });
@@ -720,57 +720,57 @@ public class ChartFrame extends JFrame {
 
     
     private static JPanel createChartAccessDistribution() {
-    	int[] inst_apply_platform_account_money = new int[] {0};
-    	int[] inst_apply_rent_begin = new int[] {0};
-    	int[] inst_apply_rent_end = new int[] {0};
-    	int[] inst_query_game = new int[] {0};
-    	int[] inst_query_order = new int[] {0};
-    	int[] inst_query_platform_account_map = new int[] {0};
-    	int[] inst_query_platform_account_money = new int[] {0};
-    	int[] inst_update_platform_account_money = new int[] {0};
-    	
-    	CommonService.getAccessRecordAll().forEach(access->{
-    		// 排除后续步骤
-    		if (null != getAccessArgument(access.c_local, "step")) return;
-    	
-    		int inst = getAccessInstruction(access.c_local);
-    		switch (inst) {
-    		case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
-    			inst_apply_platform_account_money[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN:
-    			inst_apply_rent_begin[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
-    			inst_apply_rent_end[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
-    			inst_query_game[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
-    			inst_query_order[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
-    			inst_query_platform_account_map[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY:
-    			inst_query_platform_account_money[0]++;
-    			break;
-    		case CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP:
-    			inst_update_platform_account_money[0]++;
-    			break;
-    		}
-    	});
-    	
+        int[] inst_apply_platform_account_money = new int[] {0};
+        int[] inst_apply_rent_begin = new int[] {0};
+        int[] inst_apply_rent_end = new int[] {0};
+        int[] inst_query_game = new int[] {0};
+        int[] inst_query_order = new int[] {0};
+        int[] inst_query_platform_account_map = new int[] {0};
+        int[] inst_query_platform_account_money = new int[] {0};
+        int[] inst_update_platform_account_money = new int[] {0};
+        
+        CommonService.getAccessRecordAll().forEach(access->{
+            // 排除后续步骤
+            if (null != getAccessArgument(access.c_local, "step")) return;
+        
+            int inst = getAccessInstruction(access.c_local);
+            switch (inst) {
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
+                inst_apply_platform_account_money[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN:
+                inst_apply_rent_begin[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
+                inst_apply_rent_end[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
+                inst_query_game[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER:
+                inst_query_order[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
+                inst_query_platform_account_map[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY:
+                inst_query_platform_account_money[0]++;
+                break;
+            case CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP:
+                inst_update_platform_account_money[0]++;
+                break;
+            }
+        });
+        
         DefaultPieDataset dataset = new DefaultPieDataset();
-        dataset.setValue("充值/退款", 	inst_apply_platform_account_money[0]);
-        dataset.setValue("起租", 	inst_apply_rent_begin[0]);
-        dataset.setValue("退租", 	inst_apply_rent_end[0]);
-        dataset.setValue("全搜索", 	inst_query_game[0]);
-        dataset.setValue("正在玩", 	inst_query_order[0]);
-        dataset.setValue("淘宝＋", 	inst_query_platform_account_map[0]);
-        dataset.setValue("小金库", 	inst_query_platform_account_money[0]);
-        dataset.setValue("绑定", 	inst_update_platform_account_money[0]);
+        dataset.setValue("充值/退款",     inst_apply_platform_account_money[0]);
+        dataset.setValue("起租",     inst_apply_rent_begin[0]);
+        dataset.setValue("退租",     inst_apply_rent_end[0]);
+        dataset.setValue("全搜索",     inst_query_game[0]);
+        dataset.setValue("正在玩",     inst_query_order[0]);
+        dataset.setValue("淘宝＋",     inst_query_platform_account_map[0]);
+        dataset.setValue("小金库",     inst_query_platform_account_money[0]);
+        dataset.setValue("绑定",     inst_update_platform_account_money[0]);
         JFreeChart chart = ChartFactory.createPieChart3D("用户访问分布", dataset);
         ((PiePlot) chart.getPlot()).setLabelGenerator(new StandardPieSectionLabelGenerator("{0}({1},{2})")); 
         JPanel panel = new ChartPanel(chart);
@@ -779,26 +779,26 @@ public class ChartFrame extends JFrame {
     }
     
     private static JPanel createChartAccessGameDistribution() {
-    	Map<Integer, Integer> count = new HashMap<Integer, Integer>();
-    	CommonService.getAccessRecordAll().forEach(access->{
-    		if (CommonDefinition.ISIS.INST_ECOM_QUERY_GAME != getAccessInstruction(access.c_local)) return;
-    		if (null == getAccessArgument(access.c_local, "gid")) return;
-    		
-    		int gid = Integer.parseInt(getAccessArgument(access.c_local, "gid"), 16);
-    		if (!count.containsKey(gid)) count.put(gid, 1);
-    		else count.put(gid, count.get(gid) + 1);
-    	});
-    	
-    	List<Integer> keys = new ArrayList<Integer>(count.keySet());
-    	Collections.sort(keys, (k1, k2)->count.get(k2) - count.get(k1));
-    	
+        Map<Integer, Integer> count = new HashMap<Integer, Integer>();
+        CommonService.getAccessRecordAll().forEach(access->{
+            if (CommonDefinition.ISIS.INST_ECOM_QUERY_GAME != getAccessInstruction(access.c_local)) return;
+            if (null == getAccessArgument(access.c_local, "gid")) return;
+            
+            int gid = Integer.parseInt(getAccessArgument(access.c_local, "gid"), 16);
+            if (!count.containsKey(gid)) count.put(gid, 1);
+            else count.put(gid, count.get(gid) + 1);
+        });
+        
+        List<Integer> keys = new ArrayList<Integer>(count.keySet());
+        Collections.sort(keys, (k1, k2)->count.get(k2) - count.get(k1));
+        
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-    	for (int i = 19; i >= 0; i--) {
-    		int gid = keys.get(i);
-    		int c   = count.get(gid);
+        for (int i = 19; i >= 0; i--) {
+            int gid = keys.get(i);
+            int c   = count.get(gid);
             dataset.addValue(c, "游戏访问量", CommonService.getGameByGid(gid).c_name_zh_cn);
-    	}
-    	
+        }
+        
         return createBarChartPanel(ChartFactory.createBarChart3D("游戏访问TOP20", "游戏", "访问量", dataset));
     }
     
@@ -834,25 +834,25 @@ public class ChartFrame extends JFrame {
     }
     
     private static int getAccessInstruction(String local) {
-    	if (!local.contains("inst=")) return -1;
-    	
-    	return Integer.parseInt(getAccessArgument(local, "inst"), 16);
+        if (!local.contains("inst=")) return -1;
+        
+        return Integer.parseInt(getAccessArgument(local, "inst"), 16);
     }
     
     private static String getAccessArgument(String local, String key) {
-    	if (!local.contains(key + "=")) return null;
-    	
-    	int begin 	= local.indexOf(key + "=") + key.length() + 1;
-    	int end		= local.indexOf("&", begin);
-    	if (-1 == end) end = local.length();
-    	
-    	return local.substring(begin, end);
+        if (!local.contains(key + "=")) return null;
+        
+        int begin     = local.indexOf(key + "=") + key.length() + 1;
+        int end        = local.indexOf("&", begin);
+        if (-1 == end) end = local.length();
+        
+        return local.substring(begin, end);
     }
     
     @SuppressWarnings("unused")
-	private static String getAccessPath(String local) {
-    	if (local.contains("?")) return local.substring(local.lastIndexOf("|") + 1, local.indexOf("?"));
-    	
-    	return local.substring(local.lastIndexOf("|") + 1);
+    private static String getAccessPath(String local) {
+        if (local.contains("?")) return local.substring(local.lastIndexOf("|") + 1, local.indexOf("?"));
+        
+        return local.substring(local.lastIndexOf("|") + 1);
     }
 }

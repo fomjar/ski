@@ -29,22 +29,22 @@ import net.sf.json.JSONObject;
 
 public class ManageTicket extends JDialog {
 
-	private static final long serialVersionUID = 6629310776993089521L;
-	private JTextField  caid;
-	private JLabel      time;
-	private JLabel      title;
-	private JTextArea   content;
-	private FjTextField result;
-    private JButton		btn_accept;
-    private JButton		btn_refuse;
-    private JButton		btn_cancel;
-	
-	public ManageTicket(int tid) {
-		super(MainFrame.getInstance());
-		
-		BeanTicket 			ticket 	= CommonService.getTicketByTid(tid);
-		BeanChannelAccount 	user 	= CommonService.getChannelAccountByCaid(ticket.i_caid);
-		
+    private static final long serialVersionUID = 6629310776993089521L;
+    private JTextField  caid;
+    private JLabel      time;
+    private JLabel      title;
+    private JTextArea   content;
+    private FjTextField result;
+    private JButton        btn_accept;
+    private JButton        btn_refuse;
+    private JButton        btn_cancel;
+    
+    public ManageTicket(int tid) {
+        super(MainFrame.getInstance());
+        
+        BeanTicket             ticket     = CommonService.getTicketByTid(tid);
+        BeanChannelAccount     user     = CommonService.getChannelAccountByCaid(ticket.i_caid);
+        
         caid  = new JTextField(String.format("[%s] %s", getChannel2String(user.i_channel), user.getDisplayName()));
         caid.setEditable(false);
         time  = new JLabel(String.format("%19s ~ %19s", ticket.t_open, ticket.t_close));
@@ -57,11 +57,11 @@ public class ManageTicket extends JDialog {
         btn_accept = new JButton("接受");
         btn_refuse = new JButton("拒绝");
         btn_cancel = new JButton("取消");
-		JPanel buttons = new JPanel();
-		buttons.setLayout(new GridLayout(1, 3));
-		buttons.add(btn_accept);
-		buttons.add(btn_refuse);
-		buttons.add(btn_cancel);
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new GridLayout(1, 3));
+        buttons.add(btn_accept);
+        buttons.add(btn_refuse);
+        buttons.add(btn_cancel);
         
         JPanel head = new JPanel();
         head.setLayout(new GridLayout(3, 1));
@@ -86,22 +86,22 @@ public class ManageTicket extends JDialog {
         add(buttons, BorderLayout.SOUTH);
         
         ActionListener a = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				dispose();
-				
-				if (btn_cancel == e.getSource()) return;
-				
-				int state = CommonService.TICKET_STATE_OPEN;
-				if (btn_accept == e.getSource()) 		state = CommonService.TICKET_STATE_CLOSE;
-				else if (btn_refuse == e.getSource()) 	state = CommonService.TICKET_STATE_CANCEL;
-				
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                
+                if (btn_cancel == e.getSource()) return;
+                
+                int state = CommonService.TICKET_STATE_OPEN;
+                if (btn_accept == e.getSource())         state = CommonService.TICKET_STATE_CLOSE;
+                else if (btn_refuse == e.getSource())     state = CommonService.TICKET_STATE_CANCEL;
+                
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 JSONObject args = new JSONObject();
-                args.put("tid", 	ticket.i_tid);
-                args.put("close", 	sdf.format(new Date()));
-                args.put("state", 	state);
-                args.put("result", 	result.getText());
+                args.put("tid",     ticket.i_tid);
+                args.put("close",     sdf.format(new Date()));
+                args.put("state",     state);
+                args.put("result",     result.getText());
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
                 CommonService.updateTicket();
                 UIToolkit.showServerResponse(rsp);
@@ -109,38 +109,38 @@ public class ManageTicket extends JDialog {
                 ListTicket.getInstance().refresh();
                 if (MainFrame.getInstance().getDetailUser() == user.i_caid) MainFrame.getInstance().setDetailUser(user.i_caid);
             }
-		};
-		btn_accept.addActionListener(a);
-		btn_refuse.addActionListener(a);
-		btn_cancel.addActionListener(a);
+        };
+        btn_accept.addActionListener(a);
+        btn_refuse.addActionListener(a);
+        btn_cancel.addActionListener(a);
         
         if (ticket.isClose()) {
             result.setEditable(false);
             result.setText("[" + getStateDesc(ticket.i_state) + "] " + ticket.c_result);
             buttons.setVisible(false);
         }
-	}
-	
-	private static String getTypeDesc(int type) {
-		switch (type) {
-		case CommonService.TICKET_TYPE_ADVICE: 	return "意见建议";
-		case CommonService.TICKET_TYPE_COMMENT: return "备忘既要";
-		case CommonService.TICKET_TYPE_NOTIFY: 	return "通知提醒";
-		case CommonService.TICKET_TYPE_REFUND: 	return "退款申请";
-		case CommonService.TICKET_TYPE_RESERVE: return "预约预定";
-		default: return "未    知";
-		}
-	}
-	
-	private static String getStateDesc(int state) {
-		switch (state) {
-		case CommonService.TICKET_STATE_OPEN: 	return "打开";
-		case CommonService.TICKET_STATE_CLOSE: 	return "关闭";
-		case CommonService.TICKET_STATE_CANCEL: return "撤销";
-		default: return "未知";
-		}
-	}
-	
+    }
+    
+    private static String getTypeDesc(int type) {
+        switch (type) {
+        case CommonService.TICKET_TYPE_ADVICE:     return "意见建议";
+        case CommonService.TICKET_TYPE_COMMENT: return "备忘既要";
+        case CommonService.TICKET_TYPE_NOTIFY:     return "通知提醒";
+        case CommonService.TICKET_TYPE_REFUND:     return "退款申请";
+        case CommonService.TICKET_TYPE_RESERVE: return "预约预定";
+        default: return "未    知";
+        }
+    }
+    
+    private static String getStateDesc(int state) {
+        switch (state) {
+        case CommonService.TICKET_STATE_OPEN:     return "打开";
+        case CommonService.TICKET_STATE_CLOSE:     return "关闭";
+        case CommonService.TICKET_STATE_CANCEL: return "撤销";
+        default: return "未知";
+        }
+    }
+    
     private static String getChannel2String(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";

@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
  * @author fomjar
  */
 public abstract class FjLoopTask implements FjTask {
-	
-	private static final Logger logger = Logger.getLogger(FjLoopTask.class);
+    
+    private static final Logger logger = Logger.getLogger(FjLoopTask.class);
 
     private long delay;
     private long interval;
@@ -69,15 +69,15 @@ public abstract class FjLoopTask implements FjTask {
      * 关闭并推出此循环任务
      */
     public void close() {
-    	// must sleep here, or fail, don't know why
-    	try {Thread.sleep(10L);}
-    	catch (InterruptedException e) {e.printStackTrace();}
-    	isRun = false;
-    	if (null != thread) {
-	    	thread.interrupt();
-	    	thread = null;
-    	}
-	}
+        // must sleep here, or fail, don't know why
+        try {Thread.sleep(10L);}
+        catch (InterruptedException e) {e.printStackTrace();}
+        isRun = false;
+        if (null != thread) {
+            thread.interrupt();
+            thread = null;
+        }
+    }
 
     @Override
     public void run() {

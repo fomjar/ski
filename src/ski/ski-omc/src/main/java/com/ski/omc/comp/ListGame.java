@@ -15,13 +15,13 @@ import com.ski.common.bean.BeanGame;
 import com.ski.omc.UIToolkit;
 
 public class ListGame extends JDialog {
-	
+    
     private static final long serialVersionUID = -4974710094129285415L;
     
     private static ListGame instance = null;
     public static synchronized ListGame getInstance() {
-    	if (null == instance) instance = new ListGame();
-    	return instance;
+        if (null == instance) instance = new ListGame();
+        return instance;
     }
     
     private JToolBar                toolbar;
@@ -53,26 +53,26 @@ public class ListGame extends JDialog {
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGame>(pane.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanGame celldata) {
-            	switch (type) {
-            	case "游戏名": {
+                switch (type) {
+                case "游戏名": {
                     int count = 0;
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
-            	}
-            	case "标签名": {
-            		return 0 < CommonService.getTagByType(CommonService.TAG_GAME)
-            				.stream()
-            				.filter(tag->{
-            					int count = 0;
+                }
+                case "标签名": {
+                    return 0 < CommonService.getTagByType(CommonService.TAG_GAME)
+                            .stream()
+                            .filter(tag->{
+                                int count = 0;
                                 for (String word : words) if (tag.c_tag.toLowerCase().contains(word.toLowerCase())) count++;
                                 return count == words.length;
-            				})
-            				.filter(tag->tag.i_instance == celldata.i_gid)
-            				.count();
-            	}
-        		default:
-        			return true;
-            	}
+                            })
+                            .filter(tag->tag.i_instance == celldata.i_gid)
+                            .count();
+                }
+                default:
+                    return true;
+                }
             }
         });
         

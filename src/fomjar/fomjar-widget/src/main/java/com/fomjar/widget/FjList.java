@@ -57,8 +57,8 @@ public class FjList<E> extends JComponent {
     }
     
     public void setSelectable(boolean isSelectable) {this.isSelectable = isSelectable;}
-    public boolean isSelectable() 					{return this.isSelectable;}
-    public FjListCell<E> getSelectedCell() 			{return selectedCell;}
+    public boolean isSelectable()                     {return this.isSelectable;}
+    public FjListCell<E> getSelectedCell()             {return selectedCell;}
     public void setSelectedCell(FjListCell<E> cell) {notifySelect(cell);}
     
     void notifySelect(FjListCell<E> cell) {

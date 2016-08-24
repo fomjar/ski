@@ -48,7 +48,7 @@ public class CommonService {
     private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
     private static final Map<Integer, BeanTicket>           cache_ticket                    = new LinkedHashMap<Integer, BeanTicket>();
     private static final Map<Integer, BeanNotification>     cache_notification              = new LinkedHashMap<Integer, BeanNotification>();
-    private static final Set<BeanAccessRecord>				cache_access_record				= new LinkedHashSet<BeanAccessRecord>();
+    private static final Set<BeanAccessRecord>                cache_access_record                = new LinkedHashSet<BeanAccessRecord>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -107,16 +107,16 @@ public class CommonService {
     }
     
     public static Set<BeanAccessRecord> getAccessRecordAll() {
-		return new LinkedHashSet<BeanAccessRecord>(cache_access_record);
+        return new LinkedHashSet<BeanAccessRecord>(cache_access_record);
     }
     
     public static List<BeanAccessRecord> getAccessRecordByCaid(int caid) {
-    	synchronized (cache_access_record) {
-    		return cache_access_record
-    				.stream()
-    				.filter(access->access.i_caid == caid)
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_access_record) {
+            return cache_access_record
+                    .stream()
+                    .filter(access->access.i_caid == caid)
+                    .collect(Collectors.toList());
+        }
     }
     
     public static Map<Integer, BeanChannelAccount> getChannelAccountAll() {
@@ -317,47 +317,47 @@ public class CommonService {
     }
     
     public static List<BeanGame> getGameByTag(String tag) {
-    	synchronized (cache_game) {
-    		return cache_game.values()
-    				.stream()
-    				.filter(game->0 < getTagByInstance(TAG_GAME, game.i_gid)
-    							.stream()
-    							.filter(t->t.c_tag.toLowerCase().contains(tag.toLowerCase()))
-    							.count())
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_game) {
+            return cache_game.values()
+                    .stream()
+                    .filter(game->0 < getTagByInstance(TAG_GAME, game.i_gid)
+                                .stream()
+                                .filter(t->t.c_tag.toLowerCase().contains(tag.toLowerCase()))
+                                .count())
+                    .collect(Collectors.toList());
+        }
     }
     
     public static List<BeanGame> getGameByCategory(String... category) {
-    	synchronized (cache_game) {
-    		return cache_game.values()
-    				.stream()
-    				.filter(game->{
-    					for (String c : category) {
-    						if (game.c_category.toLowerCase().contains(c.toLowerCase())) return true;
-    					}
-    					return false;
-    				})
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_game) {
+            return cache_game.values()
+                    .stream()
+                    .filter(game->{
+                        for (String c : category) {
+                            if (game.c_category.toLowerCase().contains(c.toLowerCase())) return true;
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+        }
     }
     
     public static List<BeanGame> getGameByVendor(String vendor) {
-    	synchronized (cache_game) {
-    		return cache_game.values()
-    				.stream()
-    				.filter(game->game.c_vendor.toLowerCase().contains(vendor.toLowerCase()))
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_game) {
+            return cache_game.values()
+                    .stream()
+                    .filter(game->game.c_vendor.toLowerCase().contains(vendor.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
     }
     
     public static List<BeanGame> getGameByLanguage(String language) {
-    	synchronized (cache_game) {
-    		return cache_game.values()
-    				.stream()
-    				.filter(game->game.c_language.toLowerCase().contains(language.toLowerCase()))
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_game) {
+            return cache_game.values()
+                    .stream()
+                    .filter(game->game.c_language.toLowerCase().contains(language.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
     }
     
     /**
@@ -476,9 +476,9 @@ public class CommonService {
     }
     
     public static BeanTicket getTicketByTid(int tid) {
-    	synchronized (cache_ticket) {
-    		return cache_ticket.get(tid);
-    	}
+        synchronized (cache_ticket) {
+            return cache_ticket.get(tid);
+        }
     }
     
     public static List<BeanTicket> getTicketByCaid(int caid) {
@@ -491,12 +491,12 @@ public class CommonService {
     }
     
     public static List<BeanTicket> getTicketByPaid(int paid) {
-    	synchronized (cache_ticket) {
-    		return cache_ticket.values()
-    				.stream()
-    				.filter(t->isChannelAccountBelongsToPaid(t.i_caid, paid))
-    				.collect(Collectors.toList());
-    	}
+        synchronized (cache_ticket) {
+            return cache_ticket.values()
+                    .stream()
+                    .filter(t->isChannelAccountBelongsToPaid(t.i_caid, paid))
+                    .collect(Collectors.toList());
+        }
     }
     
     public static List<BeanTicket> getTicketByType(int type) {
@@ -528,12 +528,12 @@ public class CommonService {
     }
     
     public static boolean isChannelAccountBelongsToPaid(int caid, int paid) {
-    	synchronized (cache_platform_account_map) {
-    		for (BeanPlatformAccountMap map : cache_platform_account_map) {
-    			if (map.i_caid == caid && map.i_paid == paid) return true;
-    		}
-    		return false;
-    	}
+        synchronized (cache_platform_account_map) {
+            for (BeanPlatformAccountMap map : cache_platform_account_map) {
+                if (map.i_caid == caid && map.i_paid == paid) return true;
+            }
+            return false;
+        }
     }
     
     public static boolean isNotificationNotified(int caid, String content) {
@@ -554,14 +554,14 @@ public class CommonService {
     }
     
     public static int getResponseCode(FjDscpMessage rsp) {
-    	if (null == rsp) return -1;
-    	
+        if (null == rsp) return -1;
+        
         return rsp.argsToJsonObject().getInt("code");
     }
     
     public static String getResponseDesc(FjDscpMessage rsp) {
-    	if (null == rsp) return null;
-    	
+        if (null == rsp) return null;
+        
         JSONObject args = rsp.argsToJsonObject();
         Object desc = args.get("desc");
         if (desc instanceof JSONArray) return ((JSONArray) desc).getString(0);
@@ -638,7 +638,7 @@ public class CommonService {
         String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_ACCESS_RECORD, null));
         
         synchronized (cache_access_record) {
-        	cache_access_record.clear();
+            cache_access_record.clear();
             if (null != rsp && !"null".equals(rsp)) {
                 String[] lines = rsp.split("\n");
                 for (String line : lines) {

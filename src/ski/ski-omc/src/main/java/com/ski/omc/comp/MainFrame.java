@@ -118,15 +118,15 @@ public class MainFrame extends JFrame {
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 case "搜淘宝":
-                	if (celldata.i_channel != CommonService.CHANNEL_TAOBAO) return false;
+                    if (celldata.i_channel != CommonService.CHANNEL_TAOBAO) return false;
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 case "搜微信":
-                	if (celldata.i_channel != CommonService.CHANNEL_WECHAT) return false;
+                    if (celldata.i_channel != CommonService.CHANNEL_WECHAT) return false;
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 case "支付宝":
-                	if (celldata.i_channel != CommonService.CHANNEL_ALIPAY) return false;
+                    if (celldata.i_channel != CommonService.CHANNEL_ALIPAY) return false;
                     for (String word : words) if (celldata.getDisplayName().toLowerCase().contains(word.toLowerCase())) count++;
                     return count == words.length;
                 default:
@@ -180,8 +180,8 @@ public class MainFrame extends JFrame {
     }
     
     public void refreshUser() {
-    	int caid = null != users.getList().getSelectedCell() ? users.getList().getSelectedCell().getData().i_caid : -1;
-    	
+        int caid = null != users.getList().getSelectedCell() ? users.getList().getSelectedCell().getData().i_caid : -1;
+        
         users.getList().removeAllCell();
         List<ListCellUser> user_hl = new LinkedList<ListCellUser>();
         List<ListCellUser> user_ll = new LinkedList<ListCellUser>();

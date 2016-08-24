@@ -49,7 +49,7 @@ public class WcWeb {
     
     public  static final String URL_KEY = "/ski-wcweb";
     
-    private static final int ANONYMOUS	= -1;
+    private static final int ANONYMOUS    = -1;
     
     private static final String STEP_PREPARE    = "prepare";
     private static final String STEP_SETUP      = "setup";
@@ -59,7 +59,7 @@ public class WcWeb {
     private TokenMonitor mon_token;
     
     public WcWeb(TokenMonitor mon_token) {
-    	this.mon_token = mon_token;
+        this.mon_token = mon_token;
     }
     
     public void dispatch(String server, FjHttpRequest hreq, SocketChannel conn) {
@@ -80,13 +80,13 @@ public class WcWeb {
             if (args.has("code")) {
                 if (ANONYMOUS == (user = authorize(args))) break;
                 
-            	redirect(response, server, hreq.path(), user, args);
-            	break;
+                redirect(response, server, hreq.path(), user, args);
+                break;
             }
             if (hreq.cookie().containsKey("user")) user = Integer.parseInt(hreq.cookie().get("user"), 16);
             else if (args.containsKey("user")) {
-            	user = Integer.parseInt(args.getString("user"), 16);
-            	response.setcookie("user", Integer.toHexString(user));
+                user = Integer.parseInt(args.getString("user"), 16);
+                response.setcookie("user", Integer.toHexString(user));
             }
             
             recordaccess(user, conn, server, hreq.url());
@@ -100,8 +100,8 @@ public class WcWeb {
                 processApplyRentBegin(response, request);
                 break;
             case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
-            	processApplyRentEnd(response, request);
-            	break;
+                processApplyRentEnd(response, request);
+                break;
             case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
                 processQueryGame(response, request);
                 break;
@@ -138,8 +138,8 @@ public class WcWeb {
         String code = args.getString("code");
         FjJsonMessage rsp = WechatInterface.snsOauth2(FjServerToolkit.getServerConfig("wca.appid"), FjServerToolkit.getServerConfig("wca.secret"), code);
         if (!rsp.json().has("openid")) {
-        	logger.error("user authorize failed: " + rsp);
-        	return ANONYMOUS;
+            logger.error("user authorize failed: " + rsp);
+            return ANONYMOUS;
         }
         
         List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(rsp.json().getString("openid"), CommonService.CHANNEL_WECHAT);
@@ -149,24 +149,24 @@ public class WcWeb {
     }
     
     @SuppressWarnings("unchecked")
-	private static void redirect(FjHttpResponse response, String server, String path, int user, JSONObject args) {
-    	int inst = Integer.parseInt(args.getString("inst"), 16);
-    	String url = generateUrl(server, path, inst);
-    	StringBuilder sb = new StringBuilder(url);
-    	args.entrySet().forEach(entry->{
-    		String key = ((Map.Entry<String, String>) entry).getKey();
-    		String val = ((Map.Entry<String, String>) entry).getValue();
-    		if (key.equals("inst")
-    				|| key.equals("user")
-    				|| key.equals("code")		// comes from wechat
-    				|| key.equals("state"))		// comes from wechat
-    			return;
-    		sb.append(String.format("&%s=%s", key, val));
-    	});
-    	response.code(302);
-    	response.attr().put("Location", sb.toString());
-    	response.setcookie("user", Integer.toHexString(user));
-    	logger.debug("user redirect data: " + response);
+    private static void redirect(FjHttpResponse response, String server, String path, int user, JSONObject args) {
+        int inst = Integer.parseInt(args.getString("inst"), 16);
+        String url = generateUrl(server, path, inst);
+        StringBuilder sb = new StringBuilder(url);
+        args.entrySet().forEach(entry->{
+            String key = ((Map.Entry<String, String>) entry).getKey();
+            String val = ((Map.Entry<String, String>) entry).getValue();
+            if (key.equals("inst")
+                    || key.equals("user")
+                    || key.equals("code")        // comes from wechat
+                    || key.equals("state"))        // comes from wechat
+                return;
+            sb.append(String.format("&%s=%s", key, val));
+        });
+        response.code(302);
+        response.attr().put("Location", sb.toString());
+        response.setcookie("user", Integer.toHexString(user));
+        logger.debug("user redirect data: " + response);
     }
     
     private static void fetchFile(FjHttpResponse response, String url) {
@@ -221,46 +221,46 @@ public class WcWeb {
         case "xml":     return FjHttpRequest.CT_TEXT_XML;
         case "json":    return FjHttpRequest.CT_APPL_JSON;
         case "jpg":
-        case "jpeg":	return FjHttpRequest.CT_IMAG_JPG;
-        case "bmp":		return FjHttpRequest.CT_IMAG_BMP;
-        case "png":		return FjHttpRequest.CT_IMAG_PNG;
-        case "gif":		return FjHttpRequest.CT_IMAG_GIF;
+        case "jpeg":    return FjHttpRequest.CT_IMAG_JPG;
+        case "bmp":        return FjHttpRequest.CT_IMAG_BMP;
+        case "png":        return FjHttpRequest.CT_IMAG_PNG;
+        case "gif":        return FjHttpRequest.CT_IMAG_GIF;
         default:    return FjHttpRequest.CT_TEXT_PLAIN;
         }
     }
     
     private static void recordaccess(int user, SocketChannel conn, String server, String url) {
-    	try {
-			String remote = String.format("%15s|%6d",
-					((InetSocketAddress)conn.getRemoteAddress()).getHostName(),
-					((InetSocketAddress)conn.getRemoteAddress()).getPort());
-			String local = String.format("%25s|%6d|%10s|%s",
-					((InetSocketAddress)conn.getLocalAddress()).getHostName(),
-					((InetSocketAddress)conn.getLocalAddress()).getPort(),
-					server,
-					url);
-			JSONObject args = new JSONObject();
-			args.put("caid", 	user);
-			args.put("remote", 	remote);
-			args.put("local", 	local);
-			FjDscpMessage msg = new FjDscpMessage();
-			msg.json().put("fs", server);
-			msg.json().put("ts", "cdb");
-			msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_ACCESS_RECORD);
-			msg.json().put("args", args);
-			FjServerToolkit.getAnySender().send(msg);
-		} catch (IOException e) {e.printStackTrace();}
+        try {
+            String remote = String.format("%15s|%6d",
+                    ((InetSocketAddress)conn.getRemoteAddress()).getHostName(),
+                    ((InetSocketAddress)conn.getRemoteAddress()).getPort());
+            String local = String.format("%25s|%6d|%10s|%s",
+                    ((InetSocketAddress)conn.getLocalAddress()).getHostName(),
+                    ((InetSocketAddress)conn.getLocalAddress()).getPort(),
+                    server,
+                    url);
+            JSONObject args = new JSONObject();
+            args.put("caid",     user);
+            args.put("remote",     remote);
+            args.put("local",     local);
+            FjDscpMessage msg = new FjDscpMessage();
+            msg.json().put("fs", server);
+            msg.json().put("ts", "cdb");
+            msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_ACCESS_RECORD);
+            msg.json().put("args", args);
+            FjServerToolkit.getAnySender().send(msg);
+        } catch (IOException e) {e.printStackTrace();}
     }
     
     private void processApplyPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.path) {
         case URL_KEY + "/pay/recharge":
             processApplyPlatformAccountMoney_Recharge(response, request);
@@ -279,9 +279,9 @@ public class WcWeb {
             long timestamp  = System.currentTimeMillis() / 1000;
             String noncestr = Long.toHexString(System.currentTimeMillis());
             fetchFile(response, "/apply_platform_account_money_recharge.html");
-            response.setcookie("appid", 	FjServerToolkit.getServerConfig("wca.appid"));
+            response.setcookie("appid",     FjServerToolkit.getServerConfig("wca.appid"));
             response.setcookie("timestamp", String.valueOf(timestamp));
-            response.setcookie("noncestr",	noncestr);
+            response.setcookie("noncestr",    noncestr);
             response.setcookie("signature", WechatInterface.createSignature4Config(noncestr, mon_token.ticket(), timestamp, WcWeb.generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY)));
             break;
         }
@@ -328,11 +328,11 @@ public class WcWeb {
             break;
         }
         case STEP_SUCCESS: {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"success");
-            response.setcookie("msg_title", 	"充值成功");
-            response.setcookie("msg_content", 	"");
-            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "success");
+            response.setcookie("msg_title",     "充值成功");
+            response.setcookie("msg_content",     "");
+            response.setcookie("msg_url",         generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
             break;
         }
         }
@@ -363,11 +363,11 @@ public class WcWeb {
             JSONObject rsp_args = rsp.argsToJsonObject();
             
             if (CommonService.isResponseSuccess(rsp)) {
-            	// 发红包
-            	String terminal = "127.0.0.1";
-            	try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
-            	catch (IOException e) {logger.error("get user terminal address failed", e);}
-            	sendredpack(terminal, CommonService.getChannelAccountByCaid(request.user).c_user, money);
+                // 发红包
+                String terminal = "127.0.0.1";
+                try {terminal = ((InetSocketAddress) request.conn.getRemoteAddress()).getAddress().getHostAddress();}
+                catch (IOException e) {logger.error("get user terminal address failed", e);}
+                sendredpack(terminal, CommonService.getChannelAccountByCaid(request.user).c_user, money);
             }
             
             logger.error("user pay refund: " + rsp_args);
@@ -377,41 +377,41 @@ public class WcWeb {
         }
         case STEP_SUCCESS: {
             fetchFile(response, "/message.html");
-            response.setcookie("msg_type",		"success");
-            response.setcookie("msg_title", 	"退款成功");
-            response.setcookie("msg_content",	"退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！");
-            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
+            response.setcookie("msg_type",        "success");
+            response.setcookie("msg_title",     "退款成功");
+            response.setcookie("msg_content",    "退款将以现金红包的方式发放，超过200元时会拆分多个红包，请耐心等待！");
+            response.setcookie("msg_url",         generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MONEY));
             break;
         }
         }
     }
     
     private static void sendredpack(String terminal, String user, float money) {
-    	float max = Float.parseFloat(FjServerToolkit.getServerConfig("wca.redpack.max"));
-    	long  interval = Long.parseLong(FjServerToolkit.getServerConfig("wca.redpack.interval"));
-    	pool.submit(()->{
-    		try {
-    			float m = money;
-    			List<Float> moneys = new LinkedList<Float>();
-    			while (m > max) {
-    				moneys.add(max);
-    				m -= max;
-    			}
-    			moneys.add(m);
-    			
-    			for (int i = 0; i < moneys.size(); i++) {
-    				FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩",
-    						user,
-    						moneys.get(i),
-    						String.format("VC电玩游戏退款(%d/%d)", i + 1, moneys.size()),
-    						terminal,
-    						"VC电玩活动送好礼",
-    						"关注VC电玩");
-    				logger.error("send red pack: " + rsp_redpack);
-    				Thread.sleep(interval * 1000L);
-    			}
-    		} catch (Exception e) {logger.error("error occurs when send redpack", e);}
-    	});
+        float max = Float.parseFloat(FjServerToolkit.getServerConfig("wca.redpack.max"));
+        long  interval = Long.parseLong(FjServerToolkit.getServerConfig("wca.redpack.interval"));
+        pool.submit(()->{
+            try {
+                float m = money;
+                List<Float> moneys = new LinkedList<Float>();
+                while (m > max) {
+                    moneys.add(max);
+                    m -= max;
+                }
+                moneys.add(m);
+                
+                for (int i = 0; i < moneys.size(); i++) {
+                    FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩",
+                            user,
+                            moneys.get(i),
+                            String.format("VC电玩游戏退款(%d/%d)", i + 1, moneys.size()),
+                            terminal,
+                            "VC电玩活动送好礼",
+                            "关注VC电玩");
+                    logger.error("send red pack: " + rsp_redpack);
+                    Thread.sleep(interval * 1000L);
+                }
+            } catch (Exception e) {logger.error("error occurs when send redpack", e);}
+        });
     }
     
     /**
@@ -452,9 +452,9 @@ public class WcWeb {
         
         BeanChannelAccount user = users.get(0);
         if (cache_user_recharge.contains(user.i_caid)) {
-        	cache_user_recharge.remove(user.i_caid);
+            cache_user_recharge.remove(user.i_caid);
             
-        	logger.error("user pay recharge: " + args);
+            logger.error("user pay recharge: " + args);
             float money = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("caid",    user.i_caid);
@@ -472,14 +472,14 @@ public class WcWeb {
     }
     
     private void processApplyRentBegin(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.step) {
         case STEP_PREPARE: {
             if (!request.args.has("gid")) {
@@ -491,8 +491,8 @@ public class WcWeb {
                 break;
             }
             if (0 == CommonService.getChannelAccountByCaid(request.user).c_phone.length()) {
-            	processUpdatePlatformAccountMap(response, request);
-            	break;
+                processUpdatePlatformAccountMap(response, request);
+                break;
             }
             int gid = Integer.parseInt(request.args.getString("gid"), 16);
             fetchFile(response, "/apply_rent_begin.html");
@@ -534,26 +534,26 @@ public class WcWeb {
         }
         case STEP_SUCCESS: {
             fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"success");
-            response.setcookie("msg_title", 	"起租成功");
-            response.setcookie("msg_content",	"");
-            response.setcookie("msg_url", 		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
+            response.setcookie("msg_type",         "success");
+            response.setcookie("msg_title",     "起租成功");
+            response.setcookie("msg_content",    "");
+            response.setcookie("msg_url",         generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
             break;
         }
         }
     }
     
     private static void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
-    	switch (request.step) {
-    	case STEP_PREPARE: {
+        }
+        switch (request.step) {
+        case STEP_PREPARE: {
             if (!request.args.has("oid") || !request.args.has("csn")) {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
@@ -562,17 +562,17 @@ public class WcWeb {
                 response.content(args);
                 return;
             }
-    		fetchFile(response, "/apply_rent_end.html");
-    		response.setcookie("oid", request.args.getString("oid"));
-    		response.setcookie("csn", request.args.getString("csn"));
-    		break;
-    	}
-//    	case STEP_SETUP: break;
-    	case STEP_APPLY: {
+            fetchFile(response, "/apply_rent_end.html");
+            response.setcookie("oid", request.args.getString("oid"));
+            response.setcookie("csn", request.args.getString("csn"));
+            break;
+        }
+//        case STEP_SETUP: break;
+        case STEP_APPLY: {
             JSONObject args = new JSONObject();
             args.put("caid",    request.user);
-            args.put("oid", 	Integer.parseInt(request.args.getString("oid"), 16));
-            args.put("csn", 	Integer.parseInt(request.args.getString("csn"), 16));
+            args.put("oid",     Integer.parseInt(request.args.getString("oid"), 16));
+            args.put("csn",     Integer.parseInt(request.args.getString("csn"), 16));
             FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, args);
             if (!CommonService.isResponseSuccess(rsp)) {
                 JSONObject args_rsp = new JSONObject();
@@ -588,71 +588,71 @@ public class WcWeb {
             response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
             response.content(args_rsp);
             break;
-    	}
+        }
         case STEP_SUCCESS: {
             fetchFile(response, "/message.html");
-            response.setcookie("msg_type", 		"success");
-            response.setcookie("msg_title", 	"退租成功");
-            response.setcookie("msg_content",	" ");
-            response.setcookie("msg_url",		generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
+            response.setcookie("msg_type",         "success");
+            response.setcookie("msg_title",     "退租成功");
+            response.setcookie("msg_content",    " ");
+            response.setcookie("msg_url",        generateUrl(request.server, CommonDefinition.ISIS.INST_ECOM_QUERY_ORDER));
             break;
         }
-    	}
+        }
     }
     
     private static void processQueryGame(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             if (request.args.has("gid")) {
-            	fetchFile(response, "/query_game_by_gid.html");
-            	response.setcookie("gid", request.args.getString("gid"));
+                fetchFile(response, "/query_game_by_gid.html");
+                response.setcookie("gid", request.args.getString("gid"));
             } else if (request.args.has("category")) {
-            	fetchFile(response, "/query_game_by_category.html");
-            	response.setcookie("category", request.args.getString("category"));
+                fetchFile(response, "/query_game_by_category.html");
+                response.setcookie("category", request.args.getString("category"));
             } else if (request.args.has("language")) {
-            	fetchFile(response, "/query_game_by_language.html");
-            	response.setcookie("language", request.args.getString("language"));
+                fetchFile(response, "/query_game_by_language.html");
+                response.setcookie("language", request.args.getString("language"));
             } else if (request.args.has("tag")) {
-            	fetchFile(response, "/query_game_by_tag.html");
-            	response.setcookie("tag", request.args.getString("tag"));
+                fetchFile(response, "/query_game_by_tag.html");
+                response.setcookie("tag", request.args.getString("tag"));
             } else fetchFile(response, "/query_game.html");
             break;
         }
         case STEP_SETUP: {
-        	if (request.args.has("gid")) {
-	            int gid = Integer.parseInt(request.args.getString("gid"), 16);
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
+            if (request.args.has("gid")) {
+                int gid = Integer.parseInt(request.args.getString("gid"), 16);
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
             } else if (request.args.has("category")) {
-            	String[] categorys = request.args.getString("category").split("_");
-            	JSONArray desc = new JSONArray();
-            	CommonService.getGameByCategory(categorys).forEach(game->desc.add(gameToJson(game)));
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
+                String[] categorys = request.args.getString("category").split("_");
+                JSONArray desc = new JSONArray();
+                CommonService.getGameByCategory(categorys).forEach(game->desc.add(gameToJson(game)));
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", desc);
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
             } else if (request.args.has("language")) {
-            	String language = request.args.getString("language");
-            	JSONArray desc = new JSONArray();
-            	CommonService.getGameByLanguage(language).forEach(game->desc.add(gameToJson(game)));
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
+                String language = request.args.getString("language");
+                JSONArray desc = new JSONArray();
+                CommonService.getGameByLanguage(language).forEach(game->desc.add(gameToJson(game)));
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", desc);
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
             } else if (request.args.has("tag")) {
-            	String tag = request.args.getString("tag");
-            	JSONArray desc = new JSONArray();
-            	CommonService.getGameByTag(tag).forEach(game->desc.add(gameToJson(game)));
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
+                String tag = request.args.getString("tag");
+                JSONArray desc = new JSONArray();
+                CommonService.getGameByTag(tag).forEach(game->desc.add(gameToJson(game)));
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", desc);
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
             } else if (request.args.has("word")) {
                 String word = request.args.getString("word");
                 JSONArray desc = new JSONArray();
@@ -678,74 +678,74 @@ public class WcWeb {
     }
     
     private static JSONObject gameToJson(BeanGame game) {
-    	JSONObject json = new JSONObject();
-    	json.put("gid",             game.i_gid);
-    	json.put("name_zh_cn",		game.c_name_zh_cn);
-    	json.put("name_zh_hk",		game.c_name_zh_hk);
-    	json.put("name_en",         game.c_name_en);
-    	json.put("name_ja",         game.c_name_ja);
-    	json.put("name_ko",         game.c_name_ko);
-    	json.put("name_other",		game.c_name_other);
-    	json.put("platform",        game.c_platform);
-    	json.put("category",		game.c_category);
-    	json.put("language",		game.c_language);
-    	json.put("size",			game.c_size);
-    	json.put("vendor",			game.c_vendor);
-    	json.put("sale",            game.t_sale);
-    	json.put("url_icon",        game.c_url_icon);
-    	json.put("url_cover",       game.c_url_cover);
-    	json.put("url_poster",      JSONArray.fromObject(game.c_url_poster.split(" ")));
-    	json.put("introduction",    game.c_introduction);
-    	json.put("version",      	game.c_version);
-    	json.put("vedio", 			game.c_vedio);
-    	
-    	json.put("display_name",    game.getDisplayName());
-    	BeanGameRentPrice price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
-    	json.put("price_a",         null != price_a ? price_a.i_price : 0.0f);
-    	BeanGameRentPrice price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
-    	json.put("price_b",         null != price_b ? price_b.i_price : 0.0f);
-    	
-    	json.put("rent_a", 			CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
-    	json.put("rent_b", 			CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
-    	return json;
+        JSONObject json = new JSONObject();
+        json.put("gid",             game.i_gid);
+        json.put("name_zh_cn",        game.c_name_zh_cn);
+        json.put("name_zh_hk",        game.c_name_zh_hk);
+        json.put("name_en",         game.c_name_en);
+        json.put("name_ja",         game.c_name_ja);
+        json.put("name_ko",         game.c_name_ko);
+        json.put("name_other",        game.c_name_other);
+        json.put("platform",        game.c_platform);
+        json.put("category",        game.c_category);
+        json.put("language",        game.c_language);
+        json.put("size",            game.c_size);
+        json.put("vendor",            game.c_vendor);
+        json.put("sale",            game.t_sale);
+        json.put("url_icon",        game.c_url_icon);
+        json.put("url_cover",       game.c_url_cover);
+        json.put("url_poster",      JSONArray.fromObject(game.c_url_poster.split(" ")));
+        json.put("introduction",    game.c_introduction);
+        json.put("version",          game.c_version);
+        json.put("vedio",             game.c_vedio);
+        
+        json.put("display_name",    game.getDisplayName());
+        BeanGameRentPrice price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
+        json.put("price_a",         null != price_a ? price_a.i_price : 0.0f);
+        BeanGameRentPrice price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
+        json.put("price_b",         null != price_b ? price_b.i_price : 0.0f);
+        
+        json.put("rent_a",             CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
+        json.put("rent_b",             CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
+        return json;
     }
     
     private static void processQueryOrder(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/query_order.html");
             break;
         }
         case STEP_SETUP: {
-        	if (request.args.has("oid") && request.args.has("csn")) {
-        		int oid = Integer.parseInt(request.args.getString("oid"), 16);
-        		int csn = Integer.parseInt(request.args.getString("csn"), 16);
-        		BeanCommodity c = CommonService.getOrderByOid(oid).commodities.get(csn);
-        		
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", commodityToJson(c));
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
-        	} else {
-	            JSONArray desc = new JSONArray();
-	            CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(request.user)).forEach(o->{
-	                        o.commodities.values().forEach(c->desc.add(commodityToJson(c)));
-	                    });
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", desc);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
-        	}
+            if (request.args.has("oid") && request.args.has("csn")) {
+                int oid = Integer.parseInt(request.args.getString("oid"), 16);
+                int csn = Integer.parseInt(request.args.getString("csn"), 16);
+                BeanCommodity c = CommonService.getOrderByOid(oid).commodities.get(csn);
+                
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", commodityToJson(c));
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
+            } else {
+                JSONArray desc = new JSONArray();
+                CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(request.user)).forEach(o->{
+                            o.commodities.values().forEach(c->desc.add(commodityToJson(c)));
+                        });
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", desc);
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
+            }
             break;
         }
         }
@@ -786,20 +786,20 @@ public class WcWeb {
     }
     
     private void processQueryPlatformAccountMap(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.step) {
         case STEP_PREPARE: {
-        	if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {
-        		processUpdatePlatformAccountMap(response, request);
-        		break;
-        	}
+            if (CommonService.getChannelAccountRelatedByCaidNChannel(request.user, CommonService.CHANNEL_TAOBAO).isEmpty()) {
+                processUpdatePlatformAccountMap(response, request);
+                break;
+            }
             fetchFile(response, "/query_platform_account_map.html");
             break;
         }
@@ -830,19 +830,19 @@ public class WcWeb {
     }
     
     private void processQueryPlatformAccountMoney(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.step) {
         case STEP_PREPARE: {
             if (0 == CommonService.getChannelAccountByCaid(request.user).c_phone.length()) {
-            	processUpdatePlatformAccountMap(response, request);
-            	break;
+                processUpdatePlatformAccountMap(response, request);
+                break;
             }
             fetchFile(response, "/query_platform_account_money.html");
             break;
@@ -856,14 +856,14 @@ public class WcWeb {
             desc.put("cash_rt", prestatement[0]);
             desc.put("coupon_rt", prestatement[1]);
             float deposite = CommonService.getOrderByPaid(puser.i_paid)
-            		.stream()
-            		.map(o->o.commodities.values()
-            					.stream()
-            					.filter(c->!c.isClose())
-            					.count()
-            		)
-            		.reduce(0L, (o1, o2)->o1 + o2)
-            		* Float.parseFloat(FjServerToolkit.getServerConfig("wca.deposite"));
+                    .stream()
+                    .map(o->o.commodities.values()
+                                .stream()
+                                .filter(c->!c.isClose())
+                                .count()
+                    )
+                    .reduce(0L, (o1, o2)->o1 + o2)
+                    * Float.parseFloat(FjServerToolkit.getServerConfig("wca.deposite"));
             desc.put("deposite", deposite);
             
             JSONObject args = new JSONObject();
@@ -879,56 +879,56 @@ public class WcWeb {
     private Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
     
     private void processUpdatePlatformAccountMap(FjHttpResponse response, WcwRequest request) {
-    	if (ANONYMOUS == request.user) {
-        	fetchFile(response, "/message.html");
-        	response.setcookie("msg_type", 		"warn");
-            response.setcookie("msg_title", 	"谢绝游客");
-            response.setcookie("msg_content", 	"请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-            response.setcookie("msg_url", 		"");
+        if (ANONYMOUS == request.user) {
+            fetchFile(response, "/message.html");
+            response.setcookie("msg_type",         "warn");
+            response.setcookie("msg_title",     "谢绝游客");
+            response.setcookie("msg_content",     "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            response.setcookie("msg_url",         "");
             return;
-    	}
+        }
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/update_platform_account_map.html");
             break;
         }
         case STEP_SETUP: {
-        	if (!request.args.has("phone")) {
+            if (!request.args.has("phone")) {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
                 args.put("desc", "参数不完整");
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);
                 break;
-        	}
-        	String phone	= request.args.getString("phone");
-        	String time 	= String.valueOf(System.currentTimeMillis());
-        	String verify 	= time.substring(time.length() - 4);
-        	{
-	        	JSONObject args_mma = new JSONObject();
-	        	args_mma.put("phone", phone);
-	        	args_mma.put("verify", verify);
-	        	FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_USER_AUTHORIZE, args_mma);
-	        	if (!CommonService.isResponseSuccess(rsp)) {
-		            JSONObject args = new JSONObject();
-		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-		            args.put("desc", "发送失败，请稍候重试");
-		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-		            response.content(args);
-		            break;
-	        	}
-        	}
-        	
-        	cache_verify_code.put(request.user, verify);
-        	
-        	{
-	            JSONObject args = new JSONObject();
-	            args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-	            args.put("desc", null);
-	            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-	            response.content(args);
-        	}
-        	break;
+            }
+            String phone    = request.args.getString("phone");
+            String time     = String.valueOf(System.currentTimeMillis());
+            String verify     = time.substring(time.length() - 4);
+            {
+                JSONObject args_mma = new JSONObject();
+                args_mma.put("phone", phone);
+                args_mma.put("verify", verify);
+                FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_USER_AUTHORIZE, args_mma);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    JSONObject args = new JSONObject();
+                    args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                    args.put("desc", "发送失败，请稍候重试");
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(args);
+                    break;
+                }
+            }
+            
+            cache_verify_code.put(request.user, verify);
+            
+            {
+                JSONObject args = new JSONObject();
+                args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args.put("desc", null);
+                response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                response.content(args);
+            }
+            break;
         }
         case STEP_APPLY: {
             if (!request.args.has("phone") || !request.args.has("verify")) {
@@ -939,10 +939,10 @@ public class WcWeb {
                 response.content(args);
                 break;
             }
-            String  phone 	= request.args.getString("phone");
+            String  phone     = request.args.getString("phone");
             String  verify  = request.args.getString("verify");
             if (!cache_verify_code.containsKey(request.user)
-            		|| !verify.equals(cache_verify_code.get(request.user))) {
+                    || !verify.equals(cache_verify_code.get(request.user))) {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                 args.put("desc", "校验失败");
@@ -953,37 +953,37 @@ public class WcWeb {
             cache_verify_code.remove(request.user);
             
             { // 更新手机号
-            	JSONObject args_cdb = new JSONObject();
-            	args_cdb.put("caid", request.user);
-            	args_cdb.put("phone", phone);
-	        	FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
-	        	if (!CommonService.isResponseSuccess(rsp)) {
-		            JSONObject args= new JSONObject();
-		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-		            args.put("desc", "更新手机失败，请稍候重试");
-		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-		            response.content(args);
-		            break;
-	        	}
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("caid", request.user);
+                args_cdb.put("phone", phone);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    JSONObject args= new JSONObject();
+                    args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                    args.put("desc", "更新手机失败，请稍候重试");
+                    response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                    response.content(args);
+                    break;
+                }
             }
             
             List<BeanChannelAccount> users_taobao = CommonService.getChannelAccountByPhoneNChannel(phone, CommonService.CHANNEL_TAOBAO);
             if (1 == users_taobao.size()) { // 尝试关联
-            	BeanChannelAccount user_taobao = users_taobao.get(0);
-            	if (CommonService.getChannelAccountRelatedByCaidNChannel(user_taobao.i_caid, CommonService.CHANNEL_WECHAT).isEmpty()) { // 淘宝用户尚未被关联
+                BeanChannelAccount user_taobao = users_taobao.get(0);
+                if (CommonService.getChannelAccountRelatedByCaidNChannel(user_taobao.i_caid, CommonService.CHANNEL_WECHAT).isEmpty()) { // 淘宝用户尚未被关联
                     JSONObject args_cdb = new JSONObject();
                     args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(request.user));
-                    args_cdb.put("paid_to",		CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
+                    args_cdb.put("paid_to",        CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
                     FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
-    	        	if (!CommonService.isResponseSuccess(rsp)) {
-    		            JSONObject args = new JSONObject();
-    		            args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-    		            args.put("desc", "关联淘宝用户失败，请稍候重试");
-    		            response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
-    		            response.content(args);
-    		            break;
-    	        	}
-            	}
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                        JSONObject args = new JSONObject();
+                        args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                        args.put("desc", "关联淘宝用户失败，请稍候重试");
+                        response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
+                        response.content(args);
+                        break;
+                    }
+                }
             }
             
             JSONObject args= new JSONObject();
@@ -1009,13 +1009,13 @@ public class WcWeb {
     }
     
     private static class WcwRequest {
-        public String           	server = null;
-        public int              	inst = -1;
-        public int              	user = ANONYMOUS;
-        public String           	path  = null;
-        public String           	step = null;
-        public JSONObject       	args = null;
-        public SocketChannel    	conn = null;
+        public String               server = null;
+        public int                  inst = -1;
+        public int                  user = ANONYMOUS;
+        public String               path  = null;
+        public String               step = null;
+        public JSONObject           args = null;
+        public SocketChannel        conn = null;
         
         public WcwRequest(String server, String path, int user, JSONObject args, SocketChannel conn) {
             this.server = server;

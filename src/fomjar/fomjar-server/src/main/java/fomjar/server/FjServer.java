@@ -29,17 +29,17 @@ public class FjServer extends FjLoopTask {
     public FjServerTask addServerTask(FjServerTask task) {
         if (null == task) throw new NullPointerException();
         synchronized (tasks) {
-        	FjServerTask old = tasks.put(task.getClass().getName(), task);
-        	
-        	if (null != old) {
-        		try {old.destroy(this);}
-        		catch (Exception e) {logger.error("destroy task failed", e);}
-        	}
-        	try {task.initialize(this);}
-        	catch (Exception e) {logger.error("initialize task failed", e);}
-        	
-        	return old;
-    	}
+            FjServerTask old = tasks.put(task.getClass().getName(), task);
+            
+            if (null != old) {
+                try {old.destroy(this);}
+                catch (Exception e) {logger.error("destroy task failed", e);}
+            }
+            try {task.initialize(this);}
+            catch (Exception e) {logger.error("initialize task failed", e);}
+            
+            return old;
+        }
     }
 
     @Override
@@ -61,9 +61,9 @@ public class FjServer extends FjLoopTask {
     }
     
     public static interface FjServerTask {
-    	void initialize	(FjServer server);
-    	void destroy	(FjServer server);
-        void onMessage	(FjServer server, FjMessageWrapper wrapper);
+        void initialize    (FjServer server);
+        void destroy    (FjServer server);
+        void onMessage    (FjServer server, FjMessageWrapper wrapper);
     }
 
 }

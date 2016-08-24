@@ -29,7 +29,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
     
     private static final int ICON_SIZE = 55;
     
-    private JLabel 	c_url_icon;
+    private JLabel     c_url_icon;
     private JLabel  c_name;
     private JLabel  i_gid;
     private JLabel  t_sale;
@@ -41,11 +41,11 @@ public class ListCellGame extends FjListCell<BeanGame> {
     public ListCellGame(BeanGame data) {
         super(data);
         
-        c_url_icon 	= new JLabel();
-        c_name   	= new JLabel();
+        c_url_icon     = new JLabel();
+        c_name       = new JLabel();
         i_gid       = new JLabel();
         t_sale      = new JLabel();
-        c_category	= new JLabel();
+        c_category    = new JLabel();
         i_price_a   = new JLabel();
         i_price_b   = new JLabel();
         tags        = new JPanel();
@@ -113,14 +113,14 @@ public class ListCellGame extends FjListCell<BeanGame> {
     }
     
     private void update() {
-    	BeanGame data = getData();
-    	
+        BeanGame data = getData();
+        
         pool.submit(()->{
-        	try {
-        		Image img = UIToolkit.LoadImage(data.c_url_icon);
-	        	ImageIcon icon = new ImageIcon(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT));
-	        	c_url_icon.setIcon(icon);
-        	} catch (Exception e) {e.printStackTrace();}
+            try {
+                Image img = UIToolkit.LoadImage(data.c_url_icon);
+                ImageIcon icon = new ImageIcon(img.getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_DEFAULT));
+                c_url_icon.setIcon(icon);
+            } catch (Exception e) {e.printStackTrace();}
         });
         c_name.setText(data.getDisplayName());
         i_gid.setText(String.format("0x%08X", data.i_gid));
@@ -130,17 +130,17 @@ public class ListCellGame extends FjListCell<BeanGame> {
         i_price_b.setText("B租价格: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
         tags.removeAll();
         CommonService.getTagByInstance(CommonService.TAG_GAME, data.i_gid)
-		        .stream()
-		        .forEach(tag->{
-		            JButton btn = new JButton(tag.c_tag);
-		            btn.setBorder(BorderFactory.createLineBorder(Color.gray));
-		            btn.setFont(btn.getFont().deriveFont(10.0f));
+                .stream()
+                .forEach(tag->{
+                    JButton btn = new JButton(tag.c_tag);
+                    btn.setBorder(BorderFactory.createLineBorder(Color.gray));
+                    btn.setFont(btn.getFont().deriveFont(10.0f));
                     btn.addActionListener(e->{
                         UIToolkit.deleteTag(tag);
                         update();
                     });
-		            tags.add(btn);
-		        });
+                    tags.add(btn);
+                });
         tags.revalidate();
     }
 }

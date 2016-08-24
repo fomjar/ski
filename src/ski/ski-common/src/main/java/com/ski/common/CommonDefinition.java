@@ -71,7 +71,7 @@ public final class CommonDefinition {
         /** 查询通知 */
         public static final int INST_ECOM_QUERY_NOTIFICATION            = 0x0000200E;
         /** 查询访问记录 */
-        public static final int INST_ECOM_QUERY_ACCESS_RECORD			= 0x0000200F;
+        public static final int INST_ECOM_QUERY_ACCESS_RECORD            = 0x0000200F;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -115,7 +115,7 @@ public final class CommonDefinition {
         /** 更新通知 */
         public static final int INST_ECOM_UPDATE_NOTIFICATION           = 0x0000240E;
         /** 更新访问记录 */
-        public static final int INST_ECOM_UPDATE_ACCESS_RECORD			= 0x0000240F;
+        public static final int INST_ECOM_UPDATE_ACCESS_RECORD            = 0x0000240F;
     }
     
     /**
@@ -154,9 +154,9 @@ public final class CommonDefinition {
         public static final int CODE_USER_ILLEGAL_ORDER_STATE           = 0x0000300B; // 非法订单状态
         public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT          = 0x0000300C; // 非法账号
         public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE    = 0x0000300D; // 非法账号状态
-        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT		= 0x0000300E; // 非法用户
+        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT        = 0x0000300E; // 非法用户
         public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE = 0x0000300F; // 非法用户状态
-        public static final int CODE_USER_AUTHORIZE_FAILED				= 0X00003010; // 认证失败
+        public static final int CODE_USER_AUTHORIZE_FAILED                = 0X00003010; // 认证失败
     }
 
 }

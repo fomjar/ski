@@ -29,7 +29,7 @@ public class CreateUser implements AE {
         new Select(driver.findElement(By.id("yearDropDown"))).selectByValue(args.getString("year")); // 生日年份
         new Select(driver.findElement(By.id("monthDropDown"))).selectByValue(args.getString("month")); // 生日月份
         new Select(driver.findElement(By.id("dayDropDown"))).selectByValue(args.getString("day")); // 生日月份
-        driver.findElement(By.id("regInput_MaleGender")).click();		// 选择性别
+        driver.findElement(By.id("regInput_MaleGender")).click();        // 选择性别
         new Select(driver.findElement(By.id("account_address_provinceField"))).selectByVisibleText("香港"); // 地址       
         driver.findElement(By.id("createAccountButton")).click();  // 注册按钮点击
 

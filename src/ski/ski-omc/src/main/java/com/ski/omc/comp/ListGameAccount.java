@@ -24,8 +24,8 @@ public class ListGameAccount extends JDialog {
     
     private static ListGameAccount instance = null;
     public static synchronized ListGameAccount getInstance() {
-    	if (null == instance) instance = new ListGameAccount();
-    	return instance;
+        if (null == instance) instance = new ListGameAccount();
+        return instance;
     }
     
     private JToolBar                    toolbar;

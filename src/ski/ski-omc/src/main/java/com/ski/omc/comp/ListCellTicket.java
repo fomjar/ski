@@ -106,14 +106,14 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             content.setLineWrap(true);
             FjTextField result = new FjTextField();
             result.setDefaultTips("(请输入处理意见)");
-            JButton		btn_accept = new JButton("接受");
-            JButton		btn_refuse = new JButton("拒绝");
-            JButton		btn_cancel = new JButton("取消");
-			JPanel buttons = new JPanel();
-			buttons.setLayout(new GridLayout(1, 3));
-			buttons.add(btn_accept);
-			buttons.add(btn_refuse);
-			buttons.add(btn_cancel);
+            JButton        btn_accept = new JButton("接受");
+            JButton        btn_refuse = new JButton("拒绝");
+            JButton        btn_cancel = new JButton("取消");
+            JPanel buttons = new JPanel();
+            buttons.setLayout(new GridLayout(1, 3));
+            buttons.add(btn_accept);
+            buttons.add(btn_refuse);
+            buttons.add(btn_cancel);
             
             JPanel head = new JPanel();
             head.setLayout(new GridLayout(3, 1));
@@ -137,31 +137,31 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             dialog.add(buttons, BorderLayout.SOUTH);
             
             ActionListener a = new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					dialog.dispose();
-					
-					if (btn_cancel == e.getSource()) return;
-					
-					int state = CommonService.TICKET_STATE_OPEN;
-					if (btn_accept == e.getSource()) 		state = CommonService.TICKET_STATE_CLOSE;
-					else if (btn_refuse == e.getSource()) 	state = CommonService.TICKET_STATE_CANCEL;
-					
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    dialog.dispose();
+                    
+                    if (btn_cancel == e.getSource()) return;
+                    
+                    int state = CommonService.TICKET_STATE_OPEN;
+                    if (btn_accept == e.getSource())         state = CommonService.TICKET_STATE_CLOSE;
+                    else if (btn_refuse == e.getSource())     state = CommonService.TICKET_STATE_CANCEL;
+                    
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     JSONObject args = new JSONObject();
-                    args.put("tid", 	data.i_tid);
-                    args.put("close", 	sdf.format(new Date()));
-                    args.put("state", 	state);
-                    args.put("result", 	result.getText());
+                    args.put("tid",     data.i_tid);
+                    args.put("close",     sdf.format(new Date()));
+                    args.put("state",     state);
+                    args.put("result",     result.getText());
                     FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
                     CommonService.updateTicket();
                     UIToolkit.showServerResponse(rsp);
                     ListTicket.getInstance().refresh();
                 }
-			};
-			btn_accept.addActionListener(a);
-			btn_refuse.addActionListener(a);
-			btn_cancel.addActionListener(a);
+            };
+            btn_accept.addActionListener(a);
+            btn_refuse.addActionListener(a);
+            btn_cancel.addActionListener(a);
             
             if (data.isClose()) {
                 result.setEditable(false);

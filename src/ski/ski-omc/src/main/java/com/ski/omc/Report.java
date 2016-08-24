@@ -103,11 +103,11 @@ public class Report {
     }
     
     public static String createReportFoot(String foot) {
-    	return String.format("<table style='font-size: 90%%'><tr>"
-    			+ "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-left: 4px; text-align: left'>%s</td>"
-    			+ "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-right: 4px; text-align: right'>此报告由 SKI系统 于 %s 自动生成</td>"
-    			+ "</tr></table>",
-    			foot,
-    			new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+        return String.format("<table style='font-size: 90%%'><tr>"
+                + "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-left: 4px; text-align: left'>%s</td>"
+                + "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-right: 4px; text-align: right'>此报告由 SKI系统 于 %s 自动生成</td>"
+                + "</tr></table>",
+                foot,
+                new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
     }
 }

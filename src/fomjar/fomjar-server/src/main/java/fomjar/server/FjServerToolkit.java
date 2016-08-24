@@ -206,10 +206,10 @@ public class FjServerToolkit {
         if (data.startsWith("GET")
                 || data.startsWith("POST")
                 || data.startsWith("HEAD")) {
-        	return FjHttpRequest.parse(data);
+            return FjHttpRequest.parse(data);
         }
         if (data.startsWith("HTTP/")) {
-        	return FjHttpResponse.parse(data);
+            return FjHttpResponse.parse(data);
         }
         if (data.startsWith("{")) {
             FjJsonMessage jmsg = new FjJsonMessage(data);

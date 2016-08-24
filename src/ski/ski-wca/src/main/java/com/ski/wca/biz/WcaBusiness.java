@@ -31,7 +31,7 @@ public class WcaBusiness {
     private TokenMonitor mon_token;
     
     public WcaBusiness(TokenMonitor mon_token) {
-    	this.mon_token = mon_token;
+        this.mon_token = mon_token;
     }
     
     public void dispatch(String server, FjDscpMessage req) {
@@ -148,7 +148,7 @@ public class WcaBusiness {
     }
     
     private static void dispatchCommand(String server, String user, JSONObject args) {
-    	switch (args.getString("cmd")) {
-    	}
+        switch (args.getString("cmd")) {
+        }
     }    
 }
