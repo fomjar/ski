@@ -57,6 +57,7 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 		println(" done!");
 		
 		List<String> list_normal 		= new LinkedList<String>();
+		List<String> list_operFail		= new LinkedList<String>();
 		List<String> list_passError		= new LinkedList<String>();
 		List<String> list_unbindInA 	= new LinkedList<String>();
 		List<String> list_bindOutA	= new LinkedList<String>();
@@ -89,7 +90,10 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 			args_wa.put("user", account.c_user);
 			args_wa.put("pass", account.c_pass);
 			FjDscpMessage rsp = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY, args_wa);
-			if (!CommonService.isResponseSuccess(rsp)) {
+			if (null == rsp) {
+				println("操作失败");
+				list_operFail.add(getGameAccountDesc(gaid));
+			} else if (!CommonService.isResponseSuccess(rsp)) {
 				println("密码错误");
 				list_passError.add(getGameAccountDesc(gaid));
 			} else if (rsp.toString().contains(" unbind")
@@ -113,6 +117,7 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
 		
 		println(String.format("====================\n本次共检测了 %d 个帐号。\n====================", list_gaid2check.size()));
 		printGameAccountsOneClass("正常", 		list_normal);
+		printGameAccountsOneClass("操作失败", 	list_operFail);
 		printGameAccountsOneClass("密码错误", 	list_passError);
 		printGameAccountsOneClass("A在租但未绑定",	list_unbindInA);
 		printGameAccountsOneClass("A未租但已绑定",	list_bindOutA);

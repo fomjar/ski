@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002401', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, \"$name_zh_cn\", \"$name_zh_hk\", \"$name_en\", \"$name_ja\", \"$name_ko\", \"$name_other\", \"$platform\", \"$category\", \"$language\", \"$size\", \"$vendor\", \"$sale\", \"$url_icon\", \"$url_cover\", \"$url_poster\", \"$introduction\", \"$version\", \"$vedio\")");
+insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, \"$name_zh_cn\", \"$name_zh_hk\", \"$name_en\", \"$name_ja\", \"$name_ko\", \"$name_other\", \"$platform\", \"$category\", \"$language\", \"$size\", \"$vendor\", \"$sale\", \"$url_icon\", \"$url_cover\", \"$url_poster\", \"$introduction\", \"$version\", \"$vedio\", $associator, $online_number, \"$peripheral\", \"$editor_word\", $ign_score, \"$producer\")");
 
 -- 更新游戏
 delimiter //
@@ -25,7 +25,13 @@ create procedure sp_update_game (
     in  url_poster      text,           -- 海报(多个)
     in  introduction    text,           -- 游戏说明
     in  version         text,           -- 版本说明
-    in  vedio           text            -- 视频脚本
+    in  vedio           text,           -- 视频脚本
+    in  associator      tinyint,        -- 0-unecessary, 1-necessary
+    in  online_number   tinyint,        -- 0-nolimit, x-x players, default-1
+    in  peripheral      varchar(128),   -- 外设：摄像头、体感棒、VR头盔
+    in  editor_word     text,           -- 编辑推荐
+    in  ign_score       decimal(3, 2),  -- IGN评分
+    in  producer        varchar(64)     -- 制作人
 )
 begin
     declare di_gid      integer default -1;
@@ -65,7 +71,13 @@ begin
             c_url_poster,
             c_introduction,
             c_version,
-            c_vedio
+            c_vedio,
+            i_associator,
+            i_online_number,
+            c_peripheral,
+            c_editor_word,
+            i_ign_score,
+            c_producer
         ) values (
             di_gid,
             name_zh_cn,
@@ -85,7 +97,13 @@ begin
             url_poster,
             introduction,
             version,
-            vedio
+            vedio,
+            associator,
+            online_number,
+            peripheral,
+            editor_word,
+            ign_score,
+            producer
         );
         
         set c_desc = conv(di_gid, 10, 16);
@@ -115,7 +133,13 @@ begin
                 c_url_poster,
                 c_introduction,
                 c_version,
-                c_vedio
+                c_vedio,
+                i_associator,
+                i_online_number,
+                c_peripheral,
+                c_editor_word,
+                i_ign_score,
+                c_producer
             ) values (
                 gid,
                 name_zh_cn,
@@ -135,7 +159,13 @@ begin
                 url_poster,
                 introduction,
                 version,
-                vedio
+                vedio,
+                associator,
+                online_number,
+                peripheral,
+                editor_word,
+                ign_score,
+                producer
             );
         else
             if name_zh_cn is not null then
@@ -226,6 +256,36 @@ begin
             if vedio is not null then
                 update tbl_game
                    set c_vedio = vedio
+                 where i_gid = gid;
+            end if;
+            if associator is not null then
+                update tbl_game
+                   set i_associator = associator
+                 where i_gid = gid;
+            end if;
+            if online_number is not null then
+                update tbl_game
+                   set i_online_number = online_number
+                 where i_gid = gid;
+            end if;
+            if peripheral is not null then
+                update tbl_game
+                   set c_peripheral = peripheral
+                 where i_gid = gid;
+            end if;
+            if editor_word is not null then
+                update tbl_game
+                   set c_editor_word = editor_word
+                 where i_gid = gid;
+            end if;
+            if ign_score is not null then
+                update tbl_game
+                   set i_ign_score = ign_score
+                 where i_gid = gid;
+            end if;
+            if producer is not null then
+                update tbl_game
+                   set c_producer = producer
                  where i_gid = gid;
             end if;
         end if;

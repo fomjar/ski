@@ -99,7 +99,13 @@ create table tbl_game (
     c_url_poster    text,           -- 海报(多个)
     c_introduction  text,           -- 游戏说明
     c_version       text,           -- 版本说明
-    c_vedio         text            -- 视频脚本
+    c_vedio         text,           -- 视频脚本
+    i_associator    tinyint,        -- 0-unecessary, 1-necessary
+    i_online_number tinyint,        -- 0-nolimit, x-x players, default-1
+    c_peripheral    varchar(128),   -- 外设：摄像头、体感棒、VR头盔
+    c_editor_word   text,           -- 编辑推荐
+    i_ign_score     decimal(3, 2),  -- IGN评分
+    c_producer      varchar(64)     -- 制作人
 );
 
 -- 订单
@@ -198,8 +204,16 @@ create table tbl_access_record (
     t_time      datetime        -- 访问事件
 );
 
+-- 渠道商品
 drop table if exists tbl_channel_commodity;
 create table tbl_channel_commodity (
-    
+    i_osn           integer,        -- 操作序列号
+    i_cid           integer,        -- 商品ID(对应的)
+    c_url_cover     varchar(250),   -- 封面图链接
+    c_url_refer     varchar(250),   -- 商品引用链接
+    c_url_shop      varchar(250),   -- 店铺链接
+    c_shop_addr     varchar(100),   -- 店铺地址
+    c_shop_level    varchar(100),   -- 店铺地址
+    i_price         decimal(4, 2)   -- 价格
 );
 
