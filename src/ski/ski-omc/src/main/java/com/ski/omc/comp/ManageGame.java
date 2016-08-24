@@ -18,6 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -68,6 +69,12 @@ public class ManageGame extends JDialog {
     private JTextArea 	c_introduction;
     private JTextArea 	c_version;
     private JTextField  c_vedio;
+    private JComboBox<String>  i_associator;
+    private JTextField  i_online_number;
+    private JTextField  c_peripheral;
+    private JTextArea	c_editor_word;
+    private JTextField	i_ign_score;
+    private JTextField  c_producer;
     
     private FjEditLabel	i_price_a;
     private FjEditLabel i_price_b;
@@ -82,7 +89,7 @@ public class ManageGame extends JDialog {
         setTitle(String.format("管理游戏 - %s", game.c_name_zh_cn));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(new Dimension(400, 440));
+        setSize(new Dimension(500, 440));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
@@ -123,6 +130,15 @@ public class ManageGame extends JDialog {
         
         c_vedio = new JTextField();
         
+        i_associator    = new JComboBox<String>(new String[] {"否", "是"});
+        i_online_number = new JTextField();
+        c_peripheral    = new JTextField();
+        c_editor_word	= new JTextArea();
+        c_editor_word.setLineWrap(true);
+        c_editor_word.setRows(3);
+        i_ign_score		= new JTextField();
+        c_producer		= new JTextField();
+        
         i_gid.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_name_zh_cn.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_name_zh_hk.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
@@ -136,6 +152,14 @@ public class ManageGame extends JDialog {
         c_size.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_vendor.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         t_sale.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        
+        i_associator.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        i_online_number.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_peripheral.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_editor_word.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        i_ign_score.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_producer.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        
         c_url_icon.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_url_cover.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         
@@ -160,6 +184,12 @@ public class ManageGame extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("游戏大小", c_size));
         panel_basic.add(UIToolkit.createBasicInfoLabel("开发组织", c_vendor));
         panel_basic.add(UIToolkit.createBasicInfoLabel("发行日期", t_sale));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("需要会员", i_associator));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("联机人数", i_online_number));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("外接设备", c_peripheral));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("IGN评分", i_ign_score));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("制作人", c_producer));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("编辑推荐", new JScrollPane(c_editor_word)));
         
         JPanel panel_url_icon = new JPanel();
         panel_url_icon.setLayout(new BorderLayout());
@@ -243,6 +273,13 @@ public class ManageGame extends JDialog {
 			public void mousePressed(MouseEvent e) {
 				List<String> languages = UIToolkit.chooseMultipleValue(new String[] {"简体中文", "繁体中文", "英文", "日文", "韩文", "其他"}, c_language.getText().split(" "));
 				if (null != languages) c_language.setText(languages.stream().collect(Collectors.joining(" ")));
+			}
+		});
+    	c_peripheral.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				List<String> languages = UIToolkit.chooseMultipleValue(new String[] {"体感摄像头", "体感棒", "VR头盔", "其它"}, c_peripheral.getText().split(" "));
+				if (null != languages) c_peripheral.setText(languages.stream().collect(Collectors.joining(" ")));
 			}
 		});
     	c_url_icon.addKeyListener(new KeyAdapter() {
@@ -336,6 +373,13 @@ public class ManageGame extends JDialog {
         	args.put("version", 	c_version.getText().replace("\n", "|"));
         	args.put("vedio", 		c_vedio.getText().replace("\"", "'"));
         	
+        	args.put("associator", 		i_associator.getSelectedIndex());
+        	args.put("online_number", 	i_online_number.getText());
+        	args.put("peripheral", 		c_peripheral.getText());
+        	args.put("editor_word", 	c_editor_word.getText().replace("\n", "|"));
+        	args.put("ign_score", 		i_ign_score.getText());
+        	args.put("producer", 		c_producer.getText());
+        	
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME, args);
             CommonService.updateGame();
             if (!UIToolkit.showServerResponse(rsp)) return;
@@ -396,6 +440,13 @@ public class ManageGame extends JDialog {
         c_introduction.setText(game.c_introduction.replace("|", "\n"));
         c_version.setText(game.c_version.replace("|", "\n"));
         c_vedio.setText(game.c_vedio);
+        
+        i_associator.setSelectedIndex(game.i_associator);
+        i_online_number.setText(String.valueOf(game.i_online_number));
+        c_peripheral.setText(game.c_peripheral);
+        c_editor_word.setText(game.c_editor_word.replace("|", "\n"));
+        i_ign_score.setText(String.valueOf(game.i_ign_score));
+        c_producer.setText(game.c_producer);
     }
     
     private void updatePrice() {
