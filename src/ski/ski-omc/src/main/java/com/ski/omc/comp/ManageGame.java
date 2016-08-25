@@ -278,7 +278,7 @@ public class ManageGame extends JDialog {
         c_play_mode.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                List<String> modes = UIToolkit.chooseMultipleValue(new String[] {"单人", "在线", "1-2人本地同屏", "1-3人本地同屏", "1-4人本地同屏"}, c_play_mode.getText().split(" "));
+                List<String> modes = UIToolkit.chooseMultipleValue(new String[] {"单人", "1-2人本地同屏", "1-3人本地同屏", "1-4人本地同屏", "在线"}, c_play_mode.getText().split(" "));
                 if (null != modes) c_play_mode.setText(modes.stream().collect(Collectors.joining(" ")));
             }
         });
