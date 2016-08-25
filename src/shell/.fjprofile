@@ -3,7 +3,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 
 fjbase=~/Documents/fomjar/src/fomjar
-fjbin=~/Ducuments/fomjar/src/shell/bin
+fjbin=~/Documents/fomjar/src/shell/bin
 
 ski_lbase=~/Documents/fomjar/src/ski
 ski_rbase=/home/ski/ski

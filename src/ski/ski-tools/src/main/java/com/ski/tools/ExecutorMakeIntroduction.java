@@ -39,6 +39,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
     private static String   g_format    = "jpg";
     private static String   g_icon      = "https://img.alicdn.com/imgextra/i3/2859081856/TB24W0saM_xQeBjy0FoXXX1vpXa_!!2859081856.png";
     private static int      g_iconsize  = 70;
+    private static float    g_coverrate = 1.0f / 3;
     
     @Override
     public void execute(Map<String, String> args) {
@@ -68,7 +69,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         
         CommonService.getGameAll().values().parallelStream().forEach(game->{
             try {
-                makeIntr(game, g_width, g_base);
+                makeIntr(game, g_base);
                 System.out.print(String.format("make introduction for [%-40s]", game.c_name_zh_cn));
                 System.out.println(" done!");
             } catch (Exception e) {
@@ -79,19 +80,24 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         });
     }
     
-    private static void makeIntr(BeanGame game, int width, String dir) throws IOException {
+    private static void makeIntr(BeanGame game, String dir) throws IOException {
+        String[] editor_word = convertArticle(game.c_editor_word, g_width - g_margin * 2);
+        String[] introduction = convertArticle(game.c_introduction, g_width - g_margin * 2);
         String[] posters = game.c_url_poster.split(" ");
         if (1 == posters.length && 0 == posters[0].length()) posters = new String[] {};
-        String[] introduction = convertArticle(game.c_introduction, width - g_margin * 2);
-        int height = g_top                                                                // top
-                + g_margin + g_cover                                                    // cover
-                + g_margin                                                                // separator
+        
+        Map<String, String> fields = collectFields(game);
+        
+        int height = g_top                                                              // top
+                + g_margin + (int)((fields.size() * 1.5 - 0.5) * g_font.getSize())      // cover & fields
+                + g_margin                                                              // separator
+                + (0 == editor_word.length ? 0 : (g_margin * 2 + (editor_word.length + 1) * g_font.getSize() * 2)) // editor word
                 + (0 == posters.length ? 0 : posters.length * (g_margin + g_poster))    // poster
-                + (g_margin + introduction.length * g_font.getSize() * 2)                // introduction
-                + g_margin;                                                                // bottom
+                + (g_margin + introduction.length * g_font.getSize() * 2)               // introduction
+                + g_margin;                                                             // bottom
         
         // 初始化缓存区
-        BufferedImage buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        BufferedImage buffer = new BufferedImage(g_width, height, BufferedImage.TYPE_INT_RGB);
         Graphics g = buffer.getGraphics();
         g.setColor(g_bg);
         g.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
@@ -104,10 +110,12 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         int[] current = new int[] {0};
         current[0] = g_top;
         // 画封面
-        drawCover(current, g, game.c_url_cover);
+        drawCover(current, g, game.c_url_cover, fields.size());
         // 画字段
-        drawField(current, g, game);
-        current[0] = g_top + g_margin + g_cover;
+        drawField(current, g, fields);
+        current[0] = g_top + g_margin + (int)((fields.size() * 1.5 - 0.5) * g_font.getSize());
+        // 画编辑推荐
+        drawEditorWord(current, g, editor_word);
         // 画分割线
         drawSeparator(current, g);
         // 画第一张海报
@@ -123,33 +131,36 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn, g_format)));
     }
     
-    private static void drawCover(int[] current, Graphics g, String url) {
+    private static void drawCover(int[] current, Graphics g, String url, int field_count) {
         Image cover = getImage(url);
         // background
         drawBackground(g, cover);
         // watermark
         drawWatermark(g, "VC电玩");
         
+        int x = g_margin + (int) ((g_width - g_margin * 2) * g_coverrate - g_cover) / 2;
+        int y = current[0] + g_margin + (int) ((field_count * 1.5 - 0.5) * g.getFont().getSize() - g_cover) / 2;
+        
         // shadow
         int offset = 6;
         g.setColor(new Color(0, 0, 0, 80));
-        g.fillRect(g_margin + offset, current[0] + g_margin + offset, g_cover, g_cover);
+        g.fillRect(x + offset, y + offset, g_cover, g_cover);
         // cover
         g.setColor(g_fg);
-        g.drawImage(cover, g_margin, current[0] + g_margin, g_cover, g_cover, null);
+        g.drawImage(cover, x, y, g_cover, g_cover, null);
         // mask
         ((Graphics2D) g).setPaint(new GradientPaint(
-                new Point(g_margin, current[0] + g_margin),
+                new Point(x, y),
                 new Color(255, 255, 255, 150),
-                new Point(g_margin + g_cover / 2, current[0] + g_margin + g_cover),
+                new Point(x + g_cover / 2, y + g_cover),
                 new Color(255, 255, 255, 0)));
-        g.fillRect(g_margin, current[0] + g_margin, g_cover, g_cover);
+        g.fillRect(x, y, g_cover, g_cover);
         g.setColor(new Color(255, 255, 255, 50));
-        g.drawLine(g_margin, current[0] + g_margin, g_margin + g_cover - 1, current[0] + g_margin);
-        g.drawLine(g_margin, current[0] + g_margin, g_margin, current[0] + g_margin + g_cover - 1);
+        g.drawLine(x, y, x + g_cover - 1, y);
+        g.drawLine(x, y, x, y + g_cover - 1);
         g.setColor(new Color(0, 0, 0, 100));
-        g.drawLine(g_margin, current[0] + g_margin + g_cover - 1, g_margin + g_cover - 1, current[0] + g_margin + g_cover - 1);
-        g.drawLine(g_margin + g_cover - 1, current[0] + g_margin, g_margin + g_cover - 1, current[0] + g_margin + g_cover - 1);
+        g.drawLine(x, y + g_cover - 1, x + g_cover - 1, y + g_cover - 1);
+        g.drawLine(x + g_cover - 1, y, x + g_cover - 1, y + g_cover - 1);
         
         g.setColor(g_fg);
     }
@@ -167,28 +178,37 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.fillRect(0, 0, bg_width, bg_height);
     }
     
-    private static void drawField(int[] current, Graphics g, BeanGame game) {
-        Map<String, String> fields = new LinkedHashMap<String, String>();
-        fields.put("中文名称：", game.c_name_zh_cn);
-        fields.put("英文名称：", game.c_name_en);
-        fields.put("支持语言：", game.c_language);
-        fields.put("游戏大小：", game.c_size);
-        fields.put("发售时间：", game.t_sale);
-        fields.put("发行厂商：", game.c_vendor);
-        
-        int base_x         = g_cover + g_margin * 2;
-        int count          = fields.size();
-        int label_len     = g.getFont().getSize() * 6;
+    private static void drawField(int[] current, Graphics g, Map<String, String> fields) {
+        int base_x      = (int) ((g_margin * 2 + (g_width - g_margin * 2) * g_coverrate));
+        int label_len   = g.getFont().getSize() * 6;
         int field_len   = g_width - base_x - label_len - g_margin;
-        int interval_y     = g_cover / count;
-        int offset_y    = (interval_y - g.getFont().getSize()) / 3;
         
-        current[0] += g_margin + g.getFont().getSize() + offset_y;
+        current[0] += g_margin + g.getFont().getSize();
         fields.forEach((label, field)->{
-            drawShadowString(g, label,    base_x,             current[0], label_len);
-            drawShadowString(g, field,     base_x + label_len, current[0], field_len);
-            current[0] += interval_y;
+            drawShadowString(g, label + "：",    base_x,             current[0], label_len);
+            drawShadowString(g, field,          base_x + label_len, current[0], field_len);
+            current[0] += g.getFont().getSize() * 1.5;
         });
+    }
+    
+    private static void drawEditorWord(int[] current, Graphics g, String[] editor_word) {
+        if (0 == editor_word.length) return;
+        
+        drawSeparator(current, g);
+        
+        current[0] += g_margin;
+        current[0] += g.getFont().getSize();
+        
+        g.setFont(g_font.deriveFont(Font.BOLD));
+        g.setColor(new Color(200, 200, 255));
+        drawShadowString(g, "编辑推荐", g_margin, current[0], g_width - g_margin * 2);
+        
+        current[0] += g.getFont().getSize() * 2;
+        g.setFont(g_font.deriveFont(Font.ITALIC));
+        drawArticle(current, g, editor_word);
+        
+        g.setFont(g_font);
+        g.setColor(g_fg);
     }
     
     private static void drawSeparator(int[] current, Graphics g) {
@@ -200,9 +220,10 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
     }
     
     private static void drawShadowString(Graphics g, String s, int x, int y, int width) {
+        Color c = g.getColor();
         g.setColor(g_bg.darker());
         drawString(g, s, x + 2, y + 2, width);
-        g.setColor(g_fg);
+        g.setColor(c);
         drawString(g, s, x, y, width);
     }
     
@@ -223,14 +244,18 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         current[0] += g_poster;
     }
     
-    private static void drawIntroduction(int[] current, Graphics g, String[] introduction) {
-        current[0] += g_margin;
+    private static void drawArticle(int[] current, Graphics g, String[] article) {
         current[0] += g.getFont().getSize();
-        for (String s : introduction) {
+        for (String s : article) {
             drawShadowString(g, s, g_margin, current[0], g_width - g_margin * 2);
             current[0] += g.getFont().getSize() * 2;
         }
         current[0] -= g.getFont().getSize();
+    }
+    
+    private static void drawIntroduction(int[] current, Graphics g, String[] introduction) {
+        current[0] += g_margin;
+        drawArticle(current, g, introduction);
     }
     
     private static void drawWatermark(Graphics g, String watermark) {
@@ -250,16 +275,40 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
     
     private static void drawIcon(Graphics g) {
         Image icon = getIcon();
+        Image shadow = getIconShadow();
+        int offset = 4;
         Composite c = ((Graphics2D) g).getComposite();
-        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
+        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
         // shadow
-        g.drawImage(icon, g_width - g_margin - g_iconsize, g_margin, g_iconsize, g_iconsize, null);
+        g.drawImage(shadow, g_width - g_margin - g_iconsize + offset, g_margin + offset, g_iconsize, g_iconsize, null);
+        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f));
         // icon
         g.drawImage(icon, g_width - g_margin - g_iconsize, g_margin, g_iconsize, g_iconsize, null);
         ((Graphics2D) g).setComposite(c);
     }
     
+    private static Map<String, String> collectFields(BeanGame game) {
+        Map<String, String> fields = new LinkedHashMap<String, String>();
+        fields.put("中文名称", game.c_name_zh_cn);
+        fields.put("英文名称", game.c_name_en);
+        fields.put("支持语言", game.c_language);
+        fields.put("游戏大小", game.c_size);
+        fields.put("游戏模式", game.c_play_mode);
+        fields.put("PSN会员", 0 == game.i_associator ? "非必须" : "必须");
+        if (0 < game.i_ign_score)
+            fields.put("IGN评分", String.valueOf(game.i_ign_score));
+        if (0 < game.c_peripheral.length())
+            fields.put("支持外设", game.c_peripheral);
+        fields.put("发售时间", game.t_sale);
+        fields.put("发行厂商", game.c_vendor);
+        if (0 < game.c_producer.length())
+            fields.put("游戏制作人", game.c_producer);
+        return fields;
+    }
+    
     private static String[] convertArticle(String article, int width) {
+        if (0 == article.length()) return new String[0];
+        
         Graphics g = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).getGraphics();
         g.setFont(g_font);
         
