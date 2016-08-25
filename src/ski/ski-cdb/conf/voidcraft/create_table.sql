@@ -101,7 +101,7 @@ create table tbl_game (
     c_version       text,           -- 版本说明
     c_vedio         text,           -- 视频脚本
     i_associator    tinyint,        -- 0-unecessary, 1-necessary
-    i_online_number tinyint,        -- 0-nolimit, x-x players, default-1
+    i_play_mode     varchar(128),   -- 单人、1-n人本地同屏、在线
     c_peripheral    varchar(128),   -- 外设：摄像头、体感棒、VR头盔
     c_editor_word   text,           -- 编辑推荐
     i_ign_score     decimal(3, 2),  -- IGN评分

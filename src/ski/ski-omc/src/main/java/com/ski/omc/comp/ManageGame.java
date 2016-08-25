@@ -47,37 +47,37 @@ public class ManageGame extends JDialog {
     
     private JToolBar    toolbar;
     
-    private JTextField     i_gid;
-    private JTextField     c_name_zh_cn;
-    private JTextField    c_name_zh_hk;
-    private JTextField     c_name_en;
-    private JTextField     c_name_ja;
-    private JTextField     c_name_ko;
-    private JTextField     c_name_other;
-    private JTextField     c_platform;
-    private JTextField     c_category;
-    private JTextField     c_language;
-    private JTextField     c_size;
-    private JTextField     c_vendor;
-    private JTextField     t_sale;
-    private JTextField     c_url_icon;
-    private JLabel        c_url_icon_label;
-    private JTextField     c_url_cover;
-    private JLabel        c_url_cover_label;
-    private JPanel         c_url_poster;
-    private JButton        c_url_poster_add;
-    private JTextArea     c_introduction;
-    private JTextArea     c_version;
-    private JTextField  c_vedio;
+    private JTextField      i_gid;
+    private JTextField      c_name_zh_cn;
+    private JTextField      c_name_zh_hk;
+    private JTextField      c_name_en;
+    private JTextField      c_name_ja;
+    private JTextField      c_name_ko;
+    private JTextField      c_name_other;
+    private JTextField      c_platform;
+    private JTextField      c_category;
+    private JTextField      c_language;
+    private JTextField      c_size;
+    private JTextField      c_vendor;
+    private JTextField      t_sale;
+    private JTextField      c_url_icon;
+    private JLabel          c_url_icon_label;
+    private JTextField      c_url_cover;
+    private JLabel          c_url_cover_label;
+    private JPanel          c_url_poster;
+    private JButton         c_url_poster_add;
+    private JTextArea       c_introduction;
+    private JTextArea       c_version;
+    private JTextField      c_vedio;
     private JComboBox<String>  i_associator;
-    private JTextField  i_online_number;
-    private JTextField  c_peripheral;
-    private JTextArea    c_editor_word;
-    private JTextField    i_ign_score;
-    private JTextField  c_producer;
+    private JTextField      c_play_mode;
+    private JTextField      c_peripheral;
+    private JTextArea       c_editor_word;
+    private JTextField      i_ign_score;
+    private JTextField      c_producer;
     
-    private FjEditLabel    i_price_a;
-    private FjEditLabel i_price_b;
+    private FjEditLabel     i_price_a;
+    private FjEditLabel     i_price_b;
     
     private JPanel      panel_tag;
     
@@ -131,13 +131,13 @@ public class ManageGame extends JDialog {
         c_vedio = new JTextField();
         
         i_associator    = new JComboBox<String>(new String[] {"否", "是"});
-        i_online_number = new JTextField();
+        c_play_mode     = new JTextField();
         c_peripheral    = new JTextField();
-        c_editor_word    = new JTextArea();
+        c_editor_word   = new JTextArea();
         c_editor_word.setLineWrap(true);
         c_editor_word.setRows(3);
-        i_ign_score        = new JTextField();
-        c_producer        = new JTextField();
+        i_ign_score     = new JTextField();
+        c_producer      = new JTextField();
         
         i_gid.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_name_zh_cn.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
@@ -154,7 +154,7 @@ public class ManageGame extends JDialog {
         t_sale.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         
         i_associator.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
-        i_online_number.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
+        c_play_mode.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_peripheral.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         c_editor_word.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
         i_ign_score.setPreferredSize(new Dimension(1, i_gid.getPreferredSize().height));
@@ -185,7 +185,7 @@ public class ManageGame extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("开发组织", c_vendor));
         panel_basic.add(UIToolkit.createBasicInfoLabel("发行日期", t_sale));
         panel_basic.add(UIToolkit.createBasicInfoLabel("需要会员", i_associator));
-        panel_basic.add(UIToolkit.createBasicInfoLabel("联机人数", i_online_number));
+        panel_basic.add(UIToolkit.createBasicInfoLabel("游戏模式", c_play_mode));
         panel_basic.add(UIToolkit.createBasicInfoLabel("外接设备", c_peripheral));
         panel_basic.add(UIToolkit.createBasicInfoLabel("IGN评分", i_ign_score));
         panel_basic.add(UIToolkit.createBasicInfoLabel("制作人", c_producer));
@@ -275,11 +275,18 @@ public class ManageGame extends JDialog {
                 if (null != languages) c_language.setText(languages.stream().collect(Collectors.joining(" ")));
             }
         });
+        c_play_mode.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                List<String> modes = UIToolkit.chooseMultipleValue(new String[] {"单人", "在线", "1-2人本地同屏", "1-3人本地同屏", "1-4人本地同屏"}, c_play_mode.getText().split(" "));
+                if (null != modes) c_play_mode.setText(modes.stream().collect(Collectors.joining(" ")));
+            }
+        });
         c_peripheral.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                List<String> languages = UIToolkit.chooseMultipleValue(new String[] {"体感摄像头", "体感棒", "VR头盔", "其它"}, c_peripheral.getText().split(" "));
-                if (null != languages) c_peripheral.setText(languages.stream().collect(Collectors.joining(" ")));
+                List<String> peripherals = UIToolkit.chooseMultipleValue(new String[] {"体感摄像头", "体感棒", "VR头盔", "其它"}, c_peripheral.getText().split(" "));
+                if (null != peripherals) c_peripheral.setText(peripherals.stream().collect(Collectors.joining(" ")));
             }
         });
         c_url_icon.addKeyListener(new KeyAdapter() {
@@ -374,7 +381,7 @@ public class ManageGame extends JDialog {
             args.put("vedio",         c_vedio.getText().replace("\"", "'"));
             
             args.put("associator",         i_associator.getSelectedIndex());
-            args.put("online_number",     i_online_number.getText());
+            args.put("play_mode",     c_play_mode.getText());
             args.put("peripheral",         c_peripheral.getText());
             args.put("editor_word",     c_editor_word.getText().replace("\n", "|"));
             args.put("ign_score",         i_ign_score.getText());
@@ -442,7 +449,7 @@ public class ManageGame extends JDialog {
         c_vedio.setText(game.c_vedio);
         
         i_associator.setSelectedIndex(game.i_associator);
-        i_online_number.setText(String.valueOf(game.i_online_number));
+        c_play_mode.setText(game.c_play_mode);
         c_peripheral.setText(game.c_peripheral);
         c_editor_word.setText(game.c_editor_word.replace("|", "\n"));
         i_ign_score.setText(String.valueOf(game.i_ign_score));

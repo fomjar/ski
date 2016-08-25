@@ -17,21 +17,21 @@ public class BeanGame {
         this.c_platform         = fields[7];
         this.c_category         = fields[8];
         this.c_language         = fields[9];
-        this.c_size                = fields[10];
-        this.c_vendor            = fields[11];
+        this.c_size             = fields[10];
+        this.c_vendor           = fields[11];
         this.t_sale             = fields[12];
         this.c_url_icon         = fields[13];
-        this.c_url_cover           = fields[14];
+        this.c_url_cover        = fields[14];
         this.c_url_poster       = fields[15];
         this.c_introduction     = fields[16];
-        this.c_version           = fields[17];
+        this.c_version          = fields[17];
         this.c_vedio            = fields[18];
-        this.i_associator        = Integer.parseInt(fields[19]);
-        this.i_online_number    = Integer.parseInt(fields[20]);
-        this.c_peripheral        = fields[21];
-        this.c_editor_word        = fields[22];
+        this.i_associator       = Integer.parseInt(fields[19]);
+        this.c_play_mode        = fields[20];
+        this.c_peripheral       = fields[21];
+        this.c_editor_word      = fields[22];
         this.i_ign_score        = Float.parseFloat(fields[23]);
-        this.c_producer            = fields[24];
+        this.c_producer         = fields[24];
     }
     
     public int      i_gid;
@@ -44,21 +44,21 @@ public class BeanGame {
     public String   c_platform;
     public String   c_category;
     public String   c_language;
-    public String    c_size;
-    public String    c_vendor;
+    public String   c_size;
+    public String   c_vendor;
     public String   t_sale;
     public String   c_url_icon;
     public String   c_url_cover;
     public String   c_url_poster;
-    public String    c_introduction;
-    public String     c_version;
-    public String    c_vedio;
-    public int        i_associator;
-    public int        i_online_number;
-    public String    c_peripheral;
-    public String     c_editor_word;
+    public String   c_introduction;
+    public String   c_version;
+    public String   c_vedio;
+    public int      i_associator;
+    public String   c_play_mode;
+    public String   c_peripheral;
+    public String   c_editor_word;
     public float    i_ign_score;
-    public String    c_producer;
+    public String   c_producer;
     
     public String getDisplayName() {
         return String.format("%s %s %s",

@@ -25,7 +25,7 @@ begin
     declare c_version       text            default null;   -- 版本说明
     declare c_vedio         text            default null;   -- 视频脚本
     declare i_associator    tinyint         default 0;      -- 0-unecessary, 1-necessary
-    declare i_online_number tinyint         default 1;      -- 0-nolimit, x-x players, default-1
+    declare c_play_mode     varchar(128)    default null;   -- 单人、1-n人本地同屏、在线
     declare c_peripheral    varchar(128)    default null;   -- 外设：摄像头、体感棒、VR头盔
     declare c_editor_word   text            default null;   -- 编辑推荐
     declare i_ign_score     decimal(3, 2)   default 0.0;    -- IGN评分
@@ -33,7 +33,7 @@ begin
 
     declare done            integer default 0;
     declare rs              cursor for
-                            select g.i_gid, g.c_name_zh_cn, g.c_name_zh_hk, g.c_name_en, g.c_name_ja, g.c_name_ko, g.c_name_other, g.c_platform, g.c_category, g.c_language, g.c_size, g.c_vendor, g.t_sale, g.c_url_icon, g.c_url_cover, g.c_url_poster, g.c_introduction, g.c_version, g.c_vedio, g.i_associator, g.i_online_number, g.c_peripheral, g.c_editor_word, g.i_ign_score, g.c_producer
+                            select g.i_gid, g.c_name_zh_cn, g.c_name_zh_hk, g.c_name_en, g.c_name_ja, g.c_name_ko, g.c_name_other, g.c_platform, g.c_category, g.c_language, g.c_size, g.c_vendor, g.t_sale, g.c_url_icon, g.c_url_cover, g.c_url_poster, g.c_introduction, g.c_version, g.c_vedio, g.i_associator, g.c_play_mode, g.c_peripheral, g.c_editor_word, g.i_ign_score, g.c_producer
                               from tbl_game g
                              order by g.c_name_zh_cn;
     /* 异常处理 */
@@ -42,7 +42,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio, i_associator, i_online_number, c_peripheral, c_editor_word, i_ign_score, c_producer;
+    fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio, i_associator, c_play_mode, c_peripheral, c_editor_word, i_ign_score, c_producer;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -91,7 +91,7 @@ begin
                 '\t',
                 ifnull(i_associator, '0'),
                 '\t',
-                ifnull(i_online_number, '1'),
+                ifnull(c_play_mode, ''),
                 '\t',
                 ifnull(c_peripheral, ''),
                 '\t',
@@ -102,7 +102,7 @@ begin
                 ifnull(c_producer, '')
         );
 
-        fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio, i_associator, i_online_number, c_peripheral, c_editor_word, i_ign_score, c_producer;
+        fetch rs into i_gid, c_name_zh_cn, c_name_zh_hk, c_name_en, c_name_ja, c_name_ko, c_name_other, c_platform, c_category, c_language, c_size, c_vendor, t_sale, c_url_icon, c_url_cover, c_url_poster, c_introduction, c_version, c_vedio, i_associator, c_play_mode, c_peripheral, c_editor_word, i_ign_score, c_producer;
     end while;
     /* 关闭游标 */
     close rs;

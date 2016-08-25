@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002401', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, \"$name_zh_cn\", \"$name_zh_hk\", \"$name_en\", \"$name_ja\", \"$name_ko\", \"$name_other\", \"$platform\", \"$category\", \"$language\", \"$size\", \"$vendor\", \"$sale\", \"$url_icon\", \"$url_cover\", \"$url_poster\", \"$introduction\", \"$version\", \"$vedio\", $associator, $online_number, \"$peripheral\", \"$editor_word\", $ign_score, \"$producer\")");
+insert into tbl_instruction values((conv('00002401', 16, 10) + 0), 'sp', 2, "sp_update_game(?, ?, $gid, \"$name_zh_cn\", \"$name_zh_hk\", \"$name_en\", \"$name_ja\", \"$name_ko\", \"$name_other\", \"$platform\", \"$category\", \"$language\", \"$size\", \"$vendor\", \"$sale\", \"$url_icon\", \"$url_cover\", \"$url_poster\", \"$introduction\", \"$version\", \"$vedio\", $associator, \"$play_mode\", \"$peripheral\", \"$editor_word\", $ign_score, \"$producer\")");
 
 -- 更新游戏
 delimiter //
@@ -27,7 +27,7 @@ create procedure sp_update_game (
     in  version         text,           -- 版本说明
     in  vedio           text,           -- 视频脚本
     in  associator      tinyint,        -- 0-unecessary, 1-necessary
-    in  online_number   tinyint,        -- 0-nolimit, x-x players, default-1
+    in  play_mode       varchar(128),   -- 单人、1-n人本地同屏、在线
     in  peripheral      varchar(128),   -- 外设：摄像头、体感棒、VR头盔
     in  editor_word     text,           -- 编辑推荐
     in  ign_score       decimal(3, 2),  -- IGN评分
@@ -73,7 +73,7 @@ begin
             c_version,
             c_vedio,
             i_associator,
-            i_online_number,
+            c_play_mode,
             c_peripheral,
             c_editor_word,
             i_ign_score,
@@ -99,7 +99,7 @@ begin
             version,
             vedio,
             associator,
-            online_number,
+            play_mode,
             peripheral,
             editor_word,
             ign_score,
@@ -135,7 +135,7 @@ begin
                 c_version,
                 c_vedio,
                 i_associator,
-                i_online_number,
+                c_play_mode,
                 c_peripheral,
                 c_editor_word,
                 i_ign_score,
@@ -161,7 +161,7 @@ begin
                 version,
                 vedio,
                 associator,
-                online_number,
+                play_mode,
                 peripheral,
                 editor_word,
                 ign_score,
@@ -263,9 +263,9 @@ begin
                    set i_associator = associator
                  where i_gid = gid;
             end if;
-            if online_number is not null then
+            if play_mode is not null then
                 update tbl_game
-                   set i_online_number = online_number
+                   set c_play_mode = play_mode
                  where i_gid = gid;
             end if;
             if peripheral is not null then
