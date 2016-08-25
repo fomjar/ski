@@ -1,5 +1,18 @@
 package com.ski.wa;
 
+import java.awt.AWTException;
+import java.awt.HeadlessException;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.imageio.ImageIO;
+
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -55,8 +68,12 @@ public class WaTask implements FjServerTask {
             args_rsp.put("code", ae.code());
             args_rsp.put("desc", ae.desc());
             response(server.name(), req, args_rsp);
+            if (CommonDefinition.CODE.CODE_SYS_SUCCESS != ae.code()) {
+                logger.error(String.format("execute ae failed 0x%08X:%s", ae.code(), ae.desc()));
+                recordFail();
+            }
             if (ae.code() == CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT) {
-                logger.info("user or pass is incorrent: " + args + ", now reset");
+                logger.error("user or pass is incorrent: " + args + ", now reset");
                 reset(driver);
             }
         } catch (Exception e) {
@@ -64,6 +81,7 @@ public class WaTask implements FjServerTask {
             String desc = e.getMessage();
             if (desc.contains(" (WARNING:")) desc = desc.substring(0, desc.indexOf(" (WARNING:"));
             response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", CommonDefinition.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
+            recordFail();
         } finally {
             driver.quit();
             driver = null;
@@ -78,7 +96,7 @@ public class WaTask implements FjServerTask {
         }
     }
     
-    public static void reset(WebDriver driver) {
+    private static void reset(WebDriver driver) {
         String[] reset = FjServerToolkit.getServerConfig("wa.reset").split("/");
         String user = reset[0];
         String pass = reset[1];
@@ -86,6 +104,18 @@ public class WaTask implements FjServerTask {
         args.put("user", user);
         args.put("pass", pass);
         new Login().execute(driver, args);
+    }
+    
+    private static Robot robot = null;
+    
+    private static void recordFail() {
+        try {
+            if (null == robot) robot = new Robot();
+            BufferedImage image = robot.createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+            ImageIO.write(image, "png", new File(String.format("log/%s.png", new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date()))));
+        } catch (HeadlessException | AWTException | IOException e) {
+            logger.error("record fail failed", e);
+        }
     }
     
     public AE getAe(int inst) {

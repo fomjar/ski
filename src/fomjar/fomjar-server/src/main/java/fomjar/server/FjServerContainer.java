@@ -80,7 +80,6 @@ public class FjServerContainer extends FjLoopTask {
                                 if (!modified.containsKey(file.getName())) modified.put(file.getName(), 0L);
                                 if (modified.get(file.getName()) >= file.lastModified()) return;
                                 
-                                modified.put(file.getName(), file.lastModified());
                                 try {
                                     ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
                                     ZipEntry ze = null;
@@ -103,6 +102,7 @@ public class FjServerContainer extends FjLoopTask {
                                     }
                                     loader.close();
                                     zis.close();
+                                    modified.put(file.getName(), file.lastModified());
                                 } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | IOException e) {
                                     logger.error("load task failed for file: " + file.getName(), e);
                                 }
