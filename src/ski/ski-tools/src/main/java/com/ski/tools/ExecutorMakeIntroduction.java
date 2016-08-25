@@ -1,6 +1,8 @@
 package com.ski.tools;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
@@ -12,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,31 +27,35 @@ import com.ski.common.bean.BeanGame;
 
 public class ExecutorMakeIntroduction implements ToolExecutor {
     
-    private static int         g_width     = 750;
-    private static int         g_top        = 150;
-    private static int         g_margin    = 30;
-    private static int         g_cover     = 180;
-    private static int         g_poster    = 400;
-    private static Color      g_bg        = new Color(2, 0, 20);
-    private static Color      g_fg        = Color.white;
-    private static Font        g_font        = new Font("黑体", Font.PLAIN, 20);
-    private static String     g_base        = ".";
-    private static String    g_format    = "jpg";
+    private static int      g_width     = 750;
+    private static int      g_top       = 150;
+    private static int      g_margin    = 30;
+    private static int      g_cover     = 180;
+    private static int      g_poster    = 400;
+    private static Color    g_bg        = new Color(2, 0, 20);
+    private static Color    g_fg        = Color.white;
+    private static Font     g_font      = new Font("黑体", Font.PLAIN, 20);
+    private static String   g_base      = ".";
+    private static String   g_format    = "jpg";
+    private static String   g_icon      = "https://img.alicdn.com/imgextra/i3/2859081856/TB24W0saM_xQeBjy0FoXXX1vpXa_!!2859081856.png";
+    private static int      g_iconsize  = 70;
     
     @Override
     public void execute(Map<String, String> args) {
         args.forEach((k, v)->{
             switch (k) {
-            case "width":    g_width     = Integer.parseInt(v);                        break;
-            case "top":        g_top         = Integer.parseInt(v);                        break;
-            case "margin":    g_margin     = Integer.parseInt(v);                        break;
-            case "cover":    g_cover     = Integer.parseInt(v);                        break;
-            case "poster":    g_poster     = Integer.parseInt(v);                        break;
-            case "bg":        g_bg         = new Color(Integer.parseInt(v));            break;
-            case "fg":        g_fg         = new Color(Integer.parseInt(v));            break;
-            case "font":    g_font         = g_font.deriveFont(Float.parseFloat(v));    break;
-            case "base":    g_base         = v;                                        break;
-            case "format":    g_format     = v;                                        break;
+            case "width":       g_width     = Integer.parseInt(v);                      break;
+            case "top":         g_top       = Integer.parseInt(v);                      break;
+            case "margin":      g_margin    = Integer.parseInt(v);                      break;
+            case "cover":       g_cover     = Integer.parseInt(v);                      break;
+            case "poster":      g_poster    = Integer.parseInt(v);                      break;
+            case "bg":          g_bg        = new Color(Integer.parseInt(v));           break;
+            case "fg":          g_fg        = new Color(Integer.parseInt(v));           break;
+            case "font":        g_font      = g_font.deriveFont(Float.parseFloat(v));   break;
+            case "base":        g_base      = v;                                        break;
+            case "format":      g_format    = v;                                        break;
+            case "icon":        g_icon      = v;                                        break;
+            case "iconsize":    g_iconsize  = Integer.parseInt(v);                      break;
             default:
                 System.out.println(String.format("unknown argument: %s:%s", k, v));
                 break;
@@ -59,12 +66,20 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         CommonService.updateGame();
         System.out.println(" done!");
         
-        CommonService.getGameAll().values().parallelStream().forEach(game->makeIntr(game, g_width, g_base));
+        CommonService.getGameAll().values().parallelStream().forEach(game->{
+            try {
+                makeIntr(game, g_width, g_base);
+                System.out.print(String.format("make introduction for [%-40s]", game.c_name_zh_cn));
+                System.out.println(" done!");
+            } catch (Exception e) {
+                System.out.print(String.format("make introduction for [%-40s]", game.c_name_zh_cn));
+                System.out.println(" fail!");
+                e.printStackTrace();
+            }
+        });
     }
     
-    private static void makeIntr(BeanGame game, int width, String dir) {
-        System.out.print(String.format("make introduction for [%-40s]", game.c_name_zh_cn));
-        
+    private static void makeIntr(BeanGame game, int width, String dir) throws IOException {
         String[] posters = game.c_url_poster.split(" ");
         if (1 == posters.length && 0 == posters[0].length()) posters = new String[] {};
         String[] introduction = convertArticle(game.c_introduction, width - g_margin * 2);
@@ -103,18 +118,13 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         if (1 < posters.length) {
             for (int i = 1; i < posters.length; i++) drawPoster(current, g, posters[i]);
         }
+        drawIcon(g);
         
-        try {
-            ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn, g_format)));
-            System.out.println(" done!");
-        } catch (IOException e) {
-            System.out.println(" fail!");
-            e.printStackTrace();
-        }
+        ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn, g_format)));
     }
     
     private static void drawCover(int[] current, Graphics g, String url) {
-        Image cover = downloadImage(url);
+        Image cover = getImage(url);
         // background
         drawBackground(g, cover);
         // watermark
@@ -134,7 +144,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
                 new Point(g_margin + g_cover / 2, current[0] + g_margin + g_cover),
                 new Color(255, 255, 255, 0)));
         g.fillRect(g_margin, current[0] + g_margin, g_cover, g_cover);
-        g.setColor(new Color(255, 255, 255, 100));
+        g.setColor(new Color(255, 255, 255, 50));
         g.drawLine(g_margin, current[0] + g_margin, g_margin + g_cover - 1, current[0] + g_margin);
         g.drawLine(g_margin, current[0] + g_margin, g_margin, current[0] + g_margin + g_cover - 1);
         g.setColor(new Color(0, 0, 0, 100));
@@ -197,9 +207,19 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
     }
     
     private static void drawPoster(int[] current, Graphics g, String poster) {
-        Image img = downloadImage(poster);
+        Image img = getImage(poster);
         current[0] += g_margin;
+        // image
         g.drawImage(img, g_margin, current[0], g_width - g_margin * 2, g_poster, null);
+        // mask
+        g.setColor(new Color(255, 255, 255, 50));
+        g.drawLine(g_margin, current[0], g_width - g_margin - 1, current[0]);
+        g.drawLine(g_margin, current[0], g_margin, current[0] + g_poster - 1);
+        g.setColor(new Color(0, 0, 0, 100));
+        g.drawLine(g_margin, current[0] + g_poster - 1, g_width - g_margin - 1, current[0] + g_poster - 1);
+        g.drawLine(g_width - g_margin - 1, current[0], g_width - g_margin - 1, current[0] + g_poster - 1);
+        g.setColor(g_fg);
+        
         current[0] += g_poster;
     }
     
@@ -218,7 +238,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         for (int i = 0; i < 1000; i++) sb.append(watermark + "  ");
         String[] wms = convertArticle(sb.toString(), g_width);
         g.setFont(g.getFont().deriveFont(45.0f));
-        g.setColor(new Color(255, 255, 255, 8));
+        g.setColor(new Color(255, 255, 255, 12));
         int current = 0;
         for (String wm : wms) {
             g.drawString(wm, 0, current);
@@ -226,6 +246,17 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
             if (current > 5000) break;
         }
         g.setFont(g_font);
+    }
+    
+    private static void drawIcon(Graphics g) {
+        Image icon = getIcon();
+        Composite c = ((Graphics2D) g).getComposite();
+        ((Graphics2D) g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.6f));
+        // shadow
+        g.drawImage(icon, g_width - g_margin - g_iconsize, g_margin, g_iconsize, g_iconsize, null);
+        // icon
+        g.drawImage(icon, g_width - g_margin - g_iconsize, g_margin, g_iconsize, g_iconsize, null);
+        ((Graphics2D) g).setComposite(c);
     }
     
     private static String[] convertArticle(String article, int width) {
@@ -260,9 +291,34 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.drawString(s, x, y);
     }
     
-    private static Image downloadImage(String url) {
-        try {return ImageIO.read(new URL(url));}
-        catch (IOException e) {e.printStackTrace();}
+    private static BufferedImage getIcon() {
+        return getImage(g_icon);
+    }
+    
+    private static BufferedImage cache_icon_shadow = null;
+    private static Image getIconShadow() {
+        if (null == cache_icon_shadow) {
+            BufferedImage icon = getIcon();
+            BufferedImage shadow = new BufferedImage(icon.getWidth(), icon.getHeight(), BufferedImage.TYPE_INT_ARGB);
+            shadow.getGraphics().drawImage(icon, 0, 0, null);
+            for (int x = 0; x < shadow.getWidth(); x++) {
+                for (int y = 0; y < shadow.getHeight(); y++) {
+                    int argb = shadow.getRGB(x, y);
+                    int a = (argb & 0xFF000000) >> 24;
+                    if (0 != a) shadow.setRGB(x, y, Color.black.getRGB());
+                }
+            }
+            cache_icon_shadow = shadow;
+        }
+        return cache_icon_shadow;
+    }
+    
+    private static final Map<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
+    private static BufferedImage getImage(String url) {
+        try {
+            if (!cache.containsKey(url)) cache.put(url, ImageIO.read(new URL(url)));
+            return cache.get(url);
+        } catch (IOException e) {e.printStackTrace();}
         return null;
     }
 

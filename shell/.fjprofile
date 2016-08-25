@@ -1,0 +1,53 @@
+alias ll='ls -l'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+fomjar_base=~/Documents/fomjar/src/fomjar
+ski_lbase=~/Documents/fomjar/src/ski
+ski_rbase=/home/ski/ski
+ski_host=ski.craftvoid.com
+ski_user=ski
+ski_pass=ski
+ski_rootpass=ski-1234
+fjbin=~/bin
+
+PATH=~/bin:${PATH}
+
+function cdfomjar() {
+    mod=$1
+    cd ${fomjar_base}
+    if [ "" != "${mod}" ]; then
+        cd fomjar-${mod}
+    fi
+}
+
+function cdski() {
+    mod=$1
+    cd ${ski_lbase}
+    if [ "" != "${mod}" ]; then
+        cd ski-${mod}
+    fi
+}
+
+function sshski() {
+    expect ${fjbin}/fjssh ${ski_host} root ${ski_rootpass}
+}
+
+function scpskitask() {
+    mod=$1
+    expect ${fjbin}/fjscp ${ski_host} ${ski_user} ${ski_pass} *.jar ${ski_rbase}/ski-${mod}/task
+}
+
+function scpskiliball() {
+   scpskilib cdb
+   scpskilib wsi
+   scpskilib wca
+   scpskilib bcs
+   scpskilib mma
+}
+
+function scpskilib() {
+    mod=$1
+    expect ${fjbin}/fjscp ${ski_host} ${ski_user} ${ski_pass} *.jar ${ski_rbase}/ski-${mod}/lib
+}
+
