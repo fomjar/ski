@@ -35,16 +35,20 @@ public class Login implements AE {
         driver.findElement(By.id("signInInput_Password")).clear();
         driver.findElement(By.id("signInInput_Password")).sendKeys(args.getString("pass")); // 密码
         driver.findElement(By.id("signInButton")).click(); // 登陆
-        try {   // 账号输入框存在即说明用户名密码错误
-            driver.findElement(By.id("signInInput_SignInID"));
-            code = CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT;
-            desc = "user or pass is incorrect";
+        try {
+            // 电子邮件地址或密码不正确。
+            // 如需登录，必须提供您的帐户信息更新。一封含有说明的 Email 已发送给 q0266@vcg.pub。您最多可能需要 24 小时收到该邮件。
+            WebElement element = driver.findElement(By.id("errorDivMessage"));
+            desc = element.getText();
+            if (desc.contains("不正确"))   code = CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT;
+            else                        code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL;
             return;
         } catch (NoSuchElementException e) {}
-        try {   // 如需登录，必须提供您的帐户信息更新。一封含有说明的 Email 已发送给 q0266@vcg.pub。您最多可能需要 24 小时收到该邮件。
-            WebElement element = driver.findElement(By.id("errorDivMsgDiv"));
+        try {
+            //
+            driver.findElement(By.id("signInInput_SignInID"));
             code = CommonDefinition.CODE.CODE_WEB_PSN_ACCOUNT_STATE_ABNORMAL;
-            desc = element.getText();
+            desc = "psn web site abnormal";
             return;
         } catch (NoSuchElementException e) {}
         code = CommonDefinition.CODE.CODE_SYS_SUCCESS;

@@ -30,6 +30,7 @@ public class ManageGameAccount extends JDialog {
 
     private static final long serialVersionUID = -51034836551447291L;
     
+    private int gaid;
     private JToolBar    toolbar;
     private FjEditLabel i_gaid;
     private FjEditLabel c_user;
@@ -42,7 +43,7 @@ public class ManageGameAccount extends JDialog {
     public ManageGameAccount(int gaid) {
         super(MainFrame.getInstance());
         
-        BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
+        this.gaid = gaid;
         
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
@@ -52,12 +53,12 @@ public class ManageGameAccount extends JDialog {
         toolbar.add(new JButton("测试账号"));
         toolbar.addSeparator();
         toolbar.add(new JButton("添加游戏"));
-        i_gaid = new FjEditLabel(String.format("0x%08X", account.i_gaid), false);
-        c_user = new FjEditLabel(account.c_user);
-        c_pass = new FjEditLabel(account.c_pass);
-        c_name = new FjEditLabel(account.c_name);
-        c_remark = new FjEditLabel(account.c_remark);
-        t_birth = new FjEditLabel(account.t_birth);
+        i_gaid = new FjEditLabel(false);
+        c_user = new FjEditLabel();
+        c_pass = new FjEditLabel();
+        c_name = new FjEditLabel();
+        c_remark = new FjEditLabel();
+        t_birth = new FjEditLabel();
         
         pane_games = new FjListPane<String>();
         pane_games.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "包含游戏"));
@@ -81,7 +82,7 @@ public class ManageGameAccount extends JDialog {
         getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(pane_games, BorderLayout.CENTER);
         
-        setTitle(String.format("管理账号 - %s", account.c_user));
+        setTitle("管理账号");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 320));
@@ -90,6 +91,7 @@ public class ManageGameAccount extends JDialog {
         
         registerListener();
         
+        updateGameAccount();
         updateGameAccountGame();
     }
     
@@ -101,7 +103,7 @@ public class ManageGameAccount extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("gaid", gaid);
                 args.put("user", new_value);
                 c_user.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -113,10 +115,10 @@ public class ManageGameAccount extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
-                args.put("user", c_user.getText()); // for wa
-                args.put("pass", old_value);        // for wa
-                args.put("pass_new", new_value);    // for wa
+                args.put("gaid",        gaid);
+                args.put("user",        c_user.getText());
+                args.put("pass",        CommonService.getGameAccountByGaid(gaid).c_pass);
+                args.put("pass_new",    new_value);
                 c_pass.setForeground(UIToolkit.COLOR_MODIFYING);
             }
             @Override
@@ -127,7 +129,7 @@ public class ManageGameAccount extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("gaid", gaid);
                 args.put("name", new_value);
                 c_name.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -139,7 +141,7 @@ public class ManageGameAccount extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("gaid", gaid);
                 args.put("remark", new_value);
                 c_remark.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -151,7 +153,7 @@ public class ManageGameAccount extends JDialog {
             public void startEdit(String value) {}
             @Override
             public void finishEdit(String old_value, String new_value) {
-                args.put("gaid", Integer.parseInt(i_gaid.getText().split("x")[1], 16));
+                args.put("gaid", gaid);
                 args.put("birth", new_value);
                 t_birth.setForeground(UIToolkit.COLOR_MODIFYING);
             }
@@ -165,14 +167,17 @@ public class ManageGameAccount extends JDialog {
             }
             if (args.has("pass_new")) args.put("pass", args.getString("pass_new"));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+            CommonService.updateGameAccount();
             if (!UIToolkit.showServerResponse(rsp)) return;
             
             if (args.has("user"))   c_user.setForeground(Color.darkGray);
-            if (args.has("pass"))    c_pass.setForeground(Color.darkGray);
-            if (args.has("name"))    c_name.setForeground(Color.darkGray);
-            if (args.has("remark"))    c_remark.setForeground(Color.darkGray);
+            if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
+            if (args.has("name"))   c_name.setForeground(Color.darkGray);
+            if (args.has("remark")) c_remark.setForeground(Color.darkGray);
             if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
             args.clear();
+            
+            updateGameAccount();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
             UIToolkit.doLater(()->{
@@ -186,20 +191,22 @@ public class ManageGameAccount extends JDialog {
                 }
                 ((JButton) toolbar.getComponent(1)).setEnabled(false);
                 FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
-                
                 if (!UIToolkit.showServerResponse(rsp_wa)) return;
                 
                 args.put("pass", args.getString("pass_new"));
                 FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
+                CommonService.updateGameAccount();
                 if (!UIToolkit.showServerResponse(rsp_cdb)) return;
                 
-                if (args.has("user"))   c_user.setForeground(Color.darkGray);
-                if (args.has("pass"))    c_pass.setForeground(Color.darkGray);
-                if (args.has("name"))    c_name.setForeground(Color.darkGray);
-                if (args.has("remark"))    c_remark.setForeground(Color.darkGray);
-                if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
+                if (args.has("user"))   c_user.setForeground(Color.black);
+                if (args.has("pass"))   c_pass.setForeground(Color.black);
+                if (args.has("name"))   c_name.setForeground(Color.black);
+                if (args.has("remark")) c_remark.setForeground(Color.black);
+                if (args.has("birth"))  t_birth.setForeground(Color.black);
                 args.clear();
                 ((JButton) toolbar.getComponent(1)).setEnabled(true);
+                
+                updateGameAccount();
             });
         });
         ((JButton) toolbar.getComponent(2)).addActionListener(e->{
@@ -234,8 +241,20 @@ public class ManageGameAccount extends JDialog {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
             CommonService.updateGameAccountGame();
             UIToolkit.showServerResponse(rsp);
+            
             updateGameAccountGame();
         });
+    }
+    
+    private void updateGameAccount() {
+        BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
+        
+        i_gaid.setText(String.format("0x%08X", account.i_gaid));
+        c_user.setText(account.c_user);
+        c_pass.setText(account.c_pass);
+        c_name.setText(account.c_name);
+        c_remark.setText(account.c_remark);
+        t_birth.setText(account.t_birth);
     }
     
     private void updateGameAccountGame() {

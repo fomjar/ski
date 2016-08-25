@@ -5,6 +5,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 
 import com.ski.common.CommonDefinition;
+import com.ski.wa.ae.psn.Login;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -25,7 +26,9 @@ public class WaTask implements FjServerTask {
     }
 
     @Override
-    public void destroy(FjServer server) {}
+    public void destroy(FjServer server) {
+        if (null != driver) driver.quit();
+    }
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -52,6 +55,10 @@ public class WaTask implements FjServerTask {
             args_rsp.put("code", ae.code());
             args_rsp.put("desc", ae.desc());
             response(server.name(), req, args_rsp);
+            if (ae.code() == CommonDefinition.CODE.CODE_WEB_PSN_USER_OR_PASS_INCORRECT) {
+                logger.info("user or pass is incorrent: " + args + ", now reset");
+                reset(driver);
+            }
         } catch (Exception e) {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
             String desc = e.getMessage();
@@ -69,6 +76,16 @@ public class WaTask implements FjServerTask {
                 driver.get(home);
             }
         }
+    }
+    
+    public static void reset(WebDriver driver) {
+        String[] reset = FjServerToolkit.getServerConfig("wa.reset").split("/");
+        String user = reset[0];
+        String pass = reset[1];
+        JSONObject args = new JSONObject();
+        args.put("user", user);
+        args.put("pass", pass);
+        new Login().execute(driver, args);
     }
     
     public AE getAe(int inst) {
