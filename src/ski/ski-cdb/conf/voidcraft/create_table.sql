@@ -209,11 +209,19 @@ drop table if exists tbl_channel_commodity;
 create table tbl_channel_commodity (
     i_osn           integer,        -- 操作序列号
     i_cid           integer,        -- 商品ID(对应的)
-    c_url_cover     varchar(250),   -- 封面图链接
-    c_url_refer     varchar(250),   -- 商品引用链接
-    c_url_shop      varchar(250),   -- 店铺链接
-    c_shop_addr     varchar(100),   -- 店铺地址
-    c_shop_level    varchar(100),   -- 店铺地址
-    i_price         decimal(4, 2)   -- 价格
+    i_channel       tinyint,        -- 渠道类型: 0-淘宝 1-微信 2-支付宝
+    c_item_url      varchar(250),   -- 商品引用链接
+    c_item_cover    varchar(250),   -- 商品封面链接
+    c_item_name     varchar(250),   -- 商品名称
+    c_item_remark   varchar(250),   -- 商品备注
+    i_item_sold     integer,        -- 商品售出数量
+    i_item_price    decimal(4, 2),  -- 商品价格
+    i_express_price decimal(4, 2),  -- 快递价格
+    c_shop_url      varchar(250),   -- 店铺(级别)链接
+    c_shop_name     varchar(64),    -- 店铺名称
+    c_shop_owner    varchar(64),    -- 店铺卖家
+    i_shop_rate     integer,        -- 店铺级别
+    c_shop_score    varchar(64),    -- 店铺评分
+    c_shop_addr     varchar(100)    -- 店铺地址
 );
 
