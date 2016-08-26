@@ -37,6 +37,9 @@
         <dependencySet>
             <outputDirectory>${project.artifactId}/lib</outputDirectory>
             <scope>runtime</scope>
+        	<excludes>
+        		<exclude>ski:${project.artifactId}</exclude>
+        	</excludes>
         </dependencySet>
     </dependencySets>
 </assembly>
