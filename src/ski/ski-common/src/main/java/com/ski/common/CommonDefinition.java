@@ -71,7 +71,9 @@ public final class CommonDefinition {
         /** 查询通知 */
         public static final int INST_ECOM_QUERY_NOTIFICATION            = 0x0000200E;
         /** 查询访问记录 */
-        public static final int INST_ECOM_QUERY_ACCESS_RECORD            = 0x0000200F;
+        public static final int INST_ECOM_QUERY_ACCESS_RECORD           = 0x0000200F;
+        /** 查询渠道商品 */
+        public static final int INST_ECOM_QUERY_CHANNEL_COMMODITY       = 0x00002010;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -115,7 +117,9 @@ public final class CommonDefinition {
         /** 更新通知 */
         public static final int INST_ECOM_UPDATE_NOTIFICATION           = 0x0000240E;
         /** 更新访问记录 */
-        public static final int INST_ECOM_UPDATE_ACCESS_RECORD            = 0x0000240F;
+        public static final int INST_ECOM_UPDATE_ACCESS_RECORD          = 0x0000240F;
+        /** 更新渠道商品 */
+        public static final int INST_ECOM_UPDATE_CHANNEL_COMMODITY      = 0x00002410;
     }
     
     /**

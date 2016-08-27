@@ -209,6 +209,7 @@ drop table if exists tbl_channel_commodity;
 create table tbl_channel_commodity (
     i_osn           integer,        -- 操作序列号
     i_cid           integer,        -- 商品ID(对应的)
+    t_time          datetime,       -- 生成时间
     i_channel       tinyint,        -- 渠道类型: 0-淘宝 1-微信 2-支付宝
     c_item_url      varchar(250),   -- 商品引用链接
     c_item_cover    varchar(250),   -- 商品封面链接
