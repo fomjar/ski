@@ -128,7 +128,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         }
         drawIcon(g);
         
-        ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn, g_format)));
+        ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn.replace(":", " "), g_format)));
     }
     
     private static void drawCover(int[] current, Graphics g, String url, int field_count) {
