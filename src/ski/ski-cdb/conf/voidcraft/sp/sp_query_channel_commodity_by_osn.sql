@@ -1,8 +1,9 @@
 delimiter //
-drop procedure if exists sp_query_channel_commodity_all //
-create procedure sp_query_channel_commodity_all (
+drop procedure if exists sp_query_channel_commodity_by_osn //
+create procedure sp_query_channel_commodity_by_osn (
     out i_code  integer,
-    out c_desc  mediumblob
+    out c_desc  mediumblob,
+    in  osn     integer
 )  
 begin  
     declare i_osn           integer         default -1;     -- 操作序列号
@@ -27,6 +28,13 @@ begin
     declare rs          cursor for
                         select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.i_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.i_shop_rate, cc.c_shop_score, cc.c_shop_addr
                           from tbl_channel_commodity cc
+                         where cc.i_osn = (
+                            case osn
+                                when -1
+                                then (select max(i_osn) from tbl_channel_commodity)
+                                else osn
+                            end
+                         )
                          order by cc.t_time desc;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;

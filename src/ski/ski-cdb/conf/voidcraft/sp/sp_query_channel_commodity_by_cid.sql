@@ -28,7 +28,7 @@ begin
     declare rs          cursor for
                         select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.i_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.i_shop_rate, cc.c_shop_score, cc.c_shop_addr
                           from tbl_channel_commodity cc
-                         where cc.i_cid = cid;
+                         where cc.i_cid = cid
                          order by cc.t_time desc;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
@@ -36,7 +36,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
+    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, i_shop_rate, c_shop_score, c_shop_addr;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -61,7 +61,7 @@ begin
                 '\t',
                 ifnull(c_item_remark, ''),
                 '\t',
-                ifnull(i_item_sold, '0'),
+                conv(i_item_sold, 10, 16),
                 '\t',
                 ifnull(i_item_price, '0.0'),
                 '\t',
@@ -73,14 +73,14 @@ begin
                 '\t',
                 ifnull(c_shop_owner, ''),
                 '\t',
-                ifnull(i_shop_rate, '0'),
+                conv(i_shop_rate, 10, 16),
                 '\t',
                 ifnull(c_shop_score, ''),
                 '\t',
                 ifnull(c_shop_addr, '')
         );
 
-        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
+        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, i_shop_rate, c_shop_score, c_shop_addr;
     end while;
     /* 关闭游标 */
     close rs;

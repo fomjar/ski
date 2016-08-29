@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import com.ski.common.bean.BeanAccessRecord;
 import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanChannelCommodity;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
@@ -48,7 +49,8 @@ public class CommonService {
     private static final Set<BeanTag>                       cache_tag                       = new LinkedHashSet<BeanTag>();
     private static final Map<Integer, BeanTicket>           cache_ticket                    = new LinkedHashMap<Integer, BeanTicket>();
     private static final Map<Integer, BeanNotification>     cache_notification              = new LinkedHashMap<Integer, BeanNotification>();
-    private static final Set<BeanAccessRecord>                cache_access_record                = new LinkedHashSet<BeanAccessRecord>();
+    private static final Set<BeanAccessRecord>              cache_access_record             = new LinkedHashSet<BeanAccessRecord>();
+    private static final Set<BeanChannelCommodity>          cache_channel_commodity         = new LinkedHashSet<BeanChannelCommodity>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -217,6 +219,21 @@ public class CommonService {
                     .filter(bean->paid == bean.i_paid)
                     .map(bean->getChannelAccountByCaid(bean.i_caid))
                     .filter(user->user.i_channel == channel)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static Set<BeanChannelCommodity> getChannelCommodityLOAll() {
+        synchronized (cache_channel_commodity) {
+            return new LinkedHashSet<BeanChannelCommodity>(cache_channel_commodity);
+        }
+    }
+    
+    public static List<BeanChannelCommodity> getChannelCommodityLOByCid(int cid) {
+        synchronized (cache_channel_commodity) {
+            return cache_channel_commodity
+                    .stream()
+                    .filter(bean->bean.i_cid == cid)
                     .collect(Collectors.toList());
         }
     }
@@ -659,6 +676,23 @@ public class CommonService {
                 for (String line : lines) {
                     BeanChannelAccount bean = new BeanChannelAccount(line);
                     cache_channel_account.put(bean.i_caid, bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateChannelCommodityLO() {
+        JSONObject args = new JSONObject();
+        args.put("osn", -1);
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args));
+        
+        synchronized (cache_channel_commodity) {
+            cache_channel_commodity.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanChannelCommodity bean = new BeanChannelCommodity(line);
+                    cache_channel_commodity.add(bean);
                 }
             }
         }
