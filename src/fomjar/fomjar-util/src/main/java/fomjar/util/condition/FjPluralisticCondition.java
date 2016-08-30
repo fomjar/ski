@@ -1,13 +1,14 @@
 package fomjar.util.condition;
 
-public abstract class FjPluralisticCondition implements FjCondition {
+@SuppressWarnings("unchecked")
+public abstract class FjPluralisticCondition<T> implements FjCondition<T> {
     
-    protected FjCondition[] conditions;
+    protected FjCondition<T>[] conditions;
     
     public FjPluralisticCondition() {}
-    public FjPluralisticCondition(FjCondition... conditions) {setConditions(conditions);}
+    public FjPluralisticCondition(FjCondition<T>... conditions) {setConditions(conditions);}
     
-    public void setConditions(FjCondition... conditions) {
+    public void setConditions(FjCondition<T>... conditions) {
         this.conditions = conditions;
     }
     

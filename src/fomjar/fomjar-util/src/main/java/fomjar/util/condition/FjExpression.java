@@ -4,25 +4,26 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class FjExpression implements FjCondition {
+public class FjExpression<T> implements FjCondition<T> {
     
-    public static FjExpression parse(String expression, FjExpressionParser parser) throws FjIllegalExpressionSyntaxException {
-        expression = expression.trim();
+    @SuppressWarnings("unchecked")
+    public static <T> FjExpression<T> parse(String pattern, FjExpressionParser<T> parser) throws FjIllegalExpressionSyntaxException {
+        pattern = pattern.trim();
         Stack<Object>   stack   = new Stack<Object>();
         int             begin   = 0;
-        for (int end = 0; end < expression.length(); end++) {
-            char c = expression.charAt(end);
+        for (int end = 0; end < pattern.length(); end++) {
+            char c = pattern.charAt(end);
             switch (c) {
             case '(':
             case ')':
-                pushWord(stack, expression.substring(begin, end).trim(), parser);
+                pushWord(stack, pattern.substring(begin, end).trim(), parser);
                 pushWord(stack, new String(new char[] {c}), parser);
                 begin = end + 1;
                 break;
             case '&':
             case '|':
-                if (c == expression.charAt(end + 1)) {
-                    pushWord(stack, expression.substring(begin, end).trim(), parser);
+                if (c == pattern.charAt(end + 1)) {
+                    pushWord(stack, pattern.substring(begin, end).trim(), parser);
                     pushWord(stack, new String(new char[] {c, c}), parser);
                     begin = end + 2;
                     end ++;
@@ -31,14 +32,14 @@ public class FjExpression implements FjCondition {
             default: break;
             }
         }
-        if (expression.length() > begin)
-            pushWord(stack, expression.substring(begin).trim(), parser);
+        if (pattern.length() > begin)
+            pushWord(stack, pattern.substring(begin).trim(), parser);
         
         if (stack.isEmpty()) return null;
-        return (FjExpression) stack.pop();
+        return (FjExpression<T>) stack.pop();
     }
     
-    private static void pushWord(Stack<Object> stack, String word, FjExpressionParser parser) throws FjIllegalExpressionSyntaxException {
+    private static <T> void pushWord(Stack<Object> stack, String word, FjExpressionParser<T> parser) throws FjIllegalExpressionSyntaxException {
         if (0 == word.length()) return;
         
         switch (word) {
@@ -46,11 +47,11 @@ public class FjExpression implements FjCondition {
             stack.push(word);
             break;
         case ")": {
-            if (2 > stack.size())  throw new FjIllegalExpressionSyntaxException("need ( and expression before )");
+            if (2 > stack.size())  throw new FjIllegalExpressionSyntaxException("need ( and word before )");
             arrangeStack(stack, parser);
             Object expr = stack.pop();
             Object oper = stack.pop(); // operator (
-            if (!"(".equals(oper)) throw new FjIllegalExpressionSyntaxException("need ( before expression and )");
+            if (!"(".equals(oper)) throw new FjIllegalExpressionSyntaxException("need ( before word and )");
             stack.push(expr);
             arrangeStack(stack, parser);
             break;
@@ -69,7 +70,8 @@ public class FjExpression implements FjCondition {
         }
     }
     
-    private static void arrangeStack(Stack<Object> stack, FjExpressionParser parser) throws FjIllegalExpressionSyntaxException {
+    @SuppressWarnings("unchecked")
+    private static <T> void arrangeStack(Stack<Object> stack, FjExpressionParser<T> parser) throws FjIllegalExpressionSyntaxException {
         if (stack.isEmpty()) return;
         
         Stack<Object> reverse = new Stack<Object>();
@@ -79,7 +81,7 @@ public class FjExpression implements FjCondition {
             reverse.push(stack.pop());
         }
         
-        FjExpression expr = new FjExpression();
+        FjExpression<T> expr = new FjExpression<T>();
         while (!reverse.isEmpty()) {
             Object o = reverse.pop();
             if (o instanceof String) {
@@ -87,14 +89,14 @@ public class FjExpression implements FjCondition {
                 case OPER_AND:
                     if (reverse.isEmpty()) throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
                     o = reverse.pop();
-                    if (o instanceof FjCondition) expr.and((FjCondition) o);
+                    if (o instanceof FjCondition) expr.and((FjCondition<T>) o);
                     else if (o instanceof String) expr.and(parser.parseElement(o.toString()));
                     else throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
                     break;
                 case OPER_OR:
                     if (reverse.isEmpty()) throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
                     o = reverse.pop();
-                    if (o instanceof FjCondition) expr.or((FjCondition) o);
+                    if (o instanceof FjCondition) expr.or((FjCondition<T>) o);
                     else if (o instanceof String) expr.or(parser.parseElement(o.toString()));
                     else throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
                     break;
@@ -103,7 +105,7 @@ public class FjExpression implements FjCondition {
                     break;
                 }
             } else if (o instanceof FjCondition) {
-                expr.and((FjCondition) o);
+                expr.and((FjCondition<T>) o);
             } else {
                 throw new FjIllegalExpressionSyntaxException("unknown word: " + o);
             }
@@ -111,55 +113,56 @@ public class FjExpression implements FjCondition {
         stack.push(expr);
     }
     
-    public static interface FjExpressionParser {
-        FjCondition parseElement(String element);
+    public static interface FjExpressionParser<T> {
+        FjCondition<T> parseElement(String element);
     }
     
     private static final String OPER_AND   = "&&";
     private static final String OPER_OR    = "||";
     
-    private List<Entry> entries;
+    private List<Entry<T>> entries;
     
     public FjExpression() {
-        entries = new LinkedList<Entry>();
+        entries = new LinkedList<Entry<T>>();
     }
     
-    private FjExpression addEntry(String oper, FjCondition cond) {
-        entries.add(new Entry(oper, cond));
+    private FjExpression<T> addEntry(String oper, FjCondition<T> cond) {
+        entries.add(new Entry<T>(oper, cond));
         return this;
     }
     
-    public FjExpression and(FjCondition condition) {
+    public FjExpression<T> and(FjCondition<T> condition) {
         addEntry(OPER_AND, condition);
         return this;
     }
     
-    public FjExpression or(FjCondition condition) {
+    public FjExpression<T> or(FjCondition<T> condition) {
         addEntry(OPER_OR, condition);
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Object apply() {
-        FjCondition condition = null;
-        for (Entry entry : entries) {
+    public Object apply(T t) {
+        FjCondition<T> condition = null;
+        for (Entry<T> entry : entries) {
             if (null == condition) condition = entry.cond;
             else {
                 switch (entry.oper) {
-                case OPER_AND: condition = new FjConditionAnd  (condition, entry.cond);    break;
-                case OPER_OR:  condition = new FjConditionOr   (condition, entry.cond);    break;
+                case OPER_AND: condition = new FjConditionAnd   <T>(condition, entry.cond);    break;
+                case OPER_OR:  condition = new FjConditionOr    <T>(condition, entry.cond);    break;
                 }
             }
         }
         if (null == condition) return null;
-        return condition.apply();
+        return condition.apply(t);
     }
     
-    private static class Entry {
+    private static class Entry<T> {
         public String       oper;
-        public FjCondition  cond;
+        public FjCondition<T>  cond;
         
-        public Entry(String oper, FjCondition cond) {
+        public Entry(String oper, FjCondition<T> cond) {
             this.oper = oper;
             this.cond = cond;
         }

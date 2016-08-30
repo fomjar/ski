@@ -1,7 +1,7 @@
 package fomjar.util.condition;
 
-public interface FjCondition {
+public interface FjCondition<T> {
     
-    Object apply();
+    Object apply(T t);
 
 }
