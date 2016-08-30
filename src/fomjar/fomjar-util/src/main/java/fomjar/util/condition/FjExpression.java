@@ -45,9 +45,10 @@ public class FjExpression<T> implements FjCondition<T> {
         if (')' == c || isWordChar(c)) arrangeStack(stack, parser);
         
         if (')' == c) {
+            if (2 > stack.size())   throw new FjIllegalExpressionSyntaxException("need ( and expression before )");
             Object expr = stack.pop();
             Object oper = stack.pop(); // operator (
-            if (!"(".equals(oper)) throw new FjIllegalExpressionSyntaxException("need ( before expression and )");
+            if (!"(".equals(oper))  throw new FjIllegalExpressionSyntaxException("need ( before expression and )");
             stack.push(expr);
             arrangeStack(stack, parser);
         }
