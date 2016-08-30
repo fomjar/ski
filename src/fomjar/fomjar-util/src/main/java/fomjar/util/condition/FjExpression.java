@@ -13,24 +13,21 @@ public class FjExpression<T> implements FjCondition<T> {
         int             begin   = 0;
         for (int end = 0; end < pattern.length(); end++) {
             char c = pattern.charAt(end);
-            switch (c) {
-            case '(':
-            case ')':
-                pushWord(stack, pattern.substring(begin, end).trim(), parser);
-                pushWord(stack, new String(new char[] {c}), parser);
-                begin = end + 1;
-                break;
-            case '&':
-            case '|':
-                if (c == pattern.charAt(end + 1)) {
-                    pushWord(stack, pattern.substring(begin, end).trim(), parser);
-                    pushWord(stack, new String(new char[] {c, c}), parser);
-                    begin = end + 2;
-                    end ++;
-                }
-                break;
-            default: break;
+            if (isWordChar(c)) continue;
+            
+            // meet operator char
+            // push expression word
+            pushWord(stack, pattern.substring(begin, end).trim(), parser);
+            
+            // push operator word
+            if (('&' == c && '&' == pattern.charAt(end + 1))
+                    || ('|' == c && '|' == pattern.charAt(end + 1))) {
+                pushWord(stack, pattern.substring(end, end + 2).trim(), parser);
+                end += 1;
+            } else {
+                pushWord(stack, pattern.substring(end, end + 1).trim(), parser);
             }
+            begin = end + 1;
         }
         if (pattern.length() > begin)
             pushWord(stack, pattern.substring(begin).trim(), parser);
@@ -42,32 +39,26 @@ public class FjExpression<T> implements FjCondition<T> {
     private static <T> void pushWord(Stack<Object> stack, String word, FjExpressionParser<T> parser) throws FjIllegalExpressionSyntaxException {
         if (0 == word.length()) return;
         
-        switch (word) {
-        case "(":
-            stack.push(word);
-            break;
-        case ")": {
-            if (2 > stack.size())  throw new FjIllegalExpressionSyntaxException("need ( and word before )");
-            arrangeStack(stack, parser);
+        char c = word.charAt(0);
+        if (')' != c) stack.push(word);
+        
+        if (')' == c || isWordChar(c)) arrangeStack(stack, parser);
+        
+        if (')' == c) {
             Object expr = stack.pop();
             Object oper = stack.pop(); // operator (
-            if (!"(".equals(oper)) throw new FjIllegalExpressionSyntaxException("need ( before word and )");
+            if (!"(".equals(oper)) throw new FjIllegalExpressionSyntaxException("need ( before expression and )");
             stack.push(expr);
             arrangeStack(stack, parser);
-            break;
         }
-        case "&&":
-            stack.push(word);
-            break;
-        case "||":
-            stack.push(word);
-            break;
-        default: {
-            stack.push(word);
-            arrangeStack(stack, parser);
-            break;
-        }
-        }
+    }
+    
+    private static boolean isWordChar(char c) {
+        return ('0' <= c && c <= '9')
+                || ('a' <= c && c <= 'z')
+                || ('A' <= c && c <= 'Z')
+                || '-' == c
+                || '_' == c;
     }
     
     @SuppressWarnings("unchecked")
@@ -83,31 +74,21 @@ public class FjExpression<T> implements FjCondition<T> {
         
         FjExpression<T> expr = new FjExpression<T>();
         while (!reverse.isEmpty()) {
-            Object o = reverse.pop();
-            if (o instanceof String) {
-                switch (o.toString()) {
-                case OPER_AND:
-                    if (reverse.isEmpty()) throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
-                    o = reverse.pop();
-                    if (o instanceof FjCondition) expr.and((FjCondition<T>) o);
-                    else if (o instanceof String) expr.and(parser.parseElement(o.toString()));
-                    else throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
-                    break;
-                case OPER_OR:
-                    if (reverse.isEmpty()) throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
-                    o = reverse.pop();
-                    if (o instanceof FjCondition) expr.or((FjCondition<T>) o);
-                    else if (o instanceof String) expr.or(parser.parseElement(o.toString()));
-                    else throw new FjIllegalExpressionSyntaxException("need expression after oper: " + o);
-                    break;
-                default:
-                    expr.and(parser.parseElement(o.toString()));
-                    break;
-                }
-            } else if (o instanceof FjCondition) {
-                expr.and((FjCondition<T>) o);
-            } else {
-                throw new FjIllegalExpressionSyntaxException("unknown word: " + o);
+            Object o = reverse.pop();       // expression
+            
+            if (o instanceof String)            expr.and(parser.parseElement((String) o));  // set and as default
+            else if (o instanceof FjCondition)  expr.and((FjCondition<T>) o);               // set and as default
+            else                                throw new FjIllegalExpressionSyntaxException("unknown expression type: " + o.getClass());
+            
+            if (2 <= reverse.size()) {
+                o = reverse.pop();
+                if (!(o instanceof String))         throw new FjIllegalExpressionSyntaxException("need operator after expression");
+                String oper = (String) o;   // operator
+                
+                o = reverse.pop();          // expression
+                if (o instanceof FjCondition)       expr.addEntry(oper, (FjCondition<T>) o);
+                else if (o instanceof String)       expr.addEntry(oper, parser.parseElement((String) o));
+                else                                throw new FjIllegalExpressionSyntaxException("need expression after oper: " + oper);
             }
         }
         stack.push(expr);
@@ -159,8 +140,8 @@ public class FjExpression<T> implements FjCondition<T> {
     }
     
     private static class Entry<T> {
-        public String       oper;
-        public FjCondition<T>  cond;
+        public String           oper;
+        public FjCondition<T>   cond;
         
         public Entry(String oper, FjCondition<T> cond) {
             this.oper = oper;
