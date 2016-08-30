@@ -6,9 +6,9 @@ public class FjConditionOr extends FjPluralisticCondition {
     public FjConditionOr(FjCondition... conditions) {setConditions(conditions);}
 
     @Override
-    public boolean apply() {
+    public Object apply() {
         for (FjCondition c : conditions) {
-            if (c.apply()) return true;
+            if ((boolean) c.apply()) return true;
         }
         return false;
     }
