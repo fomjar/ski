@@ -1,7 +1,9 @@
 package com.ski.wa.ae.taobao;
 
 import org.apache.log4j.Logger;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 
 import com.ski.common.CommonDefinition;
 import com.ski.wa.AE;
@@ -53,6 +55,10 @@ public class CommodityFuzzyMatch implements AE {
             desc = "illegal exclude condition syntax: " + exclude;
             return;
         }
+        driver.get("https://www.taobao.com");
+        driver.findElement(By.id("q")).clear();
+        driver.findElement(By.id("q")).sendKeys(preset);
+        driver.findElement(By.className("btn-search")).click();
     }
     
     @Override
