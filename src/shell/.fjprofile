@@ -34,6 +34,19 @@ function sshski() {
     expect ${fjbin}/fjssh ${ski_host} root ${ski_rootpass}
 }
 
+function scpskiconfall() {
+   scpskiconf cdb
+   scpskiconf wsi
+   scpskiconf wca
+   scpskiconf bcs
+   scpskiconf mma
+}
+
+function scpskiconf() {
+    mod=$1
+    expect ${fjbin}/fjscp ${ski_host} ${ski_user} ${ski_pass} *.conf ${ski_rbase}/ski-${mod}/conf
+}
+
 function scpskitask() {
     mod=$1
     expect ${fjbin}/fjscp ${ski_host} ${ski_user} ${ski_pass} *.jar ${ski_rbase}/ski-${mod}/task

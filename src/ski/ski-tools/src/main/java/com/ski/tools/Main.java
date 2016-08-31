@@ -27,6 +27,9 @@ public class Main {
         case "cga":
             e = new ExecutorCheckGameAccount();
             break;
+        case "scc":
+            e = new ExecutorScanChannelCommodity();
+            break;
         }
         
         CommonService.setWsiHost("ski.craftvoid.com");
