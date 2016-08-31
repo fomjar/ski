@@ -592,10 +592,15 @@ public class CommonService {
             long end    = System.currentTimeMillis();
             long millis = end - begin - 20 * 60 * 1000L; // 优惠20分钟
             if (millis <= 0) return 0.00f;
-            int hours = (int) Math.ceil((double) millis / 1000 / 60 / 60); // 向上取整
-            int times = (int) Math.ceil(((double) hours) / 12);
-            if (times < 2) times = 2;
-            return times * (c.i_price / 2) * c.i_count;
+            int hours = (int) Math.ceil((double) millis / 1000 / 60 / 60);  // 向上取整
+            int times = (int) Math.ceil(((double) hours) / 12); 
+            float price = c.i_price;
+            
+            if (times < 2) times = 2;                                       // 至少算1天
+            if (12 * 24 < hours && hours <= 15 * 24) times = 12 * 24 / 12;  // 12-15天的钱算作12天，倍数为24
+            else if (15 * 24 < hours) price *= 0.8;                         // 15天以上打八折
+            
+            return times * (price / 2) * c.i_count;
         } catch (Exception e) {e.printStackTrace();}
         return 0.00f;
     }

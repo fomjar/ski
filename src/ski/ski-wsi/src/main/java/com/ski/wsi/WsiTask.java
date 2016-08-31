@@ -27,7 +27,7 @@ public class WsiTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WsiTask.class);
     
-    private Map<String, CacheConn>     cache;
+    private Map<String, CacheConn>  cache;
     private CacheMonitor            monitor;
     
     @Override
