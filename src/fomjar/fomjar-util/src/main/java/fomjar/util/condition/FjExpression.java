@@ -68,11 +68,10 @@ public class FjExpression<T> implements FjCondition<T> {
     }
     
     private static boolean isWordChar(char c) {
-        return ('0' <= c && c <= '9')
-                || ('a' <= c && c <= 'z')
-                || ('A' <= c && c <= 'Z')
-                || '-' == c
-                || '_' == c;
+        return     c != '('
+                && c != ')'
+                && c != OPER_AND.charAt(0)
+                && c != OPER_OR.charAt(0);
     }
     
     @SuppressWarnings("unchecked")

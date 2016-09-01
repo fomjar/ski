@@ -2,6 +2,7 @@ package com.ski.tools;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Properties;
@@ -44,9 +45,13 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
         final long osn = System.currentTimeMillis();
         
         CommonService.getGameAll().values().forEach(game->{
-            String preset  = config.getProperty("preset");
-            String include = config.getProperty("basic.include");
-            String exclude = config.getProperty("basic.exclude");
+            String preset  = config.getProperty(String.format("0x%08X.preset",  game.i_gid));
+            if (null == preset)  preset  = config.getProperty("default.preset");
+            String include = config.getProperty(String.format("0x%08X.include", game.i_gid));
+            if (null == include) include = config.getProperty("default.include");
+            String exclude = config.getProperty(String.format("0x%08X.exclude", game.i_gid));
+            if (null == exclude) exclude = config.getProperty("default.exclude");
+            
             preset  = parseStatement(preset,  game);
             include = parseStatement(include, game);
             exclude = parseStatement(exclude, game);
@@ -56,24 +61,11 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
                 return;
             }
             
-            String ext_include = config.getProperty(String.format("0x%08X.include", game.i_gid));
-            if (null != ext_include) {
-                ext_include = parseStatement(ext_include, game);
-                include = String.format("(%s) && (%s)", include, ext_include);
-            }
-            String ext_exclude = config.getProperty(String.format("0x%08X.exclude", game.i_gid));
-            if (null != ext_exclude) {
-                ext_exclude = parseStatement(ext_exclude, game);
-                exclude = String.format("(%s) && (%s)", exclude, ext_exclude);
-            }
-            
-            JSONObject condition = new JSONObject();
-            condition.put("include", include);
-            condition.put("exclude", exclude);
             JSONObject args_scc = new JSONObject();
-            args_scc.put("preset", preset);
-            args_scc.put("condition", condition);
-            System.out.print(String.format("scan game %s "));
+            args_scc.put("preset",  preset);
+            args_scc.put("include", include);
+            args_scc.put("exclude", exclude);
+            System.out.print(String.format("scan game %s ", game.c_name_zh_cn));
             FjDscpMessage rsp = CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc);
             
             if (CommonService.isResponseSuccess(rsp)) {
@@ -83,6 +75,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
                     JSONObject args_cdb = cc.getJSONObject(i);
                     args_cdb.put("osn", osn);
                     args_cdb.put("cid", game.i_gid);
+                    args_cdb.put("channel", CommonService.CHANNEL_TAOBAO);
                     CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_COMMODITY, args_cdb);
                 }
             } else {
@@ -117,16 +110,16 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
     }
     
     private void loadConfig() {
-        FileInputStream fis = null;
+        InputStreamReader isr = null;
         try {
-            fis = new FileInputStream(g_conf);
-            config.load(fis);
+            isr = new InputStreamReader(new FileInputStream(g_conf), "utf-8");
+            config.load(isr);
         } catch (IOException e) {
             System.out.println("load config failed: " + g_conf);
             e.printStackTrace();
         } finally {
-            if (null != fis) {
-                try {fis.close();}
+            if (null != isr) {
+                try {isr.close();}
                 catch (IOException e) {e.printStackTrace();}
             }
         }
