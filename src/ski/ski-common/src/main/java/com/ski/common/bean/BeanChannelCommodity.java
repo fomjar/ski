@@ -11,7 +11,7 @@ public class BeanChannelCommodity {
     public String   c_item_name;
     public String   c_item_remark;
     public int      i_item_sold;
-    public float    i_item_price;
+    public String   c_item_price;
     public float    i_express_price;
     public String   c_shop_url;
     public String   c_shop_name;
@@ -31,7 +31,7 @@ public class BeanChannelCommodity {
         this.c_item_name        = fields[6];
         this.c_item_remark      = fields[7];
         this.i_item_sold        = Integer.parseInt(fields[8], 16);
-        this.i_item_price       = Float.parseFloat(fields[9]);
+        this.c_item_price       = fields[9];
         this.i_express_price    = Float.parseFloat(fields[10]);
         this.c_shop_url         = fields[11];
         this.c_shop_name        = fields[12];

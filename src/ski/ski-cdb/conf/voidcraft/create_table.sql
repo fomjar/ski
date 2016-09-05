@@ -216,7 +216,7 @@ create table tbl_channel_commodity (
     c_item_name     varchar(250),   -- 商品名称
     c_item_remark   varchar(250),   -- 商品备注
     i_item_sold     integer,        -- 商品售出数量
-    i_item_price    decimal(4, 2),  -- 商品价格
+    c_item_price    varchar(32),    -- 商品价格(或范围)
     i_express_price decimal(4, 2),  -- 快递价格
     c_shop_url      varchar(250),   -- 店铺(级别)链接
     c_shop_name     varchar(64),    -- 店铺名称

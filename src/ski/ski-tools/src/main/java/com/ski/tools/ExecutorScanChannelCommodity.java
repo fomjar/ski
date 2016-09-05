@@ -68,16 +68,17 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             System.out.print(String.format("scan game %s ", game.c_name_zh_cn));
             FjDscpMessage rsp = CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc);
             
+            System.out.println(rsp);
             if (CommonService.isResponseSuccess(rsp)) {
-                JSONArray cc = rsp.argsToJsonObject().getJSONArray("desc");
-                System.out.println(cc.size() + " records");
-                for (int i = 0; i < cc.size(); i++) {
-                    JSONObject args_cdb = cc.getJSONObject(i);
-                    args_cdb.put("osn", osn);
-                    args_cdb.put("cid", game.i_gid);
-                    args_cdb.put("channel", CommonService.CHANNEL_TAOBAO);
-                    CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_COMMODITY, args_cdb);
-                }
+//                JSONArray cc = rsp.argsToJsonObject().getJSONArray("desc");
+//                System.out.println(cc.size() + " records");
+//                for (int i = 0; i < cc.size(); i++) {
+//                    JSONObject args_cdb = cc.getJSONObject(i);
+//                    args_cdb.put("osn", osn);
+//                    args_cdb.put("cid", game.i_gid);
+//                    args_cdb.put("channel", CommonService.CHANNEL_TAOBAO);
+//                    CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_COMMODITY, args_cdb);
+//                }
             } else {
                 System.out.println("failed: " + rsp);
             }
@@ -92,6 +93,10 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             try {
                 if (statement.contains(variable)) {
                     String value = String.valueOf(field.get(game));
+                    if (0 == value.length()) {
+                        if (field.getName().equals("c_name_en"))    value = game.c_name_zh_cn;
+                        if (field.getName().equals("c_name_other")) value = game.c_name_zh_cn;
+                    }
                     if (value.contains(":")) value = value.substring(0, value.indexOf(":"));
                     statement = statement.replace(variable, value);
                 }

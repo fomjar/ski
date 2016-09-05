@@ -1,5 +1,6 @@
 package com.ski.wa.ae.taobao;
 
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class CommodityFuzzyMatch implements AE {
             } catch (NoSuchElementException e) {pages = 1;}    // 没有此样式表示只有1页
         }
         // 遍历每一页
-        JSONArray items = new JSONArray();
+        JSONArray commodities = new JSONArray();
         for (int page = 0; page < pages; page++) {
             if (0 < page) { // 翻页
                 WebElement pager = driver.findElement(By.id("mainsrp-pager"));   // 分页器
@@ -92,7 +93,8 @@ public class CommodityFuzzyMatch implements AE {
             }
             logger.error("next page: " + (page + 1));
             WebElement itemlist = driver.findElement(By.id("mainsrp-itemlist"));    // 项目列表
-            for (WebElement item : itemlist.findElements(By.className("J_MouserOnverReq"))) {  // 遍历每个项
+            List<WebElement> items = itemlist.findElements(By.className("J_MouserOnverReq"));
+            for (WebElement item : items) {  // 遍历每个项
                 WebElement a = item.findElement(By.className("title")).findElement(By.tagName("a"));
                 String title = a.getAttribute("innerHTML")
                         .replace("<span class=\"H\">", "")
@@ -102,79 +104,113 @@ public class CommodityFuzzyMatch implements AE {
                 if ((boolean) expr_include.apply(title) && (boolean) expr_exclude.apply(title)) {   // 符合条件的
                     try {
                         item.findElement(By.className("icon-service-tianmao")); // 图标天猫
-                        try {items.add(parseTmall(driver, item));}
-                        catch (NoSuchElementException e) {logger.error("error occurs when parse tmall", e);}
+//                        try {items.add(parseTmall(driver, item));}
+//                        catch (Exception e) {logger.error("error occurs when parse tmall", e);}
                     } catch (NoSuchElementException e) {                        // 非天猫
-                        try {items.add(parseTaobao(driver, item));}
-                        catch (NoSuchElementException e2) {logger.error("error occurs when parse taobao", e2);}
+                        try {commodities.add(parseTaobao(driver, item));}
+                        catch (Exception e2) {logger.error("error occurs when parse taobao", e2);}
                     }
                 }
             }
         }
         code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
-        desc = items.toString();
+        desc = commodities.toString();
     }
     
     private JSONObject parseTaobao(WebDriver driver, WebElement element) {
-        element.findElement(By.tagName("img")).click();
         JSONObject args = new JSONObject();
-        // 商品信息
-        args.put("item_url",    driver.getCurrentUrl());
-        args.put("item_cover",  driver.findElement(By.id("J_ImgBooth")).getAttribute("src"));
-        args.put("item_name",   driver.findElement(By.id("J_Title")).findElement(By.tagName("h3")).getText().trim());
-        args.put("item_remark", driver.findElement(By.id("J_Title")).findElement(By.tagName("p")).getText().trim());
-        args.put("item_sold",   Integer.parseInt(driver.findElement(By.id("J_SellCounter")).getText()));
-        args.put("item_price",  Float.parseFloat(driver.findElement(By.id("J_StrPrice")).findElement(By.className("tb-rmb-num")).getText()));
-        String express_str = driver.findElement(By.id("J_WlServiceTitle")).getText();
-        if (express_str.contains("免运费")) args.put("express_price", 0.0f);
-        else args.put("express_price", Float.parseFloat(express_str.replace("快递", "").trim()));
+        element.findElement(By.tagName("a")).click();
+        switchToLastWindow(driver);
+        try {Thread.sleep(3000L);} catch (InterruptedException e) {e.printStackTrace();}
+        try {
+            // 商品信息
+            args.put("item_url",    driver.getCurrentUrl());
+            args.put("item_cover",  driver.findElement(By.id("J_ImgBooth")).getAttribute("src"));
+            args.put("item_name",   driver.findElement(By.id("J_Title")).findElement(By.tagName("h3")).getText().trim());
+            args.put("item_remark", driver.findElement(By.id("J_Title")).findElement(By.tagName("p")).getText().trim());
+            args.put("item_sold",   Integer.parseInt(driver.findElement(By.id("J_SellCounter")).getText()));
+            args.put("item_price",  driver.findElement(By.id("J_StrPrice")).findElement(By.className("tb-rmb-num")).getText());
+            String express_str = driver.findElement(By.id("J_WlServiceTitle")).getText();
+            if (express_str.contains("免运费")) args.put("express_price", 0.0f);
+            else args.put("express_price", Float.parseFloat(express_str.replace("快递", "").replace("¥", "").trim()));
+            
+            args.put("shop_addr",   driver.findElement(By.id("J-From")).getText());
+            
+            driver.findElement(By.className("tb-shop-rank")).findElement(By.tagName("a")).click();
+            switchToLastWindow(driver);
+            try {Thread.sleep(3000L);} catch (InterruptedException e) {e.printStackTrace();}
+            try {
+                // 店铺信息
+                args.put("shop_url",    driver.getCurrentUrl());
+                args.put("shop_name",   driver.findElement(By.id("header")).findElement(By.className("shop-name")).findElement(By.tagName("a")).getText());
+                args.put("shop_owner",  driver.findElement(By.className("personal-info")).findElement(By.className("col-sub")).findElement(By.className("title")).getText().trim());
+                args.put("shop_rate",   Integer.parseInt(driver.findElement(By.className("sep")).findElement(By.tagName("li")).getText().replace("卖家信用：", "").trim()));
+                List<String> score = new LinkedList<String>();
+                for (WebElement e : driver.findElement(By.id("dsr")).findElements(By.tagName("li"))) score.add(e.findElement(By.className("tb-title")).getText() + e.findElement(By.className("count")).getText());
+                args.put("shop_score",  score.stream().collect(Collectors.joining(" ")));
+            } finally { // shop
+                switchToLastWindow(driver);
+                driver.close();
+            }
+        } finally { // item
+            switchToLastWindow(driver);
+            driver.close();
+            switchToFirstWindow(driver);
+        }
         
-        args.put("shop_addr",   driver.findElement(By.id("J-From")).getText());
-        
-        driver.findElement(By.className("tb-shop-rank")).findElement(By.tagName("a")).click();
-        
-        // 店铺信息
-        args.put("shop_url",    driver.getCurrentUrl());
-        args.put("shop_name",   driver.findElement(By.id("header")).findElement(By.className("shop-name")).findElement(By.tagName("a")).getText());
-        args.put("shop_owner",  driver.findElement(By.className("personal-info")).findElement(By.className("col-sub")).findElement(By.className("title")).getText().trim());
-        args.put("shop_rate",   Integer.parseInt(driver.findElement(By.className("sep")).findElement(By.tagName("li")).getText().replace("卖家信用：", "").trim()));
-        List<String> score = new LinkedList<String>();
-        for (WebElement e : driver.findElement(By.id("dsr")).findElements(By.tagName("li"))) score.add(e.findElement(By.className("tb-title")).getText() + e.findElement(By.className("count")).getText());
-        args.put("shop_score",  score.stream().collect(Collectors.joining(" ")));
-        
-        driver.close(); // shop
-        driver.close(); // item
         return args;
     }
     
+    @SuppressWarnings("unused")
     private JSONObject parseTmall(WebDriver driver, WebElement element) {
-        element.findElement(By.tagName("img")).click();
         JSONObject args = new JSONObject();
-        // 商品信息
-        args.put("item_url",    driver.getCurrentUrl());
-        args.put("item_cover",  driver.findElement(By.id("J_ImgBooth")).getAttribute("src"));
-        args.put("item_name",   driver.findElement(By.className("tb-detail-hd")).findElement(By.tagName("h1")).getText().trim());
-        args.put("item_remark", driver.findElement(By.className("tb-detail-hd")).findElement(By.tagName("p")).getText().trim());
-        args.put("item_sold",   Integer.parseInt(driver.findElement(By.className("tm-ind-sellCount")).findElement(By.className("tm-count")).getText()));
-        args.put("item_price",  Float.parseFloat(driver.findElement(By.className("tm-price")).getText()));
-        args.put("express_price", Float.parseFloat(driver.findElement(By.id("J_PostageToggleCont")).findElement(By.tagName("span")).getText().replace("快递:", "").trim()));
-        
-        args.put("shop_addr",   driver.findElement(By.id("J_deliveryAdd")).getText());
-        
-        driver.findElement(By.className("render-byjs")).findElement(By.tagName("a")).click();
-        
-        // 店铺信息
-        args.put("shop_url",    driver.getCurrentUrl());
-        args.put("shop_name",   driver.findElement(By.className("personal-info")).findElement(By.className("col-sub")).findElement(By.className("title")).getText().trim());
-        args.put("shop_owner",  "tmall");
-        args.put("shop_rate",   -1);
-        List<String> score = new LinkedList<String>();
-        for (WebElement e : driver.findElement(By.id("dsr")).findElements(By.tagName("li"))) score.add(e.findElement(By.className("tb-title")).getText() + e.findElement(By.className("count")).getText());
-        args.put("shop_score",  score.stream().collect(Collectors.joining(" ")));
-        
-        driver.close(); // shop
-        driver.close(); // item
+        element.findElement(By.tagName("a")).click();
+        switchToLastWindow(driver);
+        try {Thread.sleep(3000L);} catch (InterruptedException e) {e.printStackTrace();}
+        try {
+            // 商品信息
+            args.put("item_url",    driver.getCurrentUrl());
+            args.put("item_cover",  driver.findElement(By.id("J_ImgBooth")).getAttribute("src"));
+            args.put("item_name",   driver.findElement(By.className("tb-detail-hd")).findElement(By.tagName("h1")).getText().trim());
+            args.put("item_remark", driver.findElement(By.className("tb-detail-hd")).findElement(By.tagName("p")).getText().trim());
+            args.put("item_sold",   Integer.parseInt(driver.findElement(By.className("tm-ind-sellCount")).findElement(By.className("tm-count")).getText()));
+            args.put("item_price",  Float.parseFloat(driver.findElement(By.className("tm-price")).getText()));
+            args.put("express_price", Float.parseFloat(driver.findElement(By.id("J_PostageToggleCont")).findElement(By.tagName("span")).getText().replace("快递:", "").trim()));
+            
+            args.put("shop_addr",   driver.findElement(By.id("J_deliveryAdd")).getText());
+            
+            driver.findElement(By.className("render-byjs")).findElement(By.tagName("a")).click();
+            switchToLastWindow(driver);
+            try {Thread.sleep(3000L);} catch (InterruptedException e) {e.printStackTrace();}
+            try {
+                // 店铺信息
+                args.put("shop_url",    driver.getCurrentUrl());
+                args.put("shop_name",   driver.findElement(By.className("personal-info")).findElement(By.className("col-sub")).findElement(By.className("title")).getText().trim());
+                args.put("shop_owner",  "tmall");
+                args.put("shop_rate",   -1);
+                List<String> score = new LinkedList<String>();
+                for (WebElement e : driver.findElement(By.id("dsr")).findElements(By.tagName("li"))) score.add(e.findElement(By.className("tb-title")).getText() + e.findElement(By.className("count")).getText());
+                args.put("shop_score",  score.stream().collect(Collectors.joining(" ")));
+            } finally { // shop
+                switchToLastWindow(driver);
+                driver.close();
+            }
+        } finally { // item
+            switchToLastWindow(driver);
+            driver.close();
+            switchToFirstWindow(driver);
+        }
         return args;
+    }
+    
+    private void switchToLastWindow(WebDriver driver) {
+        Deque<String> windows = new LinkedList<String>(driver.getWindowHandles());
+        driver.switchTo().window(windows.getLast());
+    }
+    
+    private void switchToFirstWindow(WebDriver driver) {
+        Deque<String> windows = new LinkedList<String>(driver.getWindowHandles());
+        driver.switchTo().window(windows.getFirst());
     }
     
     @Override

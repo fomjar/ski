@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002410', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002410', 16, 10) + 0), 'sp', 2, "sp_update_channel_commodity(?, ?, $osn, $cid, '$time', $channel, '$item_url', '$item_cover', '$item_name', '$item_remark', $item_sold, $item_price, $express_price, '$shop_url', '$shop_name', '$shop_owner', '$shop_rate', '$shop_score', '$shop_addr')"); 
+insert into tbl_instruction values((conv('00002410', 16, 10) + 0), 'sp', 2, "sp_update_channel_commodity(?, ?, $osn, $cid, '$time', $channel, '$item_url', '$item_cover', '$item_name', '$item_remark', $item_sold, '$item_price', $express_price, '$shop_url', '$shop_name', '$shop_owner', '$shop_rate', '$shop_score', '$shop_addr')"); 
 -- 更新游戏
 delimiter //
 drop procedure if exists sp_update_order //
@@ -15,7 +15,7 @@ create procedure sp_update_order (
     in  item_name       varchar(250),   -- 商品名称
     in  item_remark     varchar(250),   -- 商品备注
     in  item_sold       integer,        -- 商品售出数量
-    in  item_price      decimal(4, 2),  -- 商品价格
+    in  item_price      varchar(32),    -- 商品价格(或范围)
     in  express_price   decimal(4, 2),  -- 快递价格
     in  shop_url        varchar(250),   -- 店铺(级别)链接
     in  shop_name       varchar(64),    -- 店铺名称
@@ -45,7 +45,7 @@ begin
             c_item_name,
             c_item_remark,
             i_item_sold,
-            i_item_price,
+            c_item_price,
             i_express_price,
             c_shop_url,
             c_shop_name,
