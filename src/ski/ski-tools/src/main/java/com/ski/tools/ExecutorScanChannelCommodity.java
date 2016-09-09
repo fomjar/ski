@@ -11,8 +11,6 @@ import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanGame;
 
-import fomjar.server.msg.FjDscpMessage;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class ExecutorScanChannelCommodity implements ToolExecutor {
@@ -42,7 +40,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
         CommonService.updateGame();
         System.out.println(" done!");
         
-        final long osn = System.currentTimeMillis();
+        final int osn = Long.valueOf(System.currentTimeMillis()).intValue();
         
         CommonService.getGameAll().values().forEach(game->{
             String preset  = config.getProperty(String.format("0x%08X.preset",  game.i_gid));
@@ -65,23 +63,11 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             args_scc.put("preset",  preset);
             args_scc.put("include", include);
             args_scc.put("exclude", exclude);
-            System.out.print(String.format("scan game %s ", game.c_name_zh_cn));
-            FjDscpMessage rsp = CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc);
-            
-            System.out.println(rsp);
-            if (CommonService.isResponseSuccess(rsp)) {
-//                JSONArray cc = rsp.argsToJsonObject().getJSONArray("desc");
-//                System.out.println(cc.size() + " records");
-//                for (int i = 0; i < cc.size(); i++) {
-//                    JSONObject args_cdb = cc.getJSONObject(i);
-//                    args_cdb.put("osn", osn);
-//                    args_cdb.put("cid", game.i_gid);
-//                    args_cdb.put("channel", CommonService.CHANNEL_TAOBAO);
-//                    CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_COMMODITY, args_cdb);
-//                }
-            } else {
-                System.out.println("failed: " + rsp);
-            }
+            args_scc.put("osn",     osn);
+            args_scc.put("cid",     game.i_gid);
+            args_scc.put("channel", CommonService.CHANNEL_TAOBAO);
+            System.out.println(String.format("report game: %s ", game.c_name_zh_cn));
+            CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc, 10 * 1000);
         });
     }
     

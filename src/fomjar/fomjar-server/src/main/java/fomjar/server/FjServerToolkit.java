@@ -123,6 +123,8 @@ public class FjServerToolkit {
     
     public static class FjConfigMonitor extends FjLoopTask {
         
+        private Runnable task;
+        
         public FjConfigMonitor() {
             long inteval = 10;
             setDelay(inteval * 1000);
@@ -138,6 +140,12 @@ public class FjServerToolkit {
             slb.setAddresses(loadOneConfig("conf/address.conf"));
             
             server = loadOneConfig("conf/server.conf");
+            
+            if (null != task) task.run();
+        }
+        
+        public void onLoad(Runnable task) {
+            this.task = task;
         }
     }
     

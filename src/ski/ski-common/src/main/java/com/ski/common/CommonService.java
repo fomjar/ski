@@ -653,6 +653,16 @@ public class CommonService {
         return rsp;
     }
     
+    public static FjDscpMessage send(String report, int inst, JSONObject args, int timeout) {
+        if (null == args) args = new JSONObject();
+        
+        args.put("report", report);
+        args.put("inst", inst);
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_APPL_JSON, args.toString());
+        FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req, timeout);
+        return rsp;
+    }
+    
     private static String wsi_host = null;
     public static void setWsiHost(String host) {wsi_host = host;}
     

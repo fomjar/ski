@@ -19,13 +19,13 @@ begin
     declare c_shop_url      varchar(250)    default null;   -- 店铺(级别)链接
     declare c_shop_name     varchar(64)     default null;   -- 店铺名称
     declare c_shop_owner    varchar(64)     default null;   -- 店铺卖家
-    declare i_shop_rate     integer         default -1;     -- 店铺级别
+    declare c_shop_rate     varchar(64)     default null;   -- 店铺级别
     declare c_shop_score    varchar(64)     default null;   -- 店铺评分
     declare c_shop_addr     varchar(100)    default null;   -- 店铺地址
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.c_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.i_shop_rate, cc.c_shop_score, cc.c_shop_addr
+                        select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.c_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.c_shop_rate, cc.c_shop_score, cc.c_shop_addr
                           from tbl_channel_commodity cc
                          order by cc.t_time desc;
     /* 异常处理 */
@@ -34,7 +34,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, i_shop_rate, c_shop_score, c_shop_addr;
+    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -71,14 +71,14 @@ begin
                 '\t',
                 ifnull(c_shop_owner, ''),
                 '\t',
-                conv(i_shop_rate, 10, 16),
+                ifnull(c_shop_rate, ''),
                 '\t',
                 ifnull(c_shop_score, ''),
                 '\t',
                 ifnull(c_shop_addr, '')
         );
 
-        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, i_shop_rate, c_shop_score, c_shop_addr;
+        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
     end while;
     /* 关闭游标 */
     close rs;

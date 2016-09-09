@@ -79,7 +79,8 @@ public class WaTask implements FjServerTask {
         } catch (Exception e) {
             logger.error(String.format("execute ae failed for instuction: 0x%08X", inst), e);
             String desc = e.getMessage();
-            if (desc.contains(" (WARNING:")) desc = desc.substring(0, desc.indexOf(" (WARNING:"));
+            if (desc.contains(" (WARNING:"))    desc = desc.substring(0, desc.indexOf(" (WARNING:"));
+            if (desc.contains("\n"))            desc = desc.substring(0, desc.indexOf("\n"));
             response(server.name(), req, String.format("{'code':%d, 'desc':'execute ae failed for instuction(0x%08X): %s'}", CommonDefinition.CODE.CODE_WEB_AE_EXECUTE_FAILED, inst, desc));
             recordFail();
         } finally {

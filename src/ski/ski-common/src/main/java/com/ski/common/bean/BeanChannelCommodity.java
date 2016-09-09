@@ -16,7 +16,7 @@ public class BeanChannelCommodity {
     public String   c_shop_url;
     public String   c_shop_name;
     public String   c_shop_owner;
-    public int      i_shop_rate;
+    public String   c_shop_rate;
     public String   c_shop_score;
     public String   c_shop_addr;
     
@@ -36,7 +36,7 @@ public class BeanChannelCommodity {
         this.c_shop_url         = fields[11];
         this.c_shop_name        = fields[12];
         this.c_shop_owner       = fields[13];
-        this.i_shop_rate        = Integer.parseInt(fields[14], 16);
+        this.c_shop_rate        = fields[14];
         this.c_shop_score       = fields[15];
         this.c_shop_addr        = fields[16];
     }

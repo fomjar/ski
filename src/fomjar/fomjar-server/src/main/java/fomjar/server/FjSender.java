@@ -28,8 +28,8 @@ import fomjar.util.FjLoopTask;
 public class FjSender extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(FjSender.class);
-    private static long TIMEOUT_I = 1000L * 60;
-    private static long TIMEOUT_O = 1000L * 3;
+    private static int TIMEOUT_I = 1000 * 60;
+    private static int TIMEOUT_O = 1000 * 3;
     private FjMessageQueue mq;
     
     public FjSender() {
@@ -96,14 +96,18 @@ public class FjSender extends FjLoopTask {
     }
     
     public static FjMessage sendHttpRequest(FjHttpRequest req) {
+        return sendHttpRequest(req, TIMEOUT_I);
+    }
+    
+    public static FjMessage sendHttpRequest(FjHttpRequest req, int timeout) {
         HttpURLConnection conn = null;
         FjMessage rsp = null;
         try {
             URL httpurl = new URL(req.url());
             if (req.url().startsWith("https")) initSslContext();
             conn = (HttpURLConnection) httpurl.openConnection();
-            conn.setConnectTimeout((int) TIMEOUT_I);
-            conn.setReadTimeout((int) TIMEOUT_I);
+            conn.setConnectTimeout(timeout);
+            conn.setReadTimeout(timeout);
             
             conn.setRequestMethod(req.method());
             conn.setDoInput(true);
@@ -127,6 +131,10 @@ public class FjSender extends FjLoopTask {
     }
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
+        sendHttpResponse(rsp, conn, TIMEOUT_O);
+    }
+        
+    public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(rsp.toString().getBytes("utf-8"));
@@ -134,7 +142,7 @@ public class FjSender extends FjLoopTask {
             
             ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
             long begin = System.currentTimeMillis();
-            while(buf.hasRemaining() && TIMEOUT_O > System.currentTimeMillis() - begin) {
+            while(buf.hasRemaining() && timeout > System.currentTimeMillis() - begin) {
                 int n = conn.write(buf);
                 if (0 < n) begin = System.currentTimeMillis();
             }

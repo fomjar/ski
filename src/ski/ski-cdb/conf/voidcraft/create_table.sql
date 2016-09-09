@@ -221,7 +221,7 @@ create table tbl_channel_commodity (
     c_shop_url      varchar(250),   -- 店铺(级别)链接
     c_shop_name     varchar(64),    -- 店铺名称
     c_shop_owner    varchar(64),    -- 店铺卖家
-    i_shop_rate     integer,        -- 店铺级别
+    c_shop_rate     varchar(64),    -- 店铺级别
     c_shop_score    varchar(64),    -- 店铺评分
     c_shop_addr     varchar(100)    -- 店铺地址
 );
