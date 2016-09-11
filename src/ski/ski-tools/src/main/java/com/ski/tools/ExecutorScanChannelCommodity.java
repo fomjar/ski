@@ -67,7 +67,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             args_scc.put("cid",     game.i_gid);
             args_scc.put("channel", CommonService.CHANNEL_TAOBAO);
             System.out.println(String.format("report game: %s ", game.c_name_zh_cn));
-            CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc, 10 * 1000);
+            CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc, 1 * 1000);
         });
     }
     
