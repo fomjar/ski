@@ -29,22 +29,29 @@ var ski = {
             return cover;
         },
         
-        createTextWithHeight : function(text, height) {
+        textByHeight : function(text, height) {
             var id=new Date().getTime();
             var id_txt = 'txt_' + id;
+            var id_bak = 'bak_' + id;
             var id_btn = 'btn_' + id;
-            var div = $("<div></div>");
-            div.append("<div id='" + id_txt + "' style='width:100%;overflow:hidden;text-overflow:ellipsis;'>" + text + "</div>");
+            var l_open  = '▼展开';
+            var l_close = '▲收起';
 
-            var fn = "if ($('#"+id_txt+"').height() > "+height+") {"
-                       + "$('#"+id_txt+"').attr('dh', $('#"+id_txt+"').height());"
-                       + "$('#"+id_btn+"').text('展开');"
-                       + "$('#"+id_txt+"').animate({height : '"+height+"px'});"
-                   + "} else {"
-                       + "$('#"+id_btn+"').text('收起');"
-                       + "$('#"+id_txt+"').animate({height : $('#"+id_txt+"').attr('dh')+'px'});"
+            var div = $("<div></div>");
+            div.append("<div id='"+id_txt+"' style='width:100%; height:"+height+"px; overflow:hidden; text-overflow:ellipsis;'>"+text+"</div>");
+
+            var fn = "if ($('#"+id_txt+"').height() > "+height+") {" // close
+                       + "$('#"+id_btn+"').text('"+l_open+"');"
+                       + "$('#"+id_txt+"').animate({height : '"+height+"px'}, 200);"
+                   + "} else {" // open
+                       + "$('#"+id_bak+"').show();"
+                       + "var h=$('#"+id_bak+"').height();"
+                       + "$('#"+id_bak+"').hide();"
+                       + "$('#"+id_btn+"').text('"+l_close+"');"
+                       + "$('#"+id_txt+"').animate({height : h+'px'}, 200);"
                    + "}";
-            div.append("<div style='text-align:right'><a id='"+id_btn+"' href=\"javascript: " + fn + "\">收起</a></div>");
+            div.append("<div style='width:100%; text-align:right'><a id='"+id_btn+"' href='#' onclick=\""+fn+"\">"+l_open+"</a></div>");
+            div.append("<div id='"+id_bak+"' style='width:100%; display:none; opacity: 0.0'>"+text+"</div>"); // append a copy to calculate real height
             return div;
         }
     }
