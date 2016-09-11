@@ -31,9 +31,9 @@ var ski = {
         
         textByHeight : function(text, height) {
             var id=new Date().getTime();
-            var id_txt = 'txt_' + id;
-            var id_bak = 'bak_' + id;
-            var id_btn = 'btn_' + id;
+            var id_txt = 'txt_' + id;   // real text
+            var id_bak = 'bak_' + id;   // backup text
+            var id_btn = 'btn_' + id;   // expand button
             var l_open  = '▼展开';
             var l_close = '▲收起';
 
