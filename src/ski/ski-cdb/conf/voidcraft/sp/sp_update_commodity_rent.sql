@@ -29,6 +29,8 @@ begin
     declare dc_arg1     varchar(64)     default null;
     declare di_paid     integer         default -1;
     declare di_money    decimal(9, 2)   default 0.00;
+    declare di_count    integer         default -1;
+    declare di_channel  tinyint         default -1;
 
     select i_caid
       into di_caid
@@ -63,6 +65,21 @@ begin
             -- 结算计算
             select fn_update_commodity_statement(oid, csn)
               into di_money;
+
+            -- 计算优惠
+            select count(1)
+              into di_count
+              from tbl_order
+             where i_caid = di_caid;
+
+            select i_channel
+              into di_channel
+              from tbl_channel_account
+             where i_caid = di_caid;
+
+            if di_count = 1 and di_channel = 1 then -- 微信用户首次退租打折
+                set di_money = di_money * 0.8;
+            end if;
             
             -- 更新订单商品金额
             update tbl_commodity

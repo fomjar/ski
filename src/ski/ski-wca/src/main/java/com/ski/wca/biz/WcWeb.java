@@ -906,8 +906,8 @@ public class WcWeb {
             String verify     = time.substring(time.length() - 4);
             {
                 JSONObject args_mma = new JSONObject();
-                args_mma.put("phone", phone);
-                args_mma.put("verify", verify);
+                args_mma.put("phones",  phone);
+                args_mma.put("smsargs", verify);
                 FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_USER_AUTHORIZE, args_mma);
                 if (!CommonService.isResponseSuccess(rsp)) {
                     JSONObject args = new JSONObject();

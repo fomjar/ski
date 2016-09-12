@@ -204,13 +204,13 @@ public class UIToolkit {
         
         i_channel.addItemListener(e->{
             switch (i_channel.getSelectedIndex()) {
-            case 0:
+            case CommonService.CHANNEL_TAOBAO:
                 is_recharge_cash.setSelected(true);
                 is_recharge_coupon.setSelected(false);
                 is_open_commodity.setSelected(true);
                 break;
-            case 1:
-            case 2:
+            case CommonService.CHANNEL_WECHAT:
+            case CommonService.CHANNEL_ALIPAY:
                 is_recharge_cash.setSelected(false);
                 is_recharge_coupon.setSelected(false);
                 is_open_commodity.setSelected(false);
@@ -254,8 +254,9 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-            if (0 == c_phone.getText().length()) {
-                JOptionPane.showMessageDialog(null, "电话一定要填", "错误", JOptionPane.ERROR_MESSAGE);
+            if (i_channel.getSelectedIndex() == CommonService.CHANNEL_TAOBAO
+                    && 0 == c_phone.getText().length()) {
+                JOptionPane.showMessageDialog(null, "淘宝用户电话一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
             
@@ -272,6 +273,20 @@ public class UIToolkit {
             if (!CommonService.isResponseSuccess(rsp)){
                 showServerResponse(rsp);
                 break;
+            }
+            
+            // 淘宝新用户发短信
+            if (i_channel.getSelectedIndex() == CommonService.CHANNEL_TAOBAO) {
+                doLater(()->{
+                    // sleep 5 minutes
+                    try {Thread.sleep(1000L * 60 * 5);}
+                    catch (InterruptedException e) {e.printStackTrace();}
+                    
+                    JSONObject args_mma = new JSONObject();
+                    args_mma.put("phones",   c_phone.getText());
+                    args_mma.put("smsargs",  "8");
+                    CommonService.send("mma", CommonDefinition.ISIS.INST_USER_SUBSCRIBE, args_mma);
+                });
             }
             
             caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
