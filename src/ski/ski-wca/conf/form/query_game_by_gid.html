@@ -63,7 +63,9 @@
                         $('#category').text(args.desc.category);
                         $('#language').text(args.desc.language);
                         $('#sale').text(args.desc.sale);
-                        $('#introduction').html('<p>' + args.desc.introduction.replace(/\|/g, '</p><p>') + '</p>');
+                        var intr = "<div style='padding-bottom: 20px'><p>" + args.desc.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
+                        if (intr.length > 200) $('#introduction').html(ski.ui.textByHeight(intr, 133));
+                        else $('#introduction').html(intr);
 
                         if (0 < args.desc.vedio.length) {
                             $('#poster_container').css('height', '200px');
@@ -98,6 +100,10 @@
                             $('#rent_begin').hide();
                         }
 
+                        setTimeout(function() {
+                            $('.weui_tab').animate({top : '150px'});
+                        }, 400);
+
                         $('#url_poster').skippr({
                             transition: 'fade',
                             speed: 200,
@@ -110,10 +116,6 @@
                             keyboardOnAlways: true,
                             hidePrevious: false
                         });
-
-                        setTimeout(function() {
-                            $('.weui_tab').animate({top : '150px'});
-                        }, 400);
 
                     });
             });

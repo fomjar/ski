@@ -42,13 +42,13 @@ var ski = {
 
             var fn = "if ($('#"+id_txt+"').height() > "+height+") {" // close
                        + "$('#"+id_btn+"').text('"+l_open+"');"
-                       + "$('#"+id_txt+"').animate({height : '"+height+"px'}, 200);"
+                       + "$('#"+id_txt+"').animate({height : '"+height+"px'});"
                    + "} else {" // open
                        + "$('#"+id_bak+"').show();"
-                       + "var h=$('#"+id_bak+"').height();"
+                       + "var h=$('#"+id_bak+"').outerHeight(true);"
                        + "$('#"+id_bak+"').hide();"
                        + "$('#"+id_btn+"').text('"+l_close+"');"
-                       + "$('#"+id_txt+"').animate({height : h+'px'}, 200);"
+                       + "$('#"+id_txt+"').animate({height : h+'px'});"
                    + "}";
             div.append("<div style='width:100%; text-align:right'><a id='"+id_btn+"' href='#' onclick=\""+fn+"\">"+l_open+"</a></div>");
             div.append("<div id='"+id_bak+"' style='width:100%; display:none; opacity: 0.0'>"+text+"</div>"); // append a copy to calculate real height
