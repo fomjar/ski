@@ -1,5 +1,6 @@
 package com.ski.wca.biz;
 
+import java.awt.geom.Point2D;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,11 +24,13 @@ import org.w3c.dom.NodeList;
 import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
+import com.ski.common.bean.BeanChannelCommodity;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
 import com.ski.common.bean.BeanGameRentPrice;
 import com.ski.common.bean.BeanPlatformAccount;
+import com.ski.wca.BaiduMapInterface;
 import com.ski.wca.WechatInterface;
 import com.ski.wca.monitor.TokenMonitor;
 
@@ -680,33 +683,75 @@ public class WcWeb {
     private static JSONObject gameToJson(BeanGame game) {
         JSONObject json = new JSONObject();
         json.put("gid",             game.i_gid);
-        json.put("name_zh_cn",        game.c_name_zh_cn);
-        json.put("name_zh_hk",        game.c_name_zh_hk);
+        json.put("name_zh_cn",      game.c_name_zh_cn);
+        json.put("name_zh_hk",      game.c_name_zh_hk);
         json.put("name_en",         game.c_name_en);
         json.put("name_ja",         game.c_name_ja);
         json.put("name_ko",         game.c_name_ko);
-        json.put("name_other",        game.c_name_other);
+        json.put("name_other",      game.c_name_other);
         json.put("platform",        game.c_platform);
         json.put("category",        game.c_category);
         json.put("language",        game.c_language);
         json.put("size",            game.c_size);
-        json.put("vendor",            game.c_vendor);
+        json.put("vendor",          game.c_vendor);
         json.put("sale",            game.t_sale);
         json.put("url_icon",        game.c_url_icon);
         json.put("url_cover",       game.c_url_cover);
         json.put("url_poster",      JSONArray.fromObject(game.c_url_poster.split(" ")));
         json.put("introduction",    game.c_introduction);
-        json.put("version",          game.c_version);
-        json.put("vedio",             game.c_vedio);
+        json.put("version",         game.c_version);
+        json.put("vedio",           game.c_vedio);
         
         json.put("display_name",    game.getDisplayName());
-        BeanGameRentPrice price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
-        json.put("price_a",         null != price_a ? price_a.i_price : 0.0f);
-        BeanGameRentPrice price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
-        json.put("price_b",         null != price_b ? price_b.i_price : 0.0f);
+        BeanGameRentPrice rent_price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
+        json.put("rent_price_a",    null != rent_price_a ? rent_price_a.i_price : 0.0f);
+        BeanGameRentPrice rent_price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
+        json.put("rent_price_b",    null != rent_price_b ? rent_price_b.i_price : 0.0f);
         
-        json.put("rent_a",             CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
-        json.put("rent_b",             CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
+        json.put("rent_avail_a",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
+        json.put("rent_avail_b",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
+        return json;
+    }
+    
+    private static JSONObject channelCommoditiesToJson(int cid) {
+        List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityLOByCid(cid);
+        List<BeanChannelCommodity> cc_conv = new LinkedList<BeanChannelCommodity>(ccs);
+        List<BeanChannelCommodity> cc_near = new LinkedList<BeanChannelCommodity>(ccs);
+        List<BeanChannelCommodity> cc_trus = new LinkedList<BeanChannelCommodity>(ccs);
+        List<BeanChannelCommodity> cc_sold = new LinkedList<BeanChannelCommodity>(ccs);
+        cc_conv.sort((cc1, cc2)->{
+            float p1 = Float.parseFloat(cc1.c_item_price.split("-")[0].trim()) + cc1.i_express_price;
+            float p2 = Float.parseFloat(cc2.c_item_price.split("-")[0].trim()) + cc2.i_express_price;
+            return (int) (p1 - p2);
+        });
+        JSONObject json = new JSONObject();
+        json.put("total", ccs.size());
+        return json;
+    }
+    
+    private static double getDistance(String place1, String place2) {
+        Point2D.Double p1 = BaiduMapInterface.getCordinate(FjServerToolkit.getServerConfig("wca.baidu.map.ak"), place1);
+        Point2D.Double p2 = BaiduMapInterface.getCordinate(FjServerToolkit.getServerConfig("wca.baidu.map.ak"), place2);
+        return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) + (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()));
+    }
+    
+    private static JSONObject channelCommodityToJson(BeanChannelCommodity cc) {
+        JSONObject json = new JSONObject();
+        json.put("time",            cc.t_time);
+        json.put("channel",         cc.i_channel);
+        json.put("item_url",        cc.c_item_url);
+        json.put("item_cover",      cc.c_item_cover);
+        json.put("item_name",       cc.c_item_name);
+        json.put("item_remark",     cc.c_item_remark);
+        json.put("item_sold",       cc.i_item_sold);
+        json.put("item_price",      cc.c_item_price);
+        json.put("express_price",   cc.i_express_price);
+        json.put("shop_url",        cc.c_shop_url);
+        json.put("shop_name",       cc.c_shop_name);
+        json.put("shop_owner",      cc.c_shop_owner);
+        json.put("shop_rate",       cc.c_shop_rate);
+        json.put("shop_score",      cc.c_shop_score);
+        json.put("shop_ddr",        cc.c_shop_addr);
         return json;
     }
     

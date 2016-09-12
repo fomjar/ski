@@ -29,9 +29,9 @@
                         }
                         $('#name').text(args.desc.name_zh_cn);
 
-                        if (args.desc.rent_a) $('#type').html("<option value='0'>认证 - " + args.desc.price_a + "元/天</option>");
-                        if (args.desc.rent_b) $('#type').append("<option value='1'>不认证 - " + args.desc.price_b + "元/天</option>");
-                        if (!args.desc.rent_a && !args.desc.rent_b) $('#rent_begin').hide();
+                        if (args.desc.rent_avail_a) $('#type').html("<option value='0'>认证 - " + args.desc.rent_price_a + "元/天</option>");
+                        if (args.desc.rent_avail_b) $('#type').append("<option value='1'>不认证 - " + args.desc.rent_price_b + "元/天</option>");
+                        if (!args.desc.rent_avail_a && !args.desc.rent_avail_b) $('#rent_begin').hide();
                     });
             });
 

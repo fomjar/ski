@@ -33,6 +33,12 @@
             text-overflow   : ellipsis; 
             -o-text-overflow: ellipsis; 
         }
+        .category {
+            color           : rgb(0, 203, 1);
+            border-bottom   : 1px solid;
+            margin-bottom   : 0px;
+            box-shadow      : 0px 1px 0px lightgray;
+        }
         </style>
         <script type='text/javascript'>
             var gid = ski.cookie('gid');
@@ -51,26 +57,34 @@
                             return;
                         }
 
+                        // 标题
                         setTitle(args.desc.name_zh_cn);
 
+                        // 背景
                         $('#blur_cover').css('background-image', 'url(' + args.desc.url_cover + ')');
                         $('#blur_cover').css('background-size', 'cover');
                         $('#blur_cover').addClass('blur');
 
+                        // 封面
                         $('#url_cover').append(ski.ui.createCover(110, 110, args.desc.url_cover))
+                        // 字段
                         $('#name_zh_cn').text(args.desc.name_zh_cn);
                         $('#name_en').text(args.desc.name_en);
                         $('#category').text(args.desc.category);
                         $('#language').text(args.desc.language);
                         $('#sale').text(args.desc.sale);
+                        
+                        // 简介
                         var intr = "<div style='padding-bottom: 20px'><p>" + args.desc.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
                         if (intr.length > 200) $('#introduction').html(ski.ui.textByHeight(intr, 133));
                         else $('#introduction').html(intr);
 
+                        // 视频
                         if (0 < args.desc.vedio.length) {
                             $('#poster_container').css('height', '200px');
                             $('#url_poster').append("<video width='100%' height='100%' controls autobuffer src='" + args.desc.vedio + "'/>");
                         }
+                        // 海报
                         if (0 < args.desc.url_poster.length) {
                             for (var i in args.desc.url_poster) {
                                 var poster = args.desc.url_poster[i];
@@ -81,29 +95,33 @@
                             }
                         }
 
-                        if (args.desc.rent_a && 0 != args.desc.price_a) {
+                        // 租赁
+                        if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
                             $('#rent').html("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'><p>认证</p></div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.price_a + " 元/天</div>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
                                     + "</div>");
                         }
-                        if (args.desc.rent_b && 0 != args.desc.price_b) {
+                        if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
                             $('#rent').append("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'><p>不认证</p></div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.price_b + " 元/天</div>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
                                     + "</div>");
                         }
-                        if ((!args.desc.rent_a || 0 == args.desc.price_a)
-                                && (!args.desc.rent_b || 0 == args.desc.price_b)) {
+                        if ((!args.desc.rent_avail_a || 0 == args.desc.rent_price_a)
+                                && (!args.desc.rent_avail_b || 0 == args.desc.rent_price_b)) {
                             $('#rent').removeClass('weui_cells');
-                            $('#rent').html("<div style='height: 200px; line-height: 200px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
-                            $('#rent_begin').hide();
+                            $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
+                        } else {
+                            $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentBegin();'>我要租</a></div></div>");
                         }
 
+                        // 下滑动画
                         setTimeout(function() {
-                            $('.weui_tab').animate({top : '150px'});
+                            $('#info').animate({top : '150px'});
                         }, 400);
 
+                        // 海报布局
                         $('#url_poster').skippr({
                             transition: 'fade',
                             speed: 200,
@@ -139,20 +157,6 @@
                 window.location = url_rent_begin;
             }
             
-            function tabToIntr() {
-                $('#tab_bar_intr').addClass('weui_bar_item_on');
-                $('#tab_bar_rent').removeClass('weui_bar_item_on');
-                $('#tab_bd_intr').show();
-                $('#tab_bd_rent').hide();
-            }
-
-            function tabToRent() {
-                $('#tab_bar_intr').removeClass('weui_bar_item_on');
-                $('#tab_bar_rent').addClass('weui_bar_item_on');
-                $('#tab_bd_intr').hide();
-                $('#tab_bd_rent').show();
-            }
-
             function showToast(text) {
                 $('#toast_text').text(text);
                 $('#toast').show();
@@ -176,7 +180,7 @@
     <body>
         <div class='cell'>
             <div class='bd'>
-                <div style='position: fixed; top: 0px; width: 100%; height: 300px; font-size: 16px'>
+                <div style='position: fixed; top: 0px; z-index: 1; width: 100%; height: 300px; font-size: 16px'>
                     <div id='blur_cover'    style='position: absolute; margin-top: -20%; margin-left: -20%; width: 140%; height: 100%'></div>
                     <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
                     <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
@@ -185,29 +189,24 @@
                     <div id='language'      class='field' style='margin-top: 96px; font-weight: 200; font-size: 80%'></div>
                     <div id='sale'          class='field' style='margin-top: 114px; font-weight: 200; font-size: 80%'></div>
                 </div>
-                <div class="weui_tab" style='background: white'>
-                    <div class="weui_navbar">
-                        <div id='tab_bar_intr' class="weui_navbar_item weui_bar_item_on" onclick="tabToIntr()">游戏介绍</div>
-                        <div id='tab_bar_rent' class="weui_navbar_item" onclick="tabToRent()">游戏租赁 </div>
-                    </div>
-                    <div class="weui_tab_bd">
-                        <div id='tab_bd_intr'>
-                            <article class='weui_article'>
-                                <section>
-                                    <div id='poster_container' style='width: 100%; background: black'>
-                                        <div id='url_poster'></div>
-                                    </div>
-                                </section>
-                                <section id='introduction' style='text-indent:2em;'/>
-                            </article>
-                        </div>
-                        <div id='tab_bd_rent' style='display: none'>
-                            <div class="weui_cells" id='rent'> </div>
-                            <div class='weui_btn_area' id='rent_begin'>
-                                <a class='weui_btn weui_btn_primary' href="javascript:rentBegin();">我要租</a>
+                <div id='info' style='position: relative; z-index: 500; background: white; border-top: 1px solid lightgray'>
+                    <article class='weui_article'>
+                        <!-- 视频海报区 -->
+                        <section>
+                            <div id='poster_container' style='width: 100%; background: black'>
+                                <div id='url_poster'></div>
                             </div>
+                        </section>
+                        <!-- 简介区 -->
+                        <section id='introduction' style='text-indent:2em;'></section>
+                        <!-- 租赁区 -->
+                        <div style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                            <h1 class='category' style='margin-bottom: 0px'>游戏租赁</h1>
+                            <section style='margin-bottom: 0px'>
+                                <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
+                            </section>
                         </div>
-                    </div>
+                    </article>
                 </div>
             </div>
         </div>
