@@ -15,7 +15,7 @@ begin
     declare c_item_name     varchar(250)    default null;   -- 商品名称
     declare c_item_remark   varchar(250)    default null;   -- 商品备注
     declare i_item_sold     integer         default -1;     -- 商品售出数量
-    declare i_item_price    decimal(4, 2)   default -1;     -- 商品价格
+    declare c_item_price    varchar(32)     default null;   -- 商品价格
     declare i_express_price decimal(4, 2)   default -1;     -- 快递价格
     declare c_shop_url      varchar(250)    default null;   -- 店铺(级别)链接
     declare c_shop_name     varchar(64)     default null;   -- 店铺名称
@@ -26,7 +26,7 @@ begin
 
     declare done        integer default 0;
     declare rs          cursor for
-                        select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.i_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.c_shop_rate, cc.c_shop_score, cc.c_shop_addr
+                        select cc.i_osn, cc.i_cid, cc.t_time, cc.i_channel, cc.c_item_url, cc.c_item_cover, cc.c_item_name, cc.c_item_remark, cc.i_item_sold, cc.c_item_price, cc.i_express_price, cc.c_shop_url, cc.c_shop_name, cc.c_shop_owner, cc.c_shop_rate, cc.c_shop_score, cc.c_shop_addr
                           from tbl_channel_commodity cc
                          where cc.i_osn = (
                             case osn
@@ -42,7 +42,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
+    fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -69,7 +69,7 @@ begin
                 '\t',
                 conv(i_item_sold, 10, 16),
                 '\t',
-                ifnull(i_item_price, '0.0'),
+                ifnull(c_item_price, '0.0'),
                 '\t',
                 ifnull(i_express_price, '0.0'),
                 '\t',
@@ -86,7 +86,7 @@ begin
                 ifnull(c_shop_addr, '')
         );
 
-        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, i_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
+        fetch rs into i_osn, i_cid, t_time, i_channel, c_item_url, c_item_cover, c_item_name, c_item_remark, i_item_sold, c_item_price, i_express_price, c_shop_url, c_shop_name, c_shop_owner, c_shop_rate, c_shop_score, c_shop_addr;
     end while;
     /* 关闭游标 */
     close rs;

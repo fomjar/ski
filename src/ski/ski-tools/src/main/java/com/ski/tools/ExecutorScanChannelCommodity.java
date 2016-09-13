@@ -83,7 +83,6 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
                         if (field.getName().equals("c_name_en"))    value = game.c_name_zh_cn;
                         if (field.getName().equals("c_name_other")) value = game.c_name_zh_cn;
                     }
-                    if (value.contains(":")) value = value.substring(0, value.indexOf(":"));
                     statement = statement.replace(variable, value);
                 }
             } catch (IllegalArgumentException | IllegalAccessException e) {

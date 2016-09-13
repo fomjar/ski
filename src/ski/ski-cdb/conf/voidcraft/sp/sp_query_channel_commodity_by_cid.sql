@@ -63,7 +63,7 @@ begin
                 '\t',
                 conv(i_item_sold, 10, 16),
                 '\t',
-                ifnull(c_item_price, ''),
+                ifnull(c_item_price, '0.0'),
                 '\t',
                 ifnull(i_express_price, '0.0'),
                 '\t',

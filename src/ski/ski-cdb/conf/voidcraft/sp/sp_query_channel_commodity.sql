@@ -13,9 +13,9 @@ create procedure sp_query_channel_commodity (
 begin
     if osn is null and cid is null then
         call sp_query_channel_commodity_all(i_code, c_desc);
-    elseif osn is null then
+    elseif osn is not null then
         call sp_query_channel_commodity_by_osn(i_code, c_desc, osn);
-    elseif cid is null then
+    elseif cid is not null then
         call sp_query_channel_commodity_by_cid(i_code, c_desc, cid);
     else
         set i_code = 2;

@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -83,6 +85,7 @@ public class WcWeb {
             if (args.has("code")) {
                 if (ANONYMOUS == (user = authorize(args))) break;
                 
+                logger.info("user: " + CommonService.getChannelAccountByCaid(user).getDisplayName());
                 redirect(response, server, hreq.path(), user, args);
                 break;
             }
@@ -172,29 +175,44 @@ public class WcWeb {
         logger.debug("user redirect data: " + response);
     }
     
-    private static void fetchFile(FjHttpResponse response, String url) {
+    private Map<String, Long>   cache_file_modify = new HashMap<String, Long>();
+    private Map<String, byte[]> cache_file_content = new HashMap<String, byte[]>();
+    
+    private synchronized void fetchFile(FjHttpResponse response, String url) {
         File file = new File(FjServerToolkit.getServerConfig("wca.form.root") + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
         if (!file.isFile()) {
             logger.warn("not such file to fetch: " + file.getPath());
             return;
         }
         
-        FileInputStream         fis = null;
-        ByteArrayOutputStream   baos = null;
-        try {
-            byte[]  buf = new byte[1024 * 4];
-            int     len = -1;
-            fis     = new FileInputStream(file);
-            baos    = new ByteArrayOutputStream();
-            while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
-            response.attr().put("Content-Type", getFileMime(file.getName()));
-            response.content(baos.toByteArray());
-        } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
-        finally {
+        byte[] content = null;
+        if (!cache_file_modify.containsKey(url)) cache_file_modify.put(url, 0l);
+        
+        if (file.lastModified() <= cache_file_modify.get(url)) content = cache_file_content.get(url);
+        else {
+            FileInputStream         fis = null;
+            ByteArrayOutputStream   baos = null;
             try {
-                fis.close();
-                baos.close();
-            } catch (IOException e) {e.printStackTrace();}
+                byte[]  buf = new byte[1024 * 4];
+                int     len = -1;
+                fis     = new FileInputStream(file);
+                baos    = new ByteArrayOutputStream();
+                while (0 < (len = fis.read(buf))) baos.write(buf, 0, len);
+                content = baos.toByteArray();
+                
+                cache_file_modify.put(url, file.lastModified());
+                cache_file_content.put(url, content);
+            } catch (IOException e) {logger.error("fetch file failed, url: " + url, e);}
+            finally {
+                try {
+                    fis.close();
+                    baos.close();
+                } catch (IOException e) {e.printStackTrace();}
+            }
+        }
+        if (null != content) {
+            response.attr().put("Content-Type", getFileMime(file.getName()));
+            response.content(content);
         }
     }
     
@@ -341,7 +359,7 @@ public class WcWeb {
         }
     }
     
-    private static void processApplyPlatformAccountMoney_Refund(FjHttpResponse response, WcwRequest request) {
+    private void processApplyPlatformAccountMoney_Refund(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             fetchFile(response, "/apply_platform_account_money_refund.html");
@@ -546,7 +564,7 @@ public class WcWeb {
         }
     }
     
-    private static void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
+    private void processApplyRentEnd(FjHttpResponse response, WcwRequest request) {
         if (ANONYMOUS == request.user) {
             fetchFile(response, "/message.html");
             response.setcookie("msg_type",         "warn");
@@ -603,7 +621,7 @@ public class WcWeb {
         }
     }
     
-    private static void processQueryGame(FjHttpResponse response, WcwRequest request) {
+    private void processQueryGame(FjHttpResponse response, WcwRequest request) {
         switch (request.step) {
         case STEP_PREPARE: {
             if (request.args.has("gid")) {
@@ -626,7 +644,9 @@ public class WcWeb {
                 int gid = Integer.parseInt(request.args.getString("gid"), 16);
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-                args.put("desc", gameToJson(CommonService.getGameByGid(gid)));
+                JSONObject desc = gameToJson(CommonService.getGameByGid(gid));
+                desc.put("channel_commodity", channelCommoditiesToJson(request.user, gid));
+                args.put("desc", desc);
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);
             } else if (request.args.has("category")) {
@@ -710,10 +730,12 @@ public class WcWeb {
         
         json.put("rent_avail_a",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
         json.put("rent_avail_b",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
+        
         return json;
     }
     
-    private static JSONObject channelCommoditiesToJson(int cid) {
+    private static JSONObject channelCommoditiesToJson(int caid, int cid) {
+        BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
         List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityLOByCid(cid);
         List<BeanChannelCommodity> cc_conv = new LinkedList<BeanChannelCommodity>(ccs);
         List<BeanChannelCommodity> cc_near = new LinkedList<BeanChannelCommodity>(ccs);
@@ -722,10 +744,27 @@ public class WcWeb {
         cc_conv.sort((cc1, cc2)->{
             float p1 = Float.parseFloat(cc1.c_item_price.split("-")[0].trim()) + cc1.i_express_price;
             float p2 = Float.parseFloat(cc2.c_item_price.split("-")[0].trim()) + cc2.i_express_price;
-            return (int) (p1 - p2);
+            return (int) Math.ceil(p1 - p2);
+        });
+        cc_near.sort((cc1, cc2)->{
+            double d1 = getDistance(user.c_address, cc1.c_shop_addr);
+            double d2 = getDistance(user.c_address, cc2.c_shop_addr);
+            return (int) Math.ceil(d1 - d2);
+        });
+        cc_trus.sort((c1, c2)->{
+            int t1 = Arrays.asList(c1.c_shop_rate.split("|")).stream().map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
+            int t2 = Arrays.asList(c2.c_shop_rate.split("|")).stream().map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
+            return t2 - t1;
+        });
+        cc_sold.sort((c1, c2)->{
+            return c2.i_item_sold - c1.i_item_sold;
         });
         JSONObject json = new JSONObject();
         json.put("total", ccs.size());
+        json.put("conv", JSONArray.fromObject(cc_conv.stream().map(cc->channelCommodityToJson(cc)).collect(Collectors.toList())));
+        json.put("near", JSONArray.fromObject(cc_near.stream().map(cc->channelCommodityToJson(cc)).collect(Collectors.toList())));
+        json.put("trus", JSONArray.fromObject(cc_trus.stream().map(cc->channelCommodityToJson(cc)).collect(Collectors.toList())));
+        json.put("sold", JSONArray.fromObject(cc_sold.stream().map(cc->channelCommodityToJson(cc)).collect(Collectors.toList())));
         return json;
     }
     
@@ -755,7 +794,7 @@ public class WcWeb {
         return json;
     }
     
-    private static void processQueryOrder(FjHttpResponse response, WcwRequest request) {
+    private void processQueryOrder(FjHttpResponse response, WcwRequest request) {
         if (ANONYMOUS == request.user) {
             fetchFile(response, "/message.html");
             response.setcookie("msg_type",         "warn");

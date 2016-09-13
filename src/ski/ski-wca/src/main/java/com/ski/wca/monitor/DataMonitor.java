@@ -11,6 +11,8 @@ public class DataMonitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(DataMonitor.class);
     
+    private boolean isNeverLoad = true;
+    
     public void start() {
         if (isRun()) {
             logger.warn("monitor-data has already started");
@@ -28,7 +30,6 @@ public class DataMonitor extends FjLoopTask {
     public void perform() {
         resetInterval();
         
-        CommonService.updateGame();
         CommonService.updateGameAccount();
         CommonService.updateGameAccountGame();
         CommonService.updateGameAccountRent();
@@ -37,7 +38,14 @@ public class DataMonitor extends FjLoopTask {
         CommonService.updatePlatformAccount();
         CommonService.updatePlatformAccountMap();
         CommonService.updateOrder();
-        CommonService.updateTag();
+        
+        boolean swich = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("wca.data.reload-switch"));
+        if (isNeverLoad || swich) {
+            CommonService.updateGame();
+            CommonService.updateTag();
+            CommonService.updateChannelCommodityLO();
+            isNeverLoad = false;
+        }
     }
 
 
