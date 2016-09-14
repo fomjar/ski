@@ -37,7 +37,7 @@ public class BaiduMapInterface {
      * @return
      */
     public static Point2D.Double getCordinate(String ak, String place) {
-        String url = String.format("http://%s/place/v2/search?q=%s&region=全国&output=json&ak=％s", host(), place.replace(" ", "_"), ak);
+        String url = String.format("http://%s/place/v2/search?q=%s&region=全国&output=json&ak=%s", host(), place.replace(" ", "_"), ak);
         FjJsonMessage rsp = sendRequest("GET", url, null);
         if (0 != rsp.json().getInt("status")) return null;
         

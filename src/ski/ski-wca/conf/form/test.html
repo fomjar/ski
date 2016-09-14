@@ -3,21 +3,322 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>测试</title>
+        <title>游戏详情</title>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/style/weui.min.css'/>
         <link rel='stylesheet' href='/ski-wcweb/weui/dist/example/example.css'/>
+        <link rel='stylesheet' href='/ski-wcweb/lib/jquery.skippr.css'/>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery-3.0.0.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/ski-wcweb/lib/jquery.skippr.min.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/jquery.cookie.js'></script>
         <script type='text/javascript' src='/ski-wcweb/lib/ski.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <style type="text/css">
+        .blur {
+            -webkit-filter: blur(45px); /* Chrome, Opera */
+               -moz-filter: blur(45px);
+                -ms-filter: blur(45px);
+                    filter: blur(45px);
+        }
+        .field {
+            position        : absolute;
+            width           : 100%;
+            margin-left     : -25px;
+            padding-right   : 10px; /* 防止阴影被裁 */
+            color           : #ffffff;
+            text-align      : right;
+            text-shadow     : black 1px 1px 2px;
+            white-space     : nowrap;
+            overflow        : hidden;
+            text-overflow   : ellipsis; 
+            -o-text-overflow: ellipsis; 
+        }
+        .category {
+            color           : rgb(0, 203, 1);
+            border-bottom   : 1px solid;
+            margin-bottom   : 0px;
+            box-shadow      : 0px 1px 0px lightgray;
+        }
+        .remark {
+            color           : gray;
+            font-size       : 80%;
+        }
+        .subcategory {
+            color           : red;
+            font-size       : 90%;
+            margin-top      : 16px;
+        }
+        </style>
         <script type='text/javascript'>
+            var gid = ski.cookie('gid');
+            var url_setup       = '/ski-wcweb?inst=2001&step=setup';
+            var url_rent_begin  = '/ski-wcweb?inst=2106&gid=' + gid;
+
             $(document).ready(function() {
-                $('#main').append(ski.ui.textByHeight('- 86%好评 - 翻译此页 广告 南京jquery ui 打造顶级UI人才 挑战20W年薪! [百度有钱花 | 教育贷款] 快速申请(先学后付) 火星jquery ui与国际顶尖设计公司合作，培训兼备设计理念，实战的全科UI设计师。 热门课程: 平面培训 | UI培训 | 网页培训学习方式: 5天免费特训 | 1对1辅导 edu.hxsd.com 2016-09- 138条评价 jquery ui-90天从入门到高薪「学习必看」 先就业后付款，专业对口就业，零基础入学。学员口碑好的ui设计热门就业课程。 www.ibeifeng.com 2016-09- 498条评价 相关搜索 jquery ui 中文手册 jquery jquery ui框架 jquery ui 下载 jquery easyui jquery ui 教程 jquery ui dialog jquery ui bootstrap jquery weui 帮助举报给百度提建议', 50));
+                showToast('正在加载');
+                $.post(url_setup,$.toJSON({
+                        'gid'   : gid
+                    }),
+                    function(args) {
+                        hideToast();
+                        if (0 != args.code) {
+                            showDialog("加载失败", args.desc);
+                            return;
+                        }
+
+                        // 标题
+                        setTitle(args.desc.name_zh_cn);
+
+                        // 背景
+                        $('#blur_cover').css('background-image', 'url(' + args.desc.url_cover + ')');
+                        $('#blur_cover').css('background-size', 'cover');
+                        $('#blur_cover').addClass('blur');
+
+                        // 封面
+                        $('#url_cover').append(ski.ui.createCover(110, 110, args.desc.url_cover))
+                        // 字段
+                        $('#name_zh_cn').text(args.desc.name_zh_cn);
+                        $('#name_en').text(args.desc.name_en);
+                        $('#category').text(args.desc.category);
+                        $('#language').text(args.desc.language);
+                        $('#sale').text(args.desc.sale);
+                        
+                        // 简介
+                        var intr = "<div style='padding-bottom: 20px'><p>" + args.desc.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
+                        if (intr.length > 200) $('#introduction').html(ski.ui.textByHeight(intr, 133));
+                        else $('#introduction').html(intr);
+
+                        // 视频
+                        if (0 < args.desc.vedio.length) {
+                            $('#poster_container').css('height', '200px');
+                            $('#url_poster').append("<video width='100%' height='100%' controls autobuffer src='" + args.desc.vedio + "'/>");
+                        }
+                        // 海报
+                        if (0 < args.desc.url_poster.length) {
+                            for (var i in args.desc.url_poster) {
+                                var poster = args.desc.url_poster[i];
+                                if (0 == poster.length) continue;
+
+                                $('#poster_container').css('height', '200px');
+                                $('#url_poster').append("<div style='background-image: url(" + poster + ")'/>");
+                            }
+                        }
+
+                        // 出售
+                        if (0 < args.desc.ccs.total) {
+                            $('#cc_total').text(args.desc.ccs.total);
+                            for (var i in args.desc.ccs.sold) {
+                                var cc = args.desc.ccs.sold[i];
+                                $('#cc_sold').append(createCC(cc));
+                            }
+                            for (var i in args.desc.ccs.conv) {
+                                var cc = args.desc.ccs.conv[i];
+                                $('#cc_conv').append(createCC(cc));
+                            }
+                            for (var i in args.desc.ccs.trus) {
+                                var cc = args.desc.ccs.trus[i];
+                                $('#cc_trus').append(createCC(cc));
+                            }
+                            for (var i in args.desc.ccs.near) {
+                                var cc = args.desc.ccs.near[i];
+                                $('#cc_near').append(createCC(cc));
+                            }
+                        }
+
+                        // 租赁
+                        if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
+                            $('#rent').html("<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
+                                    + "</div>");
+                        }
+                        if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
+                            $('#rent').append("<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
+                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
+                                    + "</div>");
+                        }
+                        if ((!args.desc.rent_avail_a || 0 == args.desc.rent_price_a)
+                                && (!args.desc.rent_avail_b || 0 == args.desc.rent_price_b)) {
+                            $('#rent').removeClass('weui_cells');
+                            $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
+                        } else {
+                            $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentBegin();'>我要租</a></div></div>");
+                        }
+
+                        // 下滑动画
+                        setTimeout(function() {
+                            $('#info').animate({top : '150px'});
+                        }, 400);
+
+                        // 海报布局
+                        $('#url_poster').skippr({
+                            transition: 'fade',
+                            speed: 200,
+                            easing: 'easeOutQuart',
+                            navType: 'bubble',
+                            childrenElementType: 'div',
+                            arrows: true,
+                            autoPlay: false,
+                            autoPlayDuration: 5000,
+                            keyboardOnAlways: true,
+                            hidePrevious: false
+                        });
+
+                    });
             });
+
+            function setTitle(title) {
+               //利用iframe的onload事件刷新页面
+               document.title = title;
+               var iframe = document.createElement('iframe');
+               iframe.style.visibility = 'hidden';
+               iframe.style.width = '1px';
+               iframe.style.height = '1px';
+               iframe.onload = function () {
+                   setTimeout(function () {
+                       document.body.removeChild(iframe);
+                   }, 0);
+               };
+               document.body.appendChild(iframe);
+            }
+
+            function createCC(cc) {
+                var div = $('<div></div>');
+                div.css('margin-bottom',    '8px');
+                div.css('padding',          '8px');
+                div.css('border',           '1px solid rgb(0, 203, 1)');
+                div.css('box-shadow',       '2px 2px 1px lightgray');
+                div.html("<a href='"+cc.item_url.replace(/^https/, 'taobao').replace(/^http/, 'taobao')+"'><table width='100%'><tr>"
+                           + "<td style='width: 120px; text-align: center;'><img width='110px' height='110px' src='"+cc.item_cover+"' /></td>"
+                           + "<td>"
+                               + "<div style='color: black; text-align: right'>"+cc.item_name+"</div>"
+                               + "<div style='color: gray;  text-align: right; font-size: 80%'>"+cc.item_remark+"</div>"
+                               + "<div style='color: red;   text-align: right; font-size: 120%'>¥ "+cc.item_price+" （快递：¥ "+cc.express_price+"）</div>"
+                               + "<div style='color: black; text-align: right'>销量："+cc.item_sold+"</div>"
+                               + "<div style='color: black; text-align: right'>"+cc.shop_name+" "+getShopRate(cc.shop_rate)+"</div>"
+                               + "<div style='color: gray;  text-align: right; font-size: 80%'>"+cc.shop_addr+"</div>"
+                           + "</td>"
+                       + "</tr></table></a>");
+                return div;
+            }
+
+            function getShopRate(rate) {
+                var r = rate.split(' ');
+                var s;
+                var p = '';
+                switch (r[0]) {
+                case 'tb-rank-cap':
+                    s = '👑';
+                    break;
+                case 'tb-rank-blue':
+                    s = '💎';
+                    break;
+                case 'tb-rank-red':
+                    s = '❤️';
+                    break;
+                }
+                for (var i = 0; i < r[1]; i++) p += s;
+                return p;
+            }
+
+            function rentBegin() {
+                window.location = url_rent_begin;
+            }
+            
+            function showToast(text) {
+                $('#toast_text').text(text);
+                $('#toast').show();
+            }
+            function hideToast() {
+                $('#toast').hide();
+            }
+
+            function showDialog(head, body) {
+                $('#result_head').text(head);
+                $('#result_body').text(body);
+                $('#dialog').show();
+            }
+            function showDialog1(head, body) {
+                $('#result_head1').text(head);
+                $('#result_body1').text(body);
+                $('#dialog1').show();
+            }
         </script>
     </head>
     <body>
-        <div id="main">
+        <div class='cell'>
+            <div class='bd'>
+                <div style='position: fixed; top: 0px; z-index: 1; width: 100%; height: 300px; font-size: 16px'>
+                    <div id='blur_cover'    style='position: absolute; margin-top: -20%; margin-left: -20%; width: 140%; height: 100%'></div>
+                    <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
+                    <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
+                    <div id='name_en'       class='field' style='margin-top: 40px; font-weight: 200'></div>
+                    <div id='category'      class='field' style='margin-top: 78px; font-weight: 200; font-size: 80%'></div>
+                    <div id='language'      class='field' style='margin-top: 96px; font-weight: 200; font-size: 80%'></div>
+                    <div id='sale'          class='field' style='margin-top: 114px; font-weight: 200; font-size: 80%'></div>
+                </div>
+                <div id='info' style='position: relative; z-index: 500; background: white; border-top: 1px solid lightgray'>
+                    <article class='weui_article'>
+                        <!-- 视频海报区 -->
+                        <section>
+                            <div id='poster_container' style='width: 100%; background: black'>
+                                <div id='url_poster'></div>
+                            </div>
+                        </section>
+                        <!-- 简介区 -->
+                        <section id='introduction' style='text-indent:2em;'></section>
+                        <!-- 售卖区 -->
+                        <section>
+                            <h1 class='category' style='margin-bottom: 0px'>适合您的商品</h1>
+                            <div class='remark'>我们在 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
+                            <div class='subcategory'>销量最高</div>
+                            <div id='cc_sold'></div>
+                            <div class='subcategory'>价格最低</div>
+                            <div id='cc_conv'></div>
+                            <div class='subcategory'>信用最高</div>
+                            <div id='cc_trus'></div>
+                            <div class='subcategory'>距离最近</div>
+                            <div id='cc_near'></div>
+                        </section>
+                        <!-- 体验区 -->
+                        <section style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                            <h1 class='category' style='margin-bottom: 0px'>即刻体验这款游戏</h1>
+                            <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
+                        </section>
+                    </article>
+                </div>
+            </div>
+        </div>
+        <div class="weui_dialog_alert" id="dialog" style='display:none'>
+            <div class="weui_mask"></div>
+            <div class="weui_dialog">
+                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
+                <div class="weui_dialog_bd" id='result_body'></div>
+                <div class="weui_dialog_ft">
+                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
+                </div>
+            </div>
+        </div>
+        <div class="weui_loading_toast" id="toast" style="display: none;">
+            <div class="weui_mask_transparent"></div>
+            <div class="weui_toast">
+                <div class="weui_loading">
+                    <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_10"></div>
+                    <div class="weui_loading_leaf weui_loading_leaf_11"></div>
+                </div>
+                <p class="weui_toast_content" id='toast_text'></p>
+            </div>
         </div>
     </body>
 </html>

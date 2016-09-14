@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -645,7 +646,7 @@ public class WcWeb {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 JSONObject desc = gameToJson(CommonService.getGameByGid(gid));
-                desc.put("channel_commodity", channelCommoditiesToJson(request.user, gid));
+                desc.put("ccs", channelCommoditiesToJson(request.user, gid, Integer.parseInt(FjServerToolkit.getServerConfig("wca.channel-commodity.max"))));
                 args.put("desc", desc);
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);
@@ -734,7 +735,7 @@ public class WcWeb {
         return json;
     }
     
-    private static JSONObject channelCommoditiesToJson(int caid, int cid) {
+    private static JSONObject channelCommoditiesToJson(int caid, int cid, int max) {
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
         List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityLOByCid(cid);
         List<BeanChannelCommodity> cc_conv = new LinkedList<BeanChannelCommodity>(ccs);
@@ -747,18 +748,26 @@ public class WcWeb {
             return (int) Math.ceil(p1 - p2);
         });
         cc_near.sort((cc1, cc2)->{
+            int e = 10000;
             double d1 = getDistance(user.c_address, cc1.c_shop_addr);
             double d2 = getDistance(user.c_address, cc2.c_shop_addr);
-            return (int) Math.ceil(d1 - d2);
+            return (int) Math.ceil(d1 * e - d2 * e);
         });
         cc_trus.sort((c1, c2)->{
-            int t1 = Arrays.asList(c1.c_shop_rate.split("|")).stream().map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
-            int t2 = Arrays.asList(c2.c_shop_rate.split("|")).stream().map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
+            int t1 = Arrays.asList(c1.c_shop_rate.split("\\|")).stream().filter(r->0 < r.length()).map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
+            int t2 = Arrays.asList(c2.c_shop_rate.split("\\|")).stream().filter(r->0 < r.length()).map(r->r.split(" ")).map(r->(r[0].contains("cap") ? 10000 : r[0].contains("blue") ? 100 : 1) * Integer.parseInt(r[1])).reduce(0, (r1, r2)->{return r1 + r2;});
             return t2 - t1;
         });
         cc_sold.sort((c1, c2)->{
             return c2.i_item_sold - c1.i_item_sold;
         });
+        
+        if (max < ccs.size()) {
+            cc_conv = cc_conv.subList(0, max);
+            cc_near = cc_near.subList(0, max);
+            cc_trus = cc_trus.subList(0, max);
+            cc_sold = cc_sold.subList(0, max);
+        }
         JSONObject json = new JSONObject();
         json.put("total", ccs.size());
         json.put("conv", JSONArray.fromObject(cc_conv.stream().map(cc->channelCommodityToJson(cc)).collect(Collectors.toList())));
@@ -769,9 +778,23 @@ public class WcWeb {
     }
     
     private static double getDistance(String place1, String place2) {
-        Point2D.Double p1 = BaiduMapInterface.getCordinate(FjServerToolkit.getServerConfig("wca.baidu.map.ak"), place1);
-        Point2D.Double p2 = BaiduMapInterface.getCordinate(FjServerToolkit.getServerConfig("wca.baidu.map.ak"), place2);
+        Point2D.Double p1 = getCordinate(place1);
+        Point2D.Double p2 = getCordinate(place2);
         return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) + (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()));
+    }
+    
+    private static Map<String, Point2D.Double> cache_cordinate = new ConcurrentHashMap<String, Point2D.Double>();
+    
+    private static Point2D.Double getCordinate(String place) {
+        if (cache_cordinate.containsKey(place)) return cache_cordinate.get(place);
+        else {
+            Point2D.Double p = BaiduMapInterface.getCordinate(FjServerToolkit.getServerConfig("wca.baidu.map.ak"), place);
+            if (null != p) {
+                cache_cordinate.put(place, p);
+                return p;
+            }
+            return new Point2D.Double(0, 0);
+        }
     }
     
     private static JSONObject channelCommodityToJson(BeanChannelCommodity cc) {
@@ -790,7 +813,7 @@ public class WcWeb {
         json.put("shop_owner",      cc.c_shop_owner);
         json.put("shop_rate",       cc.c_shop_rate);
         json.put("shop_score",      cc.c_shop_score);
-        json.put("shop_ddr",        cc.c_shop_addr);
+        json.put("shop_addr",       cc.c_shop_addr);
         return json;
     }
     

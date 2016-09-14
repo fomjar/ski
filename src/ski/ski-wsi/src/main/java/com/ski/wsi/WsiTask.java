@@ -1,10 +1,12 @@
 package com.ski.wsi;
 
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
@@ -27,18 +29,21 @@ public class WsiTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(WsiTask.class);
     
+    private ExecutorService         pool;
     private Map<String, CacheConn>  cache;
     private CacheMonitor            monitor;
     
     @Override
     public void initialize(FjServer server) {
-        cache = new HashMap<String, CacheConn>();
+        cache = new ConcurrentHashMap<String, CacheConn>();
         new Thread(monitor = new CacheMonitor(), "cache").start();
+        pool = Executors.newCachedThreadPool();
     }
 
     @Override
     public void destroy(FjServer server) {
         monitor.close();
+        pool.shutdownNow();
     }
     
     @Override
@@ -92,7 +97,7 @@ public class WsiTask implements FjServerTask {
         newreq.json().put("inst", inst);
         newreq.json().put("args", JSONObject.fromObject(args));
         
-        synchronized (cache) {cache.put(newreq.sid(), new CacheConn(conn));}
+        cache.put(newreq.sid(), new CacheConn(conn));
         wrapper.attach("conn", null); // 清除连接缓存 防止被服务器自动释放
         
         // 请求上报业务
@@ -103,10 +108,8 @@ public class WsiTask implements FjServerTask {
     
     private void responseDscpMessage(FjDscpMessage rsp) {
         logger.info(String.format("[RESPONSE] %s:0x%08X", rsp.fs(), rsp.inst()));
-        synchronized (cache) {
-            SocketChannel conn = (SocketChannel) cache.remove(rsp.sid()).conn;
-            FjSender.sendHttpResponse(new FjHttpResponse(null, 200, FjHttpResponse.CT_APPL_JSON, rsp), conn);
-        }
+        SocketChannel conn = (SocketChannel) cache.remove(rsp.sid()).conn;
+        pool.submit(()->{FjSender.sendHttpResponse(new FjHttpResponse(null, 200, FjHttpResponse.CT_APPL_JSON, rsp), conn);});
     }
     
     private static void responseSimple(int code, String desc, SocketChannel conn) {
@@ -129,20 +132,18 @@ public class WsiTask implements FjServerTask {
         
         @Override
         public void perform() {
-            synchronized (cache) {
-                List<String> toremove = new LinkedList<String>();
-                cache.forEach((sid, cc)->{
-                    long time = System.currentTimeMillis() - cc.timestamp;
-                    if (time >= TIMEOUT) {
-                        logger.error("remove cache: " + sid + " for timeout: " + time);
-                        toremove.add(sid);
-                    }
-                });
-                toremove.forEach(sid->{
-                    try {cache.remove(sid).conn.close();}
-                    catch (Exception e) {e.printStackTrace();}
-                });
-            }
+            List<String> toremove = new LinkedList<String>();
+            cache.forEach((sid, cc)->{
+                long time = System.currentTimeMillis() - cc.timestamp;
+                if (time >= TIMEOUT) {
+                    logger.error("remove cache: " + sid + " for timeout: " + time);
+                    toremove.add(sid);
+                }
+            });
+            toremove.forEach(sid->{
+                try {cache.remove(sid).conn.close();}
+                catch (Exception e) {e.printStackTrace();}
+            });
         }
     }
     

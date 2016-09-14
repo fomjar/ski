@@ -31,7 +31,7 @@ begin
                          where cc.i_osn = (
                             case osn
                                 when -1
-                                then (select max(i_osn) from tbl_channel_commodity)
+                                then (select max(cc2.i_osn) from tbl_channel_commodity cc2)
                                 else osn
                             end
                          )
