@@ -646,7 +646,7 @@ public class WcWeb {
                 JSONObject args = new JSONObject();
                 args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 JSONObject desc = gameToJson(CommonService.getGameByGid(gid));
-                desc.put("ccs", channelCommoditiesToJson(request.user, gid, Integer.parseInt(FjServerToolkit.getServerConfig("wca.channel-commodity.max"))));
+                desc.put("ccs", channelCommoditiesToJson(request.user, gid, Integer.parseInt(FjServerToolkit.getServerConfig("wca.cc.max"))));
                 args.put("desc", desc);
                 response.attr().put("Content-Type", FjHttpRequest.CT_APPL_JSON);
                 response.content(args);

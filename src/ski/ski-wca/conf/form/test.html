@@ -190,14 +190,14 @@
                 div.css('border',           '1px solid rgb(0, 203, 1)');
                 div.css('box-shadow',       '2px 2px 1px lightgray');
                 div.html("<a href='"+cc.item_url.replace(/^https/, 'taobao').replace(/^http/, 'taobao')+"'><table width='100%'><tr>"
-                           + "<td style='width: 120px; text-align: center;'><img width='110px' height='110px' src='"+cc.item_cover+"' /></td>"
+                           + "<td style='width: 80px; text-align: center;'><img width='80px' height='80px' src='"+cc.item_cover+"' /></td>"
                            + "<td>"
-                               + "<div style='color: black; text-align: right'>"+cc.item_name+"</div>"
-                               + "<div style='color: gray;  text-align: right; font-size: 80%'>"+cc.item_remark+"</div>"
-                               + "<div style='color: red;   text-align: right; font-size: 120%'>¥ "+cc.item_price+" （快递：¥ "+cc.express_price+"）</div>"
-                               + "<div style='color: black; text-align: right'>销量："+cc.item_sold+"</div>"
-                               + "<div style='color: black; text-align: right'>"+cc.shop_name+" "+getShopRate(cc.shop_rate)+"</div>"
-                               + "<div style='color: gray;  text-align: right; font-size: 80%'>"+cc.shop_addr+"</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 70%'>"+cc.item_name+"</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.item_remark+"</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: red;   text-align: right; font-size: 80%'>¥ "+cc.item_price+" （快递：¥ "+cc.express_price+"）</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>销量："+cc.item_sold+"</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>"+cc.shop_name+" "+getShopRate(cc.shop_rate)+"</div>"
+                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.shop_addr+"</div>"
                            + "</td>"
                        + "</tr></table></a>");
                 return div;
