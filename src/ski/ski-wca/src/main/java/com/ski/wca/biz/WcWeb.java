@@ -176,10 +176,10 @@ public class WcWeb {
         logger.debug("user redirect data: " + response);
     }
     
-    private Map<String, Long>   cache_file_modify = new HashMap<String, Long>();
-    private Map<String, byte[]> cache_file_content = new HashMap<String, byte[]>();
+    private static Map<String, Long>   cache_file_modify = new ConcurrentHashMap<String, Long>();
+    private static Map<String, byte[]> cache_file_content = new ConcurrentHashMap<String, byte[]>();
     
-    private synchronized void fetchFile(FjHttpResponse response, String url) {
+    private static void fetchFile(FjHttpResponse response, String url) {
         File file = new File(FjServerToolkit.getServerConfig("wca.form.root") + (url.startsWith(URL_KEY) ? url.substring(URL_KEY.length()) : url));
         if (!file.isFile()) {
             logger.warn("not such file to fetch: " + file.getPath());

@@ -23,7 +23,7 @@ public class FjReceiver extends FjLoopTask {
     
     private static final Logger logger      = Logger.getLogger(FjReceiver.class);
     private static final int    BUF_LEN     = 1024 * 4;
-    private static final long   TIMEOUT     = 100L * 5;
+    private static final long   TIMEOUT     = 100L * 1;
     
     private FjMessageQueue mq;
     private int port;
