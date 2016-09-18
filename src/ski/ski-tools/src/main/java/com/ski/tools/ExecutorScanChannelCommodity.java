@@ -41,6 +41,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
         System.out.println(" done!");
         
         final int osn = Long.valueOf(System.currentTimeMillis()).intValue();
+        System.out.println("osn: " + osn);
         
         CommonService.getGameAll().values().forEach(game->{
             String preset  = config.getProperty(String.format("0x%08X.preset",  game.i_gid));

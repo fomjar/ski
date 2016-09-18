@@ -737,7 +737,7 @@ public class WcWeb {
     
     private static JSONObject channelCommoditiesToJson(int caid, int cid, int max) {
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
-        List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityLOByCid(cid);
+        List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityByCid(cid);
         List<BeanChannelCommodity> cc_conv = new LinkedList<BeanChannelCommodity>(ccs);
         List<BeanChannelCommodity> cc_near = new LinkedList<BeanChannelCommodity>(ccs);
         List<BeanChannelCommodity> cc_trus = new LinkedList<BeanChannelCommodity>(ccs);

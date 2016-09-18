@@ -223,13 +223,13 @@ public class CommonService {
         }
     }
     
-    public static Set<BeanChannelCommodity> getChannelCommodityLOAll() {
+    public static Set<BeanChannelCommodity> getChannelCommodityAll() {
         synchronized (cache_channel_commodity) {
             return new LinkedHashSet<BeanChannelCommodity>(cache_channel_commodity);
         }
     }
     
-    public static List<BeanChannelCommodity> getChannelCommodityLOByCid(int cid) {
+    public static List<BeanChannelCommodity> getChannelCommodityByCid(int cid) {
         synchronized (cache_channel_commodity) {
             return cache_channel_commodity
                     .stream()
@@ -696,9 +696,13 @@ public class CommonService {
         }
     }
     
-    public static void updateChannelCommodityLO() {
+    public static void updateChannelCommodity() {
+        updateChannelCommodity(-1);
+    }
+    
+    public static void updateChannelCommodity(int osn) {
         JSONObject args = new JSONObject();
-        args.put("osn", -1);
+        args.put("osn", osn);
         String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args));
         
         synchronized (cache_channel_commodity) {

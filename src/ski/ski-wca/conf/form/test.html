@@ -123,26 +123,28 @@
                                 var cc = args.desc.ccs.near[i];
                                 $('#cc_near').append(createCC(cc));
                             }
+                        } else {
+                            $('#ccs').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！尚未发现适合您的商品 : (</div>")
                         }
 
                         // 租赁
-                        if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
-                            $('#rent').html("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
-                                    + "</div>");
-                        }
-                        if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
-                            $('#rent').append("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
-                                    + "</div>");
-                        }
                         if ((!args.desc.rent_avail_a || 0 == args.desc.rent_price_a)
                                 && (!args.desc.rent_avail_b || 0 == args.desc.rent_price_b)) {
                             $('#rent').removeClass('weui_cells');
                             $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
                         } else {
+                            if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
+                                $('#rent').html("<div class='weui_cell'>"
+                                        + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
+                                        + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
+                                        + "</div>");
+                            }
+                            if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
+                                $('#rent').append("<div class='weui_cell'>"
+                                        + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
+                                        + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
+                                        + "</div>");
+                            }
                             $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentBegin();'>我要租</a></div></div>");
                         }
 
@@ -186,18 +188,21 @@
             function createCC(cc) {
                 var div = $('<div></div>');
                 div.css('margin-bottom',    '8px');
-                div.css('padding',          '8px');
+                div.css('padding',          '4px');
                 div.css('border',           '1px solid rgb(0, 203, 1)');
                 div.css('box-shadow',       '2px 2px 1px lightgray');
-                div.html("<a href='"+cc.item_url.replace(/^https/, 'taobao').replace(/^http/, 'taobao')+"'><table width='100%'><tr>"
-                           + "<td style='width: 80px; text-align: center;'><img width='80px' height='80px' src='"+cc.item_cover+"' /></td>"
+                var cover=80;
+                var label=$(window).width() - cover - 60;
+                // div.html("<a href='"+cc.item_url.replace(/^https/, 'taobao').replace(/^http/, 'taobao')+"'><table width='100%'><tr>"
+                div.html("<a href='"+cc.item_url+"'><table width='100%'><tr>"
+                           + "<td><img width='"+cover+"px' height='"+cover+"px' src='"+cc.item_cover+"' style='position: relative; top: 4px;' /></td>"
                            + "<td>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 70%'>"+cc.item_name+"</div>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.item_remark+"</div>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: red;   text-align: right; font-size: 80%'>¥ "+cc.item_price+" （快递：¥ "+cc.express_price+"）</div>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>销量："+cc.item_sold+"</div>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>"+cc.shop_name+" "+getShopRate(cc.shop_rate)+"</div>"
-                               + "<div style='width: 200px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.shop_addr+"</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 70%'>"+cc.item_name+"</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.item_remark+"</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: red;   text-align: right; font-size: 80%'>¥ "+cc.item_price+" （快递：¥ "+cc.express_price+"）</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>销量："+cc.item_sold+"</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: black; text-align: right; font-size: 50%'>"+cc.shop_name+" "+getShopRate(cc.shop_rate)+"</div>"
+                               + "<div style='width: "+label+"px; margin-left: auto; white-space: nowrap; overflow: hidden; color: gray;  text-align: right; font-size: 50%'>"+cc.shop_addr+"</div>"
                            + "</td>"
                        + "</tr></table></a>");
                 return div;
@@ -271,15 +276,17 @@
                         <!-- 售卖区 -->
                         <section>
                             <h1 class='category' style='margin-bottom: 0px'>适合您的商品</h1>
-                            <div class='remark'>我们在 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
-                            <div class='subcategory'>销量最高</div>
-                            <div id='cc_sold'></div>
-                            <div class='subcategory'>价格最低</div>
-                            <div id='cc_conv'></div>
-                            <div class='subcategory'>信用最高</div>
-                            <div id='cc_trus'></div>
-                            <div class='subcategory'>距离最近</div>
-                            <div id='cc_near'></div>
+                            <div id='ccs'>
+                                <div class='remark'>我们在 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
+                                <div class='subcategory'>🔥销量最高</div>
+                                <div id='cc_sold'></div>
+                                <div class='subcategory'>💰价格最低</div>
+                                <div id='cc_conv'></div>
+                                <div class='subcategory'>🏆信用最高</div>
+                                <div id='cc_trus'></div>
+                                <div class='subcategory'>🚀距离最近</div>
+                                <div id='cc_near'></div>
+                            </div>
                         </section>
                         <!-- 体验区 -->
                         <section style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>

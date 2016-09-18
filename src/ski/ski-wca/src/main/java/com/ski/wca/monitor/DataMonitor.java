@@ -43,7 +43,9 @@ public class DataMonitor extends FjLoopTask {
         if (isNeverLoad || swich) {
             CommonService.updateGame();
             CommonService.updateTag();
-            CommonService.updateChannelCommodityLO();
+            String osn = FjServerToolkit.getServerConfig("wca.cc.osn");
+            if (null == osn) CommonService.updateChannelCommodity();
+            else CommonService.updateChannelCommodity(Integer.parseInt(osn));
             isNeverLoad = false;
         }
     }
