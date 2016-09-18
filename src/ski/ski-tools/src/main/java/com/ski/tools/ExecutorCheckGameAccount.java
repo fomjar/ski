@@ -20,19 +20,19 @@ import net.sf.json.JSONObject;
 
 public class ExecutorCheckGameAccount implements ToolExecutor {
     
-    private static int        g_gid     = -1;
-    private static int        g_gaid     = -1;
-    private static String    g_base    = ".";
-    private static String    g_file    = null;
+    private static int      g_gid   = -1;
+    private static int      g_gaid  = -1;
+    private static String   g_base  = ".";
+    private static String   g_file  = null;
     private static PrintStream out  = null;
 
     @Override
     public void execute(Map<String, String> args) {
         args.forEach((k, v)->{
             switch (k) {
-            case "gid":        g_gid     = Integer.parseInt(v, 16);    break;
-            case "gaid":    g_gaid     = Integer.parseInt(v, 16);    break;
-            case "base":    g_base     = v;                        break;
+            case "gid":     g_gid   = Integer.parseInt(v, 16);  break;
+            case "gaid":    g_gaid  = Integer.parseInt(v, 16);  break;
+            case "base":    g_base  = v;                        break;
             default:
                 System.out.println(String.format("unknown argument: %s:%s", k, v));
                 break;

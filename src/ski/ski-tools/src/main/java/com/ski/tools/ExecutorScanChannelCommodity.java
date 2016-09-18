@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,6 +17,8 @@ import net.sf.json.JSONObject;
 
 public class ExecutorScanChannelCommodity implements ToolExecutor {
     
+    private static int          g_gid           = -1;
+    private static int          g_osn           = -1;
     private static String       g_conf          = "template/scc.conf";
     private static Properties   config          = new Properties();
 
@@ -24,8 +28,10 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
         
         args.forEach((k, v)->{
             switch (k) {
-            case "wsi":     CommonService.setWsiHost(v);    break;
-            case "conf":    g_conf = v;                     break;
+            case "wsi":     CommonService.setWsiHost(v);        break;
+            case "gid":     g_gid = Integer.parseInt(v, 16);    break;
+            case "osn":     g_osn = Integer.parseInt(v, 16);    break;
+            case "conf":    g_conf = v;                         break;
             default:
                 System.out.println(String.format("unknown argument: %s:%s", k, v));
                 break;
@@ -40,10 +46,14 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
         CommonService.updateGame();
         System.out.println(" done!");
         
-        final int osn = Long.valueOf(System.currentTimeMillis()).intValue();
-        System.out.println("osn: " + osn);
+        if (-1 == g_osn) g_osn = Long.valueOf(System.currentTimeMillis()).intValue();
+        System.out.println("osn: " + g_osn);
         
-        CommonService.getGameAll().values().forEach(game->{
+        List<BeanGame> games = new LinkedList<BeanGame>();
+        if (-1 != g_gid) games.add(CommonService.getGameByGid(g_gid));
+        else games.addAll(CommonService.getGameAll().values());
+        
+        games.forEach(game->{
             String preset  = config.getProperty(String.format("0x%08X.preset",  game.i_gid));
             if (null == preset)  preset  = config.getProperty("default.preset");
             String include = config.getProperty(String.format("0x%08X.include", game.i_gid));
@@ -64,7 +74,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             args_scc.put("preset",  preset);
             args_scc.put("include", include);
             args_scc.put("exclude", exclude);
-            args_scc.put("osn",     osn);
+            args_scc.put("osn",     g_osn);
             args_scc.put("cid",     game.i_gid);
             args_scc.put("channel", CommonService.CHANNEL_TAOBAO);
             System.out.println(String.format("report game: %s ", game.c_name_zh_cn));

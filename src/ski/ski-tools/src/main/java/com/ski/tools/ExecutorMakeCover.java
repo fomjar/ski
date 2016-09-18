@@ -15,17 +15,17 @@ import javax.imageio.ImageIO;
 
 public class ExecutorMakeCover implements ToolExecutor {
     
-    private static int         g_width        = 500;
-    private static int         g_height    = 500;
-    private static String    g_base        = ".";
+    private static int      g_width     = 500;
+    private static int      g_height    = 500;
+    private static String   g_base      = ".";
     
     @Override
     public void execute(Map<String, String> args) {
         args.forEach((k, v)->{
             switch (k) {
-            case "width":    g_width     = Integer.parseInt(v);    break;
-            case "height":    g_height     = Integer.parseInt(v);    break;
-            case "base":    g_base         = v;                    break;
+            case "width":   g_width     = Integer.parseInt(v);  break;
+            case "height":  g_height    = Integer.parseInt(v);  break;
+            case "base":    g_base      = v;                    break;
             default:
                 System.out.println(String.format("unknown argument: %s:%s", k, v));
                 break;

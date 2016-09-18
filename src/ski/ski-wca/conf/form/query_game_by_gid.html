@@ -39,6 +39,15 @@
             margin-bottom   : 0px;
             box-shadow      : 0px 1px 0px lightgray;
         }
+        .remark {
+            color           : gray;
+            font-size       : 80%;
+        }
+        .subcategory {
+            color           : red;
+            font-size       : 90%;
+            margin-top      : 16px;
+        }
         </style>
         <script type='text/javascript'>
             var gid = ski.cookie('gid');
@@ -95,25 +104,52 @@
                             }
                         }
 
+                        // 出售
+                        if (0 < args.desc.ccs.total) {
+                            $('#cc_total').text(args.desc.ccs.total);
+                            var html = '';
+                            html += "<table><tr>";
+                            for (var i in args.desc.ccs.sold) {
+                                var cc = args.desc.ccs.sold[i];
+                                html += '<td>' + createCCCover(cc, '🔥销量最高').html() + '</td>';
+                            }
+                            for (var i in args.desc.ccs.conv) {
+                                var cc = args.desc.ccs.conv[i];
+                                html += '<td>' + createCCCover(cc, '💰价格最低').html() + '</td>';
+                            }
+                            for (var i in args.desc.ccs.trus) {
+                                var cc = args.desc.ccs.trus[i];
+                                html += '<td>' + createCCCover(cc, '🏆信用最高').html() + '</td>';
+                            }
+                            for (var i in args.desc.ccs.near) {
+                                var cc = args.desc.ccs.near[i];
+                                html += '<td>' + createCCCover(cc, '🚀离您最近').html() + '</td>';
+                            }
+                            html += '</tr></table>';
+                            $('#ccs_cover').html(html);
+                        } else {
+                            $('#ccs').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！尚未发现适合您的商品 : (</div>")
+                        }
+
                         // 租赁
-                        if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
-                            $('#rent').html("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
-                                    + "</div>");
-                        }
-                        if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
-                            $('#rent').append("<div class='weui_cell'>"
-                                    + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
-                                    + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
-                                    + "</div>");
-                        }
                         if ((!args.desc.rent_avail_a || 0 == args.desc.rent_price_a)
                                 && (!args.desc.rent_avail_b || 0 == args.desc.rent_price_b)) {
                             $('#rent').removeClass('weui_cells');
-                            $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可租 : (</div>")
+                            $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可体验 : (</div>")
                         } else {
-                            $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentBegin();'>我要租</a></div></div>");
+                            if (args.desc.rent_avail_a && 0 != args.desc.rent_price_a) {
+                                $('#rent').html("<div class='weui_cell'>"
+                                        + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
+                                        + "<div class='weui_cell_ft'>" + args.desc.rent_price_a + " 元/天</div>"
+                                        + "</div>");
+                            }
+                            if (args.desc.rent_avail_b && 0 != args.desc.rent_price_b) {
+                                $('#rent').append("<div class='weui_cell'>"
+                                        + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
+                                        + "<div class='weui_cell_ft'>" + args.desc.rent_price_b + " 元/天</div>"
+                                        + "</div>");
+                            }
+                            $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentBegin();'>我要体验</a></div></div>");
                         }
 
                         // 下滑动画
@@ -151,6 +187,51 @@
                    }, 0);
                };
                document.body.appendChild(iframe);
+            }
+
+            function createCCCover(cc, desc) {
+                var cover=$(window).width() / 2 - 40;
+                var div = $('<div></div>');
+                div.css('margin',   '4px');
+                div.css('border',   '1px solid lightgray');
+                div.html("<a href=\"javascript:"
+                       + "$('#item_name').text('"+cc.item_name+"');"
+                       + "$('#item_price').text('¥ "+cc.item_price+"');"
+                       + "$('#express_price').text('¥"+cc.express_price+"');"
+                       + "$('#item_sold').text('"+cc.item_sold+"');"
+                       + "$('#shop_rate').text('"+getShopRate(cc.shop_rate)+"');"
+                       + "$('#shop_name').text('"+cc.shop_name+"');"
+                       + "$('#shop_owner').text('"+cc.shop_owner+"');"
+                       + "$('#shop_addr').text('"+cc.shop_addr+"');"
+                       + "$('#item_url').attr('href', '"+cc.item_url+"');"
+                       + "$('#cc_info').show();"
+                       + "\"><table width='"+cover+"px'>"
+                           + "<tr><td><img width='"+cover+"px', height='"+cover+"px' src='"+cc.item_cover+"'/></td></tr>"
+                           + "<tr><td><div style='text-align: center; color: black;'>"+desc+"</div></td></tr>"
+                           + "<tr><td><div style='text-align: center; color: red;  '>到手价：¥ "+(Number(cc.item_price.split(' - ')[0])+Number(cc.express_price))+"</div></td></tr>"
+                       + "</table></a>");
+                var result = $('<div></div>');
+                result.append(div);
+                return result;
+            }
+
+            function getShopRate(rate) {
+                var r = rate.split(' ');
+                var s;
+                var p = '';
+                switch (r[0]) {
+                case 'tb-rank-cap':
+                    s = '👑';
+                    break;
+                case 'tb-rank-blue':
+                    s = '💎';
+                    break;
+                case 'tb-rank-red':
+                    s = '❤️';
+                    break;
+                }
+                for (var i = 0; i < r[1]; i++) p += s;
+                return p;
             }
 
             function rentBegin() {
@@ -199,13 +280,61 @@
                         </section>
                         <!-- 简介区 -->
                         <section id='introduction' style='text-indent:2em;'></section>
-                        <!-- 租赁区 -->
-                        <div style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
-                            <h1 class='category' style='margin-bottom: 0px'>游戏租赁</h1>
-                            <section style='margin-bottom: 0px'>
-                                <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
-                            </section>
-                        </div>
+                        <!-- 售卖区 -->
+                        <section>
+                            <h1 class='category' style='margin-bottom: 0px'>适合您的光盘出售</h1>
+                            <div id='ccs'>
+                                <div class='remark'>我们在共 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
+                                <div style='border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                                    <div id='ccs_cover' style='overflow: auto'></div>
+                                    <div id='cc_info' style='display: none; padding: 16px; padding-bottom: 8px'>
+                                        <div class='weui_cells' style='margin-top: 0px'>
+                                            <div class='weui_cell'>
+                                                <div id='item_name' class='weui_cell weui_cell_primary'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>售价</div>
+                                                <div id='item_price' class='weui_cell_ft' style='color: red;'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>快递</div>
+                                                <div id='express_price' class='weui_cell_ft' style='color: red;'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>销量</div>
+                                                <div id='item_sold' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>等级</div>
+                                                <div id='shop_rate' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>店铺</div>
+                                                <div id='shop_name' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>掌柜</div>
+                                                <div id='shop_owner' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>地址</div>
+                                                <div id='shop_addr' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>
+                                                    <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- 体验区 -->
+                        <section style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                            <h1 class='category' style='margin-bottom: 0px'>即刻体验这款游戏</h1>
+                            <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
+                        </section>
                     </article>
                 </div>
             </div>

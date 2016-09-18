@@ -35,18 +35,18 @@
                                                    + "<h4 class='weui_media_title'>" + commodity.game.name_zh_cn + "</h4>"
                                                    + "<p class='weui_media_desc'>"
                                                         + "帐号密码: " + commodity.account + " / " + commodity.pass + "<br/>"
-                                                        + "起租时间: " + commodity.begin
+                                                        + "开始时间: " + commodity.begin
                                                    + "</p>"
                                                    + "<div style='position: absolute; bottom: 17px; right: 20px; font-size: 70%; color: gray'>点击展开⬇︎</div>"
                                                 + "</div>"
                                             + "</a>";
                             cells.innerHTML += "<div class='weui_cells' style='margin-top: 0px; display: none' id='commodity_" + commodity.oid + "_" + commodity.csn + "'>"
-                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>租赁类型</p></div><div class='weui_cell_ft'>" + commodity.type + "(" + commodity.price + "元/天)" +  "</div></div>"
+                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>体验类型</p></div><div class='weui_cell_ft'>" + commodity.type + "(" + commodity.price + "元/天)" +  "</div></div>"
                                                     + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>费用小计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>"
                                                     + "<div class='weui_cell'><div class='weui_btn_area' style='width: 100%; margin: 0px'>"
                                                         + "<table width='100%'><tr>"
                                                             + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:browseGame(" + commodity.game.gid + ");'>查看游戏</a></td>"
-                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");'>我要退租</a></td>"
+                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript:rentEnd(" + commodity.oid + ", " + commodity.csn + ");'>我要归还</a></td>"
                                                         + "</tr></table>"
                                                     + "</div></div>"
                                             + "</div>";
@@ -115,7 +115,7 @@
                 <div class="weui_tab">
                     <div class="weui_navbar">
                         <div class="weui_navbar_item weui_bar_item_on" id='result_now_label' onclick='switchToNow()'>正在玩</div>
-                        <div class="weui_navbar_item" id='result_old_label' onclick='switchToOld()'>已退租</div>
+                        <div class="weui_navbar_item" id='result_old_label' onclick='switchToOld()'>已归还</div>
                     </div>
                     <div class="weui_tab_bd">
                         <div class='weui_panel_bd' id='result_now'></div>
