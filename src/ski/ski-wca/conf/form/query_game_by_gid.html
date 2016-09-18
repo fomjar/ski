@@ -203,7 +203,7 @@
                        + "$('#shop_name').text('"+cc.shop_name+"');"
                        + "$('#shop_owner').text('"+cc.shop_owner+"');"
                        + "$('#shop_addr').text('"+cc.shop_addr+"');"
-                       + "$('#item_url').attr('href', '"+cc.item_url+"');"
+                       + "$('#item_url').attr('href', '"+cc.item_url.replace(/https/, 'taobao').replace(/http/, 'taobao')+"');"
                        + "$('#cc_info').show();"
                        + "\"><table width='"+cover+"px'>"
                            + "<tr><td><img width='"+cover+"px', height='"+cover+"px' src='"+cc.item_cover+"'/></td></tr>"
@@ -322,7 +322,7 @@
                                             </div>
                                             <div class='weui_cell'>
                                                 <div class='weui_cell_bd weui_cell_primary'>
-                                                    <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接</a>
+                                                    <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接<br/>并到浏览器或APP中打开</a>
                                                 </div>
                                             </div>
                                         </div>
