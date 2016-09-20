@@ -1008,14 +1008,14 @@ public class WcWeb {
                 response.content(args);
                 break;
             }
-            String phone    = request.args.getString("phone");
+            String user     = request.args.getString("phone");
             String time     = String.valueOf(System.currentTimeMillis());
-            String verify     = time.substring(time.length() - 4);
+            String verify   = time.substring(time.length() - 4);
             {
                 JSONObject args_mma = new JSONObject();
-                args_mma.put("phones",  phone);
-                args_mma.put("smsargs", verify);
-                FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_USER_AUTHORIZE, args_mma);
+                args_mma.put("user",    user);
+                args_mma.put("content", verify);
+                FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE, args_mma);
                 if (!CommonService.isResponseSuccess(rsp)) {
                     JSONObject args = new JSONObject();
                     args.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);

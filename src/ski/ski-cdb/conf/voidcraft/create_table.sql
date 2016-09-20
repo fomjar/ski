@@ -226,3 +226,28 @@ create table tbl_channel_commodity (
     c_shop_addr     varchar(100)    -- 店铺地址
 );
 
+-- 聊天室
+drop table if exists tbl_chatroom;
+create table tbl_chatroom (
+    i_crid      integer,        -- 聊天室编号
+    c_name      varchar(64),    -- 聊天室名称
+    t_create    datetime        -- 创建时间
+);
+
+-- 聊天室成员
+drop table if exists tbl_chatroom_member;
+create table tbl_chatroom_member (
+    i_crid      integer,    -- 聊天室编号
+    i_member    integer     -- 聊天室成员(paid)
+);
+
+-- 聊天室消息
+drop table if exists tbl_chatroom_message;
+create table tbl_chatroom_message (
+    i_crid      integer,    -- 聊天室编号
+    i_member    integer,    -- 发送成员
+    i_type      tinyint,    -- 0-纯文字，1-图片，2-语音
+    c_message   text,       -- 消息内容(编码成字符串)
+    t_time      datetime    -- 发送时间
+);
+

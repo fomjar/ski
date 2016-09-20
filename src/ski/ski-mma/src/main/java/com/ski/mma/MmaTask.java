@@ -20,6 +20,8 @@ public class MmaTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(MmaTask.class);
     
+    public  static final String URL_KEY = "/ski-mma";
+    
     @Override
     public void initialize(FjServer server) {}
 
@@ -38,69 +40,81 @@ public class MmaTask implements FjServerTask {
         int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
         String  desc = null;
         
-        if (!dmsg.argsToJsonObject().containsKey("phones")
-                || !dmsg.argsToJsonObject().containsKey("smsargs")) {
+        if (!dmsg.argsToJsonObject().containsKey("user")
+                || !dmsg.argsToJsonObject().containsKey("content")) {
             code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, illegal arguments: phones, smsargs";
+            desc = "illegal arguments, illegal arguments: user, content";
             logger.error(desc);
             response(server.name(), dmsg, code, desc);
             return;
         }
         
-        Object      object  = dmsg.argsToJsonObject().get("phones");
-        String[]    phones  = null;
-        if (object instanceof String)           phones = new String[] {object.toString()};
-        else if (object instanceof JSONArray)   phones = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
+        Object      object  = dmsg.argsToJsonObject().get("user");
+        String[]    user    = null;
+        if (object instanceof String)           user = new String[] {object.toString()};
+        else if (object instanceof JSONArray)   user = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
         else {
             code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, unrecognized 'phones' format: " + object;
+            desc = "illegal arguments, unrecognized 'user' format: " + object;
             logger.error(desc);
             response(server.name(), dmsg, code, desc);
             return;
         }
         
-        object = dmsg.argsToJsonObject().get("smsargs");
-        String[] smsargs = null;
-        if (object instanceof String)           smsargs = new String[] {object.toString()};
-        else if (object instanceof JSONArray)   smsargs = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
+        object = dmsg.argsToJsonObject().get("content");
+        String[] content = null;
+        if (object instanceof String)           content = new String[] {object.toString()};
+        else if (object instanceof JSONArray)   content = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
         else {
             code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, unrecognized 'smsargs' format: " + object;
+            desc = "illegal arguments, unrecognized 'content' format: " + object;
             logger.error(desc);
             response(server.name(), dmsg, code, desc);
             return;
         }
         
-        String cid = null;
         switch (dmsg.inst()) {
-        case CommonDefinition.ISIS.INST_USER_SUBSCRIBE:
-            logger.info(String.format("INST_USER_SUBSCRIBE   - %s:%s", dmsg.fs(), dmsg.sid()));
-            cid = FjServerToolkit.getServerConfig("mma.weimi.cid.subscribe");
+        case CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE: {
+            logger.info(String.format("INST_ECOM_APPLY_AUTHORIZE    - %s:%s", dmsg.fs(), dmsg.sid()));
+            FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
+                    FjServerToolkit.getServerConfig("mma.weimi.uid"),
+                    FjServerToolkit.getServerConfig("mma.weimi.pas"),
+                    user,
+                    FjServerToolkit.getServerConfig("mma.weimi.cid.authorize"),
+                    content);
+            code = rsp_weimi.json().getInt("code");
+            desc = null;
+            
+            if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
+                logger.error("send sms failed: " + rsp_weimi);
+                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+                desc = "系统不可用，请稍候再试";
+            }
             break;
-        case CommonDefinition.ISIS.INST_USER_AUTHORIZE:
-            logger.info(String.format("INST_USER_AUTHORIZE   - %s:%s", dmsg.fs(), dmsg.sid()));
-            cid = FjServerToolkit.getServerConfig("mma.weimi.cid.authorize");
+        }
+        case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN: {
+            logger.info(String.format("INST_ECOM_APPLY_RENT_BEGIN   - %s:%s", dmsg.fs(), dmsg.sid()));
+            FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
+                    FjServerToolkit.getServerConfig("mma.weimi.uid"),
+                    FjServerToolkit.getServerConfig("mma.weimi.pas"),
+                    user,
+                    FjServerToolkit.getServerConfig("mma.weimi.cid.rentbegin"),
+                    content);
+            code = rsp_weimi.json().getInt("code");
+            desc = null;
+            
+            if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
+                logger.error("send sms failed: " + rsp_weimi);
+                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+                desc = "系统不可用，请稍候再试";
+            }
             break;
+        }
         default:
-            logger.error(String.format("unsupported instruct: 0x%08X", dmsg.inst()));
+            logger.error(String.format("unsupported instruction: 0x%08X", dmsg.inst()));
             code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST;
             desc = "非法指令";
             break;
-        }
-        
-        FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
-                FjServerToolkit.getServerConfig("mma.weimi.uid"),
-                FjServerToolkit.getServerConfig("mma.weimi.pas"),
-                phones,
-                cid,
-                smsargs);
-        code = rsp_weimi.json().getInt("code");
-        desc = null;
-        
-        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
-            logger.error("send sms failed: " + rsp_weimi);
-            code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
-            desc = "系统不可用，请稍候再试";
         }
         
         response(server.name(), dmsg, code, desc);

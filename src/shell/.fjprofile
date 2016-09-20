@@ -1,4 +1,4 @@
-Ialias ll='ls -l'
+alias ll='ls -l'
 alias ..='cd ..'
 alias ...='cd ../..'
 
@@ -16,7 +16,7 @@ ver=0.0.1
 
 PATH=${fjbin}:${PATH}
 
-function cdfj() {I
+function cdfj() {
     mod=$1
     cd "${fjbase}"
     if [ "" != "${mod}" ]; then
@@ -48,6 +48,7 @@ function scpskiconf() {
     mod=$1
     expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/address.conf" "${ski_rbase}/ski-${mod}/conf"
     expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/log4j.conf"   "${ski_rbase}/ski-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/conf/server.conf"  "${ski_rbase}/ski-${mod}/conf"
 }
 
 function scpskitask() {

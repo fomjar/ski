@@ -64,6 +64,7 @@ import com.ski.omc.comp.OCRDialog;
 import com.ski.omc.comp.StepStepDialog;
 
 import fomjar.server.msg.FjDscpMessage;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class UIToolkit {
@@ -275,20 +276,6 @@ public class UIToolkit {
                 break;
             }
             
-            // 淘宝新用户发短信
-            if (i_channel.getSelectedIndex() == CommonService.CHANNEL_TAOBAO) {
-                doLater(()->{
-                    // sleep 5 minutes
-                    try {Thread.sleep(1000L * 60 * 5);}
-                    catch (InterruptedException e) {e.printStackTrace();}
-                    
-                    JSONObject args_mma = new JSONObject();
-                    args_mma.put("phones",   c_phone.getText());
-                    args_mma.put("smsargs",  "8");
-                    CommonService.send("mma", CommonDefinition.ISIS.INST_USER_SUBSCRIBE, args_mma);
-                });
-            }
-            
             caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
             
@@ -454,6 +441,16 @@ public class UIToolkit {
                     Float.parseFloat(i_price.getText()),
                     recharge.isSelected(),
                     Float.parseFloat(i_recharge.getText()))) continue;
+            
+            // 发送短信
+            String user = CommonService.getChannelAccountByCaid(caid).c_phone;
+            List<String> content = new LinkedList<String>();
+            content.add(account.obj.c_user);
+            content.add(String.valueOf(CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid)).i_cash));
+            JSONObject args_mma = new JSONObject();
+            args_mma.put("user", user);
+            args_mma.put("content", JSONArray.fromObject(content));
+            CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args_mma);
             
             break;
         }

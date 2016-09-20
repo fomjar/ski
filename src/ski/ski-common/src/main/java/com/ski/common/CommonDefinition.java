@@ -37,8 +37,6 @@ public final class CommonDefinition {
         public static final int INST_USER_LOCATION      = 0x00001007;
         /** 用户(结果)通知 */
         public static final int INST_USER_NOTIFY        = 0x00001008;
-        /** 用户认证 */
-        public static final int INST_USER_AUTHORIZE     = 0x00001009;
         
         //////////////////////////////// 电商指令 ////////////////////////////////
         // QUERY
@@ -87,6 +85,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_APPLY_RENT_BEGIN              = 0x00002106;
         /** 退租 */
         public static final int INST_ECOM_APPLY_RENT_END                = 0x00002107;
+        /** 认证 */
+        public static final int INST_ECOM_APPLY_AUTHORIZE               = 0x00002108;
         // UPDATE
         /** 更新游戏 */
         public static final int INST_ECOM_UPDATE_GAME                   = 0x00002401;
