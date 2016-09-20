@@ -29,6 +29,7 @@ import com.ski.common.bean.BeanTicket;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.FjServerToolkit.FjAddress;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import net.sf.json.JSONArray;
@@ -527,9 +528,13 @@ public class CommonService {
     
     public static String getWsiUrl() {
         String host = null;
-        if (null == wsi_host) host = FjServerToolkit.getSlb().getAddress("wsi").host;
-        else host = wsi_host;
-        return String.format("http://%s:8080/ski-wsi", host);
+        int port    = 8080;
+        if (null == wsi_host) {
+            FjAddress addr = FjServerToolkit.getSlb().getAddress("wsi");
+            host = addr.host;
+            port = addr.port;
+        } else host = wsi_host;
+        return String.format("http://%s:%d/ski-wsi", host, port);
     }
     
     public static boolean isChannelAccountRelated(int... caids) {

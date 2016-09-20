@@ -29,8 +29,8 @@ public class FjServerToolkit {
     private static FjSlb slb = null;
     private static FjConfigMonitor config_monitor = null;
     
-    public static void startConfigMonitor() {
-        if (null == config_monitor) config_monitor = new FjConfigMonitor();
+    public static void startConfigMonitor(String name) {
+        if (null == config_monitor) config_monitor = new FjConfigMonitor(name);
         
         config_monitor.perform();
         if (!config_monitor.isRun()) new Thread(config_monitor, "fjconfig-monitor").start();
@@ -123,9 +123,11 @@ public class FjServerToolkit {
     
     public static class FjConfigMonitor extends FjLoopTask {
         
+        private String name;
         private Runnable task;
         
-        public FjConfigMonitor() {
+        public FjConfigMonitor(String name) {
+            this.name = name;
             long inteval = 10;
             setDelay(inteval * 1000);
             setInterval(inteval * 1000);
@@ -133,8 +135,14 @@ public class FjServerToolkit {
         
         @Override
         public void perform() {
-            try {PropertyConfigurator.configure("conf/log4j.conf");}
-            catch (Exception e) {logger.error("load config failed", e);}
+            try {
+                Properties p = new Properties();
+                FileInputStream fis = new FileInputStream("conf/log4j.conf");
+                p.load(fis);
+                fis.close();
+                p.setProperty("log4j.appender.FILE.File", String.format("log/ski-%s.log", name));
+                PropertyConfigurator.configure(p);
+            } catch (Exception e) {logger.error("load config failed", e);}
             
             if (null == slb) slb = new FjSlb();
             slb.setAddresses(loadOneConfig("conf/address.conf"));
@@ -201,6 +209,14 @@ public class FjServerToolkit {
     public static FjServer getServer(String name) {return null == g_server ? null : g_server.get(name);}
     
     public static FjSender getSender(String name) {return null == g_sender ? null : g_sender.get(name);}
+    
+    public static FjServer getAnyServer() {
+        if (null == g_server) return null;
+        int index = Math.abs(new Random().nextInt()) % g_server.size();
+        Iterator<FjServer> iterator = g_server.values().iterator();
+        for (int i = 0; i < index; i++) iterator.next();
+        return iterator.next();
+    }
     
     public static FjSender getAnySender() {
         if (null == g_sender) return null;

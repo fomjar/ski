@@ -1,4 +1,4 @@
-alias ll='ls -l'
+Ialias ll='ls -l'
 alias ..='cd ..'
 alias ...='cd ../..'
 
@@ -6,15 +6,17 @@ fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fo
 fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/shell/bin"
 
 ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski"
-ski_rbase=/home/ski/ski
+ski_rbase="/home/ski/ski"
 ski_host=ski.craftvoid.com
 ski_user=ski
 ski_pass=ski
 ski_rootpass=ski-1234
 
+ver=0.0.1
+
 PATH=${fjbin}:${PATH}
 
-function cdfj() {
+function cdfj() {I
     mod=$1
     cd "${fjbase}"
     if [ "" != "${mod}" ]; then
@@ -44,12 +46,13 @@ function scpskiconfall() {
 
 function scpskiconf() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} *.conf ${ski_rbase}/ski-${mod}/conf
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/address.conf" "${ski_rbase}/ski-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/log4j.conf"   "${ski_rbase}/ski-${mod}/conf"
 }
 
 function scpskitask() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} *.jar ${ski_rbase}/ski-${mod}/task
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/target/ski-${mod}-${ver}.jar" "${ski_rbase}/ski-${mod}/task"
 }
 
 function scpskiliball() {
@@ -62,6 +65,8 @@ function scpskiliball() {
 
 function scpskilib() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} *.jar ${ski_rbase}/ski-${mod}/lib
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-common/target/ski-common-${ver}.jar"    "${ski_rbase}/ski-${mod}/lib"
 }
 
