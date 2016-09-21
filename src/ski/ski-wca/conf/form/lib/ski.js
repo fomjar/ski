@@ -14,6 +14,109 @@ var ski = {
     user : function() {return this.cookie('user');},
 
     ui : {
+        set_title : function(title) {
+            //利用iframe的onload事件刷新页面
+            document.title = title;
+            var iframe = document.createElement('iframe');
+            iframe.style.visibility = 'hidden';
+            iframe.style.width = '1px';
+            iframe.style.height = '1px';
+            iframe.onload = function () {
+                setTimeout(function () {
+                    document.body.removeChild(iframe);
+                }, 0);
+            };
+            document.body.appendChild(iframe);
+        },
+
+        show_toast : function(text) {
+            if ($('#toast').length == 0) {
+                $('body').append("<div class='weui_loading_toast' id='toast' style='display: none;'>"
+                                   + "<div class='weui_mask_transparent'></div>"
+                                   + "<div class='weui_toast'>"
+                                       + "<div class='weui_loading'>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_0'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_1'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_2'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_3'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_4'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_5'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_6'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_7'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_8'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_9'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_10'></div>"
+                                          + " <div class='weui_loading_leaf weui_loading_leaf_11'></div>"
+                                       + "</div>"
+                                       + "<p class='weui_toast_content' id='toast_text'></p>"
+                                   + "</div>"
+                               + "</div>");
+            }
+            $('#toast_text').html(text);
+            $('#toast').show();
+        },
+
+        hide_toast : function() {
+            if ($('#toast').length > 0) $('#toast').hide();
+        },
+        
+        show_dialog_alert : function(options) {
+            if ($('#dialog_alert').length == 0) {
+                $('body').append("<div class='weui_dialog_alert' id='dialog_alert' style='display:none'>"
+                                   + "<div class='weui_mask'></div>"
+                                   + "<div class='weui_dialog'>"
+                                       + "<div class='weui_dialog_hd'><strong class='weui_dialog_title' id='dialog_alert_head'></strong></div>"
+                                       + "<div class='weui_dialog_bd' id='dialog_alert_body'></div>"
+                                       + "<div class='weui_dialog_ft'>"
+                                           + "<a class='weui_btn_dialog primary' id='dialog_alert_yes'>确定</a>"
+                                       + "</div>"
+                                   + "</div>"
+                               + "</div>");
+            }
+            if (undefined != options.head) $('#dialog_alert_head').html(options.head);
+            else $('#dialog_alert_head').html('');
+            if (undefined != options.body) $('#dialog_alert_body').html(options.body);
+            else $('#dialog_alert_body').html('');
+            if (undefined != options.yes)  $('#dialog_alert_yes').attr('href', "javascript: $('#dialog_alert').hide(); var yes=" + options.yes.toString() + "; yes();");
+            else $('#dialog_alert_yes').attr('href', "javascript: $('#dialog_alert').hide();");
+
+            $('#dialog_alert').show();
+        },
+
+        hide_dialog_alert : function() {
+            if ($('#dialog_alert').length > 0) $('#dialog_alert').hide();
+        },
+        
+        show_dialog_confirm : function(options) {
+            if ($('#dialog_confirm').length == 0) {
+                $('body').append("<div class='weui_dialog_confirm' id='dialog_confirm' style='display:none'>"
+                                   + "<div class='weui_mask'></div>"
+                                   + "<div class='weui_dialog'>"
+                                       + "<div class='weui_dialog_hd'><strong class='weui_dialog_title' id='dialog_confirm_head'></strong></div>"
+                                       + "<div class='weui_dialog_bd' id='dialog_confirm_body'></div>"
+                                       + "<div class='weui_dialog_ft'>"
+                                           + "<a class='weui_btn_dialog default' id='dialog_confirm_no'>取消</a>"
+                                           + "<a class='weui_btn_dialog primary' id='dialog_confirm_yes'>确定</a>"
+                                       + "</div>"
+                                   + "</div>"
+                               + "</div>");
+            }
+            if (undefined != options.head) $('#dialog_confirm_head').html(options.head);
+            else $('#dialog_confirm_head').html('');
+            if (undefined != options.body) $('#dialog_confirm_body').html(options.body);
+            else $('#dialog_confirm_body').html('');
+            if (undefined != options.yes)  $('#dialog_confirm_yes').attr('href', "javascript: $('#dialog_confirm').hide(); var yes=" + options.yes.toString() + "; yes();");
+            else $('#dialog_confirm_yes').attr('href', "javascript: $('#dialog_confirm').hide();");
+            if (undefined != options.no)   $('#dialog_confirm_no').attr('href', "javascript: $('#dialog_confirm').hide(); var no=" + options.no.toString() + "; no();");
+            else $('#dialog_confirm_no').attr('href', "javascript: $('#dialog_confirm').hide();");
+
+            $('#dialog_confirm').show();
+        },
+
+        hide_dialog_confirm : function() {
+            if ($('#dialog_confirm').length > 0) $('#dialog_confirm').hide();
+        },
+
         createCover : function(width, height, url) {
             var cover = $("<div></div>");
             cover.css('width',  width + 'px');

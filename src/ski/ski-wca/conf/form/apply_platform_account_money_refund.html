@@ -16,11 +16,14 @@
             var url_success = '/ski-wcweb/pay/refund?inst=2104&step=success';
 
             $(document).ready(function() {
-                showToast('正在加载');
+                ski.ui.show_toast('正在加载');
                 $.get(url_setup, function(args) {
-                        hideToast();
+                        ski.ui.hide_toast();
                         if (0 != args.code) {
-                            showDialog("加载失败", args.desc);
+                            ski.ui.show_dialog_alert({
+                                head : "加载失败",
+                                body : args.desc
+                            });
                             return;
                         }
                         $('#money').text(args.desc.money + ' 元');
@@ -28,35 +31,18 @@
             });
 
             function apply() {
-                showToast('正在处理');
+                ski.ui.show_toast('正在处理');
                 $.get(url_apply, function(args) {
-                    hideToast();
+                    ski.ui.hide_toast();
                     if (0 != args.code) {
-                        showDialog("退款失败", args.desc);
+                        ski.ui.show_dialog_alert({
+                            head : "退款失败",
+                            body : args.desc
+                        });
                         return;
                     }
                     window.location = url_success;
                 });
-            }
-
-            function showToast(text) {
-                $('#toast_text').text(text);
-                $('#toast').show();
-            }
-            function hideToast() {
-                $('#toast').hide();
-            }
-
-            function showDialog(head, body) {
-                $('#result_head').text(head);
-                $('#result_body').text(body);
-                $('#dialog').show();
-            }
-
-            function showDialog1(head, body) {
-                $('#result_head1').text(head);
-                $('#result_body1').text(body);
-                $('#dialog1').show();
             }
         </script>
     </head>
@@ -76,49 +62,8 @@
                     </div>
                 </div>
                 <div class='weui_btn_area'>
-                    <a class='weui_btn weui_btn_primary' href="javascript:showDialog1('提示', '确定要退款吗？');">退款</a>
+                    <a class='weui_btn weui_btn_primary' href="javascript: ski.ui.show_dialog_confirm({head : '提示', body : '确定要退款吗？', yes : apply});">退款</a>
                 </div>
-            </div>
-        </div>
-        <div class="weui_dialog_alert" id="dialog" style='display:none'>
-            <div class="weui_mask"></div>
-            <div class="weui_dialog">
-                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
-                <div class="weui_dialog_bd" id='result_body'></div>
-                <div class="weui_dialog_ft">
-                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();">确定</a>
-                </div>
-            </div>
-        </div>
-        <div class="weui_dialog_confirm" id="dialog1" style='display:none'>
-            <div class="weui_mask"></div>
-            <div class="weui_dialog">
-                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head1'></strong></div>
-                <div class="weui_dialog_bd" id='result_body1'></div>
-                <div class="weui_dialog_ft">
-                    <a class="weui_btn_dialog default" href="javascript:$('#dialog1').hide();">取消</a>
-                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog1').hide();apply();">确定</a>
-                </div>
-            </div>
-        </div>
-        <div class="weui_loading_toast" id="toast" style="display: none;">
-            <div class="weui_mask_transparent"></div>
-            <div class="weui_toast">
-                <div class="weui_loading">
-                    <div class="weui_loading_leaf weui_loading_leaf_0"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_1"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_2"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_3"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_4"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_5"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_6"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_7"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_8"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_9"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_10"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_11"></div>
-                </div>
-                <p class="weui_toast_content" id='toast_text'></p>
             </div>
         </div>
     </body>

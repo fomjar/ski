@@ -40,7 +40,10 @@
                     }),
                     function(args) {
                         if (0 != args.code) {
-                            showDialog('获取失败', args.desc);
+                            ski.ui.show_dialog_alert({
+                                head : '获取失败',
+                                body : args.desc
+                            });
                         }
                     });
             }
@@ -52,50 +55,52 @@
                 if (!verifyPhone(phone)) return;
 
                 if (0 == verify.length) {
-                    showDialog('错误', '验证码不能为空');
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '验证码不能为空'
+                    });
                     return;
                 }
 
-                showToast('正在处理');
+                ski.ui.show_toast('正在处理');
                 $.post(url_apply, $.toJSON({
                         'phone'     : phone,
                         'verify'    : verify
                     }),
                     function(args) {
-                        hideToast();
+                        ski.ui.hide_toast();
                         if (0 == args.code) {
-                            showDialog("验证通过", '');
-                            $('#result_conf').attr('href', 'javascript: history.go(-1)');
+                            ski.ui.show_dialog_alert({
+                                head : "验证通过",
+                                yes  : function() {
+                                    history.go(-1);
+                                }
+                            });
                         } else {
-                            showDialog("验证不通过", args.desc);
+                            ski.ui.show_dialog_alert({
+                                head : "验证不通过",
+                                body : args.desc
+                            });
                         }
                     });
             }
 
             function verifyPhone(phone) {
                 if (0 == phone.length) {
-                    showDialog('错误', '手机不能为空');
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '手机不能为空'
+                    });
                     return false;
                 }
                 if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))) {
-                    showDialog('错误', '手机号码不合法');
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '手机号码不合法'
+                    });
                     return false;
                 }
                 return true;
-            }
-
-            function showToast(text) {
-                $('#toast_text').text(text);
-                $('#toast').show();
-            }
-            function hideToast() {
-                $('#toast').hide();
-            }
-
-            function showDialog(head, body) {
-                $('#result_head').text(head);
-                $('#result_body').text(body);
-                $('#dialog').show();
             }
         </script>
     </head>
@@ -120,36 +125,6 @@
                 <div class='weui_btn_area'>
                     <a class='weui_btn weui_btn_primary' href="javascript:apply()">提交</a>
                 </div>
-            </div>
-        </div>
-        <div class="weui_dialog_alert" id="dialog" style='display:none'>
-            <div class="weui_mask"></div>
-            <div class="weui_dialog">
-                <div class="weui_dialog_hd"><strong class="weui_dialog_title" id='result_head'></strong></div>
-                <div class="weui_dialog_bd" id='result_body'></div>
-                <div class="weui_dialog_ft">
-                    <a class="weui_btn_dialog primary" href="javascript:$('#dialog').hide();" id='result_conf'>确定</a>
-                </div>
-            </div>
-        </div>
-        <div class="weui_loading_toast" id="toast" style="display: none;">
-            <div class="weui_mask_transparent"></div>
-            <div class="weui_toast">
-                <div class="weui_loading">
-                    <div class="weui_loading_leaf weui_loading_leaf_0"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_1"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_2"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_3"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_4"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_5"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_6"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_7"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_8"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_9"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_10"></div>
-                    <div class="weui_loading_leaf weui_loading_leaf_11"></div>
-                </div>
-                <p class="weui_toast_content" id='toast_text'></p>
             </div>
         </div>
     </body>
