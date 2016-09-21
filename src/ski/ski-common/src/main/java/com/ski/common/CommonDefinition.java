@@ -72,6 +72,12 @@ public final class CommonDefinition {
         public static final int INST_ECOM_QUERY_ACCESS_RECORD           = 0x0000200F;
         /** 查询渠道商品 */
         public static final int INST_ECOM_QUERY_CHANNEL_COMMODITY       = 0x00002010;
+        /** 查询聊天室 */
+        public static final int INST_ECOM_QUERY_CHATROOM                = 0x00002011;
+        /** 查询聊天室成员 */
+        public static final int INST_ECOM_QUERY_CHATROOM_MEMBER         = 0x00002012;
+        /** 查询聊天室消息 */
+        public static final int INST_ECOM_QUERY_CHATROOM_MESSAGE        = 0x00002013;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;
@@ -120,6 +126,14 @@ public final class CommonDefinition {
         public static final int INST_ECOM_UPDATE_ACCESS_RECORD          = 0x0000240F;
         /** 更新渠道商品 */
         public static final int INST_ECOM_UPDATE_CHANNEL_COMMODITY      = 0x00002410;
+        /** 更新聊天室 */
+        public static final int INST_ECOM_UPDATE_CHATROOM               = 0x00002411;
+        /** 更新聊天室成员 */
+        public static final int INST_ECOM_UPDATE_CHATROOM_MEMBER        = 0x00002412;
+        /** 更新聊天室成员(删除) */
+        public static final int INST_ECOM_UPDATE_CHATROOM_MEMBER_DEL    = 0x00002413;
+        /** 更新聊天室消息 */
+        public static final int INST_ECOM_UPDATE_CHATROOM_MESSAGE       = 0x00002414;
     }
     
     /**

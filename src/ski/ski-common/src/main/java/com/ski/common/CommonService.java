@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import com.ski.common.bean.BeanAccessRecord;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanChannelCommodity;
+import com.ski.common.bean.BeanChatroom;
+import com.ski.common.bean.BeanChatroomMember;
+import com.ski.common.bean.BeanChatroomMessage;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
@@ -52,6 +55,9 @@ public class CommonService {
     private static final Map<Integer, BeanNotification>     cache_notification              = new LinkedHashMap<Integer, BeanNotification>();
     private static final Set<BeanAccessRecord>              cache_access_record             = new LinkedHashSet<BeanAccessRecord>();
     private static final Set<BeanChannelCommodity>          cache_channel_commodity         = new LinkedHashSet<BeanChannelCommodity>();
+    private static final Map<Integer, BeanChatroom>         cache_chatroom                  = new LinkedHashMap<Integer, BeanChatroom>();
+    private static final Set<BeanChatroomMember>            cache_chatroom_member           = new LinkedHashSet<BeanChatroomMember>();
+    private static final Set<BeanChatroomMessage>           cache_chatroom_message          = new LinkedHashSet<BeanChatroomMessage>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -83,6 +89,10 @@ public class CommonService {
     public static final int TICKET_STATE_OPEN   = 0;
     public static final int TICKET_STATE_CLOSE  = 1;
     public static final int TICKET_STATE_CANCEL = 2;
+    
+    public static final int CHATROOM_MESSAGE_TEXT   = 0;
+    public static final int CHATROOM_MESSAGE_IMAGE  = 1;
+    public static final int CHATROOM_MESSAGE_VOICE  = 2;
     
     public static String createGameAccountPassword() {
         int     len     = 5;            // 密码长度
@@ -717,6 +727,51 @@ public class CommonService {
                 for (String line : lines) {
                     BeanChannelCommodity bean = new BeanChannelCommodity(line);
                     cache_channel_commodity.add(bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateChatroom() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM, null));
+        
+        synchronized (cache_chatroom) {
+            cache_chatroom.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanChatroom bean = new BeanChatroom(line);
+                    cache_chatroom.put(bean.i_crid, bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateChatroomMember() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MEMBER, null));
+        
+        synchronized (cache_chatroom_member) {
+            cache_chatroom_member.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanChatroomMember bean = new BeanChatroomMember(line);
+                    cache_chatroom_member.add(bean);
+                }
+            }
+        }
+    }
+    
+    public static void updateChatroomMessage() {
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE, null));
+        
+        synchronized (cache_chatroom_message) {
+            cache_chatroom_message.clear();
+            if (null != rsp && !"null".equals(rsp)) {
+                String[] lines = rsp.split("\n");
+                for (String line : lines) {
+                    BeanChatroomMessage bean = new BeanChatroomMessage(line);
+                    cache_chatroom_message.add(bean);
                 }
             }
         }
