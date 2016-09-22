@@ -167,7 +167,7 @@ create table tbl_game_rent_price (
 -- TAG管理
 drop table if exists tbl_tag;
 create table tbl_tag (
-    i_type      tinyint,    -- 0-game
+    i_type      tinyint,    -- 0-game，1-chatroom
     i_instance  integer,    -- 标记实例
     c_tag       varchar(16) -- tag值
 );

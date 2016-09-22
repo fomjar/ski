@@ -463,7 +463,7 @@ public class ManageGame extends JDialog {
     
     private void updateTag() {
         panel_tag.removeAll();
-        CommonService.getTagByInstance(CommonService.TAG_GAME, game.i_gid)
+        CommonService.getTagByTypeInstance(CommonService.TAG_GAME, game.i_gid)
                 .stream()
                 .forEach(tag->{
                     JButton btn = new JButton(tag.c_tag);

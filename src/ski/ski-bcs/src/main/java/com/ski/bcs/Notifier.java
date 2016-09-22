@@ -47,7 +47,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -105,7 +105,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -167,7 +167,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -232,7 +232,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -293,7 +293,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -353,7 +353,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
@@ -413,7 +413,7 @@ public class Notifier {
                 args.put("content", content);
                 FjDscpMessage msg = new FjDscpMessage();
                 msg.json().put("fs",   server);
-                msg.json().put("ts",   "wca");
+                msg.json().put("ts",   "web");
                 msg.json().put("inst", CommonDefinition.ISIS.INST_USER_RESPONSE);
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);

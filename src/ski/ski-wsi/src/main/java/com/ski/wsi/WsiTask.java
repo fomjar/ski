@@ -109,7 +109,7 @@ public class WsiTask implements FjServerTask {
     private void responseDscpMessage(FjDscpMessage rsp) {
         logger.info(String.format("[RESPONSE] %s:0x%08X", rsp.fs(), rsp.inst()));
         SocketChannel conn = (SocketChannel) cache.remove(rsp.sid()).conn;
-        pool.submit(()->{FjSender.sendHttpResponse(new FjHttpResponse(null, 200, FjHttpResponse.CT_APPL_JSON, rsp), conn);});
+        pool.submit(()->{FjSender.sendHttpResponse(new FjHttpResponse(null, 200, "application/json", rsp), conn);});
     }
     
     private static void responseSimple(int code, String desc, SocketChannel conn) {

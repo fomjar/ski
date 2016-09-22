@@ -14,17 +14,6 @@ import net.sf.json.JSONObject;
 
 public abstract class FjHttpMessage implements FjMessage {
     
-    public static final String CT_TEXT_CSS        = "text/css";
-    public static final String CT_TEXT_HTML      = "text/html";
-    public static final String CT_TEXT_PLAIN      = "text/plain";
-    public static final String CT_TEXT_XML       = "text/xml";
-    public static final String CT_IMAG_JPG        = "image/jpg";
-    public static final String CT_IMAG_BMP        = "image/bmp";
-    public static final String CT_IMAG_PNG        = "image/png";
-    public static final String CT_IMAG_GIF        = "image/gif";
-    public static final String CT_APPL_JSON      = "application/json";
-    public static final String CT_APPL_JS        = "application/x-javascript";
-    
     private Map<String, String>    attr;
     private Map<String, Map<String, String>>    setcookie;
     private String    contentType;
@@ -33,19 +22,19 @@ public abstract class FjHttpMessage implements FjMessage {
     public FjHttpMessage() {this(null, null);}
     
     public FjHttpMessage(String contentType, Object content) {
-        this.contentType    = null == contentType ? CT_TEXT_PLAIN : contentType;
-        try {this.content    = null == content ? new byte[] {} : content instanceof byte[] ? (byte[])content : content.toString().getBytes("utf-8");}
+        this.contentType    = null == contentType ? "text/plain" : contentType;
+        try {this.content   = null == content ? new byte[] {} : content instanceof byte[] ? (byte[])content : content.toString().getBytes("utf-8");}
         catch (UnsupportedEncodingException e) {e.printStackTrace();}
-        this.attr             = new HashMap<String, String>();
-        this.setcookie        = new HashMap<String, Map<String, String>>();
+        this.attr           = new HashMap<String, String>();
+        this.setcookie      = new HashMap<String, Map<String, String>>();
     }
     
     protected abstract String head();
     
     public Map<String, String> attr()     {return attr;};
-    public int             contentLength() {return content().length;}
-    public String         contentType()     {return attr().containsKey("Content-Type") ? attr.get("Content-Type") : contentType;}
-    public byte[]       content()       {return content;}
+    public int      contentLength() {return content().length;}
+    public String   contentType()   {return attr().containsKey("Content-Type") ? attr.get("Content-Type") : contentType;}
+    public byte[]   content()       {return content;}
     
     public void            content(Object content) {
         if (content instanceof byte[]) {

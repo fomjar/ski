@@ -444,7 +444,6 @@ public class BcsTask implements FjServerTask {
             args_cdb.put("type",    CommonService.MONEY_CASH);
             args_cdb.put("money",   money);
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_cdb);
-            CommonService.updatePlatformAccount();
             if (!CommonService.isResponseSuccess(rsp)) {
                 logger.error(String.format("pay refund failed, args = %s, rsp = %s", args, rsp));
                 response(request, server, CommonDefinition.CODE.CODE_USER_MONEY_REFUND_FAILED, "退款失败，请稍后重试");

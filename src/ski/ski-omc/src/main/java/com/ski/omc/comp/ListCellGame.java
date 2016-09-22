@@ -129,7 +129,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         i_price_a.setText("A租价格: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_A).i_price : 0.0f) + "元/天");
         i_price_b.setText("B租价格: " + (null != CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B) ? CommonService.getGameRentPriceByGid(data.i_gid, CommonService.RENT_TYPE_B).i_price : 0.0f) + "元/天");
         tags.removeAll();
-        CommonService.getTagByInstance(CommonService.TAG_GAME, data.i_gid)
+        CommonService.getTagByTypeInstance(CommonService.TAG_GAME, data.i_gid)
                 .stream()
                 .forEach(tag->{
                     JButton btn = new JButton(tag.c_tag);

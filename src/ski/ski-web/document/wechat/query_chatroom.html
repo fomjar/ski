@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>☕️聊天室</title>
+        <link rel='stylesheet' href='/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/lib/ski.js'></script>
+        <script type='text/javascript'>
+
+            var gid = ski.urlparams().gid;
+            var chatroom = null;
+            var chatroom_member = null;
+
+            $(document).ready(function() {
+                ski.ui.show_toast('获取聊天室');
+                ski.chatroom.get({gid : gid}, function(args) {
+                    ski.ui.hide_toast();
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : '获取聊天室失败',
+                            body : args.desc
+                        });
+                        return;
+                    }
+                    chatroom = args.desc;
+
+                    ski.ui.show_toast('加入聊天室');
+                    ski.chatroom.join(chatroom.crid, function(args) {
+                        ski.ui.hide_toast();
+                        if (0 != args.code) {
+                            ski.ui.show_dialog_alert({
+                                head : '加入聊天室失败',
+                                body : args.desc
+                            });
+                            return;
+                        }
+
+                        ski.ui.show_toast('加载成员');
+                        ski.chatroom.member(chatroom.crid, function(args) {
+                            ski.ui.hide_toast();
+                            if (0 != args.code) {
+                                ski.ui.show_dialog_alert({
+                                    head : '加载成员失败',
+                                    body : args.desc
+                                });
+                                return;
+                            }
+                            chatroom_member = args.desc;
+
+                            ski.ui.show_toast('加载消息');
+                            ski.chatroom.message(chatroom.crid, function(args) {
+                                ski.ui.hide_toast();
+                                if (0 != args.code) {
+                                    ski.ui.show_dialog_alert({
+                                        head : '加载消息失败',
+                                        body : args.desc
+                                    });
+                                    return;
+                                }
+                                chatroom_message = args.desc;
+                            });
+                        });
+                    });
+                });
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+</html>

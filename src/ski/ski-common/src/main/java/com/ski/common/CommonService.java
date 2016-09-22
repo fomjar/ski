@@ -78,7 +78,8 @@ public class CommonService {
     public static final int RENT_STATE_RENT = 1;
     public static final int RENT_STATE_LOCK = 2;
     
-    public static final int TAG_GAME    = 0;
+    public static final int TAG_GAME        = 0;
+    public static final int TAG_CHATROOM    = 1;
     
     public static final int TICKET_TYPE_REFUND  = 0;
     public static final int TICKET_TYPE_ADVICE  = 1;
@@ -249,6 +250,21 @@ public class CommonService {
         }
     }
     
+    public static BeanChatroom getChatroomByCrid(int crid) {
+        synchronized (cache_chatroom) {
+            return cache_chatroom.get(crid);
+        }
+    }
+    
+    public static List<BeanChatroom> getChatroomByGid(int gid) {
+        synchronized (cache_chatroom) {
+            return getTagByTypeNTag(TAG_CHATROOM, Integer.toHexString(gid))
+                    .stream()
+                    .map(tag->cache_chatroom.get(tag.i_instance))
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static Map<Integer, BeanGameAccount> getGameAccountAll() {
         return new LinkedHashMap<Integer, BeanGameAccount>(cache_game_account);
     }
@@ -348,7 +364,7 @@ public class CommonService {
         synchronized (cache_game) {
             return cache_game.values()
                     .stream()
-                    .filter(game->0 < getTagByInstance(TAG_GAME, game.i_gid)
+                    .filter(game->0 < getTagByTypeInstance(TAG_GAME, game.i_gid)
                                 .stream()
                                 .filter(t->t.c_tag.toLowerCase().contains(tag.toLowerCase()))
                                 .count())
@@ -481,7 +497,16 @@ public class CommonService {
         return new LinkedHashSet<BeanTag>(cache_tag);
     }
     
-    public static List<BeanTag> getTagByInstance(int type, int instance) {
+    public static List<BeanTag> getTagByType(int type) {
+        synchronized (cache_tag) {
+            return cache_tag
+                    .stream()
+                    .filter(tag->tag.i_type == type)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static List<BeanTag> getTagByTypeInstance(int type, int instance) {
         synchronized (cache_tag) {
             return cache_tag
                     .stream()
@@ -490,11 +515,11 @@ public class CommonService {
         }
     }
     
-    public static List<BeanTag> getTagByType(int type) {
+    public static List<BeanTag> getTagByTypeNTag(int type, String tag) {
         synchronized (cache_tag) {
             return cache_tag
                     .stream()
-                    .filter(tag->tag.i_type == type)
+                    .filter(t->t.i_type == type && t.c_tag.equals(tag))
                     .collect(Collectors.toList());
         }
     }
@@ -663,7 +688,7 @@ public class CommonService {
         
         args.put("report", report);
         args.put("inst", inst);
-        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_APPL_JSON, args.toString());
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), "application/json", args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req);
         return rsp;
     }
@@ -673,7 +698,7 @@ public class CommonService {
         
         args.put("report", report);
         args.put("inst", inst);
-        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), FjHttpRequest.CT_APPL_JSON, args.toString());
+        FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), "application/json", args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req, timeout);
         return rsp;
     }

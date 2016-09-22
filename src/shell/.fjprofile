@@ -39,7 +39,7 @@ function sshski() {
 function scpskiconfall() {
    scpskiconf cdb
    scpskiconf wsi
-   scpskiconf wca
+   scpskiconf web
    scpskiconf bcs
    scpskiconf mma
 }
@@ -59,7 +59,7 @@ function scpskitask() {
 function scpskiliball() {
    scpskilib cdb
    scpskilib wsi
-   scpskilib wca
+   scpskilib web
    scpskilib bcs
    scpskilib mma
 }

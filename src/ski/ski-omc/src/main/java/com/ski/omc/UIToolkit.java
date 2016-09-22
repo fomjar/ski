@@ -267,14 +267,13 @@ public class UIToolkit {
             if (0 != c_phone.getText().length())    args.put("phone",   c_phone.getText());
             if (0 != c_name.getText().length())     args.put("name",    c_name.getText());
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
-            CommonService.updateChannelAccount();
-            CommonService.updatePlatformAccount();
-            CommonService.updatePlatformAccountMap();
-            
             if (!CommonService.isResponseSuccess(rsp)){
                 showServerResponse(rsp);
                 break;
             }
+            CommonService.updateChannelAccount();
+            CommonService.updatePlatformAccount();
+            CommonService.updatePlatformAccountMap();
             
             caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
@@ -426,11 +425,11 @@ public class UIToolkit {
             args.put("platform",    i_platform.getSelectedIndex());
             args.put("open",        new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_ORDER, args);
-            CommonService.updateOrder();
             if (!CommonService.isResponseSuccess(rsp)){
                 showServerResponse(rsp);
                 return;
             }
+            CommonService.updateOrder();
             int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             
             if (!doOpenCommodity(
