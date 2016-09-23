@@ -26,7 +26,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             int user = -1;
             
             if (request.cookie().containsKey("user")) user = Integer.parseInt(request.cookie().get("user"), 16);
-            else if (args.containsKey("user")) {
+            else if (args.has("user")) {
                 Object obj = args.get("user");
                 if (obj instanceof Integer) user = (int) obj;
                 else user = Integer.parseInt(obj.toString(), 16);

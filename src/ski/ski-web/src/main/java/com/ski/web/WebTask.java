@@ -1,7 +1,10 @@
 package com.ski.web;
 
+import java.nio.channels.SocketChannel;
+
 import org.apache.log4j.Logger;
 
+import com.ski.common.CommonDefinition;
 import com.ski.web.filter.Filter1WechatAccess;
 import com.ski.web.filter.Filter2WechatCommand;
 import com.ski.web.filter.Filter3WechatAuthorize;
@@ -15,7 +18,9 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
+import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.web.FjWebTask;
+import net.sf.json.JSONObject;
 
 public class WebTask extends FjWebTask {
     
@@ -41,7 +46,6 @@ public class WebTask extends FjWebTask {
         registerFilter(new Filter5CommonDocument());
         registerFilter(new Filter6CommonInterface(wechat));
     }
-    
 
     @Override
     public void destroy(FjServer server) {
@@ -50,8 +54,6 @@ public class WebTask extends FjWebTask {
         mon_data.close();
         wechat.close();
     }
-
-
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -63,6 +65,15 @@ public class WebTask extends FjWebTask {
         } else {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
         }
+    }
+
+    @Override
+    protected void onFilterException(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, Exception e) {
+        JSONObject args = new JSONObject();
+        args.put("code", CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR);
+        args.put("desc", "发生了一个奇怪的错误😲");
+        response.attr().put("Content-Type", "application/json");
+        response.content(args);
     }
 
 }

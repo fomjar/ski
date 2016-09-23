@@ -172,9 +172,10 @@ public final class CommonDefinition {
         public static final int CODE_USER_ILLEGAL_ORDER_STATE           = 0x0000300B; // 非法订单状态
         public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT          = 0x0000300C; // 非法账号
         public static final int CODE_USER_ILLEGAL_GAME_ACCOUNT_STATE    = 0x0000300D; // 非法账号状态
-        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT        = 0x0000300E; // 非法用户
+        public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT       = 0x0000300E; // 非法用户
         public static final int CODE_USER_ILLEGAL_CHANNEL_ACCOUNT_STATE = 0x0000300F; // 非法用户状态
-        public static final int CODE_USER_AUTHORIZE_FAILED                = 0X00003010; // 认证失败
+        public static final int CODE_USER_AUTHORIZE_FAILED              = 0x00003010; // 认证失败
+        public static final int CODE_USER_NO_PRIVILEGE                  = 0x00003011; // 无权限
     }
 
 }

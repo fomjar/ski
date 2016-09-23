@@ -265,6 +265,24 @@ public class CommonService {
         }
     }
     
+    public static List<BeanChatroomMember> getChatroomMemberByCrid(int crid) {
+        synchronized (cache_chatroom_member) {
+            return cache_chatroom_member
+                    .stream()
+                    .filter(crm->crm.i_crid == crid)
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public static List<BeanChatroomMessage> getChatroomMessageByCrid(int crid) {
+        synchronized (cache_chatroom_message) {
+            return cache_chatroom_message
+                    .stream()
+                    .filter(crm->crm.i_crid == crid)
+                    .collect(Collectors.toList());
+        }
+    }
+    
     public static Map<Integer, BeanGameAccount> getGameAccountAll() {
         return new LinkedHashMap<Integer, BeanGameAccount>(cache_game_account);
     }

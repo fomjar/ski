@@ -45,6 +45,11 @@ public abstract class FjHttpMessage implements FjMessage {
             catch (UnsupportedEncodingException e) {e.printStackTrace();}
         }
     }
+    public String       contentToString()       {
+        try {return new String(content(), "utf-8");}
+        catch (UnsupportedEncodingException e) {e.printStackTrace();}
+        return null;
+    }
     public JSONObject   contentToJson()         {
             try {return new FjJsonMessage(new String(content(), "utf-8")).json();}
             catch (UnsupportedEncodingException e) {e.printStackTrace();}

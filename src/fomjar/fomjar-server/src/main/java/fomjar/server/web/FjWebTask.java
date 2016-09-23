@@ -55,11 +55,14 @@ public class FjWebTask implements FjServer.FjServerTask {
                     if (!filter.filter(response, request, conn)) break;
                 } catch (Exception e) {
                     logger.error("error occurs when web filter: " + filter.getClass().getName(), e);
+                    onFilterException(response, request, conn, e);
                     break;
                 }
             }
             if (conn.isOpen()) FjSender.sendHttpResponse(response, conn);
         });
     }
+    
+    protected void onFilterException(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, Exception e) { }
     
 }

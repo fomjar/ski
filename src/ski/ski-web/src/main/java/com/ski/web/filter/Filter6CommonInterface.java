@@ -23,6 +23,9 @@ import com.ski.common.CommonDefinition;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
 import com.ski.common.bean.BeanChannelCommodity;
+import com.ski.common.bean.BeanChatroom;
+import com.ski.common.bean.BeanChatroomMember;
+import com.ski.common.bean.BeanChatroomMessage;
 import com.ski.common.bean.BeanCommodity;
 import com.ski.common.bean.BeanGame;
 import com.ski.common.bean.BeanGameAccount;
@@ -57,7 +60,7 @@ public class Filter6CommonInterface extends FjWebFilter {
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (!request.path().startsWith(URL_KEY)) return true;
         
-        logger.info(String.format("user common command: %s - %s", request.url(), request.argsToJson()));
+        logger.info(String.format("user common command: %s - %s", request.url(), request.contentToString().replace("\n", "")));
         
         switch (request.path()) {
         case URL_KEY + "/pay/recharge/success":
@@ -65,7 +68,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             break;
         default: {
             JSONObject args = request.argsToJson();
-            if (args.containsKey("inst")) {
+            if (args.has("inst")) {
                 switch (getIntFromArgs(args, "inst")) {
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
                     processApplyPlatformAccountMoney(response, request, conn);
@@ -75,6 +78,15 @@ public class Filter6CommonInterface extends FjWebFilter {
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
                     processApplyRentEnd(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM:
+                    processQueryChatroom(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MEMBER:
+                    processQueryChatroomMember(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE:
+                    processQueryChatroomMessage(response, request);
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_GAME:
                     processQueryGame(response, request);
@@ -87,6 +99,15 @@ public class Filter6CommonInterface extends FjWebFilter {
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP:
                     processQueryPlatformAccountMap(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM:
+                    processUpdateChatroom(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MEMBER:
+                    processUpdateChatroomMember(response, request);
+                    break;
+                case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE:
+                    processUpdateChatroomMessage(response, request);
                     break;
                 case CommonDefinition.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP:
                     processUpdatePlatformAccountMap(response, request);
@@ -302,6 +323,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         args_bcs.put("type",        type);
         FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
+            logger.error("apply rent begin failed: " + rsp);
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonService.getResponseCode(rsp));
             args_rsp.put("desc", CommonService.getResponseDesc(rsp));
@@ -327,6 +349,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         args_bcs.put("csn",     csn);
         FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
+            logger.error("apply rent end failed: " + rsp);
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonService.getResponseCode(rsp));
             args_rsp.put("desc", CommonService.getResponseDesc(rsp));
@@ -337,6 +360,127 @@ public class Filter6CommonInterface extends FjWebFilter {
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", null);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
+    }
+    
+    private void processQueryChatroom(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        
+        // query/update chatroom
+        List<BeanChatroom> chatrooms = null;
+        if (args.has("gid")) {
+            int gid = getIntFromArgs(args, "gid");
+            chatrooms = CommonService.getChatroomByGid(gid);
+            if (null == chatrooms || chatrooms.isEmpty()) {
+                processUpdateChatroom(response, request);
+                CommonService.updateChatroom();
+                
+                chatrooms = CommonService.getChatroomByGid(gid);
+                if (null == chatrooms || chatrooms.isEmpty()) return;
+            }
+        } else {
+            logger.error("illegal arguments for query chatroom: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONArray desc = new JSONArray();
+        chatrooms.forEach(cr->desc.add(tojson(cr)));
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", desc);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
+    }
+    
+    private void processQueryChatroomMember(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        int user = Integer.parseInt(request.cookie().get("user"), 16);
+        
+        if (!args.has("crid")) {
+            logger.error("illegal arguments for query chatroom member: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        int     crid    = getIntFromArgs(args, "crid");
+        int     member  = CommonService.getPlatformAccountByCaid(user);
+        boolean ismember = false;
+        
+        List<BeanChatroomMember> members = CommonService.getChatroomMemberByCrid(crid);
+        for (BeanChatroomMember crm : members) {
+            if (crm.i_member == member) {
+                ismember = true;
+                break;
+            }
+        }
+        if (!ismember) {
+            logger.error("non-member can not query chatroom member: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_USER_NO_PRIVILEGE);
+            args_rsp.put("desc", "非聊天室成员不能查看成员");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONArray desc = new JSONArray();
+        members.forEach(m->desc.add(tojson(m)));
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", desc);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
+    }
+    
+    private void processQueryChatroomMessage(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        int user = Integer.parseInt(request.cookie().get("user"), 16);
+        
+        if (!args.has("crid")) {
+            logger.error("illegal arguments for query chatroom message: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        int     crid    = getIntFromArgs(args, "crid");
+        int     member  = CommonService.getPlatformAccountByCaid(user);
+        boolean ismember = false;
+        
+        for (BeanChatroomMember crm : CommonService.getChatroomMemberByCrid(crid)) {
+            if (crm.i_member == member) {
+                ismember = true;
+                break;
+            }
+        }
+        if (!ismember) {
+            logger.error("non-member can not query chatroom message: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_USER_NO_PRIVILEGE);
+            args_rsp.put("desc", "非聊天室成员不能查看消息");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONArray desc = new JSONArray();
+        CommonService.getChatroomMessageByCrid(crid).forEach(m->desc.add(tojson(m)));
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", desc);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
@@ -394,9 +538,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
         } else {
+            logger.error("illegal arguments for query game: " + args);
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-            args_rsp.put("desc", "参数错误");
+            args_rsp.put("desc", "非法参数");
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
         }
@@ -431,7 +576,7 @@ public class Filter6CommonInterface extends FjWebFilter {
     
     private void processQueryPlatformAccount(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
-        if (args.containsKey("caid")) {
+        if (args.has("caid")) {
             int caid = getIntFromArgs(args, "caid");
             BeanPlatformAccount bean = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
             JSONObject args_rsp = new JSONObject();
@@ -464,6 +609,172 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.content(args);
     }
     
+    private void processUpdateChatroom(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+//        int user = Integer.parseInt(request.cookie().get("user"), 16);
+        
+        if (args.has("gid")) {
+            int gid = getIntFromArgs(args, "gid");
+            List<BeanChatroom> chatrooms = CommonService.getChatroomByGid(gid);
+            if (null != chatrooms && !chatrooms.isEmpty()) {
+                logger.info("chatroom already exist: gid = 0x" + Integer.toHexString(gid));
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args_rsp.put("desc", "聊天室已存在");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            
+            // update chatroom
+            BeanGame game = CommonService.getGameByGid(gid);
+            int crid = -1;
+            JSONObject args_cdb = new JSONObject();
+            args_cdb.put("name", game.c_name_zh_cn);
+            FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                logger.error("update chatroom failed: " + rsp);
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonService.getResponseCode(rsp));
+                args_rsp.put("desc", "创建聊天室失败");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            crid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+            CommonService.updateChatroom();
+            
+            // update tag
+            args_cdb.clear();
+            args_cdb.put("type",        CommonService.TAG_CHATROOM);
+            args_cdb.put("instance",    crid);
+            args_cdb.put("tag",         Integer.toHexString(gid));
+            rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TAG, args_cdb);
+            if (!CommonService.isResponseSuccess(rsp)) {
+                logger.error("update tag failed: " + rsp);
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonService.getResponseCode(rsp));
+                args_rsp.put("desc", "创建聊天室失败");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            CommonService.updateTag();
+            
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", null);
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+        }
+    }
+    
+    private void processUpdateChatroomMember(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        int user = Integer.parseInt(request.cookie().get("user"), 16);
+        
+        if (!args.has("crid")) {
+            logger.error("illegal arguments for update chatroom member: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        int crid = getIntFromArgs(args, "crid");
+        int member = CommonService.getPlatformAccountByCaid(user);
+        for (BeanChatroomMember crm : CommonService.getChatroomMemberByCrid(crid)) {
+            if (crm.i_member == member) {
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+                args_rsp.put("desc", "已经是聊天室成员");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+        }
+        
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("crid",    crid);
+        args_cdb.put("member",  member);
+        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MEMBER, args_cdb);
+        if (!CommonService.isResponseSuccess(rsp)) {
+            logger.error("update chatroom member failed: " + rsp);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonService.getResponseCode(rsp));
+            args_rsp.put("desc", "加入聊天室失败");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", null);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
+    }
+    
+    private void processUpdateChatroomMessage(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        int user = Integer.parseInt(request.cookie().get("user"), 16);
+        
+        if (!args.has("crid") || !args.has("type") || !args.has("message")) {
+            logger.error("illegal arguments for update chatroom message: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        int     crid    = getIntFromArgs(args, "crid");
+        int     member  = CommonService.getPlatformAccountByCaid(user);
+        int     type    = getIntFromArgs(args, "type");
+        String  message = args.getString("message");
+        boolean ismember = false;
+        
+        for (BeanChatroomMember crm : CommonService.getChatroomMemberByCrid(crid)) {
+            if (crm.i_member == member) {
+                ismember = true;
+                break;
+            }
+        }
+        if (!ismember) {
+            logger.error("non-member can not update chatroom message: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_USER_NO_PRIVILEGE);
+            args_rsp.put("desc", "非聊天室成员不能发送消息");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("crid",    crid);
+        args_cdb.put("member",  user);
+        args_cdb.put("type",    type);
+        args_cdb.put("message", message);
+        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE, args_cdb);
+        if (!CommonService.isResponseSuccess(rsp)) {
+            logger.error("update chatroom message failed: " + rsp);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonService.getResponseCode(rsp));
+            args_rsp.put("desc", "发送消息失败");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", null);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
+    }
+    
     private Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
     
     private void processUpdatePlatformAccountMap(FjHttpResponse response, FjHttpRequest request) {
@@ -481,6 +792,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                     args_mma.put("content", verify);
                     FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE, args_mma);
                     if (!CommonService.isResponseSuccess(rsp)) {
+                        logger.error("send verify code failed: " + rsp);
                         JSONObject args_rsp = new JSONObject();
                         args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                         args_rsp.put("desc", "发送失败，请稍候重试");
@@ -519,6 +831,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                     args_cdb.put("phone", phone);
                     FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
                     if (!CommonService.isResponseSuccess(rsp)) {
+                        logger.error("update channel account failed: " + rsp);
                         JSONObject args_rsp = new JSONObject();
                         args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                         args_rsp.put("desc", "更新手机失败，请稍候重试");
@@ -537,6 +850,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                         args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
                         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
                         if (!CommonService.isResponseSuccess(rsp)) {
+                            logger.error("apply platform account merge failed: " + rsp);
                             JSONObject args_rsp = new JSONObject();
                             args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                             args_rsp.put("desc", "关联淘宝用户失败，请稍候重试");
@@ -557,7 +871,7 @@ public class Filter6CommonInterface extends FjWebFilter {
     }
     
     private static int getIntFromArgs(JSONObject args, String name) {
-        if (!args.containsKey(name)) return -1;
+        if (!args.has(name)) return -1;
         
         Object obj = args.get(name);
         if (obj instanceof Integer) return (int) obj;
@@ -578,8 +892,8 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("create",  bean.t_create);
         
         float[] prestatement = CommonService.prestatementByPaid(bean.i_paid);
-        json.put("cash_rt", prestatement[0]);
-        json.put("coupon_rt", prestatement[1]);
+        json.put("cash_rt",     prestatement[0]);
+        json.put("coupon_rt",   prestatement[1]);
         
         return json;
     }
@@ -746,6 +1060,33 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("address",  bean.c_address);
         json.put("zipcode",  bean.c_zipcode);
         json.put("create",   bean.t_create);
+        return json;
+    }
+    
+    private static JSONObject tojson(BeanChatroom bean) {
+        JSONObject json = new JSONObject();
+        json.put("crid",    bean.i_crid);
+        json.put("name",    bean.c_name);
+        json.put("create",  bean.t_create);
+        return json;
+    }
+    
+    private static JSONObject tojson(BeanChatroomMember bean) {
+        JSONObject json = new JSONObject();
+        json.put("crid",    bean.i_crid);
+        json.put("member",  bean.i_member);
+        
+        json.put("pa",      tojson(CommonService.getPlatformAccountByPaid(bean.i_member)));
+        return json;
+    }
+    
+    private static JSONObject tojson(BeanChatroomMessage bean) {
+        JSONObject json = new JSONObject();
+        json.put("crid",    bean.i_crid);
+        json.put("member",  bean.i_member);
+        json.put("type",    bean.i_type);
+        json.put("message", bean.c_message);
+        json.put("time",    bean.t_time);
         return json;
     }
     

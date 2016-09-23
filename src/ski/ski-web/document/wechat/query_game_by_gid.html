@@ -76,7 +76,7 @@
                     $('#blur_cover').addClass('blur');
 
                     // 封面
-                    $('#url_cover').append(ski.ui.createCover(110, 110, game.url_cover))
+                    $('#url_cover').append(ski.ui.cover(110, 110, game.url_cover))
                     // 字段
                     $('#name_zh_cn').text(game.name_zh_cn);
                     $('#name_en').text(game.name_en);
@@ -86,7 +86,7 @@
                     
                     // 简介
                     var intr = "<div style='padding-bottom: 20px'><p>" + game.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
-                    if (intr.length > 200) $('#introduction').html(ski.ui.textByHeight(intr, 133));
+                    if (intr.length > 200) $('#introduction').html(ski.ui.text_expandable(intr, 133));
                     else $('#introduction').html(intr);
 
                     // 视频
