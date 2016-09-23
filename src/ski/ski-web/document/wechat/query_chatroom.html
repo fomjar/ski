@@ -28,6 +28,7 @@
                         return;
                     }
                     chatroom = args.desc;
+                    chatroom = chatroom[0]; // 先取第一个
 
                     ski.ui.show_toast('加入聊天室');
                     ski.chatroom.join(chatroom.crid, function(args) {
@@ -53,7 +54,7 @@
                             chatroom_member = args.desc;
 
                             ski.ui.show_toast('加载消息');
-                            ski.chatroom.message(chatroom.crid, function(args) {
+                            ski.chatroom.message(chatroom.crid, {count : 100}, function(args) {
                                 ski.ui.hide_toast();
                                 if (0 != args.code) {
                                     ski.ui.show_dialog_alert({
@@ -62,7 +63,24 @@
                                     });
                                     return;
                                 }
-                                chatroom_message = args.desc;
+                                var messages = args.desc;
+
+                                for (var i in messages) {
+                                    var message = messages[i];
+                                    $('#container_message').append(ski.ui.message_right(message));
+                                }
+                                for (var i in messages) {
+                                    var message = messages[i];
+                                    $('#container_message').append(ski.ui.message_right(message));
+                                }
+                                for (var i in messages) {
+                                    var message = messages[i];
+                                    $('#container_message').append(ski.ui.message_left(message));
+                                }
+                                for (var i in messages) {
+                                    var message = messages[i];
+                                    $('#container_message').append(ski.ui.message_left(message));
+                                }
                             });
                         });
                     });
@@ -71,5 +89,6 @@
         </script>
     </head>
     <body>
+        <div id='container_message' style='width: 100%; height: 100%'></div>
     </body>
 </html>

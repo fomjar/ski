@@ -2,7 +2,9 @@ delimiter //
 drop procedure if exists sp_query_chatroom_message_all //
 create procedure sp_query_chatroom_message_all (
     out i_code  integer,
-    out c_desc  mediumblob
+    out c_desc  mediumblob,
+    in  _count  integer,
+    in  _time   datetime
 )  
 begin  
     declare i_crid      integer     default -1;
@@ -15,7 +17,9 @@ begin
     declare rs          cursor for
                         select cm.i_crid, cm.i_member, cm.i_type, cm.c_message, cm.t_time
                           from tbl_chatroom_message cm
-                         order by cm.t_time desc;
+                         where cm.t_time > _time
+                         order by cm.t_time desc
+                         limit _count;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 

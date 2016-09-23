@@ -57,7 +57,6 @@ public class CommonService {
     private static final Set<BeanChannelCommodity>          cache_channel_commodity         = new LinkedHashSet<BeanChannelCommodity>();
     private static final Map<Integer, BeanChatroom>         cache_chatroom                  = new LinkedHashMap<Integer, BeanChatroom>();
     private static final Set<BeanChatroomMember>            cache_chatroom_member           = new LinkedHashSet<BeanChatroomMember>();
-    private static final Set<BeanChatroomMessage>           cache_chatroom_message          = new LinkedHashSet<BeanChatroomMessage>();
     
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
@@ -275,12 +274,33 @@ public class CommonService {
     }
     
     public static List<BeanChatroomMessage> getChatroomMessageByCrid(int crid) {
-        synchronized (cache_chatroom_message) {
-            return cache_chatroom_message
-                    .stream()
-                    .filter(crm->crm.i_crid == crid)
-                    .collect(Collectors.toList());
+        return getChatroomMessageByCrid(crid, 1000, "1000-01-01 00:00:00");
+    }
+    
+    public static List<BeanChatroomMessage> getChatroomMessageByCrid(int crid, int count) {
+        return getChatroomMessageByCrid(crid, count, "1000-01-01 00:00:00");
+    }
+    
+    public static List<BeanChatroomMessage> getChatroomMessageByCrid(int crid, String time) {
+        return getChatroomMessageByCrid(crid, 1000, time);
+    }
+    
+    public static List<BeanChatroomMessage> getChatroomMessageByCrid(int crid, int count, String time) {
+        JSONObject args = new JSONObject();
+        args.put("crid",    crid);
+        args.put("count",   count);
+        args.put("time",    time);
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE, args));
+        
+        List<BeanChatroomMessage> list = new LinkedList<BeanChatroomMessage>();
+        if (null != rsp && !"null".equals(rsp)) {
+            String[] lines = rsp.split("\n");
+            for (String line : lines) {
+                BeanChatroomMessage bean = new BeanChatroomMessage(line);
+                list.add(bean);
+            }
         }
+        return list;
     }
     
     public static Map<Integer, BeanGameAccount> getGameAccountAll() {
@@ -800,21 +820,6 @@ public class CommonService {
                 for (String line : lines) {
                     BeanChatroomMember bean = new BeanChatroomMember(line);
                     cache_chatroom_member.add(bean);
-                }
-            }
-        }
-    }
-    
-    public static void updateChatroomMessage() {
-        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE, null));
-        
-        synchronized (cache_chatroom_message) {
-            cache_chatroom_message.clear();
-            if (null != rsp && !"null".equals(rsp)) {
-                String[] lines = rsp.split("\n");
-                for (String line : lines) {
-                    BeanChatroomMessage bean = new BeanChatroomMessage(line);
-                    cache_chatroom_message.add(bean);
                 }
             }
         }

@@ -40,7 +40,6 @@ public class DataMonitor extends FjLoopTask {
         CommonService.updateOrder();
         CommonService.updateChatroom();
         CommonService.updateChatroomMember();
-        CommonService.updateChatroomMessage();
         
         boolean swich = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("web.data.reload-switch"));
         if (isNeverLoad || swich) {

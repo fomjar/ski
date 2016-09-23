@@ -476,8 +476,29 @@ public class Filter6CommonInterface extends FjWebFilter {
             return;
         }
         
+        List<BeanChatroomMessage> messages = null;
+        if (args.has("count") && args.has("time")) {
+            messages = CommonService.getChatroomMessageByCrid(crid,
+                    getIntFromArgs(args, "count"),
+                    args.getString("time"));
+        } else if (args.has("count")) {
+            messages = CommonService.getChatroomMessageByCrid(crid,
+                    getIntFromArgs(args, "count"));
+        } else if (args.has("time")) {
+            messages = CommonService.getChatroomMessageByCrid(crid,
+                    args.getString("time"));
+        } else {
+            logger.error("illegal arguments for query chatroom message: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
         JSONArray desc = new JSONArray();
-        CommonService.getChatroomMessageByCrid(crid).forEach(m->desc.add(tojson(m)));
+        messages.forEach(m->desc.add(tojson(m)));
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", desc);
@@ -708,6 +729,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
+        CommonService.updateChatroomMember();
         
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);

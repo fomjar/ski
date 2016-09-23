@@ -203,6 +203,49 @@ ski.ui = {
         div.append("<div style='width:100%; text-align:right'><a id='"+id_btn+"' href='#' onclick=\""+fn+"\">"+l_open+"</a></div>");
         div.append("<div id='"+id_bak+"' style='width:100%; display:none; opacity: 0.0'>"+text+"</div>"); // append a copy to calculate real height
         return div;
+    },
+
+    message_left : function(message) {
+        var width_total   = $(document.body).width();
+        var width_edge    = 80;
+        var width_space   = width_total / 5;
+        var width_message = width_total - width_space - width_edge;
+        var div = $('<div></div>');
+        div.css('width', width_total+'px');
+        div.css('margin-top',    '16px');
+        div.css('margin-bottom', '16px');
+        div.append("<table style='border-collapse: collapse;'><tr>"
+                     + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
+                         + "<div style='position: relative; float: right; right: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-right: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
+                         + "<div style='position: relative; left: 0px; top: 0px;'>"
+                            + "<div style='width: 30px; height: 30px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
+                         + "</div>"
+                     + "</td>"
+                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; word-wrap: break-word; text-align: left;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_space+"px'></td>"
+                 + "</tr></table>");
+        return div;
+    },
+    message_right : function(message) {
+        var width_total   = $(document.body).width();
+        var width_space   = width_total / 5;
+        var width_edge    = 80;
+        var width_message = width_total - width_space - width_edge;
+        var div = $('<div></div>');
+        div.css('width', width_total+'px');
+        div.css('margin-top',    '16px');
+        div.css('margin-bottom', '16px');
+        div.append("<table style='border-collapse: collapse;'><tr>"
+                     + "<td width='"+width_space+"px'></td>"
+                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
+                         + "<div style='position: relative; float: left; left: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-left: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
+                         + "<div style='position: relative; right: 0px; top: 0px;'>"
+                            + "<div style='width: 30px; height: 30px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
+                         + "</div>"
+                     + "</td>"
+                 + "</tr></table>");
+        return div;
     }
 };
 
@@ -290,16 +333,33 @@ ski.chatroom = {
     },
     member : function(crid, member, callback) {
         var data = null;
-        if (member == null) data = null;
-        else data = {crid : crid, member : member};
-
+        switch (arguments.length) {
+        case 2:
+            data = {crid : crid};
+            callback = member;
+            break;
+        case 3:
+            data = {crid : crid, member : member};
+            break;
+        default:
+            return;
+        }
         ski.send('2012', data, callback);
     },
-    message : function(crid, count, callback) {
+    message : function(crid, options, callback) {
         var data = null;
-        if (count == null) data = null;
-        else data = {crid : crid, count : count};
-
+        switch (arguments.length) {
+        case 2:
+            data = {crid : crid};
+            callback = options;
+            break;
+        case 3:
+            data = options;
+            data.crid = crid;
+            break;
+        default:
+            return;
+        }
         ski.send('2013', data, callback);
     }
 };
