@@ -216,12 +216,12 @@ ski.ui = {
         div.css('margin-bottom', '16px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
-                         + "<div style='position: relative; float: right; right: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-right: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
+                         + "<div style='position: relative; float: right; right: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
                          + "<div style='position: relative; left: 0px; top: 0px;'>"
                             + "<div style='width: 30px; height: 30px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
                          + "</div>"
                      + "</td>"
-                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; word-wrap: break-word; text-align: left;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; word-wrap: break-word; text-align: left; color: black; background: white;'>"+message.message+"</div></td>"
                      + "<td width='"+width_space+"px'></td>"
                  + "</tr></table>");
         return div;
@@ -311,6 +311,10 @@ ski.common = {
         } else ski.send('2006', {oid : oid, csn : csn}, callback);
     },
     query_platform_account : function(options, callback) {
+        if (1 == arguments.length) {
+            callback = options;
+            options = null;
+        }
         ski.send('2009', options, callback);
     },
     query_platform_account_map : function(callback) {

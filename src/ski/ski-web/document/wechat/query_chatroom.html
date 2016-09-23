@@ -17,75 +17,98 @@
             var chatroom_member = null;
 
             $(document).ready(function() {
-                ski.ui.show_toast('获取聊天室');
-                ski.chatroom.get({gid : gid}, function(args) {
+                ski.ui.show_toast('获取个人信息');
+                ski.common.query_platform_account(function(args) {
                     ski.ui.hide_toast();
                     if (0 != args.code) {
                         ski.ui.show_dialog_alert({
-                            head : '获取聊天室失败',
+                            head : '获取个人信息失败',
                             body : args.desc
                         });
                         return;
                     }
-                    chatroom = args.desc;
-                    chatroom = chatroom[0]; // 先取第一个
+                    platform_account = args.desc;
 
-                    ski.ui.show_toast('加入聊天室');
-                    ski.chatroom.join(chatroom.crid, function(args) {
+                    ski.ui.show_toast('获取聊天室');
+                    ski.chatroom.get({gid : gid}, function(args) {
                         ski.ui.hide_toast();
                         if (0 != args.code) {
                             ski.ui.show_dialog_alert({
-                                head : '加入聊天室失败',
+                                head : '获取聊天室失败',
                                 body : args.desc
                             });
                             return;
                         }
+                        chatroom = args.desc;
+                        chatroom = chatroom[0]; // 先取第一个
 
-                        ski.ui.show_toast('加载成员');
-                        ski.chatroom.member(chatroom.crid, function(args) {
+                        ski.ui.show_toast('加入聊天室');
+                        ski.chatroom.join(chatroom.crid, function(args) {
                             ski.ui.hide_toast();
                             if (0 != args.code) {
                                 ski.ui.show_dialog_alert({
-                                    head : '加载成员失败',
+                                    head : '加入聊天室失败',
                                     body : args.desc
                                 });
                                 return;
                             }
-                            chatroom_member = args.desc;
 
-                            ski.ui.show_toast('加载消息');
-                            ski.chatroom.message(chatroom.crid, {count : 100}, function(args) {
+                            ski.ui.show_toast('加载成员');
+                            ski.chatroom.member(chatroom.crid, function(args) {
                                 ski.ui.hide_toast();
                                 if (0 != args.code) {
                                     ski.ui.show_dialog_alert({
-                                        head : '加载消息失败',
+                                        head : '加载成员失败',
                                         body : args.desc
                                     });
                                     return;
                                 }
-                                var messages = args.desc;
+                                chatroom_member = args.desc;
 
-                                for (var i in messages) {
-                                    var message = messages[i];
-                                    $('#container_message').append(ski.ui.message_right(message));
-                                }
-                                for (var i in messages) {
-                                    var message = messages[i];
-                                    $('#container_message').append(ski.ui.message_right(message));
-                                }
-                                for (var i in messages) {
-                                    var message = messages[i];
-                                    $('#container_message').append(ski.ui.message_left(message));
-                                }
-                                for (var i in messages) {
-                                    var message = messages[i];
-                                    $('#container_message').append(ski.ui.message_left(message));
-                                }
+                                ski.ui.show_toast('加载消息');
+                                ski.chatroom.message(chatroom.crid, {count : 100}, function(args) {
+                                    ski.ui.hide_toast();
+                                    if (0 != args.code) {
+                                        ski.ui.show_dialog_alert({
+                                            head : '加载消息失败',
+                                            body : args.desc
+                                        });
+                                        return;
+                                    }
+                                    var messages = args.desc;
+
+                                    for (var i in messages) {
+                                        var message = messages[i];
+                                        append_message(message);
+                                    }
+                                    for (var i in messages) {
+                                        var message = messages[i];
+                                        append_message(message);
+                                    }
+                                    for (var i in messages) {
+                                        var message = messages[i];
+                                        append_message(message);
+                                    }
+                                    for (var i in messages) {
+                                        var message = messages[i];
+                                        append_message(message);
+                                    }
+                                });
                             });
                         });
                     });
                 });
             });
+
+            function append_message(message) {
+                if (isself(message.member)) $('#container_message').append(ski.ui.message_right(message));
+                else $('#container_message').append(ski.ui.message_left(message));
+            }
+
+            function isself(member) {
+                return platform_account.paid == member;
+            }
+
         </script>
     </head>
     <body>
