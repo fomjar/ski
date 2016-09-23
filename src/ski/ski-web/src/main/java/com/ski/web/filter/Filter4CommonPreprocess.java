@@ -27,7 +27,10 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             
             if (request.cookie().containsKey("user")) user = Integer.parseInt(request.cookie().get("user"), 16);
             else if (args.containsKey("user")) {
-                user = Integer.parseInt(args.getString("user"), 16);
+                Object obj = args.get("user");
+                if (obj instanceof Integer) user = (int) obj;
+                else user = Integer.parseInt(obj.toString(), 16);
+                response.cookie().put("user", Integer.toHexString(user));
                 response.setcookie("user", Integer.toHexString(user));
             } else {
                 if (!request.path().equals("/wechat/message.html")) {

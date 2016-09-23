@@ -13,10 +13,10 @@ public class FjHttpResponse extends FjHttpMessage {
     }
     
     public static FjHttpResponse parse(String data) {
-        String[] head         = data.split("\r\n")[0].split(" ");
+        String[] head       = data.split("\r\n")[0].split(" ");
         String[] contents   = data.split("\r\n\r\n");
-        String   attrs        = contents[0].substring(data.indexOf("\r\n") + 2);
-        String   content     = contents.length > 1 ? contents[1] : null;
+        String   attrs      = contents[0].substring(data.indexOf("\r\n") + 2);
+        String   content    = contents.length > 1 ? contents[1] : null;
         FjHttpResponse response = new FjHttpResponse(head[0], Integer.parseInt(head[1]), null, content);
         for (String attr : attrs.split("\r\n")) {
             String[] kv = attr.split(":");
@@ -27,13 +27,13 @@ public class FjHttpResponse extends FjHttpMessage {
         return response;
     }
     
-    private String     protocal;
+    private String  protocal;
     private int     code;
     
     public FjHttpResponse(String protocal, int code, String contentType, Object content) {
         super(contentType, content);
-        this.protocal    = null == protocal ? "HTTP/1.1" : protocal;
-        this.code         = code;
+        this.protocal   = null == protocal ? "HTTP/1.1" : protocal;
+        this.code       = code;
     }
     
     public String     protocal()         {return protocal;}

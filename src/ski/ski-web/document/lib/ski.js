@@ -1,9 +1,5 @@
 var ski = {}
 
-ski.dolater = function(callback){
-    setTimeout(callback, 0);
-};
-
 // network base
 ski.url = {
     api : '/ski-web',
@@ -30,14 +26,22 @@ ski.send = function(inst, data, callback) {
 };
 
 // permanent
-ski.cookie = function(key, val)  {
+ski.cookie = function(key, val, domain, path, expires)  {
     switch (arguments.length) {
+    case 0:
+        return $.cookie();
     case 1:
         return $.cookie(key);
-    case 2:
+    case 2: {
         var origin = $.cookie(key);
         $.cookie(key, val, {path: "/"});
         return origin;
+    }
+    case 5: {
+        var origin = $.cookie(key);
+        $.cookie(key, val, {domain : domain, path : path, expires : expires});
+        return origin;
+    }
     }
 };
 ski.user = function() {return ski.cookie('user');};

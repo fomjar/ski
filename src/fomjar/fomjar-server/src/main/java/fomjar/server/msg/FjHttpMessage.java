@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -77,15 +78,22 @@ public abstract class FjHttpMessage implements FjMessage {
         return cookie;
     }
     
-    public void setcookie(String key, String val) {
+    public void setcookie(String key, String val, String domain, String path, String expires) {
         if (setcookie.containsKey(key)) setcookie.remove(key);
         
-        Map<String, String> cookie = new HashMap<String, String>();
+        Map<String, String> cookie = new LinkedHashMap<String, String>();
         try {val = URLEncoder.encode(val, "utf-8");}
         catch (UnsupportedEncodingException e) {e.printStackTrace();}
         
         cookie.put(key, val);
+        if (null != domain)     cookie.put("domain",    domain);
+        if (null != path)       cookie.put("path",      path);
+        if (null != expires)    cookie.put("expires",   expires);
         setcookie.put(key, cookie);
+    }
+    
+    public void setcookie(String key, String val) {
+        setcookie(key, val, null, "/", null);
     }
 
     @Override

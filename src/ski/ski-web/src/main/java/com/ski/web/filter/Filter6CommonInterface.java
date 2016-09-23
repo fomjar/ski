@@ -439,6 +439,14 @@ public class Filter6CommonInterface extends FjWebFilter {
             args_rsp.put("desc", tojson(bean));
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
+        } else {
+            int caid = Integer.parseInt(request.cookie().get("user"), 16);
+            BeanPlatformAccount bean = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", tojson(bean));
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
         }
     }
     
