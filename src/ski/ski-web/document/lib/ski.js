@@ -200,7 +200,7 @@ ski.ui = {
                    + "$('#"+id_btn+"').text('"+l_close+"');"
                    + "$('#"+id_txt+"').animate({height : h+'px'});"
                + "}";
-        div.append("<div style='width:100%; text-align:right'><a id='"+id_btn+"' href='#' onclick=\""+fn+"\">"+l_open+"</a></div>");
+        div.append("<div style='width:100%; text-align:right'><a id='"+id_btn+"' href='javascript: void(0);' onclick=\""+fn+"\">"+l_open+"</a></div>");
         div.append("<div id='"+id_bak+"' style='width:100%; display:none; opacity: 0.0'>"+text+"</div>"); // append a copy to calculate real height
         return div;
     },
