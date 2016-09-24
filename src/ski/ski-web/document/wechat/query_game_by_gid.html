@@ -152,6 +152,9 @@
                         }
                         $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript: ski.goto.rent_begin("+game.gid+");'>我要体验</a></div></div>");
                     }
+                    
+                    // 聊天室
+                    $('#chatroom').attr('href', "javascript: ski.goto.chatroom("+game.gid+");");
 
                     // 下滑动画
                     setTimeout(function() {
@@ -296,6 +299,9 @@
                         <section style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
                             <h1 class='category' style='margin-bottom: 0px'>即刻体验这款游戏</h1>
                             <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
+                        </section>
+                        <section>
+                            <a id='chatroom'><div style='width: 100%; height: 3px'></div></a>
                         </section>
                     </article>
                 </div>

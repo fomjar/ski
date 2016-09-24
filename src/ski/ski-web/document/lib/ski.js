@@ -210,18 +210,23 @@ ski.ui = {
         var width_edge    = 80;
         var width_space   = width_total / 5;
         var width_message = width_total - width_space - width_edge;
+        var top_triangle  = 14;
+        var size_cover    = 36;
+        var padding_message = 12;
+        var size_font     = 16;
+
         var div = $('<div></div>');
         div.css('width', width_total+'px');
-        div.css('margin-top',    '16px');
-        div.css('margin-bottom', '16px');
+        div.css('padding-top',    padding_message + 'px');
+        div.css('padding-bottom', padding_message + 'px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
-                         + "<div style='position: relative; float: right; right: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
+                         + "<div style='position: relative; float: right; right: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
                          + "<div style='position: relative; left: 0px; top: 0px;'>"
-                            + "<div style='width: 30px; height: 30px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
+                            + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
                          + "</div>"
                      + "</td>"
-                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; word-wrap: break-word; text-align: left; color: black; background: white;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding-top: 6px; padding-bottom: 6px; word-wrap: break-word; text-align: left; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: white;'>"+message.message+"</div></td>"
                      + "<td width='"+width_space+"px'></td>"
                  + "</tr></table>");
         return div;
@@ -231,17 +236,22 @@ ski.ui = {
         var width_space   = width_total / 5;
         var width_edge    = 80;
         var width_message = width_total - width_space - width_edge;
+        var top_triangle  = 14;
+        var size_cover    = 36;
+        var padding_message = 12;
+        var size_font     = 16;
+
         var div = $('<div></div>');
         div.css('width', width_total+'px');
-        div.css('margin-top',    '16px');
-        div.css('margin-bottom', '16px');
+        div.css('padding-top',    padding_message + 'px');
+        div.css('padding-bottom', padding_message + 'px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_space+"px'></td>"
-                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding-top: 6px; padding-bottom: 6px; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px;'>"+message.message+"</div></td>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
-                         + "<div style='position: relative; float: left; left: -1px; top: 12px; width: 0px; height: 0px; z-index: 200; border-top: 5px solid transparent; border-left: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
+                         + "<div style='position: relative; float: left; left: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-left: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
                          + "<div style='position: relative; right: 0px; top: 0px;'>"
-                            + "<div style='width: 30px; height: 30px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
+                            + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
                          + "</div>"
                      + "</td>"
                  + "</tr></table>");
@@ -291,6 +301,10 @@ ski.goto = {
     },
     update_platform_account_map : function() {
         window.location = ski.url.doc + '/update_platform_account_map.html';
+    },
+    chatroom : function(gid) {
+        if ('number' == typeof(gid)) gid = gid.toString(16);
+        window.location = ski.url.doc + '/query_chatroom.html?gid=' + gid;
     }
 };
 
@@ -350,21 +364,52 @@ ski.chatroom = {
         }
         ski.send('2012', data, callback);
     },
-    message : function(crid, options, callback) {
-        var data = null;
-        switch (arguments.length) {
-        case 2:
-            data = {crid : crid};
-            callback = options;
-            break;
-        case 3:
-            data = options;
-            data.crid = crid;
-            break;
-        default:
-            return;
+    message : {
+        get : function(crid, options, callback) {
+            var data = null;
+            switch (arguments.length) {
+            case 2:
+                data = {crid : crid};
+                callback = options;
+                break;
+            case 3:
+                data = options;
+                data.crid = crid;
+                break;
+            default:
+                return;
+            }
+            ski.send('2013', data, callback);
+        },
+        send : function (message, callback) {
+            ski.send('2414', message, callback);
+        },
+        receiver : -1,
+        receive_start : function(crid, interval, callback_condition, callback_message) {
+            ski.chatroom.message.receiver = window.setInterval(function() {
+                ski.chatroom.message.get(crid, callback_condition(), callback_message);
+            }, interval);
+        },
+        receive_stop : function() {
+            window.clearInterval(ski.chatroom.message.receiver);
         }
-        ski.send('2013', data, callback);
     }
 };
 
+// prototype
+Date.prototype.format = function (fmt) { //author: meizz 
+    var o = {
+        "M+" : this.getMonth() + 1,  //月份 
+        "d+" : this.getDate(),       //日 
+        "H+" : this.getHours(),      //小时 
+        "m+" : this.getMinutes(),    //分 
+        "s+" : this.getSeconds(),    //秒 
+        "q+" : Math.floor((this.getMonth() + 3) / 3), //季度 
+        "S"  : this.getMilliseconds() //毫秒 
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o) {
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    }
+    return fmt;
+};

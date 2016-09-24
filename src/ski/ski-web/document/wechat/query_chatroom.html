@@ -14,9 +14,13 @@
 
             var gid = ski.urlparams().gid;
             var chatroom = null;
-            var chatroom_member = null;
+            var members  = null;
+            var messages = [] 
+            var page_open_time = new Date().format('yyyy-MM-dd HH:mm:ss');
 
             $(document).ready(function() {
+                init();
+
                 ski.ui.show_toast('获取个人信息');
                 ski.common.query_platform_account(function(args) {
                     ski.ui.hide_toast();
@@ -63,10 +67,10 @@
                                     });
                                     return;
                                 }
-                                chatroom_member = args.desc;
+                                members = args.desc;
 
                                 ski.ui.show_toast('加载消息');
-                                ski.chatroom.message(chatroom.crid, {count : 100}, function(args) {
+                                ski.chatroom.message.get(chatroom.crid, {count : 100}, function(args) {
                                     ski.ui.hide_toast();
                                     if (0 != args.code) {
                                         ski.ui.show_dialog_alert({
@@ -75,24 +79,15 @@
                                         });
                                         return;
                                     }
-                                    var messages = args.desc;
 
-                                    for (var i in messages) {
-                                        var message = messages[i];
-                                        append_message(message);
-                                    }
-                                    for (var i in messages) {
-                                        var message = messages[i];
-                                        append_message(message);
-                                    }
-                                    for (var i in messages) {
-                                        var message = messages[i];
-                                        append_message(message);
-                                    }
-                                    for (var i in messages) {
-                                        var message = messages[i];
-                                        append_message(message);
-                                    }
+                                    append_messages(args.desc);
+
+                                    ski.chatroom.message.receive_start(
+                                        chatroom.crid,
+                                        1000,
+                                        receive_message_condition,
+                                        receive_message_callback
+                                    );
                                 });
                             });
                         });
@@ -100,18 +95,73 @@
                 });
             });
 
+            function init() {
+                $('#message_text').bind('focus', function(){
+                    $('#operate_space').css('height', '0px');
+                    $('#container_operate').css('position', 'static');
+                });
+                $('#message_text').bind('blur', function(){
+                    $('#operate_space').css('height', '44px');
+                    $('#container_operate').css('position', 'fixed');
+                    $('#container_operate').css('bottom', '0px');
+                });
+            }
+
+            function append_messages(msgs) {
+                for (var i in msgs) {
+                    var message = msgs[i];
+                    append_message(message);
+                }
+            }
+
             function append_message(message) {
                 if (isself(message.member)) $('#container_message').append(ski.ui.message_right(message));
                 else $('#container_message').append(ski.ui.message_left(message));
+
+                messages[messages.length] = message;
+                $(document.body)[0].scrollTop = (-1>>>2);
             }
 
             function isself(member) {
                 return platform_account.paid == member;
             }
+            
+            function send_message() {
+                var text = $('#message_text').val();
+                if (0 == text.length) return;
+
+                var message = {
+                    crid    : chatroom.crid,
+                    type    : 0,
+                    message : text
+                };
+                ski.chatroom.message.send(message, null);
+                $('#message_text').val('');
+            }
+
+            function receive_message_condition() {
+                var condition = {};
+                if (0 != messages.length) condition.time = messages[messages.length-1].time;
+                else condition.time = page_open_time;
+                return condition;
+            }
+
+            function receive_message_callback(args) {
+                if (0 == args.code) {
+                    append_messages(args.desc)
+                }
+            }
 
         </script>
     </head>
     <body>
-        <div id='container_message' style='width: 100%; height: 100%'></div>
+        <table style='border-collapse: collapse; width: 100%; height: 100%'>
+            <tr><td><div id='container_message' style='width: 100%; height: 100%'></div></td></tr>
+            <tr id='operate_space' style='height: 44px'><td></td></tr> <!-- space for operate -->
+        </table>
+
+        <div class="weui_search_bar" id="container_operate" style='position: fixed; z-index: 200; bottom: 0px; width: 100%; height: 44px;'>
+            <input type='text' class="weui_search_input" id='message_text' style='width: 100%; height: 100%; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();">
+        </div>
     </body>
 </html>

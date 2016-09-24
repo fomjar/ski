@@ -776,7 +776,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         
         JSONObject args_cdb = new JSONObject();
         args_cdb.put("crid",    crid);
-        args_cdb.put("member",  user);
+        args_cdb.put("member",  member);
         args_cdb.put("type",    type);
         args_cdb.put("message", message);
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE, args_cdb);

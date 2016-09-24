@@ -26,7 +26,7 @@ begin
         member,
         _type,
         message,
-        _time
+        ifnull(_time, now())
     );
 
     set i_code = 0;
