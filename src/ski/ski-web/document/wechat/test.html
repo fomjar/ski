@@ -36,6 +36,14 @@
         
             $(document).ready(function() {
                 setup();
+				$('#search_input').bind('focus', function() {
+					$('#search_bar').addClass('weui_search_focusing');
+				});
+				$('#search_input').bind('blur', function() {
+					if (0 == $('#search_input').val().length) {
+						$('#search_bar').removeClass('weui_search_focusing');
+					}
+				});
             });
 
             function preset() {
@@ -87,7 +95,7 @@
                     $('#result').append(cells);
                 });
             }
-
+			
             function setup() {
                 var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
 
@@ -96,18 +104,46 @@
                 } else {
                     search(word);
                 }
-
             }
+			
+			function oncancel() {
+				$('#search_input').val('');
+				$('#search_input').blur();
+				setup();
+			}
+			
+			var toggle_on = false;
+			
+			function toggle_category() {
+				if (toggle_on) {
+					$('#categories').animate({top : '-'+$('#categories').height()+'px'});
+					toggle_on = false;
+				} else {
+					$('#categories').animate({top : $('#search_bar').outerHeight(true)+'px'});
+					toggle_on = true;
+				}
+			}
+			
         </script>
+        <style type="text/css">
+            div table tr td {
+                border: 1px solid darkgray;
+            }
+            div table tr td a div {
+                padding		: 8px;
+                text-align	: center;
+            }
+        </style>
     </head>
     <body>
         <div class='panel'>
             <div class='bd'>
-                <div class="weui_search_bar" style='position: fixed; z-index: 500; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
+                <div class="weui_search_bar" style='position: fixed; z-index: 10; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
+                	<a href='javascript: void(0);'><div id='toggle_switch' style='position: relative; float: left; width: 80px; text-align: center; font-weight: 200; ' onclick="toggle_category();">所有分类</div></a>
                     <div class="weui_search_outer" style='background: lightgray'>
                         <div class="weui_search_inner">
                             <i class="weui_icon_search"></i>
-                            <input class="weui_search_input" id="search_input" required type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" onfocus="$('#search_bar').addClass('weui_search_focusing');" onblur="if (0 == $('#search_input').val().length) $('#search_bar').removeClass('weui_search_focusing');">
+                            <input class="weui_search_input" id='search_input' required type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" >
                             <a class="weui_icon_clear" id="search_clear" href="javascript:$('#search_input').val('');$('#search_input').focus();setup();"></a>
                         </div>
                         <label class="weui_search_text" id="search_text" for="search_input">
@@ -115,7 +151,16 @@
                             <span>搜索</span>
                         </label>
                     </div>
-                    <a class="weui_search_cancel" id="search_cancel" href="javascript:$('#search_input').val('');$('#search_input').blur();setup();">取消</a>
+                   	<a class="weui_search_cancel" id="search_cancel" href="javascript: oncancel();">取消</a>
+                </div>
+                <div id='categories' style='z-index: 9; position: fixed; left: 0px; top: -200px; width: 100%; background: lightgray; border: gray;'>
+                	<table width='100%' style='border-collapse: collapse; '>
+                    	<tr>
+                        	<td><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td>
+                        	<td><a href='/wechat/query_game_by_category.html?category=冒险'><div>冒险</div></a></td>
+                        	<td><a href='/wechat/query_game_by_category.html?category=恐怖'><div>恐怖</div></a></td>
+                        </tr>
+                    </table>
                 </div>
                 <div class="weui_panel weui_panel_access" style='position: relative; top: 34px' id='result'></div>
             </div>

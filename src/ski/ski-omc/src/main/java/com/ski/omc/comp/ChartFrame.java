@@ -44,7 +44,7 @@ public class ChartFrame extends JFrame {
     private JPanel      charts_user;
     private JPanel      charts_order;
     private JPanel        charts_sale;
-    private JPanel        charts_access;
+//    private JPanel        charts_access;
     private JPanel        charts_game;
     
     public ChartFrame() {
@@ -82,10 +82,10 @@ public class ChartFrame extends JFrame {
         charts_sale.add(createChartMoneyConsumeEncreaseLastMonth());
         charts_sale.add(createChartMoneyConsumeTotalLastMonth());
         
-        charts_access = new JPanel();
-        charts_access.setLayout(new BoxLayout(charts_access, BoxLayout.Y_AXIS));
-        charts_access.add(createChartAccessDistribution());
-        charts_access.add(createChartAccessGameDistribution());
+//        charts_access = new JPanel();
+//        charts_access.setLayout(new BoxLayout(charts_access, BoxLayout.Y_AXIS));
+//        charts_access.add(createChartAccessDistribution());
+//        charts_access.add(createChartAccessGameDistribution());
         
         charts_game = new JPanel();
         charts_game.setLayout(new BoxLayout(charts_game, BoxLayout.Y_AXIS));
@@ -115,14 +115,14 @@ public class ChartFrame extends JFrame {
             jsp.getVerticalScrollBar().setUnitIncrement(16);
             charts.add("销售统计", jsp);
         }
-        {
-            JPanel panel = new JPanel();
-            panel.setLayout(new BorderLayout());
-            panel.add(charts_access, BorderLayout.NORTH);
-            JScrollPane jsp = new JScrollPane(panel);
-            jsp.getVerticalScrollBar().setUnitIncrement(16);
-            charts.add("访问统计", jsp);
-        }
+//        {
+//            JPanel panel = new JPanel();
+//            panel.setLayout(new BorderLayout());
+//            panel.add(charts_access, BorderLayout.NORTH);
+//            JScrollPane jsp = new JScrollPane(panel);
+//            jsp.getVerticalScrollBar().setUnitIncrement(16);
+//            charts.add("访问统计", jsp);
+//        }
         {
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
@@ -719,6 +719,7 @@ public class ChartFrame extends JFrame {
     }
 
     
+    @SuppressWarnings("unused")
     private static JPanel createChartAccessDistribution() {
         int[] inst_apply_platform_account_money = new int[] {0};
         int[] inst_apply_rent_begin = new int[] {0};
@@ -778,6 +779,7 @@ public class ChartFrame extends JFrame {
         return panel;
     }
     
+    @SuppressWarnings("unused")
     private static JPanel createChartAccessGameDistribution() {
         Map<Integer, Integer> count = new HashMap<Integer, Integer>();
         CommonService.getAccessRecordAll().forEach(access->{
