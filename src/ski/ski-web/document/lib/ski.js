@@ -376,9 +376,9 @@ ski.ui = {
         var width_edge    = 80;
         var width_space   = width_total / 5;
         var width_message = width_total - width_space - width_edge;
-        var top_triangle  = 13;
         var size_cover    = 36;
-        var padding_message = 12;
+        var padding_message = 8;
+		var padding_content = 10;
         var size_font     = 16;
 
         var div = $('<div></div>');
@@ -387,11 +387,14 @@ ski.ui = {
         div.css('padding-bottom', padding_message + 'px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
-                         + "<div style='position: relative; float: right; right: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
-                         + "<div><div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div></div>"
+                         + "<div>"
+                             + "<div style='position: relative; float: right; right: 0px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid #cccccc; border-bottom: 5px solid transparent;'></div>"
+                             + "<div style='position: relative; float: right; right: -7px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
+						     + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div>"
+						 + "</div>"
 						 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
                      + "</td>"
-                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding-top: 6px; padding-bottom: 6px; word-wrap: break-word; text-align: left; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: white;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding-top: "+padding_content+"px; padding-bottom: "+padding_content+"px; padding-left: 1em; padding-right: 1em; word-wrap: break-word; text-align: left; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: white;'>"+message.message+"</div></td>"
                      + "<td width='"+width_space+"px'></td>"
                  + "</tr></table>");
         return div;
@@ -403,7 +406,8 @@ ski.ui = {
         var width_message = width_total - width_space - width_edge;
         var top_triangle  = 13;
         var size_cover    = 36;
-        var padding_message = 12;
+        var padding_message = 8;
+		var padding_content = 10;
         var size_font     = 16;
 
         var div = $('<div></div>');
@@ -412,10 +416,13 @@ ski.ui = {
         div.css('padding-bottom', padding_message + 'px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_space+"px'></td>"
-                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding-top: 6px; padding-bottom: 6px; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding-top: "+padding_content+"px; padding-bottom: "+padding_content+"px; padding-left: 1em; padding-right: 1em; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: #a0e75a'>"+message.message+"</div></td>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
-                         + "<div style='position: relative; float: left; left: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-left: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
-                         + "<div><div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div></div>"
+                         + "<div>"
+                             + "<div style='position: relative; float: left; left: 0px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-left: 6px solid #80b948; border-bottom: 5px solid transparent;'></div>"
+                             + "<div style='position: relative; float: left; left: -7px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-left: 6px solid #a0e75a; border-bottom: 5px solid transparent;'></div>"
+						     + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div>"
+						 + "</div>"
 						 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
                      + "</td>"
                  + "</tr></table>");
