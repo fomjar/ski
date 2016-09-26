@@ -22,8 +22,8 @@ begin
      where i_paid in (paid_from, paid_to);
 
     if paid_to = paid_from then
-        set i_code = 2;
-        set c_desc = 'illegal arguments, paid_to must be different from paid_from';
+        set i_code = 0;
+        set c_desc = 'can not merge the same paids';
     elseif di_count < 2 then
         set i_code = 2;
         set c_desc = 'illegal arguments, paid_to or paid_from does not exist';

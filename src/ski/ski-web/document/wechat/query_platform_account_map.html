@@ -38,11 +38,17 @@
                         switch (account.channel) {
                         case 0: // 淘宝
                             hasTaobao = true;
-                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
+                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>帐号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
                             break;
                         case 1: // 微信
                             cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>昵称</p></div><div class='weui_cell_ft'>" + account.name + "</div></div>";
                             cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>手机</p></div><div class='weui_cell_ft'>" + account.phone + "</div></div>";
+                            break;
+                        case 2: // 支付宝
+                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>帐号</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
+                            break;
+                        case 3: // PSN
+                            cells.innerHTML += "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>PSN ID</p></div><div class='weui_cell_ft'>" + account.user + "</div></div>";
                             break;
                         }
 
@@ -63,6 +69,7 @@
                 case 0:     return '淘宝';
                 case 1:     return '微信';
                 case 2:     return '支付宝';
+                case 3:     return 'Sony Plastation';
                 default:    return '未知';
                 }
             }
@@ -77,7 +84,7 @@
             <div class='bd'>
                 <div id='result'></div>
                 <div class="weui_btn_area">
-                    <a class="weui_btn weui_btn_primary" href="javascript: ski.goto.update_platform_account_map();">更新手机</a>
+                    <a class="weui_btn weui_btn_primary" href="javascript: ski.goto.update_platform_account_map();">更新</a>
                 </div>
             </div>
         </div>

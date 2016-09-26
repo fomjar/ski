@@ -61,6 +61,7 @@ public class CommonService {
     public static final int CHANNEL_TAOBAO = 0;
     public static final int CHANNEL_WECHAT = 1;
     public static final int CHANNEL_ALIPAY = 2;
+    public static final int CHANNEL_PSN    = 3;
     
     public static final int GENDER_FEMALE  = 0;
     public static final int GENDER_MALE    = 1;

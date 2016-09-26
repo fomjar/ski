@@ -7,6 +7,7 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
@@ -21,10 +22,17 @@ public class Filter4CommonPreprocess extends FjWebFilter {
 
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
-        if (request.path().endsWith(".html")) {
+        // 首页重定向
+        if (request.path().equals("/")) {
+            redirect(response, "/wechat/query_game.html");
+            return false;
+        }
+        
+        if (request.path().endsWith(".html") && !request.path().equals("/wechat/message.html")) {
             JSONObject args = request.argsToJson();
             int user = -1;
             
+            // 用户预处理
             if (request.cookie().containsKey("user")) user = Integer.parseInt(request.cookie().get("user"), 16);
             else if (args.has("user")) {
                 Object obj = args.get("user");
@@ -32,16 +40,25 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 else user = Integer.parseInt(obj.toString(), 16);
                 response.cookie().put("user", Integer.toHexString(user));
                 response.setcookie("user", Integer.toHexString(user));
-            } else {
-                if (!request.path().equals("/wechat/message.html")) {
-                    logger.info("anonymous access deny: " + request.url());
-                    redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+            }
+            
+            // 校验用户
+            if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
+                logger.info("anonymous access deny: " + request.url());
+                redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+                return false;
+            }
+            
+            // 校验是否需要补充信息
+            if (!request.path().startsWith("/wechat/query_game")) {
+                if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
+                    redirect(response, "/wechat/update_platform_account_map.html");
                     return false;
                 }
             }
+            
             recordaccess(user, conn, request.url());
         }
-        
         return true;
     }
     

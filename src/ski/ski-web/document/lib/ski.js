@@ -1,5 +1,175 @@
 var ski = {}
 
+// util
+ski.util = {
+    base64 : {
+        // 转码表  
+        table : [  
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',  
+                'I', 'J', 'K', 'L', 'M', 'N', 'O' ,'P',  
+                'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',  
+                'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',  
+                'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',  
+                'o', 'p', 'q', 'r', 's', 't', 'u', 'v',  
+                'w', 'x', 'y', 'z', '0', '1', '2', '3',  
+                '4', '5', '6', '7', '8', '9', '+', '/' 
+        ],  
+        UTF16ToUTF8 : function(str) {  
+            var res = [], len = str.length;  
+            for (var i = 0; i < len; i++) {  
+                var code = str.charCodeAt(i);  
+                if (code > 0x0000 && code <= 0x007F) {  
+                    // 单字节，这里并不考虑0x0000，因为它是空字节  
+                    // U+00000000 – U+0000007F  0xxxxxxx  
+                    res.push(str.charAt(i));  
+                } else if (code >= 0x0080 && code <= 0x07FF) {  
+                    // 双字节  
+                    // U+00000080 – U+000007FF  110xxxxx 10xxxxxx  
+                    // 110xxxxx  
+                    var byte1 = 0xC0 | ((code >> 6) & 0x1F);  
+                    // 10xxxxxx  
+                    var byte2 = 0x80 | (code & 0x3F);  
+                    res.push(  
+                        String.fromCharCode(byte1),   
+                        String.fromCharCode(byte2)  
+                    );  
+                } else if (code >= 0x0800 && code <= 0xFFFF) {  
+                    // 三字节  
+                    // U+00000800 – U+0000FFFF  1110xxxx 10xxxxxx 10xxxxxx  
+                    // 1110xxxx  
+                    var byte1 = 0xE0 | ((code >> 12) & 0x0F);  
+                    // 10xxxxxx  
+                    var byte2 = 0x80 | ((code >> 6) & 0x3F);  
+                    // 10xxxxxx  
+                    var byte3 = 0x80 | (code & 0x3F);  
+                    res.push(  
+                        String.fromCharCode(byte1),   
+                        String.fromCharCode(byte2),   
+                        String.fromCharCode(byte3)  
+                    );  
+                } else if (code >= 0x00010000 && code <= 0x001FFFFF) {  
+                    // 四字节  
+                    // U+00010000 – U+001FFFFF  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                } else if (code >= 0x00200000 && code <= 0x03FFFFFF) {  
+                    // 五字节  
+                    // U+00200000 – U+03FFFFFF  111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                } else /** if (code >= 0x04000000 && code <= 0x7FFFFFFF)*/ {  
+                    // 六字节  
+                    // U+04000000 – U+7FFFFFFF  1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                }  
+            }  
+     
+            return res.join('');  
+        },  
+        UTF8ToUTF16 : function(str) {  
+            var res = [], len = str.length;  
+            var i = 0;  
+            for (var i = 0; i < len; i++) {  
+                var code = str.charCodeAt(i);  
+                // 对第一个字节进行判断  
+                if (((code >> 7) & 0xFF) == 0x0) {  
+                    // 单字节  
+                    // 0xxxxxxx  
+                    res.push(str.charAt(i));  
+                } else if (((code >> 5) & 0xFF) == 0x6) {  
+                    // 双字节  
+                    // 110xxxxx 10xxxxxx  
+                    var code2 = str.charCodeAt(++i);  
+                    var byte1 = (code & 0x1F) << 6;  
+                    var byte2 = code2 & 0x3F;  
+                    var utf16 = byte1 | byte2;  
+                    res.push(String.fromCharCode(utf16));  
+                } else if (((code >> 4) & 0xFF) == 0xE) {  
+                    // 三字节  
+                    // 1110xxxx 10xxxxxx 10xxxxxx  
+                    var code2 = str.charCodeAt(++i);  
+                    var code3 = str.charCodeAt(++i);  
+                    var byte1 = (code << 4) | ((code2 >> 2) & 0x0F);  
+                    var byte2 = ((code2 & 0x03) << 6) | (code3 & 0x3F);  
+                    utf16 = ((byte1 & 0x00FF) << 8) | byte2  
+                    res.push(String.fromCharCode(utf16));  
+                } else if (((code >> 3) & 0xFF) == 0x1E) {  
+                    // 四字节  
+                    // 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                } else if (((code >> 2) & 0xFF) == 0x3E) {  
+                    // 五字节  
+                    // 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                } else /** if (((code >> 1) & 0xFF) == 0x7E)*/ {  
+                    // 六字节  
+                    // 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx  
+                }  
+            }  
+     
+            return res.join('');  
+        },  
+        encode : function(str) {  
+            if (!str) {  
+                return '';  
+            }  
+            var utf8    = this.UTF16ToUTF8(str); // 转成UTF8  
+            var i = 0; // 遍历索引  
+            var len = utf8.length;  
+            var res = [];  
+            while (i < len) {  
+                var c1 = utf8.charCodeAt(i++) & 0xFF;  
+                res.push(this.table[c1 >> 2]);  
+                // 需要补2个=  
+                if (i == len) {  
+                    res.push(this.table[(c1 & 0x3) << 4]);  
+                    res.push('==');  
+                    break;  
+                }  
+                var c2 = utf8.charCodeAt(i++);  
+                // 需要补1个=  
+                if (i == len) {  
+                    res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);  
+                    res.push(this.table[(c2 & 0x0F) << 2]);  
+                    res.push('=');  
+                    break;  
+                }  
+                var c3 = utf8.charCodeAt(i++);  
+                res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);  
+                res.push(this.table[((c2 & 0x0F) << 2) | ((c3 & 0xC0) >> 6)]);  
+                res.push(this.table[c3 & 0x3F]);  
+            }  
+     
+            return res.join('');  
+        },  
+        decode : function(str) {  
+            if (!str) {  
+                return '';  
+            }  
+     
+            var len = str.length;  
+            var i   = 0;  
+            var res = [];  
+     
+            while (i < len) {  
+                code1 = this.table.indexOf(str.charAt(i++));  
+                code2 = this.table.indexOf(str.charAt(i++));  
+                code3 = this.table.indexOf(str.charAt(i++));  
+                code4 = this.table.indexOf(str.charAt(i++));  
+     
+                c1 = (code1 << 2) | (code2 >> 4);  
+                c2 = ((code2 & 0xF) << 4) | (code3 >> 2);  
+                c3 = ((code3 & 0x3) << 6) | code4;  
+     
+                res.push(String.fromCharCode(c1));  
+     
+                if (code3 != 64) {  
+                    res.push(String.fromCharCode(c2));  
+                }  
+                if (code4 != 64) {  
+                    res.push(String.fromCharCode(c3));  
+                }  
+     
+            }  
+     
+            return this.UTF8ToUTF16(res.join(''));  
+        }  
+    }
+};
+
 // network base
 ski.url = {
     api : '/ski-web',
@@ -49,18 +219,14 @@ ski.user = function() {return ski.cookie('user');};
 // ui
 ski.ui = {
     set_title : function(title) {
-        //利用iframe的onload事件刷新页面
-        document.title = title;
-        var iframe = document.createElement('iframe');
-        iframe.style.visibility = 'hidden';
-        iframe.style.width = '1px';
-        iframe.style.height = '1px';
-        iframe.onload = function () {
-            setTimeout(function () {
-                document.body.removeChild(iframe);
-            }, 0);
-        };
-        document.body.appendChild(iframe);
+		var $body = $('body');
+		document.title = title;
+		// hack在微信等webview中无法修改document.title的情况
+		var $iframe = $('<iframe src="/favicon.ico"></iframe>').on('load', function() {
+			setTimeout(function() {
+				$iframe.off('load').remove();
+			}, 0)
+		}).appendTo($body);
     },
 
     show_toast : function(text) {
@@ -210,7 +376,7 @@ ski.ui = {
         var width_edge    = 80;
         var width_space   = width_total / 5;
         var width_message = width_total - width_space - width_edge;
-        var top_triangle  = 14;
+        var top_triangle  = 13;
         var size_cover    = 36;
         var padding_message = 12;
         var size_font     = 16;
@@ -222,11 +388,10 @@ ski.ui = {
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
                          + "<div style='position: relative; float: right; right: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
-                         + "<div style='position: relative; left: 0px; top: 0px;'>"
-                            + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
-                         + "</div>"
+                         + "<div><div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div></div>"
+						 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
                      + "</td>"
-                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding-top: 6px; padding-bottom: 6px; word-wrap: break-word; text-align: left; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: white;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding-top: 6px; padding-bottom: 6px; word-wrap: break-word; text-align: left; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: white;'>"+message.message+"</div></td>"
                      + "<td width='"+width_space+"px'></td>"
                  + "</tr></table>");
         return div;
@@ -236,7 +401,7 @@ ski.ui = {
         var width_space   = width_total / 5;
         var width_edge    = 80;
         var width_message = width_total - width_space - width_edge;
-        var top_triangle  = 14;
+        var top_triangle  = 13;
         var size_cover    = 36;
         var padding_message = 12;
         var size_font     = 16;
@@ -247,12 +412,11 @@ ski.ui = {
         div.css('padding-bottom', padding_message + 'px');
         div.append("<table style='border-collapse: collapse;'><tr>"
                      + "<td width='"+width_space+"px'></td>"
-                     + "<td width='"+width_message+"px'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding-top: 6px; padding-bottom: 6px; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px;'>"+message.message+"</div></td>"
+                     + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding-top: 6px; padding-bottom: 6px; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px;'>"+message.message+"</div></td>"
                      + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
                          + "<div style='position: relative; float: left; left: -1px; top: "+top_triangle+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-left: 6px solid rgb(0,190,1); border-bottom: 5px solid transparent;'></div>"
-                         + "<div style='position: relative; right: 0px; top: 0px;'>"
-                            + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto; text-align: center; color: white; background: gray; border: 1px solid black; font-size: 10px; line-height: 10px; word-wrap: break-word;'>"+message.member+"</div>"
-                         + "</div>"
+                         + "<div><div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div></div>"
+						 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
                      + "</td>"
                  + "</tr></table>");
         return div;

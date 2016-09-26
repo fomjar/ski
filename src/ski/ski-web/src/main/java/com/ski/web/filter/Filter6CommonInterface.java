@@ -1,10 +1,16 @@
 package com.ski.web.filter;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -13,6 +19,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -48,7 +56,7 @@ public class Filter6CommonInterface extends FjWebFilter {
     
     private static final Logger logger = Logger.getLogger(Filter6CommonInterface.class);
     
-    private static final String URL_KEY = "/ski-web";
+    public static final String URL_KEY = "/ski-web";
     
     private WechatBusiness wechat;
     
@@ -70,6 +78,9 @@ public class Filter6CommonInterface extends FjWebFilter {
             JSONObject args = request.argsToJson();
             if (args.has("inst")) {
                 switch (getIntFromArgs(args, "inst")) {
+                case CommonDefinition.ISIS.INST_ECOM_APPLY_MAKE_COVER:
+                    processApplyMakeCover(response, request);
+                    break;
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
                     processApplyPlatformAccountMoney(response, request, conn);
                     break;
@@ -118,6 +129,81 @@ public class Filter6CommonInterface extends FjWebFilter {
         }
         }
         return true;
+    }
+    
+    private Map<String, BufferedImage> cache_cover_string = new ConcurrentHashMap<String, BufferedImage>();
+    
+    private void processApplyMakeCover(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        if (args.has("string")) {
+            String string = args.getString("string");
+            string = Base64.getEncoder().encodeToString(string.getBytes());
+            if (2 < string.length()) string = string.substring(0, 2);
+            
+            BufferedImage img = null;
+            
+            if (cache_cover_string.containsKey(string)) {
+                img = cache_cover_string.get(string);
+            } else {
+                int width  = args.has("width") ? getIntFromArgs(args, "width") : 100;
+                int height = args.has("height") ? getIntFromArgs(args, "height") : 100;
+                int cell   = width / 10;
+                int padding = width / 20;
+                
+                BufferedImage img0 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g0 = img0.createGraphics();
+                Font font = new Font(null, Font.PLAIN, (width - padding * 2) / 2);
+                g0.setFont(font);
+                g0.setColor(Color.black);
+                g0.fillRect(0, 0, width, height);
+                g0.setColor(Color.white);
+                g0.drawString(string, 
+                        (width - g0.getFontMetrics(font).stringWidth(string)) / 2,
+                        g0.getFontMetrics(font).getAscent() + (height - g0.getFontMetrics(font).getAscent()) / 2);
+                g0.dispose();
+                
+                BufferedImage img1 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g1 = img1.createGraphics();
+                g1.setColor(Color.gray);
+                g1.fillRect(0, 0, width, height);
+                g1.setColor(Color.white);
+                for (int i = 0; i < width / cell; i++) {
+                    for (int j = 0; j < height / cell; j++) {
+                        int tr = 0;
+                        int tg = 0;
+                        int tb = 0;
+                        int count = 0;
+                        for (int x = 0; x < cell; x++) {
+                            for (int y = 0; y < cell; y++) {
+                                int rgb = img0.getRGB(i * cell + x, j * cell + y);
+                                tr += (rgb & 0xFF0000) >> 16;
+                                tg += (rgb & 0x00FF00) >> 8;
+                                tb += (rgb & 0x0000FF) >> 0;
+                                count++;
+                            }
+                        }
+                        tr /= count;
+                        tg /= count;
+                        tb /= count;
+                        if (tr + tg + tb >= 255 / 2) {
+                            g1.fillRect(i * cell, j * cell, cell, cell);
+                        }
+                    }
+                }
+                g1.dispose();
+                img = img1;
+                
+                cache_cover_string.put(string, img);
+            }
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {ImageIO.write(img, "jpg", baos);}
+            catch (IOException e) {e.printStackTrace();}
+            response.attr().put("Content-Type", "image/jpg");
+            response.content(baos.toByteArray());
+            try {baos.close();}
+            catch (IOException e) {e.printStackTrace();}
+        }
     }
         
     private void processApplyPlatformAccountMoney(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
@@ -803,93 +889,162 @@ public class Filter6CommonInterface extends FjWebFilter {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
         
-        if (args.has("phone")) {
-            if (!args.has("verify")) {
-                String phone    = args.getString("phone");
-                String time     = String.valueOf(System.currentTimeMillis());
-                String verify   = time.substring(time.length() - 4);
-                {
-                    JSONObject args_mma = new JSONObject();
-                    args_mma.put("user",    phone);
-                    args_mma.put("content", verify);
-                    FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE, args_mma);
-                    if (!CommonService.isResponseSuccess(rsp)) {
-                        logger.error("send verify code failed: " + rsp);
-                        JSONObject args_rsp = new JSONObject();
-                        args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-                        args_rsp.put("desc", "发送失败，请稍候重试");
-                        response.attr().put("Content-Type", "application/json");
-                        response.content(args_rsp);
-                        return;
-                    }
-                }
-                
-                cache_verify_code.put(user, verify);
-                
-                {
-                    JSONObject args_rsp = new JSONObject();
-                    args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-                    args_rsp.put("desc", null);
-                    response.attr().put("Content-Type", "application/json");
-                    response.content(args_rsp);
-                }
-            } else {
-                String  phone   = args.getString("phone");
-                String  verify  = args.getString("verify");
-                if (!cache_verify_code.containsKey(user)
-                        || !verify.equals(cache_verify_code.get(user))) {
+        if (args.has("phone") && !args.has("verify")) {
+            String phone    = args.getString("phone");
+            String time     = String.valueOf(System.currentTimeMillis());
+            String verify   = time.substring(time.length() - 4);
+            {
+                JSONObject args_mma = new JSONObject();
+                args_mma.put("user",    phone);
+                args_mma.put("content", verify);
+                FjDscpMessage rsp = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE, args_mma);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    logger.error("send verify code failed: " + rsp);
                     JSONObject args_rsp = new JSONObject();
                     args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-                    args_rsp.put("desc", "校验失败");
+                    args_rsp.put("desc", "发送失败，请稍候重试");
                     response.attr().put("Content-Type", "application/json");
                     response.content(args_rsp);
                     return;
                 }
-                cache_verify_code.remove(user);
-                
-                { // 更新手机号
-                    JSONObject args_cdb = new JSONObject();
-                    args_cdb.put("caid", user);
-                    args_cdb.put("phone", phone);
-                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
-                    if (!CommonService.isResponseSuccess(rsp)) {
-                        logger.error("update channel account failed: " + rsp);
-                        JSONObject args_rsp = new JSONObject();
-                        args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-                        args_rsp.put("desc", "更新手机失败，请稍候重试");
-                        response.attr().put("Content-Type", "application/json");
-                        response.content(args_rsp);
-                        return;
-                    }
-                }
-                
-                List<BeanChannelAccount> users_taobao = CommonService.getChannelAccountByPhoneNChannel(phone, CommonService.CHANNEL_TAOBAO);
-                if (1 == users_taobao.size()) { // 尝试关联
-                    BeanChannelAccount user_taobao = users_taobao.get(0);
-                    if (CommonService.getChannelAccountRelatedByCaidNChannel(user_taobao.i_caid, CommonService.CHANNEL_WECHAT).isEmpty()) { // 淘宝用户尚未被关联
-                        JSONObject args_cdb = new JSONObject();
-                        args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(user));
-                        args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
-                        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
-                        if (!CommonService.isResponseSuccess(rsp)) {
-                            logger.error("apply platform account merge failed: " + rsp);
-                            JSONObject args_rsp = new JSONObject();
-                            args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
-                            args_rsp.put("desc", "关联淘宝用户失败，请稍候重试");
-                            response.attr().put("Content-Type", "application/json");
-                            response.content(args_rsp);
-                            return;
-                        }
-                    }
-                }
-                
+            }
+            
+            cache_verify_code.put(user, verify);
+            
+            {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
                 args_rsp.put("desc", null);
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
             }
+            
+            return;
         }
+        
+        if (!(args.has("psn_user")
+                || (args.has("phone") && args.has("verify")))) {
+            logger.error("illegal arguments for update platform account map: " + args);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+            args_rsp.put("desc", "非法参数");
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+            return;
+        }
+        
+        // 验证手机
+        if (args.has("phone") && args.has("verify")) {
+            String  phone    = args.getString("phone");
+            String  verify   = args.getString("verify");
+            if (!cache_verify_code.containsKey(user)
+                    || !verify.equals(cache_verify_code.get(user))) {
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                args_rsp.put("desc", "校验失败");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            cache_verify_code.remove(user);
+            
+            { // 更新手机号
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("caid",  user);
+                args_cdb.put("phone", phone);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    logger.error("update channel account failed: " + rsp);
+                    JSONObject args_rsp = new JSONObject();
+                    args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                    args_rsp.put("desc", "更新手机失败，请稍候重试");
+                    response.attr().put("Content-Type", "application/json");
+                    response.content(args_rsp);
+                    return;
+                }
+            }
+            
+            List<BeanChannelAccount> users_taobao = CommonService.getChannelAccountByPhoneNChannel(phone, CommonService.CHANNEL_TAOBAO);
+            if (1 == users_taobao.size()) { // 尝试关联
+                BeanChannelAccount user_taobao = users_taobao.get(0);
+                if (CommonService.getChannelAccountRelatedByCaidNChannel(user_taobao.i_caid, CommonService.CHANNEL_WECHAT).isEmpty()) { // 淘宝用户尚未被关联
+                    JSONObject args_cdb = new JSONObject();
+                    args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(user));
+                    args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user_taobao.i_caid));
+                    FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
+                    if (!CommonService.isResponseSuccess(rsp)) {
+                        logger.error("apply platform account merge failed: " + rsp);
+                        JSONObject args_rsp = new JSONObject();
+                        args_rsp.put("code", CommonService.getResponseCode(rsp));
+                        args_rsp.put("desc", "关联淘宝用户失败，请稍候重试");
+                        response.attr().put("Content-Type", "application/json");
+                        response.content(args_rsp);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        // 验证PSN帐号
+        if (args.has("psn_user")) {
+            String psn_user = args.getString("psn_user");
+            List<BeanChannelAccount> users_psn = CommonService.getChannelAccountRelatedByCaidNChannel(user, CommonService.CHANNEL_PSN);
+            // 已有关联帐号
+            if (null != users_psn && !users_psn.isEmpty()) {
+                // 只更新第一个
+                BeanChannelAccount user_psn = users_psn.get(0);
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("caid", user_psn.i_caid);
+                args_cdb.put("user", psn_user);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    logger.error("update channel account failed: " + rsp);
+                    JSONObject args_rsp = new JSONObject();
+                    args_rsp.put("code", CommonService.getResponseCode(rsp));
+                    args_rsp.put("desc", "更新PSN帐号失败，请稍后重试");
+                    response.attr().put("Content-Type", "application/json");
+                    response.content(args_rsp);
+                    return;
+                }
+            } else {
+                // 新建PSN帐号
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("channel", CommonService.CHANNEL_PSN);
+                args_cdb.put("user", psn_user);
+                FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    logger.error("update channel account failed: " + rsp);
+                    JSONObject args_rsp = new JSONObject();
+                    args_rsp.put("code", CommonService.getResponseCode(rsp));
+                    args_rsp.put("desc", "更新PSN帐号失败，请稍后重试");
+                    response.attr().put("Content-Type", "application/json");
+                    response.content(args_rsp);
+                    return;
+                }
+                CommonService.updatePlatformAccount();
+                CommonService.updatePlatformAccountMap();
+                // 关联新PSN帐号
+                int caid_psn = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
+                args_cdb.put("paid_from",   CommonService.getPlatformAccountByCaid(caid_psn));
+                args_cdb.put("paid_to",     CommonService.getPlatformAccountByCaid(user));
+                rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args_cdb);
+                if (!CommonService.isResponseSuccess(rsp)) {
+                    logger.error("apply platform account merge failed: " + rsp);
+                    JSONObject args_rsp = new JSONObject();
+                    args_rsp.put("code", CommonService.getResponseCode(rsp));
+                    args_rsp.put("desc", "关联PSN用户失败，请稍候重试");
+                    response.attr().put("Content-Type", "application/json");
+                    response.content(args_rsp);
+                    return;
+                }
+            }
+        }
+        
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", null);
+        response.attr().put("Content-Type", "application/json");
+        response.content(args_rsp);
     }
     
     private static int getIntFromArgs(JSONObject args, String name) {
@@ -1090,6 +1245,8 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("crid",    bean.i_crid);
         json.put("name",    bean.c_name);
         json.put("create",  bean.t_create);
+        BeanGame game = CommonService.getGameByGid(Integer.parseInt(CommonService.getTagByTypeInstance(CommonService.TAG_CHATROOM, bean.i_crid).get(0).c_tag, 16));
+        json.put("game",    tojson(game));
         return json;
     }
     
@@ -1109,6 +1266,11 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("type",    bean.i_type);
         json.put("message", bean.c_message);
         json.put("time",    bean.t_time);
+        List<BeanChannelAccount> users = CommonService.getChannelAccountByPaidNChannel(bean.i_member, CommonService.CHANNEL_WECHAT);
+        if (null != users && !users.isEmpty()) {
+            BeanChannelAccount user = users.get(0);
+            json.put("member_info", tojson(user));
+        }
         return json;
     }
     

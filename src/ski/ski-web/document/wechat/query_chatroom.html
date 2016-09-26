@@ -13,14 +13,13 @@
         <script type='text/javascript'>
 
             var gid = ski.urlparams().gid;
+			var game = null;
             var chatroom = null;
             var members  = null;
             var messages = [] 
             var page_open_time = new Date().format('yyyy-MM-dd HH:mm:ss');
 
             $(document).ready(function() {
-                init();
-
                 ski.ui.show_toast('获取个人信息');
                 ski.common.query_platform_account(function(args) {
                     ski.ui.hide_toast();
@@ -88,6 +87,8 @@
                                         receive_message_condition,
                                         receive_message_callback
                                     );
+									
+									init();
                                 });
                             });
                         });
@@ -99,12 +100,16 @@
                 $('#message_text').bind('focus', function(){
                     $('#operate_space').css('height', '0px');
                     $('#container_operate').css('position', 'static');
+                    $(document.body)[0].scrollTop = (-1>>>2);
                 });
                 $('#message_text').bind('blur', function(){
                     $('#operate_space').css('height', '44px');
                     $('#container_operate').css('position', 'fixed');
                     $('#container_operate').css('bottom', '0px');
+                    $(document.body)[0].scrollTop = (-1>>>2);
                 });
+				
+				ski.ui.set_title('☕️' + chatroom.game.name_zh_cn + '(' + members.length + ')');
             }
 
             function append_messages(msgs) {
@@ -115,6 +120,8 @@
             }
 
             function append_message(message) {
+                message.message = ski.util.base64.decode(message.message);
+
                 if (isself(message.member)) $('#container_message').append(ski.ui.message_right(message));
                 else $('#container_message').append(ski.ui.message_left(message));
 
@@ -133,7 +140,7 @@
                 var message = {
                     crid    : chatroom.crid,
                     type    : 0,
-                    message : text
+                    message : ski.util.base64.encode(text)
                 };
                 ski.chatroom.message.send(message, null);
                 $('#message_text').val('');

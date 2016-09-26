@@ -93,6 +93,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_APPLY_RENT_END                = 0x00002107;
         /** 认证 */
         public static final int INST_ECOM_APPLY_AUTHORIZE               = 0x00002108;
+        /** 制作封面 */
+        public static final int INST_ECOM_APPLY_MAKE_COVER              = 0x00002109;
         // UPDATE
         /** 更新游戏 */
         public static final int INST_ECOM_UPDATE_GAME                   = 0x00002401;
