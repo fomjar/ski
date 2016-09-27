@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>补充信息</title>
+        <link rel='stylesheet' href='/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/lib/ski.js'></script>
+        <script type='text/javascript'>
+            var users = null;
+        
+            $(document).ready(function() {
+                ski.ui.show_toast('正在加载');
+                ski.common.query_platform_account_map(function(args) {
+                    ski.ui.hide_toast();
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : '加载失败',
+                            body : args.desc
+                        });
+                        return;
+                    }
+                    
+                    users = args.desc;
+                    
+                    for (var i in users) {
+                        var user = users[i];
+                        switch (user.channel) {
+                        case 1: // 微信
+                            $('#phone').val(user.phone);
+                            break;
+                        case 3: // PSN
+                            $('#psn_user').val(user.user);
+                            break;
+                        }
+                    }
+                });
+            });
+        
+            function getVerify() {
+                
+                var phone = $('#phone').val();
+                if (!verifyPhone(phone)) return;
+
+                if ($('#btn_verify').hasClass('weui_btn_disabled')) return;
+
+                var time = 60;
+                var text_origin = $('#btn_verify').text();
+
+                $('#btn_verify').addClass('weui_btn_disabled');
+                $('#btn_verify').text('重试(' + time + ')');
+                var timer = setInterval(function() {
+                    time--;
+                    $('#btn_verify').text('重试(' + time + ')');
+                    if(time <= 0) {
+                        clearInterval(timer);
+                        $('#btn_verify').removeClass('weui_btn_disabled');
+                        $('#btn_verify').text(text_origin);
+                    }
+                },1000); 
+
+                ski.common.update_platform_account_map({phone : phone}, function(args) {
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : '获取失败',
+                            body : args.desc
+                        });
+                    }
+                });
+            }
+
+            function apply() {
+                var psn_user = $('#psn_user').val(); // can be null
+                var phone    = $('#phone').val();
+                var verify   = $('#verify').val();
+
+                if (!verifyPhone(phone)) return;
+
+                if (0 == verify.length) {
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '验证码不能为空'
+                    });
+                    return;
+                }
+
+                ski.ui.show_toast('正在处理');
+                ski.common.update_platform_account_map({
+                    psn_user : psn_user,
+                    phone    : phone,
+                    verify   : verify
+                }, function(args) {
+                    ski.ui.hide_toast();
+                    if (0 == args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : "验证通过",
+                            yes  : function() {
+                                history.go(-1);
+                            }
+                        });
+                    } else {
+                        ski.ui.show_dialog_alert({
+                            head : "验证不通过",
+                            body : args.desc
+                        });
+                    }
+                });
+            }
+
+            function verifyPhone(phone) {
+                if (0 == phone.length) {
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '手机不能为空'
+                    });
+                    return false;
+                }
+                if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))) {
+                    ski.ui.show_dialog_alert({
+                        head : '错误',
+                        body : '手机号码不合法'
+                    });
+                    return false;
+                }
+                return true;
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='hd'>
+                <h1 class='page_title'>补充信息</h1>
+            </div>
+            <div class='bd'>
+                <div class='weui_cells_title'>认证手机以便于跟您的淘宝帐号关联</div>
+                <div class='weui_cells weui_cells_form'>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'><label class='weui_label'></label>PSN ID</div>
+                        <div class='weui_cell_bd weui_cell_primary'><input class='weui_input' id='psn_user'/></div>
+                    </div>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'><label class='weui_label'></label>手机</div>
+                        <div class='weui_cell_bd weui_cell_primary'><input class='weui_input' id='phone'/></div>
+                    </div>
+                    <div class='weui_cell'>
+                        <div class='weui_cell_hd'><label class='weui_label'></label>验证码</div>
+                        <div class='weui_cell_bd weui_cell_primary'><input class='weui_input' id='verify'/></div>
+                        <a class='weui_btn weui_btn_mini weui_btn_primary' href="javascript:getVerify()" id='btn_verify'>获取</a>
+                    </div>
+                </div>
+                <div class='weui_btn_area'>
+                    <a class='weui_btn weui_btn_primary' href="javascript:apply()">提交</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

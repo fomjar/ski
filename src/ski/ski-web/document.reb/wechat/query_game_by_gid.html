@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>游戏详情</title>
+        <link rel='stylesheet' href='/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/weui/dist/example/example.css'/>
+        <link rel='stylesheet' href='/lib/jquery.skippr.css'/>
+        <script type='text/javascript' src='/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.skippr.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/lib/ski.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <style type="text/css">
+        .blur {
+            -webkit-filter: blur(45px); /* Chrome, Opera */
+               -moz-filter: blur(45px);
+                -ms-filter: blur(45px);
+                    filter: blur(45px);
+        }
+        .field {
+            position        : absolute;
+            width           : 100%;
+            margin-left     : -25px;
+            padding-right   : 10px; /* 防止阴影被裁 */
+            color           : #ffffff;
+            text-align      : right;
+            text-shadow     : black 1px 1px 2px;
+            white-space     : nowrap;
+            overflow        : hidden;
+            text-overflow   : ellipsis; 
+            -o-text-overflow: ellipsis; 
+        }
+        .category {
+            color           : rgb(0, 203, 1);
+            border-bottom   : 1px solid;
+            margin-bottom   : 0px;
+            box-shadow      : 0px 1px 0px lightgray;
+        }
+        .remark {
+            color           : gray;
+            font-size       : 80%;
+        }
+        .subcategory {
+            color           : red;
+            font-size       : 90%;
+            margin-top      : 16px;
+        }
+        </style>
+        <script type='text/javascript'>
+            var gid = ski.urlparams().gid;
+            var game = null;
+
+            $(document).ready(function() {
+                ski.ui.show_toast('正在加载');
+                ski.common.query_game({gid : gid}, function(args) {
+                    ski.ui.hide_toast();
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : '加载失败',
+                            body : args.desc
+                        });
+                        return;
+                    }
+
+                    game = args.desc;
+
+                    // 标题
+                    ski.ui.set_title(game.name_zh_cn);
+
+                    // 背景
+                    $('#blur_cover').css('background-image', 'url(' + game.url_cover + ')');
+                    $('#blur_cover').css('background-size', 'cover');
+                    $('#blur_cover').addClass('blur');
+
+                    // 封面
+                    $('#url_cover').append(ski.ui.cover(110, 110, game.url_cover))
+                    // 字段
+                    $('#name_zh_cn').text(game.name_zh_cn);
+                    $('#name_en').text(game.name_en);
+                    $('#category').text(game.category);
+                    $('#language').text(game.language);
+                    $('#sale').text(game.sale);
+                    
+                    // 简介
+                    var intr = "<div style='padding-bottom: 20px'><p>" + game.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
+                    if (intr.length > 200) $('#introduction').html(ski.ui.text_expandable(intr, 133));
+                    else $('#introduction').html(intr);
+
+                    // 视频
+                    if (0 < game.vedio.length) {
+                        $('#poster_container').css('height', '200px');
+                        $('#url_poster').append("<video width='100%' height='100%' controls autobuffer src='" + game.vedio + "'/>");
+                    }
+                    // 海报
+                    if (0 < game.url_poster.length) {
+                        for (var i in game.url_poster) {
+                            var poster = game.url_poster[i];
+                            if (0 == poster.length) continue;
+
+                            $('#poster_container').css('height', '200px');
+                            $('#url_poster').append("<div style='background-image: url(" + poster + ")'/>");
+                        }
+                    }
+
+                    // 出售
+                    if (0 < game.ccs.total) {
+                        $('#cc_total').text(game.ccs.total);
+                        var html = '';
+                        html += "<table><tr>";
+                        for (var i in game.ccs.sold) {
+                            var cc = game.ccs.sold[i];
+                            html += '<td>' + createCCCover(cc, '🔥销量最高').html() + '</td>';
+                        }
+                        for (var i in game.ccs.conv) {
+                            var cc = game.ccs.conv[i];
+                            html += '<td>' + createCCCover(cc, '💰价格最低').html() + '</td>';
+                        }
+                        for (var i in game.ccs.trus) {
+                            var cc = game.ccs.trus[i];
+                            html += '<td>' + createCCCover(cc, '🏆信用最高').html() + '</td>';
+                        }
+                        for (var i in game.ccs.near) {
+                            var cc = game.ccs.near[i];
+                            html += '<td>' + createCCCover(cc, '🚀离您最近').html() + '</td>';
+                        }
+                        html += '</tr></table>';
+                        $('#ccs_cover').html(html);
+                    } else {
+                        $('#ccs').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！尚未发现适合您的商品 : (</div>")
+                    }
+
+                    // 租赁
+                    if ((!game.rent_avail_a || 0 == game.rent_price_a)
+                            && (!game.rent_avail_b || 0 == game.rent_price_b)) {
+                        $('#rent').removeClass('weui_cells');
+                        $('#rent').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！此游戏尚无空闲帐号可体验 : (</div>")
+                    } else {
+                        if (game.rent_avail_a && 0 != game.rent_price_a) {
+                            $('#rent').html("<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>认证</div>"
+                                    + "<div class='weui_cell_ft'>" + game.rent_price_a + " 元/天</div>"
+                                    + "</div>");
+                        }
+                        if (game.rent_avail_b && 0 != game.rent_price_b) {
+                            $('#rent').append("<div class='weui_cell'>"
+                                    + "<div class='weui_cell_bd weui_cell_primary'>不认证</div>"
+                                    + "<div class='weui_cell_ft'>" + game.rent_price_b + " 元/天</div>"
+                                    + "</div>");
+                        }
+                        $('#rent').append("<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript: ski.goto.rent_begin("+game.gid+");'>我要体验</a></div></div>");
+                    }
+                    
+                    // 聊天室
+                    $('#chatroom').attr('href', "javascript: ski.goto.chatroom("+game.gid+");");
+
+                    // 下滑动画
+                    setTimeout(function() {
+                        $('#info').animate({top : '150px'});
+                    }, 400);
+
+                    // 海报布局
+                    $('#url_poster').skippr({
+                        transition: 'fade',
+                        speed: 200,
+                        easing: 'easeOutQuart',
+                        navType: 'bubble',
+                        childrenElementType: 'div',
+                        arrows: true,
+                        autoPlay: false,
+                        autoPlayDuration: 5000,
+                        keyboardOnAlways: true,
+                        hidePrevious: false
+                    });
+                });
+            });
+
+            function createCCCover(cc, desc) {
+                var cover=$(window).width() / 2 - 40;
+                var div = $('<div></div>');
+                div.css('margin',   '4px');
+                div.css('border',   '1px solid lightgray');
+                div.html("<a href=\"javascript:"
+                       + "$('#item_name').text('"+cc.item_name+"');"
+                       + "$('#item_price').text('¥ "+cc.item_price+"');"
+                       + "$('#express_price').text('¥"+cc.express_price+"');"
+                       + "$('#item_sold').text('"+cc.item_sold+"');"
+                       + "$('#shop_rate').text('"+getShopRate(cc.shop_rate)+"');"
+                       + "$('#shop_name').text('"+cc.shop_name+"');"
+                       + "$('#shop_owner').text('"+cc.shop_owner+"');"
+                       + "$('#shop_addr').text('"+cc.shop_addr+"');"
+                       + "$('#item_url').attr('href', '"+cc.item_url.replace(/https/, 'taobao').replace(/http/, 'taobao')+"');"
+                       + "$('#cc_info').show();"
+                       + "\"><table width='"+cover+"px'>"
+                           + "<tr><td><img width='"+cover+"px', height='"+cover+"px' src='"+cc.item_cover+"'/></td></tr>"
+                           + "<tr><td><div style='text-align: center; color: black;'>"+desc+"</div></td></tr>"
+                           + "<tr><td><div style='text-align: center; color: red;  '>到手价：¥ "+(Number(cc.item_price.split(' - ')[0])+Number(cc.express_price))+"</div></td></tr>"
+                       + "</table></a>");
+                var result = $('<div></div>');
+                result.append(div);
+                return result;
+            }
+
+            function getShopRate(rate) {
+                var r = rate.split(' ');
+                var s;
+                var p = '';
+                switch (r[0]) {
+                case 'tb-rank-cap':
+                    s = '👑';
+                    break;
+                case 'tb-rank-blue':
+                    s = '💎';
+                    break;
+                case 'tb-rank-red':
+                    s = '❤️';
+                    break;
+                }
+                for (var i = 0; i < r[1]; i++) p += s;
+                return p;
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='bd'>
+                <div style='position: fixed; top: 0px; z-index: 1; width: 100%; height: 300px; font-size: 16px'>
+                    <div id='blur_cover'    style='position: absolute; margin-top: -20%; margin-left: -20%; width: 140%; height: 100%'></div>
+                    <div id='url_cover'     style='position: absolute; margin-top: 20px; margin-left: 20px'></div>
+                    <div id='name_zh_cn'    class='field' style='margin-top: 20px; font-weight: 500'></div>
+                    <div id='name_en'       class='field' style='margin-top: 40px; font-weight: 200'></div>
+                    <div id='category'      class='field' style='margin-top: 78px; font-weight: 200; font-size: 80%'></div>
+                    <div id='language'      class='field' style='margin-top: 96px; font-weight: 200; font-size: 80%'></div>
+                    <div id='sale'          class='field' style='margin-top: 114px; font-weight: 200; font-size: 80%'></div>
+                </div>
+                <div id='info' style='position: relative; z-index: 500; background: white; border-top: 1px solid lightgray'>
+                    <article class='weui_article'>
+                        <!-- 视频海报区 -->
+                        <section>
+                            <div id='poster_container' style='width: 100%; background: black'>
+                                <div id='url_poster'></div>
+                            </div>
+                        </section>
+                        <!-- 简介区 -->
+                        <section id='introduction' style='text-indent:2em;'></section>
+                        <!-- 售卖区 -->
+                        <section>
+                            <h1 class='category' style='margin-bottom: 0px'>适合您的光盘出售</h1>
+                            <div id='ccs'>
+                                <div class='remark'>我们在共 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
+                                <div style='border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                                    <div id='ccs_cover' style='overflow: auto'></div>
+                                    <div id='cc_info' style='display: none; padding: 16px; padding-bottom: 8px'>
+                                        <div class='weui_cells' style='margin-top: 0px'>
+                                            <div class='weui_cell'>
+                                                <div id='item_name' class='weui_cell weui_cell_primary'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>售价</div>
+                                                <div id='item_price' class='weui_cell_ft' style='color: red;'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>快递</div>
+                                                <div id='express_price' class='weui_cell_ft' style='color: red;'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>销量</div>
+                                                <div id='item_sold' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>等级</div>
+                                                <div id='shop_rate' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>店铺</div>
+                                                <div id='shop_name' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>掌柜</div>
+                                                <div id='shop_owner' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>地址</div>
+                                                <div id='shop_addr' class='weui_cell_ft'></div>
+                                            </div>
+                                            <div class='weui_cell'>
+                                                <div class='weui_cell_bd weui_cell_primary'>
+                                                    <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接<br/>到浏览器打开或在APP中直接搜索</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <!-- 体验区 -->
+                        <section style='padding: 16px; padding-bottom: 8px; border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                            <h1 class='category' style='margin-bottom: 0px'>即刻体验这款游戏</h1>
+                            <div id='rent' class="weui_cells" style='margin-top: 0px'></div>
+                        </section>
+                        <section>
+                            <a id='chatroom'><div style='width: 100%; height: 3px'></div></a>
+                        </section>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'/>
+        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
+        <title>归还</title>
+        <link rel='stylesheet' href='/weui/dist/style/weui.min.css'/>
+        <link rel='stylesheet' href='/weui/dist/example/example.css'/>
+        <script type='text/javascript' src='/lib/jquery-3.0.0.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.json.min.js'></script>
+        <script type='text/javascript' src='/lib/jquery.cookie.js'></script>
+        <script type='text/javascript' src='/lib/ski.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+        <script type='text/javascript'>
+
+            var oid = ski.urlparams().oid;
+            var csn = ski.urlparams().csn;
+            var order = null;
+
+            $(document).ready(function() {
+                ski.ui.show_toast('正在加载');
+                ski.common.query_order(oid, csn, function(args) {
+                    ski.ui.hide_toast();
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : "加载失败",
+                            body : args.desc
+                        });
+                        return;
+                    }
+
+                    order = args.desc;
+                    $('#game').text(order.game.name_zh_cn);
+                    $('#account').text(order.account);
+                    $('#type').text(order.type + '(' + order.price + '元/天)');
+                    $('#begin').text(order.begin);
+                    $('#expense').text(order.expense + '元');
+
+                    if (0 < order.end.length) {
+                        $('#rent_end').hide();
+                    }
+                });
+            });
+
+            function apply() {
+                ski.ui.show_toast('正在操作');
+                ski.common.apply_rent_end(oid, csn, function(args) {
+                    ski.ui.hide_toast();
+                    if (0 != args.code) {
+                        ski.ui.show_dialog_alert({
+                            head : '操作失败',
+                            body : args.desc
+                        });
+                        return;
+                    }
+                    ski.goto.message({
+                        msg_type    : 'success',
+                        msg_title   : '归还成功',
+                        msg_url     : '/wechat/query_order.html'
+                    });
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <div class='cell'>
+            <div class='hd'>
+                <h1 class='page_title'>归还</h1>
+            </div>
+            <div class='bd'>
+                <div class="weui_cells_title">即将归还此游戏</div>
+                <div class="weui_cells">
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>游戏名</p></div>
+                        <div class="weui_cell_ft" id='game'></div>
+                    </div>
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>账号</p></div>
+                        <div class="weui_cell_ft" id='account'></div>
+                    </div>
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>体验类型</p></div>
+                        <div class="weui_cell_ft" id='type'></div>
+                    </div>
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>开始时间</p></div>
+                        <div class="weui_cell_ft" id='begin'></div>
+                    </div>
+                    <div class="weui_cell">
+                        <div class="weui_cell_bd weui_cell_primary"><p>消费总计</p></div>
+                        <div class="weui_cell_ft" id='expense'></div>
+                    </div>
+                </div>
+                <div class='weui_btn_area' id='rent_end'>
+                    <a class='weui_btn weui_btn_primary' href="javascript: ski.ui.show_dialog_confirm({head : '提示', body : '<strong>归还游戏耗时约30秒，请稍作歇息，我们马上回来哦！</strong><br/>确定要归还吗？', yes : apply});">我要归还</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

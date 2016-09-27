@@ -594,14 +594,18 @@ public class Filter6CommonInterface extends FjWebFilter {
     
     private void processQueryGame(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
-        int user = Integer.parseInt(request.cookie().get("user"), 16);
         
         if (args.has("gid")) {
             int gid = getIntFromArgs(args, "gid");
+            JSONObject desc = tojson(CommonService.getGameByGid(gid));
+            if (request.cookie().containsKey("user")) {
+                int user = Integer.parseInt(request.cookie().get("user"), 16);
+                desc.put("ccs", tojson_ccs(user, gid, Integer.parseInt(FjServerToolkit.getServerConfig("web.cc.max"))));
+            } else {
+                desc.put("ccs", new JSONArray());
+            }
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-            JSONObject desc = tojson(CommonService.getGameByGid(gid));
-            desc.put("ccs", tojson_ccs(user, gid, Integer.parseInt(FjServerToolkit.getServerConfig("web.cc.max"))));
             args_rsp.put("desc", desc);
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);

@@ -28,6 +28,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             return false;
         }
         
+        // 请求页面
         if (request.path().endsWith(".html")) {
             JSONObject args = request.argsToJson();
             int user = -1;
@@ -43,26 +44,45 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             }
             
             // 校验用户
-            if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
-                if (!request.path().equals("/wechat/message.html")) {
-                    logger.info("anonymous access deny: " + request.url());
-                    redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-                    return false;
+            if (!request.path().startsWith("/wechat/query_game")) {
+                if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
+                    if (!request.path().equals("/wechat/message.html")) {
+                        logger.info("anonymous access deny: " + request.url());
+                        redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+                        return false;
+                    }
                 }
             }
             
             // 校验是否需要补充信息
             if (!request.path().startsWith("/wechat/query_game")) {
-                if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
-                    if (!request.path().equals("/wechat/update_platform_account_map.html")) {
-                        redirect(response, "/wechat/update_platform_account_map.html");
-                        return false;
+                if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
+                    if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
+                        if (!request.path().equals("/wechat/update_platform_account_map.html")) {
+                            redirect(response, "/wechat/update_platform_account_map.html");
+                            return false;
+                        }
                     }
                 }
             }
             
             recordaccess(user, conn, request.url());
         }
+        
+        // 请求接口
+        if (request.path().equals(Filter6CommonInterface.URL_KEY)) {
+            // 校验用户
+            if (!request.cookie().containsKey("user")) {
+                logger.error("anonymous access deny: " + request.argsToJson());
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
+                args_rsp.put("desc", "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return false;
+            }
+        }
+
         return true;
     }
     
