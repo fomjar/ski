@@ -28,7 +28,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             return false;
         }
         
-        if (request.path().endsWith(".html") && !request.path().equals("/wechat/message.html")) {
+        if (request.path().endsWith(".html")) {
             JSONObject args = request.argsToJson();
             int user = -1;
             
@@ -44,16 +44,20 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             
             // 校验用户
             if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
-                logger.info("anonymous access deny: " + request.url());
-                redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
-                return false;
+                if (!request.path().equals("/wechat/message.html")) {
+                    logger.info("anonymous access deny: " + request.url());
+                    redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+                    return false;
+                }
             }
             
             // 校验是否需要补充信息
             if (!request.path().startsWith("/wechat/query_game")) {
                 if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
-                    redirect(response, "/wechat/update_platform_account_map.html");
-                    return false;
+                    if (!request.path().equals("/wechat/update_platform_account_map.html")) {
+                        redirect(response, "/wechat/update_platform_account_map.html");
+                        return false;
+                    }
                 }
             }
             
