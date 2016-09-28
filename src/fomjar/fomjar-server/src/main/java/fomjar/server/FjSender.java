@@ -13,6 +13,7 @@ import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -133,12 +134,30 @@ public class FjSender extends FjLoopTask {
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
         sendHttpResponse(rsp, conn, TIMEOUT_O);
     }
-        
+    
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
         try {
+            byte[] content = rsp.content();
+            
+            if (rsp.attr().containsKey("Content-Encoding")) {
+                switch (rsp.attr().get("Content-Encoding")) {
+                case "gzip":
+                    ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
+                    GZIPOutputStream gzos = new GZIPOutputStream(content_gzip);
+                    gzos.write(content);
+                    gzos.finish();
+                    gzos.close();
+                    
+                    content = content_gzip.toByteArray();
+                    break;
+                }
+                rsp.attr().put("Content-Length", String.valueOf(content.length));
+            }
+            
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(rsp.toString().getBytes("utf-8"));
-            baos.write(rsp.content());
+            baos.write(content);
+            baos.flush();
             
             ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
             long begin = System.currentTimeMillis();

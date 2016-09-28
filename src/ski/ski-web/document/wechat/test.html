@@ -116,21 +116,32 @@
 			
 			function toggle_category() {
 				if (toggle_on) {
-					$('#categories').animate({top : '-'+$('#categories').height()+'px'});
+                    $('.weui_mask_transparent').hide(); 
+					$('#categories').animate({opacity : '0', top : '-'+$('#categories').height()+'px'});
 					toggle_on = false;
 				} else {
-					$('#categories').animate({top : $('#search_bar').outerHeight(true)+'px'});
+                    $('.weui_mask_transparent').show(); 
+					$('#categories').css({opacity : 0, top : '-'+$('#categories').height()+'px'});
+					$('#categories').animate({opacity : 1, top : ($('#search_bar').outerHeight(true)-1)+'px'});
 					toggle_on = true;
 				}
 			}
 			
         </script>
         <style type="text/css">
-            div table tr td {
-                border: 1px solid darkgray;
+            .td_cat_h {
+                background  : #eeeeee;
+                border      : 1px solid darkgray;
+            }
+            .td_cat_l {
+                background  : #dddddd;
+                border      : 1px solid darkgray;
             }
             div table tr td a div {
-                padding		: 8px;
+                padding-top     : 8px;
+                padding-bottom  : 8px;
+                padding-left    : 24px;
+                padding-right   : 24px;
                 text-align	: center;
             }
         </style>
@@ -139,7 +150,7 @@
         <div class='panel'>
             <div class='bd'>
                 <div class="weui_search_bar" style='position: fixed; z-index: 10; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
-                	<a href='javascript: void(0);'><div id='toggle_switch' style='position: relative; float: left; width: 80px; text-align: center; font-weight: 200; ' onclick="toggle_category();">所有分类</div></a>
+                	<a href='javascript: void(0);'><div id='toggle_switch' style='position: relative; float: left; width: 40px; font-size: 80%; font-weight: 200; ' onclick="toggle_category();">分类</div></a>
                     <div class="weui_search_outer" style='background: lightgray'>
                         <div class="weui_search_inner">
                             <i class="weui_icon_search"></i>
@@ -153,13 +164,15 @@
                     </div>
                    	<a class="weui_search_cancel" id="search_cancel" href="javascript: oncancel();">取消</a>
                 </div>
-                <div id='categories' style='z-index: 9; position: fixed; left: 0px; top: -200px; width: 100%; background: lightgray; border: gray;'>
+                <div class='weui_mask_transparent' style='z-index: 5; display: none;' onclick="toggle_category()"></div>
+                <div id='categories' style='z-index: 9; position: fixed; left: 0px; opacity: 0; top: -900px; border: gray;'>
                 	<table width='100%' style='border-collapse: collapse; '>
-                    	<tr>
-                        	<td><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td>
-                        	<td><a href='/wechat/query_game_by_category.html?category=冒险'><div>冒险</div></a></td>
-                        	<td><a href='/wechat/query_game_by_category.html?category=恐怖'><div>恐怖</div></a></td>
-                        </tr>
+                    	<tr><td class='td_cat_h'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
+                    	<tr><td class='td_cat_l'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
+                    	<tr><td class='td_cat_h'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
+                    	<tr><td class='td_cat_l'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
+                    	<tr><td class='td_cat_h'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
+                    	<tr><td class='td_cat_l'><a href='/wechat/query_game_by_category.html?category=动作'><div>动作</div></a></td></tr>
                     </table>
                 </div>
                 <div class="weui_panel weui_panel_access" style='position: relative; top: 34px' id='result'></div>

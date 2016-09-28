@@ -103,8 +103,8 @@ public abstract class FjHttpMessage implements FjMessage {
 
     @Override
     public String toString() {
-        attr().put("Content-Type",         contentType());
-        attr().put("Content-Length",     String.valueOf(contentLength()));
+        attr().put("Content-Type",      contentType());
+        attr().put("Content-Length",    String.valueOf(contentLength()));
         
         StringBuilder sb = new StringBuilder();
         sb.append(head() + "\r\n");
