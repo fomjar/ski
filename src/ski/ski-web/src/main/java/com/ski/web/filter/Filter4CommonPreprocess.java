@@ -24,7 +24,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         // 首页重定向
         if (request.path().equals("/")) {
-            redirect(response, "/wechat/query_game.html");
+            redirect(response, "/wechat/index.html");
             return false;
         }
         
@@ -48,7 +48,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
                     if (!request.path().equals("/wechat/message.html")) {
                         logger.info("anonymous access deny: " + request.url());
-                        redirect(response, "/wechat/message.html?msg_type=warn&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
+                        redirect(response, "/wechat/message.html?msg_type=info&msg_title=谢绝游客&msg_content=请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
                         return false;
                     }
                 }
@@ -56,7 +56,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             
             // 校验是否需要补充信息
             if (!request.path().startsWith("/wechat/query_game")) {
-                if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
+                if (-1 != user && null != CommonService.getChannelAccountByCaid(user)) {
                     if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
                         if (!request.path().equals("/wechat/update_platform_account_map.html")) {
                             redirect(response, "/wechat/update_platform_account_map.html");

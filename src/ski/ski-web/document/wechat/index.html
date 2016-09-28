@@ -99,12 +99,12 @@
 			function toggle_category() {
 				if (toggle_on) {
                     $('.weui_mask_transparent').hide(); 
-					$('#categories').animate({opacity : '0', top : '-'+$('#categories').height()+'px'});
+					$('#categories').animate({opacity : '0', top : '-'+$('#categories').height()+'px'}, 'fast');
 					toggle_on = false;
 				} else {
                     $('.weui_mask_transparent').show(); 
 					$('#categories').css({opacity : 0, top : '-'+$('#categories').height()+'px'});
-					$('#categories').animate({opacity : 1, top : ($('#search_bar').outerHeight(true)-1)+'px'});
+					$('#categories').animate({opacity : 1, top : ($('#search_bar').outerHeight(true)-1)+'px'}, 'fast');
 					toggle_on = true;
 				}
 			}
