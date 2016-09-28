@@ -1,10 +1,16 @@
 package com.ski.mma;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
 import com.ski.common.CommonDefinition;
+import com.ski.common.CommonService;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -36,96 +42,126 @@ public class MmaTask implements FjServerTask {
             return;
         }
         
-        FjDscpMessage dmsg = (FjDscpMessage) msg;
-        int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
-        String  desc = null;
-        
-        if (!dmsg.argsToJsonObject().containsKey("user")
-                || !dmsg.argsToJsonObject().containsKey("content")) {
-            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, illegal arguments: user, content";
-            logger.error(desc);
-            response(server.name(), dmsg, code, desc);
-            return;
-        }
-        
-        Object      object  = dmsg.argsToJsonObject().get("user");
-        String[]    user    = null;
-        if (object instanceof String)           user = new String[] {object.toString()};
-        else if (object instanceof JSONArray)   user = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
-        else {
-            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, unrecognized 'user' format: " + object;
-            logger.error(desc);
-            response(server.name(), dmsg, code, desc);
-            return;
-        }
-        
-        object = dmsg.argsToJsonObject().get("content");
-        String[] content = null;
-        if (object instanceof String)           content = new String[] {object.toString()};
-        else if (object instanceof JSONArray)   content = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
-        else {
-            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS;
-            desc = "illegal arguments, unrecognized 'content' format: " + object;
-            logger.error(desc);
-            response(server.name(), dmsg, code, desc);
-            return;
-        }
+        FjDscpMessage   dmsg = (FjDscpMessage) msg;
         
         switch (dmsg.inst()) {
         case CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE: {
-            logger.info(String.format("INST_ECOM_APPLY_AUTHORIZE    - %s:%s", dmsg.fs(), dmsg.sid()));
-            FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
-                    FjServerToolkit.getServerConfig("mma.weimi.uid"),
-                    FjServerToolkit.getServerConfig("mma.weimi.pas"),
-                    user,
-                    FjServerToolkit.getServerConfig("mma.weimi.cid.authorize"),
-                    content);
-            code = rsp_weimi.json().getInt("code");
-            desc = null;
-            
-            if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
-                logger.error("send sms failed: " + rsp_weimi);
-                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
-                desc = "系统不可用，请稍候再试";
-            }
+            logger.info(String.format("INST_ECOM_APPLY_AUTHORIZE            - %s:%s", dmsg.fs(), dmsg.sid()));
+            processApplyAuthorize(dmsg);
             break;
         }
         case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN: {
-            logger.info(String.format("INST_ECOM_APPLY_RENT_BEGIN   - %s:%s", dmsg.fs(), dmsg.sid()));
-            FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
-                    FjServerToolkit.getServerConfig("mma.weimi.uid"),
-                    FjServerToolkit.getServerConfig("mma.weimi.pas"),
-                    user,
-                    FjServerToolkit.getServerConfig("mma.weimi.cid.rentbegin"),
-                    content);
-            code = rsp_weimi.json().getInt("code");
-            desc = null;
+            logger.info(String.format("INST_ECOM_APPLY_RENT_BEGIN           - %s:%s", dmsg.fs(), dmsg.sid()));
+            processApplyRentBegin(dmsg);
+            break;
+        }
+        case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE: {
+            if (dmsg.fs().startsWith("cdb")) break;
             
-            if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
-                logger.error("send sms failed: " + rsp_weimi);
-                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
-                desc = "系统不可用，请稍候再试";
-            }
+            logger.info(String.format("INST_ECOM_UPDATE_CHATROOM_MESSAGE    - %s:%s", dmsg.fs(), dmsg.sid()));
+            processUpdateChatroomMessage(dmsg);
             break;
         }
         default:
             logger.error(String.format("unsupported instruction: 0x%08X", dmsg.inst()));
-            code = CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST;
-            desc = "非法指令";
+            response(dmsg, CommonDefinition.CODE.CODE_SYS_ILLEGAL_INST, "非法指令");
             break;
         }
-        
-        response(server.name(), dmsg, code, desc);
     }
     
-    private static void response(String server, FjDscpMessage req, int code, String desc) {
+    private static void processApplyAuthorize(FjDscpMessage dmsg) {
+        JSONObject args     = dmsg.argsToJsonObject();
+        String[] user       = getArrayFromArgs(args, "user");
+        String[] content    = getArrayFromArgs(args, "content");
+        
+        FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
+                FjServerToolkit.getServerConfig("mma.weimi.uid"),
+                FjServerToolkit.getServerConfig("mma.weimi.pas"),
+                user,
+                FjServerToolkit.getServerConfig("mma.weimi.cid.authorize"),
+                content);
+        int code = rsp_weimi.json().getInt("code");
+        
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
+            logger.error("send sms failed: " + rsp_weimi);
+            response(dmsg, CommonDefinition.CODE.CODE_SYS_UNAVAILABLE, "系统不可用，请稍候再试");
+            return;
+        }
+        
+        response(dmsg, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
+    }
+    
+    private static void processApplyRentBegin(FjDscpMessage dmsg) {
+        JSONObject args     = dmsg.argsToJsonObject();
+        String[] user       = getArrayFromArgs(args, "user");
+        String[] content    = getArrayFromArgs(args, "content");
+        
+        FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
+                FjServerToolkit.getServerConfig("mma.weimi.uid"),
+                FjServerToolkit.getServerConfig("mma.weimi.pas"),
+                user,
+                FjServerToolkit.getServerConfig("mma.weimi.cid.rentbegin"),
+                content);
+        int code = rsp_weimi.json().getInt("code");
+        
+        if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
+            logger.error("send sms failed: " + rsp_weimi);
+            response(dmsg, CommonDefinition.CODE.CODE_SYS_UNAVAILABLE, "系统不可用，请稍候再试");
+            return;
+        }
+        
+        response(dmsg, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
+    }
+    
+    private static Map<Integer, Long> cache_last_message_time = new ConcurrentHashMap<Integer, Long>();
+    
+    private static void processUpdateChatroomMessage(FjDscpMessage dmsg) {
+        JSONObject message = dmsg.argsToJsonObject();
+        int crid = message.getInt("crid");
+        
+        if (!cache_last_message_time.containsKey(crid)) cache_last_message_time.put(crid, System.currentTimeMillis());
+        else {
+            long timer = Long.parseLong(FjServerToolkit.getServerConfig("mma.chatroom.message.timer"));
+            long last = cache_last_message_time.get(crid);
+            long now  = System.currentTimeMillis();
+            if (now - last > timer * 1000) {
+                JSONObject timer_message = new JSONObject();
+                timer_message.put("crid",   crid);
+                timer_message.put("member", CommonService.CHATROOM_MEMBER_SYSTEM);
+                timer_message.put("type",   CommonService.CHATROOM_MESSAGE_TEXT);
+                timer_message.put("message", new String(Base64.getEncoder().encode(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()).getBytes())));
+                recordChatroomMessage(timer_message);
+            }
+        }
+        cache_last_message_time.put(crid, System.currentTimeMillis());
+        
+        recordChatroomMessage(message);
+    }
+    
+    private static void recordChatroomMessage(JSONObject message) {
+        FjDscpMessage msg = new FjDscpMessage();
+        msg.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        msg.json().put("ts",   "cdb");
+        msg.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE);
+        msg.json().put("args", message);
+        FjServerToolkit.getAnySender().send(msg);
+    }
+    
+    private static String[] getArrayFromArgs(JSONObject args, String name) {
+        Object      object  = args.get(name);
+        String[]    array   = null;
+        if (object instanceof String)           array = new String[] {object.toString()};
+        else if (object instanceof JSONArray)   array = Arrays.asList(((JSONArray) object).toArray()).toArray(new String[((JSONArray) object).size()]);
+        else return null;
+        return array;
+    }
+    
+    private static void response(FjDscpMessage req, int code, String desc) {
         JSONObject args = new JSONObject();
         args.put("code", code);
         args.put("desc", desc);
         FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",   server);
+        rsp.json().put("fs",   FjServerToolkit.getAnyServer().name());
         rsp.json().put("ts",   req.fs());
         rsp.json().put("sid",  req.sid());
         rsp.json().put("inst", req.inst());

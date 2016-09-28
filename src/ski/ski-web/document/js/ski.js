@@ -427,6 +427,18 @@ ski.ui = {
                      + "</td>"
                  + "</tr></table>");
         return div;
+    },
+    message_system : function(message) {
+        var today = new Date().format('yyyy-MM-dd');
+        if (message.message.startsWith(today)) message.message = message.message.substring(11).substring(0, 5);
+
+        var margin_message = 8;
+        var div = $('<div></div>');
+        div.css('width', '100%');
+        div.css('padding-top',    margin_message + 'px');
+        div.css('padding-bottom', margin_message + 'px');
+        div.append("<table style='border-collapse: collapse; margin-left: auto; margin-right: auto; '><tr><td><div style='padding: 6px; -webkit-border-radius : 6px; -moz-border-radius : 6px; font-size: 11px; line-height: 8px; color: white; background: #cccccc;'>"+message.message+"</div></td></tr></table>");
+        return div;
     }
 };
 

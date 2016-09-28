@@ -121,11 +121,18 @@
             function append_message(message) {
                 message.message = ski.util.base64.decode(message.message);
 
-                if (isself(message.member)) $('#container_message').append(ski.ui.message_right(message));
-                else $('#container_message').append(ski.ui.message_left(message));
+                if (issystem(message.member)) $('#container_message').append(ski.ui.message_system(message));
+                else {
+                    if (isself(message.member)) $('#container_message').append(ski.ui.message_right(message));
+                    else $('#container_message').append(ski.ui.message_left(message));
+                }
 
                 messages[messages.length] = message;
                 $(document.body)[0].scrollTop = (-1>>>2);
+            }
+
+            function issystem(member) {
+                return -1 == member;
             }
 
             function isself(member) {

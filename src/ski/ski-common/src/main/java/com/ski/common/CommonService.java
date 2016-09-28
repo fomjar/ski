@@ -94,6 +94,7 @@ public class CommonService {
     public static final int CHATROOM_MESSAGE_TEXT   = 0;
     public static final int CHATROOM_MESSAGE_IMAGE  = 1;
     public static final int CHATROOM_MESSAGE_VOICE  = 2;
+    public static final int CHATROOM_MEMBER_SYSTEM = -1;
     
     public static String createGameAccountPassword() {
         int     len     = 5;            // 密码长度

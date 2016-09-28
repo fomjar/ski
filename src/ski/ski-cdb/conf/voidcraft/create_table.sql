@@ -245,7 +245,7 @@ create table tbl_chatroom_member (
 drop table if exists tbl_chatroom_message;
 create table tbl_chatroom_message (
     i_crid      integer,    -- 聊天室编号
-    i_member    integer,    -- 发送成员
+    i_member    integer,    -- 发送成员，-1为系统消息
     i_type      tinyint,    -- 0-纯文字，1-图片，2-语音
     c_message   text,       -- 消息内容(编码成字符串)
     t_time      datetime    -- 发送时间

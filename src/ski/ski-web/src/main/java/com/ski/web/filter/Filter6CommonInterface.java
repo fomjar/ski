@@ -873,21 +873,17 @@ public class Filter6CommonInterface extends FjWebFilter {
             return;
         }
         
-        JSONObject args_cdb = new JSONObject();
-        args_cdb.put("crid",    crid);
-        args_cdb.put("member",  member);
-        args_cdb.put("type",    type);
-        args_cdb.put("message", message);
-        FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE, args_cdb);
-        if (!CommonService.isResponseSuccess(rsp)) {
-            logger.error("update chatroom message failed: " + rsp);
-            JSONObject args_rsp = new JSONObject();
-            args_rsp.put("code", CommonService.getResponseCode(rsp));
-            args_rsp.put("desc", "发送消息失败");
-            response.attr().put("Content-Type", "application/json");
-            response.content(args_rsp);
-            return;
-        }
+        JSONObject args_mma = new JSONObject();
+        args_mma.put("crid",    crid);
+        args_mma.put("member",  member);
+        args_mma.put("type",    type);
+        args_mma.put("message", message);
+        FjDscpMessage req = new FjDscpMessage();
+        req.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        req.json().put("ts",   "mma");
+        req.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE);
+        req.json().put("args", args_mma);
+        FjServerToolkit.getAnySender().send(req);
         
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
