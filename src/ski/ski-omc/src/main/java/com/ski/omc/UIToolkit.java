@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -999,14 +1000,21 @@ public class UIToolkit {
         JDialog dialog = optionPane.createDialog(null, "请选择");
         
         Wrapper<String> result = new Wrapper<String>();
+        ButtonGroup group = new ButtonGroup();
         for (String value : values_all) {
             JRadioButton button = new JRadioButton(value);
+            group.add(button);
+            panel.add(button);
+            
             if (value.equals(value_cur)) button.setSelected(true);
             button.addActionListener(e->{
                 result.obj = button.getText();
                 dialog.dispose();
             });
         }
+        
+        dialog.pack();
+        dialog.setVisible(true);
         return result.obj;
     }
     

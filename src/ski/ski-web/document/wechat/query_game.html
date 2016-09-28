@@ -3,7 +3,7 @@
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
-        <title>🔍全搜索</title>
+        <title></title>
         <link rel='stylesheet' href='/css/weui.css'/>
         <script type='text/javascript' src='/js/jquery.js'></script>
         <script type='text/javascript' src='/js/jquery.json.js'></script>
@@ -11,64 +11,58 @@
         <script type='text/javascript' src='/js/ski.js'></script>
         <style type="text/css">
         td {
-            white-space     : nowrap;
+            white-space: nowrap;
         }
         .rent_enable {
-            text-align      : center;
-            font-size       : 10px;
-            color           : white;
-            background      : #00C802;
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #00C802;
             -webkit-border-radius   : 6px;
             -moz-border-radius      : 6px;
         }
         .rent_disable {
-            text-align      : center;
-            font-size       : 10px;
-            color           : white;
-            background      : #B2B2B2;
+            text-align  : center;
+            font-size   : 10px;
+            color       : white;
+            background  : #B2B2B2;
             -webkit-border-radius   : 6px;
             -moz-border-radius      : 6px;
         }
         </style>
         <script type='text/javascript'>
-        
+            var key = ski.urlparams().key;
+            var val = ski.urlparams().val;
+
             $(document).ready(function() {
-                setup();
-            });
-
-            function preset() {
-                $('#result').html(
-                    "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_tag.html?tag=十佳精彩游戏'>       <img width='100%' src='res/十佳精彩游戏.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_tag.html?tag=微信ONLY'>           <img width='100%' src='res/微信ONLY.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_tag.html?tag=大牌游戏'>           <img width='100%' src='res/大牌游戏.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_tag.html?tag=游戏艺术'>           <img width='100%' src='res/游戏艺术.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_category.html?category=动作'>     <img width='100%' src='res/动作游戏.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_category.html?category=赛车'>     <img width='100%' src='res/速度与激情.jpg'/></a></div>"
-                  + "<div style='margin: 10px; margin-bottom: 0px'><a href='query_game_by_category.html?category=角色扮演'> <img width='100%' src='res/精彩的角色扮演游戏.jpg'/></a></div>"
-                );
-            }
-
-            function search(word) {
-                ski.ui.show_toast('正在搜索');
-                ski.common.query_game({word : word}, function(args) {
+                var title = val;
+                title = title.replace(/_/g, ' ');
+                if (0 == title.length) title = '所有游戏';
+                ski.ui.set_title(title);
+            
+                ski.ui.show_toast('正在加载');
+                var data = {};
+                data[key] = val;
+                ski.common.query_game(data, function(args) {
                     ski.ui.hide_toast();
                     if (0 != args.code) {
                         ski.ui.show_dialog_alert({
-                            head : "搜索失败",
-                            body : args.desc
+                            head    : '加载失败',
+                            body    : args.desc
                         });
                         return;
                     }
                     var games = args.desc;
-                    var title = document.createElement('div');
-                    title.className = 'weui_panel_hd';
-                    title.innerText = '搜索结果';
-
-                    var cells = document.createElement('div');
-                    cells.className = 'weui_panel_bd';
+                    
+                    var cell_head = $('<div></div>');
+                    cell_head.addClass('weui_panel_hd');
+                    cell_head.text(title);
+                    
+                    var cells = $('<div></div>');
+                    cells.addClass('weui_panel_bd');
                     for (var i in games) {
                         var game = games[i];
-                        var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript: ski.goto.game(" + game.gid + ");\">"
+                        var cell = "<a class='weui_media_box weui_media_appmsg' href=\"javascript:ski.goto.game(" + game.gid + ");\">"
                                      + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + game.url_icon + "'></div>"
                                      + "<div class='weui_media_bd'>"
                                         + "<h4 class='weui_media_title'>" + game.name_zh_cn + "</h4>"
@@ -79,43 +73,18 @@
                                          + "<td><div class='" + (game.rent_avail_b ? "rent_enable" : "rent_disable") + "'>不认证</div></td>"
                                      + "</tr></table></div>"
                                  + "</a>";
-                        cells.innerHTML = cells.innerHTML + cell;
+                        cells.append(cell);
                     }
-                    $('#result').html(title);
+                    $('#result').html(cell_head);
                     $('#result').append(cells);
                 });
-            }
-
-            function setup() {
-                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
-
-                if (0 == word.length) {
-                    preset();
-                } else {
-                    search(word);
-                }
-
-            }
+            });
         </script>
     </head>
     <body>
         <div class='panel'>
             <div class='bd'>
-                <div class="weui_search_bar" style='position: fixed; z-index: 500; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
-                    <div class="weui_search_outer" style='background: lightgray'>
-                        <div class="weui_search_inner">
-                            <i class="weui_icon_search"></i>
-                            <input class="weui_search_input" id="search_input" required type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" onfocus="$('#search_bar').addClass('weui_search_focusing');" onblur="if (0 == $('#search_input').val().length) $('#search_bar').removeClass('weui_search_focusing');">
-                            <a class="weui_icon_clear" id="search_clear" href="javascript:$('#search_input').val('');$('#search_input').focus();setup();"></a>
-                        </div>
-                        <label class="weui_search_text" id="search_text" for="search_input">
-                            <i class="weui_icon_search"></i>
-                            <span>搜索</span>
-                        </label>
-                    </div>
-                    <a class="weui_search_cancel" id="search_cancel" href="javascript:$('#search_input').val('');$('#search_input').blur();setup();">取消</a>
-                </div>
-                <div class="weui_panel weui_panel_access" style='position: relative; top: 34px' id='result'>
+                <div class="weui_panel weui_panel_access" style='margin-top: 0px' id='result'>
                 </div>
             </div>
         </div>

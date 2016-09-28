@@ -648,6 +648,15 @@ public class Filter6CommonInterface extends FjWebFilter {
             args_rsp.put("desc", desc);
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
+        } else if (args.has("vendor")) {
+            String vendor = args.getString("vendor").replace("_", " ");
+            JSONArray desc = new JSONArray();
+            CommonService.getGameByVendor(vendor).forEach(game->desc.add(tojson(game)));
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", desc);
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
         } else {
             logger.error("illegal arguments for query game: " + args);
             JSONObject args_rsp = new JSONObject();

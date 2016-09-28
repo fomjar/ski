@@ -54,7 +54,7 @@ public class ChartFrame extends JFrame {
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
         
-        CommonService.updateAccessRecord();
+//        CommonService.updateAccessRecord();
         initChartTheme();
         
         charts_user = new JPanel();

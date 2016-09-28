@@ -275,6 +275,13 @@ public class ManageGame extends JDialog {
                 if (null != languages) c_language.setText(languages.stream().collect(Collectors.joining(" ")));
             }
         });
+        c_vendor.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                String vendor = UIToolkit.chooseSingleValue(new String[] {"BANDAI NAMCO Entertainment", "Bethesda Softworks", "Blizzard Entertainment", "CAPCOM", "Electronic Arts", "Konami Digital", "KOEI TECMO GAMES", "Naughty Dog", "SEGA Games", "SQUARE ENIX", "Take2 International Asia", "Ubisoft Entertainment", "other"}, c_vendor.getText());
+                if (null != vendor) c_vendor.setText(vendor);
+            }
+        });
         c_play_mode.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
