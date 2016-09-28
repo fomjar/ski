@@ -37,7 +37,6 @@
             color           : rgb(0, 203, 1);
             border-bottom   : 1px solid;
             margin-bottom   : 0px;
-            box-shadow      : 0px 1px 0px lightgray;
         }
         .remark {
             color           : gray;
@@ -86,12 +85,12 @@
                     
                     // 简介
                     var intr = "<div style='padding-bottom: 20px'><p>" + game.introduction.replace(/\|/g, '</p><p>') + "</p></div>";
-                    if (intr.length > 200) $('#introduction').html(ski.ui.text_expandable(intr, 133));
-                    else $('#introduction').html(intr);
+                    if (intr.length > 200) $('#area_intr').html(ski.ui.text_expandable(intr, 133));
+                    else $('#area_intr').html(intr);
 
                     // 视频
                     if (0 < game.vedio.length) {
-                        $('#poster_container').css('height', '200px');
+                        $('#area_poster').css('height', '200px');
                         $('#url_poster').append("<video width='100%' height='100%' controls autobuffer src='" + game.vedio + "'/>");
                     }
                     // 海报
@@ -100,13 +99,15 @@
                             var poster = game.url_poster[i];
                             if (0 == poster.length) continue;
 
-                            $('#poster_container').css('height', '200px');
+                            $('#area_poster').css('height', '200px');
                             $('#url_poster').append("<div style='background-image: url(" + poster + ")'/>");
                         }
                     }
 
                     // 出售
-                    if (0 < game.ccs.total) {
+                    if (0 == game.ccs.total) {
+                        $('#area_ccs').html('');
+                    } else {
                         $('#cc_total').text(game.ccs.total);
                         var html = '';
                         html += "<table><tr>";
@@ -128,8 +129,6 @@
                         }
                         html += '</tr></table>';
                         $('#ccs_cover').html(html);
-                    } else {
-                        $('#ccs').html("<div style='height: 100px; line-height: 100px; vertical-align: middle; text-align: center'>非常抱歉！尚未发现适合您的商品 : (</div>")
                     }
 
                     // 租赁
@@ -239,56 +238,54 @@
                     <article class='weui_article'>
                         <!-- 视频海报区 -->
                         <section>
-                            <div id='poster_container' style='width: 100%; background: black'>
+                            <div id='area_poster' style='width: 100%; background: black'>
                                 <div id='url_poster'></div>
                             </div>
                         </section>
                         <!-- 简介区 -->
-                        <section id='introduction' style='text-indent:2em;'></section>
+                        <section id='area_intr' style='text-indent:2em;'></section>
                         <!-- 售卖区 -->
-                        <section>
+                        <section id='area_ccs'>
                             <h1 class='category' style='margin-bottom: 0px'>适合您的光盘出售</h1>
-                            <div id='ccs'>
-                                <div class='remark'>我们在共 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
-                                <div style='border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
-                                    <div id='ccs_cover' style='overflow: auto'></div>
-                                    <div id='cc_info' style='display: none; padding: 16px; padding-bottom: 8px'>
-                                        <div class='weui_cells' style='margin-top: 0px'>
-                                            <div class='weui_cell'>
-                                                <div id='item_name' class='weui_cell weui_cell_primary'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>售价</div>
-                                                <div id='item_price' class='weui_cell_ft' style='color: red;'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>快递</div>
-                                                <div id='express_price' class='weui_cell_ft' style='color: red;'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>销量</div>
-                                                <div id='item_sold' class='weui_cell_ft'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>等级</div>
-                                                <div id='shop_rate' class='weui_cell_ft'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>店铺</div>
-                                                <div id='shop_name' class='weui_cell_ft'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>掌柜</div>
-                                                <div id='shop_owner' class='weui_cell_ft'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>地址</div>
-                                                <div id='shop_addr' class='weui_cell_ft'></div>
-                                            </div>
-                                            <div class='weui_cell'>
-                                                <div class='weui_cell_bd weui_cell_primary'>
-                                                    <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接<br/>到浏览器打开或在APP中直接搜索</a>
-                                                </div>
+                            <div class='remark'>我们在共 <strong id='cc_total'></strong> 款商品中为您挑选了以下几款商品</div>
+                            <div style='border: 1px solid #00aa00; box-shadow: 2px 2px 1px lightgray;'>
+                                <div id='ccs_cover' style='overflow: auto'></div>
+                                <div id='cc_info' style='display: none; padding: 16px; padding-bottom: 8px'>
+                                    <div class='weui_cells' style='margin-top: 0px'>
+                                        <div class='weui_cell'>
+                                            <div id='item_name' class='weui_cell weui_cell_primary'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>售价</div>
+                                            <div id='item_price' class='weui_cell_ft' style='color: red;'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>快递</div>
+                                            <div id='express_price' class='weui_cell_ft' style='color: red;'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>销量</div>
+                                            <div id='item_sold' class='weui_cell_ft'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>等级</div>
+                                            <div id='shop_rate' class='weui_cell_ft'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>店铺</div>
+                                            <div id='shop_name' class='weui_cell_ft'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>掌柜</div>
+                                            <div id='shop_owner' class='weui_cell_ft'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>地址</div>
+                                            <div id='shop_addr' class='weui_cell_ft'></div>
+                                        </div>
+                                        <div class='weui_cell'>
+                                            <div class='weui_cell_bd weui_cell_primary'>
+                                                <a id='item_url' class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%'>长按拷贝宝贝链接<br/>到浏览器打开或在APP中直接搜索</a>
                                             </div>
                                         </div>
                                     </div>
