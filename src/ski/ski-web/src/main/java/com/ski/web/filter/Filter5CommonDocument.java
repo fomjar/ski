@@ -19,7 +19,8 @@ public class Filter5CommonDocument extends FjWebFilter {
             logger.info("user access document: " + request.url());
             FjWebFilter.documentRoot(FjServerToolkit.getServerConfig("web.document.root"));
             document(response, request.path());
-            response.attr().put("Content-Encoding", "gzip");
+            if (response.contentType().startsWith("text")
+                    || response.contentType().startsWith("application")) response.attr().put("Content-Encoding", "gzip");
         }
         return true;
     }
