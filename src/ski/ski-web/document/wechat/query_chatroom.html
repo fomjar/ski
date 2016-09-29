@@ -9,10 +9,11 @@
         <script type='text/javascript' src='/js/jquery.json.js'></script>
         <script type='text/javascript' src='/js/jquery.cookie.js'></script>
         <script type='text/javascript' src='/js/ski.js'></script>
+        <script type='text/javascript' src='http://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
         <script type='text/javascript'>
 
             var gid = ski.urlparams().gid;
-			var game = null;
+            var platform_account = null;
             var chatroom = null;
             var members  = null;
             var messages = [] 
@@ -96,19 +97,35 @@
             });
 
             function init() {
-                $('#message_text').bind('focus', function(){
+                $('.weui_search_input').bind('focus', function(){
                     $('#operate_space').css('height', '0px');
-                    $('#container_operate').css('position', 'static');
+                    $('.weui_search_bar').css('position', 'static');
                     $(document.body)[0].scrollTop = (-1>>>2);
                 });
-                $('#message_text').bind('blur', function(){
+                $('.weui_search_input').bind('blur', function(){
                     $('#operate_space').css('height', '44px');
-                    $('#container_operate').css('position', 'fixed');
-                    $('#container_operate').css('bottom', '0px');
+                    $('.weui_search_bar').css('position', 'fixed');
+                    $('.weui_search_bar').css('bottom', '0px');
                     $(document.body)[0].scrollTop = (-1>>>2);
                 });
 				
 				ski.ui.set_title('☕️' + chatroom.game.name_zh_cn + '(' + members.length + ')');
+                // prepare
+                ski.wechat.pay_prepare(function(args) {
+                    appId       = args.appid;
+                    timestamp   = args.timestamp;
+                    nonceStr    = args.noncestr;
+                    signature   = args.signature;
+
+                    wx.config({
+                        'debug'     : true,        // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                        'appId'     : appId,        // 必填，公众号的唯一标识
+                        'timestamp' : timestamp,    // 必填，生成签名的时间戳
+                        'nonceStr'  : nonceStr,     // 必填，生成签名的随机串
+                        'signature' : signature,    // 必填，签名，见附录1
+                        'jsApiList' : ['chooseImage', 'uploadImage']            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                    });
+                });
             }
 
             function append_messages(msgs) {
@@ -140,7 +157,7 @@
             }
             
             function send_message() {
-                var text = $('#message_text').val();
+                var text = $('.weui_search_input').val();
                 if (0 == text.length) return;
 
                 var message = {
@@ -149,7 +166,7 @@
                     message : ski.util.base64.encode(text)
                 };
                 ski.chatroom.message.send(message, null);
-                $('#message_text').val('');
+                $('.weui_search_input').val('');
             }
 
             function receive_message_condition() {
@@ -165,6 +182,28 @@
                 }
             }
 
+            function fn_choose_image() {
+                wx.chooseImage({
+                    count       : 9, // 默认9
+                    sizeType    : ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+                    sourceType  : ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+                    success     : function (res) {
+                        var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+                        for (var i in localIds) {
+                            var localId = localIds[i];
+                            wx.uploadImage({
+                                localId: localId, // 需要上传的图片的本地ID，由chooseImage接口获得
+                                isShowProgressTips: 1, // 默认为1，显示进度提示
+                                success: function (res) {
+                                    var serverId = res.serverId; // 返回图片的服务器端ID
+                                    ski.chatroom.message.send({crid : chatroom.crid, type : 1, message : serverId});
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
         </script>
     </head>
     <body style="background: #ebebeb">
@@ -173,8 +212,28 @@
             <tr id='operate_space' style='height: 44px'><td></td></tr> <!-- space for operate -->
         </table>
 
-        <div class="weui_search_bar" id="container_operate" style='position: fixed; z-index: 200; bottom: 0px; width: 100%; height: 44px;'>
-            <input type='text' class="weui_search_input" id='message_text' style='width: 100%; height: 100%; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();">
+        <div class="weui_search_bar" style='position: fixed; z-index: 200; bottom: -120px; width: 100%; padding: 0px; display: block;'>
+            <div style='padding: 8px 10px; '>
+                <table style='width: 100%; border-collapse: collapse;'><tr>
+                    <td style='padding-right: 10px;'><input type='text' class="weui_search_input" style='width: 100%; height: 28px; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();" /></td>
+                    <td width='28px'>
+                        <div style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px;' onclick="if('-'+$('#functions').css('height')==$('.weui_search_bar').css('bottom')) $('.weui_search_bar').animate({bottom : '0px'}, 'fast'); else $('.weui_search_bar').animate({bottom : '-'+$('#functions').css('height')}, 'fast');">
+                            <div style='position: absolute; top: 13px; right: 5px; width: 18px; height: 2px; background-color: gray'></div>
+                            <div style='position: absolute; top: 5px; right: 13px; width: 2px; height: 18px; background-color: gray'></div>
+                        </div>
+                    </td>
+                </tr></table>
+            </div>
+            <div id='functions' style='width: 100%; height: 120px; border-top: 1px solid #c7c7c7; '>
+                <table width='100%' height='100%'>
+                    <tr>
+                        <td style='width: 25%; padding: 15px;'>
+                            <div style='margin-left: auto; margin-right: auto; width: 50px; height: 50px; border: 1px solid gray; border-radius: 15px;' onclick='fn_choose_image();'></div>
+                            <div style='margin-top: 5px; text-align: center; font-size: 80%; color: gray;'>照片</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </body>
 </html>

@@ -18,31 +18,31 @@
             $(document).ready(function() {
                 switch (msg_type) {
                 case 'success':
-                   $('#msg_type').addClass('weui_icon_success');
+                   $('.weui_icon_msg').addClass('weui_icon_success');
                    break;
                 case 'info':
-                   $('#msg_type').addClass('weui_icon_info');
+                   $('.weui_icon_msg').addClass('weui_icon_info');
                    break;
                 case 'warn':
-                   $('#msg_type').addClass('weui_icon_warn');
+                   $('.weui_icon_msg').addClass('weui_icon_warn');
                    break;
                 }
-                $('#msg_title').html(msg_title);
-                $('#msg_content').html(msg_content);
-                $('#msg_url').attr('href', msg_url);
+                $('.weui_msg_title').html(msg_title);
+                $('.weui_msg_desc').html(msg_content);
+                $('a').attr('href', msg_url);
             });
         </script>
     </head>
     <body>
         <div class="msg" style='height: 100%'>
             <div class="weui_msg">
-                <div class="weui_icon_area"><i class="weui_icon_msg" id='msg_type'></i></div>
+                <div class="weui_icon_area"><i class="weui_icon_msg"></i></div>
                 <div class="weui_text_area">
-                    <h2 class="weui_msg_title" id='msg_title'></h2>
-                    <p class="weui_msg_desc" id='msg_content'></p>
+                    <h2 class="weui_msg_title"></h2>
+                    <p class="weui_msg_desc"></p>
                 </div>
                 <div class="weui_extra_area">
-                    <a id='msg_url'>查看详情</a>
+                    <a>查看详情</a>
                 </div>
             </div>
         </div>

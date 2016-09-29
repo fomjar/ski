@@ -1,11 +1,13 @@
 package com.ski.web.wechat;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.channels.SocketChannel;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -22,6 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpEntity;
@@ -150,42 +153,49 @@ public class WechatInterface {
     
     public static FjJsonMessage token(String appid, String secret) {
         String url = String.format("https://%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", host(), appid, secret);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
     }
     
     public static FjJsonMessage ticket(String token) {
         String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), token);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
+    }
+    
+    public static BufferedImage media_image(String token, String media_id) {
+        String url = String.format("https://%s/cgi-bin/media/get?access_token=%s&media_id=%s", host(), token, media_id);
+        try {return ImageIO.read(new URL(url));}
+        catch (IOException e) {e.printStackTrace();}
+        return null;
     }
     
     public static FjJsonMessage menuCreate(String token, String menu) {
         String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), token);
-        return sendRequest("POST", url, menu);
+        return (FjJsonMessage) sendRequest("POST", url, menu);
     }
     
     public static FjJsonMessage menuDelete(String token) {
         String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), token);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
     }
     
     public static FjJsonMessage customserviceAdd(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), token);
-        return sendRequest("POST", url, kfaccount);
+        return (FjJsonMessage) sendRequest("POST", url, kfaccount);
     }
     
     public static FjJsonMessage customserviceUpdate(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), token);
-        return sendRequest("POST", url, kfaccount);
+        return (FjJsonMessage) sendRequest("POST", url, kfaccount);
     }
     
     public static FjJsonMessage customserviceDel(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), token);
-        return sendRequest("GET", url, kfaccount);
+        return (FjJsonMessage) sendRequest("GET", url, kfaccount);
     }
     
     public static FjJsonMessage customserviceGet(String token) {
         String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), token);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
     }
     
     public static FjDscpMessage customConvertRequest(FjHttpRequest request) {
@@ -321,7 +331,7 @@ public class WechatInterface {
         msg.put("touser", user);
         msg.put("msgtype", "text");
         msg.put("text", text);
-        return sendRequest("POST", url, msg.toString());
+        return (FjJsonMessage) sendRequest("POST", url, msg.toString());
     }
     
     public static FjJsonMessage messageCustomSendNews(String token, String user, Article... article) throws WechatCustomServiceException {
@@ -337,7 +347,7 @@ public class WechatInterface {
         msg.put("touser", user);
         msg.put("msgtype", "news");
         msg.put("news", news);
-        return sendRequest("POST", url, msg.toString());
+        return (FjJsonMessage) sendRequest("POST", url, msg.toString());
     }
     
     private static String TEMPLATE_COLOR = "#173177";
@@ -368,21 +378,21 @@ public class WechatInterface {
     
     public static FjJsonMessage userInfo(String token, String user) {
         String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), token, user);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
     }
     
     public static FjJsonMessage snsOauth2(String appid, String secret, String code) {
         String url = String.format("https://%s/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", host(), appid, secret, code);
-        return sendRequest("GET", url);
+        return (FjJsonMessage) sendRequest("GET", url);
     }
     
-    public static FjJsonMessage sendRequest(String method, String url) {
+    public static FjMessage sendRequest(String method, String url) {
         return sendRequest(method, url, null);
     }
     
-    public static FjJsonMessage sendRequest(String method, String url, String content) {
+    public static FjMessage sendRequest(String method, String url, String content) {
         logger.debug(">> " + (null != content ? content.replace("\r\n", "") : null));
-        FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, "application/json", content));
+        FjMessage rsp = FjSender.sendHttpRequest(new FjHttpRequest(method, url, "application/json", content));
         logger.debug("<< " + rsp);
         return rsp;
     }
@@ -599,7 +609,7 @@ public class WechatInterface {
     
     public static String createSignature4Config(String nonceStr, String ticket, long timestamp, String url) {
         Map<String, String> map = new HashMap<String, String>();
-        map.put("nonceStr",     nonceStr);
+        map.put("noncestr",     nonceStr);
         map.put("jsapi_ticket", ticket);
         map.put("timestamp",    String.valueOf(timestamp));
         map.put("url",          url);

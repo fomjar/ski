@@ -29,15 +29,15 @@
 
                     $('#name').text(game.name_zh_cn);
 
-                    if (game.rent_avail_a) $('#type').html("<option value='0'>认证 - " + game.rent_price_a + "元/天</option>");
-                    if (game.rent_avail_b) $('#type').append("<option value='1'>不认证 - " + game.rent_price_b + "元/天</option>");
-                    if (!game.rent_avail_a && !game.rent_avail_b) $('#rent_begin').hide();
+                    if (game.rent_avail_a) $('.weui_select').html("<option value='0'>认证 - " + game.rent_price_a + "元/天</option>");
+                    if (game.rent_avail_b) $('.weui_select').append("<option value='1'>不认证 - " + game.rent_price_b + "元/天</option>");
+                    if (!game.rent_avail_a && !game.rent_avail_b) $('.weui_btn_area').hide();
                 });
             });
 
             function apply() {
                 ski.ui.show_toast('正在操作');
-                ski.common.apply_rent_begin(gid, $('#type').val(), function(args) {
+                ski.common.apply_rent_begin(gid, $('.weui_select').val(), function(args) {
                     ski.ui.hide_toast();
                     if (0 != args.code) {
                         ski.ui.show_dialog_alert({
@@ -75,11 +75,11 @@
                             <label class="weui_label" for="">体验类型</label>
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <select name="select" class="weui_select" id='type'></select>
+                            <select name="select" class="weui_select"></select>
                         </div>
                     </div>
                 </div>
-                <div class='weui_btn_area' id='rent_begin'>
+                <div class='weui_btn_area'>
                     <a class='weui_btn weui_btn_primary' href="javascript:apply();">开始体验</a>
                 </div>
             </div>

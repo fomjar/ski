@@ -16,12 +16,12 @@
         
             $(document).ready(function() {
                 setup();
-				$('#search_input').bind('focus', function() {
-					$('#search_bar').addClass('weui_search_focusing');
+				$('.weui_search_input').bind('focus', function() {
+					$('.weui_search_bar').addClass('weui_search_focusing');
 				});
-				$('#search_input').bind('blur', function() {
-					if (0 == $('#search_input').val().length) {
-						$('#search_bar').removeClass('weui_search_focusing');
+				$('.weui_search_inut').bind('blur', function() {
+					if (0 == $('.weui_search_input').val().length) {
+						$('.weui_search_bar').removeClass('weui_search_focusing');
 					}
 				});
 
@@ -79,7 +79,7 @@
             }
 			
             function setup() {
-                var word   = $('#search_input').val().replace(/(^\s*)|(\s*$)/g, "");
+                var word   = $('.weui_search_input').val().replace(/(^\s*)|(\s*$)/g, "");
 
                 if (0 == word.length) {
                     preset();
@@ -89,8 +89,8 @@
             }
 			
 			function oncancel() {
-				$('#search_input').val('');
-				$('#search_input').blur();
+				$('.weui_search_input').val('');
+				$('.weui_search_input').blur();
 				setup();
 			}
 			
@@ -104,7 +104,7 @@
 				} else {
                     $('.weui_mask_transparent').show(); 
 					$('#categories').css({opacity : 0, top : '-'+$('#categories').height()+'px'});
-					$('#categories').animate({opacity : 1, top : ($('#search_bar').outerHeight(true)-1)+'px'});
+					$('#categories').animate({opacity : 1, top : ($('.weui_search_bar').outerHeight(true)-1)+'px'});
 					toggle_on = true;
 				}
 			}
@@ -163,20 +163,20 @@
     <body>
         <div class='panel'>
             <div class='bd'>
-                <div class="weui_search_bar" style='position: fixed; z-index: 10; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa' id="search_bar">
-                	<div id='toggle_switch' class='weui_btn weui_btn_mini weui_btn_primary' style='float: left; position: relative; width: 100px; margin-right: 8px; ' onclick="toggle_category();">分类 ▼</div>
+                <div class="weui_search_bar" style='position: fixed; z-index: 10; width: 100%; top: 0px; background: lightgray; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa'>
+                	<div class='weui_btn weui_btn_mini weui_btn_primary' style='float: left; position: relative; width: 100px; margin-right: 8px; ' onclick="toggle_category();">分类 ▼</div>
                     <div class="weui_search_outer" style='background: lightgray'>
                         <div class="weui_search_inner">
                             <i class="weui_icon_search"></i>
-                            <input class="weui_search_input" id='search_input' required type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" >
-                            <a class="weui_icon_clear" id="search_clear" href="javascript:$('#search_input').val('');$('#search_input').focus();setup();"></a>
+                            <input class="weui_search_input" required type="search" placeholder="搜索" onkeyup="if(13 == event.keyCode) setup();" >
+                            <a class="weui_icon_clear" href="javascript:$('.weui_search_input').val('');$('.weui_search_input').focus();setup();"></a>
                         </div>
-                        <label class="weui_search_text" id="search_text" for="search_input">
+                        <label class="weui_search_text" for="search_input">
                             <i class="weui_icon_search"></i>
                             <span>搜索</span>
                         </label>
                     </div>
-                   	<a class="weui_search_cancel" id="search_cancel" href="javascript: oncancel();">取消</a>
+                   	<a class="weui_search_cancel" href="javascript: oncancel();">取消</a>
                 </div>
                 <div class='weui_mask_transparent' style='z-index: 5; display: none;' onclick="toggle_category()"></div>
                 <ul id='categories' style='position: fixed; z-index: 6; left: 0px; top: 9999px;'>

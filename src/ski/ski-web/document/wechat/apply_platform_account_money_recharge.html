@@ -31,14 +31,14 @@
                         'timestamp' : timestamp,    // 必填，生成签名的时间戳
                         'nonceStr'  : nonceStr,     // 必填，生成签名的随机串
                         'signature' : signature,    // 必填，签名，见附录1
-                        'jsApiList' : []            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                        'jsApiList' : ['chooseWXPay']            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
                     });
                 });
             });
 
             function apply() {
                 // 生成预支付订单
-                var money = $('#money').val();
+                var money = $('.weui_select').val();
                 if (0 == money.length) {
                     ski.ui.show_dialog_alert({
                         head : '错误',
@@ -87,7 +87,7 @@
                             <label class="weui_label" for="">充值金额</label>
                         </div>
                         <div class="weui_cell_bd weui_cell_primary">
-                            <select name="select" class="weui_select" id='money'>
+                            <select name="select" class="weui_select">
                                 <option value="20">20元</option>
                                 <option value="50">50元</option>
                                 <option value="120" selected='selected'>120元</option>

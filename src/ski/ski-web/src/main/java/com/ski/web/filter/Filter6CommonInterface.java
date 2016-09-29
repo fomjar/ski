@@ -230,7 +230,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         args.put("signature",   WechatInterface.createSignature4Config(noncestr,
                 wechat.token_monitor().ticket(),
                 timestamp,
-                String.format("http://%s/wechat/apply_platform_account_money_recharge.html", FjServerToolkit.getSlb().getAddress("web").host)));
+                request.attr().get("Referer")));
         response.attr().put("Content-Type", "application/json");
         response.content(args);
     }
@@ -871,6 +871,26 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
             return;
+        }
+        
+        switch (type) {
+        case CommonService.CHATROOM_MESSAGE_IMAGE: {
+            BufferedImage img = WechatInterface.media_image(wechat.token_monitor().token(), message);
+            if (null == img) {
+                logger.error("download image failed, media_id: " + message);
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_UNAVAILABLE);
+                args_rsp.put("desc", "获取图片失败，请稍后重试");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {ImageIO.write(img, "jpg", baos);}
+            catch (IOException e) {e.printStackTrace();}
+            message = Base64.getEncoder().encodeToString(baos.toByteArray());
+            break;
+        }
         }
         
         JSONObject args_mma = new JSONObject();
