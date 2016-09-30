@@ -562,34 +562,57 @@ public class Filter6CommonInterface extends FjWebFilter {
             return;
         }
         
-        List<BeanChatroomMessage> messages = null;
-        if (args.has("count") && args.has("time")) {
-            messages = CommonService.getChatroomMessageByCrid(crid,
-                    getIntFromArgs(args, "count"),
-                    args.getString("time"));
-        } else if (args.has("count")) {
-            messages = CommonService.getChatroomMessageByCrid(crid,
-                    getIntFromArgs(args, "count"));
-        } else if (args.has("time")) {
-            messages = CommonService.getChatroomMessageByCrid(crid,
-                    args.getString("time"));
+        if (args.has("mid") && args.has("type")) {
+            BeanChatroomMessage message = CommonService.getChatroomMessageByCridMid(crid, getIntFromArgs(args, "mid"));
+            byte[] data = Base64.getDecoder().decode(message.c_message);
+            switch (getIntFromArgs(args, "type")) {
+            case CommonService.CHATROOM_MESSAGE_TEXT:
+                response.attr().put("Content-Type", "text/plain");
+                response.content(data);
+                break;
+            case CommonService.CHATROOM_MESSAGE_IMAGE:
+                response.attr().put("Content-Type", "image/png");
+                response.content(data);
+                break;
+            case CommonService.CHATROOM_MESSAGE_VOICE:
+                response.attr().put("Content-Type", "audio/mpeg");
+                response.content(data);
+                break;
+            default:
+                response.attr().put("Content-Type", "text/plain");
+                response.content(data);
+                break;
+            }
         } else {
-            logger.error("illegal arguments for query chatroom message: " + args);
+            List<BeanChatroomMessage> messages = null;
+            if (args.has("count") && args.has("time")) {
+                messages = CommonService.getChatroomMessageByCrid(crid,
+                        getIntFromArgs(args, "count"),
+                        args.getString("time"));
+            } else if (args.has("count")) {
+                messages = CommonService.getChatroomMessageByCrid(crid,
+                        getIntFromArgs(args, "count"));
+            } else if (args.has("time")) {
+                messages = CommonService.getChatroomMessageByCrid(crid,
+                        args.getString("time"));
+            } else {
+                logger.error("illegal arguments for query chatroom message: " + args);
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args_rsp.put("desc", "非法参数");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            
+            JSONArray desc = new JSONArray();
+            messages.forEach(m->desc.add(tojson(m)));
             JSONObject args_rsp = new JSONObject();
-            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
-            args_rsp.put("desc", "非法参数");
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", desc);
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
-            return;
         }
-        
-        JSONArray desc = new JSONArray();
-        messages.forEach(m->desc.add(tojson(m)));
-        JSONObject args_rsp = new JSONObject();
-        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
-        args_rsp.put("desc", desc);
-        response.attr().put("Content-Type", "application/json");
-        response.content(args_rsp);
     }
     
     private void processQueryGame(FjHttpResponse response, FjHttpRequest request) {
@@ -875,18 +898,9 @@ public class Filter6CommonInterface extends FjWebFilter {
         
         switch (type) {
         case CommonService.CHATROOM_MESSAGE_IMAGE: {
-            BufferedImage img = WechatInterface.media_image(wechat.token_monitor().token(), message);
-            if (null == img) {
-                logger.error("download image failed, media_id: " + message);
-                JSONObject args_rsp = new JSONObject();
-                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_UNAVAILABLE);
-                args_rsp.put("desc", "获取图片失败，请稍后重试");
-                response.attr().put("Content-Type", "application/json");
-                response.content(args_rsp);
-                return;
-            }
+            BufferedImage image = WechatInterface.media_image(wechat.token_monitor().token(), message);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {ImageIO.write(img, "jpg", baos);}
+            try {ImageIO.write(image, "png", baos);}
             catch (IOException e) {e.printStackTrace();}
             message = Base64.getEncoder().encodeToString(baos.toByteArray());
             break;
@@ -898,6 +912,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         args_mma.put("member",  member);
         args_mma.put("type",    type);
         args_mma.put("message", message);
+        
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",   FjServerToolkit.getAnyServer().name());
         req.json().put("ts",   "mma");
@@ -1291,10 +1306,16 @@ public class Filter6CommonInterface extends FjWebFilter {
     private static JSONObject tojson(BeanChatroomMessage bean) {
         JSONObject json = new JSONObject();
         json.put("crid",    bean.i_crid);
+        json.put("mid",     bean.i_mid);
         json.put("member",  bean.i_member);
         json.put("type",    bean.i_type);
-        json.put("message", bean.c_message);
         json.put("time",    bean.t_time);
+        json.put("message", bean.c_message);
+        json.put("arg0",    bean.c_arg0);
+        json.put("arg1",    bean.c_arg1);
+        json.put("arg2",    bean.c_arg2);
+        json.put("arg3",    bean.c_arg3);
+        json.put("arg4",    bean.c_arg4);
         List<BeanChannelAccount> users = CommonService.getChannelAccountByPaidNChannel(bean.i_member, CommonService.CHANNEL_WECHAT);
         if (null != users && !users.isEmpty()) {
             BeanChannelAccount user = users.get(0);

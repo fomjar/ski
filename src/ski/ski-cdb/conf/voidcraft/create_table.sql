@@ -244,10 +244,16 @@ create table tbl_chatroom_member (
 -- 聊天室消息
 drop table if exists tbl_chatroom_message;
 create table tbl_chatroom_message (
-    i_crid      integer,    -- 聊天室编号
-    i_member    integer,    -- 发送成员，-1为系统消息
-    i_type      tinyint,    -- 0-纯文字，1-图片，2-语音
-    c_message   text,       -- 消息内容(编码成字符串)
-    t_time      datetime    -- 发送时间
+    i_crid      integer,        -- 聊天室编号
+    i_mid       integer,        -- 消息编号
+    i_member    integer,        -- 发送成员，-1为系统消息
+    i_type      tinyint,        -- 0-纯文字，1-图片，2-语音
+    t_time      datetime,       -- 发送时间
+    c_message   text,           -- 消息内容(编码成字符串)
+    c_arg0      varchar(64),    -- 消息参数0
+    c_arg1      varchar(64),    -- 消息参数1
+    c_arg2      varchar(64),    -- 消息参数2
+    c_arg3      varchar(64),    -- 消息参数3
+    c_arg4      varchar(64)     -- 消息参数4
 );
 

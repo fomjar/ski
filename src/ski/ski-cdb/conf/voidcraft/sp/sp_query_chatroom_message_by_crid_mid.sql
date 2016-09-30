@@ -1,11 +1,10 @@
 delimiter //
-drop procedure if exists sp_query_chatroom_message_by_crid //
-create procedure sp_query_chatroom_message_by_crid (
+drop procedure if exists sp_query_chatroom_message_by_crid_mid //
+create procedure sp_query_chatroom_message_by_crid_mid (
     out i_code  integer,
     out c_desc  mediumblob,
     in  crid    integer,
-    in  _count  integer,
-    in  _time   datetime
+    in  mid     integer
 )  
 begin  
     declare i_crid      integer     default -1;
@@ -25,9 +24,7 @@ begin
                         select cm.i_crid, cm.i_mid, cm.i_member, cm.i_type, cm.t_time, cm.c_message, cm.c_arg0, cm.c_arg1, cm.c_arg2, cm.c_arg3, cm.c_arg4
                           from tbl_chatroom_message cm
                          where cm.i_crid = crid
-                           and cm.t_time > _time
-                         order by cm.t_time desc
-                         limit _count;
+                           and cm.i_mid = mid;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
 

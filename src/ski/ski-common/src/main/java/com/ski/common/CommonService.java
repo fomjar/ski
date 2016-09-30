@@ -306,6 +306,16 @@ public class CommonService {
         return list;
     }
     
+    
+    public static BeanChatroomMessage getChatroomMessageByCridMid(int crid, int mid) {
+        JSONObject args = new JSONObject();
+        args.put("crid",    crid);
+        args.put("mid",     mid);
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE, args));
+        BeanChatroomMessage bean = new BeanChatroomMessage(rsp);
+        return bean;
+    }
+    
     public static Map<Integer, BeanGameAccount> getGameAccountAll() {
         return new LinkedHashMap<Integer, BeanGameAccount>(cache_game_account);
     }
