@@ -8,9 +8,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -31,7 +33,7 @@ public class CdbTask implements FjServerTask {
     private static final Logger logger = Logger.getLogger(CdbTask.class);
     private static Connection conn = null;
 
-    private static final class InstInfo {
+    private static final class Instruction {
         public int          inst    = FjISIS.INST_SYS_UNKNOWN_INST;
         public JSONObject   args    = null;
         public String       mode    = null;
@@ -43,10 +45,14 @@ public class CdbTask implements FjServerTask {
     }
 
     @Override
-    public void initialize(FjServer server) {}
+    public void initialize(FjServer server) {
+    }
 
     @Override
-    public void destroy(FjServer server) {}
+    public void destroy(FjServer server) {
+        try {conn.close();}
+        catch (SQLException e) {}
+    }
     
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -57,28 +63,40 @@ public class CdbTask implements FjServerTask {
         }
         
         FjDscpMessage req = (FjDscpMessage) msg;
-        InstInfo inst = new InstInfo();
-        inst.inst = req.inst();
-        inst.args = req.argsToJsonObject();
         logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), req.inst()));
         
         if (!checkConnection()) {
+            Instruction inst = new Instruction();
+            inst.code = CommonDefinition.CODE.CODE_DB_INTERNAL_ERROR;
+            inst.desc = "db connection terminate";
             response(server.name(), req, inst);
             return;
         }
         
-        getInstInfo(conn, inst);
+        Instruction inst = getInstruction(conn, req.inst());
+        if (null == inst) {
+            inst = new Instruction();
+            inst.inst = req.inst();
+            queryInstruction(conn, inst);
+            if (CommonDefinition.CODE.CODE_SYS_SUCCESS == inst.code) {
+                cache_inst.put(inst.inst, inst);
+            }
+        }
+        
         if (CommonDefinition.CODE.CODE_SYS_SUCCESS != inst.code) {
-            logger.error("get instruction info failed: " + inst.desc);
+            logger.error("get instruction failed: " + inst.desc);
             response(server.name(), req, inst);
             return;
         }
+        
+        inst.args = req.argsToJsonObject();
+        
         generateSql(inst);
         executeSql(conn, inst);
         response(server.name(), req, inst);
     }
     
-    private static void response(String server, FjDscpMessage req, InstInfo inst) {
+    private static void response(String server, FjDscpMessage req, Instruction inst) {
         FjDscpMessage rsp = new FjDscpMessage();
         rsp.json().put("fs",   server);
         rsp.json().put("ts",   req.fs());
@@ -114,9 +132,22 @@ public class CdbTask implements FjServerTask {
         logger.error("open database connection failed");
         return false;
     }
-
     
-    private static void getInstInfo(Connection conn, InstInfo inst) {
+    private static Map<Integer, Instruction> cache_inst = new HashMap<Integer, Instruction>();
+    
+    private static Instruction getInstruction(Connection conn, int inst) {
+        Instruction instruction = null;
+        if (cache_inst.containsKey(inst)) {
+            instruction = cache_inst.get(inst);
+            instruction.args    = null;
+            instruction.sql_use = null;
+            instruction.code    = CommonDefinition.CODE.CODE_SYS_SUCCESS;
+            instruction.desc    = null;
+        }
+        return instruction;
+    }
+
+    private static void queryInstruction(Connection conn, Instruction inst) {
         Statement st = null;
         try {
             st = conn.createStatement();
@@ -147,7 +178,7 @@ public class CdbTask implements FjServerTask {
         }
     }
     
-    private static void generateSql(InstInfo inst) {
+    private static void generateSql(Instruction inst) {
         logger.debug(String.format("inst(%d) sql-ori: %s", inst.inst, inst.sql_ori));
         String sql_use = inst.sql_ori;
         @SuppressWarnings("unchecked")
@@ -162,7 +193,7 @@ public class CdbTask implements FjServerTask {
         logger.debug(String.format("inst(%d) sql-use: %s", inst.inst, sql_use));
     }
 
-    private static void executeSql(Connection conn, InstInfo inst) {
+    private static void executeSql(Connection conn, Instruction inst) {
         switch (inst.mode.toLowerCase()) {
         case "sp": executeSp(conn, inst); break;
         case "st": executeSt(conn, inst); break;
@@ -173,7 +204,7 @@ public class CdbTask implements FjServerTask {
         }
     }
     
-    private static void executeSt(Connection conn, InstInfo inst) {
+    private static void executeSt(Connection conn, Instruction inst) {
         Statement st = null;
         try {
             st = conn.createStatement();
@@ -198,7 +229,7 @@ public class CdbTask implements FjServerTask {
         }
     }
     
-    private static void executeSp(Connection conn, InstInfo inst) {
+    private static void executeSp(Connection conn, Instruction inst) {
         CallableStatement st = null;
         try {
             st = conn.prepareCall("call " + inst.sql_use + ";");                
