@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html style='height: 100%;'>
     <head>
         <meta charset='utf-8'/>
         <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
@@ -96,17 +96,23 @@
                 });
             });
 
+            function scroll_bottom() {
+                $(document.body)[0].scrollTop = (-1>>>2);
+            }
+
             function init() {
                 $('.weui_search_input').bind('focus', function(){
                     $('#operate_space').css('height', '0px');
                     $('.weui_search_bar').css('position', 'static');
-                    $(document.body)[0].scrollTop = (-1>>>2);
+                    $('#functions').hide();
+                    scroll_bottom();
                 });
                 $('.weui_search_input').bind('blur', function(){
-                    $('#operate_space').css('height', '44px');
+                    $('#operate_space').css('height', $('#searchbar').outerHeight(true)+'px');
                     $('.weui_search_bar').css('position', 'fixed');
-                    $('.weui_search_bar').css('bottom', '0px');
-                    $(document.body)[0].scrollTop = (-1>>>2);
+                    $('#functions').show();
+                    $('.weui_search_bar').css('bottom', '-'+$('#functions').height()+'px');
+                    scroll_bottom();
                 });
 				
 				ski.ui.set_title('☕️' + chatroom.game.name_zh_cn + '(' + members.length + ')');
@@ -182,6 +188,23 @@
                 }
             }
 
+            var functions_expande = false;
+
+            function toggle_functions() {
+                $('.weui_search_input').blur();
+
+                if(functions_expande) {
+                    functions_expande = false;
+                    $('#operate_space').css('height', $('#searchbar').outerHeight(true)+'px');
+                    $('.weui_search_bar').animate({bottom : '-'+$('#functions').height()+'px'}, 'fast');
+                } else {
+                    functions_expande = true;
+                    $('#operate_space').css('height', $('.weui_search_bar').height()+'px');
+                    $('.weui_search_bar').animate({bottom : '0px'}, 'fast');
+                }
+                scroll_bottom();
+            }
+
             function fn_choose_image() {
                 wx.chooseImage({
                     count       : 9, // 默认9
@@ -206,18 +229,18 @@
 
         </script>
     </head>
-    <body style="background: #ebebeb">
+    <body style="width: 100%; height: 100%; background: #ebebeb">
         <table style='border-collapse: collapse; width: 100%; height: 100%'>
             <tr><td><div id='container_message' style='width: 100%; height: 100%'></div></td></tr>
-            <tr id='operate_space' style='height: 44px'><td></td></tr> <!-- space for operate -->
+            <tr id='operate_space' style='height: 46px'><td></td></tr> <!-- space for operate -->
         </table>
 
         <div class="weui_search_bar" style='position: fixed; z-index: 200; bottom: -120px; width: 100%; padding: 0px; display: block;'>
-            <div style='padding: 8px 10px; '>
+            <div id='searchbar' style='padding: 8px 10px; '>
                 <table style='width: 100%; border-collapse: collapse;'><tr>
                     <td style='padding-right: 10px;'><input type='text' class="weui_search_input" style='width: 100%; height: 28px; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();" /></td>
                     <td width='28px'>
-                        <div style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px;' onclick="if('-'+$('#functions').css('height')==$('.weui_search_bar').css('bottom')) $('.weui_search_bar').animate({bottom : '0px'}, 'fast'); else $('.weui_search_bar').animate({bottom : '-'+$('#functions').css('height')}, 'fast');">
+                        <div style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px;' onclick="toggle_functions();">
                             <div style='position: absolute; top: 13px; right: 5px; width: 18px; height: 2px; background-color: gray'></div>
                             <div style='position: absolute; top: 5px; right: 13px; width: 2px; height: 18px; background-color: gray'></div>
                         </div>

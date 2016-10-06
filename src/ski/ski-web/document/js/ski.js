@@ -424,7 +424,7 @@ ski.ui = {
 		    				 + "</div>"
 		    				 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
                          + "</td>"
-                         + "<td style='max-width:"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding: "+padding_content+"px; word-wrap: break-word; text-align: left; background: white;'>"
+                         + "<td style='max-width:"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: left; padding: "+padding_content+"px; padding-bottom: 2px; word-wrap: break-word; text-align: left; background: white;'>"
                              + "<img width='"+(width_message-padding_content*2)+"px' src='"+ski.url.api+"?inst=2013&crid="+message.crid.toString(16)+"&mid="+message.mid.toString(16)+"&type="+message.type.toString(16)+"' />"
                          + "</div></td>"
                          + "<td width='"+width_space+"px'></td>"
@@ -481,7 +481,7 @@ ski.ui = {
             div.css('padding-bottom', padding_message + 'px');
             div.append("<table style='border-collapse: collapse;'><tr>"
                          + "<td width='"+width_space+"px'></td>"
-                         + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding: "+padding_content+"px; background: #a0e75a'>"
+                         + "<td width='"+width_message+"px' style='vertical-align: top;'><div class='weui_btn weui_btn_mini weui_btn_primary' style='max-width: "+width_message+"px; float: right; word-wrap: break-word; text-align: left; padding: "+padding_content+"px; padding-bottom: 2px; background: #a0e75a'>"
                              + "<img style='max-width:"+(width_message-padding_content*2)+"px' src='"+ski.url.api+"?inst=2013&crid="+message.crid.toString(16)+"&mid="+message.mid.toString(16)+"&type="+message.type.toString(16)+"' />"
                          + "</div></td>"
                          + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
