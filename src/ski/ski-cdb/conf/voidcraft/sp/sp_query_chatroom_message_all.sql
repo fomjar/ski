@@ -12,7 +12,7 @@ begin
     declare i_member    integer     default -1;
     declare i_type      tinyint     default -1;
     declare t_time      datetime    default null;
-    declare c_message   text        default null;
+    declare c_message   longtext    default null;
     declare c_arg0      varchar(64) default null;
     declare c_arg1      varchar(64) default null;
     declare c_arg2      varchar(64) default null;

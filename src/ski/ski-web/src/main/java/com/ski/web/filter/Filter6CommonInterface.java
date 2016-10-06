@@ -571,7 +571,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.content(data);
                 break;
             case CommonService.CHATROOM_MESSAGE_IMAGE:
-                response.attr().put("Content-Type", "image/png");
+                response.attr().put("Content-Type", "image/jpg");
                 response.content(data);
                 break;
             case CommonService.CHATROOM_MESSAGE_VOICE:
@@ -900,7 +900,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         case CommonService.CHATROOM_MESSAGE_IMAGE: {
             BufferedImage image = WechatInterface.media_image(wechat.token_monitor().token(), message);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {ImageIO.write(image, "png", baos);}
+            try {ImageIO.write(image, "jpg", baos);}
             catch (IOException e) {e.printStackTrace();}
             message = Base64.getEncoder().encodeToString(baos.toByteArray());
             break;

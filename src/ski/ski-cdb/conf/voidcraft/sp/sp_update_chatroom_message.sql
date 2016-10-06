@@ -12,7 +12,7 @@ create procedure sp_update_chatroom_message (
     in  member      integer,
     in  _type       tinyint,
     in  _time       datetime,
-    in  message     text,
+    in  message     longtext,
     in  arg0        varchar(64),
     in  arg1        varchar(64),
     in  arg2        varchar(64),

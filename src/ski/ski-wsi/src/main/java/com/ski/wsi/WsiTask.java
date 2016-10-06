@@ -122,20 +122,25 @@ public class WsiTask implements FjServerTask {
     
     private class CacheMonitor extends FjLoopTask {
         
-        private static final long INTEVAL = 1000L * 60;
-        private static final long TIMEOUT = 1000L * 60 * 30;
+        private long timeout = 1000L * 60 * 3;
         
         public CacheMonitor() {
-            setDelay(INTEVAL);
-            setInterval(INTEVAL);
+            long interval = 1000L * 60;
+            setDelay(interval);
+            setInterval(interval);
         }
         
         @Override
         public void perform() {
+            try {
+                setInterval(Integer.parseInt(FjServerToolkit.getServerConfig("wsi.cache.interval")) * 1000L);
+                timeout = Integer.parseInt(FjServerToolkit.getServerConfig("wsi.cache.timeout")) * 1000L;
+            } catch (Exception e) {e.printStackTrace();}
+            
             List<String> toremove = new LinkedList<String>();
             cache.forEach((sid, cc)->{
                 long time = System.currentTimeMillis() - cc.timestamp;
-                if (time >= TIMEOUT) {
+                if (time >= timeout) {
                     logger.error("remove cache: " + sid + " for timeout: " + time);
                     toremove.add(sid);
                 }
@@ -144,6 +149,7 @@ public class WsiTask implements FjServerTask {
                 try {cache.remove(sid).conn.close();}
                 catch (Exception e) {e.printStackTrace();}
             });
+            logger.error("current cache connections: " + cache.size());
         }
     }
     
