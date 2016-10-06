@@ -51,7 +51,7 @@ begin
                 '\t',
                 ifnull(t_time, ''),
                 '\t',
-                ifnull(c_message, ''),
+                (case i_type when 0 then ifnull(c_message, '') else '' end),
                 '\t',
                 ifnull(c_arg0, ''),
                 '\t',
