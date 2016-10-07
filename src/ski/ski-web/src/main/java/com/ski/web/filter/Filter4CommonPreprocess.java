@@ -39,7 +39,6 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 Object obj = args.get("user");
                 if (obj instanceof Integer) user = (int) obj;
                 else user = Integer.parseInt(obj.toString(), 16);
-                response.cookie().put("user", Integer.toHexString(user));
                 response.setcookie("user", Integer.toHexString(user));
             }
             
@@ -71,9 +70,24 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         
         // 请求接口
         if (request.path().equals(Filter6CommonInterface.URL_KEY)) {
+            JSONObject args = request.argsToJson();
+            if (args.has("user")) {
+                Object obj = args.get("user");
+                String user = null;
+                if (obj instanceof Integer) user = Integer.toHexString((int) obj);
+                else user = obj.toString();
+                
+                String cookie = "";
+                if (request.attr().containsKey("Cookie")) {
+                    cookie = request.attr().get("Cookie");
+                    cookie += "; ";
+                }
+                cookie += "user=" + user;
+                request.attr().put("Cookie", cookie);
+            }
             // 校验用户
             if (!request.cookie().containsKey("user")) {
-                logger.error("anonymous access deny: " + request.argsToJson());
+                logger.error("anonymous access deny: " + args);
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                 args_rsp.put("desc", "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");

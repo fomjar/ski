@@ -376,13 +376,70 @@ public class WechatInterface {
         return sendRequest("POST", _url, msg.toString());
     }
     
+    /**
+     * {
+     * "subscribe": 1,
+     * "openid": "o6_bmjrPTlm6_2sgVt7hMZOPfL2M",
+     * "nickname": "Band",
+     * "sex": 1,
+     * "language": "zh_CN",
+     * "city": "广州",
+     * "province": "广东",
+     * "country": "中国",
+     * "headimgurl":  "http://wx.qlogo.cn/mmopen/g3MonUZtNHkdmzicIlibx6iaFqAc56vxLSUfpb6n5WKSYVY0ChQKkiaJSgQ1dZuTOgvLLrhJbERQQ4eMsv84eavHiaiceqxibJxCfHe/0",
+     * "subscribe_time": 1382694957,
+     * "unionid": " o6_bmasdasdsad6_2sgVt7hMZOPfL"
+     * "remark": "",
+     * "groupid": 0,
+     * "tagid_list":[128,2]
+     * }
+     * 
+     * @param token
+     * @param user
+     * @return
+     */
     public static FjJsonMessage userInfo(String token, String user) {
         String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), token, user);
         return (FjJsonMessage) sendRequest("GET", url);
     }
     
+    /**
+     * 微信公众号网页认证
+     * 
+     * {
+     * "access_token":"ACCESS_TOKEN",
+     * "expires_in":7200,
+     * "refresh_token":"REFRESH_TOKEN",
+     * "openid":"OPENID",
+     * "scope":"SCOPE"
+     * }
+     * 
+     * @param appid
+     * @param secret
+     * @param code
+     * @return
+     */
     public static FjJsonMessage snsOauth2(String appid, String secret, String code) {
         String url = String.format("https://%s/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", host(), appid, secret, code);
+        return (FjJsonMessage) sendRequest("GET", url);
+    }
+    
+    /**
+     * 微信小程序认证
+     * 
+     * {
+     * "openid": "OPENID",
+     * "session_key": "SESSIONKEY"
+     * "expires_in": 2592000
+     * }
+     * 
+     * @param appid
+     * @param secret
+     * @param code
+     * @return
+     */
+    public static FjJsonMessage snsJscode2session(String appid, String secret, String code) {
+        String url = String.format("https://%s/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", host(), appid, secret, code);
         return (FjJsonMessage) sendRequest("GET", url);
     }
     

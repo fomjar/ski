@@ -1,0 +1,7 @@
+<!--index.wxml-->
+<view>
+    <button bindtap="tap_test">测试</button>
+    <view wx:for="{{response}}">
+        <text>{{item}}</text>
+    </view>
+</view>
