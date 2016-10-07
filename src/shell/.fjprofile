@@ -51,6 +51,20 @@ function scpskiconf() {
     expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/conf/server.conf"  "${ski_rbase}/ski-${mod}/conf"
 }
 
+function scpskibinall() {
+   scpskibin cdb
+   scpskibin wsi
+   scpskibin web
+   scpskibin bcs
+   scpskibin mma
+}
+
+function scpskibin() {
+    mod=$1
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-${mod}/bin"
+}
+
 function scpskitask() {
     mod=$1
     expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/target/ski-${mod}-${ver}.jar" "${ski_rbase}/ski-${mod}/task"
