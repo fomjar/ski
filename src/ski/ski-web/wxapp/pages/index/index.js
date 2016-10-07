@@ -13,8 +13,14 @@ Page({
     onUnload  : function () {},
     onPullDownRefreash : function () {},
     data : {
+        button_test : {
+            wxt_btn_type  	: 'primary',
+            wxt_btn_name    : '测试',
+            wxt_btn_bindtap : 'tap_test'
+        },
         response : [],
     },
+    
     tap_test : function() {
         var page = this;
         net.send(net.ISIS.INST_ECOM_QUERY_GAME, {user : app.user, gid : '1E'}, function(code, desc) {

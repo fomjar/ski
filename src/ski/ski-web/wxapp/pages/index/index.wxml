@@ -1,6 +1,9 @@
 <!--index.wxml-->
+
+<import src="/ui/wxt.wxml" />
+
 <view>
-    <button bindtap="tap_test">测试</button>
+    <template is="wxt_btn" data="{{...button_test}}" />
     <view wx:for="{{response}}">
         <text>{{item}}</text>
     </view>

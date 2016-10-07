@@ -1,0 +1,13 @@
+
+<template name="wxt_btn">
+    <button class="wxs_btn"
+        type="{{wxt_btn_type}}"
+        size="{{wxt_btn_size}}"
+        plain="{{wxt_btn_plain}}"
+        disabled="{{wxt_btn_disabled}}"
+        loading="{{wxt_btn_loading}}"
+        bindtap="{{wxt_btn_bindtap}}" >
+            {{wxt_btn_name}}
+    </button>
+</template>
+

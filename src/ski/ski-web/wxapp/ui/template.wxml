@@ -1,5 +1,0 @@
-
-<template name="weuix-button">
-    <button type="{{weuix_button_type}}" class="weuix-button"></button>
-</template>
-
