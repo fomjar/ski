@@ -109,7 +109,8 @@ public abstract class FjHttpMessage implements FjMessage {
         StringBuilder sb = new StringBuilder();
         sb.append(head() + "\r\n");
         attr().entrySet().forEach(entry->{
-            if (entry.getKey().equals("Content-Type"))
+            if (entry.getKey().equals("Content-Type")
+                    && (entry.getValue().startsWith("text") || entry.getValue().startsWith("application")))
                 sb.append(String.format("%s: %s; charset=UTF-8\r\n", entry.getKey(), entry.getValue()));
             else
                 sb.append(String.format("%s: %s\r\n", entry.getKey(), entry.getValue()));

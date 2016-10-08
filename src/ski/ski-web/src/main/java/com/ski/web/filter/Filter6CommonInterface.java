@@ -562,10 +562,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             return;
         }
         
-        if (args.has("mid") && args.has("type")) {
+        if (args.has("mid")) {
             BeanChatroomMessage message = CommonService.getChatroomMessageByCridMid(crid, getIntFromArgs(args, "mid"));
             byte[] data = Base64.getDecoder().decode(message.c_message);
-            switch (getIntFromArgs(args, "type")) {
+            switch (message.i_type) {
             case CommonService.CHATROOM_MESSAGE_TEXT:
                 response.attr().put("Content-Type", "text/plain");
                 response.content(data);
@@ -575,7 +575,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.content(data);
                 break;
             case CommonService.CHATROOM_MESSAGE_VOICE:
-                response.attr().put("Content-Type", "audio/mpeg");
+                response.attr().put("Content-Type", "audio/amr");
                 response.content(data);
                 break;
             default:
@@ -903,6 +903,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             try {ImageIO.write(image, "jpg", baos);}
             catch (IOException e) {e.printStackTrace();}
             message = Base64.getEncoder().encodeToString(baos.toByteArray());
+            break;
+        }
+        case CommonService.CHATROOM_MESSAGE_VOICE: {
+            byte[] voice = WechatInterface.media(wechat.token_monitor().token(), message);
+            message = Base64.getEncoder().encodeToString(voice);
             break;
         }
         }

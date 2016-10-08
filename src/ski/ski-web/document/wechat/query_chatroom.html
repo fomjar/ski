@@ -123,13 +123,27 @@
                     signature   = args.signature;
 
                     wx.config({
-                        'debug'     : true,        // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                        'debug'     : false,        // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
                         'appId'     : appId,        // 必填，公众号的唯一标识
                         'timestamp' : timestamp,    // 必填，生成签名的时间戳
                         'nonceStr'  : nonceStr,     // 必填，生成签名的随机串
                         'signature' : signature,    // 必填，签名，见附录1
-                        'jsApiList' : ['chooseImage', 'uploadImage']            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+                        'jsApiList' : [
+                                'chooseImage',
+                                'uploadImage',
+                                'startRecord',
+                                'stopRecord',
+                                'onVoiceRecordEnd',
+                                'uploadVoice'
+                        ]            // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
                     });
+                });
+                wx.onVoiceRecordEnd({
+                    // 录音时间超过一分钟没有停止的时候会执行 complete 回调
+                    complete: function (res) {
+                        var localId = res.localId;
+                        complete_record(localId);
+                    }
                 });
             }
 
@@ -226,6 +240,57 @@
                 });
             }
 
+            var talk_way = 'keyboard';
+            function toggle_talk() {
+                switch (talk_way) {
+                case 'keyboard':
+                    talk_way = 'voice';
+                    $('#talk_way_voice').hide();
+                    $('#talk_way_keyboard').show();
+                    $('#talk_area').html("<div id='voice_touch' style='width: 100%; height: 30px; border: 1px solid lightgray; border-radius: 6px; text-align: center; line-height: 28px; color: #555; font-weight: 600; user-select: none; -webkit-user-select: none;'>按住 说话</div>");
+                    $('#voice_touch').bind('touchstart', touchstart);
+                    $('#voice_touch').bind('touchend', touchend);
+                    break;
+                case 'voice':
+                    talk_way = 'keyboard';
+                    $('#talk_way_voice').show();
+                    $('#talk_way_keyboard').hide();
+                    $('#talk_area').html("<input type='text' class='weui_search_input' style='width: 100%; height: 30px; border: none; font-size: 16px;' onkeypress=\"if (event.keyCode==13) send_message();\" />");
+                    break;
+                }
+            }
+
+            function touchstart() {
+                $('#voice_touch').css('border', '1px solid gray');
+                $('#voice_touch').css('background', 'lightgray');
+                $('#voice_touch').text('松开 结束');
+
+                wx.startRecord();
+            }
+            function touchend() {
+                $('#voice_touch').css('border', '1px solid lightgray');
+                $('#voice_touch').css('background', 'none');
+                $('#voice_touch').text('按住 说话');
+
+                wx.stopRecord({
+                    success: function (res) {
+                        var localId = res.localId;
+                        complete_record(localId);
+                    }
+                });
+            }
+
+            function complete_record(localId) {
+                wx.uploadVoice({
+                    localId: localId, // 需要上传的音频的本地ID，由stopRecord接口获得
+                    isShowProgressTips: 1, // 默认为1，显示进度提示
+                    success: function (res) {
+                        var serverId = res.serverId; // 返回音频的服务器端ID
+                        ski.chatroom.message.send({crid : chatroom.crid, type : 2, message : serverId});
+                    }
+                });
+            }
+
         </script>
     </head>
     <body style="width: 100%; height: 100%; background: #ebebeb">
@@ -235,9 +300,13 @@
         </table>
 
         <div class="weui_search_bar" style='position: fixed; z-index: 200; bottom: -120px; width: 100%; padding: 0px; display: block;'>
-            <div id='searchbar' style='padding: 8px 10px; '>
+            <div id='searchbar' style='padding: 8px 8px; '>
                 <table style='width: 100%; border-collapse: collapse;'><tr>
-                    <td style='padding-right: 10px;'><input type='text' class="weui_search_input" style='width: 100%; height: 28px; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();" /></td>
+                    <td width='28px'>
+                        <div id='talk_way_voice'    style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px; background-image: url(res/cr_voice.png); background-position: center; background-repeat: no-repeat; background-size: 14px 16px;' onclick="toggle_talk();"></div>
+                        <div id='talk_way_keyboard' style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px; background-image: url(res/cr_keyboard.png); background-position: center; background-repeat: no-repeat; background-size: 20px 13px; display: none' onclick="toggle_talk();"></div>
+                    </td>
+                    <td id='talk_area' style='padding-right: 10px; padding-left: 10px'><input type='text' class="weui_search_input" style='width: 100%; height: 30px; border: none; font-size: 16px;' onkeypress="if (event.keyCode==13) send_message();" /></td>
                     <td width='28px'>
                         <div style='position: relative; width: 28px; height: 28px; text-align: center; border: 1px solid gray; border-radius: 20px;' onclick="toggle_functions();">
                             <div style='position: absolute; top: 13px; right: 5px; width: 18px; height: 2px; background-color: gray'></div>

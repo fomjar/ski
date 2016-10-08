@@ -3,9 +3,11 @@ package com.ski.web.wechat;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.channels.SocketChannel;
@@ -159,6 +161,20 @@ public class WechatInterface {
     public static FjJsonMessage ticket(String token) {
         String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), token);
         return (FjJsonMessage) sendRequest("GET", url);
+    }
+    
+    public static byte[] media(String token, String media_id) {
+        String url = String.format("https://%s/cgi-bin/media/get?access_token=%s&media_id=%s", host(), token, media_id);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            InputStream is = new URL(url).openStream();
+            byte[] buf = new byte[1024];
+            int len = -1;
+            while (0 < (len = is.read(buf))) baos.write(buf, 0, len);
+            is.close();
+            return baos.toByteArray();
+        } catch (IOException e) {e.printStackTrace();}
+        return null;
     }
     
     public static BufferedImage media_image(String token, String media_id) {
