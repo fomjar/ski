@@ -89,8 +89,8 @@ public class FFMPEG {
             fis.close();
         }
         
-//        source.delete();
-//        target.delete();
+        source.delete();
+        target.delete();
     }
 
 }
