@@ -15,10 +15,11 @@ begin
     declare i_cash      decimal(9, 2)   default 0.0;    -- 现金（可退的）
     declare i_coupon    decimal(9, 2)   default 0.0;    -- 优惠券（不可退）
     declare t_create    datetime        default null;   -- 创建时间
+    declare c_url_cover varchar(255)    default null;
 
     declare done            integer default 0;
     declare rs              cursor for
-                            select pa.i_paid, pa.c_user, pa.c_pass, pa.c_name, pa.c_mobile, pa.c_email, pa.t_birth, pa.i_cash, pa.i_coupon, pa.t_create
+                            select pa.i_paid, pa.c_user, pa.c_pass, pa.c_name, pa.c_mobile, pa.c_email, pa.t_birth, pa.i_cash, pa.i_coupon, pa.t_create, pa.c_url_cover
                               from tbl_platform_account pa
                              order by pa.c_user;
     /* 异常处理 */
@@ -27,7 +28,7 @@ begin
     /* 打开游标 */
     open rs;  
     /* 逐个取出当前记录i_gaid值*/
-    fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_cash, i_coupon, t_create;
+    fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_cash, i_coupon, t_create, c_url_cover;
     /* 遍历数据表 */
     while (done = 0) do
         if c_desc is null then set c_desc = '';
@@ -54,10 +55,12 @@ begin
                 '\t',
                 ifnull(i_coupon, 0.0),
                 '\t',
-                ifnull(t_create,  '')
+                ifnull(t_create,  ''),
+                '\t',
+                ifnull(c_url_cover,  '')
         );
 
-        fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_cash, i_coupon, t_create;
+        fetch rs into i_paid, c_user, c_pass, c_name, c_mobile, c_email, t_birth, i_cash, i_coupon, t_create, c_url_cover;
     end while;
     /* 关闭游标 */
     close rs;

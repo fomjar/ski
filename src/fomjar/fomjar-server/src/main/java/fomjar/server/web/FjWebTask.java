@@ -1,6 +1,7 @@
 package fomjar.server.web;
 
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,7 @@ public class FjWebTask implements FjServer.FjServerTask {
         SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
         wrapper.attach("conn", null); // give up connection
         pool.submit(()->{
+            prepProtocol(response, request);
             for (FjWebFilter filter : filters) {
                 try {
                     if (!filter.filter(response, request, conn)) break;
@@ -59,8 +61,28 @@ public class FjWebTask implements FjServer.FjServerTask {
                     break;
                 }
             }
+            postProtocol(response, request);
             if (conn.isOpen()) FjSender.sendHttpResponse(response, conn);
         });
+    }
+    
+    protected void prepProtocol(FjHttpResponse response, FjHttpRequest request) {
+        
+    }
+    
+    protected void postProtocol(FjHttpResponse response, FjHttpRequest request) {
+        if (request.attr().containsKey("Range")) {
+            byte[] data = response.content();
+            
+            String range = request.attr().get("Range");
+            int range_start = Integer.parseInt(range.split("=")[1].split("-")[0]);
+            int range_end   = Integer.parseInt(range.split("=")[1].split("-")[1]);
+            if (range_end + 1 > data.length) range_end = data.length - 1;
+            response.attr().put("Content-Range", String.format("bytes %d-%d/%d", range_start, range_end, data.length));
+            data = Arrays.copyOfRange(data, range_start, range_end + 1);
+            
+            response.content(data);
+        }
     }
     
     protected void onFilterException(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, Exception e) { }

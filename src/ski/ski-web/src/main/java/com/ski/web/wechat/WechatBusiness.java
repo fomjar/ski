@@ -105,6 +105,7 @@ public class WechatBusiness {
         args.put("name",    ui.json().getString("nickname"));
         args.put("gender",  convertSex(ui.json().getInt("sex")));
         args.put("address", String.format("%s %s %s", ui.json().getString("country"), ui.json().getString("province"), ui.json().getString("city")));
+        args.put("url_cover", ui.json().getString("headimgurl"));
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",    FjServerToolkit.getAnyServer().name());
         req.json().put("ts",    "cdb");

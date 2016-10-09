@@ -1,7 +1,6 @@
 package com.ski.web.wechat;
 
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -26,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpEntity;
@@ -174,13 +172,6 @@ public class WechatInterface {
             is.close();
             return baos.toByteArray();
         } catch (IOException e) {e.printStackTrace();}
-        return null;
-    }
-    
-    public static BufferedImage media_image(String token, String media_id) {
-        String url = String.format("https://%s/cgi-bin/media/get?access_token=%s&media_id=%s", host(), token, media_id);
-        try {return ImageIO.read(new URL(url));}
-        catch (IOException e) {e.printStackTrace();}
         return null;
     }
     

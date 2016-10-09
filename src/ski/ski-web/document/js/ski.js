@@ -431,6 +431,40 @@ ski.ui = {
                      + "</tr></table>");
             return div;
         }
+        case 2: {
+            var width_total   = $(document.body).width();
+            var width_edge    = 80;
+            var width_space   = width_total / 5;
+            var width_message = width_total - width_space - width_edge;
+            var size_cover    = 36;
+            var padding_message = 8;
+		    var padding_content = 10;
+            var size_font     = 16;
+            var media_url     = ski.url.api+"?inst=2013&crid="+message.crid.toString(16)+"&mid="+message.mid.toString(16)+"&user="+ski.user();
+
+            var div = $('<div></div>');
+            div.css('width', width_total+'px');
+            div.css('padding-top',    padding_message + 'px');
+            div.css('padding-bottom', padding_message + 'px');
+            div.append("<table style='border-collapse: collapse;'><tr>"
+                         + "<td width='"+width_edge+"px' style='vertical-align: top;'>"
+                             + "<div>"
+                                 + "<div style='position: relative; float: right; right: 0px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid #cccccc; border-bottom: 5px solid transparent;'></div>"
+                                 + "<div style='position: relative; float: right; right: -7px; top: "+(size_cover/2)+"px; width: 0px; height: 0px; z-index: 2; border-top: 5px solid transparent; border-right: 6px solid white; border-bottom: 5px solid transparent;'></div>"
+		    				     + "<div style='width: "+size_cover+"px; height: "+size_cover+"px; margin-left: auto; margin-right: auto'><img width='"+size_cover+"' height='"+size_cover+"' src='"+ski.url.api+"?inst=2109&string="+message.member_info.name+"' /></div>"
+		    				 + "</div>"
+		    				 + "<div style='text-align: center; font-size: 60%; color: gray; word-wrap: break-word; '>"+message.member_info.name+"</div>"
+                         + "</td>"
+                         + "<td width='"+width_message+"px' style='vertical-align: top;'>"
+                             + "<div onclick=\"$('#audio_"+message.crid+"_"+message.mid+"')[0].play()\" class='weui_btn weui_btn_mini weui_btn_primary' style='float: left; width: "+(width_message/2)+"px; height: 44px; word-wrap: break-word; padding: "+padding_content+"px; font-size: "+size_font+"px; line-height: 0px; color: black; background: white'> "
+                                 + "<audio id='audio_"+message.crid+"_"+message.mid+"' src='"+media_url+"'></audio>"
+                                 + "<div style='position: relative; float: left; left: 6px; top: 2px; width: 0px; height: 0px; z-index: 2; border-top: 10px solid transparent; border-left: 13px solid gray; border-bottom: 10px solid transparent;'></div>"
+                             + "</div>"
+                         + "</td>"
+                         + "<td width='"+width_space+"px'></td>"
+                     + "</tr></table>");
+            return div;
+        }
         }
     },
     message_right : function(message) {
@@ -514,8 +548,9 @@ ski.ui = {
             div.append("<table style='border-collapse: collapse;'><tr>"
                          + "<td width='"+width_space+"px'></td>"
                          + "<td width='"+width_message+"px' style='vertical-align: top;'>"
-                             + "<div class='weui_btn weui_btn_mini weui_btn_primary' style='width: "+(width_message/2)+"px; float: right; word-wrap: break-word; text-align: left; padding: "+padding_content+"px; font-size: "+size_font+"px; line-height: "+(size_font*1.5)+"px; color: black; background: #a0e75a'> "
-                                 + "<audio src='"+media_url+"' controls='controls'></audio>"
+                             + "<div onclick=\"$('#audio_"+message.crid+"_"+message.mid+"')[0].play()\" class='weui_btn weui_btn_mini weui_btn_primary' style='float: right; width: "+(width_message/2)+"px; height: 44px; word-wrap: break-word; padding: "+padding_content+"px; font-size: "+size_font+"px; line-height: 0px; color: black; background: #a0e75a'> "
+                                 + "<audio id='audio_"+message.crid+"_"+message.mid+"' src='"+media_url+"'></audio>"
+                                 + "<div style='position: relative; float: left; left: 6px; top: 2px; width: 0px; height: 0px; z-index: 2; border-top: 10px solid transparent; border-left: 13px solid gray; border-bottom: 10px solid transparent;'></div>"
                              + "</div>"
                          + "</td>"
                          + "<td width='"+width_edge+"px' style='vertical-align: top;'>"

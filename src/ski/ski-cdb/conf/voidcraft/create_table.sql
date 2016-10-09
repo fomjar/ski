@@ -20,6 +20,7 @@ create table tbl_platform_account (
     i_cash      decimal(9, 2),  -- 现金（可退的）
     i_coupon    decimal(9, 2),  -- 优惠券（不可退）
     t_create    datetime        -- 创建时间
+    c_url_cover varchar(255),   -- 头像url
 );
 
 -- 平台账户与渠道账户的关系
@@ -153,7 +154,8 @@ create table tbl_channel_account (
     c_address   varchar(100),   -- 地址
     c_zipcode   varchar(10),    -- 邮编
     t_birth     date,           -- 生日
-    t_create    datetime        -- 创建时间
+    t_create    datetime,       -- 创建时间
+    c_url_cover varchar(255),   -- 头像url
 );
 
 -- 游戏价格管理

@@ -1,11 +1,17 @@
 package com.ski.mma;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
@@ -15,8 +21,8 @@ import com.ski.common.CommonService;
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
-import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServer.FjServerTask;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjJsonMessage;
 import net.sf.json.JSONArray;
@@ -53,6 +59,11 @@ public class MmaTask implements FjServerTask {
         case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN: {
             logger.info(String.format("INST_ECOM_APPLY_RENT_BEGIN           - %s:%s", dmsg.fs(), dmsg.sid()));
             processApplyRentBegin(dmsg);
+            break;
+        }
+        case CommonDefinition.ISIS.INST_ECOM_APPLY_ENCODE: {
+            logger.info(String.format("INST_ECOM_APPLY_ENCODE               - %s:%s", dmsg.fs(), dmsg.sid()));
+            processApplyEncode(dmsg);
             break;
         }
         case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE: {
@@ -111,6 +122,62 @@ public class MmaTask implements FjServerTask {
         }
         
         response(dmsg, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
+    }
+    
+    private static void processApplyEncode(FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        String type = args.getString("type");
+        byte[] data = Base64.getDecoder().decode(args.getString("data"));
+        int    code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+        String desc = "system unavailable";
+        switch (type) {
+        case "image": {
+            try {
+                ByteArrayInputStream  src = new ByteArrayInputStream(data);
+                ByteArrayOutputStream dst = new ByteArrayOutputStream();
+                BufferedImage image = ImageIO.read(src);
+                ImageIO.write(image, "png", dst);
+                
+                code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
+                desc = Base64.getEncoder().encodeToString(dst.toByteArray());
+            } catch (IOException e) {
+                logger.error("encode image failed", e);
+                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+                desc = e.getMessage();
+            }
+            break;
+        }
+        case "audio": {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                new FFMPEG().source(data).target(baos).format("wav").execute();
+                
+                code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
+                desc = Base64.getEncoder().encodeToString(baos.toByteArray());
+            } catch (IOException | IllegalArgumentException | InterruptedException e) {
+                logger.error("encode audio failed", e);
+                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+                desc = e.getMessage();
+            }
+            break;
+        }
+        case "vedio": {
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                new FFMPEG().source(data).target(baos).format("mp4").execute();
+                
+                code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
+                desc = Base64.getEncoder().encodeToString(baos.toByteArray());
+            } catch (IOException | IllegalArgumentException | InterruptedException e) {
+                logger.error("encode audio failed", e);
+                code = CommonDefinition.CODE.CODE_SYS_UNAVAILABLE;
+                desc = e.getMessage();
+            }
+            break;
+        }
+        }
+        
+        response(dmsg, code, desc);
     }
     
     private static Map<Integer, Long> cache_last_message_time = new ConcurrentHashMap<Integer, Long>();

@@ -565,21 +565,26 @@ public class Filter6CommonInterface extends FjWebFilter {
         if (args.has("mid")) {
             BeanChatroomMessage message = CommonService.getChatroomMessageByCridMid(crid, getIntFromArgs(args, "mid"));
             byte[] data = Base64.getDecoder().decode(message.c_message);
+            
             switch (message.i_type) {
             case CommonService.CHATROOM_MESSAGE_TEXT:
                 response.attr().put("Content-Type", "text/plain");
+                response.attr().put("Content-Disposition", String.format("attachment; filename=\"%x_%x.txt\"", message.i_crid, message.i_mid));
                 response.content(data);
                 break;
             case CommonService.CHATROOM_MESSAGE_IMAGE:
-                response.attr().put("Content-Type", "image/jpg");
+                response.attr().put("Content-Type", "image/png");
+                response.attr().put("Content-Disposition", String.format("attachment; filename=\"%x_%x.png\"", message.i_crid, message.i_mid));
                 response.content(data);
                 break;
             case CommonService.CHATROOM_MESSAGE_VOICE:
-                response.attr().put("Content-Type", "audio/amr");
+                response.attr().put("Content-Type", "audio/wav");
+                response.attr().put("Content-Disposition", String.format("attachment; filename=\"%x_%x.wav\"", message.i_crid, message.i_mid));
                 response.content(data);
                 break;
             default:
                 response.attr().put("Content-Type", "text/plain");
+                response.attr().put("Content-Disposition", String.format("attachment; filename=\"%x_%x.txt\"", message.i_crid, message.i_mid));
                 response.content(data);
                 break;
             }
@@ -898,16 +903,21 @@ public class Filter6CommonInterface extends FjWebFilter {
         
         switch (type) {
         case CommonService.CHATROOM_MESSAGE_IMAGE: {
-            BufferedImage image = WechatInterface.media_image(wechat.token_monitor().token(), message);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {ImageIO.write(image, "jpg", baos);}
-            catch (IOException e) {e.printStackTrace();}
-            message = Base64.getEncoder().encodeToString(baos.toByteArray());
+            byte[] image = WechatInterface.media(wechat.token_monitor().token(), message);
+            JSONObject args_mma = new JSONObject();
+            args_mma.put("type", "image");
+            args_mma.put("data", Base64.getEncoder().encodeToString(image));
+            FjDscpMessage rsp_mma = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_ENCODE, args_mma);
+            message = CommonService.getResponseDesc(rsp_mma);
             break;
         }
         case CommonService.CHATROOM_MESSAGE_VOICE: {
-            byte[] voice = WechatInterface.media(wechat.token_monitor().token(), message);
-            message = Base64.getEncoder().encodeToString(voice);
+            byte[] audio = WechatInterface.media(wechat.token_monitor().token(), message);
+            JSONObject args_mma = new JSONObject();
+            args_mma.put("type", "audio");
+            args_mma.put("data", Base64.getEncoder().encodeToString(audio));
+            FjDscpMessage rsp_mma = CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_ENCODE, args_mma);
+            message = CommonService.getResponseDesc(rsp_mma);
             break;
         }
         }

@@ -1,5 +1,5 @@
 delete from tbl_instruction where i_inst = (conv('00002405', 16, 10) + 0);
-insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$name', $gender, '$phone', '$address', '$zipcode', '$birth', '$create')");
+insert into tbl_instruction values((conv('00002405', 16, 10) + 0), 'sp', 2, "sp_update_channel_account(?, ?, '$caid', '$user', $channel, '$name', $gender, '$phone', '$address', '$zipcode', '$birth', '$create', '$url_cover')");
 
 -- 更新订单
 delimiter //
@@ -16,7 +16,8 @@ create procedure sp_update_channel_account (
     in  address     varchar(100),   -- 地址
     in  zipcode     varchar(10),    -- 邮编
     in  birth       date,           -- 生日
-    in  _create     datetime        -- 创建时间
+    in  _create     datetime,       -- 创建时间
+    in  url_cover   varchar(255)    -- 头像url
 )
 begin
     declare di_caid     integer default -1;
@@ -48,7 +49,8 @@ begin
             c_address,
             c_zipcode,
             t_birth,
-            t_create
+            t_create,
+            c_url_cover
         ) values (
             di_caid,
             user,
@@ -59,7 +61,8 @@ begin
             address,
             zipcode,
             birth,
-            ifnull(_create, now())
+            ifnull(_create, now()),
+            url_cover
         );
         
         set c_desc = conv(di_caid, 10, 16);
@@ -82,7 +85,8 @@ begin
                 c_address,
                 c_zipcode,
                 t_birth,
-                t_create
+                t_create,
+                c_url_cover
             ) values (
                 di_caid,
                 user,
@@ -93,7 +97,8 @@ begin
                 address,
                 zipcode,
                 birth,
-                ifnull(_create, now())
+                ifnull(_create, now()),
+                url_cover
             );
         else
             if user is not null then
@@ -139,6 +144,11 @@ begin
             if _create is not null then
                 update tbl_channel_account
                    set t_create = _create
+                 where i_caid = di_caid;
+            end if;
+            if url_cover is not null then
+                update tbl_channel_account
+                   set c_url_cover = url_cover
                  where i_caid = di_caid;
             end if;
         end if;

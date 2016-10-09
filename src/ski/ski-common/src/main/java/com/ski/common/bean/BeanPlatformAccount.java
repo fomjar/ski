@@ -14,6 +14,7 @@ public class BeanPlatformAccount {
         i_cash      = Float.parseFloat(fields[7]);
         i_coupon    = Float.parseFloat(fields[8]);
         t_create    = fields[9];
+        c_url_cover = fields[10];
     }
     
     public int      i_paid;
@@ -26,5 +27,6 @@ public class BeanPlatformAccount {
     public float    i_cash;
     public float    i_coupon;
     public String   t_create;
+    public String   c_url_cover;
 
 }
