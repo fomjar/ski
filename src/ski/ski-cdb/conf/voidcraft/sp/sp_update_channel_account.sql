@@ -161,12 +161,12 @@ begin
        and pam.i_caid = di_caid;
 
     if di_count = 0 then
-        call sp_update_platform_account(i_code, c_desc, null, conv(di_caid, 10, 16), null, null, null, null, null, null, null, null);
+        call sp_update_platform_account(i_code, c_desc, null, conv(di_caid, 10, 16), null, null, null, null, null, null, null, null, null);
         select i_paid
           into di_paid
           from tbl_platform_account
          where c_user = conv(di_caid, 10, 16);
-        call sp_update_platform_account(i_code, c_desc, di_paid, '', null, null, null, null, null, null, null, null);
+        call sp_update_platform_account(i_code, c_desc, di_paid, '', null, null, null, null, null, null, null, null, null);
 
         call sp_update_platform_account_map(i_code, c_desc, di_paid, di_caid);
     else
