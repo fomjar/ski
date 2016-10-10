@@ -1,0 +1,64 @@
+body {
+    margin  : 0px;
+    padding : 0px;
+}
+
+.omc-frame {
+    width       : 100%;
+    height      : 100%;
+}
+
+.omc-frame-navigator {
+    height      : 40px;
+    background  : black;
+}
+
+.omc-frame-navigator-menu {
+    float       : left;
+    height      : 100%;
+    padding     : 0px 10px;
+    color       : white;
+    font-size   : 20px;
+    line-height : 40px;
+    cursor      : default;
+    user-select         : none;
+    -webkit-user-select : none;
+}
+
+.omc-frame-navigator-menu:hover {
+    height      : 110%;
+    background  : orange;
+}
+
+.omc-frame-content {
+    position    : absolute;
+    z-index     : -1;
+    top         : 40px;
+    bottom      : 0px;
+    left        : 0px;
+    right       : 0px;
+    border      : 1px solid black;
+}
+
+.omc-list {
+}
+
+/* list cell */
+.omc-list>div {
+    padding : 4px 8px;
+    border  : 1px solid transparent;
+    cursor  : default;
+    user-select         : none;
+    -webkit-user-select : none;
+}
+
+.omc-list>div:hover {
+    border  : 1px solid orange;
+}
+
+.omc-list>div:active {
+    border      : 1px solid orange;
+    background  : orange;
+}
+
+

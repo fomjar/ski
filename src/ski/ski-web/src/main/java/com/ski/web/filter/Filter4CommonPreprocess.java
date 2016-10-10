@@ -23,8 +23,13 @@ public class Filter4CommonPreprocess extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         // 首页重定向
-        if (request.path().equals("/")) {
+        if (request.path().equals("/wechat")) {
             redirect(response, "/wechat/index.html");
+            return false;
+        }
+        // 首页重定向
+        if (request.path().equals("/omc")) {
+            redirect(response, "/omc/index.html");
             return false;
         }
         

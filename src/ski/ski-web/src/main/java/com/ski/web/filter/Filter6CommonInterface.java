@@ -90,6 +90,9 @@ public class Filter6CommonInterface extends FjWebFilter {
                 case CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_END:
                     processApplyRentEnd(response, request);
                     break;
+                case CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT:
+                    processQueryChannelAccount(response, request);
+                    break;
                 case CommonDefinition.ISIS.INST_ECOM_QUERY_CHATROOM:
                     processQueryChatroom(response, request);
                     break;
@@ -448,6 +451,37 @@ public class Filter6CommonInterface extends FjWebFilter {
         args_rsp.put("desc", null);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
+    }
+    
+    private void processQueryChannelAccount(FjHttpResponse response, FjHttpRequest request) {
+        JSONObject args = request.argsToJson();
+        
+        if (args.has("caid")) {
+            int caid = getIntFromArgs(args, "caid");
+            BeanChannelAccount user = null;
+            if (null == (user = CommonService.getChannelAccountByCaid(caid))) {
+                JSONObject args_rsp = new JSONObject();
+                args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS);
+                args_rsp.put("desc", "caid not exist");
+                response.attr().put("Content-Type", "application/json");
+                response.content(args_rsp);
+                return;
+            }
+            
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", tojson(user));
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+        } else {
+            JSONArray desc = new JSONArray();
+            CommonService.getChannelAccountAll().values().forEach(user->desc.add(tojson(user)));
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+            args_rsp.put("desc", desc);
+            response.attr().put("Content-Type", "application/json");
+            response.content(args_rsp);
+        }
     }
     
     private void processQueryChatroom(FjHttpResponse response, FjHttpRequest request) {
@@ -1126,6 +1160,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("cash",    bean.i_cash);
         json.put("coupon",  bean.i_coupon);
         json.put("create",  bean.t_create);
+        json.put("url_cover", bean.c_url_cover);
         
         float[] prestatement = CommonService.prestatementByPaid(bean.i_paid);
         json.put("cash_rt",     prestatement[0]);
@@ -1296,6 +1331,9 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("address",  bean.c_address);
         json.put("zipcode",  bean.c_zipcode);
         json.put("create",   bean.t_create);
+        json.put("url_cover", bean.c_url_cover);
+        
+        json.put("display_name", bean.getDisplayName());
         return json;
     }
     

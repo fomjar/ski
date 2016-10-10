@@ -1,0 +1,61 @@
+
+.index-user-list {
+    float       : left;
+    width       : 24%;
+    height      : 100%;
+    overflow-y  : auto;
+    border-right    : 1px solid black;
+}
+
+/* user cell */
+.index-user-list>div {
+    position    : relative;
+    height      : 60px;
+    line-height : 22px;
+}
+
+/* cell cover */
+.index-user-list>div div:nth-child(1) {
+    position    : absolute;
+    top         : 13px;
+    left        : 10px;
+    width       : 40px;
+    height      : 40px;
+    border      : 1px solid gray;
+}
+.index-user-list>div div:nth-child(1) img {
+    width   : 40px;
+    height  : 40px;
+}
+/* cell channel */
+.index-user-list>div div:nth-child(2) {
+    position    : absolute;
+    top         : 14px;
+    left        : 64px;
+    font-style  : italic;
+}
+/* cell name */
+.index-user-list>div div:nth-child(3) {
+    position    : absolute;
+    top         : 14px;
+    left        : 124px;
+    width       : 140px;
+    white-space : nowrap;
+}
+/* cell phone */
+.index-user-list>div div:nth-child(4) {
+    position    : absolute;
+    top         : 32px;
+    left        : 64px;
+    white-space : nowrap;
+}
+
+.index-user-detail {
+    float       : right;
+    width       : 75%;
+    height      : 100%;
+    overflow-y  : auto;
+    border-left : 1px solid black;
+}
+
+

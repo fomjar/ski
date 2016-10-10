@@ -101,8 +101,17 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
 
         addActionListener(e->MainFrame.getInstance().setDetailUser(data.i_caid));
         
-        if (rent.getText().startsWith("00 /")) setForeground(Color.lightGray);
-        else setForeground(color_major);
+        if (rent.getText().startsWith("00 /")) {
+            setForeground(Color.lightGray);
+            plat.setForeground(Color.lightGray);
+            name.setForeground(Color.lightGray);
+            phon.setForeground(Color.lightGray);
+        } else {
+            setForeground(color_major);
+            plat.setForeground(color_major);
+            name.setForeground(color_major);
+            phon.setForeground(color_major);
+        }
     }
 
     private static String getMinorString(BeanChannelAccount data) {
