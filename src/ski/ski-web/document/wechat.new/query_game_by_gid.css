@@ -1,0 +1,168 @@
+
+.game-head {
+    position    : fixed;
+    z-index     : -2;
+    top         : 0px;
+    width       : 100%;
+    height      : 100%;
+}
+
+.game-head>div {
+    position        : absolute;
+    left            : 150px;
+    right           : 20px;
+    padding-right   : 10px; /* 防止阴影被裁 */
+    color           : white;
+    text-shadow     : black 1px 1px 2px;
+    text-align      : right;
+    white-space     : nowrap;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+}
+
+/* game background */
+.game-head #game_background {
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    background-size : cover;
+    filter          : blur(60px);
+    -webkit-filter  : blur(60px);
+}
+
+/* game cover */
+.game-head #game_cover {
+    position    : absolute;
+    top         : 20px;
+    left        : 20px;
+    width       : 110px;
+    height      : 110px;
+}
+
+/* game name zh */
+.game-head #game_name_zh {
+    top         : 20px;
+    font-weight : 500;
+}
+
+/* game name en */
+.game-head #game_name_en {
+    top         : 44px;
+    font-weight : 200;
+}
+
+/* game category */
+.game-head #game_category {
+    top         : 78px;
+    font-weight : 200;
+    font-size   : 80%;
+}
+
+/* game language */
+.game-head #game_language {
+    top         : 96px;
+    font-weight : 200;
+    font-size   : 80%;
+}
+
+/* game sale */
+.game-head #game_sale {
+    top         : 114px;
+    font-weight : 200;
+    font-size   : 80%;
+}
+
+.game-body {
+    position    : relative;
+    top         : 150px;
+    bottom      : 0px;
+    overflow    : auto;
+    padding     : 20px;
+    background  : white;
+}
+
+.game-body-category {
+    color           : #04be02;
+    font-size       : 130%;
+    border-bottom   : 1px solid #04be02;
+}
+
+.game-body-tips {
+    margin  : 5px 0px;
+    color   : gray;
+}
+
+/* 海报 */
+.game-body-poster {
+    height      : 200px;
+    background  : black;
+}
+
+/* 简介 */
+.game-body-introduction {
+    margin-top  : 20px;
+    text-indent : 2em;
+}
+
+/* 渠道商品 */
+.game-body-ccs {
+    margin-top  : 20px;
+}
+
+.game-body-ccs-box {
+    height      : 200px;
+    overflow    : auto;
+    border      : 1px solid #04be02;
+}
+
+.game-body-ccs-box table {
+    border-collapse : collapse;
+}
+
+.game-body-ccs-box table td {
+    padding : 5px;
+}
+
+.game-body-cc {
+    width       : 140px;
+    height      : 188px;
+    border      : 1px solid transparent;
+    transition          : border .2s;
+    -webkit-transition  : border .2s;
+}
+
+.game-body-cc:hover {
+    border  : 1px solid #04be02;
+}
+
+.game-body-cc:active {
+    border  : 1px solid #038f02;
+}
+
+.game-body-cc>img {
+    width   : 140px;
+    height  : 140px;
+}
+
+.game-body-cc>div {
+    text-align  : center;
+    cursor      : default;
+    line-height : 24px;
+}
+
+.game-body-cc>div:nth-child(3) {
+    color   : red;
+}
+
+.game-body-cc-detail {
+    display : none;
+    opacity : 0;
+    border  : 1px solid #04be02;
+    transition          : opacity .5s;
+    -webkit-transition  : opacity .5s;
+}
+
+.game-body-cc-detail a{
+    text-decoration : none;
+}
+

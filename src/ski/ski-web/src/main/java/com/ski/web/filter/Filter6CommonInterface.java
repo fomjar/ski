@@ -226,14 +226,17 @@ public class Filter6CommonInterface extends FjWebFilter {
     private void processApplyPlatformAccountMoney_Recharge_Prepare(FjHttpResponse response, FjHttpRequest request) {
         long timestamp  = System.currentTimeMillis() / 1000;
         String noncestr = Long.toHexString(System.currentTimeMillis());
-        JSONObject args = new JSONObject();
-        args.put("appid",       FjServerToolkit.getServerConfig("web.wechat.appid"));
-        args.put("timestamp",   String.valueOf(timestamp));
-        args.put("noncestr",    noncestr);
-        args.put("signature",   WechatInterface.createSignature4Config(noncestr,
+        JSONObject desc = new JSONObject();
+        desc.put("appid",       FjServerToolkit.getServerConfig("web.wechat.appid"));
+        desc.put("timestamp",   String.valueOf(timestamp));
+        desc.put("noncestr",    noncestr);
+        desc.put("signature",   WechatInterface.createSignature4Config(noncestr,
                 wechat.token_monitor().ticket(),
                 timestamp,
                 request.attr().get("Referer")));
+        JSONObject args = new JSONObject();
+        args.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args.put("desc", desc);
         response.attr().put("Content-Type", "application/json");
         response.content(args);
     }
@@ -278,8 +281,12 @@ public class Filter6CommonInterface extends FjWebFilter {
         
         cache_user_recharge.add(user);
         
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
+        args_rsp.put("desc", json_prepay);
+        
         response.attr().put("Content-Type", "application/json");
-        response.content(json_prepay);
+        response.content(args_rsp);
     }
     /**
      * <xml>

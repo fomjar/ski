@@ -3,13 +3,14 @@
     float       : left;
     width       : 24%;
     height      : 100%;
-    overflow-y  : auto;
     border-right    : 1px solid black;
 }
 
 /* user cell */
 .index-user-list>div {
     position    : relative;
+    left        : 0px;
+    right       : 0px;
     height      : 60px;
     line-height : 22px;
 }
@@ -21,7 +22,7 @@
     left        : 10px;
     width       : 40px;
     height      : 40px;
-    border      : 1px solid gray;
+    border      : 1px solid black;
 }
 .index-user-list>div div:nth-child(1) img {
     width   : 40px;
@@ -39,22 +40,26 @@
     position    : absolute;
     top         : 14px;
     left        : 124px;
-    width       : 140px;
+    right       : 0px;
     white-space : nowrap;
+    overflow    : hidden;
+    text-overflow   : ellipsis;
 }
 /* cell phone */
 .index-user-list>div div:nth-child(4) {
     position    : absolute;
     top         : 32px;
     left        : 64px;
+    right       : 0px;
     white-space : nowrap;
+    overflow    : hidden;
+    text-overflow   : ellipsis;
 }
 
 .index-user-detail {
     float       : right;
     width       : 75%;
     height      : 100%;
-    overflow-y  : auto;
     border-left : 1px solid black;
 }
 

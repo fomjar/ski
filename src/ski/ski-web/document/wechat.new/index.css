@@ -1,0 +1,40 @@
+
+.index-searchbar {
+    height      : 40px;
+    background  : lightgray;
+}
+
+.index-button-category {
+    float   : left;
+    width   : 60px;
+    height  : 20px;
+    margin  : 9px 12px;
+}
+
+.index-input-search {
+    position    : absolute;
+    left        : 72px;
+    right       : 0px;
+    margin      : 8px 12px;
+}
+
+.index-content {
+    position    : absolute;
+    top         : 40px;
+    bottom      : 0px;
+    left        : 0px;
+    right       : 0px;
+    overflow    : auto;
+}
+
+.index-poster {
+    padding : 8px 16px;
+}
+
+.index-poster a img {
+    width   : 100%;
+    border-radius           : 20px;
+    -webkit-border-radius   : 20px;
+}
+
+

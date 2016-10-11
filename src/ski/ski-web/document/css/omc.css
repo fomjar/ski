@@ -40,6 +40,10 @@ body {
     border      : 1px solid black;
 }
 
+.omc-frame-content>div {
+    overflow    : auto;
+}
+
 .omc-list {
 }
 

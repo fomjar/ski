@@ -1,0 +1,223 @@
+body {
+    margin      : 0px;
+    padding     : 0px;
+    font-size   : 14px;
+}
+
+.wechat-frame {
+    width       : 100%;
+    height      : 100%;
+}
+
+.wechat-frame-navigator {
+    height      : 0px;
+}
+
+.wechat-frame-content {
+    position    : absolute;
+    z-index     : -1;
+    top         : 0px;
+    bottom      : 0px;
+    left        : 0px;
+    right       : 0px;
+    overflow    : auto;
+}
+
+.wechat-button {
+    text-align  : center;
+    cursor      : default;
+    border-radius           : 5px;
+    -webkit-border-radius   : 5px;
+    transition          : background .2s, border .2s;
+    -webkit-transition  : background .2s, border .2s;
+}
+
+.wechat-button-major {
+    color       : white;
+    background  : #04be02;
+    border      : 1px solid rgba(0, 0, 0, .2);
+}
+
+.wechat-button-major:hover {
+    background  : #04cc02;
+    border      : 1px solid rgba(0, 0, 0, .1);
+}
+
+.wechat-button-major:active {
+    color       : lightgray;
+    background  : #038f02;
+    border      : 1px solid rgba(0, 0, 0, .2);
+}
+
+.wechat-button-disable {
+    color       : white;
+    background  : #cccccc;
+    border      : 1px solid rgba(0, 0, 0, .2);
+}
+
+.wechat-button-disable:hover {
+    background  : #dddddd;
+    border      : 1px solid rgba(0, 0, 0, .1);
+}
+
+.wechat-button-disable:active {
+    background  : #aaaaaa;
+    border      : 1px solid rgba(0, 0, 0, .2);
+}
+
+.wechat-button-large {
+    margin      : 15px;
+    font-size   : 130%;
+    line-height : 40px;
+}
+
+.wechat-button-small {
+    margin      : 15px;
+}
+
+.wechat-list {
+    border-top  : 1px solid lightgray;
+}
+
+.wechat-list div {
+    cursor  : default;
+}
+
+/* list cell */
+.wechat-list>div {
+    position        : relative;
+    background      : rgba(0, 0, 0, .02);
+    border-bottom   : 1px solid lightgray;
+    transition          : background .2s, border .2s;
+    -webkit-transition  : background .2s, border .2s;
+}
+
+.wechat-list>div:hover {
+    background  : white;
+}
+
+.wechat-list>div:active {
+    background  : lightgray;
+}
+
+/* list cell kv */
+.wechat-list-cell-kv {
+    height  : 24px;
+    padding : 10px 15px;
+}
+
+.wechat-list-cell-kv>*:nth-child(1) {
+    float       : left;
+    width       : 24%;
+    font-size   : 130%;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+}
+
+.wechat-list-cell-kv>*:nth-child(2) {
+    float       : right;
+    width       : 75%;
+    font-size   : 130%;
+    color       : gray;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    text-align  : right;
+}
+
+/* list cell game */
+.wechat-list-cell-game {
+    height  : 60px;
+    padding : 15px;
+}
+/* game icon */
+.wechat-list-cell-game img {
+    float   : left;
+    width   : 60px;
+    height  : 60px;
+}
+/* game name */
+.wechat-list-cell-game>div:nth-child(2) {
+    position        : absolute;
+    left            : 90px;
+    right           : 120px;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    font-size       : 120%;
+    font-weight     : 800;
+}
+/* game rent a */
+.wechat-list-cell-game>div:nth-child(3) {
+    position        : absolute;
+    top             : 20px;
+    right           : 70px;
+    padding         : 0px 4px;
+    font-size       : 80%;
+}
+/* game rent b */
+.wechat-list-cell-game>div:nth-child(4) {
+    position        : absolute;
+    top             : 20px;
+    right           : 20px;
+    padding         : 0px 4px;
+    font-size       : 80%;
+}
+/* game introduction */
+.wechat-list-cell-game>div:nth-child(5) {
+    position        : absolute;
+    top             : 40px;
+    left            : 90px;
+    right           : 20px;
+    height          : 38px;
+    word-wrap       : break-word;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+    color           : gray;
+    font-size       : 90%;
+}
+
+.wechat-tips {
+    margin      : 5px 15px;
+    font-size   : 100%;
+    color       : gray;
+}
+
+.wechat-toast {
+    position    : absolute;
+    z-index     : 5;
+    max-width   : 80%;
+    top         : 70%;
+    left        : 50%;
+    transform           : translate(-50%);
+    -webkit-transform   : translate(-50%);
+    padding     : 5px 20px;
+    color       : #eeeeee;
+    background  : rgba(0, 0, 0, .5);
+    border-radius           : 8px;
+    -webkit-border-radius   : 8px;
+    font-size   : 130%;
+    line-height : 24px;
+    opacity     : 0;
+    transition          : opacity .2s;
+    -webkit-transition  : opacity .2s;
+}
+
+input {
+    height      : 20px;
+    border      : 1px solid gray;
+    appearance          : none;
+    -webkit-appearance  : none;
+    border-radius           : 5px;
+    -webkit-border-radius   : 5px;
+}
+
+select {
+    height      : 25px;
+    background  : transparent;
+    border      : 1px solid transparent;
+    appearance              : none;
+    -webkit-appearance      : none;
+    border-radius           : 5px;
+    -webkit-border-radius   : 5px;
+}
+
+
