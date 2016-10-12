@@ -5,8 +5,10 @@ fomjar.framework.phase.append('dom', build_post);
 fomjar.framework.phase.append('dom', build_intr);
 fomjar.framework.phase.append('dom', build_ccs);
 fomjar.framework.phase.append('dom', build_rent);
+fomjar.framework.phase.append('dom', build_chat);
 
 fomjar.framework.phase.append('ren', setup);
+fomjar.framework.phase.append('ren', animate);
 
 function build_head() {
     var head = $('<div></div>');
@@ -62,7 +64,27 @@ function build_ccs() {
     $('.game-body').append(ccs);
 }
 
-function build_rent() {}
+function build_rent() {
+    var rent = $('<div></div>');
+    rent.addClass('game-body-rent');
+    var category = $('<div></div>');
+    category.addClass('game-body-category');
+    category.text('即刻体验这款游戏');
+    var list = $('<div></div>');
+    list.addClass('wechat-list');
+    var button = $('<div></div>');
+    button.addClass('wechat-button wechat-button-major wechat-button-small');
+    button.text('我要体验');
+    button.bind('click', function() {window.location = 'apply_rent_begin.html?gid=' + fomjar.util.args().gid});
+
+    rent.append([category, list, button]);
+
+    $('.game-body').append(rent);
+}
+
+function build_chat() {
+    $('.game-body').append("<div style='margin-top: 20px; height : 3px;' onclick=\"window.location='query_chatroom.html?gid="+fomjar.util.args().gid+"'\"></div>");
+}
 
 function setup() {
     var gid = fomjar.util.args().gid;
@@ -182,6 +204,17 @@ function setup() {
             cc_detail.append("<a><div class='wechat-button wechat-button-major wechat-button-small'>长按拷贝宝贝链接<br>到浏览器打开或在APP中直接搜索</div></a>")
             $('.game-body-ccs').append(cc_detail);
         }
+        // rent
+        if (game.rent_avail_a && 0 != game.rent_price_a) {
+            $('.game-body-rent .wechat-list').append("<div class='wechat-list-cell-kv'><div>认证</div><div>"+game.rent_price_a+' 元/天</div></div>');
+        }
+        if (game.rent_avail_b && 0 != game.rent_price_b) {
+            $('.game-body-rent .wechat-list').append("<div class='wechat-list-cell-kv'><div>不认证</div><div>"+game.rent_price_b+' 元/天</div></div>');
+        }
+        if ((!game.rent_avail_a || 0 == game.rent_price_a)
+            && (!game.rent_avail_b || 0 == game.rent_price_b)) {
+            $('.game-body-rent').hide();
+        }
     });
 }
 
@@ -197,7 +230,7 @@ function on_cc_click(cc) {
     $('.game-body-cc-detail a').attr('href', cc.item_url.replace(/https/, 'taobao').replace(/http/, 'taobao'));
 
     $('.game-body-cc-detail').show();
-    $('.game-body-cc-detail').css('opacity', '1');
+    setTimeout(function() {$('.game-body-cc-detail').css('opacity', '1');}, 0);
 }
 
 function cc_shop_rate(rate) {
@@ -217,6 +250,10 @@ function cc_shop_rate(rate) {
     }
     for (var i = 0; i < r[1]; i++) p += s;
     return p;
+}
+
+function animate() {
+    setTimeout(function() {$('.game-body').css('top', '150px');}, 500);
 }
 
 

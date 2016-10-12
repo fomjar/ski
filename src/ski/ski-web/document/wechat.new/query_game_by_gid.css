@@ -74,11 +74,12 @@
 
 .game-body {
     position    : relative;
-    top         : 150px;
-    bottom      : 0px;
+    top         : 0px;
     overflow    : auto;
     padding     : 20px;
     background  : white;
+    transition          : top 1s;
+    -webkit-transition  : top 1s;
 }
 
 .game-body-category {
@@ -155,14 +156,25 @@
 }
 
 .game-body-cc-detail {
-    display : none;
-    opacity : 0;
-    border  : 1px solid #04be02;
+    display     : none;
+    opacity     : 0;
+    border      : 1px solid #04be02;
+    border-top  : none;
     transition          : opacity .5s;
     -webkit-transition  : opacity .5s;
 }
 
-.game-body-cc-detail a{
-    text-decoration : none;
+.game-body-rent {
+    margin-top  : 20px;
+    border  : 1px solid #04be02;
+}
+
+.game-body-rent .game-body-category {
+    padding-top     : 5px;
+    padding-left    : 5px;
+}
+
+.game-body-rent .wechat-list {
+    border-top  : none;
 }
 

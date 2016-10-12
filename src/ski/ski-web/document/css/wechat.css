@@ -86,7 +86,7 @@ body {
 /* list cell */
 .wechat-list>div {
     position        : relative;
-    background      : rgba(0, 0, 0, .02);
+    background      : rgba(0, 0, 0, .01);
     border-bottom   : 1px solid lightgray;
     transition          : background .2s, border .2s;
     -webkit-transition  : background .2s, border .2s;
@@ -97,7 +97,7 @@ body {
 }
 
 .wechat-list>div:active {
-    background  : lightgray;
+    background  : rgba(0, 0, 0, .1);
 }
 
 /* list cell kv */
@@ -201,6 +201,37 @@ body {
     -webkit-transition  : opacity .2s;
 }
 
+.wechat-tab {
+}
+
+/* tab head */
+.wechat-tab>div:nth-child(1) {
+    position    : absolute;
+    z-index     : 1;
+    top         : 0;
+    height      : 40px;
+    width       : 100%;
+    cursor      : default;
+}
+
+.wechat-tab >div:nth-child(1) >div {
+    transition          : background .5s, font-size .5s;
+    -webkit-transition  : background .5s, font-size .5s;
+}
+
+/* tab body */
+.wechat-tab>div:nth-child(2) {
+    position    : absolute;
+    top         : 40px;
+    bottom      : 0px;
+    width       : 100%;
+}
+
+.wechat-tab >div:nth-child(2) >div {
+    transition          : opacity .2s;
+    -webkit-transition  : opacity .2s;
+}
+
 input {
     height      : 20px;
     border      : 1px solid gray;
@@ -218,6 +249,10 @@ select {
     -webkit-appearance      : none;
     border-radius           : 5px;
     -webkit-border-radius   : 5px;
+}
+
+a {
+    text-decoration : none;
 }
 
 
