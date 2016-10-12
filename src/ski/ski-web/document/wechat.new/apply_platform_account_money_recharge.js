@@ -5,10 +5,10 @@ fomjar.framework.phase.append('ren', wx_config);
 
 function build_list() {
     var before = $('<div></div>');
-    before.addClass('wechat-tips');
+    before.addClass('tips');
     before.text('请选择充值金额');
     var after = $('<div></div>')
-    after.addClass('wechat-tips');
+    after.addClass('tips');
     after.text('账户余额可以全额退款，请放心充值');
     var k = $('<div></div>');
     k.text('充值金额');
@@ -18,24 +18,23 @@ function build_list() {
     v.append("<option value='120' selected='selected'>120元</option>");
 
     var cell = $('<div></div>');
-    cell.addClass('wechat-list-cell-kv');
+    cell.addClass('cell-kv');
     cell.append([k, v]);
 
     var list = $('<div></div>');
-    list.addClass('wechat-list');
+    list.addClass('list');
     list.append(cell);
 
-    $('.wechat-frame-content').append([before, list, after]);
+    $('.wechat .frame .body').append([before, list, after]);
 }
 
 function build_buttons() {
     var button = $('<div></div>');
-    button.addClass('wechat-button wechat-button-major wechat-button-large');
-    button.addClass('recharge-button-apply');
+    button.addClass('button button-major button-large');
     button.text('充值');
     button.bind('click', apply);
 
-    $('.wechat-frame-content').append(button);
+    $('.wechat .frame .body').append(button);
 }
 
 function wx_config() {

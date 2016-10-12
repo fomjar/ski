@@ -1,40 +1,39 @@
 
 .index-searchbar {
-    height      : 40px;
+    height      : 3em;
     background  : lightgray;
 }
 
-.index-button-category {
+.index-searchbar .button {
     float   : left;
-    width   : 60px;
-    height  : 20px;
-    margin  : 9px 12px;
+    margin  : .7em 1em;
+    width   : 5em;
 }
 
-.index-input-search {
+.index-searchbar input {
     position    : absolute;
-    left        : 72px;
-    right       : 0px;
-    margin      : 8px 12px;
+    top         : .4em;
+    left        : 9.5em;
+    right       : 1em;
 }
 
 .index-content {
     position    : absolute;
-    top         : 40px;
-    bottom      : 0px;
-    left        : 0px;
-    right       : 0px;
+    top         : 3em;
+    bottom      : 0;
+    left        : 0;
+    right       : 0;
     overflow    : auto;
 }
 
 .index-poster {
-    padding : 8px 16px;
+    padding : .5em 1em;
 }
 
 .index-poster a img {
     width   : 100%;
-    border-radius           : 20px;
-    -webkit-border-radius   : 20px;
+    border-radius           : 1em;
+    -webkit-border-radius   : 1em;
 }
 
 

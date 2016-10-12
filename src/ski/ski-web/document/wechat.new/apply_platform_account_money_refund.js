@@ -5,7 +5,7 @@ fomjar.framework.phase.append('ren', setup);
 
 function build_list() {
     var before = $('<div></div>');
-    before.addClass('wechat-tips');
+    before.addClass('tips');
     before.text('只能退“现金”部分的金额，参见“小金库”');
     var k = $('<div></div>');
     k.text('退款金额');
@@ -13,24 +13,24 @@ function build_list() {
     v.attr('id', 'money');
 
     var cell = $('<div></div>');
-    cell.addClass('wechat-list-cell-kv');
+    cell.addClass('cell-kv');
     cell.append([k, v]);
 
     var list = $('<div></div>');
-    list.addClass('wechat-list');
+    list.addClass('list');
     list.append(cell);
 
-    $('.wechat-frame-content').append([before, list]);
+    $('.wechat .frame .body').append([before, list]);
 }
 
 function build_buttons() {
     var button = $('<div></div>');
-    button.addClass('wechat-button wechat-button-major wechat-button-large');
+    button.addClass('button button-major button-large');
     button.addClass('recharge-button-apply');
     button.text('退款');
     button.bind('click', apply);
 
-    $('.wechat-frame-content').append(button);
+    $('.wechat .frame .body').append(button);
 }
 
 function setup() {

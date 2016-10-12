@@ -1,90 +1,127 @@
-body {
-    margin      : 0px;
-    padding     : 0px;
-    font-size   : 14px;
+
+* {
+    box-sizing          : border-box;
+    -webkit-box-size    : border-box;
 }
 
-.wechat-frame {
+body {
+    margin      : 0;
+    padding     : 0;
+    font-size   : 16px;
+}
+
+table {
+    border-collapse : collapse;
+}
+
+input {
+    height      : 2.5em;
+    border      : 1px solid gray;
+    appearance          : none;
+    -webkit-appearance  : none;
+    border-radius           : .4em;
+    -webkit-border-radius   : .4em;
+}
+
+select {
+    height      : 2em;
+    background  : transparent;
+    border      : none;
+    appearance              : none;
+    -webkit-appearance      : none;
+    border-radius           : .4em;
+    -webkit-border-radius   : .4em;
+}
+
+a {
+    text-decoration : none;
+}
+
+.wechat {
+}
+
+.wechat .frame {
     width       : 100%;
     height      : 100%;
 }
 
-.wechat-frame-navigator {
-    height      : 0px;
+.wechat .frame .head {
+    height      : 0;
 }
 
-.wechat-frame-content {
+.wechat .frame .body {
     position    : absolute;
     z-index     : -1;
-    top         : 0px;
-    bottom      : 0px;
-    left        : 0px;
-    right       : 0px;
+    top         : 0;
+    bottom      : 0;
+    left        : 0;
+    right       : 0;
     overflow    : auto;
 }
 
-.wechat-button {
+.wechat .button {
     text-align  : center;
     cursor      : default;
-    border-radius           : 5px;
-    -webkit-border-radius   : 5px;
+    border-radius           : .4em;
+    -webkit-border-radius   : .4em;
     transition          : background .2s, border .2s;
     -webkit-transition  : background .2s, border .2s;
 }
 
-.wechat-button-major {
+.wechat .button-large {
+    margin      : .5em;
+    font-size   : 130%;
+    line-height : 2em;
+}
+
+.wechat .button-small {
+    margin      : .5em;
+    line-height : 1.5em;
+}
+
+.wechat .button-major {
     color       : white;
     background  : #04be02;
     border      : 1px solid rgba(0, 0, 0, .2);
 }
 
-.wechat-button-major:hover {
+.wechat .button-major:hover {
     background  : #04cc02;
     border      : 1px solid rgba(0, 0, 0, .1);
 }
 
-.wechat-button-major:active {
+.wechat .button-major:active {
     color       : lightgray;
     background  : #038f02;
     border      : 1px solid rgba(0, 0, 0, .2);
 }
 
-.wechat-button-disable {
+.wechat .button-disable {
     color       : white;
     background  : #cccccc;
     border      : 1px solid rgba(0, 0, 0, .2);
 }
 
-.wechat-button-disable:hover {
+.wechat .button-disable :hover {
     background  : #dddddd;
     border      : 1px solid rgba(0, 0, 0, .1);
 }
 
-.wechat-button-disable:active {
+.wechat .button-disable:active {
     background  : #aaaaaa;
     border      : 1px solid rgba(0, 0, 0, .2);
 }
 
-.wechat-button-large {
-    margin      : 15px;
-    font-size   : 130%;
-    line-height : 40px;
-}
-
-.wechat-button-small {
-    margin      : 15px;
-}
-
-.wechat-list {
+.wechat .list {
     border-top  : 1px solid lightgray;
 }
 
-.wechat-list div {
+.wechat .list * {
     cursor  : default;
 }
 
 /* list cell */
-.wechat-list>div {
+.wechat .list >div {
     position        : relative;
     background      : rgba(0, 0, 0, .01);
     border-bottom   : 1px solid lightgray;
@@ -92,21 +129,21 @@ body {
     -webkit-transition  : background .2s, border .2s;
 }
 
-.wechat-list>div:hover {
+.wechat .list >div:hover {
     background  : white;
 }
 
-.wechat-list>div:active {
+.wechat .list >div:active {
     background  : rgba(0, 0, 0, .1);
 }
 
 /* list cell kv */
-.wechat-list-cell-kv {
-    height  : 24px;
-    padding : 10px 15px;
+.wechat .list .cell-kv {
+    height  : 3em;
+    padding : .5em 1.5em;
 }
 
-.wechat-list-cell-kv>*:nth-child(1) {
+.wechat .list .cell-kv >*:nth-child(1) {
     float       : left;
     width       : 24%;
     font-size   : 130%;
@@ -114,7 +151,7 @@ body {
     text-overflow   : ellipsis;
 }
 
-.wechat-list-cell-kv>*:nth-child(2) {
+.wechat .list .cell-kv >*:nth-child(2) {
     float       : right;
     width       : 75%;
     font-size   : 130%;
@@ -124,64 +161,64 @@ body {
     text-align  : right;
 }
 
-/* list cell game */
-.wechat-list-cell-game {
-    height  : 60px;
-    padding : 15px;
+/* list cell icon-label-description */
+.wechat .list .cell-ild {
+    height  : 6em;
+    padding : 1em;
 }
-/* game icon */
-.wechat-list-cell-game img {
+/* cell icon */
+.wechat .list .cell-ild >img {
     float   : left;
-    width   : 60px;
-    height  : 60px;
+    width   : 4em;
+    height  : 4em;
 }
-/* game name */
-.wechat-list-cell-game>div:nth-child(2) {
+/* cell label */
+.wechat .list .cell-ild .lab {
     position        : absolute;
-    left            : 90px;
-    right           : 120px;
+    left            : 5em;
+    right           : 7em;
     overflow        : hidden;
     text-overflow   : ellipsis;
     font-size       : 120%;
     font-weight     : 800;
 }
-/* game rent a */
-.wechat-list-cell-game>div:nth-child(3) {
+/* cell description */
+.wechat .list .cell-ild .des {
     position        : absolute;
-    top             : 20px;
-    right           : 70px;
-    padding         : 0px 4px;
-    font-size       : 80%;
-}
-/* game rent b */
-.wechat-list-cell-game>div:nth-child(4) {
-    position        : absolute;
-    top             : 20px;
-    right           : 20px;
-    padding         : 0px 4px;
-    font-size       : 80%;
-}
-/* game introduction */
-.wechat-list-cell-game>div:nth-child(5) {
-    position        : absolute;
-    top             : 40px;
-    left            : 90px;
-    right           : 20px;
-    height          : 38px;
+    left            : 6em;
+    right           : 2em;
+    bottom          : 1em;
+    height          : 2.1em;
+    line-height     : 1.1em;
     word-wrap       : break-word;
     overflow        : hidden;
     text-overflow   : ellipsis;
     color           : gray;
-    font-size       : 90%;
+}
+/* cell mark 2 */
+.wechat .list .cell-ild .m2 {
+    position        : absolute;
+    top             : 1.5em;
+    right           : 7em;
+    padding         : 0 .5em;
+    font-size       : 80%;
+}
+/* cell mark 1 */
+.wechat .list .cell-ild .m1 {
+    position        : absolute;
+    top             : 1.5em;
+    right           : 2em;
+    padding         : 0 .5em;
+    font-size       : 80%;
 }
 
-.wechat-tips {
-    margin      : 5px 15px;
+.wechat .tips {
+    margin      : .5em 1em;
     font-size   : 100%;
     color       : gray;
 }
 
-.wechat-toast {
+.wechat .toast {
     position    : absolute;
     z-index     : 5;
     max-width   : 80%;
@@ -189,70 +226,67 @@ body {
     left        : 50%;
     transform           : translate(-50%);
     -webkit-transform   : translate(-50%);
-    padding     : 5px 20px;
+    padding     : .5em 1.5em;
     color       : #eeeeee;
     background  : rgba(0, 0, 0, .5);
-    border-radius           : 8px;
-    -webkit-border-radius   : 8px;
+    border-radius           : .5em;
+    -webkit-border-radius   : .5em;
     font-size   : 130%;
-    line-height : 24px;
+    line-height : 1.5em;
     opacity     : 0;
     transition          : opacity .2s;
     -webkit-transition  : opacity .2s;
 }
 
-.wechat-tab {
+.wechat .tab {
 }
 
 /* tab head */
-.wechat-tab>div:nth-child(1) {
+.wechat .tab >div:nth-child(1) {
     position    : absolute;
     z-index     : 1;
     top         : 0;
-    height      : 40px;
     width       : 100%;
     cursor      : default;
 }
 
-.wechat-tab >div:nth-child(1) >div {
-    transition          : background .5s, font-size .5s;
-    -webkit-transition  : background .5s, font-size .5s;
+/* tab head cell: need set 'width' by '%'  */
+.wechat .tab >div:nth-child(1) >div {
+    float       : left;
+    border      : 1px solid lightgray;
+    text-align  : center;
+    line-height : 3em;
+    transition          : background .2s;
+    -webkit-transition  : background .2s;
+}
+
+.wechat .tab .da {
+    background  : rgba(0, 0, 0, .01);
+}
+
+.wechat .tab .da:hover {
+    background  : white;
+}
+
+.wechat .tab .da:active {
+    background  : rgba(0, 0, 0, .1);
+}
+
+.wechat .tab .ac {
+    background  : rgba(0, 0, 0, .1);
 }
 
 /* tab body */
-.wechat-tab>div:nth-child(2) {
+.wechat .tab >div:nth-child(2) {
     position    : absolute;
-    top         : 40px;
-    bottom      : 0px;
+    top         : 3em;
+    bottom      : 0;
     width       : 100%;
+    overflow    : auto;
 }
 
-.wechat-tab >div:nth-child(2) >div {
+.wechat .tab >div:nth-child(2) >div {
     transition          : opacity .2s;
     -webkit-transition  : opacity .2s;
 }
-
-input {
-    height      : 20px;
-    border      : 1px solid gray;
-    appearance          : none;
-    -webkit-appearance  : none;
-    border-radius           : 5px;
-    -webkit-border-radius   : 5px;
-}
-
-select {
-    height      : 25px;
-    background  : transparent;
-    border      : 1px solid transparent;
-    appearance              : none;
-    -webkit-appearance      : none;
-    border-radius           : 5px;
-    -webkit-border-radius   : 5px;
-}
-
-a {
-    text-decoration : none;
-}
-
 

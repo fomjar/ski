@@ -2,16 +2,16 @@
 .game-head {
     position    : fixed;
     z-index     : -2;
-    top         : 0px;
+    top         : 0;
     width       : 100%;
     height      : 100%;
 }
 
-.game-head>div {
+.game-head >div {
     position        : absolute;
-    left            : 150px;
-    right           : 20px;
-    padding-right   : 10px; /* 防止阴影被裁 */
+    left            : 180px;
+    right           : 26px;
+    padding-right   : .2em; /* 防止阴影被裁 */
     color           : white;
     text-shadow     : black 1px 1px 2px;
     text-align      : right;
@@ -21,7 +21,7 @@
 }
 
 /* game background */
-.game-head #game_background {
+.game-head .background {
     position    : absolute;
     width       : 100%;
     height      : 100%;
@@ -31,131 +31,125 @@
 }
 
 /* game cover */
-.game-head #game_cover {
+.game-head .cover {
     position    : absolute;
-    top         : 20px;
-    left        : 20px;
-    width       : 110px;
-    height      : 110px;
+    top         : 2em;
+    left        : 2em;
+    width       : 8em;
+    height      : 8em;
 }
 
 /* game name zh */
-.game-head #game_name_zh {
-    top         : 20px;
-    font-weight : 500;
+.game-head .name_zh {
+    top         : 2em;
+    font-weight : 800;
 }
 
 /* game name en */
-.game-head #game_name_en {
-    top         : 44px;
-    font-weight : 200;
+.game-head .name_en {
+    top         : 4em;
+    font-weight : 500;
 }
 
 /* game category */
-.game-head #game_category {
-    top         : 78px;
+.game-head .category {
+    top         : 6.5em;
     font-weight : 200;
-    font-size   : 80%;
 }
 
 /* game language */
-.game-head #game_language {
-    top         : 96px;
+.game-head .language {
+    top         : 7.7em;
     font-weight : 200;
-    font-size   : 80%;
 }
 
 /* game sale */
-.game-head #game_sale {
-    top         : 114px;
+.game-head .sale {
+    top         : 8.9em;
     font-weight : 200;
-    font-size   : 80%;
 }
 
 .game-body {
     position    : relative;
-    top         : 0px;
+    top         : 0;
     overflow    : auto;
-    padding     : 20px;
+    padding     : 2em;
     background  : white;
     transition          : top 1s;
     -webkit-transition  : top 1s;
 }
 
-.game-body-category {
+.game-body .category {
     color           : #04be02;
     font-size       : 130%;
     border-bottom   : 1px solid #04be02;
 }
 
-.game-body-tips {
-    margin  : 5px 0px;
+.game-body .tips {
+    margin  : .2em 0;
     color   : gray;
 }
 
 /* 海报 */
-.game-body-poster {
-    height      : 200px;
-    background  : black;
+.game-body .poster {
+    height          : 14em;
+    margin-bottom   : 2em;
+    background      : black;
 }
 
 /* 简介 */
-.game-body-introduction {
-    margin-top  : 20px;
+.game-body .intr {
     text-indent : 2em;
 }
 
 /* 渠道商品 */
-.game-body-ccs {
-    margin-top  : 20px;
+.game-body .ccs {
+    margin-top  : 2em;
 }
 
-.game-body-ccs-box {
-    height      : 200px;
+.game-body .ccs .box {
+    height      : 14em;
     overflow    : auto;
     border      : 1px solid #04be02;
 }
 
-.game-body-ccs-box table {
-    border-collapse : collapse;
+.game-body .ccs .box table td {
+    padding : .5em;
 }
 
-.game-body-ccs-box table td {
-    padding : 5px;
-}
-
-.game-body-cc {
-    width       : 140px;
-    height      : 188px;
+.game-body .cc {
+    width       : 10em;
+    height      : 13em;
     border      : 1px solid transparent;
     transition          : border .2s;
     -webkit-transition  : border .2s;
 }
 
-.game-body-cc:hover {
+.game-body .cc :hover {
     border  : 1px solid #04be02;
 }
 
-.game-body-cc:active {
+.game-body .cc :active {
     border  : 1px solid #038f02;
 }
 
-.game-body-cc>img {
-    width   : 140px;
-    height  : 140px;
+.game-body .cc >img {
+    width   : 10em;
+    height  : 10em;
+    padding-right : 2px;
 }
 
-.game-body-cc>div {
+.game-body .cc >div {
     text-align  : center;
     cursor      : default;
-    line-height : 24px;
+    line-height : 1.2em;
 }
 
-.game-body-cc>div:nth-child(3) {
+.game-body .cc >div :nth-child(3) {
     color   : red;
 }
 
-.game-body-cc-detail {
+.game-body .cc-detail {
     display     : none;
     opacity     : 0;
     border      : 1px solid #04be02;
@@ -164,17 +158,17 @@
     -webkit-transition  : opacity .5s;
 }
 
-.game-body-rent {
-    margin-top  : 20px;
+.game-body .rent {
+    margin-top  : 2em;
     border  : 1px solid #04be02;
 }
 
-.game-body-rent .game-body-category {
-    padding-top     : 5px;
-    padding-left    : 5px;
+.game-body .rent .category {
+    padding-top     : .5em;
+    padding-left    : .5em;
 }
 
-.game-body-rent .wechat-list {
+.game-body .rent .list {
     border-top  : none;
 }
 

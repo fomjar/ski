@@ -5,36 +5,35 @@ fomjar.framework.phase.append('ren', setup);
 
 function build_list() {
     var list = $('<div></div>');
-    list.addClass('wechat-list');
+    list.addClass('list');
     
     var tips = $('<div></div>');
-    tips.addClass('wechat-tips');
+    tips.addClass('tips');
     tips.html('体验类型说明：<br/>认证：即认证为常用主机，有奖杯<br/>不认证：即不认证为常用主机，无奖杯');
 
     var cell_game = $('<div></div>');
-    cell_game.addClass('wechat-list-cell-kv');
+    cell_game.addClass('cell-kv');
     cell_game.append('<div>体验游戏</div>');
     cell_game.append("<div id='game'></div>");
     
     var cell_type = $('<div></div>');
-    cell_type.addClass('wechat-list-cell-kv');
+    cell_type.addClass('cell-kv');
     cell_type.append('<div>体验类型</div>');
     cell_type.append("<select></select>");
 
     list.append([cell_game, cell_type]);
 
-    $('.wechat-frame-content').append(tips);
-    $('.wechat-frame-content').append(list);
+    $('.wechat .frame .body').append(tips);
+    $('.wechat .frame .body').append(list);
 }
 
 function build_buttons() {
     var button = $('<div></div>');
-    button.addClass('wechat-button wechat-button-major wechat-button-large');
+    button.addClass('button button-major button-large');
     button.text('开始体验');
-
     button.bind('click', apply);
 
-    $('.wechat-frame-content').append(button);
+    $('.wechat .frame .body').append(button);
 }
 
 function setup() {
@@ -50,7 +49,7 @@ function setup() {
         $('#game').text(game.name_zh_cn);
         if (game.rent_avail_a) $('select').append("<option value='0'>认证 - " + game.rent_price_a + "元/天</option>");
         if (game.rent_avail_b) $('select').append("<option value='1'>不认证 - " + game.rent_price_b + "元/天</option>");
-        if (!game.rent_avail_a && !game.rent_avail_b) $('wechat-button').hide();
+        if (!game.rent_avail_a && !game.rent_avail_b) $('.button').hide();
     });
 }
 

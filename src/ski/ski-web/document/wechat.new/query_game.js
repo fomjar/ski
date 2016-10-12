@@ -4,9 +4,9 @@ fomjar.framework.phase.append('ren', setup);
 
 function build_list() {
     var list = $('<div></div>');
-    list.addClass('wechat-list');
+    list.addClass('list');
 
-    $('.wechat-frame-content').append(list);
+    $('.wechat .frame .body').append(list);
 }
 
 function setup() {
@@ -27,7 +27,7 @@ function setup() {
             var cell = wechat.create_list_cell_game(game);
             cell.bind('click', function() {window.location = 'query_game_by_gid.html?gid=' + game.gid.toString(16);});
 
-            $('.wechat-list').append(cell);
+            $('.list').append(cell);
         });
     });
 

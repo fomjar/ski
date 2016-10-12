@@ -5,43 +5,41 @@ fomjar.framework.phase.append('ren', setup);
 
 function build_list() {
     var list = $('<div></div>');
-    list.addClass('wechat-list');
-    list.addClass('rent-end-list');
+    list.addClass('list');
 
     var cell_game = $('<div></div>');
-    cell_game.addClass('wechat-list-cell-kv');
+    cell_game.addClass('cell-kv');
     cell_game.append('<div>游戏</div>');
     cell_game.append("<div id='game'></div>");
     var cell_acco = $('<div></div>');
-    cell_acco.addClass('wechat-list-cell-kv');
+    cell_acco.addClass('cell-kv');
     cell_acco.append('<div>帐号</div>');
     cell_acco.append("<div id='account'></div>");
     var cell_type = $('<div></div>');
-    cell_type.addClass('wechat-list-cell-kv');
+    cell_type.addClass('cell-kv');
     cell_type.append('<div>体验类型</div>');
     cell_type.append("<div id='type'></div>");
     var cell_begi = $('<div></div>');
-    cell_begi.addClass('wechat-list-cell-kv');
+    cell_begi.addClass('cell-kv');
     cell_begi.append('<div>开始时间</div>');
     cell_begi.append("<div id='begin'></div>");
     var cell_expe = $('<div></div>');
-    cell_expe.addClass('wechat-list-cell-kv');
+    cell_expe.addClass('cell-kv');
     cell_expe.append('<div>消费总计</div>');
     cell_expe.append("<div id='expense'></div>");
 
     list.append([cell_game, cell_acco, cell_type, cell_begi, cell_expe]);
 
-    $('.wechat-frame-content').append(list);
+    $('.wechat .frame .body').append(list);
 }
 
 function build_buttons() {
     var button = $('<div></div>');
-    button.addClass('wechat-button wechat-button-major wechat-button-large');
+    button.addClass('button button-major button-large');
     button.text('确认归还');
-
     button.bind('click', apply);
 
-    $('.wechat-frame-content').append(button);
+    $('.wechat .frame .body').append(button);
 }
 
 function setup() {
@@ -61,7 +59,7 @@ function setup() {
         $('#begin').text(order.begin);
         $('#expense').text(order.expense + '元');
         if (0 < order.end.length) {
-            $('.wechat-button').hide();
+            $('.button').hide();
         }
     });
 

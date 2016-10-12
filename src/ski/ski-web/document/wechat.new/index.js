@@ -8,36 +8,33 @@ function build_searchbar() {
     bar.addClass('index-searchbar');
 
     var cs  = $('<div></div>');
-    cs.addClass('wechat-button wechat-button-major');
-    cs.addClass('index-button-category');
+    cs.addClass('button button-major button-small');
     cs.text('分类');
 
     var inp = $('<input>');
     inp.attr('type', 'text');
     inp.attr('placeholder', '搜索');
-    inp.addClass('index-input-search');
-
     inp.bind('keydown', function() {if(13 == event.keyCode) setup();});
 
     bar.append([cs, inp]);
 
-    $('.wechat-frame-content').append(bar);
+    $('.wechat .frame .body').append(bar);
 }
 
 function build_content() {
     var content = $('<div></div>');
     content.addClass('index-content');
 
-    $('.wechat-frame-content').append(content);
+    $('.wechat .frame .body').append(content);
 }
 
 function setup() {
-    var word = $('.index-input-search').val().replace(/(^\s*)|(\s*$)/g, '');
+    var word = $('input').val().replace(/(^\s*)|(\s*$)/g, '');
     if (0 == word.length) {
-        $('.index-content').removeClass('wechat-list');
+        $('.index-content').removeClass('list');
         preset();
     } else {
-        $('.index-content').addClass('wechat-list');
+        $('.index-content').addClass('list');
         search(word);
     }
 }
