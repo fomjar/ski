@@ -8,7 +8,6 @@ fomjar.framework.phase.append('dom', build_rent);
 fomjar.framework.phase.append('dom', build_chat);
 
 fomjar.framework.phase.append('ren', setup);
-fomjar.framework.phase.append('ren', animate);
 
 function build_head() {
     var head = $('<div></div>');
@@ -193,7 +192,7 @@ function setup() {
             var cc_detail = $('<div></div>');
             cc_detail.addClass('list');
             cc_detail.addClass('cc-detail');
-            cc_detail.append("<div class='cell-kv' style='height: 5em'><div id='item_name' style='width: 100%'></div></div>");
+            cc_detail.append("<div class='cell-sg' style='height: 4em'><div id='item_name' style='width: 100%'></div></div>");
             cc_detail.append("<div class='cell-kv'><div>售价</div><div id='item_price'></div></div>");
             cc_detail.append("<div class='cell-kv'><div>快递</div><div id='express_price'></div></div>");
             cc_detail.append("<div class='cell-kv'><div>销量</div><div id='item_sold'></div></div>");
@@ -216,6 +215,8 @@ function setup() {
             $('.rent').hide();
         }
     });
+
+    animate();
 }
 
 function on_cc_click(cc) {
@@ -253,7 +254,7 @@ function cc_shop_rate(rate) {
 }
 
 function animate() {
-    setTimeout(function() {$('.game-body').css('top', '12em');}, 500);
+    setTimeout(function() {$('.game-body').css('top', '10em');}, 500);
 }
 
 

@@ -1,50 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
         <meta charset='utf-8'/>
-        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
         <title>💰小金库</title>
-        <link rel='stylesheet' href='/css/weui.css'/>
         <script type='text/javascript' src='/js/jquery.js'></script>
         <script type='text/javascript' src='/js/jquery.json.js'></script>
         <script type='text/javascript' src='/js/jquery.cookie.js'></script>
-        <script type='text/javascript' src='/js/ski.js'></script>
-        <script type='text/javascript'>
-            var user = ski.user();
-            var platform_account = null;
-
-            $(document).ready(function() {
-                ski.ui.show_toast('正在加载');
-                ski.common.query_platform_account({caid : user}, function(args) {
-                    ski.ui.hide_toast();
-                    if (0 != args.code) {
-                        ski.ui.show_dialog_alert({
-                            head : '加载失败',
-                            body : args.desc
-                        });
-                        return;
-                    }
-                    platform_account = args.desc;
-                    $('#cash').text("¥ " + platform_account.cash_rt);
-                });
-            });
-        </script>
+        <script type='text/javascript' src='/js/fomjar.js'></script>
+        <script type='text/javascript' src='/js/wechat.js'></script>
+        <script type='text/javascript' src='query_platform_account_money.js'></script>
+        <link rel='stylesheet' type='text/css' href='/css/wechat.css'>
+        <link rel='stylesheet' type='text/css' href='query_platform_account_money.css'>
     </head>
     <body>
-        <div class='cell'>
-            <div style='text-align: center; padding: 40px;'>
-                <img width='120px' height='120px' src='res/money.png' />
-            </div>
-            <div class='bd'>
-                <div style='margin-top: -20px; text-align: center; color: red; font-size: 300%; font-weight: 400' id='cash'></div>
-                <div class='weui_btn_area' style='position: fixed; left: 0px; right: 0px; bottom: 10px'>
-                    <div style='font-size: 80%; color: gray'>友情提醒：退款要归还所有在体验游戏才行哦！</div>
-                    <table style='width: 100%'><tr>
-                    <td style='padding-right: 5px'><a class='weui_btn weui_btn_primary' href="javascript: ski.goto.pay_recharge()">充值</a></td>
-                    <td style='padding-left: 5px'><a class='weui_btn weui_btn_warn' href="javascript: ski.goto.pay_refund()">退款</a></td>
-                    </tr></table>
-                </div>
-            </div>
-        </div>
     </body>
 </html>
+

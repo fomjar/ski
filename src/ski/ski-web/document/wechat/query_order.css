@@ -1,0 +1,26 @@
+
+.wechat .list {
+    border : none;
+}
+
+.wechat .list table {
+    width   : 100%;
+}
+
+.wechat .list table td:nth-child(1) .button {
+    margin-right    : .75em;
+}
+
+.wechat .list table td:nth-child(2) .button {
+    margin-left     : .75em;
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,5 +1,6 @@
 
 var wechat = {
+
     channel : function(i) {
         switch (i) {
         case 0:     return '淘宝';
@@ -10,39 +11,25 @@ var wechat = {
         }
     },
 
-    create_list_cell_game : function(game) {
-        var cell = $('<div></div>');
-        cell.addClass('cell-ild');
-    
-        var cover = $('<img />');
-        cover.attr('src', game.url_icon);
-        var name = $('<div></div>');
-        name.addClass('lab');
-        name.text(game.name_zh_cn);
-        var rent_a = $('<div></div>');
-        rent_a.addClass('m2')
-        rent_a.text('认证');
-        if (game.rent_avail_a)  rent_a.addClass('button button-major');
-        else                    rent_a.addClass('button button-disable');
-        var rent_b = $('<div></div>');
-        rent_b.addClass('m1');
-        if (game.rent_avail_b)  rent_b.addClass('button button-major');
-        else                    rent_b.addClass('button button-disable');
-        rent_b.text('不认证');
-        var intr = $('<div></div>')
-        intr.addClass('des');
-        intr.text(game.introduction);
-
-        cell.append(cover);
-        cell.append(name);
-        cell.append(rent_a);
-        cell.append(rent_b);
-        cell.append(intr);
-
-        return cell;
+    show_toast : function(text, delay) {
+        var toast = $('.wechat .toast');
+        if (0 == toast.length) {
+            toast = $('<div></div>');
+            toast.addClass('toast');
+            $('.wechat').append(toast);
+        } else {
+            this.hide_toast();
+        }
+        toast.text(text);
+        toast.css('opacity', '1');
+        if (null != delay) setTimeout(function() {toast.css('opacity', '0');}, delay);
     },
 
-    create_list_cell_order_now : function(c) {
+    hide_toast : function() {
+        var toast = $('.toast');
+        if (0 == toast.length) return;
+
+        toast.css('opacity', '0');
     },
 
     create_tab : function(tabs) {
@@ -94,26 +81,41 @@ var wechat = {
         return tab;
     },
 
-    show_toast : function(text, delay) {
-        var toast = $('.toast');
-        if (0 == toast.length) {
-            toast = $('<div></div>');
-            toast.addClass('toast');
-            $('body').append(toast);
-            toast = $('.toast');
-        } else {
-            this.hide_toast();
-        }
-        toast.text(text);
-        toast.css('opacity', '1');
-        if (null != delay) setTimeout(function() {toast.css('opacity', '0');}, delay);
+    create_list_cell_game : function(game) {
+        var cell = $('<div></div>');
+        cell.addClass('cell-ild');
+
+        cell.append("<img src='"+game.url_icon+"' />");
+        cell.append("<div class='lab'>"+game.name_zh_cn+"</div>");
+        cell.append("<div class='des'>"+game.introduction+"</div>");
+        cell.append("<div class='m2 button "+(game.rent_avail_a?'button-major':'button-disable')+"'>认证</div>");
+        cell.append("<div class='m1 button "+(game.rent_avail_b?'button-major':'button-disable')+"'>不认证</div>");
+
+        return cell;
     },
 
-    hide_toast : function() {
-        var toast = $('.toast');
-        if (0 == toast.length) return;
+    create_list_cell_order_now : function(c) {
+        var cell = $('<div></div>');
+        cell.addClass('cell-ild');
 
-        toast.css('opacity', '0');
+        var game = c.game;
+        cell.append("<img src='"+game.url_icon+"' />");
+        cell.append("<div class='lab'>"+game.name_zh_cn+"</div>");
+        cell.append("<div class='des'>帐号密码: "+c.account+' / '+c.pass+"<br/>开始时间: "+c.begin+"</div>");
+
+        return cell;
+    },
+
+    create_list_cell_order_old : function(c) {
+        var cell = $('<div></div>');
+        cell.addClass('cell-ild');
+
+        var game = c.game;
+        cell.append("<img src='"+game.url_icon+"' />");
+        cell.append("<div class='lab'>"+game.name_zh_cn+"</div>");
+        cell.append("<div class='des'>时间: "+c.begin.substring(5)+' ~ '+c.end.substring(5)+"<br/>消费: "+c.expense+"元 - "+c.type+' ('+c.price+"元/天)</div>");
+
+        return cell;
     }
 };
 
@@ -122,12 +124,15 @@ fomjar.framework.phase.append('dom', build_frame_head);
 fomjar.framework.phase.append('dom', build_frame_body);
 
 function build_frame() {
-    $('body').addClass('wechat');
+
+    var main = $('<div></div>');
+    main.addClass('wechat');
 
     var frame = $('<div></div>');
     frame.addClass('frame');
 
-    $('body').append(frame);
+    main.append(frame);
+    $('body').append(main);
 }
 
 function build_frame_head() {

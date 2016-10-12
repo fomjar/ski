@@ -1,106 +1,19 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
         <meta charset='utf-8'/>
-        <meta name='viewport' content='width=device-width,initial-scale=1,user-scalable=0'/>
         <title>🕹正在玩</title>
-        <link rel='stylesheet' href='/css/weui.css'/>
         <script type='text/javascript' src='/js/jquery.js'></script>
         <script type='text/javascript' src='/js/jquery.json.js'></script>
         <script type='text/javascript' src='/js/jquery.cookie.js'></script>
-        <script type='text/javascript' src='/js/ski.js'></script>
-        <script type='text/javascript'>
-
-            $(document).ready(function() {
-                ski.ui.show_toast('正在加载');
-                ski.common.query_order(function(args) {
-                    ski.ui.hide_toast();
-                    if (0 != args.code) {
-                        ski.ui.show_dialog_alert({
-                            head : '加载失败',
-                            body : args.desc
-                        });
-                        return;
-                    }
-                    var orders = args.desc;
-                    for (var i in orders) {
-                        var commodity = orders[i];
-
-                        if ('' == commodity.end) {
-                            var cells = document.createElement('div');
-                            cells.className = 'weui_cells';
-                            cells.innerHTML = "<a class='weui_media_box weui_media_appmsg' href=\"javascript: $('#commodity_" + commodity.oid + "_" + commodity.csn + "').is(':visible') ? $('#commodity_" + commodity.oid + "_" + commodity.csn + "').hide() : $('#commodity_" + commodity.oid + "_" + commodity.csn + "').show()\">"
-                                                + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + commodity.game.url_icon + "'></div>"
-                                                + "<div class='weui_media_bd'>"
-                                                   + "<h4 class='weui_media_title'>" + commodity.game.name_zh_cn + "</h4>"
-                                                   + "<p class='weui_media_desc'>"
-                                                        + "帐号密码: " + commodity.account + " / " + commodity.pass + "<br/>"
-                                                        + "开始时间: " + commodity.begin
-                                                   + "</p>"
-                                                   + "<div style='position: absolute; bottom: 17px; right: 20px; font-size: 70%; color: gray'>点击展开⬇︎</div>"
-                                                + "</div>"
-                                            + "</a>";
-                            cells.innerHTML += "<div class='weui_cells' style='margin-top: 0px; display: none' id='commodity_" + commodity.oid + "_" + commodity.csn + "'>"
-                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>体验类型</p></div><div class='weui_cell_ft'>" + commodity.type + "(" + commodity.price + "元/天)" +  "</div></div>"
-                                                    + "<div class='weui_cell'><div class='weui_cell_bd weui_cell_primary'><p>费用小计</p></div><div class='weui_cell_ft'>" + commodity.expense + "元</div></div>"
-                                                    + "<div class='weui_cell'><div class='weui_btn_area' style='width: 100%; margin: 0px'>"
-                                                        + "<table width='100%'><tr>"
-                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript: ski.goto.game(" + commodity.game.gid + ");'>查看游戏</a></td>"
-                                                            + "<td style='width: 50%'><a class='weui_btn weui_btn_mini weui_btn_primary' style='width: 100%' href='javascript: ski.goto.rent_end(" + commodity.oid + ", " + commodity.csn + ");'>我要归还</a></td>"
-                                                        + "</tr></table>"
-                                                    + "</div></div>"
-                                            + "</div>";
-
-                            $('#result_now').append(cells);
-                        } else {
-                            var cells = document.createElement('div');
-                            cells.className = 'weui_cell';
-                            cells.innerHTML = "<a class='weui_media_box weui_media_appmsg' style='width: 100%; padding: 0px' href='javascript: ski.goto.game(" + commodity.game.gid + ");'>"
-                                                + "<div class='weui_media_hd'><img class='weui_media_appmsg_thumb' src='" + commodity.game.url_icon + "'></div>"
-                                                + "<div class='weui_media_bd'>"
-                                                   + "<h4 class='weui_media_title'>" + commodity.game.name_zh_cn + "</h4>"
-                                                   + "<p class='weui_media_desc'>"
-                                                       + "时间: " + commodity.begin.substring(5) + " ~ " + commodity.end.substring(5) + "<br/>"
-                                                       + "消费: " + commodity.expense + "元 - " + commodity.type + "(" + commodity.price + "元/天)"
-                                                   + "</p>"
-                                                + "</div>"
-                                            + "</a>";
-
-                            $('#result_old').append(cells);
-                        }
-                    }
-                });
-            });
-
-            function switchToNow() {
-                $('#result_now_label').addClass('weui_bar_item_on');
-                $('#result_old_label').removeClass('weui_bar_item_on');
-                $('#result_now').show();
-                $('#result_old').hide();
-            }
-
-            function switchToOld() {
-                $('#result_now_label').removeClass('weui_bar_item_on');
-                $('#result_old_label').addClass('weui_bar_item_on');
-                $('#result_now').hide();
-                $('#result_old').show();
-            }
-        </script>
+        <script type='text/javascript' src='/js/fomjar.js'></script>
+        <script type='text/javascript' src='/js/wechat.js'></script>
+        <script type='text/javascript' src='query_order.js'></script>
+        <link rel='stylesheet' type='text/css' href='/css/wechat.css'>
+        <link rel='stylesheet' type='text/css' href='query_order.css'>
     </head>
     <body>
-        <div class='navbar'>
-            <div class='bd' style='height: 100%'>
-                <div class="weui_tab">
-                    <div class="weui_navbar">
-                        <div class="weui_navbar_item weui_bar_item_on" id='result_now_label' onclick='switchToNow()'>正在玩</div>
-                        <div class="weui_navbar_item" id='result_old_label' onclick='switchToOld()'>已归还</div>
-                    </div>
-                    <div class="weui_tab_bd" style='padding-top: 30px; '>
-                        <div class='weui_panel_bd' id='result_now'></div>
-                        <div class='weui_cells' id='result_old' style='display: none'></div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </body>
 </html>
+

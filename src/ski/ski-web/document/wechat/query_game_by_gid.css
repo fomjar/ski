@@ -9,8 +9,8 @@
 
 .game-head >div {
     position        : absolute;
-    left            : 180px;
-    right           : 26px;
+    left            : 10em;
+    right           : 2em;
     padding-right   : .2em; /* 防止阴影被裁 */
     color           : white;
     text-shadow     : black 1px 1px 2px;
@@ -26,8 +26,8 @@
     width       : 100%;
     height      : 100%;
     background-size : cover;
-    filter          : blur(60px);
-    -webkit-filter  : blur(60px);
+    filter          : blur(45px);
+    -webkit-filter  : blur(45px);
 }
 
 /* game cover */
@@ -35,8 +35,8 @@
     position    : absolute;
     top         : 2em;
     left        : 2em;
-    width       : 8em;
-    height      : 8em;
+    width       : 6em;
+    height      : 6em;
 }
 
 /* game name zh */
@@ -47,25 +47,25 @@
 
 /* game name en */
 .game-head .name_en {
-    top         : 4em;
+    top         : 3.5em;
     font-weight : 500;
 }
 
 /* game category */
 .game-head .category {
-    top         : 6.5em;
+    top         : 5em;
     font-weight : 200;
 }
 
 /* game language */
 .game-head .language {
-    top         : 7.7em;
+    top         : 6.2em;
     font-weight : 200;
 }
 
 /* game sale */
 .game-head .sale {
-    top         : 8.9em;
+    top         : 7.4em;
     font-weight : 200;
 }
 
@@ -81,18 +81,19 @@
 
 .game-body .category {
     color           : #04be02;
-    font-size       : 130%;
+    font-size       : 110%;
     border-bottom   : 1px solid #04be02;
 }
 
 .game-body .tips {
-    margin  : .2em 0;
-    color   : gray;
+    margin      : .2em 0;
+    font-size   : 90%;
+    color       : gray;
 }
 
 /* 海报 */
 .game-body .poster {
-    height          : 14em;
+    height          : 12em;
     margin-bottom   : 2em;
     background      : black;
 }
@@ -108,34 +109,34 @@
 }
 
 .game-body .ccs .box {
-    height      : 14em;
+    height      : 12em;
     overflow    : auto;
     border      : 1px solid #04be02;
 }
 
 .game-body .ccs .box table td {
-    padding : .5em;
+    padding : .4em .5em;
 }
 
 .game-body .cc {
-    width       : 10em;
-    height      : 13em;
+    width       : 8em;
+    height      : 11em;
     border      : 1px solid transparent;
     transition          : border .2s;
     -webkit-transition  : border .2s;
 }
 
-.game-body .cc :hover {
+.game-body .cc:hover {
     border  : 1px solid #04be02;
 }
 
-.game-body .cc :active {
+.game-body .cc:active {
     border  : 1px solid #038f02;
 }
 
 .game-body .cc >img {
-    width   : 10em;
-    height  : 10em;
+    width   : 8em;
+    height  : 8em;
     padding-right : 2px;
 }
 
@@ -145,7 +146,7 @@
     line-height : 1.2em;
 }
 
-.game-body .cc >div :nth-child(3) {
+.game-body .cc >div:nth-child(3) {
     color   : red;
 }
 
