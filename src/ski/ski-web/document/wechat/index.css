@@ -48,22 +48,22 @@
     left        : 0;
     width       : 100%;
     height      : 3em;
-    overflow    : auto;
-    border      : 1px solid lightgray;
+    overflow-y  : hidden;
     transition          : top .5s;
     -webkit-transition  : top .5s;
 }
 
 .index-menu td        {
-    background  : #fafafa;
-    padding     : 0 2em;
-    height      : 2.9em;
-    line-height : 2.9em;
-    white-space : nowrap;
-    cursor      : default;
+    height          : 3em;
+    line-height     : 3em;
+    padding         : 0 1.5em;
+    white-space     : nowrap;
+    background      : rgba(255, 255, 255, .9);
+    border-bottom   : 1px solid rgba(200, 200, 200, .9);
+    cursor          : default;
     transition          : background .2s;
     -webkit-transition  : background .2s;
 }
-.index-menu td:hover  { background : white; }
-.index-menu td:active { background : lightgray; }
+.index-menu td:hover  { background : rgba(255, 255, 255, .9.5); }
+.index-menu td:active { background : rgba(200, 200, 200, .9); }
 

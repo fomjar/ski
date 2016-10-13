@@ -107,6 +107,10 @@
     text-indent : 2em;
 }
 
+.game-body .intr p {
+    line-height : 1.5em;
+}
+
 /* 渠道商品 */
 .game-body .ccs {
     margin-top  : 2em;
