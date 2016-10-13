@@ -254,7 +254,7 @@ function cc_shop_rate(rate) {
 }
 
 function animate() {
-    setTimeout(function() {$('.game-body').css('top', '10em');}, 500);
+    setTimeout(function() {$('.game-head').css('height', '10em');}, 500);
 }
 
 

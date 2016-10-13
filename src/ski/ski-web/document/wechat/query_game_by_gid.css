@@ -1,10 +1,12 @@
 
 .game-head {
-    position    : fixed;
-    z-index     : -2;
+    position    : relative;
+    z-index     : -1;
     top         : 0;
     width       : 100%;
-    height      : 100%;
+    height      : 0;
+    transition          : height 1s;
+    -webkit-transition  : height 1s;
 }
 
 .game-head >div {
@@ -23,9 +25,13 @@
 /* game background */
 .game-head .background {
     position    : absolute;
+    top         : 50%;
+    left        : 50%;
     width       : 100%;
-    height      : 100%;
+    height      : 120%;
     background-size : cover;
+    transform           : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
     filter          : blur(45px);
     -webkit-filter  : blur(45px);
 }
@@ -75,8 +81,6 @@
     overflow    : auto;
     padding     : 2em;
     background  : white;
-    transition          : top 1s;
-    -webkit-transition  : top 1s;
 }
 
 .game-body .category {
