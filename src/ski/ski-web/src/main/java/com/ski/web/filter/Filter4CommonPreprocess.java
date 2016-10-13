@@ -23,12 +23,12 @@ public class Filter4CommonPreprocess extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         // 首页重定向
-        if (request.path().equals("/wechat")) {
+        if (request.path().equals("/wechat") || request.path().equals("/wechat/")) {
             redirect(response, "/wechat/index.html");
             return false;
         }
         // 首页重定向
-        if (request.path().equals("/omc")) {
+        if (request.path().equals("/omc") ||request.path().equals("/omc/")) {
             redirect(response, "/omc/index.html");
             return false;
         }
@@ -48,7 +48,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             }
             
             // 校验用户
-            if (!request.path().startsWith("/wechat/query_game")) {
+            if (!request.path().startsWith("/wechat/index") && !request.path().startsWith("/wechat/query_game")) {
                 if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
                     if (!request.path().equals("/wechat/message.html")) {
                         logger.info("anonymous access deny: " + request.url());
@@ -59,7 +59,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             }
             
             // 校验是否需要补充信息
-            if (!request.path().startsWith("/wechat/query_game")) {
+            if (!request.path().startsWith("/wechat/index") && !request.path().startsWith("/wechat/query_game")) {
                 if (-1 != user && null != CommonService.getChannelAccountByCaid(user)) {
                     if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
                         if (!request.path().equals("/wechat/update_platform_account_map.html")) {
@@ -76,6 +76,12 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         // 请求接口
         if (request.path().equals(Filter6CommonInterface.URL_KEY)) {
             JSONObject args = request.argsToJson();
+            int inst = -1;
+            if (args.has("inst")) {
+                Object obj = args.get("inst");
+                if (obj instanceof Integer) inst = (int) obj;
+                else inst = Integer.parseInt(obj.toString(), 16);
+            }
             if (args.has("user")) {
                 Object obj = args.get("user");
                 String user = null;
@@ -91,7 +97,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 request.attr().put("Cookie", cookie);
             }
             // 校验用户
-            if (!request.cookie().containsKey("user")) {
+            if (CommonDefinition.ISIS.INST_ECOM_QUERY_GAME != inst && !request.cookie().containsKey("user")) {
                 logger.error("anonymous access deny: " + args);
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);

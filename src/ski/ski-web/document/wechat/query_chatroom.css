@@ -1,0 +1,152 @@
+
+.cr-msg {
+    position    : absolute;
+    width       : 100%;
+    top         : 0;
+    bottom      : 3em;
+    overflow    : auto;
+    transition          : bottom .2s;
+    -webkit-transition  : bottom .2s;
+}
+
+.cr-msg .msg { width : 100%; margin : .5em 0; }
+.cr-msg .msg >div { position : relative; display : inline-block; }
+.cr-msg .msg >div:nth-child(1) img {
+    width   : 3em;
+}
+.cr-msg .msg >div:nth-child(2) {
+    max-width   : 60%;
+    border      : 1px solid rgba(0, 0, 0, .2);
+    border-radius           : .4em;
+    -webkit-border-radius   : .4em;
+}
+
+.cr-msg .le { }
+.cr-msg .le >div:nth-child(1) { left : 1em; }
+.cr-msg .le >div:nth-child(2) {}
+.cr-msg .ri { }
+
+.cr-msg .sys >div:nth-child(2) {
+    transform           : translateX(-50%);
+    -webkit-transform   : translateX(-50%);
+    left        : 50%;
+    top         : 50%;
+    font-size   : 80%;
+    background  : lightgray;
+    border      : none;
+    color       : white;
+    text-align  : center;
+}
+.cr-msg .usr >div:nth-child(2) {
+    background  : #04be02;
+    text-align  : left;
+}
+
+.cr-msg .msg .txt {
+    padding     : .2em 1em;
+}
+.cr-msg .msg .img { }
+.cr-msg .msg .voc { }
+
+.cr-cp {
+    position    : absolute;
+    width       : 100%;
+    height      : 3em;
+    bottom      : 0;
+    overflow    : hidden;
+    background  : rgba(0, 0, 0, .1);
+    transition          : height .2s;
+    -webkit-transition  : height .2s;
+}
+
+.cr-cp >div { border-top : 1px solid lightgray; }
+.cr-cp div {
+    user-select         : none;
+    -webkit-user-select : none;
+}
+.cr-cp >div:nth-child(1) >*,
+.cr-cp >div:nth-child(2) >div >div:nth-child(1)
+{
+    transition          : opacity .2s, background .2s, border .2s;
+    -webkit-transition  : opacity .2s, background .2s, border .2s;
+}
+.cr-cp >div:nth-child(1) >*,
+.cr-cp >div:nth-child(2) >div >div:nth-child(1)
+{ border : 1px solid gray; }
+
+.cr-cp >div:nth-child(1) >div:hover,
+.cr-cp >div:nth-child(2) >div >div:nth-child(1):hover
+{ background : rgba(255, 255, 255, .3); border : 1px solid rgba(0, 0, 0, .2); }
+
+.cr-cp >div:nth-child(1) >div:active,
+.cr-cp >div:nth-child(2) >div >div:nth-child(1):active
+{ background : rgba(0, 0, 0, .1);       border : 1px solid rgba(0, 0, 0, .3); }
+
+/* talk */
+.cr-cp >div:nth-child(1) { height : 3em; }
+.cr-cp >div:nth-child(1) >* { top : .5em; }
+
+.cr-cp >div:nth-child(1) .toggle {
+    position    : relative;
+    width       : 2em;
+    height      : 2em;
+    border-radius           : 1em;
+    -webkit-border-radius   : 1em;
+}
+
+.cr-cp >div:nth-child(1) .talk {
+    position    : absolute;
+    height      : 2em;
+    left        : 3em;
+    right       : 3em;
+    line-height : 2em;
+    border-radius           : .5em;
+    -webkit-border-radius   : .5em;
+}
+
+.cr-cp >div:nth-child(1) >*:nth-child(1) { float : left;  top : .5em; left  : .5em; }
+.cr-cp >div:nth-child(1) >*:nth-child(4) { float : right; top : .5em; right : .5em;}
+/* talk keyboard */
+.cr-cp >div:nth-child(1) >*:nth-child(2) {
+    background : white;
+}
+/* talk voice */
+.cr-cp >div:nth-child(1) >*:nth-child(3) {
+    color       : gray;
+    text-align  : center;
+    display     : none;
+    cursor      : default;
+}
+
+
+
+/* functions */
+.cr-cp >div:nth-child(2) { height : 10em; }
+/* function */
+.cr-cp >div:nth-child(2) >* {
+    float   : left;
+    margin  : 2.5em 1em;
+}
+/* icon */
+.cr-cp >div:nth-child(2) >div >div:nth-child(1) {
+    width           : 4em;
+    height          : 4em;
+    background      : rgba(255, 255, 255, .2);
+    border-radius           : 1em;
+    -webkit-border-radius   : 1em;
+}
+.cr-cp >div:nth-child(2) >div >div:nth-child(1) img {
+    width       : 60%;
+    transform           : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+    position    : relative;
+    top         : 50%;
+    left        : 50%;
+}
+/* label */
+.cr-cp >div:nth-child(2) >div >div:nth-child(2) {
+    text-align  : center;
+    color       : gray;
+    font-size   : 80%;
+}
+

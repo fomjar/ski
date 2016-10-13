@@ -1379,7 +1379,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         List<BeanChannelAccount> users = CommonService.getChannelAccountByPaidNChannel(bean.i_member, CommonService.CHANNEL_WECHAT);
         if (null != users && !users.isEmpty()) {
             BeanChannelAccount user = users.get(0);
-            json.put("member_info", tojson(user));
+            json.put("mi", tojson(user));
         }
         return json;
     }
