@@ -63,8 +63,8 @@ function apply() {
     // 生成预支付订单
     var money = $('select').val();
     wechat.show_toast('正在创建订单...');
-    fomjar.net.sendto(fomjar.net.api()+'/pay/recharge/apply', {inst : fomjar.net.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY}, function(code, desc) {
-        ski.ui.hide_toast();
+    fomjar.net.sendto(fomjar.net.api()+'/pay/recharge/apply', {inst : fomjar.net.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, money : money}, function(code, desc) {
+        wechat.hide_toast();
         if ('SUCCESS' == desc.return_code) {
             // 调起支付
             wx.chooseWXPay({
