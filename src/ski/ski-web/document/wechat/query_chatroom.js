@@ -125,15 +125,15 @@ function toggle_talk() {
     var t1 = $('.talk:nth-child(2)'); // k
     var t2 = $('.talk:nth-child(3)'); // v
     if (t1.is(':visible')) { 
-        $('.toggle img:nth-child(1)').hide();
-        $('.toggle img:nth-child(2)').show();
+        $($('.toggle img')[0]).hide();
+        $($('.toggle img')[1]).show();
         t1.css('opacity', '0');
         t2.css('opacity', '0');
         t2.show();
         setTimeout(function() {t1.hide();t2.css('opacity', '1')}, 200);
     } else {
-        $('.toggle img:nth-child(1)').show();
-        $('.toggle img:nth-child(2)').hide();
+        $($('.toggle img')[0]).show();
+        $($('.toggle img')[1]).hide();
         t1.css('opacity', '0');
         t2.css('opacity', '0');
         t1.show();

@@ -81,20 +81,12 @@
 .cr-cp >div:nth-child(1) >*,
 .cr-cp >div:nth-child(2) >div >div:nth-child(1)
 {
-            transition  : opacity .2s, background .2s, border .2s;
-    -webkit-transition  : opacity .2s, background .2s, border .2s;
+            transition  : opacity .2s;
+    -webkit-transition  : opacity .2s;
 }
 .cr-cp >div:nth-child(1) >*,
 .cr-cp >div:nth-child(2) >div >div:nth-child(1)
 { border : 1px solid gray; }
-
-.cr-cp >div:nth-child(1) >div:hover,
-.cr-cp >div:nth-child(2) >div >div:nth-child(1):hover
-{ background : rgba(255, 255, 255, .3); border : 1px solid rgba(0, 0, 0, .2); }
-
-.cr-cp >div:nth-child(1) >div:active,
-.cr-cp >div:nth-child(2) >div >div:nth-child(1):active
-{ background : rgba(0, 0, 0, .1);       border : 1px solid rgba(0, 0, 0, .3); }
 
 /* talk */
 .cr-cp >div:nth-child(1) { height : 3em; }
