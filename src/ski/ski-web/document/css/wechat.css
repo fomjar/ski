@@ -1,7 +1,7 @@
 
 * {
-    box-sizing          : border-box;
-    -webkit-box-size    : border-box;
+            box-sizing  : border-box;
+    -webkit-box-sizing  : border-box;
     -webkit-overflow-scrolling  : touch;
 }
 
@@ -19,9 +19,9 @@ input {
     font-size   : 1em;
     background  : transparent;
     border      : none;
-    appearance          : none;
+            appearance  : none;
     -webkit-appearance  : none;
-    border-radius           : .4em;
+            border-radius   : .4em;
     -webkit-border-radius   : .4em;
 }
 
@@ -30,9 +30,9 @@ select {
     font-size   : 1em;
     background  : transparent;
     border      : none;
-    appearance              : none;
+            appearance      : none;
     -webkit-appearance      : none;
-    border-radius           : .4em;
+            border-radius   : .4em;
     -webkit-border-radius   : .4em;
 }
 
@@ -56,9 +56,9 @@ a {
 .wechat .button {
     text-align  : center;
     cursor      : default;
-    border-radius           : .4em;
+            border-radius   : .4em;
     -webkit-border-radius   : .4em;
-    transition          : background .2s, border .2s;
+            transition  : background .2s, border .2s;
     -webkit-transition  : background .2s, border .2s;
 }
 
@@ -85,7 +85,7 @@ a {
     position        : relative;
     background      : rgba(0, 0, 0, .01);
     border-bottom   : 1px solid lightgray;
-    transition          : background .2s, border .2s;
+            transition  : background .2s, border .2s;
     -webkit-transition  : background .2s, border .2s;
 }
 .wechat .list >div:hover  { background : white; }
@@ -182,11 +182,11 @@ a {
     line-height : 1.5em;
     opacity     : 0;
     text-align  : center;
-    transform           : translate(-50%, -50%);
+            transform   : translate(-50%, -50%);
     -webkit-transform   : translate(-50%, -50%);
-    border-radius           : .5em;
+            border-radius   : .5em;
     -webkit-border-radius   : .5em;
-    transition          : opacity .2s;
+            transition  : opacity .2s;
     -webkit-transition  : opacity .2s;
 }
 
@@ -208,7 +208,7 @@ a {
     line-height : 3em;
     text-align  : center;
     border      : 1px solid lightgray;
-    transition          : background .2s;
+            transition  : background .2s;
     -webkit-transition  : background .2s;
 }
 
@@ -227,7 +227,7 @@ a {
 }
 
 .wechat .tab >div:nth-child(2) >div {
-    transition          : opacity .2s;
+            transition  : opacity .2s;
     -webkit-transition  : opacity .2s;
 }
 
