@@ -12,23 +12,27 @@ var omc = {
 };
 
 fomjar.framework.phase.append('dom', build_frame);
-fomjar.framework.phase.append('dom', build_frame_navigator);
-fomjar.framework.phase.append('dom', build_frame_content);
+fomjar.framework.phase.append('dom', build_frame_head);
+fomjar.framework.phase.append('dom', build_frame_body);
 
 function build_frame() {
-    var frame = $('<div></div>');
-    frame.addClass('omc-frame');
+    var omc = $('<div></div>');
+    omc.addClass('omc');
 
-    $('body').append(frame);
+    var frame = $('<div></div>');
+    frame.addClass('frame');
+
+    omc.append(frame);
+
+    $('body').append(omc);
 }
 
-function build_frame_navigator() {
-    var navigator = $('<div></div>');
-    navigator.addClass('omc-frame-navigator');
+function build_frame_head() {
+    var head = $('<div></div>');
+    head.addClass('head');
 
     var menu = $('<div></div>');
-    menu.addClass('omc-frame-navigator-menu');
-
+    menu.addClass('menu');
     var m_game     = menu.clone();
     var m_account  = menu.clone();
     var m_ticket   = menu.clone();
@@ -38,18 +42,18 @@ function build_frame_navigator() {
     m_ticket.text('工单');
     m_report.text('统计');
 
-    navigator.append(m_game);
-    navigator.append(m_account);
-    navigator.append(m_ticket);
-    navigator.append(m_report);
+    head.append(m_game);
+    head.append(m_account);
+    head.append(m_ticket);
+    head.append(m_report);
 
-    $('.omc-frame').append(navigator);
+    $('.omc .frame').append(head);
 }
 
-function build_frame_content() {
-    var content = $('<div></div>');
-    content.addClass('omc-frame-content');
+function build_frame_body() {
+    var body = $('<div></div>');
+    body.addClass('body');
 
-    $('.omc-frame').append(content);
+    $('.omc .frame').append(body);
 }
 

@@ -177,9 +177,9 @@ a {
     top         : 70%;
     left        : 50%;
     padding     : .5em 1.5em;
+    line-height : 1.5em;
     color       : #eeeeee;
     background  : rgba(0, 0, 0, .5);
-    line-height : 1.5em;
     opacity     : 0;
     text-align  : center;
             transform   : translate(-50%, -50%);
@@ -188,6 +188,8 @@ a {
     -webkit-border-radius   : .5em;
             transition  : opacity .2s;
     -webkit-transition  : opacity .2s;
+            user-select : none;
+    -webkit-user-select : none;
 }
 
 .wechat .tab { }

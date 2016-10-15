@@ -134,7 +134,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         return true;
     }
     
-    private Map<String, BufferedImage> cache_cover_string = new ConcurrentHashMap<String, BufferedImage>();
+    private Map<String, byte[]> cache_cover_string = new ConcurrentHashMap<String, byte[]>();
     
     private void processApplyMakeCover(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
@@ -143,10 +143,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             string = Base64.getEncoder().encodeToString(string.getBytes());
             if (2 < string.length()) string = string.substring(0, 2);
             
-            BufferedImage img = null;
+            byte[] buf = null;
             
             if (cache_cover_string.containsKey(string)) {
-                img = cache_cover_string.get(string);
+                buf = cache_cover_string.get(string);
             } else {
                 int width  = args.has("width") ? getIntFromArgs(args, "width") : 100;
                 int height = args.has("height") ? getIntFromArgs(args, "height") : 100;
@@ -194,18 +194,17 @@ public class Filter6CommonInterface extends FjWebFilter {
                     }
                 }
                 g1.dispose();
-                img = img1;
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try {ImageIO.write(img1, "jpg", baos);}
+                catch (IOException e) {e.printStackTrace();}
                 
-                cache_cover_string.put(string, img);
+                buf = baos.toByteArray();
+                
+                cache_cover_string.put(string, buf);
             }
             
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {ImageIO.write(img, "jpg", baos);}
-            catch (IOException e) {e.printStackTrace();}
             response.attr().put("Content-Type", "image/jpg");
-            response.content(baos.toByteArray());
-            try {baos.close();}
-            catch (IOException e) {e.printStackTrace();}
+            response.content(buf);
         }
     }
         

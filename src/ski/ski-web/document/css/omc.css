@@ -1,68 +1,59 @@
+* {
+            box-sizing  : border-box;
+    -webkit-box-sizing  : border-box;
+}
+
 body {
     margin  : 0px;
     padding : 0px;
 }
 
-.omc-frame {
+.omc .frame {
     width       : 100%;
     height      : 100%;
 }
 
-.omc-frame-navigator {
-    height      : 40px;
+.omc .frame .head {
+    height      : 3em;
     background  : black;
 }
 
-.omc-frame-navigator-menu {
+.omc .frame .head .menu {
     float       : left;
-    height      : 100%;
-    padding     : 0px 10px;
+    padding     : 0 .5em;
     color       : white;
-    font-size   : 20px;
-    line-height : 40px;
+    font-size   : 1.5em;
+    line-height : 2em;
     cursor      : default;
-    user-select         : none;
+            user-select : none;
     -webkit-user-select : none;
+            transition  : height .5s, background .5s;
+    -webkit-transition  : height .5s, background .5s;
 }
 
-.omc-frame-navigator-menu:hover {
-    height      : 110%;
-    background  : orange;
-}
+.omc .frame .head .menu:hover  { height : 110%; background : orange; }
+.omc .frame .head .menu:active { height : 110%; background : orange; }
 
-.omc-frame-content {
+.omc .frame .body {
     position    : absolute;
     z-index     : -1;
-    top         : 40px;
-    bottom      : 0px;
-    left        : 0px;
-    right       : 0px;
-    border      : 1px solid black;
+    top         : 3em;
+    bottom      : 0;
+    left        : 0;
+    right       : 0;
 }
 
-.omc-frame-content>div {
-    overflow    : auto;
-}
-
-.omc-list {
-}
-
-/* list cell */
-.omc-list>div {
-    padding : 4px 8px;
-    border  : 1px solid transparent;
-    cursor  : default;
-    user-select         : none;
+.omc .list { overflow : auto; }
+.omc .list>div {
+    position    : relative;
+    cursor      : default;
+    border      : 1px solid transparent;
+            user-select : none;
     -webkit-user-select : none;
+            transition  : background .5s, border .5s;
+    -webkit-transition  : background .5s, border .5s;
 }
-
-.omc-list>div:hover {
-    border  : 1px solid orange;
-}
-
-.omc-list>div:active {
-    border      : 1px solid orange;
-    background  : orange;
-}
+.omc .list>div:hover { border : 1px solid orange; }
+.omc .list>div:active { background : orange; }
 
 
