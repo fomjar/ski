@@ -8,6 +8,68 @@ var omc = {
         case 3:     return 'PSN';
         default:    return '未知';
         }
+    },
+    show_dialog : function (options) {
+        if (0 == $('.omc .dialog').length) {
+            var dialog = $('<div></div>');
+            dialog.append('<div></div>');   // mask
+            dialog.append('<div>'           // dialog
+                             +'<div></div>' // head
+                             +'<div></div>' // body
+                         +'</div>');
+            dialog.addClass('dialog');
+            var real = dialog.find('>div:nth-child(2)');
+            var head = dialog.find('>div:nth-child(2) >div:nth-child(1)');
+            head.bind('mousedown', function(e) {
+                var delta = {top : (e.pageY-real.offset().top-real.height()/2), left : (e.pageX-real.offset().left-real.width()/2)};
+                head.bind('mousemove', function(e1) {
+                    real.css({top : e1.pageY-delta.top+'px', left : e1.pageX-delta.left+'px'});
+                });
+            });
+            head.bind('mouseup', function(e) {
+                head.unbind('mousemove');
+            });
+
+            $('.omc').append(dialog);
+        }
+        var dialog = $('.omc .dialog');
+        var mask = dialog.find('>div:nth-child(1)');
+        var real = dialog.find('>div:nth-child(2)');
+        var head = dialog.find('>div:nth-child(2) >div:nth-child(1)');
+        var body = dialog.find('>div:nth-child(2) >div:nth-child(2)');
+        if (options.head) {
+            head.show();
+            head.html('');
+            head.append(options.head);
+        } else {
+            head.hide();
+        }
+        if (options.body) {
+            body.html('');
+            body.append(options.body);
+        }
+        if (options.width)  real.css('width',  options.width);
+        if (options.height) real.css('height', options.height);
+
+        real.css({left : '50%', top : '50%'});
+        $('.omc .frame').css(        'filter', 'blur(6px)');
+        $('.omc .frame').css('-webkit-filter', 'blur(6px)');
+        dialog.show();
+
+        if (options.open) options.open();
+        mask.bind('click', function() {
+            $('.omc .frame').css(        'filter', '');
+            $('.omc .frame').css('-webkit-filter', '');
+            dialog.hide();
+            if (options.close) options.close();
+        });
+
+        return {
+            mask    : mask,
+            dialog  : dialog,
+            head    : head,
+            body    : body
+        };
     }
 };
 
