@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_list);
 fomjar.framework.phase.append('dom', build_buttons);
@@ -58,4 +59,7 @@ function apply() {
         setTimeout(function() {history.back(-1);}, 1000);
     });
 }
+
+
+})(jQuery)
 

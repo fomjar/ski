@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_tab);
 fomjar.framework.phase.append('ren', setup);
@@ -79,3 +80,7 @@ function setup() {
         });
     });
 }
+
+
+})(jQuery)
+

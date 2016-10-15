@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_searchbar);  
 fomjar.framework.phase.append('dom', build_content);  
@@ -169,3 +170,7 @@ function search(word) {
         });
     });
 }
+
+
+})(jQuery)
+

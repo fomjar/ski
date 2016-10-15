@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_list);
 fomjar.framework.phase.append('dom', build_buttons);
@@ -55,4 +56,7 @@ function setup() {
         }
     });
 }
+
+
+})(jQuery)
 

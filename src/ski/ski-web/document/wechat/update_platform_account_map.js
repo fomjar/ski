@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_tips);
 fomjar.framework.phase.append('dom', build_list);
@@ -118,4 +119,8 @@ function setup() {
         });
     });
 }
+
+
+
+})(jQuery)
 

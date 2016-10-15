@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_head);
 fomjar.framework.phase.append('dom', build_body);
@@ -257,4 +258,7 @@ function animate() {
     setTimeout(function() {$('.game-head').css('height', '10em');}, 500);
 }
 
+
+
+})(jQuery)
 

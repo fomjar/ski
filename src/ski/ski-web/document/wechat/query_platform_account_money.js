@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build);
 fomjar.framework.phase.append('ren', setup);
@@ -47,4 +48,7 @@ function setup() {
         $('.money-value').text('¥ ' + desc.cash_rt);
     });
 }
+
+
+})(jQuery)
 

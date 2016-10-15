@@ -11,6 +11,8 @@ var omc = {
     }
 };
 
+(function($) {
+
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_frame_head);
 fomjar.framework.phase.append('dom', build_frame_body);
@@ -56,4 +58,7 @@ function build_frame_body() {
 
     $('.omc .frame').append(body);
 }
+
+
+})(jQuery)
 

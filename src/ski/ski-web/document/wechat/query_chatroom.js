@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_msg);
 fomjar.framework.phase.append('dom', build_cp);
@@ -434,4 +435,6 @@ function is_member_self(m) {return m == g_cr.me.paid;}
 
 function is_member_sys(m) {return m == -1;}
 
+
+})(jQuery)
 

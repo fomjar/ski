@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_user_search);  
 fomjar.framework.phase.append('dom', build_user_list);  
@@ -100,4 +101,7 @@ function search_user() {
     */
 }
 
+
+
+})(jQuery)
 

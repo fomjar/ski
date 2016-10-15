@@ -377,7 +377,6 @@ fomjar.framework = {
     }
 };
 
-
 // prototype
 Date.prototype.format = function (fmt) { //author: meizz 
     var o = {

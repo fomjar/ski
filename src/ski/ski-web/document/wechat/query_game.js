@@ -1,3 +1,4 @@
+(function($) {
 
 fomjar.framework.phase.append('dom', build_list);
 fomjar.framework.phase.append('ren', setup);
@@ -33,4 +34,7 @@ function setup() {
 
 }
 
+
+
+})(jQuery)
 
