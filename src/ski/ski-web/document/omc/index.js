@@ -57,14 +57,19 @@ function search_user() {
 
 function setup() {
     var dialog = omc.show_dialog({head : '正在加载'});
+    var dialog = omc.show_dialog({head : '正在加载'});
     setup_user(dialog);
 }
 
 function setup_user(dialog) {
     dialog.body.append('<div>正在加载用户...</div>')
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_CHANNEL_ACCOUNT, function(code, desc) {
-        if (0 != code) return;
+        if (0 != code) {
+            dialog.body.append('<div>'+desc+'</div>')
+            return;
+        }
 
+        $('.index-list-user').html('');
         $.each(desc, function(i, user) {
             var cell = create_user_cell(user);
             cell.data('ca', user);

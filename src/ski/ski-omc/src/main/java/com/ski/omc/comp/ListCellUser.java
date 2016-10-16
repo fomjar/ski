@@ -24,6 +24,7 @@ import javax.swing.JPanel;
 import com.fomjar.widget.FjListCell;
 import com.ski.common.CommonService;
 import com.ski.common.bean.BeanChannelAccount;
+import com.ski.omc.UIToolkit;
 
 public class ListCellUser extends FjListCell<BeanChannelAccount> {
     
@@ -48,35 +49,37 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         phon = new JLabel("电话: " + data.c_phone);
         rent = new JLabel(getMinorString(data));
         
-        Image image = null;
-        if (0 < data.c_url_cover.length()) {
-            try {image = ImageIO.read(new URL(data.c_url_cover)).getScaledInstance(COVER_SIZE, COVER_SIZE, BufferedImage.SCALE_SMOOTH);}
-            catch (IOException e) {e.printStackTrace();}
-        } else {
-            String s = data.getDisplayName();
-            while (3 > s.length()) s += "-";
-            
-            if (cache_cover.containsKey(s)) image = cache_cover.get(s);
-            else {
-                BufferedImage buf = new BufferedImage(COVER_SIZE, COVER_SIZE, BufferedImage.TYPE_INT_RGB);
-                Graphics g = buf.getGraphics();
-                Color bg = new Color(s.charAt(0) % 255, s.charAt(1) % 255, s.charAt(2) % 255);
-                bg.darker();
-                g.setColor(bg);
-                g.fillRect(0, 0, COVER_SIZE, COVER_SIZE);
+        UIToolkit.doLater(()->{
+            Image image = null;
+            if (0 < data.c_url_cover.length()) {
+                try {image = ImageIO.read(new URL(data.c_url_cover)).getScaledInstance(COVER_SIZE, COVER_SIZE, BufferedImage.SCALE_SMOOTH);}
+                catch (IOException e) {e.printStackTrace();}
+            } else {
+                String s = data.getDisplayName();
+                while (3 > s.length()) s += "-";
                 
-                Color fg = Color.white;
-                g.setColor(fg);
-                g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(COVER_SIZE * 0.6f));
-                ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g.drawString(s.substring(0, 1).toUpperCase(), COVER_SIZE * 2 / 10, COVER_SIZE * 7 / 10);
-                
-                g.dispose();
-                image = buf;
-                cache_cover.put(s, image);
+                if (cache_cover.containsKey(s)) image = cache_cover.get(s);
+                else {
+                    BufferedImage buf = new BufferedImage(COVER_SIZE, COVER_SIZE, BufferedImage.TYPE_INT_RGB);
+                    Graphics g = buf.getGraphics();
+                    Color bg = new Color(s.charAt(0) % 255, s.charAt(1) % 255, s.charAt(2) % 255);
+                    bg.darker();
+                    g.setColor(bg);
+                    g.fillRect(0, 0, COVER_SIZE, COVER_SIZE);
+                    
+                    Color fg = Color.white;
+                    g.setColor(fg);
+                    g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(COVER_SIZE * 0.6f));
+                    ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g.drawString(s.substring(0, 1).toUpperCase(), COVER_SIZE * 2 / 10, COVER_SIZE * 7 / 10);
+                    
+                    g.dispose();
+                    image = buf;
+                    cache_cover.put(s, image);
+                }
             }
-        }
-        cove.setIcon(new ImageIcon(image));
+            cove.setIcon(new ImageIcon(image));
+        });
         cove.setPreferredSize(new Dimension(COVER_SIZE, COVER_SIZE));
         cove.setBorder(BorderFactory.createLineBorder(Color.black));
         name.setPreferredSize(new Dimension(1, 0));

@@ -30,7 +30,7 @@
 .cr-msg .msg .usr .lef td:nth-child(2) { width : 80%; }
 .cr-msg .msg .usr .lef td:nth-child(3) { width : 20%; }
 .cr-msg .msg .usr .uc { }
-.cr-msg .msg .usr .uc img { width : 3em; border : 1px solid lightgray; }
+.cr-msg .msg .usr .uc img { width : 2.5em; border : 1px solid lightgray; }
 
 .cr-msg .msg .cnt {
     text-align  : left;
@@ -43,8 +43,8 @@
 .cr-msg .msg .usr .rig .cnt { background  : #a0e759; }
 .cr-msg .msg .usr .lef .cnt { background  : white; }
 
-.cr-msg .msg .sys .txt { padding : .2em 1em;  }
-.cr-msg .msg .usr .txt { padding : .8em 1em;  }
+.cr-msg .msg .sys .txt { padding : 0 .6em; line-height : 1.5em; }
+.cr-msg .msg .usr .txt { padding : .5em 1em;  line-height : 1.4em; }
 .cr-msg .msg .usr .img img {
     max-width       : 100%;
     vertical-align  : middle;
@@ -53,10 +53,10 @@
 }
 .cr-msg .msg .usr .voc {
     width       : 40%;
-    height      : 90%;
+    padding     : .5em 1em;
+    line-height : 1.4em;
     color       : blue;
     text-align  : center;
-    line-height : 2.5em;
     cursor      : default;
             user-select : none;
     -webkit-user-select : none;
