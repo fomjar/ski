@@ -48,8 +48,8 @@
 .cr-msg .msg .usr .img img {
     max-width       : 100%;
     vertical-align  : middle;
-            border-radius   : .5em;
-    -webkit-border-radius   : .5em;
+            border-radius   : .3em;
+    -webkit-border-radius   : .3em;
 }
 .cr-msg .msg .usr .voc {
     width       : 40%;
