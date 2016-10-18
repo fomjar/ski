@@ -67,8 +67,25 @@ var omc = {
             mask    : mask,
             dialog  : dialog,
             head    : head,
-            body    : body
+            body    : body,
+            close   : function() {this.mask.trigger('click');}
         };
+    },
+    create_listexp : function () {
+        var listexp = $('<div></div>');
+        listexp.addClass('listexp');
+        var head = $('<div></div>');
+        var list = $('<div></div>');
+        list.addClass('list');
+
+        head.bind('click', function () {
+            if (list.is(':visible')) list.hide();
+            else list.show();
+        });
+
+        listexp.append(head);
+        listexp.append(list);
+        return listexp;
     }
 };
 

@@ -114,4 +114,16 @@ body {
 .omc .list>div:hover { border : 1px solid orange; }
 .omc .list>div:active { background : orange; }
 
+.omc .listexp { }
+.omc .listexp >div:nth-child(1) {
+    background  : lightgray;
+    cursor      : default;
+            user-select : none;
+    -webkit-user-select : none;
+            transition  : background .5s, border .5s;
+    -webkit-transition  : background .5s, border .5s;
+}
+.omc .listexp >div:nth-child(1):hover  { border : 1px solid orange; }
+.omc .listexp >div:nth-child(1):active { background : orange; }
+
 

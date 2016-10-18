@@ -348,7 +348,36 @@ fomjar.net = {
         case 'number'   : data.inst = inst; break;
         default         : data.inst = parseInt(inst.toString(), 16); break;
         }
-        this.sendto(this.api(), data, cb);
+        fomjar.net.sendto(fomjar.net.api(), data, cb);
+    },
+    send_queue : {
+        queue   : [],
+        willsend    : function(inst, data, cb) {
+            this.queue.push({meth : fomjar.net.send, args : arguments});
+            return this;
+        },
+        willsendto  : function(url, data, cb) {
+            this.queue.push({meth : fomjar.net.sendto, args : arguments});
+            return this;
+        },
+        apply : function() {
+            var apply = fomjar.net.send_queue.apply;
+            var queue = fomjar.net.send_queue.queue;
+            if (0 == queue.length) return;
+
+            var e = queue.shift();
+            if (undefined != e.args[2]) {
+                e.meth(e.args[0], e.args[1], function() {
+                    e.args[2].apply(this, arguments);
+                    apply();
+                });
+            } else {
+                e.meth(e.args[0], function() {
+                    e.args[1].apply(this, arguments);
+                    apply();
+                });
+            }
+        }
     }
 };
 
