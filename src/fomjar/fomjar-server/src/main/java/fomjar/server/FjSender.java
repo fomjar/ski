@@ -137,9 +137,10 @@ public class FjSender extends FjLoopTask {
     
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
         try {
-            byte[] content = rsp.content();
             
             if (rsp.attr().containsKey("Content-Encoding")) {
+                byte[] content = rsp.content();
+                
                 switch (rsp.attr().get("Content-Encoding")) {
                 case "gzip":
                     ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
@@ -148,15 +149,14 @@ public class FjSender extends FjLoopTask {
                     gzos.finish();
                     gzos.close();
                     
-                    content = content_gzip.toByteArray();
+                    rsp.content(content_gzip.toByteArray());
                     break;
                 }
-                rsp.attr().put("Content-Length", String.valueOf(content.length));
             }
             
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(rsp.toString().getBytes("utf-8"));
-            baos.write(content);
+            baos.write(rsp.content());
             baos.flush();
             
             ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());

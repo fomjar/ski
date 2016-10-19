@@ -5,9 +5,9 @@ alias ...='cd ../..'
 fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/fomjar"
 fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg/shell/bin"
 
-ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg/ski"
+ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg/ski-vcg"
 ski_rbase="/home/ski/ski"
-ski_host=ski.craftvoid.com
+ski_host=vcg.craftvoid.com
 ski_user=ski
 ski_pass=ski
 ski_rootpass=ski-1234
@@ -46,8 +46,8 @@ function scpskiconfall() {
 
 function scpskiconf() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/address.conf" "${ski_rbase}/ski-${mod}/conf"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/conf/log4j.conf"   "${ski_rbase}/ski-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-${mod}/conf"
     expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/conf/server.conf"  "${ski_rbase}/ski-${mod}/conf"
 }
 

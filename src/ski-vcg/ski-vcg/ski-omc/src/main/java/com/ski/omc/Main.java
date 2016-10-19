@@ -10,7 +10,7 @@ import com.ski.omc.comp.MainFrame;
 public class Main {
     
     public static void main(String[] args) {
-        CommonService.setWsiHost("ski.craftvoid.com");
+        CommonService.setWsiHost("vcg.craftvoid.com");
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
             case "skip-wa":

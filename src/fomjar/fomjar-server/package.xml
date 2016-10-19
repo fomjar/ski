@@ -15,7 +15,7 @@
             <outputDirectory>${project.artifactId}/lib</outputDirectory>
         </fileSet>
         <fileSet>
-        	<directory>../../fomjar/fomjar-server/conf</directory>
+        	<directory>../conf</directory>
             <outputDirectory>${project.artifactId}/conf</outputDirectory>
         </fileSet>
         <fileSet>
