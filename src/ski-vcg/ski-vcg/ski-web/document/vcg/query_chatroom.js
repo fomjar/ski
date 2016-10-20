@@ -12,13 +12,13 @@ function build_msg() {
     var msg = $('<div></div>');
     msg.addClass('cr-msg');
 
-    $('.wechat .frame .body').append(msg);
+    $('.vcg .frame .body').append(msg);
 }
 
 function build_cp() {
     var cp = $('<div></div>')
     cp.addClass('cr-cp');
-    $('.wechat .frame .body').append(cp);
+    $('.vcg .frame .body').append(cp);
 }
 
 function build_cp_tlk() {
@@ -166,7 +166,7 @@ function talk_keyboard() {
         type : 0,
         message : fomjar.util.base64.encode(txt)
     }, function (code, desc) {
-        if (0 != code) wechat.show_toast('发送失败', 15000);
+        if (0 != code) vcg.show_toast('发送失败', 15000);
         else $('.cr-cp input').val('');
     });
 }
@@ -251,34 +251,34 @@ function wx_config() {
 var g_cr = {};
 
 function setup() {
-    wechat.show_toast('正在获取个人信息...');
+    vcg.show_toast('正在获取个人信息...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, function(code, desc) {
-        wechat.hide_toast();
-        if (0 != code) {wechat.show_toast('获取失败', 10000); return;}
+        vcg.hide_toast();
+        if (0 != code) {vcg.show_toast('获取失败', 10000); return;}
         g_cr.me = desc;
 
     var gid = fomjar.util.args().gid;
-    wechat.show_toast('正在获取聊天室...');
+    vcg.show_toast('正在获取聊天室...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_CHATROOM, {gid : gid}, function(code, desc) {
-        wechat.hide_toast();
-        if (0 != code) {wechat.show_toast('获取失败', 10000); return;}
+        vcg.hide_toast();
+        if (0 != code) {vcg.show_toast('获取失败', 10000); return;}
         g_cr.cr = desc[0]; // 先取第一个
 
-    wechat.show_toast('正在加入聊天室...');
+    vcg.show_toast('正在加入聊天室...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_UPDATE_CHATROOM_MEMBER, {crid : g_cr.cr.crid}, function(code, desc) {
-        wechat.hide_toast();
-        if (0 != code) {wechat.show_toast('加入失败', 10000); return;}
+        vcg.hide_toast();
+        if (0 != code) {vcg.show_toast('加入失败', 10000); return;}
 
-    wechat.show_toast('正在加载成员...');
+    vcg.show_toast('正在加载成员...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_CHATROOM_MEMBER, {crid : g_cr.cr.crid}, function(code, desc) {
-        wechat.hide_toast();
-        if (0 != code) {wechat.show_toast('加载失败', 10000); return;}
+        vcg.hide_toast();
+        if (0 != code) {vcg.show_toast('加载失败', 10000); return;}
         g_cr.mb = desc;
 
-    wechat.show_toast('正在加载消息...');
+    vcg.show_toast('正在加载消息...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_CHATROOM_MESSAGE, {crid : g_cr.cr.crid, count : 100}, function(code, desc) {
-        wechat.hide_toast();
-        if (0 != code) {wechat.show_toast('加载失败', 10000); return;}
+        vcg.hide_toast();
+        if (0 != code) {vcg.show_toast('加载失败', 10000); return;}
         g_cr.msg = desc;
 
         setup_chatroom();

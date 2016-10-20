@@ -33,15 +33,15 @@ function build() {
     tr.append([td_rc, td_rf]);
     table.append(tr);
 
-    $('.wechat .frame .body').append([icon, money, tips, table]);
+    $('.vcg .frame .body').append([icon, money, tips, table]);
 }
 
 function setup() {
-    wechat.show_toast('正在获取...');
+    vcg.show_toast('正在获取...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT, {caid : fomjar.util.user()}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('获取失败', 10000);
+            vcg.show_toast('获取失败', 10000);
             return;
         }
 

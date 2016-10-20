@@ -4,7 +4,7 @@ fomjar.framework.phase.append('dom', build_tab);
 fomjar.framework.phase.append('ren', setup);
 
 function build_tab() {
-    var tab = wechat.create_tab([
+    var tab = vcg.create_tab([
         {
             head : '正在玩',
             body : build_tab_body_now()
@@ -15,7 +15,7 @@ function build_tab() {
         }
     ]);
 
-    $('.wechat .frame .body').append(tab);
+    $('.vcg .frame .body').append(tab);
 }
 
 function build_tab_body_now() {
@@ -31,11 +31,11 @@ function build_tab_body_old() {
 }
 
 function setup() {
-    wechat.show_toast('正在获取...');
+    vcg.show_toast('正在获取...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_ORDER, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast(desc, 10000);
+            vcg.show_toast(desc, 10000);
             return;
         }
 
@@ -64,7 +64,7 @@ function setup() {
                 ext.append(buttons);
                 ext.hide();
 
-                var cell = wechat.create_list_cell_order_now(c);
+                var cell = vcg.create_list_cell_order_now(c);
                 cell.append("<div class='m1'>点击展开</div>");
                 cell.bind('click', function() {
                     if (ext.is(':visible')) ext.hide();
@@ -73,7 +73,7 @@ function setup() {
 
                 $($('.tab >div >div >.list')[0]).append([cell, ext]);
             } else { // old
-                var cell = wechat.create_list_cell_order_old(c);
+                var cell = vcg.create_list_cell_order_old(c);
                 cell.bind('click', function () {window.location = 'query_game_by_gid.html?gid='+c.game.gid.toString(16);});
                 $($('.tab >div >div >.list')[1]).append(cell);
             }

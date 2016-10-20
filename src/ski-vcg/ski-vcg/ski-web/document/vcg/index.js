@@ -20,14 +20,14 @@ function build_searchbar() {
 
     bar.append([cs, inp]);
 
-    $('.wechat .frame .body').append(bar);
+    $('.vcg .frame .body').append(bar);
 }
 
 function build_content() {
     var content = $('<div></div>');
     content.addClass('index-content');
 
-    $('.wechat .frame .body').append(content);
+    $('.vcg .frame .body').append(content);
 }
 
 function build_menus() {
@@ -56,7 +56,7 @@ function build_menus() {
                 {name : '其他'      , action : function() {window.location = 'query_game.html?key=category&val=其他';}},
             ]);
             m2.css({'z-index' : '4', 'top' : '3em'});
-            $('.wechat .frame .body').append(m2);
+            $('.vcg .frame .body').append(m2);
             setTimeout(function() {m2.css('top', '6em');}, 0);
         }},
         {name : '公司作品 V',     action : function() {
@@ -74,12 +74,12 @@ function build_menus() {
                 {name : 'KONAMI(柯纳米)'            , action : function() {window.location = 'query_game.html?key=vendor&val=Konami_Digital';}},
             ]);
             m2.css({'z-index' : '4', 'top' : '3em'});
-            $('.wechat .frame .body').append(m2);
+            $('.vcg .frame .body').append(m2);
             setTimeout(function() {m2.css('top', '6em');}, 0);
         }},
     ]);
     m1.css({'z-index' : '5', 'top' : '0px'});
-    $('.wechat .frame .body').append(m1);
+    $('.vcg .frame .body').append(m1);
     $('.index-searchbar .button').bind('click', function() {
         if ('0px' == m1.css('top')) setTimeout(function() {m1.css('top', '3em');}, 0);
         else {
@@ -153,17 +153,17 @@ function preset() {
 }
 
 function search(word) {
-    wechat.show_toast('正在获取...');
+    vcg.show_toast('正在获取...');
     $('.index-content').html('');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_GAME, {word : word}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
             $('.index-content').text(desc);
             return;
         }
 
         $.each(desc, function(i, game) {
-            var cell = wechat.create_list_cell_game(game);
+            var cell = vcg.create_list_cell_game(game);
             cell.bind('click', function() {window.location = 'query_game_by_gid.html?gid=' + game.gid.toString(16)});
 
             $('.index-content').append(cell);

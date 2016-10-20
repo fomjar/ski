@@ -21,14 +21,14 @@ function build_head() {
     head.append("<div class='language'></div>");
     head.append("<div class='sale'></div>");
 
-    $('.wechat .frame .body').append(head);
+    $('.vcg .frame .body').append(head);
 }
 
 function build_body() {
     var body = $('<div></div>');
     body.addClass('game-body');
 
-    $('.wechat .frame .body').append(body);
+    $('.vcg .frame .body').append(body);
 }
 
 function build_post() {
@@ -88,11 +88,11 @@ function build_chat() {
 
 function setup() {
     var gid = fomjar.util.args().gid;
-    wechat.show_toast('正在获取...');
+    vcg.show_toast('正在获取...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_GAME, {gid : gid}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast(desc, 10000);
+            vcg.show_toast(desc, 10000);
             return;
         }
 

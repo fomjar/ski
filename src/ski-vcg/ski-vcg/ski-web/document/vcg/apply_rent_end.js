@@ -31,7 +31,7 @@ function build_list() {
 
     list.append([cell_game, cell_acco, cell_type, cell_begi, cell_expe]);
 
-    $('.wechat .frame .body').append(list);
+    $('.vcg .frame .body').append(list);
 }
 
 function build_buttons() {
@@ -40,17 +40,17 @@ function build_buttons() {
     button.text('确认归还');
     button.bind('click', apply);
 
-    $('.wechat .frame .body').append(button);
+    $('.vcg .frame .body').append(button);
 }
 
 function setup() {
     var oid = fomjar.util.args().oid;
     var csn = fomjar.util.args().csn;
-    wechat.show_toast('正在加载...');
+    vcg.show_toast('正在加载...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_ORDER, {oid : oid, csn : csn}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('加载失败', 10000);
+            vcg.show_toast('加载失败', 10000);
             return;
         }
         var order = desc;
@@ -69,14 +69,14 @@ function setup() {
 function apply() {
     var oid = fomjar.util.args().oid;
     var csn = fomjar.util.args().csn;
-    wechat.show_toast('正在操作...');
+    vcg.show_toast('正在操作...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_APPLY_RENT_END, {oid : oid, csn : csn}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('操作失败: ' + desc, 10000);
+            vcg.show_toast('操作失败: ' + desc, 10000);
             return;
         }
-        wechat.show_toast('归还成功', 1000);
+        vcg.show_toast('归还成功', 1000);
         setTimeout(function() {window.location = 'query_order.html'}, 1000);
     });
 

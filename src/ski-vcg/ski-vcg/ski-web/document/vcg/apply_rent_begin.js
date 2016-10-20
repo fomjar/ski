@@ -24,8 +24,8 @@ function build_list() {
 
     list.append([cell_game, cell_type]);
 
-    $('.wechat .frame .body').append(tips);
-    $('.wechat .frame .body').append(list);
+    $('.vcg .frame .body').append(tips);
+    $('.vcg .frame .body').append(list);
 }
 
 function build_buttons() {
@@ -34,16 +34,16 @@ function build_buttons() {
     button.text('开始体验');
     button.bind('click', apply);
 
-    $('.wechat .frame .body').append(button);
+    $('.vcg .frame .body').append(button);
 }
 
 function setup() {
     var gid = fomjar.util.args().gid;
-    wechat.show_toast('正在加载...');
+    vcg.show_toast('正在加载...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_GAME, {gid : gid}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('加载失败', 10000);
+            vcg.show_toast('加载失败', 10000);
             return;
         }
         var game = desc;
@@ -56,14 +56,14 @@ function setup() {
 
 function apply() {
     var gid = fomjar.util.args().gid;
-    wechat.show_toast('正在操作...');
+    vcg.show_toast('正在操作...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_APPLY_RENT_BEGIN, {gid : gid, type : $('select').val()}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('操作失败: '+desc, 10000);
+            vcg.show_toast('操作失败: '+desc, 10000);
             return;
         }
-        wechat.show_toast('发号成功', 1000);
+        vcg.show_toast('发号成功', 1000);
         setTimeout(function() {window.location = 'query_order.html';}, 1000);
     });
 

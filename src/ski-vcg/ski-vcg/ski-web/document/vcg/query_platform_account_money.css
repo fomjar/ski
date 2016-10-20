@@ -16,23 +16,23 @@
     font-weight : 500;
 }
 
-.wechat .tips {
+.vcg .tips {
     position    : fixed;
     bottom      : 3.5em;
 }
 
-.wechat table {
+.vcg table {
     position    : fixed;
     left        : 0;
     bottom      : 1em;
     width       : 100%;
 }
 
-.wechat .button-major {
+.vcg .button-major {
     margin-right    : .75em;
 }
 
-.wechat .button-minor {
+.vcg .button-minor {
     margin-left     : .75em;
 }
 

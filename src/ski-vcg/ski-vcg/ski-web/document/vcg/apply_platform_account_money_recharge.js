@@ -26,7 +26,7 @@ function build_list() {
     list.addClass('list');
     list.append(cell);
 
-    $('.wechat .frame .body').append([before, list, after]);
+    $('.vcg .frame .body').append([before, list, after]);
 }
 
 function build_buttons() {
@@ -35,7 +35,7 @@ function build_buttons() {
     button.text('充值');
     button.bind('click', apply);
 
-    $('.wechat .frame .body').append(button);
+    $('.vcg .frame .body').append(button);
 }
 
 function wx_config() {
@@ -63,9 +63,9 @@ function wx_config() {
 function apply() {
     // 生成预支付订单
     var money = $('select').val();
-    wechat.show_toast('正在创建订单...');
+    vcg.show_toast('正在创建订单...');
     fomjar.net.sendto(fomjar.net.api()+'/pay/recharge/apply', {inst : fomjar.net.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, money : money}, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if ('SUCCESS' == desc.return_code) {
             // 调起支付
             wx.chooseWXPay({
@@ -76,12 +76,12 @@ function apply() {
                 'signType'  : desc.pay.signType,  // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
                 'paySign'   : desc.pay.paySign,   // 支付签名
                 'success'   : function (res) {
-                    wechat.show_toast('充值成功');
+                    vcg.show_toast('充值成功');
                     setTimeout(function() {history.back(-1)}, 1000);
                 }
             });
         } else {
-            wechat.show_toast(desc.return_msg, 10000);
+            vcg.show_toast(desc.return_msg, 10000);
         }
     });
 }

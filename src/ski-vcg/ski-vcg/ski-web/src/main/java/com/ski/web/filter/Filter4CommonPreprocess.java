@@ -23,8 +23,8 @@ public class Filter4CommonPreprocess extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         // 首页重定向
-        if (request.path().equals("/wechat") || request.path().equals("/wechat/")) {
-            redirect(response, "/wechat/index.html");
+        if (request.path().equals("/vcg") || request.path().equals("/vcg/")) {
+            redirect(response, "/vcg/index.html");
             return false;
         }
         // 首页重定向
@@ -35,8 +35,8 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         
         // 请求页面
         if (request.path().endsWith(".html")) {
-            if (request.path().startsWith("/wechat"))   return filterWechat(response, request, conn);
-            if (request.path().startsWith("/omc"))      return filterOmc(response, request);
+            if (request.path().startsWith("/vcg"))  return filterVcg(response, request, conn);
+            if (request.path().startsWith("/omc"))  return filterOmc(response, request);
         }
         
         // 请求接口
@@ -45,7 +45,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         return true;
     }
     
-    private static boolean filterWechat(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    private static boolean filterVcg(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         JSONObject args = request.argsToJson();
         int user = -1;
         
@@ -59,7 +59,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         }
         
         // 校验用户
-        if (!request.path().startsWith("/wechat/index") && !request.path().startsWith("/wechat/query_game")) {
+        if (!request.path().startsWith("/vcg/index") && !request.path().startsWith("/vcg/query_game")) {
             if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
                 logger.info("anonymous access deny: " + request.url());
                 
@@ -73,11 +73,11 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         }
         
         // 校验是否需要补充信息
-        if (!request.path().startsWith("/wechat/index") && !request.path().startsWith("/wechat/query_game")) {
+        if (!request.path().startsWith("/vcg/index") && !request.path().startsWith("/vcg/query_game")) {
             if (-1 != user && null != CommonService.getChannelAccountByCaid(user)) {
                 if (0 == CommonService.getChannelAccountByCaid(user).c_phone.length()) {
-                    if (!request.path().equals("/wechat/update_platform_account_map.html")) {
-                        redirect(response, "/wechat/update_platform_account_map.html");
+                    if (!request.path().equals("/vcg/update_platform_account_map.html")) {
+                        redirect(response, "/vcg/update_platform_account_map.html");
                         return false;
                     }
                 }

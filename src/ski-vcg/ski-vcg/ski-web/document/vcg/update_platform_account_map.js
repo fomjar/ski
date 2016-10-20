@@ -10,7 +10,7 @@ function build_tips() {
     tips.addClass('tips');
     tips.text('认证手机以便于跟您的淘宝帐号关联');
 
-    $('.wechat .frame .body').append(tips);
+    $('.vcg .frame .body').append(tips);
 }
 
 function build_list() {
@@ -44,7 +44,7 @@ function build_list() {
 
         fomjar.net.send(fomjar.net.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP, {phone : phone}, function(code, desc) {
             if (0 != code) {
-                wechat.show_toast('获取失败，请稍后重试', 10000);
+                vcg.show_toast('获取失败，请稍后重试', 10000);
                 return;
             }
         });
@@ -52,7 +52,7 @@ function build_list() {
 
     $(list.children()[2]).append(button_verify);
 
-    $('.wechat .frame .body').append(list);
+    $('.vcg .frame .body').append(list);
 }
 
 function build_buttons() {
@@ -67,32 +67,32 @@ function build_buttons() {
         if (!verify_phone(phone)) return;
 
         if (0 == verify.length) {
-            wechat.show_toast('验证码不能为空', 1500);
+            vcg.show_toast('验证码不能为空', 1500);
             return;
         }
-        wechat.show_toast('正在处理...');
+        vcg.show_toast('正在处理...');
         fomjar.net.send(fomjar.net.ISIS.INST_ECOM_UPDATE_PLATFORM_ACCOUNT_MAP, {psn_user : psn, phone : phone, verify : verify}, function(code, desc) {
-            wechat.hide_toast();
+            vcg.hide_toast();
             if (0 == code) {
-                wechat.show_toast('验证通过', 1500);
+                vcg.show_toast('验证通过', 1500);
                 setTimeout(function() {history.back(-1);}, 1500);
             } else {
-                wechat.show_toast(desc, 10000);
+                vcg.show_toast(desc, 10000);
             }
         });
 
     });
 
-    $('.wechat .frame .body').append(button);
+    $('.vcg .frame .body').append(button);
 }
 
 function verify_phone(phone) {
     if (0 == phone.length) {
-        wechat.show_toast('手机不能为空', 1500);
+        vcg.show_toast('手机不能为空', 1500);
         return false;
     }
     if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))) {
-        wechat.show_toast('手机号码不合法', 1500);
+        vcg.show_toast('手机号码不合法', 1500);
         return false;
     }
     return true;
@@ -100,16 +100,16 @@ function verify_phone(phone) {
 
 
 function setup() {
-    wechat.show_toast('正在获取...');
+    vcg.show_toast('正在获取...');
     fomjar.net.send(fomjar.net.ISIS.INST_ECOM_QUERY_PLATFORM_ACCOUNT_MAP, function(code, desc) {
-        wechat.hide_toast();
+        vcg.hide_toast();
         if (0 != code) {
-            wechat.show_toast('获取失败', 10000);
+            vcg.show_toast('获取失败', 10000);
             return;
         }
         $.each(desc, function(i, u) {
             switch (u.channel) {
-            case 1: // wechat
+            case 1: // vcg
                 $('#phone').val(u.phone);
                 break;
             case 3: // psn

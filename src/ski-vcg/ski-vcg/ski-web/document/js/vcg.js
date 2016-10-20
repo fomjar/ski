@@ -1,5 +1,5 @@
 
-var wechat = {
+var vcg = {
 
     channel : function(i) {
         switch (i) {
@@ -12,11 +12,11 @@ var wechat = {
     },
 
     show_toast : function(text, delay) {
-        var toast = $('.wechat .toast');
+        var toast = $('.vcg .toast');
         if (0 == toast.length) {
             toast = $('<div></div>');
             toast.addClass('toast');
-            $('.wechat').append(toast);
+            $('.vcg').append(toast);
         } else {
             this.hide_toast();
         }
@@ -128,27 +128,29 @@ fomjar.framework.phase.append('dom', build_frame_body);
 function build_frame() {
 
     var main = $('<div></div>');
-    main.addClass('wechat');
+    main.addClass('vcg');
 
     var frame = $('<div></div>');
     frame.addClass('frame');
 
     main.append(frame);
     $('body').append(main);
+
+    $('body').bind('touchstart', function() {});
 }
 
 function build_frame_head() {
     var head = $('<div></div>');
     head.addClass('head');
 
-    $('.wechat .frame').append(head);
+    $('.vcg .frame').append(head);
 }
 
 function build_frame_body() {
     var body = $('<div></div>');
     body.addClass('body');
 
-    $('.wechat .frame').append(body);
+    $('.vcg .frame').append(body);
 }
 
 
