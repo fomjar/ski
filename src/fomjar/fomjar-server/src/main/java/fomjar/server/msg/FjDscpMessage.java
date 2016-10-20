@@ -1,6 +1,6 @@
 package fomjar.server.msg;
 
-import java.util.Random;
+import java.util.UUID;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -66,11 +66,9 @@ public class FjDscpMessage extends FjJsonMessage {
     /** @return ARGS字段转JSON数组格式 */
     public JSONArray    argsToJsonArray()    {return json().getJSONArray("args");}
     
-    private static final Random random = new Random();
     /** @return 随机生成SID字段 */
     private static String newSid() {
-        return Integer.toHexString(Long.toHexString(System.currentTimeMillis()).hashCode())
-                + Integer.toHexString(String.valueOf(random.nextInt()).hashCode());
+        return UUID.randomUUID().toString().replace("-", "");
     }
     
 }

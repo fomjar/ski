@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -23,7 +24,14 @@ public class FjReceiver extends FjLoopTask {
     
     private static final Logger logger      = Logger.getLogger(FjReceiver.class);
     private static final int    BUF_LEN     = 1024 * 4;
-    private static final long   TIMEOUT     = 100L * 1;
+    private static final Set<Integer> alive = new HashSet<Integer>();
+    
+    static {
+        alive.add(80);
+        for (int i = 8080; i <= 8089; i++) alive.add(i);
+    }
+    
+    public static Set<Integer> getAlivePorts() {return alive;}
     
     private FjMessageQueue mq;
     private int port;
@@ -88,24 +96,12 @@ public class FjReceiver extends FjLoopTask {
                     if (port() != conn.socket().getLocalPort()) return;
                     
                     key.cancel();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    {
-                        buf.clear();
-                        int     n = -1;
-                        long    begin = System.currentTimeMillis();
-                        while (0 <= (n = conn.read(buf)) && TIMEOUT > System.currentTimeMillis() - begin) {
-                            if (0 < n) {
-                                buf.flip();
-                                baos.write(buf.array(), buf.position(), buf.limit());
-                                buf.clear();
-                                begin = System.currentTimeMillis();
-                            }
-                        }
-                    }
-                    String data = baos.toString("utf-8");
-                    baos.close();
-                    logger.debug("read raw data is: " + data);
                     
+                    String data = null;
+                    if (alive.contains(port())) data = readAlive(conn);
+                    else data = readClose(conn);
+                    
+                    logger.debug("read raw data is: " + data);
                     if (0 < data.length())
                         mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
                                 .attach("conn", conn)
@@ -114,6 +110,37 @@ public class FjReceiver extends FjLoopTask {
             } catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
         });
         keys.clear();
+    }
+    
+    private String readAlive(SocketChannel conn) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        buf.clear();
+        int     n = -1;
+        long    begin = System.currentTimeMillis();
+        while (0 <= (n = conn.read(buf)) && 100 > System.currentTimeMillis() - begin) {
+            if (0 < n) {
+                buf.flip();
+                baos.write(buf.array(), buf.position(), buf.limit());
+                buf.clear();
+                begin = System.currentTimeMillis();
+            }
+        }
+        String data = baos.toString("utf-8");
+        baos.close();
+        return data;
+    }
+    
+    private String readClose(SocketChannel conn) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        buf.clear();
+        while (-1 != conn.read(buf)) {
+            buf.flip();
+            baos.write(buf.array(), buf.position(), buf.limit());
+            buf.clear();
+        }
+        String data = baos.toString("utf-8");
+        baos.close();
+        return data;
     }
     
     public static InputStream receive(int port, long timeout) throws IOException {

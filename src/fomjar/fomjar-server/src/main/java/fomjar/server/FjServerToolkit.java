@@ -228,8 +228,9 @@ public class FjServerToolkit {
     
     public static FjMessage createMessage(String data) {
         if (data.startsWith("GET")
+                || data.startsWith("HEAD")
                 || data.startsWith("POST")
-                || data.startsWith("HEAD")) {
+                || data.startsWith("PUT")) {
             return FjHttpRequest.parse(data);
         }
         if (data.startsWith("HTTP/")) {
