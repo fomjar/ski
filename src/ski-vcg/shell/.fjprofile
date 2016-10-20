@@ -28,7 +28,7 @@ function cdski() {
     mod=$1
     cd "${ski_lbase}"
     if [ "" != "${mod}" ]; then
-        cd ski-${mod}
+        cd ski-vcg-${mod}
     fi
 }
 
@@ -46,9 +46,9 @@ function scpskiconfall() {
 
 function scpskiconf() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-${mod}/conf"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-${mod}/conf"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/conf/server.conf"  "${ski_rbase}/ski-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-vcg-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-vcg-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-vcg-${mod}/conf/server.conf"  "${ski_rbase}/ski-vcg-${mod}/conf"
 }
 
 function scpskibinall() {
@@ -61,13 +61,13 @@ function scpskibinall() {
 
 function scpskibin() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-${mod}/bin"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-vcg-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-vcg-${mod}/bin"
 }
 
 function scpskitask() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-${mod}/target/ski-${mod}-${ver}.jar" "${ski_rbase}/ski-${mod}/task"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-vcg-${mod}/target/ski-vcg-${mod}-${ver}.jar" "${ski_rbase}/ski-vcg-${mod}/task"
 }
 
 function scpskiliball() {
@@ -80,8 +80,8 @@ function scpskiliball() {
 
 function scpskilib() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-${mod}/lib"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-${mod}/lib"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-common/target/ski-common-${ver}.jar"    "${ski_rbase}/ski-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-vcg-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-vcg-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-vcg-common/target/ski-vcg-common-${ver}.jar"    "${ski_rbase}/ski-vcg-${mod}/lib"
 }
 

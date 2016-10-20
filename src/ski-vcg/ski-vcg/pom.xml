@@ -5,15 +5,15 @@
   <version>0.0.1</version>
   <packaging>pom</packaging>
   <modules>
-  	<module>ski-common</module>
-  	<module>ski-omc</module>
-  	<module>ski-web</module>
-    <module>ski-wsi</module>
-  	<module>ski-bcs</module>
-    <module>ski-mma</module>
-  	<module>ski-wa</module>
-    <module>ski-cdb</module>
-    <module>ski-tools</module>
+  	<module>ski-vcg-common</module>
+  	<module>ski-vcg-omc</module>
+  	<module>ski-vcg-web</module>
+    <module>ski-vcg-wsi</module>
+  	<module>ski-vcg-bcs</module>
+    <module>ski-vcg-mma</module>
+  	<module>ski-vcg-wa</module>
+    <module>ski-vcg-cdb</module>
+    <module>ski-vcg-tools</module>
     
   </modules>
   <build>
