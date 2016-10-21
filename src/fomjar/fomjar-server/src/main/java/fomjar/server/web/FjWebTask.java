@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -15,6 +17,7 @@ import fomjar.server.FjSender;
 import fomjar.server.FjServer;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
+import fomjar.util.FjThreadFactory;
 
 public class FjWebTask implements FjServer.FjServerTask {
     
@@ -29,7 +32,7 @@ public class FjWebTask implements FjServer.FjServerTask {
 
     @Override
     public void initialize(FjServer server) {
-        pool = Executors.newCachedThreadPool();
+        pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new FjThreadFactory("fjwebtask"));
         filters = new LinkedList<FjWebFilter>();
     }
 

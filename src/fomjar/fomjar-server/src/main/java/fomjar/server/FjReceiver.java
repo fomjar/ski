@@ -2,9 +2,7 @@ package fomjar.server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -12,19 +10,23 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import fomjar.util.FjFixedTask;
 import fomjar.util.FjLoopTask;
+import fomjar.util.FjThreadFactory;
 
 public class FjReceiver extends FjLoopTask {
     
     private static Selector selector = null;
     
-    private static final Logger logger      = Logger.getLogger(FjReceiver.class);
-    private static final int    BUF_LEN     = 1024 * 4;
-    private static final Set<Integer> alive = new HashSet<Integer>();
+    private static final Logger         logger  = Logger.getLogger(FjReceiver.class);
+    private static final Set<Integer>   alive   = new HashSet<Integer>();
+    private static final int            BUF_LEN = 1024;
     
     static {
         alive.add(80);
@@ -33,6 +35,7 @@ public class FjReceiver extends FjLoopTask {
     
     public static Set<Integer> getAlivePorts() {return alive;}
     
+    private ExecutorService pool;
     private FjMessageQueue mq;
     private int port;
     private ServerSocketChannel sock;
@@ -41,13 +44,12 @@ public class FjReceiver extends FjLoopTask {
     public FjReceiver(FjMessageQueue mq) {
         if (null == mq) throw new NullPointerException();
         this.mq = mq;
-        buf = ByteBuffer.allocate(BUF_LEN);
+        this.buf = ByteBuffer.allocate(BUF_LEN);
+        this.pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new FjThreadFactory("fjreceiver"));
     }
     
     public FjReceiver(FjMessageQueue mq, int port) {
-        if (null == mq) throw new NullPointerException();
-        this.mq = mq;
-        buf = ByteBuffer.allocate(BUF_LEN);
+        this(mq);
         reset(port);
     }
     
@@ -93,44 +95,47 @@ public class FjReceiver extends FjLoopTask {
                     conn.register(selector, SelectionKey.OP_READ);
                 } else if (key.isReadable()) {
                     SocketChannel conn = (SocketChannel) key.channel();
+                    key.cancel();
                     if (port() != conn.socket().getLocalPort()) return;
                     
-                    key.cancel();
-                    
-                    String data = null;
-                    if (alive.contains(port())) data = readAlive(conn);
-                    else data = readClose(conn);
-                    
-                    logger.debug("read raw data is: " + data);
-                    if (0 < data.length())
-                        mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
-                                .attach("conn", conn)
-                                .attach("raw", data));
+                    if (alive.contains(port())) readAlive(conn);
+                    else readClose(conn);
                 }
             } catch (Exception e) {logger.error("accept connection from port: " + port() + " failed", e);}
         });
         keys.clear();
     }
     
-    private String readAlive(SocketChannel conn) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        buf.clear();
-        int     n = -1;
-        long    begin = System.currentTimeMillis();
-        while (0 <= (n = conn.read(buf)) && 100 > System.currentTimeMillis() - begin) {
-            if (0 < n) {
-                buf.flip();
-                baos.write(buf.array(), buf.position(), buf.limit());
+    private void readAlive(SocketChannel conn) {
+        pool.submit(()->{
+            try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ByteBuffer buf = ByteBuffer.allocate(BUF_LEN);
                 buf.clear();
-                begin = System.currentTimeMillis();
-            }
-        }
-        String data = baos.toString("utf-8");
-        baos.close();
-        return data;
+                int     n = -1;
+                long    begin = System.currentTimeMillis();
+                while (0 <= (n = conn.read(buf)) && 100 > System.currentTimeMillis() - begin) {
+                    if (0 < n) {
+                        buf.flip();
+                        baos.write(buf.array(), buf.position(), buf.limit());
+                        buf.clear();
+                        begin = System.currentTimeMillis();
+                    }
+                }
+                String data = baos.toString("utf-8");
+                baos.close();
+                
+                logger.debug("read raw data is: " + data);
+                if (0 < data.length())
+                    mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
+                            .attach("conn", conn)
+                            .attach("raw", data));
+                else conn.close();
+            } catch (Exception e) {logger.error("read alive connection failed", e);}
+        });
     }
     
-    private String readClose(SocketChannel conn) throws IOException {
+    private void readClose(SocketChannel conn) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         buf.clear();
         while (-1 != conn.read(buf)) {
@@ -140,30 +145,12 @@ public class FjReceiver extends FjLoopTask {
         }
         String data = baos.toString("utf-8");
         baos.close();
-        return data;
+        
+        logger.debug("read raw data is: " + data);
+        if (0 < data.length())
+            mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
+                    .attach("conn", conn)
+                    .attach("raw", data));
+        else conn.close();
     }
-    
-    public static InputStream receive(int port, long timeout) throws IOException {
-        ServerSocket server = new ServerSocket(port);
-        InputStreamWrapper isw = new InputStreamWrapper();
-        new FjFixedTask(timeout) {
-            @Override
-            public void perform() {
-                try {isw.is = server.accept().getInputStream();}
-                catch (IOException e) {logger.error("receive data from port: " + port + " failed", e);}
-            }
-            @Override
-            protected void onTimeOut() {
-                logger.error("receive data from port " + port + " timeout for " + timeout + "milliseconds");
-                try {server.close();}
-                catch (IOException e) {e.printStackTrace();}
-            }
-        }.run();
-        return isw.is;
-    }
-    
-    private static class InputStreamWrapper {
-        public InputStream is = null;
-    }
-    
 }
