@@ -32,7 +32,7 @@ begin
             set di_hours = ceil(di_times / 60 / 60);        -- hours
             set di_times = floor(di_hours / 24);
             if di_hours % 24 >= 3 then                      -- count 1 by more than 3 hours
-                set di_times = di_times = 1;
+                set di_times = di_times + 1;
             end if;
 
             if di_times = 0 then                            -- at least one day

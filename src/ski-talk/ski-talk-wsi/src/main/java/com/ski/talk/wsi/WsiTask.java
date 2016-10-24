@@ -43,6 +43,7 @@ public class WsiTask implements FjServerTask {
 
     @Override
     public void destroy(FjServer server) {
+        cache.clear();
         monitor.close();
         pool.shutdownNow();
     }
