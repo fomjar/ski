@@ -295,8 +295,8 @@ fomjar.framework = function() {
                     $.each(that.ren, function(i, f) {return f(i);});
                 });
             }
-        }
-    }
+        };
+    };
 };
 
 // prototype
