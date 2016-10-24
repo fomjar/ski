@@ -8,7 +8,7 @@ public class FilterToolkit {
         if (!args.has(name)) return -1;
 
         Object obj = args.get(name);
-        if (obj instanceof Integer) return (int) obj;
+        if (obj instanceof Integer) return (Integer) obj;
         else return Integer.parseInt(obj.toString(), 16);
     }
 
