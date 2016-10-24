@@ -8,16 +8,16 @@ import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjJsonMessage;
 
 public class WeimiInterface {
-    
+
     private static final String url = "http://api.weimi.cc/2/sms/send.html";
-    
+
     /**
      * √ 触发类短信：验证码 、 订单短信 等，调用短信模版，并可以传入定制化参数；验证码类短信请参考下方注意事项中的“验证码类短信规范”
      * √ 单发或群发；
      * √ 支持子账号；
      * √ 支持定时发送短信；
      * √ 可以做到 免审下发 。
-     * 
+     *
      * @return
      */
     public static FjJsonMessage sendSms2(String uid, String pas, String[] mobs, String cid, String[] ps) {

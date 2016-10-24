@@ -29,7 +29,7 @@ import net.sf.json.JSONObject;
 public class ManageGameAccount extends JDialog {
 
     private static final long serialVersionUID = -51034836551447291L;
-    
+
     private int gaid;
     private JToolBar    toolbar;
     private FjEditLabel i_gaid;
@@ -39,12 +39,12 @@ public class ManageGameAccount extends JDialog {
     private FjEditLabel c_remark;
     private FjEditLabel t_birth;
     private FjListPane<String> pane_games;
-    
+
     public ManageGameAccount(int gaid) {
         super(MainFrame.getInstance());
-        
+
         this.gaid = gaid;
-        
+
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
@@ -61,10 +61,10 @@ public class ManageGameAccount extends JDialog {
         c_name = new FjEditLabel();
         c_remark = new FjEditLabel();
         t_birth = new FjEditLabel();
-        
+
         pane_games = new FjListPane<String>();
         pane_games.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "包含游戏"));
-        
+
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "基本信息"));
         panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
@@ -74,31 +74,31 @@ public class ManageGameAccount extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("昵称", c_name));
         panel_basic.add(UIToolkit.createBasicInfoLabel("备注", c_remark));
         panel_basic.add(UIToolkit.createBasicInfoLabel("生日", t_birth));
-        
+
         JPanel panel_north = new JPanel();
         panel_north.setLayout(new BoxLayout(panel_north, BoxLayout.Y_AXIS));
         panel_north.add(toolbar);
         panel_north.add(panel_basic);
-        
+
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(panel_north, BorderLayout.NORTH);
         getContentPane().add(pane_games, BorderLayout.CENTER);
-        
+
         setTitle("管理账号");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setSize(new Dimension(400, 320));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
-        
+
         registerListener();
-        
+
         updateGameAccount();
         updateGameAccountGame();
     }
-    
+
     private JSONObject args = new JSONObject();
-    
+
     private void registerListener() {
         c_user.addEditListener(new EditListener() {
             @Override
@@ -171,14 +171,14 @@ public class ManageGameAccount extends JDialog {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             CommonService.updateGameAccount();
             if (!UIToolkit.showServerResponse(rsp)) return;
-            
+
             if (args.has("user"))   c_user.setForeground(Color.darkGray);
             if (args.has("pass"))   c_pass.setForeground(Color.darkGray);
             if (args.has("name"))   c_name.setForeground(Color.darkGray);
             if (args.has("remark")) c_remark.setForeground(Color.darkGray);
             if (args.has("birth"))  t_birth.setForeground(Color.darkGray);
             args.clear();
-            
+
             updateGameAccount();
         });
         ((JButton) toolbar.getComponent(1)).addActionListener(e->{
@@ -194,12 +194,12 @@ public class ManageGameAccount extends JDialog {
                 ((JButton) toolbar.getComponent(1)).setEnabled(false);
                 FjDscpMessage rsp_wa = CommonService.send("wa", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                 if (!UIToolkit.showServerResponse(rsp_wa)) return;
-                
+
                 args.put("pass", args.getString("pass_new"));
                 FjDscpMessage rsp_cdb = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
                 CommonService.updateGameAccount();
                 if (!UIToolkit.showServerResponse(rsp_cdb)) return;
-                
+
                 if (args.has("user"))   c_user.setForeground(Color.black);
                 if (args.has("pass"))   c_pass.setForeground(Color.black);
                 if (args.has("name"))   c_name.setForeground(Color.black);
@@ -207,7 +207,7 @@ public class ManageGameAccount extends JDialog {
                 if (args.has("birth"))  t_birth.setForeground(Color.black);
                 args.clear();
                 ((JButton) toolbar.getComponent(1)).setEnabled(true);
-                
+
                 updateGameAccount();
             });
         });
@@ -223,7 +223,7 @@ public class ManageGameAccount extends JDialog {
                     JOptionPane.showMessageDialog(ManageGameAccount.this, "此账号没有绑定", "信息", JOptionPane.PLAIN_MESSAGE);
                 else
                     UIToolkit.showServerResponse(rsp);
-                
+
                 args.clear();
                 ((JButton) toolbar.getComponent(2)).setEnabled(true);
             });
@@ -231,10 +231,10 @@ public class ManageGameAccount extends JDialog {
         ((JButton) toolbar.getComponent(4)).addActionListener(e->{
             BeanGame game = UIToolkit.chooseGame();
             if (null == game) return;
-            
+
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(ManageGameAccount.this, "即将添加游戏：" + game.c_name_zh_cn, "信息", JOptionPane.OK_CANCEL_OPTION))
                 return;
-            
+
             int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
             int gid  = game.i_gid;
             JSONObject args = new JSONObject();
@@ -243,17 +243,17 @@ public class ManageGameAccount extends JDialog {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT_GAME, args);
             CommonService.updateGameAccountGame();
             UIToolkit.showServerResponse(rsp);
-            
+
             updateGameAccountGame();
         });
         ((JButton) toolbar.getComponent(6)).addActionListener(e->{
             new ManageGameAccountRentHistory(this.gaid).setVisible(true);
         });
     }
-    
+
     private void updateGameAccount() {
         BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
-        
+
         i_gaid.setText(String.format("0x%08X", account.i_gaid));
         c_user.setText(account.c_user);
         c_pass.setText(account.c_pass);
@@ -261,7 +261,7 @@ public class ManageGameAccount extends JDialog {
         c_remark.setText(account.c_remark);
         t_birth.setText(account.t_birth);
     }
-    
+
     private void updateGameAccountGame() {
         int gaid = Integer.parseInt(i_gaid.getText().split("x")[1], 16);
 
@@ -273,5 +273,5 @@ public class ManageGameAccount extends JDialog {
             }
         });
     }
-    
+
 }

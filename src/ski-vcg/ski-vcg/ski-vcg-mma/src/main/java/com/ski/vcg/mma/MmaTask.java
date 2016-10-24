@@ -29,11 +29,11 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class MmaTask implements FjServerTask {
-    
+
     private static final Logger logger = Logger.getLogger(MmaTask.class);
-    
+
     public  static final String URL_KEY = "/ski-mma";
-    
+
     @Override
     public void initialize(FjServer server) {}
 
@@ -47,9 +47,9 @@ public class MmaTask implements FjServerTask {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
             return;
         }
-        
+
         FjDscpMessage   dmsg = (FjDscpMessage) msg;
-        
+
         switch (dmsg.inst()) {
         case CommonDefinition.ISIS.INST_ECOM_APPLY_AUTHORIZE: {
             logger.info(String.format("INST_ECOM_APPLY_AUTHORIZE            - %s:%s", dmsg.fs(), dmsg.sid()));
@@ -68,7 +68,7 @@ public class MmaTask implements FjServerTask {
         }
         case CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE: {
             if (dmsg.fs().startsWith("cdb")) break;
-            
+
             logger.info(String.format("INST_ECOM_UPDATE_CHATROOM_MESSAGE    - %s:%s", dmsg.fs(), dmsg.sid()));
             processUpdateChatroomMessage(dmsg);
             break;
@@ -79,12 +79,12 @@ public class MmaTask implements FjServerTask {
             break;
         }
     }
-    
+
     private static void processApplyAuthorize(FjDscpMessage dmsg) {
         JSONObject args     = dmsg.argsToJsonObject();
         String[] user       = getArrayFromArgs(args, "user");
         String[] content    = getArrayFromArgs(args, "content");
-        
+
         FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
                 FjServerToolkit.getServerConfig("mma.weimi.uid"),
                 FjServerToolkit.getServerConfig("mma.weimi.pas"),
@@ -92,21 +92,21 @@ public class MmaTask implements FjServerTask {
                 FjServerToolkit.getServerConfig("mma.weimi.cid.authorize"),
                 content);
         int code = rsp_weimi.json().getInt("code");
-        
+
         if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
             logger.error("send sms failed: " + rsp_weimi);
             response(dmsg, CommonDefinition.CODE.CODE_SYS_UNAVAILABLE, "系统不可用，请稍候再试");
             return;
         }
-        
+
         response(dmsg, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
-    
+
     private static void processApplyRentBegin(FjDscpMessage dmsg) {
         JSONObject args     = dmsg.argsToJsonObject();
         String[] user       = getArrayFromArgs(args, "user");
         String[] content    = getArrayFromArgs(args, "content");
-        
+
         FjJsonMessage rsp_weimi = WeimiInterface.sendSms2(
                 FjServerToolkit.getServerConfig("mma.weimi.uid"),
                 FjServerToolkit.getServerConfig("mma.weimi.pas"),
@@ -114,16 +114,16 @@ public class MmaTask implements FjServerTask {
                 FjServerToolkit.getServerConfig("mma.weimi.cid.rentbegin"),
                 content);
         int code = rsp_weimi.json().getInt("code");
-        
+
         if (CommonDefinition.CODE.CODE_SYS_SUCCESS != code) {
             logger.error("send sms failed: " + rsp_weimi);
             response(dmsg, CommonDefinition.CODE.CODE_SYS_UNAVAILABLE, "系统不可用，请稍候再试");
             return;
         }
-        
+
         response(dmsg, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
-    
+
     private static void processApplyEncode(FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
         String type = args.getString("type");
@@ -137,7 +137,7 @@ public class MmaTask implements FjServerTask {
                 ByteArrayOutputStream dst = new ByteArrayOutputStream();
                 BufferedImage image = ImageIO.read(src);
                 ImageIO.write(image, "png", dst);
-                
+
                 code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
                 desc = Base64.getEncoder().encodeToString(dst.toByteArray());
             } catch (IOException e) {
@@ -151,7 +151,7 @@ public class MmaTask implements FjServerTask {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 new FFMPEG().source(data).target(baos).format("wav").execute();
-                
+
                 code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
                 desc = Base64.getEncoder().encodeToString(baos.toByteArray());
             } catch (IOException | IllegalArgumentException | InterruptedException e) {
@@ -165,7 +165,7 @@ public class MmaTask implements FjServerTask {
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 new FFMPEG().source(data).target(baos).format("mp4").execute();
-                
+
                 code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
                 desc = Base64.getEncoder().encodeToString(baos.toByteArray());
             } catch (IOException | IllegalArgumentException | InterruptedException e) {
@@ -176,16 +176,16 @@ public class MmaTask implements FjServerTask {
             break;
         }
         }
-        
+
         response(dmsg, code, desc);
     }
-    
+
     private static Map<Integer, Long> cache_last_message_time = new ConcurrentHashMap<Integer, Long>();
-    
+
     private static void processUpdateChatroomMessage(FjDscpMessage dmsg) {
         JSONObject message = dmsg.argsToJsonObject();
         int crid = message.getInt("crid");
-        
+
         if (!cache_last_message_time.containsKey(crid)) cache_last_message_time.put(crid, System.currentTimeMillis());
         else {
             long timer = Long.parseLong(FjServerToolkit.getServerConfig("mma.chatroom.message.timer"));
@@ -201,10 +201,10 @@ public class MmaTask implements FjServerTask {
             }
         }
         cache_last_message_time.put(crid, System.currentTimeMillis());
-        
+
         recordChatroomMessage(message);
     }
-    
+
     private static void recordChatroomMessage(JSONObject message) {
         FjDscpMessage msg = new FjDscpMessage();
         msg.json().put("fs",   FjServerToolkit.getAnyServer().name());
@@ -213,7 +213,7 @@ public class MmaTask implements FjServerTask {
         msg.json().put("args", message);
         FjServerToolkit.getAnySender().send(msg);
     }
-    
+
     private static String[] getArrayFromArgs(JSONObject args, String name) {
         Object      object  = args.get(name);
         String[]    array   = null;
@@ -222,7 +222,7 @@ public class MmaTask implements FjServerTask {
         else return null;
         return array;
     }
-    
+
     private static void response(FjDscpMessage req, int code, String desc) {
         JSONObject args = new JSONObject();
         args.put("code", code);

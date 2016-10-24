@@ -11,9 +11,9 @@ import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.web.FjWebFilter;
 
 public class Filter1WechatAccess extends FjWebFilter {
-    
+
     private static final Logger logger = Logger.getLogger(Filter1WechatAccess.class);
-    
+
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (request.url().startsWith("/ski-wechat") && request.urlArgs().containsKey("echostr")) {

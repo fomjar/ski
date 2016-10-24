@@ -18,43 +18,43 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class WechatBusiness {
-    
+
     private static final Logger logger = Logger.getLogger(WechatBusiness.class);
     public static final String URL_KEY = "/ski-wechat";
-    
+
     private static final String RESPONSE_TYPE_TEXT      = "text";
     private static final String RESPONSE_TYPE_NOTIFY    = "notify";
     private static final String RESPONSE_TYPE_NEWS      = "news";
-    
+
     private WechatTokenMonitor  mon_token   = new WechatTokenMonitor();
     private WechatMenuMonitor   mon_menu    = new WechatMenuMonitor(mon_token);
-    
+
     public WechatBusiness() {
         mon_token   = new WechatTokenMonitor();
         mon_menu    = new WechatMenuMonitor(mon_token);
     }
-    
+
     public void open() {
         mon_token.start();
         mon_menu.start();
     }
-    
+
     public void close() {
         mon_token.close();
         mon_menu.close();
     }
-    
+
     public WechatTokenMonitor token_monitor() {
         return mon_token;
     }
-    
+
     public void dispatch(FjDscpMessage req) {
         JSONObject  args    = req.argsToJsonObject();
         if (!args.has("user")) return;
-        
+
         String user = args.getString("user");
         verifyUser(user);
-        
+
         switch (req.inst()) {
         case CommonDefinition.ISIS.INST_USER_RESPONSE:
             dispatchResponse(user, args);
@@ -77,11 +77,11 @@ public class WechatBusiness {
         default:
             break;
         }
-        
+
     }
-    
+
     /**
-     * 
+     *
      * @param user
      * @return true for pass
      */
@@ -89,15 +89,15 @@ public class WechatBusiness {
         List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(user, CommonService.CHANNEL_WECHAT);
         int caid = -1;
         if (!users.isEmpty()) caid = users.get(0).i_caid;
-        
+
         updateUser(caid, user);
         if (-1 == caid) CommonService.updateChannelAccount();
     }
-    
+
     private void updateUser(int caid, String user) {
         FjJsonMessage ui = null;
         ui = WechatInterface.userInfo(mon_token.token(), user);
-        
+
         JSONObject args = new JSONObject();
         if (-1 != caid) args.put("caid", caid);
         args.put("channel", CommonService.CHANNEL_WECHAT);
@@ -113,7 +113,7 @@ public class WechatBusiness {
         req.json().put("args",  args);
         FjServerToolkit.getAnySender().send(req);
     }
-    
+
     private static int convertSex(int sex) {
         switch (sex) {
         case 1: return CommonService.GENDER_MALE;
@@ -122,12 +122,12 @@ public class WechatBusiness {
         default: return CommonService.GENDER_UNKNOWN;
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private void dispatchResponse(String user, JSONObject args) {
         String  type    = args.has("type") ? args.getString("type") : RESPONSE_TYPE_TEXT;
         Object  content = args.get("content");
-        
+
         switch (type) {
         case RESPONSE_TYPE_TEXT: {
             try {WechatInterface.messageCustomSendText(mon_token.token(), user, content.toString());}
@@ -161,9 +161,9 @@ public class WechatBusiness {
             break;
         }
     }
-    
+
     private static void dispatchCommand(String user, JSONObject args) {
         switch (args.getString("cmd")) {
         }
-    }    
+    }
 }

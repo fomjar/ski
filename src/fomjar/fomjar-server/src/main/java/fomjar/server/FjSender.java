@@ -27,12 +27,12 @@ import fomjar.server.msg.FjHttpResponse;
 import fomjar.util.FjLoopTask;
 
 public class FjSender extends FjLoopTask {
-    
+
     private static final Logger logger = Logger.getLogger(FjSender.class);
     private static int TIMEOUT_I = 1000 * 60;
     private static int TIMEOUT_O = 1000 * 3;
     private FjMessageQueue mq;
-    
+
     public FjSender() {
         mq = new FjMessageQueue();
     }
@@ -91,15 +91,15 @@ public class FjSender extends FjLoopTask {
     public void send(FjMessage msg) {
         send(new FjMessageWrapper(msg));
     }
-    
+
     public void send(FjMessageWrapper wrapper) {
         mq.offer(wrapper);
     }
-    
+
     public static FjMessage sendHttpRequest(FjHttpRequest req) {
         return sendHttpRequest(req, TIMEOUT_I);
     }
-    
+
     public static FjMessage sendHttpRequest(FjHttpRequest req, int timeout) {
         HttpURLConnection conn = null;
         FjMessage rsp = null;
@@ -109,7 +109,7 @@ public class FjSender extends FjLoopTask {
             conn = (HttpURLConnection) httpurl.openConnection();
             conn.setConnectTimeout(timeout);
             conn.setReadTimeout(timeout);
-            
+
             conn.setRequestMethod(req.method());
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -130,17 +130,17 @@ public class FjSender extends FjLoopTask {
         finally {if (null != conn) conn.disconnect();}
         return rsp;
     }
-    
+
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn) {
         sendHttpResponse(rsp, conn, TIMEOUT_O);
     }
-    
+
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
         try {
-            
+
             if (rsp.attr().containsKey("Content-Encoding")) {
                 byte[] content = rsp.content();
-                
+
                 switch (rsp.attr().get("Content-Encoding")) {
                 case "gzip":
                     ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
@@ -148,17 +148,17 @@ public class FjSender extends FjLoopTask {
                     gzos.write(content);
                     gzos.finish();
                     gzos.close();
-                    
+
                     rsp.content(content_gzip.toByteArray());
                     break;
                 }
             }
-            
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(rsp.toString().getBytes("utf-8"));
             baos.write(rsp.content());
             baos.flush();
-            
+
             ByteBuffer buf = ByteBuffer.wrap(baos.toByteArray());
             long begin = System.currentTimeMillis();
             while(buf.hasRemaining() && timeout > System.currentTimeMillis() - begin) {
@@ -168,9 +168,9 @@ public class FjSender extends FjLoopTask {
         } catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
         finally {if (null != conn) try {conn.close();} catch (IOException e) {e.printStackTrace();}}
     }
-    
+
     private static SSLContext sslcontext = null;
-    
+
     private static void initSslContext() {
         if (null != sslcontext) return;
         try {
@@ -179,7 +179,7 @@ public class FjSender extends FjLoopTask {
             SSLContext.setDefault(sslcontext);
         } catch (GeneralSecurityException e) {logger.error("init ssl context failed!", e);}
     }
-    
+
     private static class DefaultTrustManager implements X509TrustManager {
         @Override
         public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
@@ -188,5 +188,5 @@ public class FjSender extends FjLoopTask {
         @Override
         public X509Certificate[] getAcceptedIssuers() {return null;}
     }
-    
+
 }

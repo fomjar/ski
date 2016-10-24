@@ -23,19 +23,19 @@ import fomjar.server.msg.FjXmlMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjServerToolkit {
-    
+
     private static final Logger logger = Logger.getLogger(FjServerToolkit.class);
     private static Properties server = null;
     private static FjSlb slb = null;
     private static FjConfigMonitor config_monitor = null;
-    
+
     public static void startConfigMonitor(String name) {
         if (null == config_monitor) config_monitor = new FjConfigMonitor(name);
-        
+
         config_monitor.perform();
         if (!config_monitor.isRun()) new Thread(config_monitor, "fjconfig-monitor").start();
     }
-    
+
     private static Properties loadOneConfig(String absolutePath) {
         if (null == absolutePath) return null;
         Properties p = new Properties();
@@ -50,48 +50,48 @@ public class FjServerToolkit {
         }
         return p;
     }
-    
+
     public static String getServerConfig(String key) {
         if (null == server || null == key) return null;
         return server.getProperty(key);
     }
-    
+
     public static FjSlb getSlb() {return slb;}
-    
+
     public static FjConfigMonitor getConfigMonitor() {return config_monitor;}
-    
+
     public static class FjAddress {
-        
+
         public String server;
         public String host;
         public int    port;
-        
+
         @Override
         public boolean equals(Object obj) {
             if (null == obj) return false;
             if (!(obj instanceof FjAddress)) return false;
-            
+
             if (this == obj) return true;
-            
+
             FjAddress addr1 = (FjAddress) obj;
             return server.equals(addr1.server)
                     && host.equals(addr1.host)
                     && port == addr1.port;
         }
-        
+
         @Override
         public String toString() {return server + ":" + host + ":" + port;}
     }
-    
+
     public static class FjSlb {
-        
+
         private Properties address;
         private Map<String, Integer> cache;
-        
+
         public FjSlb() {cache = new HashMap<String, Integer>();}
-        
+
         public void setAddresses(Properties address) {this.address = address;}
-        
+
         public List<FjAddress> getAddresses(String server) {
             if (null == address || null == server) return null;
             List<FjAddress> items = new LinkedList<FjAddress>();
@@ -106,33 +106,33 @@ public class FjServerToolkit {
             });
             return items;
         }
-        
+
         public FjAddress getAddress(String server) {
             List<FjAddress> addresses = getAddresses(server);
             if (null == addresses || addresses.isEmpty()) return null;
-            
+
             if (!cache.containsKey(server)) cache.put(server, -1);
             int last_index = cache.get(server);
             int this_index = last_index + 1;
             if (this_index >= addresses.size()) this_index = 0;
             cache.put(server, this_index);
-            
+
             return addresses.get(this_index);
         }
     }
-    
+
     public static class FjConfigMonitor extends FjLoopTask {
-        
+
         private String name;
         private Runnable task;
-        
+
         public FjConfigMonitor(String name) {
             this.name = name;
             long inteval = 10;
             setDelay(inteval * 1000);
             setInterval(inteval * 1000);
         }
-        
+
         @Override
         public void perform() {
             try {
@@ -143,27 +143,27 @@ public class FjServerToolkit {
                 p.setProperty("log4j.appender.FILE.File", String.format("log/ski-%s.log", name));
                 PropertyConfigurator.configure(p);
             } catch (Exception e) {logger.error("load config failed", e);}
-            
+
             if (null == slb) slb = new FjSlb();
             slb.setAddresses(loadOneConfig("conf/address.conf"));
-            
+
             server = loadOneConfig("conf/server.conf");
-            
+
             if (null != task) task.run();
         }
-        
+
         public void onLoad(Runnable task) {
             this.task = task;
         }
     }
-    
+
     private static Map<String, FjServer>   g_server = null;
     private static Map<String, FjReceiver> g_receiver = null;
     private static Map<String, FjSender>   g_sender = null;
-    
+
     /**
      * call {@link #startConfigMonitor()} first, and then ensure got the address of given server 'name'
-     * 
+     *
      * @param name
      * @return
      */
@@ -189,13 +189,13 @@ public class FjServerToolkit {
         logger.error("server: " + name + " started on address: " + address);
         return server;
     }
-    
+
     public static synchronized FjServer stopServer(String name) {
         if (null == g_server || !g_server.containsKey(name)) {
             logger.error("no server started with name: " + name);
             return null;
         }
-        
+
         FjSender sender     = g_sender.get(name);
         FjServer server     = g_server.get(name);
         FjReceiver receiver = g_receiver.get(name);
@@ -205,11 +205,11 @@ public class FjServerToolkit {
         logger.error("server: " + name + " stopped");
         return server;
     }
-    
+
     public static FjServer getServer(String name) {return null == g_server ? null : g_server.get(name);}
-    
+
     public static FjSender getSender(String name) {return null == g_sender ? null : g_sender.get(name);}
-    
+
     public static FjServer getAnyServer() {
         if (null == g_server) return null;
         int index = Math.abs(new Random().nextInt()) % g_server.size();
@@ -217,7 +217,7 @@ public class FjServerToolkit {
         for (int i = 0; i < index; i++) iterator.next();
         return iterator.next();
     }
-    
+
     public static FjSender getAnySender() {
         if (null == g_sender) return null;
         int index = Math.abs(new Random().nextInt()) % g_sender.size();
@@ -225,7 +225,7 @@ public class FjServerToolkit {
         for (int i = 0; i < index; i++) iterator.next();
         return iterator.next();
     }
-    
+
     public static FjMessage createMessage(String data) {
         if (data.startsWith("GET")
                 || data.startsWith("HEAD")

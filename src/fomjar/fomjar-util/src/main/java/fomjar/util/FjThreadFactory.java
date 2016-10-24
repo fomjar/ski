@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FjThreadFactory implements ThreadFactory {
     private static Map<String, AtomicInteger> poolNumber = new HashMap<String, AtomicInteger>();
-    
+
     private ThreadGroup group;
     private AtomicInteger threadNumber = new AtomicInteger(1);
     private String namePrefix;
@@ -15,7 +15,7 @@ public class FjThreadFactory implements ThreadFactory {
     public FjThreadFactory(String prefix) {
         SecurityManager s = System.getSecurityManager();
         group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-        
+
         if (!poolNumber.containsKey(prefix)) poolNumber.put(prefix, new AtomicInteger(1));
         namePrefix = String.format("%s-pool-%d-thread-", prefix, poolNumber.get(prefix).getAndIncrement());
     }

@@ -10,7 +10,7 @@ import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.web.FjWebFilter;
 
 public class Filter5CommonDocument extends FjWebFilter {
-    
+
     private static final Logger logger = Logger.getLogger(Filter5CommonDocument.class);
 
     @Override

@@ -26,19 +26,19 @@ import fomjar.server.msg.FjDscpMessage;
  * <tr><td>business.type</td><td>会话的业务类型，取值为某些指令</td><td>{@link int}</td></tr>
  * </table>
  * </p>
- * 
+ *
  * @author fomjar
  */
 public class FjSessionContext {
-    
+
     private Map<String, Object> data;
-    
+
     FjSessionContext(String sid) {
         data = new HashMap<String, Object>();
         data.put("sid", sid);
         data.put("ssn", -1);
     }
-    
+
     /** 获取会话的所有缓存 */
     public Map<String, Object> getAll()    {return data;}
     /** 根据索引获取一个缓存对象 */
@@ -68,29 +68,29 @@ public class FjSessionContext {
     /** 存入一个键值对到缓存中 */
     public FjSessionContext   put        (String key, Object value) {data.put(key, value); return this;}
 
-    
+
     /** @return 该会话的会话ID */
     public String  sid()    {return getString("sid");}
     /**
      * 随着同一个会话中涉及的消息数增多，序列号也会逐渐增加。正常情况下，序列号初始为-1，每收到一个消息，序列号+1
-     * 
+     *
      * @return 该会话的序列号
      */
     public int     ssn()    {return getInteger("ssn");}
     public String  server() {return getString("server");}
-    
+
     void prepSession(FjServer server, FjMessage msg) {
         put("server", server.name());
-        
+
         put("ssn", ssn() + 1);
         put("msg." + ssn(), msg);
     }
-    
+
     void postSession(boolean isSuccess) {
         String result = isSuccess ? "s" : "f";
         put("msg." + ssn() + "." + result, remove("msg." + ssn()));
     }
-    
+
     /** 根据会话序列号获取其对应的消息 */
     public FjDscpMessage msg(int ssn) {return (FjDscpMessage) get("msg." + ssn);}
     /** 获取会话中缓存的所有收到的消息，按照会话序列号排序返回 */

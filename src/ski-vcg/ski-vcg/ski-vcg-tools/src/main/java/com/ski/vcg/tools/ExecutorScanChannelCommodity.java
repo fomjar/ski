@@ -16,7 +16,7 @@ import com.ski.vcg.common.bean.BeanGame;
 import net.sf.json.JSONObject;
 
 public class ExecutorScanChannelCommodity implements ToolExecutor {
-    
+
     private static int          g_gid           = -1;
     private static int          g_osn           = -1;
     private static String       g_conf          = "template/scc.conf";
@@ -25,7 +25,7 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
     @Override
     public void execute(Map<String, String> args) {
         CommonService.setWsiHost("scc.ski.craftvoid.com");  // default wsi host
-        
+
         args.forEach((k, v)->{
             switch (k) {
             case "wsi":     CommonService.setWsiHost(v);        break;
@@ -37,22 +37,22 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
                 break;
             }
         });
-        
+
         System.out.print(String.format("%-40s", "loading config..."));
         loadConfig();
         System.out.println(" done!");
-        
+
         System.out.print(String.format("%-40s", "fetching game data..."));
         CommonService.updateGame();
         System.out.println(" done!");
-        
+
         if (-1 == g_osn) g_osn = Long.valueOf(System.currentTimeMillis()).intValue();
         System.out.println("osn: " + g_osn);
-        
+
         List<BeanGame> games = new LinkedList<BeanGame>();
         if (-1 != g_gid) games.add(CommonService.getGameByGid(g_gid));
         else games.addAll(CommonService.getGameAll().values());
-        
+
         games.forEach(game->{
             String preset  = config.getProperty(String.format("0x%08X.preset",  game.i_gid));
             if (null == preset)  preset  = config.getProperty("default.preset");
@@ -60,16 +60,16 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             if (null == include) include = config.getProperty("default.include");
             String exclude = config.getProperty(String.format("0x%08X.exclude", game.i_gid));
             if (null == exclude) exclude = config.getProperty("default.exclude");
-            
+
             preset  = parseStatement(preset,  game);
             include = parseStatement(include, game);
             exclude = parseStatement(exclude, game);
-            
+
             if (null == preset || null == include || null == exclude) {
                 System.out.println("skip scan: " + game.c_name_zh_cn);
                 return;
             }
-            
+
             JSONObject args_scc = new JSONObject();
             args_scc.put("preset",  preset);
             args_scc.put("include", include);
@@ -81,10 +81,10 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
             CommonService.send("wa-scc", CommonDefinition.ISIS.INST_ECOM_QUERY_CHANNEL_COMMODITY, args_scc, 1 * 1000);
         });
     }
-    
+
     private static String parseStatement(String statement, BeanGame game) {
         if (null == statement || 0 == statement.length()) return null;
-        
+
         for (Field field : game.getClass().getFields()) {
             String variable = String.format("${%s}", field.getName());
             try {
@@ -101,15 +101,15 @@ public class ExecutorScanChannelCommodity implements ToolExecutor {
                 e.printStackTrace();
             }
         }
-        
+
         if (statement.contains("$")) {
             System.out.println("there are unrecognized variable in condition: " + statement);
             return null;
         }
-        
+
         return statement;
     }
-    
+
     private void loadConfig() {
         InputStreamReader isr = null;
         try {

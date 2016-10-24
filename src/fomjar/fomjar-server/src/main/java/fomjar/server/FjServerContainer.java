@@ -19,40 +19,40 @@ import org.apache.log4j.Logger;
 import fomjar.util.FjLoopTask;
 
 public class FjServerContainer extends FjLoopTask {
-    
+
     private static final Logger logger = Logger.getLogger(FjServerContainer.class);
-    
+
     private static FjServerContainer instance = null;
     public synchronized static FjServerContainer getInstance() {
         if (null == instance) instance = new FjServerContainer();
         return instance;
     }
-    
+
     private Map<String, Set<String>>     servers;
     private Map<String, Long>             modified;
-    
+
     private FjServerContainer() {
         servers = new HashMap<String, Set<String>>();
         modified = new HashMap<String, Long>();
-        
+
         Long time = 10 * 1000L;
         setInterval(time);
     }
-    
+
     public void register(String server, String taskpath) {
         synchronized (servers) {
             if (!servers.containsKey(server)) servers.put(server, new LinkedHashSet<String>());
             servers.get(server).add(taskpath);
-            
+
             if (!isRun()) new Thread(this, "fjserver-container").start();
         }
     }
-    
+
     public void deregister(String server, String taskpath) {
         synchronized (servers) {
             if (!servers.containsKey(server)) return;
             servers.get(server).remove(taskpath);
-            
+
             if (isRun()) {
                 for (Set<String> paths : servers.values()) {
                     if (!paths.isEmpty()) return;
@@ -61,7 +61,7 @@ public class FjServerContainer extends FjLoopTask {
             }
         }
     }
-    
+
     @Override
     public void perform() {
         synchronized (servers) {
@@ -76,26 +76,26 @@ public class FjServerContainer extends FjLoopTask {
                                 if (!file.isFile()) continue;
                                 if (!file.getName().toLowerCase().endsWith(".jar")
                                         && !file.getName().toLowerCase().endsWith(".zip")) continue;
-                                
+
                                 if (!modified.containsKey(file.getName())) modified.put(file.getName(), 0L);
                                 if (modified.get(file.getName()) >= file.lastModified()) return;
-                                
+
                                 try {
                                     ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
                                     ZipEntry ze = null;
                                     List<String> classes = new LinkedList<String>();
                                     while (null != (ze = zis.getNextEntry())) {
                                         if (ze.isDirectory()) continue;
-                                        
+
                                         if (ze.getName().toLowerCase().endsWith(".class"))
                                             classes.add(ze.getName().replace("/", ".").substring(0, ze.getName().length() - 6));
                                     }
-                                    
+
                                     URLClassLoader loader = new URLClassLoader(new URL[] {file.toURI().toURL()});
                                     for (String classname : classes) {
                                         Class<?> clazz = loader.loadClass(classname);
                                         if (!FjServer.FjServerTask.class.isAssignableFrom(clazz)) continue;
-                                        
+
                                         FjServer.FjServerTask task = (FjServer.FjServerTask) clazz.newInstance();
                                         server.addServerTask(task);
                                         logger.info("update task success: " + task.getClass().getName());
@@ -111,5 +111,5 @@ public class FjServerContainer extends FjLoopTask {
             });
         }
     }
-    
+
 }

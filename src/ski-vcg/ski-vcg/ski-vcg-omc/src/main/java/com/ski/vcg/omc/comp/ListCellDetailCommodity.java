@@ -20,10 +20,10 @@ import com.ski.vcg.omc.UIToolkit;
 public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
 
     private static final long serialVersionUID = -9150442038302281057L;
-    
+
     private FjEditLabel basic;
     private JLabel      assit;
-    
+
     public ListCellDetailCommodity(BeanCommodity c) {
         basic   = new FjEditLabel(String.format("%s | %s-%s/%s",
                 CommonService.getGameByGaid(Integer.parseInt(c.c_arg0, 16)).get(0).c_name_zh_cn,
@@ -35,14 +35,14 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
                 c.i_price,
                 c.i_expense,
                 c.t_begin));
-        
+
         JPanel panel_info = new JPanel();
         panel_info.setOpaque(false);
         panel_info.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
         panel_info.setLayout(new BorderLayout());
         panel_info.add(basic, BorderLayout.CENTER);
         panel_info.add(assit, BorderLayout.EAST);
-        
+
         JPanel panel_oper = new JPanel();
         panel_oper.setOpaque(false);
         panel_oper.setLayout(new BoxLayout(panel_oper, BoxLayout.X_AXIS));
@@ -60,19 +60,19 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
         if (c.isClose()) b.setEnabled(false);
         panel_oper.add(Box.createHorizontalStrut(4));
         panel_oper.add(DetailPane.createToolBarButton("流水", e->new ManageGameAccountRentHistory(Integer.parseInt(c.c_arg0, 16)).setVisible(true)));
-        
+
         setColorDefault(Color.white);
-        
+
         setLayout(new BorderLayout());
         add(panel_info, BorderLayout.CENTER);
         add(panel_oper, BorderLayout.EAST);
-        
+
         if (c.isClose()) {
             basic.setForeground(Color.lightGray);
             assit.setForeground(Color.lightGray);
         }
-        
+
         passthroughMouseEvent(basic);
     }
-    
+
 }

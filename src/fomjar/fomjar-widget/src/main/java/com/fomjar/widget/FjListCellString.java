@@ -22,10 +22,10 @@ public class FjListCellString extends FjListCell<String> {
         add(this.minor = new JLabel(minor), BorderLayout.EAST);
         this.major.setPreferredSize(new Dimension(1, this.major.getPreferredSize().height));
     }
-    
+
     public void setMajor(String major) {this.major.setText(major);}
     public String getMajor() {return this.major.getText();}
-    
+
     public void setMinor(String minor) {this.minor.setText(minor);}
     public String getMinor() {return this.minor.getText();}
 }

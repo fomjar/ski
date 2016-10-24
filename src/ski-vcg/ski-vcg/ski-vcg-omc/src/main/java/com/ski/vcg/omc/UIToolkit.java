@@ -69,16 +69,16 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class UIToolkit {
-    
+
     public static final Font FONT = new Font("楷体", Font.PLAIN, 14);
 
     public static final Color COLOR_MODIFYING = Color.blue;
-    
+
     public static void initUI() {
         try {UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());}
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                 | UnsupportedLookAndFeelException e) {e.printStackTrace();}
-        
+
 //        UIManager.getLookAndFeelDefaults().put("Label.font",        FONT);
 //        UIManager.getLookAndFeelDefaults().put("Table.font",        FONT);
 //        UIManager.getLookAndFeelDefaults().put("TableHeader.font",  FONT);
@@ -93,49 +93,49 @@ public class UIToolkit {
 //        UIManager.getLookAndFeelDefaults().put("FilePane.font",     FONT);
 //        UIManager.getLookAndFeelDefaults().put("Menu.font",         FONT);
 //        UIManager.getLookAndFeelDefaults().put("MenuItem.font",     FONT);
-        
+
 //        UIManager.getLookAndFeelDefaults().forEach((key, value)->{System.out.println(key + "=" + value);});
     }
-    
+
     private static ExecutorService pool = null;
-    
+
     public static synchronized void doLater(Runnable task) {
         if (null == pool) pool = Executors.newCachedThreadPool();
-        
+
         pool.submit(()->{
             try {task.run();}
             catch (Exception e) {e.printStackTrace();}
         });
     }
-    
+
     public static JPanel createBasicInfoLabel(String label, JComponent field) {
         return createBasicInfoLabel(label, field, null);
     }
-    
+
     public static JPanel createBasicInfoLabel(String label, JComponent field, JButton button) {
         JLabel jlabel = new JLabel(label);
         jlabel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 16));
         jlabel.setFont(field.getFont());
         jlabel.setForeground(field.getForeground());
-        
+
         JPanel jpanel = new JPanel();
         jpanel.setOpaque(false);
         jpanel.setLayout(new BorderLayout());
         jpanel.add(jlabel, BorderLayout.WEST);
         jpanel.add(field, BorderLayout.CENTER);
-        
+
         if (null != button) {
             button.setPreferredSize(new Dimension(button.getPreferredSize().width, field.getPreferredSize().height));
             jpanel.add(button, BorderLayout.EAST);
         }
-        
+
         return jpanel;
     }
-    
+
     public static void createGame() {
         FjTextField c_name_zh_cn    = new FjTextField();
         c_name_zh_cn.setDefaultTips("简体中文名");
-        
+
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, c_name_zh_cn, "创建游戏", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_name_zh_cn.getText().length()) {
                 JOptionPane.showMessageDialog(null, "游戏名称一定要填", "错误", JOptionPane.ERROR_MESSAGE);
@@ -149,7 +149,7 @@ public class UIToolkit {
             break;
         }
     }
-    
+
     public static void createGameAccount() {
         FjTextField c_user  = new FjTextField();
         FjTextField c_pass  = new FjTextField();
@@ -157,13 +157,13 @@ public class UIToolkit {
         c_user.setDefaultTips("用户名");
         c_pass.setDefaultTips("密码");
         t_birth.setDefaultTips("出生日期");
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(3, 1));
         panel.add(c_user);
         panel.add(c_pass);
         panel.add(t_birth);
-        
+
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建游戏账号", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
                 JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
@@ -180,15 +180,15 @@ public class UIToolkit {
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_GAME_ACCOUNT, args);
             CommonService.updateGameAccount();
             if (!UIToolkit.showServerResponse(rsp)) break;
-        
+
             List<BeanGameAccount> accounts = CommonService.getGameAccountByUser(c_user.getText());
             if (1 == accounts.size()) new ManageGameAccount(accounts.get(0).i_gaid).setVisible(true);
             break;
         }
     }
-    
+
     /**
-     * 
+     *
      * @return caid
      */
     public static int createChannelAccount() {
@@ -203,7 +203,7 @@ public class UIToolkit {
         JCheckBox   is_recharge_coupon  = new JCheckBox("充值优惠券", false);
         FjTextField i_coupon            = new FjTextField("5.00");
         JCheckBox   is_open_commodity   = new JCheckBox("创建商品", true);
-        
+
         i_channel.addItemListener(e->{
             switch (i_channel.getSelectedIndex()) {
             case CommonService.CHANNEL_TAOBAO:
@@ -219,28 +219,28 @@ public class UIToolkit {
                 break;
             }
         });
-        
+
         is_recharge_cash.addItemListener(e->i_cash.setEnabled(is_recharge_cash.isSelected()));
         is_recharge_cash.setPreferredSize(new Dimension(100, 0));
         is_recharge_coupon.addItemListener(e->i_coupon.setEnabled(is_recharge_coupon.isSelected()));
         is_recharge_coupon.setPreferredSize(new Dimension(100, 0));
-        
+
         JPanel panel_cash = new JPanel();
         panel_cash.setLayout(new BorderLayout());
         panel_cash.add(is_recharge_cash, BorderLayout.WEST);
         panel_cash.add(i_cash, BorderLayout.CENTER);
-        
+
         JPanel panel_coupon = new JPanel();
         panel_coupon.setLayout(new BorderLayout());
         panel_coupon.add(is_recharge_coupon, BorderLayout.WEST);
         panel_coupon.add(i_coupon, BorderLayout.CENTER);
-        
+
         c_user.setDefaultTips("用户名");
         c_phone.setDefaultTips("电话号码");
         c_name.setDefaultTips("姓名");
         i_cash.setDefaultTips("现金");
         i_coupon.setDefaultTips("优惠券");
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(7, 1));
         panel.add(i_channel);
@@ -250,7 +250,7 @@ public class UIToolkit {
         panel.add(panel_cash);
         panel.add(panel_coupon);
         panel.add(is_open_commodity);
-        
+
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建用户", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_user.getText().length()) {
                 JOptionPane.showMessageDialog(null, "用户名一定要填", "错误", JOptionPane.ERROR_MESSAGE);
@@ -261,7 +261,7 @@ public class UIToolkit {
                 JOptionPane.showMessageDialog(null, "淘宝用户电话一定要填", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-            
+
             JSONObject args = new JSONObject();
             args.put("channel", i_channel.getSelectedIndex());
             if (0 != c_user.getText().length())     args.put("user",    c_user.getText());
@@ -275,10 +275,10 @@ public class UIToolkit {
             CommonService.updateChannelAccount();
             CommonService.updatePlatformAccount();
             CommonService.updatePlatformAccountMap();
-            
+
             caid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
-            
+
             if (is_recharge_cash.isSelected()) {
                 args.clear();
                 args.put("paid", CommonService.getPlatformAccountByCaid(user.i_caid));
@@ -291,7 +291,7 @@ public class UIToolkit {
                     break;
                 }
             }
-            
+
             if (is_recharge_coupon.isSelected()) {
                 args.clear();
                 args.put("paid", CommonService.getPlatformAccountByCaid(user.i_caid));
@@ -304,16 +304,16 @@ public class UIToolkit {
                     break;
                 }
             }
-            
+
             if(is_open_commodity.isSelected()) UIToolkit.openCommodity(user.i_caid);
-            
+
             break;
         }
         return caid;
     }
-    
+
     public static boolean skip_wa = false;
-    
+
     public static void openCommodity(int caid) {
         Wrapper<BeanGameAccount> account = new Wrapper<BeanGameAccount>();
         JComboBox<String>   i_platform  = new JComboBox<String>(new String[] {"淘宝", "微信"}); // ordered
@@ -333,12 +333,12 @@ public class UIToolkit {
         FjTextField         i_recharge  = new FjTextField();
         i_recharge.setDefaultTips("(充值金额)");
         recharge.addActionListener(e->i_recharge.setEnabled(recharge.isSelected()));
-        
+
         c_arg1.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (ItemEvent.SELECTED != e.getStateChange()) return;
-                
+
                 if (c_arg1.getSelectedItem().toString().contains("A")) {
                     i_price.setText(CommonService.getGameRentPriceByGaid(Integer.parseInt(c_arg0.getText().split(" ")[0].split("x")[1], 16), CommonService.RENT_TYPE_A) + "");
                 } else if (c_arg1.getSelectedItem().toString().contains("B")) {
@@ -349,7 +349,7 @@ public class UIToolkit {
                 i_recharge.setText(i_price.getText());
             }
         });
-        
+
         choose.addActionListener(e->{
             while (null != (account.obj = chooseGameAccount())) {
                 c_arg0.setText(String.format("0x%08X - %s (%s)", account.obj.i_gaid, account.obj.c_user,
@@ -387,17 +387,17 @@ public class UIToolkit {
                     for (ActionListener l : choose.getActionListeners()) l.actionPerformed(null);
             }
         });
-        
+
         JPanel panel0 = new JPanel();
         panel0.setLayout(new BorderLayout());
         panel0.add(c_arg0, BorderLayout.CENTER);
         panel0.add(choose, BorderLayout.EAST);
-        
+
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BorderLayout());
         panel1.add(recharge, BorderLayout.WEST);
         panel1.add(i_recharge, BorderLayout.CENTER);
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridLayout(6, 1));
         panel.add(i_platform);
@@ -406,7 +406,7 @@ public class UIToolkit {
         panel.add(i_price);
         panel.add(c_remark);
         panel.add(panel1);
-        
+
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建商品", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == c_arg0.getText().length()) {
                 JOptionPane.showMessageDialog(null, "必须要选择游戏账号", "错误", JOptionPane.ERROR_MESSAGE);
@@ -432,7 +432,7 @@ public class UIToolkit {
             }
             CommonService.updateOrder();
             int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
-            
+
             if (!doOpenCommodity(
                     oid,
                     account.obj,
@@ -441,7 +441,7 @@ public class UIToolkit {
                     Float.parseFloat(i_price.getText()),
                     recharge.isSelected(),
                     Float.parseFloat(i_recharge.getText()))) continue;
-            
+
             // 发送短信
             String user = CommonService.getChannelAccountByCaid(caid).c_phone;
             List<String> content = new LinkedList<String>();
@@ -451,11 +451,11 @@ public class UIToolkit {
             args_mma.put("user", user);
             args_mma.put("content", JSONArray.fromObject(content));
             CommonService.send("mma", CommonDefinition.ISIS.INST_ECOM_APPLY_RENT_BEGIN, args_mma);
-            
+
             break;
         }
     }
-    
+
     private static boolean doOpenCommodity(int oid, BeanGameAccount account, String type, String remark, float price, boolean isRecharge, float recharge) {
         StepStepDialog ssd = new StepStepDialog(new String[] {
                 "验证账号",
@@ -517,10 +517,10 @@ public class UIToolkit {
                 args.put("arg1", type);
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_COMMODITY, args);
                 ssd.appendText(rsp.toString());
-                
+
                 if (CommonService.isResponseSuccess(rsp)) {
                     csn = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
-                    
+
                     if (isRecharge) {
                         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByOid(oid));
                         args.clear();
@@ -545,11 +545,11 @@ public class UIToolkit {
         ssd.setVisible(true);
         return isSuccess.obj;
     }
-    
+
     public static void closeCommodity(int oid, int csn) {
         if (JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(null, "确认退租此商品？", "提示", JOptionPane.YES_NO_OPTION))
             return;
-        
+
         StepStepDialog ssd = new StepStepDialog(new String[] {
                 "验证账号",
                 "重设密码",
@@ -594,7 +594,7 @@ public class UIToolkit {
                         }
                         break;
                     }
-                    
+
                     ssd.appendText("验证通过");
                 }
             }
@@ -691,11 +691,11 @@ public class UIToolkit {
         });
         ssd.setVisible(true);
     }
-    
+
     public static void createTicket() {
         createTicket(null);
     }
-    
+
     public static void createTicket(BeanChannelAccount account) {
         JLabel  i_caid  = new JLabel(null != account ? String.format("0x%08X - %s", account.i_caid, account.getDisplayName()) : "");
         i_caid.setPreferredSize(new Dimension(200, i_caid.getPreferredSize().height));
@@ -710,7 +710,7 @@ public class UIToolkit {
             if (null == account1) i_caid.setText("");
             else i_caid.setText(String.format("0x%08X - %s", account1.i_caid, account1.getDisplayName()));
         });
-        
+
         JComboBox<String>   i_type      = new JComboBox<String>(new String[] {"退款申请", "意见建议", "通知提醒", "预约预定", "备忘纪要"}); // ordered
         FjTextField         c_title     = new FjTextField();
         c_title.setDefaultTips("工单标题");
@@ -718,18 +718,18 @@ public class UIToolkit {
         c_content.setDefaultTips("工单内容");
         c_content.setColumns(40);
         c_content.setRows(12);
-        
+
         JPanel panel0 = new JPanel();
         panel0.setLayout(new GridLayout(3, 1));
         panel0.add(caid);
         panel0.add(i_type);
         panel0.add(c_title);
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(panel0, BorderLayout.NORTH);
         panel.add(new JScrollPane(c_content), BorderLayout.CENTER);
-        
+
         while (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(null, panel, "创建工单", JOptionPane.OK_CANCEL_OPTION)) {
             if (0 == i_caid.getText().length()) {
                 JOptionPane.showMessageDialog(null, "用户一定要选择", "错误", JOptionPane.ERROR_MESSAGE);
@@ -750,7 +750,7 @@ public class UIToolkit {
             break;
         }
     }
-    
+
     public static BeanGame chooseGame() {
         FjListPane<String> pane = new FjListPane<String>();
         // 启用搜索框
@@ -764,7 +764,7 @@ public class UIToolkit {
                 return count == words.length;
             }
         });
-        
+
         // 创建弹框
         JDialog dialog = new JDialog();
         dialog.setTitle("选择游戏");
@@ -775,9 +775,9 @@ public class UIToolkit {
         dialog.setLocation((owner.width - dialog.getWidth()) / 2, (owner.height - dialog.getHeight()) / 2);
         dialog.getContentPane().setLayout(new BorderLayout());
         dialog.add(pane, BorderLayout.CENTER);
-        
+
         Wrapper<BeanGame> wrapper = new Wrapper<BeanGame>();
-        
+
         // 添加游戏列表
         CommonService.getGameAll().values().forEach(game->{
             FjListCellString cell = new FjListCellString(String.format("0x%08X - %s", game.i_gid, game.getDisplayName()));
@@ -790,19 +790,19 @@ public class UIToolkit {
             });
             pane.getList().addCell(cell);
         });
-        
+
         dialog.setVisible(true);
-        
+
         return wrapper.obj;
     }
-    
+
     public static BeanGameAccount chooseGameAccount() {
         JCheckBox type_enable   = new JCheckBox("启用状态过滤", false);
         JCheckBox type_a   = new JCheckBox("A:〇", true);
         type_a.setEnabled(false);
         JCheckBox type_b   = new JCheckBox("B:〇", true);
         type_b.setEnabled(false);
-        
+
         FjListPane<String> pane = new FjListPane<String>();
         // 启用搜索框
         pane.enableSearchBar();
@@ -895,7 +895,7 @@ public class UIToolkit {
             else type_b.setText("B:●");
             pane.getSearchBar().doSearch();
         });
-        
+
         JPanel types = new JPanel();
         types.setBorder(BorderFactory.createTitledBorder("过滤条件"));
         types.setLayout(new GridLayout(2, 2));
@@ -903,7 +903,7 @@ public class UIToolkit {
         types.add(new JPanel());
         types.add(type_a);
         types.add(type_b);
-        
+
         // 创建弹框
         JDialog dialog = new JDialog();
         dialog.setTitle("选择游戏账号(〇:空闲;●:占用)");
@@ -915,7 +915,7 @@ public class UIToolkit {
         dialog.getContentPane().setLayout(new BorderLayout());
         dialog.getContentPane().add(types, BorderLayout.NORTH);
         dialog.getContentPane().add(pane, BorderLayout.CENTER);
-        
+
         Wrapper<BeanGameAccount> wrapper = new Wrapper<BeanGameAccount>();
         CommonService.updateGameAccountRent();
         CommonService.getGameAccountAll().values().forEach(account->{
@@ -935,14 +935,14 @@ public class UIToolkit {
             });
             pane.getList().addCell(cell);
         });
-        
+
         pane.getSearchBar().doSearch();
-        
+
         dialog.setVisible(true);
-        
+
         return wrapper.obj;
     }
-    
+
     public static BeanChannelAccount chooseChannelAccount() {
         FjListPane<String> pane = new FjListPane<String>();
         // 启用搜索框
@@ -956,7 +956,7 @@ public class UIToolkit {
                 return count == words.length;
             }
         });
-        
+
         // 创建弹框
         JDialog dialog = new JDialog();
         dialog.setTitle("选择用户");
@@ -967,9 +967,9 @@ public class UIToolkit {
         dialog.setLocation((owner.width - dialog.getWidth()) / 2, (owner.height - dialog.getHeight()) / 2);
         dialog.getContentPane().setLayout(new BorderLayout());
         dialog.add(pane, BorderLayout.CENTER);
-        
+
         Wrapper<BeanChannelAccount> wrapper = new Wrapper<BeanChannelAccount>();
-        
+
         // 添加用户列表
         CommonService.updateChannelAccount();
         CommonService.getChannelAccountAll().values().forEach(account->{
@@ -986,38 +986,38 @@ public class UIToolkit {
             });
             pane.getList().addCell(cell);
         });
-        
+
         dialog.setVisible(true);
-        
+
         return wrapper.obj;
     }
-    
+
     public static String chooseSingleValue(String[] values_all, String value_cur) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        
+
         JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {});
         JDialog dialog = optionPane.createDialog(null, "请选择");
-        
+
         Wrapper<String> result = new Wrapper<String>();
         ButtonGroup group = new ButtonGroup();
         for (String value : values_all) {
             JRadioButton button = new JRadioButton(value);
             group.add(button);
             panel.add(button);
-            
+
             if (value.equals(value_cur)) button.setSelected(true);
             button.addActionListener(e->{
                 result.obj = button.getText();
                 dialog.dispose();
             });
         }
-        
+
         dialog.pack();
         dialog.setVisible(true);
         return result.obj;
     }
-    
+
     public static List<String> chooseMultipleValue(String[] values_all, String[] values_cur) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -1041,11 +1041,11 @@ public class UIToolkit {
         }
         return null;
     }
-    
+
     private static class Wrapper<E> {
         public E obj;
     }
-    
+
     public static void deleteTag(BeanTag tag) {
         if (JOptionPane.CANCEL_OPTION == JOptionPane.showConfirmDialog(null, "确定删除TAG：" + tag.c_tag + "？", "信息", JOptionPane.OK_CANCEL_OPTION))
             return;
@@ -1058,14 +1058,14 @@ public class UIToolkit {
         CommonService.updateTag();
         showServerResponse(rsp);
     }
-    
+
     public static void userMoney(int paid) {
         userMoney(CommonService.MONEY_CASH, paid);
     }
-    
+
     public static void userMoney(int money_type, int paid) {
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(paid);
-        
+
         JComboBox<String> type = new JComboBox<String>(new String[] {"充值", "充券", "退款"});
         type.setEditable(false);
         FjTextField remark = new FjTextField();
@@ -1169,9 +1169,9 @@ public class UIToolkit {
             break;
         }
     }
-    
+
     /**
-     * 
+     *
      * @param paid_to
      * @return caid or -1 if canceled
      */
@@ -1190,30 +1190,30 @@ public class UIToolkit {
                 break;
             }
             if (null == user2) continue;
-            
+
             if (JOptionPane.OK_OPTION != JOptionPane.showConfirmDialog(null, "合并之后将无法回退，继续？", "提示", JOptionPane.OK_CANCEL_OPTION))
                 continue;
-            
+
             int paid_from = CommonService.getPlatformAccountByCaid(user2.i_caid);
             if (paid_to == paid_from) {
                 JOptionPane.showMessageDialog(null, "即将合并的两个账户已经属于同一个平台账户了", "错误", JOptionPane.ERROR_MESSAGE);
                 continue;
             }
-            
+
             JSONObject args = new JSONObject();
             args.put("paid_to", paid_to);
             args.put("paid_from", paid_from);
             FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MERGE, args);
             CommonService.updatePlatformAccount();
             CommonService.updatePlatformAccountMap();
-            
+
             UIToolkit.showServerResponse(rsp);
             break;
         }
         if (null != user2) return user2.i_caid;
         else return -1;
     }
-    
+
     public static boolean showServerResponse(FjDscpMessage rsp) {
         if (CommonService.isResponseSuccess(rsp)) {
             JDialog dialog = new JOptionPane("操作成功", JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new String[0]).createDialog(null, "提示");
@@ -1229,9 +1229,9 @@ public class UIToolkit {
             return false;
         }
     }
-    
+
     private static final Map<String, Image> cache_image = new ConcurrentHashMap<String, Image>();
-    
+
     public static Image LoadImage(String url) {
         if (!cache_image.containsKey(url)) {
             try {
@@ -1246,11 +1246,11 @@ public class UIToolkit {
             return cache_image.get(url);
         }
     }
-    
+
     public static void scaleFont(JComponent c, float scale) {
         c.setFont(c.getFont().deriveFont(c.getFont().getSize() * scale));
     }
-    
+
     public static boolean login() {
         JPasswordField field = new JPasswordField();
         String password = "ski-1234";

@@ -2,7 +2,7 @@ package fomjar.util.condition;
 
 @SuppressWarnings("unchecked")
 public class FjConditionOr<T> extends FjPluralisticCondition<T> {
-    
+
     public FjConditionOr() {}
     public FjConditionOr(FjCondition<T>... conditions) {setConditions(conditions);}
 

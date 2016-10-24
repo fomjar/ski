@@ -20,12 +20,12 @@ import fomjar.server.msg.FjHttpResponse;
 import fomjar.util.FjThreadFactory;
 
 public class FjWebTask implements FjServer.FjServerTask {
-    
+
     private static final Logger logger = Logger.getLogger(FjWebTask.class);
-    
+
     private ExecutorService   pool;
     private List<FjWebFilter> filters;
-    
+
     public void registerFilter(FjWebFilter filter) {
         filters.add(filter);
     }
@@ -48,7 +48,7 @@ public class FjWebTask implements FjServer.FjServerTask {
             logger.error("illagal request type: " + msg.getClass().getName());
             return;
         }
-        
+
         FjHttpRequest   request     = (FjHttpRequest) msg;
         FjHttpResponse  response    = new FjHttpResponse(null, 200, null, null);
         SocketChannel conn = (SocketChannel) wrapper.attachment("conn");
@@ -68,26 +68,26 @@ public class FjWebTask implements FjServer.FjServerTask {
             if (conn.isOpen()) FjSender.sendHttpResponse(response, conn);
         });
     }
-    
+
     protected void prepProtocol(FjHttpResponse response, FjHttpRequest request) {
-        
+
     }
-    
+
     protected void postProtocol(FjHttpResponse response, FjHttpRequest request) {
         if (request.attr().containsKey("Range")) {
             byte[] data = response.content();
-            
+
             String range = request.attr().get("Range");
             int range_start = Integer.parseInt(range.split("=")[1].split("-")[0]);
             int range_end   = Integer.parseInt(range.split("=")[1].split("-")[1]);
             if (range_end + 1 > data.length) range_end = data.length - 1;
             response.attr().put("Content-Range", String.format("bytes %d-%d/%d", range_start, range_end, data.length));
             data = Arrays.copyOfRange(data, range_start, range_end + 1);
-            
+
             response.content(data);
         }
     }
-    
+
     protected void onFilterException(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, Exception e) { }
-    
+
 }

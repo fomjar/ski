@@ -10,7 +10,7 @@ import com.ski.vcg.common.CommonDefinition;
 import com.ski.vcg.wa.AE;
 
 public class VerifyAccount implements AE {
-    
+
     private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 

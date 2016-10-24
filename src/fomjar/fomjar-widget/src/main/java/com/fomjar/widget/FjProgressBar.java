@@ -10,7 +10,7 @@ public class FjProgressBar extends JProgressBar {
     private long    speed;
     private float   value_cur;
     private int     value_tar;
-    
+
     public FjProgressBar() {
         engine      = new FjProgressBarEngine();
         multiple    = 100;
@@ -18,25 +18,25 @@ public class FjProgressBar extends JProgressBar {
         value_cur   = 0.0f;
         value_tar   = 0;
     }
-    
+
     public void setMultiple(int multiple) {this.multiple = multiple;}
     public int getMultiple() {return multiple;}
-    
+
     @Override
     public void setMaximum(int n) {super.setMaximum(n * multiple);}
-    
+
     @Override
     public void setMinimum(int n) {super.setMinimum(n * multiple);}
-    
+
     @Override
     public void setValue(int n) {
         value_tar = n * multiple;
         if (!engine.isRun()) engine.open();
     }
-    
+
     /**
      * complete time by each {@link #setValue(int)}
-     * 
+     *
      * @param speed millisecond
      */
     public void setSpeed(long speed) {this.speed = speed;}
@@ -53,7 +53,7 @@ public class FjProgressBar extends JProgressBar {
                 float step  = total * getInterval() / speed;
                 value_cur += step;
             }
-            
+
             FjProgressBar.super.setValue((int) value_cur);
             FjProgressBar.this.repaint();
         }

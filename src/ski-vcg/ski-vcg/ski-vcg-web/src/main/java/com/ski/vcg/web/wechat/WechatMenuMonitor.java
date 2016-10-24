@@ -12,15 +12,15 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class WechatMenuMonitor extends FjLoopTask {
-    
+
     private static final Logger logger = Logger.getLogger(WechatMenuMonitor.class);
-    
+
     private WechatTokenMonitor mon_token;
-    
+
     public WechatMenuMonitor(WechatTokenMonitor mon_token) {
         this.mon_token = mon_token;
     }
-    
+
     public void start() {
         if (isRun()) {
             logger.warn("monitor-wechat-menu has already started");
@@ -28,27 +28,27 @@ public class WechatMenuMonitor extends FjLoopTask {
         }
         new Thread(this, "monitor-wechat-menu").start();
     }
-    
+
     private void resetInterval() {
         long second = Long.parseLong(FjServerToolkit.getServerConfig("web.wechat.menu.reload-interval"));
         setInterval(second * 1000);
     }
-    
+
     @Override
     public void perform() {
         resetInterval();
-        
+
         boolean swich = "on".equalsIgnoreCase(FjServerToolkit.getServerConfig("web.wechat.menu.reload-switch"));
         if (!swich) return;
-        
+
         JSONObject menu = JSONObject.fromObject(FjServerToolkit.getServerConfig("web.wechat.menu.content"));
         replaceMenuUrl(menu);
-        
+
         FjJsonMessage rsp = WechatInterface.menuCreate(mon_token.token(), menu.toString());
         if (0 == rsp.json().getInt("errcode")) logger.info("menu update success");
         else logger.error("menu update failed: " + rsp);
     }
-    
+
     @SuppressWarnings("unchecked")
     private static void replaceMenuUrl(Object menu) {
         if (menu instanceof JSONObject) {
@@ -71,5 +71,5 @@ public class WechatMenuMonitor extends FjLoopTask {
             json.forEach(o->replaceMenuUrl(o));
         }
     }
-    
+
 }

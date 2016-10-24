@@ -26,7 +26,7 @@ import com.ski.vcg.common.CommonService;
 import com.ski.vcg.common.bean.BeanGame;
 
 public class ExecutorMakeIntroduction implements ToolExecutor {
-    
+
     private static int      g_width     = 750;
     private static int      g_top       = 150;
     private static int      g_margin    = 30;
@@ -40,7 +40,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
     private static String   g_icon      = "https://img.alicdn.com/imgextra/i3/2859081856/TB24W0saM_xQeBjy0FoXXX1vpXa_!!2859081856.png";
     private static int      g_iconsize  = 70;
     private static float    g_coverrate = 1.0f / 3;
-    
+
     @Override
     public void execute(Map<String, String> args) {
         args.forEach((k, v)->{
@@ -62,11 +62,11 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
                 break;
             }
         });
-        
+
         System.out.print(String.format("%-40s", "fetching game data..."));
         CommonService.updateGame();
         System.out.println(" done!");
-        
+
         CommonService.getGameAll().values().parallelStream().forEach(game->{
             try {
                 makeIntr(game, g_base);
@@ -79,15 +79,15 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
             }
         });
     }
-    
+
     private static void makeIntr(BeanGame game, String dir) throws IOException {
         String[] editor_word = convertArticle(game.c_editor_word, g_width - g_margin * 2);
         String[] introduction = convertArticle(game.c_introduction, g_width - g_margin * 2);
         String[] posters = game.c_url_poster.split(" ");
         if (1 == posters.length && 0 == posters[0].length()) posters = new String[] {};
-        
+
         Map<String, String> fields = collectFields(game);
-        
+
         int height = g_top                                                              // top
                 + g_margin + (int)((fields.size() * 1.5 - 0.5) * g_font.getSize())      // cover & fields
                 + g_margin                                                              // separator
@@ -95,18 +95,18 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
                 + (0 == posters.length ? 0 : posters.length * (g_margin + g_poster))    // poster
                 + (g_margin + introduction.length * g_font.getSize() * 2)               // introduction
                 + g_margin;                                                             // bottom
-        
+
         // 初始化缓存区
         BufferedImage buffer = new BufferedImage(g_width, height, BufferedImage.TYPE_INT_RGB);
         Graphics g = buffer.getGraphics();
         g.setColor(g_bg);
         g.fillRect(0, 0, buffer.getWidth(), buffer.getHeight());
-        
+
         // 初始设定
         g.setFont(g_font);
         ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setColor(g_fg);
-        
+
         int[] current = new int[] {0};
         current[0] = g_top;
         // 画封面
@@ -127,20 +127,20 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
             for (int i = 1; i < posters.length; i++) drawPoster(current, g, posters[i]);
         }
         drawIcon(g);
-        
+
         ImageIO.write(buffer, g_format, new File(String.format("%s/output/%s.%s", dir, game.c_name_zh_cn.replace(":", " "), g_format)));
     }
-    
+
     private static void drawCover(int[] current, Graphics g, String url, int field_count) {
         Image cover = getImage(url);
         // background
         drawBackground(g, cover);
         // watermark
         drawWatermark(g, "VC电玩");
-        
+
         int x = g_margin + (int) ((g_width - g_margin * 2) * g_coverrate - g_cover) / 2;
         int y = current[0] + g_margin + (int) ((field_count * 1.5 - 0.5) * g.getFont().getSize() - g_cover) / 2;
-        
+
         // shadow
         int offset = 6;
         g.setColor(new Color(0, 0, 0, 80));
@@ -161,10 +161,10 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.setColor(new Color(0, 0, 0, 100));
         g.drawLine(x, y + g_cover - 1, x + g_cover - 1, y + g_cover - 1);
         g.drawLine(x + g_cover - 1, y, x + g_cover - 1, y + g_cover - 1);
-        
+
         g.setColor(g_fg);
     }
-    
+
     private static void drawBackground(Graphics g, Image cover) {
         int bg_width = g_width;
         int bg_height = g_width / cover.getWidth(null) * cover.getHeight(null);
@@ -177,12 +177,12 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
                 new Color(g_bg.getRed(), g_bg.getGreen(), g_bg.getBlue(), 255)));
         g.fillRect(0, 0, bg_width, bg_height);
     }
-    
+
     private static void drawField(int[] current, Graphics g, Map<String, String> fields) {
         int base_x      = (int) ((g_margin * 2 + (g_width - g_margin * 2) * g_coverrate));
         int label_len   = g.getFont().getSize() * 6;
         int field_len   = g_width - base_x - label_len - g_margin;
-        
+
         current[0] += g_margin + g.getFont().getSize();
         fields.forEach((label, field)->{
             drawShadowString(g, label + "：",    base_x,             current[0], label_len);
@@ -190,27 +190,27 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
             current[0] += g.getFont().getSize() * 1.5;
         });
     }
-    
+
     private static void drawEditorWord(int[] current, Graphics g, String[] editor_word) {
         if (0 == editor_word.length) return;
-        
+
         drawSeparator(current, g);
-        
+
         current[0] += g_margin;
         current[0] += g.getFont().getSize();
-        
+
         g.setFont(g_font.deriveFont(Font.BOLD));
         g.setColor(new Color(200, 200, 255));
         drawShadowString(g, "编辑推荐", g_margin, current[0], g_width - g_margin * 2);
-        
+
         current[0] += g.getFont().getSize() * 2;
         g.setFont(g_font.deriveFont(Font.ITALIC));
         drawArticle(current, g, editor_word);
-        
+
         g.setFont(g_font);
         g.setColor(g_fg);
     }
-    
+
     private static void drawSeparator(int[] current, Graphics g) {
         current[0] += g_margin;
         g.setColor(g_bg.darker());
@@ -218,7 +218,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.setColor(g_fg);
         g.drawLine(g_margin, current[0], g_width - g_margin, current[0]);
     }
-    
+
     private static void drawShadowString(Graphics g, String s, int x, int y, int width) {
         Color c = g.getColor();
         g.setColor(g_bg.darker());
@@ -226,7 +226,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.setColor(c);
         drawString(g, s, x, y, width);
     }
-    
+
     private static void drawPoster(int[] current, Graphics g, String poster) {
         Image img = getImage(poster);
         current[0] += g_margin;
@@ -240,10 +240,10 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.drawLine(g_margin, current[0] + g_poster - 1, g_width - g_margin - 1, current[0] + g_poster - 1);
         g.drawLine(g_width - g_margin - 1, current[0], g_width - g_margin - 1, current[0] + g_poster - 1);
         g.setColor(g_fg);
-        
+
         current[0] += g_poster;
     }
-    
+
     private static void drawArticle(int[] current, Graphics g, String[] article) {
         current[0] += g.getFont().getSize();
         for (String s : article) {
@@ -252,12 +252,12 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         }
         current[0] -= g.getFont().getSize();
     }
-    
+
     private static void drawIntroduction(int[] current, Graphics g, String[] introduction) {
         current[0] += g_margin;
         drawArticle(current, g, introduction);
     }
-    
+
     private static void drawWatermark(Graphics g, String watermark) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1000; i++) sb.append(watermark + "  ");
@@ -272,7 +272,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         }
         g.setFont(g_font);
     }
-    
+
     private static void drawIcon(Graphics g) {
         Image icon = getIcon();
         Image shadow = getIconShadow();
@@ -286,7 +286,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         g.drawImage(icon, g_width - g_margin - g_iconsize, g_margin, g_iconsize, g_iconsize, null);
         ((Graphics2D) g).setComposite(c);
     }
-    
+
     private static Map<String, String> collectFields(BeanGame game) {
         Map<String, String> fields = new LinkedHashMap<String, String>();
         fields.put("中文名称", game.c_name_zh_cn);
@@ -305,13 +305,13 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
             fields.put("游戏制作人", game.c_producer);
         return fields;
     }
-    
+
     private static String[] convertArticle(String article, int width) {
         if (0 == article.length()) return new String[0];
-        
+
         Graphics g = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB).getGraphics();
         g.setFont(g_font);
-        
+
         int from = 0;
         String indent = "        ";
         article = article.replace("|", "\n" + indent);
@@ -330,7 +330,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         result.add(article.substring(from));
         return result.toArray(new String[result.size()]);
     }
-    
+
     private static void drawString(Graphics g, String s, int x, int y, int width) {
         if (g.getFontMetrics().stringWidth(s) > width) {
             width -= g.getFontMetrics().stringWidth("...");
@@ -339,11 +339,11 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         }
         g.drawString(s, x, y);
     }
-    
+
     private static BufferedImage getIcon() {
         return getImage(g_icon);
     }
-    
+
     private static BufferedImage cache_icon_shadow = null;
     private static Image getIconShadow() {
         if (null == cache_icon_shadow) {
@@ -361,7 +361,7 @@ public class ExecutorMakeIntroduction implements ToolExecutor {
         }
         return cache_icon_shadow;
     }
-    
+
     private static final Map<String, BufferedImage> cache = new HashMap<String, BufferedImage>();
     private static BufferedImage getImage(String url) {
         try {

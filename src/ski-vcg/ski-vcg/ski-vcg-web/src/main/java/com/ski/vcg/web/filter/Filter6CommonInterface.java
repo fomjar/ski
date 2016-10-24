@@ -53,13 +53,13 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Filter6CommonInterface extends FjWebFilter {
-    
+
     private static final Logger logger = Logger.getLogger(Filter6CommonInterface.class);
-    
+
     public static final String URL_KEY = "/ski-web";
-    
+
     private WechatBusiness wechat;
-    
+
     public Filter6CommonInterface(WechatBusiness wechat) {
         this.wechat = wechat;
     }
@@ -67,9 +67,9 @@ public class Filter6CommonInterface extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (!request.path().startsWith(URL_KEY)) return true;
-        
+
         logger.info(String.format("user common command: %s - %s", request.url(), request.contentToString().replace("\n", "")));
-        
+
         switch (request.path()) {
         case URL_KEY + "/pay/recharge/success":
             processPayRechargeSuccess(response, request.contentToXml());
@@ -133,18 +133,18 @@ public class Filter6CommonInterface extends FjWebFilter {
         }
         return true;
     }
-    
+
     private Map<String, byte[]> cache_cover_string = new ConcurrentHashMap<String, byte[]>();
-    
+
     private void processApplyMakeCover(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         if (args.has("string")) {
             String string = args.getString("string");
             string = Base64.getEncoder().encodeToString(string.getBytes());
             if (2 < string.length()) string = string.substring(0, 2);
-            
+
             byte[] buf = null;
-            
+
             if (cache_cover_string.containsKey(string)) {
                 buf = cache_cover_string.get(string);
             } else {
@@ -152,7 +152,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 int height = args.has("height") ? getIntFromArgs(args, "height") : 100;
                 int cell   = width / 10;
                 int padding = width / 20;
-                
+
                 BufferedImage img0 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g0 = img0.createGraphics();
                 Font font = new Font(null, Font.PLAIN, (width - padding * 2) / 2);
@@ -160,11 +160,11 @@ public class Filter6CommonInterface extends FjWebFilter {
                 g0.setColor(Color.black);
                 g0.fillRect(0, 0, width, height);
                 g0.setColor(Color.white);
-                g0.drawString(string, 
+                g0.drawString(string,
                         (width - g0.getFontMetrics(font).stringWidth(string)) / 2,
                         g0.getFontMetrics(font).getAscent() + (height - g0.getFontMetrics(font).getAscent()) / 2);
                 g0.dispose();
-                
+
                 BufferedImage img1 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
                 Graphics2D g1 = img1.createGraphics();
                 g1.setColor(Color.gray);
@@ -197,17 +197,17 @@ public class Filter6CommonInterface extends FjWebFilter {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 try {ImageIO.write(img1, "jpg", baos);}
                 catch (IOException e) {e.printStackTrace();}
-                
+
                 buf = baos.toByteArray();
-                
+
                 cache_cover_string.put(string, buf);
             }
-            
+
             response.attr().put("Content-Type", "image/jpg");
             response.content(buf);
         }
     }
-        
+
     private void processApplyPlatformAccountMoney(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         switch (request.path()) {
         case URL_KEY + "/pay/recharge/prepare":
@@ -221,7 +221,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             break;
         }
     }
-    
+
     private void processApplyPlatformAccountMoney_Recharge_Prepare(FjHttpResponse response, FjHttpRequest request) {
         long timestamp  = System.currentTimeMillis() / 1000;
         String noncestr = Long.toHexString(System.currentTimeMillis());
@@ -239,7 +239,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args);
     }
-        
+
     private Set<Integer> cache_user_recharge = new HashSet<Integer>();
 
     private void processApplyPlatformAccountMoney_Recharge_Apply(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
@@ -256,11 +256,11 @@ public class Filter6CommonInterface extends FjWebFilter {
                 terminal,
                 String.format("http://%s%s/pay/recharge/success", FjServerToolkit.getSlb().getAddress("web").host, URL_KEY),
                 CommonService.getChannelAccountByCaid(user).c_user);
-        
+
         String timeStamp    = String.valueOf(System.currentTimeMillis() / 1000);
         String nonceStr     = Long.toHexString(System.currentTimeMillis());
         JSONObject json_prepay = xml2json(rsp.xml());
-        
+
         Map<String, String> map = new HashMap<String, String>();
         map.put("appId",        FjServerToolkit.getServerConfig("web.wechat.appid"));
         map.put("timeStamp",    timeStamp);
@@ -268,7 +268,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         map.put("package",      "prepay_id=" + json_prepay.getString("prepay_id"));
         map.put("signType",     "MD5");
         String paySign = WechatInterface.createSignature4Pay(map);
-        
+
         JSONObject json_pay = new JSONObject();
         json_pay.put("appId",       FjServerToolkit.getServerConfig("web.wechat.appid"));
         json_pay.put("timeStamp",   timeStamp);
@@ -277,13 +277,13 @@ public class Filter6CommonInterface extends FjWebFilter {
         json_pay.put("signType",    "MD5");
         json_pay.put("paySign",     paySign);
         json_prepay.put("pay", json_pay);
-        
+
         cache_user_recharge.add(user);
-        
+
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", json_prepay);
-        
+
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
@@ -308,7 +308,7 @@ public class Filter6CommonInterface extends FjWebFilter {
      * <trade_type><![CDATA[JSAPI]]></trade_type>
      * <transaction_id><![CDATA[4003922001201607148930843003]]></transaction_id>
      * </xml>
-     * 
+     *
      * @param xml
      */
     private void processPayRechargeSuccess(FjHttpResponse response, Document xml) {
@@ -322,11 +322,11 @@ public class Filter6CommonInterface extends FjWebFilter {
 
         List<BeanChannelAccount> users = CommonService.getChannelAccountByUserNChannel(args.getString("openid"), CommonService.CHANNEL_WECHAT);
         if (users.isEmpty()) return;
-        
+
         BeanChannelAccount user = users.get(0);
         if (cache_user_recharge.contains(user.i_caid)) {
             cache_user_recharge.remove(user.i_caid);
-            
+
             logger.error("user pay recharge: " + args);
             float money = ((float) args.getInt("total_fee")) / 100;
             JSONObject args_cdb = new JSONObject();
@@ -339,11 +339,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             msg_cdb.json().put("args", args_cdb);
             FjServerToolkit.getAnySender().send(msg_cdb);
         }
-        
+
         response.attr().put("Content-Type", "text/xml");
         response.content("<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>");
     }
-    
+
     private static JSONObject xml2json(Document xml) {
         JSONObject json = new JSONObject();
         NodeList nodes = xml.getDocumentElement().getChildNodes();
@@ -358,13 +358,13 @@ public class Filter6CommonInterface extends FjWebFilter {
     private void processApplyPlatformAccountMoney_Refund(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         int user = Integer.parseInt(request.cookie().get("user"), 16);
         float money = CommonService.prestatementByCaid(user)[0];
-        
+
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("caid",    user);
         args_bcs.put("money",   -money);
         FjDscpMessage rsp = CommonService.send("bcs", CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY, args_bcs);
         JSONObject args_rsp = rsp.argsToJsonObject();
-        
+
         if (CommonService.isResponseSuccess(rsp)) {
             // 发红包
             String terminal = "127.0.0.1";
@@ -372,12 +372,12 @@ public class Filter6CommonInterface extends FjWebFilter {
             catch (IOException e) {logger.error("get user terminal address failed", e);}
             sendredpack(terminal, CommonService.getChannelAccountByCaid(user).c_user, money);
         }
-        
+
         logger.error("user pay refund: " + args_rsp);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private static void sendredpack(String terminal, String user, float money) {
         float max = Float.parseFloat(FjServerToolkit.getServerConfig("web.wechat.redpack.max"));
         long  interval = Long.parseLong(FjServerToolkit.getServerConfig("web.wechat.redpack.interval"));
@@ -390,7 +390,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                     m -= max;
                 }
                 moneys.add(m);
-                
+
                 for (int i = 0; i < moneys.size(); i++) {
                     FjXmlMessage rsp_redpack = WechatInterface.sendredpack("VC电玩",
                             user,
@@ -405,7 +405,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             } catch (Exception e) {logger.error("error occurs when send redpack", e);}
         }).start();
     }
-    
+
     private void processApplyRentBegin(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user    = Integer.parseInt(request.cookie().get("user"), 16);
@@ -432,7 +432,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private void processApplyRentEnd(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user    = Integer.parseInt(request.cookie().get("user"), 16);
@@ -458,10 +458,10 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private void processQueryChannelAccount(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
-        
+
         if (args.has("caid")) {
             int caid = getIntFromArgs(args, "caid");
             BeanChannelAccount user = null;
@@ -473,7 +473,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.content(args_rsp);
                 return;
             }
-            
+
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", tojson(user));
@@ -489,10 +489,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processQueryChatroom(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
-        
+
         // query/update chatroom
         List<BeanChatroom> chatrooms = null;
         if (args.has("gid")) {
@@ -501,7 +501,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             if (null == chatrooms || chatrooms.isEmpty()) {
                 processUpdateChatroom(response, request);
                 CommonService.updateChatroom();
-                
+
                 chatrooms = CommonService.getChatroomByGid(gid);
                 if (null == chatrooms || chatrooms.isEmpty()) return;
             }
@@ -514,7 +514,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         JSONArray desc = new JSONArray();
         chatrooms.forEach(cr->desc.add(tojson(cr)));
         JSONObject args_rsp = new JSONObject();
@@ -523,11 +523,11 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private void processQueryChatroomMember(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (!args.has("crid")) {
             logger.error("illegal arguments for query chatroom member: " + args);
             JSONObject args_rsp = new JSONObject();
@@ -537,11 +537,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         int     crid    = getIntFromArgs(args, "crid");
         int     member  = CommonService.getPlatformAccountByCaid(user);
         boolean ismember = false;
-        
+
         List<BeanChatroomMember> members = CommonService.getChatroomMemberByCrid(crid);
         for (BeanChatroomMember crm : members) {
             if (crm.i_member == member) {
@@ -558,7 +558,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         JSONArray desc = new JSONArray();
         members.forEach(m->desc.add(tojson(m)));
         JSONObject args_rsp = new JSONObject();
@@ -567,11 +567,11 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private void processQueryChatroomMessage(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (!args.has("crid")) {
             logger.error("illegal arguments for query chatroom message: " + args);
             JSONObject args_rsp = new JSONObject();
@@ -581,11 +581,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         int     crid    = getIntFromArgs(args, "crid");
         int     member  = CommonService.getPlatformAccountByCaid(user);
         boolean ismember = false;
-        
+
         for (BeanChatroomMember crm : CommonService.getChatroomMemberByCrid(crid)) {
             if (crm.i_member == member) {
                 ismember = true;
@@ -601,11 +601,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         if (args.has("mid")) {
             BeanChatroomMessage message = CommonService.getChatroomMessageByCridMid(crid, getIntFromArgs(args, "mid"));
             byte[] data = Base64.getDecoder().decode(message.c_message);
-            
+
             switch (message.i_type) {
             case CommonService.CHATROOM_MESSAGE_TEXT:
                 response.attr().put("Content-Type", "text/plain");
@@ -649,7 +649,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.content(args_rsp);
                 return;
             }
-            
+
             JSONArray desc = new JSONArray();
             messages.forEach(m->desc.add(tojson(m)));
             JSONObject args_rsp = new JSONObject();
@@ -659,10 +659,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processQueryGame(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
-        
+
         if (args.has("gid")) {
             int gid = getIntFromArgs(args, "gid");
             JSONObject desc = tojson(CommonService.getGameByGid(gid));
@@ -734,16 +734,16 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processQueryOrder(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (args.has("oid") && args.has("csn")) {
             int oid = getIntFromArgs(args, "oid");
             int csn = getIntFromArgs(args, "csn");
             BeanCommodity c = CommonService.getOrderByOid(oid).commodities.get(csn);
-            
+
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", tojson(c));
@@ -761,7 +761,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processQueryPlatformAccount(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         if (args.has("caid")) {
@@ -782,10 +782,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processQueryPlatformAccountMap(FjHttpResponse response, FjHttpRequest request) {
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         JSONObject args = new JSONObject();
         JSONArray desc = new JSONArray();
         CommonService.getChannelAccountRelatedAll(user).forEach(bean->{
@@ -796,11 +796,11 @@ public class Filter6CommonInterface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.content(args);
     }
-    
+
     private void processUpdateChatroom(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
 //        int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (args.has("gid")) {
             int gid = getIntFromArgs(args, "gid");
             List<BeanChatroom> chatrooms = CommonService.getChatroomByGid(gid);
@@ -813,7 +813,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.content(args_rsp);
                 return;
             }
-            
+
             // update chatroom
             BeanGame game = CommonService.getGameByGid(gid);
             int crid = -1;
@@ -831,7 +831,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             }
             crid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
             CommonService.updateChatroom();
-            
+
             // update tag
             args_cdb.clear();
             args_cdb.put("type",        CommonService.TAG_CHATROOM);
@@ -848,7 +848,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 return;
             }
             CommonService.updateTag();
-            
+
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
             args_rsp.put("desc", null);
@@ -856,11 +856,11 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
         }
     }
-    
+
     private void processUpdateChatroomMember(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (!args.has("crid")) {
             logger.error("illegal arguments for update chatroom member: " + args);
             JSONObject args_rsp = new JSONObject();
@@ -882,7 +882,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 return;
             }
         }
-        
+
         JSONObject args_cdb = new JSONObject();
         args_cdb.put("crid",    crid);
         args_cdb.put("member",  member);
@@ -897,18 +897,18 @@ public class Filter6CommonInterface extends FjWebFilter {
             return;
         }
         CommonService.updateChatroomMember();
-        
+
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", null);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private void processUpdateChatroomMessage(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (!args.has("crid") || !args.has("type") || !args.has("message")) {
             logger.error("illegal arguments for update chatroom message: " + args);
             JSONObject args_rsp = new JSONObject();
@@ -918,13 +918,13 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         int     crid    = getIntFromArgs(args, "crid");
         int     member  = CommonService.getPlatformAccountByCaid(user);
         int     type    = getIntFromArgs(args, "type");
         String  message = args.getString("message");
         boolean ismember = false;
-        
+
         for (BeanChatroomMember crm : CommonService.getChatroomMemberByCrid(crid)) {
             if (crm.i_member == member) {
                 ismember = true;
@@ -940,7 +940,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         switch (type) {
         case CommonService.CHATROOM_MESSAGE_IMAGE: {
             byte[] image = WechatInterface.media(wechat.token_monitor().token(), message);
@@ -961,33 +961,33 @@ public class Filter6CommonInterface extends FjWebFilter {
             break;
         }
         }
-        
+
         JSONObject args_mma = new JSONObject();
         args_mma.put("crid",    crid);
         args_mma.put("member",  member);
         args_mma.put("type",    type);
         args_mma.put("message", message);
-        
+
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",   FjServerToolkit.getAnyServer().name());
         req.json().put("ts",   "mma");
         req.json().put("inst", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHATROOM_MESSAGE);
         req.json().put("args", args_mma);
         FjServerToolkit.getAnySender().send(req);
-        
+
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", null);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private Map<Integer, String> cache_verify_code = new HashMap<Integer, String>();
-    
+
     private void processUpdatePlatformAccountMap(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int user = Integer.parseInt(request.cookie().get("user"), 16);
-        
+
         if (args.has("phone") && !args.has("verify")) {
             String phone    = args.getString("phone");
             String time     = String.valueOf(System.currentTimeMillis());
@@ -1007,9 +1007,9 @@ public class Filter6CommonInterface extends FjWebFilter {
                     return;
                 }
             }
-            
+
             cache_verify_code.put(user, verify);
-            
+
             {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
@@ -1017,10 +1017,10 @@ public class Filter6CommonInterface extends FjWebFilter {
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
             }
-            
+
             return;
         }
-        
+
         if (!(args.has("psn_user")
                 || (args.has("phone") && args.has("verify")))) {
             logger.error("illegal arguments for update platform account map: " + args);
@@ -1031,7 +1031,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             response.content(args_rsp);
             return;
         }
-        
+
         // 验证手机
         if (args.has("phone") && args.has("verify")) {
             String  phone    = args.getString("phone");
@@ -1046,7 +1046,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 return;
             }
             cache_verify_code.remove(user);
-            
+
             { // 更新手机号
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("caid",  user);
@@ -1062,7 +1062,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                     return;
                 }
             }
-            
+
             List<BeanChannelAccount> users_taobao = CommonService.getChannelAccountByPhoneNChannel(phone, CommonService.CHANNEL_TAOBAO);
             if (1 == users_taobao.size()) { // 尝试关联
                 BeanChannelAccount user_taobao = users_taobao.get(0);
@@ -1083,7 +1083,7 @@ public class Filter6CommonInterface extends FjWebFilter {
                 }
             }
         }
-        
+
         // 验证PSN帐号
         if (args.has("psn_user")) {
             String psn_user = args.getString("psn_user");
@@ -1138,22 +1138,22 @@ public class Filter6CommonInterface extends FjWebFilter {
                 }
             }
         }
-        
+
         JSONObject args_rsp = new JSONObject();
         args_rsp.put("code", CommonDefinition.CODE.CODE_SYS_SUCCESS);
         args_rsp.put("desc", null);
         response.attr().put("Content-Type", "application/json");
         response.content(args_rsp);
     }
-    
+
     private static int getIntFromArgs(JSONObject args, String name) {
         if (!args.has(name)) return -1;
-        
+
         Object obj = args.get(name);
         if (obj instanceof Integer) return (int) obj;
         else return Integer.parseInt(obj.toString(), 16);
     }
-    
+
     private static JSONObject tojson(BeanPlatformAccount bean) {
         JSONObject json = new JSONObject();
         json.put("paid",    bean.i_paid);
@@ -1167,14 +1167,14 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("coupon",  bean.i_coupon);
         json.put("create",  bean.t_create);
         json.put("url_cover", bean.c_url_cover);
-        
+
         float[] prestatement = CommonService.prestatementByPaid(bean.i_paid);
         json.put("cash_rt",     prestatement[0]);
         json.put("coupon_rt",   prestatement[1]);
-        
+
         return json;
     }
-    
+
     private static JSONObject tojson(BeanGame game) {
         JSONObject json = new JSONObject();
         json.put("gid",             game.i_gid);
@@ -1196,19 +1196,19 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("introduction",    game.c_introduction);
         json.put("version",         game.c_version);
         json.put("vedio",           game.c_vedio);
-        
+
         json.put("display_name",    game.getDisplayName());
         BeanGameRentPrice rent_price_a = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_A);
         json.put("rent_price_a",    null != rent_price_a ? rent_price_a.i_price : 0.0f);
         BeanGameRentPrice rent_price_b = CommonService.getGameRentPriceByGid(game.i_gid, CommonService.RENT_TYPE_B);
         json.put("rent_price_b",    null != rent_price_b ? rent_price_b.i_price : 0.0f);
-        
+
         json.put("rent_avail_a",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_A).size() > 0);
         json.put("rent_avail_b",    CommonService.getGameAccountByGidNRentState(game.i_gid, CommonService.RENT_STATE_IDLE, CommonService.RENT_TYPE_B).size() > 0);
-        
+
         return json;
     }
-    
+
     private static JSONObject tojson_ccs(int caid, int cid, int max) {
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
         List<BeanChannelCommodity> ccs = CommonService.getChannelCommodityByCid(cid);
@@ -1235,7 +1235,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         cc_sold.sort((c1, c2)->{
             return c2.i_item_sold - c1.i_item_sold;
         });
-        
+
         if (max < ccs.size()) {
             cc_conv = cc_conv.subList(0, max);
             cc_near = cc_near.subList(0, max);
@@ -1250,15 +1250,15 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("sold", JSONArray.fromObject(cc_sold.stream().map(cc->tojson(cc)).collect(Collectors.toList())));
         return json;
     }
-    
+
     private static double getDistance(String place1, String place2) {
         Point2D.Double p1 = getCordinate(place1);
         Point2D.Double p2 = getCordinate(place2);
         return Math.sqrt((p1.getX() - p2.getX()) * (p1.getX() - p2.getX()) + (p1.getY() - p2.getY()) * (p1.getY() - p2.getY()));
     }
-    
+
     private static Map<String, Point2D.Double> cache_cordinate = new ConcurrentHashMap<String, Point2D.Double>();
-    
+
     private static Point2D.Double getCordinate(String place) {
         if (cache_cordinate.containsKey(place)) return cache_cordinate.get(place);
         else {
@@ -1270,7 +1270,7 @@ public class Filter6CommonInterface extends FjWebFilter {
             return new Point2D.Double(0, 0);
         }
     }
-    
+
     private static JSONObject tojson(BeanChannelCommodity bean) {
         JSONObject json = new JSONObject();
         json.put("time",            bean.t_time);
@@ -1290,7 +1290,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("shop_addr",       bean.c_shop_addr);
         return json;
     }
-    
+
     private static JSONObject tojson(BeanCommodity bean) {
         JSONObject json = new JSONObject();
         json.put("oid",      bean.i_oid);
@@ -1311,7 +1311,7 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("arg7",     bean.c_arg7);
         json.put("arg8",     bean.c_arg8);
         json.put("arg9",     bean.c_arg9);
-        
+
         BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(bean.c_arg0, 16));
         json.put("account",  account.c_user);
         json.put("type",     "A".equals(bean.c_arg1) ? "认证" : "B".equals(bean.c_arg1) ? "不认证" : "未知");
@@ -1321,10 +1321,10 @@ public class Filter6CommonInterface extends FjWebFilter {
             json.put("expense", CommonService.prestatementByCommodity(bean));
             json.put("pass", account.c_pass);
         }
-        
+
         return json;
     }
-    
+
     private static JSONObject tojson(BeanChannelAccount bean) {
         JSONObject json = new JSONObject();
         json.put("caid",     bean.i_caid);
@@ -1338,11 +1338,11 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("zipcode",  bean.c_zipcode);
         json.put("create",   bean.t_create);
         json.put("url_cover", bean.c_url_cover);
-        
+
         json.put("display_name", bean.getDisplayName());
         return json;
     }
-    
+
     private static JSONObject tojson(BeanChatroom bean) {
         JSONObject json = new JSONObject();
         json.put("crid",    bean.i_crid);
@@ -1352,16 +1352,16 @@ public class Filter6CommonInterface extends FjWebFilter {
         json.put("game",    tojson(game));
         return json;
     }
-    
+
     private static JSONObject tojson(BeanChatroomMember bean) {
         JSONObject json = new JSONObject();
         json.put("crid",    bean.i_crid);
         json.put("member",  bean.i_member);
-        
+
         json.put("pa",      tojson(CommonService.getPlatformAccountByPaid(bean.i_member)));
         return json;
     }
-    
+
     private static JSONObject tojson(BeanChatroomMessage bean) {
         JSONObject json = new JSONObject();
         json.put("crid",    bean.i_crid);
@@ -1382,5 +1382,5 @@ public class Filter6CommonInterface extends FjWebFilter {
         }
         return json;
     }
-    
+
 }

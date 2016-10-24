@@ -12,7 +12,7 @@ public class FjListPane<E> extends JScrollPane {
     private static final long serialVersionUID = 3635223056300818407L;
     private FjSearchBar searchBar;
     private FjList<E> list;
-    
+
     public FjListPane() {
         searchBar = new FjSearchBar();
         searchBar.setVisible(false);
@@ -22,18 +22,18 @@ public class FjListPane<E> extends JScrollPane {
         panel.add(searchBar, BorderLayout.NORTH);
         panel.add(list, BorderLayout.CENTER);
         setViewportView(panel);
-        
+
         setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
         setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-        
+
         getVerticalScrollBar().setUnitIncrement(20);
     }
-    
+
     public void enableSearchBar() {searchBar.setVisible(true);}
-    
+
     public FjSearchBar getSearchBar() {return searchBar;}
-    
+
     public FjList<E> getList() {return list;}
 
 }

@@ -29,7 +29,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class CdbTask implements FjServerTask {
-    
+
     private static final Logger logger = Logger.getLogger(CdbTask.class);
     private static Connection conn = null;
 
@@ -53,7 +53,7 @@ public class CdbTask implements FjServerTask {
         try {conn.close();}
         catch (SQLException e) {}
     }
-    
+
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
@@ -61,10 +61,10 @@ public class CdbTask implements FjServerTask {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
             return;
         }
-        
+
         FjDscpMessage req = (FjDscpMessage) msg;
         logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), req.inst()));
-        
+
         if (!checkConnection()) {
             Instruction inst = new Instruction();
             inst.code = CommonDefinition.CODE.CODE_DB_INTERNAL_ERROR;
@@ -72,7 +72,7 @@ public class CdbTask implements FjServerTask {
             response(server.name(), req, inst);
             return;
         }
-        
+
         Instruction inst = getInstruction(conn, req.inst());
         if (null == inst) {
             inst = new Instruction();
@@ -82,20 +82,20 @@ public class CdbTask implements FjServerTask {
                 cache_inst.put(inst.inst, inst);
             }
         }
-        
+
         if (CommonDefinition.CODE.CODE_SYS_SUCCESS != inst.code) {
             logger.error("get instruction failed: " + inst.desc);
             response(server.name(), req, inst);
             return;
         }
-        
+
         inst.args = req.argsToJsonObject();
-        
+
         generateSql(inst);
         executeSql(conn, inst);
         response(server.name(), req, inst);
     }
-    
+
     private static void response(String server, FjDscpMessage req, Instruction inst) {
         FjDscpMessage rsp = new FjDscpMessage();
         rsp.json().put("fs",   server);
@@ -109,7 +109,7 @@ public class CdbTask implements FjServerTask {
         FjServerToolkit.getAnySender().send(rsp);
         logger.debug("response message: " + rsp);
     }
-    
+
     private static boolean checkConnection() {
         if (null != conn) {
             try {if (conn.isValid(3)) return true;}
@@ -132,9 +132,9 @@ public class CdbTask implements FjServerTask {
         logger.error("open database connection failed");
         return false;
     }
-    
+
     private static Map<Integer, Instruction> cache_inst = new HashMap<Integer, Instruction>();
-    
+
     private static Instruction getInstruction(Connection conn, int inst) {
         Instruction instruction = null;
         if (cache_inst.containsKey(inst)) {
@@ -161,7 +161,7 @@ public class CdbTask implements FjServerTask {
             inst.mode = rs.getString(1);
             inst.out = rs.getInt(2);
             inst.sql_ori = rs.getString(3);
-            
+
             if ("sp".equalsIgnoreCase(inst.mode) && 2 > inst.out) {
                 inst.code = CommonDefinition.CODE.CODE_DB_OPERATE_FAILED;
                 inst.desc = "invalid store procedure, out parameter count must be larger than 1: " + inst.sql_ori;
@@ -177,7 +177,7 @@ public class CdbTask implements FjServerTask {
             catch (SQLException e) {e.printStackTrace();}
         }
     }
-    
+
     private static void generateSql(Instruction inst) {
         logger.debug(String.format("inst(%d) sql-ori: %s", inst.inst, inst.sql_ori));
         String sql_use = inst.sql_ori;
@@ -203,14 +203,14 @@ public class CdbTask implements FjServerTask {
             break;
         }
     }
-    
+
     private static void executeSt(Connection conn, Instruction inst) {
         Statement st = null;
         try {
             st = conn.createStatement();
             if (0 < inst.out) {
                 ResultSet rs = st.executeQuery(inst.sql_use);
-                
+
                 List<String> desc = new LinkedList<String>();
                 while (rs.next())
                     for (int i = 1; i <= inst.out; i++) desc.add(rs.getString(i));
@@ -228,16 +228,16 @@ public class CdbTask implements FjServerTask {
             catch (SQLException e) {e.printStackTrace();}
         }
     }
-    
+
     private static void executeSp(Connection conn, Instruction inst) {
         CallableStatement st = null;
         try {
-            st = conn.prepareCall("call " + inst.sql_use + ";");                
+            st = conn.prepareCall("call " + inst.sql_use + ";");
             st.registerOutParameter(1, Types.INTEGER);
             st.registerOutParameter(2, Types.VARCHAR);
-            for (int i = 3; i <= inst.out; i++) st.registerOutParameter(i, Types.VARCHAR); 
+            for (int i = 3; i <= inst.out; i++) st.registerOutParameter(i, Types.VARCHAR);
             st.execute();
-            
+
             inst.code = st.getInt(1);
             List<String> desc = new LinkedList<String>();
             for (int i = 2; i <= inst.out; i++) {

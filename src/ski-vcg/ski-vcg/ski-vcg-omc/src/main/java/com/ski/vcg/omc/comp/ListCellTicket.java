@@ -34,7 +34,7 @@ import net.sf.json.JSONObject;
 public class ListCellTicket extends FjListCell<BeanTicket> {
 
     private static final long serialVersionUID = 2600073462045086881L;
-    
+
     private JLabel i_type;
     private JLabel c_title;
     private JLabel i_caid;
@@ -44,7 +44,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
 
     public ListCellTicket(BeanTicket data) {
         super(data);
-        
+
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(data.i_caid);
         i_type      = new JLabel("[" + getType2String(data.i_type) + "] ");
         i_type.setFont(i_type.getFont().deriveFont(Font.ITALIC));
@@ -72,30 +72,30 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             c_content.setForeground(color_minor);
             t_time.setForeground(color_minor);
         }
-        
+
         JPanel panel_state = new JPanel();
         panel_state.setOpaque(false);
         panel_state.setLayout(new BorderLayout());
         panel_state.add(i_caid, BorderLayout.CENTER);
         panel_state.add(i_state, BorderLayout.EAST);
-        
+
         JPanel panel_up = new JPanel();
         panel_up.setOpaque(false);
         panel_up.setLayout(new BorderLayout());
         panel_up.add(i_type, BorderLayout.WEST);
         panel_up.add(c_title, BorderLayout.CENTER);
         panel_up.add(panel_state, BorderLayout.EAST);
-        
+
         JPanel panel_down = new JPanel();
         panel_down.setOpaque(false);
         panel_down.setLayout(new BorderLayout());
         panel_down.add(c_content, BorderLayout.CENTER);
         panel_down.add(t_time, BorderLayout.EAST);
-        
+
         setLayout(new GridLayout(2, 1));
         add(panel_up);
         add(panel_down);
-        
+
         addActionListener(e->{
             JTextField  caid  = new JTextField(String.format("[%s] %s", getPlatform(user.i_channel), user.getDisplayName()));
             caid.setEditable(false);
@@ -114,19 +114,19 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             buttons.add(btn_accept);
             buttons.add(btn_refuse);
             buttons.add(btn_cancel);
-            
+
             JPanel head = new JPanel();
             head.setLayout(new GridLayout(3, 1));
             head.add(UIToolkit.createBasicInfoLabel("来源用户", caid));
             head.add(UIToolkit.createBasicInfoLabel("时    间", time));
             head.add(UIToolkit.createBasicInfoLabel("标    题", title));
-            
+
             JPanel panel = new JPanel();
             panel.setLayout(new BorderLayout());
             panel.add(head, BorderLayout.NORTH);
             panel.add(new JScrollPane(content), BorderLayout.CENTER);
             panel.add(UIToolkit.createBasicInfoLabel("处理意见", result), BorderLayout.SOUTH);
-            
+
             JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "处理工单");
             dialog.setSize(400, 300);
             Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
@@ -135,18 +135,18 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             dialog.setLayout(new BorderLayout());
             dialog.add(panel, BorderLayout.CENTER);
             dialog.add(buttons, BorderLayout.SOUTH);
-            
+
             ActionListener a = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     dialog.dispose();
-                    
+
                     if (btn_cancel == e.getSource()) return;
-                    
+
                     int state = CommonService.TICKET_STATE_OPEN;
                     if (btn_accept == e.getSource())         state = CommonService.TICKET_STATE_CLOSE;
                     else if (btn_refuse == e.getSource())     state = CommonService.TICKET_STATE_CANCEL;
-                    
+
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     JSONObject args = new JSONObject();
                     args.put("tid",     data.i_tid);
@@ -162,7 +162,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             btn_accept.addActionListener(a);
             btn_refuse.addActionListener(a);
             btn_cancel.addActionListener(a);
-            
+
             if (data.isClose()) {
                 result.setEditable(false);
                 result.setText("[" + getState2String(data.i_state) + "] " + data.c_result);
@@ -171,7 +171,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
             dialog.setVisible(true);
         });
     }
-    
+
     private static String getType2String(int type) {
         switch (type) {
         case CommonService.TICKET_TYPE_REFUND:  return "退款申请";
@@ -182,7 +182,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         default: return "未    知";
         }
     }
-    
+
     public static String getState2String(int state) {
         switch (state) {
         case CommonService.TICKET_STATE_OPEN:   return "打开";
@@ -191,7 +191,7 @@ public class ListCellTicket extends FjListCell<BeanTicket> {
         default: return "未知";
         }
     }
-    
+
     private static String getPlatform(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";

@@ -23,22 +23,22 @@ import fomjar.server.web.FjWebTask;
 import net.sf.json.JSONObject;
 
 public class WebTask extends FjWebTask {
-    
+
     private static final Logger logger = Logger.getLogger(WebTask.class);
-    
+
     private DataMonitor     mon_data;
     private WechatBusiness  wechat;
 
     @Override
     public void initialize(FjServer server) {
         super.initialize(server);
-        
+
         mon_data = new DataMonitor();
         wechat = new WechatBusiness();
-        
+
         mon_data.start();
         wechat.open();
-        
+
         registerFilter(new Filter1WechatAccess());
         registerFilter(new Filter2WechatCommand(wechat));
         registerFilter(new Filter3WechatAuthorize());
@@ -50,7 +50,7 @@ public class WebTask extends FjWebTask {
     @Override
     public void destroy(FjServer server) {
         super.destroy(server);
-        
+
         mon_data.close();
         wechat.close();
     }

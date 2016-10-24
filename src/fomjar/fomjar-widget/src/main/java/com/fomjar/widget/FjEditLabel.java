@@ -20,37 +20,37 @@ import javax.swing.JTextField;
 public class FjEditLabel extends JComponent {
 
     private static final long serialVersionUID = -8419870071367402091L;
-    
+
     private boolean     isEditable;
     private JLabel      label;
     private JTextField  field;
     private List<EditListener> listeners;
-    
+
     public FjEditLabel() {
         this(null, true);
     }
-    
+
     public FjEditLabel(boolean isEditable) {
         this(null, isEditable);
     }
-    
+
     public FjEditLabel(String text) {
         this(text, true);
     }
-    
+
     public FjEditLabel(String text, boolean isEditable) {
         this.isEditable = isEditable;
         listeners = new LinkedList<EditListener>();
         label = new JLabel();
         field = new JTextField();
-        
+
         label.setPreferredSize(new Dimension(10, 0));
-        
+
         setText(text);
         setFont(label.getFont());
         setOpaque(false);
         setBackground(null);
-        
+
         setLayout(new BorderLayout());
         add(label, BorderLayout.CENTER);
         // double click
@@ -58,7 +58,7 @@ public class FjEditLabel extends JComponent {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!isEditable()) return;
-                
+
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     if (2 == e.getClickCount()) {
                         removeAll();
@@ -66,11 +66,11 @@ public class FjEditLabel extends JComponent {
                         field.setPreferredSize(label.getPreferredSize());
                         revalidate();
                         repaint();
-                        
+
                         field.setText(label.getText());
                         field.requestFocus();
                         field.selectAll();
-                        
+
                         listeners.forEach(listener->listener.startEdit(label.getText()));
                     }
                 }
@@ -87,7 +87,7 @@ public class FjEditLabel extends JComponent {
                 add(label, BorderLayout.CENTER);
                 revalidate();
                 repaint();
-                
+
                 listeners.forEach(listener->listener.finishEdit(old_value, new_value));
             }
         });
@@ -101,30 +101,30 @@ public class FjEditLabel extends JComponent {
                     add(label, BorderLayout.CENTER);
                     revalidate();
                     repaint();
-                    
+
                     listeners.forEach(listener->listener.cancelEdit(label.getText()));
                 }
             }
         });
     }
-    
+
     public void setText(String text) {label.setText(text);}
-    
+
     public String getText() {return label.getText();}
-    
+
     public boolean isEditable() {return isEditable;}
-    
+
     public void setEditable(boolean isEditable) {this.isEditable = isEditable;}
-    
+
     public void addEditListener(EditListener listener) {listeners.add(listener);}
-    
+
     @Override
     public void setOpaque(boolean isOpaque) {
         super.setOpaque(isOpaque);
         label.setOpaque(isOpaque);
         field.setOpaque(isOpaque);
     }
-    
+
     @Override
     public void setFont(Font font) {
         super.setFont(font);
@@ -138,7 +138,7 @@ public class FjEditLabel extends JComponent {
         label.setForeground(fg);
         field.setForeground(fg);
     }
-    
+
     @Override
     public void setBackground(Color bg) {
         super.setBackground(bg);

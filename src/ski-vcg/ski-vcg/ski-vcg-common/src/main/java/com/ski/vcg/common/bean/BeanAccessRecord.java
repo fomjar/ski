@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanAccessRecord {
-    
+
     public BeanAccessRecord(String line) {
         String[] fields = line.split("\t", -1);
         i_caid      = "FFFFFFFFFFFFFFFF".equals(fields[0]) ? -1 : Integer.parseInt(fields[0], 16);
@@ -9,7 +9,7 @@ public class BeanAccessRecord {
         c_local     = fields[2];
         t_time         = fields[3];
     }
-    
+
     public long     i_caid;
     public String   c_remote;
     public String   c_local;

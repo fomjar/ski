@@ -10,7 +10,7 @@ import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class Notifier {
-    
+
     private static final Logger logger = Logger.getLogger(Notifier.class);
 
     public static void notifyTime(String server, int paid, String accountInfo, String time) {
@@ -29,7 +29,7 @@ public class Notifier {
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
             }
-            
+
             logger.info(String.format("notify time: paid=0x%08X, account=%s, time=%s", paid, accountInfo, time));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
@@ -70,7 +70,7 @@ public class Notifier {
             }
         });
     }
-    
+
     public static void notifyCashNotEnough(String server, int paid, String money_limit) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【用户账户余额提醒】|账户余额(除押金): %s", money_limit);
@@ -87,7 +87,7 @@ public class Notifier {
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
             }
-            
+
             logger.info(String.format("notify cash not enough: paid=0x%08X, money_limit=%s", paid, money_limit));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
@@ -128,7 +128,7 @@ public class Notifier {
             }
         });
     }
-    
+
     public static void notifyCashRecharge(String server, int paid, String moneyInfo) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【用户账户充值提醒】|充值金额: %s", moneyInfo);
@@ -147,7 +147,7 @@ public class Notifier {
                 FjServerToolkit.getAnySender().send(msg);
             }
 //            }
-            
+
             logger.info(String.format("notify cash recharge: paid=0x%08X, money=%s", paid, moneyInfo));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
@@ -211,13 +211,13 @@ public class Notifier {
                 FjServerToolkit.getAnySender().send(msg);
             }
 //            }
-            
+
             logger.info(String.format("notify cash refund: paid=0x%08X, money=%s", paid, moneyInfo));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
                 if (isWechatNotified[0]) break;
                 isWechatNotified[0] = true;
-                
+
                 JSONObject data = new JSONObject();
                 data.put("first",   String.format("尊敬的 %s ，您好！您已成功退款 %s。", user.c_name, moneyInfo));
                 data.put("reason",  "自动退款");
@@ -241,7 +241,7 @@ public class Notifier {
 //            case CommonService.CHANNEL_TAOBAO: {
 //                if (isTaobaoNotified[0]) break;
 //                isTaobaoNotified[0] = true;
-//                
+//
 //                JSONObject args = new JSONObject();
 //                args.put("caid",    user.i_caid);
 //                args.put("type",    CommonService.TICKET_TYPE_NOTIFY);
@@ -275,7 +275,7 @@ public class Notifier {
                 msg.json().put("args", args);
                 FjServerToolkit.getAnySender().send(msg);
             }
-            
+
             logger.info(String.format("notify bind: paid=0x%08X, account=%s, nowIsBind=%b", paid, accountInfo, nowIsBind));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
@@ -316,7 +316,7 @@ public class Notifier {
             }
         });
     }
-    
+
     public static void notifyModifyAbnormally(String server, int paid, String accountInfo, String modifyInfo) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【账号异常修改提醒】|游戏账号: %s|修改内容: %s", accountInfo, modifyInfo);
@@ -335,7 +335,7 @@ public class Notifier {
                 FjServerToolkit.getAnySender().send(msg);
             }
 //            }
-            
+
             logger.info(String.format("notify modify: paid=0x%08X, account=%s, modify=%s", paid, accountInfo, modifyInfo));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {
@@ -376,7 +376,7 @@ public class Notifier {
             }
         });
     }
-    
+
     public static void notifyModifyNormally(String server, int paid, String accountInfo, String modifyInfo) {
         CommonService.getChannelAccountByPaid(paid).forEach(user->{
             String notify_content = String.format("【账号信息修改提醒】|亲，您的租赁帐号 %s 因认证/非认证用户变更，%s，请您使用新密码登入。|操作步骤：电源->切换用户->选择VC电玩帐号登入；设定->PlayStation Network->登陆->输入新密码；即可。", accountInfo, modifyInfo);
@@ -395,7 +395,7 @@ public class Notifier {
                 FjServerToolkit.getAnySender().send(msg);
             }
 //            }
-            
+
             logger.info(String.format("notify modify: paid=0x%08X, account=%s, modify=%s", paid, accountInfo, modifyInfo));
             switch (user.i_channel) {
             case CommonService.CHANNEL_WECHAT: {

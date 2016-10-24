@@ -6,7 +6,7 @@ import java.util.Map;
 import com.ski.vcg.common.CommonService;
 
 public class Main {
-    
+
     public static void main(String[] args) {
         String      cmd = args[0];
         Map<String, String> arg = new LinkedHashMap<String, String>();
@@ -31,8 +31,8 @@ public class Main {
             e = new ExecutorScanChannelCommodity();
             break;
         }
-        
-        CommonService.setWsiHost("ski.craftvoid.com");
+
+        CommonService.setWsiHost("vcg.craftvoid.com");
         e.execute(arg);
     }
 

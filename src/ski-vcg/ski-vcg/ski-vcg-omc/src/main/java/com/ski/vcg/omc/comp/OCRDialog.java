@@ -11,7 +11,7 @@ import com.ski.vcg.omc.Report;
 public class OCRDialog extends ReportDialog {
 
     private static final long serialVersionUID = -203234202066475026L;
-    
+
     public OCRDialog(BeanCommodity item) {
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(CommonService.getOrderByOid(item.i_oid).i_caid);
         setTitle(String.format("%s的租赁报告", user.getDisplayName()));

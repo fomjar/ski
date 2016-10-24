@@ -19,7 +19,7 @@ import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class ExecutorCheckGameAccount implements ToolExecutor {
-    
+
     private static int      g_gid   = -1;
     private static int      g_gaid  = -1;
     private static String   g_base  = ".";
@@ -42,7 +42,7 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
             g_file = String.format("%s/output/checkgameaccount_%s.txt", g_base, new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()));
             out = new PrintStream(new FileOutputStream(g_file));
         } catch (FileNotFoundException e) {e.printStackTrace();}
-        
+
         print(String.format("%-40s", "fetching game..."));
         CommonService.updateGame();
         println(" done!");
@@ -55,13 +55,13 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
         print(String.format("%-40s", "fetching game account rent..."));
         CommonService.updateGameAccountRent();
         println(" done!");
-        
+
         List<String> list_normal         = new LinkedList<String>();
         List<String> list_operFail        = new LinkedList<String>();
         List<String> list_passError        = new LinkedList<String>();
         List<String> list_unbindInA     = new LinkedList<String>();
         List<String> list_bindOutA    = new LinkedList<String>();
-        
+
         List<Integer> list_gaid2check = new LinkedList<Integer>();
         if (-1 != g_gid) {
             list_gaid2check.addAll(CommonService.getGameAccountByGid(g_gid)
@@ -78,14 +78,14 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
                     .map(game->game.i_gaid)
                     .collect(Collectors.toList()));
         }
-        
+
         println(String.format("共 %d 个帐号待检查。", list_gaid2check.size()));
         println(String.format("====================\n开始 %s\n====================", new Date()));
         int[] i = new int[] {0};
         list_gaid2check.forEach(gaid->{
             BeanGameAccount account = CommonService.getGameAccountByGaid(gaid);
             print(String.format("(%4d/%4d) 正在检测 %15s ", ++i[0], list_gaid2check.size(), account.c_user));
-            
+
             JSONObject args_wa = new JSONObject();
             args_wa.put("user", account.c_user);
             args_wa.put("pass", account.c_pass);
@@ -112,9 +112,9 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
             try {Thread.sleep(10 * 1000L);}
             catch (Exception e) {e.printStackTrace();}
         });
-        
+
         println(String.format("%d 个帐号检测完成，正在生成报告: %s", list_gaid2check.size(), g_file));
-        
+
         println(String.format("====================\n本次共检测了 %d 个帐号。\n====================", list_gaid2check.size()));
         printGameAccountsOneClass("正常",         list_normal);
         printGameAccountsOneClass("操作失败",     list_operFail);
@@ -123,23 +123,23 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
         printGameAccountsOneClass("A未租但已绑定",    list_bindOutA);
         println(String.format("====================\n完成 %s\n====================", new Date()));
     }
-    
+
     private static void print(String s) {
         System.out.print(s);
         out.print(s);
     }
-    
+
     private static void println(String s) {
         System.out.println(s);
         out.println(s);
     }
-    
+
     private static void printGameAccountsOneClass(String desc, List<String> accounts) {
         Collections.sort(accounts);
         println(String.format("====================\n以下帐号为：%-20s，共 %d 个。\n====================", desc, accounts.size()));
         accounts.forEach(s->println(s));
     }
-    
+
     private static String getGameAccountDesc(int gaid) {
         return String.format("%-15s [%-30s] A:%s B:%s",
                 CommonService.getGameAccountByGaid(gaid).c_user,
@@ -147,7 +147,7 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
                 getGameAccountRentDesc(gaid, CommonService.RENT_TYPE_A),
                 getGameAccountRentDesc(gaid, CommonService.RENT_TYPE_B));
     }
-    
+
     private static String getGameAccountRentDesc(int gaid, int type) {
         switch (CommonService.getGameAccountRentStateByGaid(gaid, type)) {
         case CommonService.RENT_STATE_IDLE: return "空闲";
@@ -155,5 +155,5 @@ public class ExecutorCheckGameAccount implements ToolExecutor {
         default: return "未知";
         }
     }
-    
+
 }

@@ -18,10 +18,10 @@ import fomjar.util.FjLoopTask;
 import net.sf.json.JSONObject;
 
 public class CheckMonitor extends FjLoopTask {
-    
+
     private static final Logger logger = Logger.getLogger(CheckMonitor.class);
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    
+
     public void start() {
         if (isRun()) {
             logger.warn("monitor-check has already started");
@@ -29,7 +29,7 @@ public class CheckMonitor extends FjLoopTask {
         }
         new Thread(this, "monitor-check").start();
     }
-    
+
     private void resetInterval() {
         long second = Long.parseLong(FjServerToolkit.getServerConfig("bcs.monitor.check.interval"));
         setInterval(second * 1000);
@@ -38,7 +38,7 @@ public class CheckMonitor extends FjLoopTask {
     @Override
     public void perform() {
         resetInterval();
-        
+
         // check time
         CommonService.getPlatformAccountAll().values().forEach(puser->{
             CommonService.getOrderByPaid(puser.i_paid)
@@ -70,13 +70,13 @@ public class CheckMonitor extends FjLoopTask {
                                 });
                     });
         });
-        
+
         // check cash
         CommonService.getPlatformAccountAll().values().forEach(puser->{
             boolean isCommodityOpen = false;
             for (BeanOrder o : CommonService.getOrderByPaid(puser.i_paid)) {
                 if (o.isClose()) continue;
-                
+
                 for (BeanCommodity c : o.commodities.values()) {
                     if (!c.isClose()) {
                         isCommodityOpen = true;
@@ -101,7 +101,7 @@ public class CheckMonitor extends FjLoopTask {
                 }
             }
         });
-        
+
         // check bind
         CommonService.getOrderAll().values()
                 .stream()
@@ -114,7 +114,7 @@ public class CheckMonitor extends FjLoopTask {
                                 BeanGameAccount account = CommonService.getGameAccountByGaid(Integer.parseInt(c.c_arg0, 16));
                                 int state_a = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A);
                                 int state_b = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B);
-                                
+
                                 if ((state_a == CommonService.RENT_STATE_IDLE && state_b == CommonService.RENT_STATE_RENT)
                                         || (state_a == CommonService.RENT_STATE_RENT && state_b == CommonService.RENT_STATE_IDLE)) { // condition: renting a or b, only one
                                     try {

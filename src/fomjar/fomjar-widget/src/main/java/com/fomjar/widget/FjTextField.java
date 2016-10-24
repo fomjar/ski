@@ -7,15 +7,15 @@ import java.awt.Graphics;
 import javax.swing.JTextField;
 
 public class FjTextField extends JTextField {
-    
+
     private static final long serialVersionUID = -1334812155892751398L;
-    
+
     private String tipText;
-    
+
     public FjTextField() {
         super();
     }
-    
+
     public FjTextField(String text) {
         super(text);
     }
@@ -28,7 +28,7 @@ public class FjTextField extends JTextField {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         if (null != tipText && 0 == getText().length()) {
             g.setColor(Color.gray);
             g.setFont(g.getFont().deriveFont(Font.ITALIC));

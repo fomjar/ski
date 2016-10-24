@@ -27,13 +27,13 @@ import com.ski.vcg.common.bean.BeanChannelAccount;
 import com.ski.vcg.omc.UIToolkit;
 
 public class ListCellUser extends FjListCell<BeanChannelAccount> {
-    
+
     private static final long serialVersionUID = -1579462449977954180L;
-    
+
     private static final int COVER_SIZE = 40;
-    
+
     private static final Map<String, Image> cache_cover = new ConcurrentHashMap<String, Image>();
-    
+
     private JLabel cove;
     private JLabel plat;
     private JLabel name;
@@ -42,13 +42,13 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
 
     public ListCellUser(BeanChannelAccount data) {
         super(data);
-        
+
         cove = new JLabel();
         plat = new JLabel("[" + getPlatform(data.i_channel) + "] ");
         name = new JLabel(data.getDisplayName());
         phon = new JLabel("电话: " + data.c_phone);
         rent = new JLabel(getMinorString(data));
-        
+
         UIToolkit.doLater(()->{
             Image image = null;
             if (0 < data.c_url_cover.length()) {
@@ -57,7 +57,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
             } else {
                 String s = data.getDisplayName();
                 while (3 > s.length()) s += "-";
-                
+
                 if (cache_cover.containsKey(s)) image = cache_cover.get(s);
                 else {
                     BufferedImage buf = new BufferedImage(COVER_SIZE, COVER_SIZE, BufferedImage.TYPE_INT_RGB);
@@ -66,13 +66,13 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
                     bg.darker();
                     g.setColor(bg);
                     g.fillRect(0, 0, COVER_SIZE, COVER_SIZE);
-                    
+
                     Color fg = Color.white;
                     g.setColor(fg);
                     g.setFont(g.getFont().deriveFont(Font.BOLD).deriveFont(COVER_SIZE * 0.6f));
                     ((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                     g.drawString(s.substring(0, 1).toUpperCase(), COVER_SIZE * 2 / 10, COVER_SIZE * 7 / 10);
-                    
+
                     g.dispose();
                     image = buf;
                     cache_cover.put(s, image);
@@ -84,7 +84,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         cove.setBorder(BorderFactory.createLineBorder(Color.black));
         name.setPreferredSize(new Dimension(1, 0));
         plat.setFont(plat.getFont().deriveFont(Font.ITALIC));
-        
+
         setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         JPanel top = new JPanel();
         top.setOpaque(false);
@@ -103,7 +103,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         add(rent, BorderLayout.EAST);
 
         addActionListener(e->MainFrame.getInstance().setDetailUser(data.i_caid));
-        
+
         if (rent.getText().startsWith("00 /")) {
             setForeground(Color.lightGray);
             plat.setForeground(Color.lightGray);
@@ -125,7 +125,7 @@ public class ListCellUser extends FjListCell<BeanChannelAccount> {
         catch (NoSuchElementException e) {}
         return String.format("%02d / %02d", renting, all);
     }
-    
+
     private static String getPlatform(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";

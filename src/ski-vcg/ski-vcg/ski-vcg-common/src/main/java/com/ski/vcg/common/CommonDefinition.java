@@ -2,13 +2,13 @@ package com.ski.vcg.common;
 
 /**
  * SKI通用定义
- * 
+ *
  * @author fomjar
  */
 public final class CommonDefinition {
-    
+
     public static final String VERSION = "0.0.3";
-    
+
     /**
      * <p>
      * ISIS - 互联网服务指令集，Internet Service Instruction Set
@@ -16,7 +16,7 @@ public final class CommonDefinition {
      * <p>
      * 注意：指令定义必须要符合协议规范
      * </p>
-     * 
+     *
      * @author fomjar
      */
     public static final class ISIS {
@@ -37,7 +37,7 @@ public final class CommonDefinition {
         public static final int INST_USER_LOCATION      = 0x00001007;
         /** 用户(结果)通知 */
         public static final int INST_USER_NOTIFY        = 0x00001008;
-        
+
         //////////////////////////////// 电商指令 ////////////////////////////////
         // QUERY
         /** 查询游戏 */
@@ -141,10 +141,10 @@ public final class CommonDefinition {
         /** 更新聊天室消息 */
         public static final int INST_ECOM_UPDATE_CHATROOM_MESSAGE       = 0x00002414;
     }
-    
+
     /**
      * 结果码定义
-     * 
+     *
      * @author fomjar
      */
     public static final class CODE {

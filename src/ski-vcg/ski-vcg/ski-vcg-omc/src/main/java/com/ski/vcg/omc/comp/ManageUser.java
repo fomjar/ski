@@ -23,7 +23,7 @@ import net.sf.json.JSONObject;
 public class ManageUser extends JDialog {
 
     private static final long serialVersionUID = -1539252669784510561L;
-    
+
     private BeanChannelAccount  user;
     private FjEditLabel         i_caid;
     private FjEditLabel         c_user;
@@ -34,12 +34,12 @@ public class ManageUser extends JDialog {
     private FjEditLabel         c_address;
     private FjEditLabel         c_zipcode;
     private FjEditLabel         t_birth;
-    
+
     public ManageUser(int caid) {
         super(MainFrame.getInstance());
-        
+
         user = CommonService.getChannelAccountByCaid(caid);
-        
+
         i_caid      = new FjEditLabel(false);
         i_caid.setForeground(Color.gray);
         c_user      = new FjEditLabel();
@@ -50,7 +50,7 @@ public class ManageUser extends JDialog {
         c_address   = new FjEditLabel();
         c_zipcode   = new FjEditLabel();
         t_birth     = new FjEditLabel();
-        
+
         JPanel panel_basic = new JPanel();
         panel_basic.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         panel_basic.setLayout(new BoxLayout(panel_basic, BoxLayout.Y_AXIS));
@@ -63,10 +63,10 @@ public class ManageUser extends JDialog {
         panel_basic.add(UIToolkit.createBasicInfoLabel("地    址", c_address));
         panel_basic.add(UIToolkit.createBasicInfoLabel("邮    编", c_zipcode));
         panel_basic.add(UIToolkit.createBasicInfoLabel("出生日期", t_birth));
-        
+
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(panel_basic, BorderLayout.NORTH);
-        
+
         setTitle(String.format("用户基本信息 - %s", user.getDisplayName()));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -74,14 +74,14 @@ public class ManageUser extends JDialog {
         setSize(new Dimension(300, getHeight()));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
-        
+
         listen();
-        
+
         updateBasicPane();
     }
-    
+
     private JSONObject args = new JSONObject();
-    
+
     private void listen() {
         c_user.addEditListener(new FjEditLabel.EditListener() {
             @Override
@@ -175,7 +175,7 @@ public class ManageUser extends JDialog {
             public void cancelEdit(String value) {}
         });
     }
-    
+
     private void updateChannelAccount() {
         if (args.isEmpty()) {
             JOptionPane.showMessageDialog(ManageUser.this, "没有可更新的内容", "错误", JOptionPane.ERROR_MESSAGE);
@@ -184,10 +184,10 @@ public class ManageUser extends JDialog {
         FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_CHANNEL_ACCOUNT, args);
         UIToolkit.showServerResponse(rsp);
     }
-    
+
     private void updateBasicPane() {
         user = CommonService.getChannelAccountByCaid(user.i_caid);
-        
+
         i_caid.setText(String.format("0x%08X", user.i_caid));
         c_user.setText(user.c_user);
         i_channel.setText(getChannel2String(user.i_channel));
@@ -198,7 +198,7 @@ public class ManageUser extends JDialog {
         c_zipcode.setText(0 == user.c_zipcode.length() ? "(没有邮编)" : user.c_zipcode);
         t_birth.setText(0 == user.t_birth.length() ? "(没有生日)" : user.t_birth);
     }
-    
+
     private static String getChannel2String(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";
@@ -207,5 +207,5 @@ public class ManageUser extends JDialog {
         default: return "未  知";
         }
     }
-    
+
 }

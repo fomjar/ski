@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanPlatformAccount {
-    
+
     public BeanPlatformAccount(String line) {
         String[] fields = line.split("\t", -1);
         i_paid      = Integer.parseInt(fields[0], 16);
@@ -16,7 +16,7 @@ public class BeanPlatformAccount {
         t_create    = fields[9];
         c_url_cover = fields[10];
     }
-    
+
     public int      i_paid;
     public String   c_user;
     public String   c_pass;

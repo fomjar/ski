@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FjHttpResponse extends FjHttpMessage {
-    
+
     private static final Map<Integer, String> desc = new HashMap<Integer, String>();
-    
+
     static {
         desc.put(200, "OK");
         desc.put(302, "Object moved");
     }
-    
+
     public static FjHttpResponse parse(String data) {
         String[] head       = data.split("\r\n")[0].split(" ");
         String[] contents   = data.split("\r\n\r\n");
@@ -26,16 +26,16 @@ public class FjHttpResponse extends FjHttpMessage {
         }
         return response;
     }
-    
+
     private String  protocal;
     private int     code;
-    
+
     public FjHttpResponse(String protocal, int code, String contentType, Object content) {
         super(contentType, content);
         this.protocal   = null == protocal ? "HTTP/1.1" : protocal;
         this.code       = code;
     }
-    
+
     public String     protocal()         {return protocal;}
     public int         code()             {return code;}
     public void     code(int code)    {this.code = code;}

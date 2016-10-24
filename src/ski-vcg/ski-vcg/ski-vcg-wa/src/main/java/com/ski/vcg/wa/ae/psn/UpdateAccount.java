@@ -10,7 +10,7 @@ import com.ski.vcg.wa.AE;
 import net.sf.json.JSONObject;
 
 public class UpdateAccount implements AE {
-    
+
     private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
@@ -21,7 +21,7 @@ public class UpdateAccount implements AE {
             desc = "no parameter: user or pass";
             return;
         }
-        
+
         AE login = new Login();
         JSONObject login_args = new JSONObject();
         login_args.put("user", args.getString("user"));
@@ -32,16 +32,16 @@ public class UpdateAccount implements AE {
             desc = login.desc();
             return;
         }
-        
+
         if (!args.has("pass_new")) {
             code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "login success";
             return;
         }
-        
+
         String psnp_old = args.getString("pass");
         String psnp_new = args.getString("pass_new");
-        
+
         driver.get("https://account.sonyentertainmentnetwork.com/liquid/cam/account/profile/edit-password!input.action");
         driver.findElement(By.id("currentPasswordField")).clear();
         driver.findElement(By.id("currentPasswordField")).sendKeys(psnp_old); // 旧密码
@@ -50,7 +50,7 @@ public class UpdateAccount implements AE {
         driver.findElement(By.id("confirmPasswordField")).clear();
         driver.findElement(By.id("confirmPasswordField")).sendKeys(psnp_new); // 重复新密码
         driver.findElement(By.id("changePasswordButton")).click();
-        
+
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功
             code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
             desc = "update new password success";

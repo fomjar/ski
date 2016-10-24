@@ -56,11 +56,11 @@ import net.sf.json.JSONObject;
 
 @SuppressWarnings("deprecation")
 public class WechatInterface {
-    
+
     private static final Logger logger = Logger.getLogger(WechatInterface.class);
-    
+
     public static class WechatInterfaceException extends Exception {
-        
+
         private static final long serialVersionUID = 3844740117616582893L;
 
         public WechatInterfaceException() {
@@ -83,9 +83,9 @@ public class WechatInterface {
         public WechatInterfaceException(Throwable cause) {
             super(cause);
         }
-        
+
     }
-    
+
     public static class WechatCustomServiceException extends WechatInterfaceException {
 
         private static final long serialVersionUID = -8302791326146427719L;
@@ -112,26 +112,26 @@ public class WechatInterface {
         public WechatCustomServiceException(Throwable cause) {
             super(cause);
         }
-        
+
     }
-    
+
     private static String host = "api.weixin.qq.com";
-    
+
     public static void setHost(String host) {
         logger.info(String.format("host has changed from %s to %s", WechatInterface.host, host));
         WechatInterface.host = host;
     }
-    
+
     public static String host() {
         return host;
     }
-    
+
     private static void checkWechatCustomService(String token) throws WechatCustomServiceException {
         FjJsonMessage rsp = customserviceGet(token);
         if (!rsp.json().containsKey("kf_list")) logger.warn("custom service maybe unavailable");
         else if (0 == rsp.json().getJSONArray("kf_list").size()) throw new WechatCustomServiceException("custom service account not found");
     }
-    
+
     /**
      * access message demo:
      * <pre>
@@ -142,7 +142,7 @@ public class WechatInterface {
      * Pragma: no-cache
      * Connection: Keep-Alive
      * </pre>
-     * 
+     *
      * @param serverName
      * @param wrapper
      */
@@ -150,17 +150,17 @@ public class WechatInterface {
         FjHttpResponse response = new FjHttpResponse(null, 200, null, request.urlArgs().get("echostr"));
         sendResponse(response, conn);
     }
-    
+
     public static FjJsonMessage token(String appid, String secret) {
         String url = String.format("https://%s/cgi-bin/token?grant_type=client_credential&appid=%s&secret=%s", host(), appid, secret);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     public static FjJsonMessage ticket(String token) {
         String url = String.format("https://%s/cgi-bin/ticket/getticket?access_token=%s&type=jsapi", host(), token);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     public static byte[] media(String token, String media_id) {
         String url = String.format("https://%s/cgi-bin/media/get?access_token=%s&media_id=%s", host(), token, media_id);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -174,50 +174,50 @@ public class WechatInterface {
         } catch (IOException e) {e.printStackTrace();}
         return null;
     }
-    
+
     public static FjJsonMessage menuCreate(String token, String menu) {
         String url = String.format("https://%s/cgi-bin/menu/create?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("POST", url, menu);
     }
-    
+
     public static FjJsonMessage menuDelete(String token) {
         String url = String.format("https://%s/cgi-bin/menu/delete?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     public static FjJsonMessage customserviceAdd(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/add?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("POST", url, kfaccount);
     }
-    
+
     public static FjJsonMessage customserviceUpdate(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/update?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("POST", url, kfaccount);
     }
-    
+
     public static FjJsonMessage customserviceDel(String token, String kfaccount) {
         String url = String.format("https://%s/customservice/kfaccount/del?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("GET", url, kfaccount);
     }
-    
+
     public static FjJsonMessage customserviceGet(String token) {
         String url = String.format("https://%s/cgi-bin/customservice/getkflist?access_token=%s", host(), token);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     public static FjDscpMessage customConvertRequest(FjHttpRequest request) {
         Element xml      = request.contentToXml().getDocumentElement();
         String user_from = xml.getElementsByTagName("FromUserName").item(0).getTextContent().trim();
         // String user_to   = xml.getElementsByTagName("ToUserName").item(0).getTextContent().trim();
-        
+
         FjDscpMessage req = new FjDscpMessage();
         req.json().put("fs",    "wechat");
         req.json().put("ts",    FjServerToolkit.getAnyServer().name());
         req.json().put("sid",   user_from);
-        
+
         JSONObject args = new JSONObject();
         args.put("user", user_from);
-        
+
         String event     = null;
         String event_key = null;
         String msg_type  = xml.getElementsByTagName("MsgType").item(0).getTextContent().trim();
@@ -326,12 +326,12 @@ public class WechatInterface {
         req.json().put("args", args);
         return req;
     }
-    
+
     public static FjJsonMessage messageCustomSendText(String token, String user, String content) throws WechatCustomServiceException {
         checkWechatCustomService(token);
-        
+
         String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), token);
-        
+
         JSONObject text = new JSONObject();
         text.put("content", content);
         JSONObject msg = new JSONObject();
@@ -340,12 +340,12 @@ public class WechatInterface {
         msg.put("text", text);
         return (FjJsonMessage) sendRequest("POST", url, msg.toString());
     }
-    
+
     public static FjJsonMessage messageCustomSendNews(String token, String user, Article... article) throws WechatCustomServiceException {
         checkWechatCustomService(token);
-        
+
         String url = String.format("https://%s/cgi-bin/message/custom/send?access_token=%s", host(), token);
-        
+
         JSONArray articles = new JSONArray();
         for (Article a : article) articles.add(a.toString());
         JSONObject news = new JSONObject();
@@ -356,16 +356,16 @@ public class WechatInterface {
         msg.put("news", news);
         return (FjJsonMessage) sendRequest("POST", url, msg.toString());
     }
-    
+
     private static String TEMPLATE_COLOR = "#173177";
-    
+
     public static void messageTemplateColor(Color color) {
         TEMPLATE_COLOR = String.format("#%x%x%x", color.getRed(), color.getGreen(), color.getBlue());
     }
-    
+
     public static FjMessage messageTemplateSend(String token, String user, String template, String url, Map<String, String> data) {
         String _url = String.format("https://%s/cgi-bin/message/template/send?access_token=%s", host(), token);
-        
+
         JSONObject datas = new JSONObject();
         data.entrySet().forEach(entry->{
             JSONObject v = new JSONObject();
@@ -373,16 +373,16 @@ public class WechatInterface {
             v.put("color", TEMPLATE_COLOR);
             datas.put(entry.getKey(), v);
         });
-        
+
         JSONObject msg = new JSONObject();
         msg.put("touser", user);
         msg.put("template_id", template);
         msg.put("url", url);
         msg.put("data", datas);
-        
+
         return sendRequest("POST", _url, msg.toString());
     }
-    
+
     /**
      * {
      * "subscribe": 1,
@@ -400,7 +400,7 @@ public class WechatInterface {
      * "groupid": 0,
      * "tagid_list":[128,2]
      * }
-     * 
+     *
      * @param token
      * @param user
      * @return
@@ -409,10 +409,10 @@ public class WechatInterface {
         String url = String.format("https://%s/cgi-bin/user/info?access_token=%s&openid=%s&lang=zh_CN", host(), token, user);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     /**
      * 微信公众号网页认证
-     * 
+     *
      * {
      * "access_token":"ACCESS_TOKEN",
      * "expires_in":7200,
@@ -420,7 +420,7 @@ public class WechatInterface {
      * "openid":"OPENID",
      * "scope":"SCOPE"
      * }
-     * 
+     *
      * @param appid
      * @param secret
      * @param code
@@ -430,16 +430,16 @@ public class WechatInterface {
         String url = String.format("https://%s/sns/oauth2/access_token?appid=%s&secret=%s&code=%s&grant_type=authorization_code", host(), appid, secret, code);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     /**
      * 微信小程序认证
-     * 
+     *
      * {
      * "openid": "OPENID",
      * "session_key": "SESSIONKEY"
      * "expires_in": 2592000
      * }
-     * 
+     *
      * @param appid
      * @param secret
      * @param code
@@ -449,29 +449,29 @@ public class WechatInterface {
         String url = String.format("https://%s/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code", host(), appid, secret, code);
         return (FjJsonMessage) sendRequest("GET", url);
     }
-    
+
     public static FjMessage sendRequest(String method, String url) {
         return sendRequest(method, url, null);
     }
-    
+
     public static FjMessage sendRequest(String method, String url, String content) {
         logger.debug(">> " + (null != content ? content.replace("\r\n", "") : null));
         FjMessage rsp = FjSender.sendHttpRequest(new FjHttpRequest(method, url, "application/json", content));
         logger.debug("<< " + rsp);
         return rsp;
     }
-    
+
     public static void sendResponse(FjHttpResponse response, SocketChannel conn) {
         FjSender.sendHttpResponse(response, conn);
     }
-    
+
     public static class Article {
-        
+
         private String title;
         private String description;
         private String url;
         private String picurl;
-        
+
         public Article(String title, String description, String url, String picurl) {
             this.title = title;
             this.description = description;
@@ -488,7 +488,7 @@ public class WechatInterface {
             return json.toString();
         }
     }
-    
+
     private static final String MSG_PAY = "<xml>"
             + "<appid>%s</appid>"                           // 公众号APPID
             + "<mch_id>%s</mch_id>"                         // 微信支付分配的商户ID
@@ -504,11 +504,11 @@ public class WechatInterface {
             + "<trade_type>%s</trade_type>"                 // 交易类型
             + "<openid>%s</openid>"                         // jsapi必须传
             + "</xml>";
-    
+
     public static final String TRADE_TYPE_JSAPI     = "JSAPI";  // 公众号
     public static final String TRADE_TYPE_NATIVE    = "NATIVE"; // 原生扫码
     public static final String TRADE_TYPE_APP       = "APP";    // APP
-    
+
     /**
      * request:
      * <xml>
@@ -524,8 +524,8 @@ public class WechatInterface {
      * <spbill_create_ip>14.23.150.211</spbill_create_ip>
      * <total_fee>1</total_fee><trade_type>JSAPI</trade_type>
      * <sign>0CB01533B8C1EF103065174F50BCA001</sign>
-     * </xml> 
-     * 
+     * </xml>
+     *
      * response:
      * <xml>
      * <return_code><![CDATA[SUCCESS]]></return_code>
@@ -537,8 +537,8 @@ public class WechatInterface {
      * <result_code><![CDATA[SUCCESS]]></result_code>
      * <prepay_id><![CDATA[wx201411101639507cbf6ffd8b0779950874]]></prepay_id>
      * <trade_type><![CDATA[JSAPI]]></trade_type>
-     * </xml> 
-     * 
+     * </xml>
+     *
      * @param body
      * @param attach
      * @param money
@@ -570,7 +570,7 @@ public class WechatInterface {
         logger.debug("prepay response: " + rsp);
         return rsp;
     }
-    
+
     private static final String MSG_REDPACK = "<xml>"
             + "<sign><![CDATA[%s]]></sign>"
             + "<mch_billno><![CDATA[%s]]></mch_billno>"
@@ -586,7 +586,7 @@ public class WechatInterface {
             + "<remark><![CDATA[%s]]></remark>"
             + "<nonce_str><![CDATA[%s]]></nonce_str>"
             + "</xml>";
-    
+
     /**
      * request:
      * <xml>
@@ -604,7 +604,7 @@ public class WechatInterface {
      * <remark><![CDATA[新年红包]]></remark>
      * <nonce_str><![CDATA[50780e0cca98c8c8e814883e5caa672e]]></nonce_str>
      * </xml>
-     * 
+     *
      * response:
      * <xml>
      * <return_code><![CDATA[SUCCESS]]></return_code>
@@ -620,12 +620,12 @@ public class WechatInterface {
      * <send_listid>100000000020150520314766074200</send_listid>
      * <send_time>20150520102602</send_time>
      * </xml>
-     * 
+     *
      * @return
      */
     public synchronized static FjXmlMessage sendredpack(String sendername, String user, float money, String wishing, String host, String activity, String remark) {
         if (money > 200.0f) return null;
-        
+
         String url = "https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack";
         String nonce_str = Long.toHexString(System.currentTimeMillis());
         String msg_redpack = String.format(MSG_REDPACK,
@@ -670,7 +670,7 @@ public class WechatInterface {
         }
         return null;
     }
-    
+
     public static String createSignature4Config(String nonceStr, String ticket, long timestamp, String url) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("noncestr",     nonceStr);
@@ -700,24 +700,24 @@ public class WechatInterface {
         } catch (NoSuchAlgorithmException e) {logger.error("create signature by sha-1 failed", e);}
         return "";
     }
-    
+
     public static String createSignature4Pay(Document xml) {
         Map<String, String> map = new HashMap<String, String>();
         NodeList nodes = xml.getDocumentElement().getChildNodes();
         for (int i = 0; i < nodes.getLength(); i++) {
             Node node = nodes.item(i);
-            
+
             if (null == node.getFirstChild()) continue;
             String name     = node.getNodeName();
             String value    = node.getFirstChild().getNodeValue();
             if (name.equals("sign")) continue;
             if (null == value || 0 == value.length()) continue;
-            
+
             map.put(name, value);
         }
         return createSignature4Pay(map);
     }
-    
+
     public static String createSignature4Pay(Map<String, String> map) {
         List<String> keys = new LinkedList<String>(map.keySet());
         Collections.sort(keys);

@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanChannelAccount {
-    
+
     public BeanChannelAccount(String line) {
         String[] fields = line.split("\t", -1);
         this.i_caid     = Integer.parseInt(fields[0], 16);
@@ -16,7 +16,7 @@ public class BeanChannelAccount {
         this.t_create   = fields[9];
         this.c_url_cover= fields[10];
     }
-    
+
     public int      i_caid;
     public String   c_user;
     public int      i_channel;
@@ -28,7 +28,7 @@ public class BeanChannelAccount {
     public String   t_birth;
     public String   t_create;
     public String   c_url_cover;
-    
+
     public String getDisplayName() {return 0 < c_name.length() ? String.format("%s(%s)", c_name, c_user) : c_user;}
 
 }

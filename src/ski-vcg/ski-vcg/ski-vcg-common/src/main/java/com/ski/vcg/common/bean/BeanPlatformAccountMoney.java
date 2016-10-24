@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanPlatformAccountMoney {
-    
+
     public BeanPlatformAccountMoney(String line) {
         String[] fields = line.split("\t", -1);
         this.i_paid     = Integer.parseInt(fields[0], 16);
@@ -11,7 +11,7 @@ public class BeanPlatformAccountMoney {
         this.i_base     = Float.parseFloat(fields[4]);
         this.i_money    = Float.parseFloat(fields[5]);
     }
-    
+
     public int      i_paid;
     public String   c_remark;
     public String   t_time;

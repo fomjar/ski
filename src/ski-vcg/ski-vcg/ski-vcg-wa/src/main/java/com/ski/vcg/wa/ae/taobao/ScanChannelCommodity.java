@@ -22,9 +22,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class ScanChannelCommodity implements AE {
-    
+
     private static final Logger logger = Logger.getLogger(ScanChannelCommodity.class);
-    
+
     private int     code;
     private String  desc;
 
@@ -65,12 +65,12 @@ public class ScanChannelCommodity implements AE {
             desc = "illegal exclude syntax: " + exclude;
             return;
         }
-        
+
         driver.get("https://www.taobao.com");
         driver.findElement(By.id("q")).clear();                             // 搜索框
         driver.findElement(By.id("q")).sendKeys(preset);                    // 搜索框
         driver.findElement(By.className("btn-search")).click();             // 搜索按钮
-        
+
         {   // 判断是否有结果
             WebElement tips = driver.findElement(By.id("mainsrp-tips"));        // 结果提示
             try {   // no result
@@ -127,7 +127,7 @@ public class ScanChannelCommodity implements AE {
         code = CommonDefinition.CODE.CODE_SYS_SUCCESS;
         desc = null;
     }
-    
+
     private void reportCommodity(JSONObject commodity, long osn, int cid, int channel) {
         commodity.put("osn", osn);
         commodity.put("cid", cid);
@@ -139,7 +139,7 @@ public class ScanChannelCommodity implements AE {
         req.json().put("args", commodity);
         FjServerToolkit.getAnySender().send(req);
     }
-    
+
     private JSONObject parseTaobao(WebDriver driver, WebElement element) {
         JSONObject args = new JSONObject();
         element.findElement(By.className("J_ItemPicA")).click();
@@ -156,7 +156,7 @@ public class ScanChannelCommodity implements AE {
             String express_str = driver.findElement(By.id("J_WlServiceTitle")).getText();
             if (express_str.contains("免运费")) args.put("express_price", 0.0f);
             else args.put("express_price", Float.parseFloat(express_str.replace("快递", "").replaceAll("EMS", "").replace("¥", "").trim()));
-            
+
             // 店铺信息
             args.put("shop_url",    driver.findElement(By.className("tb-shop-name")).findElement(By.tagName("a")).getAttribute("href"));
             args.put("shop_name",   driver.findElement(By.className("tb-shop-name")).findElement(By.tagName("a")).getText());
@@ -172,10 +172,10 @@ public class ScanChannelCommodity implements AE {
             }
             switchToSearchWindow(driver);
         }
-        
+
         return args;
     }
-    
+
 //    private JSONObject parseTmall(WebDriver driver, WebElement element) {
 //        JSONObject args = new JSONObject();
 //        element.findElement(By.tagName("a")).click();
@@ -190,9 +190,9 @@ public class ScanChannelCommodity implements AE {
 //            args.put("item_sold",   Integer.parseInt(driver.findElement(By.className("tm-ind-sellCount")).findElement(By.className("tm-count")).getText()));
 //            args.put("item_price",  Float.parseFloat(driver.findElement(By.className("tm-price")).getText()));
 //            args.put("express_price", Float.parseFloat(driver.findElement(By.id("J_PostageToggleCont")).findElement(By.tagName("span")).getText().replace("快递:", "").trim()));
-//            
+//
 //            args.put("shop_addr",   driver.findElement(By.id("J_deliveryAdd")).getText());
-//            
+//
 //            driver.findElement(By.className("render-byjs")).findElement(By.tagName("a")).click();
 //            switchToLastWindow(driver);
 //            try {Thread.sleep(3000L);} catch (InterruptedException e) {e.printStackTrace();}
@@ -216,21 +216,21 @@ public class ScanChannelCommodity implements AE {
 //        }
 //        return args;
 //    }
-    
+
     private void switchToItemWindow(WebDriver driver) {
         for (String window : driver.getWindowHandles()) {
             driver.switchTo().window(window);
             if (!driver.getTitle().contains("_淘宝搜索")) break;
         }
     }
-    
+
     private void switchToSearchWindow(WebDriver driver) {
         for (String window : driver.getWindowHandles()) {
             driver.switchTo().window(window);
             if (driver.getTitle().contains("_淘宝搜索")) break;
         }
     }
-    
+
     @Override
     public int code() {
         return code;
@@ -240,7 +240,7 @@ public class ScanChannelCommodity implements AE {
     public String desc() {
         return desc;
     }
-    
+
     private static class ConditionInclude implements FjCondition<String> {
         private String element;
         public ConditionInclude(String element) {
@@ -251,7 +251,7 @@ public class ScanChannelCommodity implements AE {
             return text.contains(element);
         }
     }
-    
+
     private static class ConditionExclude implements FjCondition<String> {
         private String element;
         public ConditionExclude(String element) {
@@ -262,5 +262,5 @@ public class ScanChannelCommodity implements AE {
             return !text.contains(element);
         }
     }
-    
+
 }

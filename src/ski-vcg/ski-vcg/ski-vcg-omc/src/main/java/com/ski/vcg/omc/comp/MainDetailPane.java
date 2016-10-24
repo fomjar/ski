@@ -19,7 +19,7 @@ public class MainDetailPane extends JPanel {
 
     private static final long serialVersionUID = -8052693881269820372L;
     private BeanChannelAccount          user;
-    
+
     private FjList<BeanChannelAccount>  basic;
     private FjList<BeanChannelAccount>  binds;
     private FjList<BeanCommodity>       rents;
@@ -28,7 +28,7 @@ public class MainDetailPane extends JPanel {
     private DetailPane                  pane_binds;
     private DetailPane                  pane_rents;
     private DetailPane                    pane_tickets;
-    
+
     public MainDetailPane() {
         basic   = new FjList<BeanChannelAccount>();
         binds   = new FjList<BeanChannelAccount>();
@@ -45,9 +45,9 @@ public class MainDetailPane extends JPanel {
                     UIToolkit.openCommodity(user.i_caid);
                     MainFrame.getInstance().setDetailUser(user.i_caid);
                 }));
-        pane_tickets = new DetailPane("用户关联工单", tickets, 
+        pane_tickets = new DetailPane("用户关联工单", tickets,
                 DetailPane.createToolBarButton("新工单", e->UIToolkit.createTicket(getUser())));
-        
+
         JPanel panel = new JPanel();
         panel.setVisible(false);
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -58,23 +58,23 @@ public class MainDetailPane extends JPanel {
         setLayout(new BorderLayout());
         add(panel, BorderLayout.NORTH);
     }
-    
+
     public void setUser(int caid) {
         user = CommonService.getChannelAccountByCaid(caid);
         getComponent(0).setVisible(true);
-        
+
         basic.removeAllCell();
         basic.addCell(new ListCellDetailUser(user));
         BeanPlatformAccount puser = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(caid));
         float[]     prestatement = CommonService.prestatementByCaid(user.i_caid);
         pane_basic.setTitle(String.format("用户基本信息 (当前余额：%.2f元/%.2f元|实时结算：%.2f元/%.2f元)", puser.i_cash, puser.i_coupon, prestatement[0], prestatement[1]));
-        
+
         binds.removeAllCell();
         CommonService.getChannelAccountRelatedAll(user.i_caid)
                 .stream()
                 .filter(user2->user2.i_caid != user.i_caid)
                 .forEach(user2->binds.addCell(new ListCellDetailUser(user2)));
-        
+
         rents.removeAllCell();
         CommonService.getChannelAccountRelatedAll(user.i_caid).forEach(user2->{
             CommonService.getOrderByCaid(user2.i_caid).forEach(order->{
@@ -92,18 +92,18 @@ public class MainDetailPane extends JPanel {
             });
         });
         pane_rents.setTitle(String.format("用户在租游戏 (%s)", getUserRent(user)));
-        
+
         tickets.removeAllCell();
         CommonService.getTicketByPaid(CommonService.getPlatformAccountByCaid(getUser().i_caid)).forEach(t->{
             tickets.addCell(new ListCellDetailTicket(t));
         });
         pane_tickets.setTitle(String.format("用户关联工单 (%s)", getUserTicket(user)));
-        
+
         revalidate();
     }
-    
+
     public BeanChannelAccount getUser() {return user;}
-    
+
     private static String getUserRent(BeanChannelAccount user) {
         int paid = CommonService.getPlatformAccountByCaid(user.i_caid);
         int renting = CommonService.getGameAccountByPaid(paid, CommonService.RENT_TYPE_A).size()
@@ -113,7 +113,7 @@ public class MainDetailPane extends JPanel {
         catch (NoSuchElementException e) {}
         return String.format("%d/%d", renting, all);
     }
-    
+
     private static String getUserTicket(BeanChannelAccount user) {
         int paid = CommonService.getPlatformAccountByCaid(user.i_caid);
         int all = CommonService.getTicketByPaid(paid).size();

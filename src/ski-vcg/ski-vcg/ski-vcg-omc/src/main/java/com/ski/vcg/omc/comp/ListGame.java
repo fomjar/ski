@@ -15,18 +15,18 @@ import com.ski.vcg.common.bean.BeanGame;
 import com.ski.vcg.omc.UIToolkit;
 
 public class ListGame extends JDialog {
-    
+
     private static final long serialVersionUID = -4974710094129285415L;
-    
+
     private static ListGame instance = null;
     public static synchronized ListGame getInstance() {
         if (null == instance) instance = new ListGame();
         return instance;
     }
-    
+
     private JToolBar                toolbar;
     private FjListPane<BeanGame>    pane;
-    
+
     private ListGame() {
         super(MainFrame.getInstance(), "游戏清单");
         setModal(false);
@@ -34,22 +34,22 @@ public class ListGame extends JDialog {
         setSize(new Dimension(600, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
-        
+
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("新游戏"));
-        
+
         pane = new FjListPane<BeanGame>();
         pane.enableSearchBar();
         pane.getSearchBar().setSearchTypes(new String[] {"游戏名", "标签名"});
         pane.getSearchBar().setSearchTips("键入关键字搜索");
-        
+
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createGame();
             refresh();
             ListGame.getInstance().refresh();
         });
-        
+
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGame>(pane.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanGame celldata) {
@@ -75,14 +75,14 @@ public class ListGame extends JDialog {
                 }
             }
         });
-        
+
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(pane, BorderLayout.CENTER);
 
         refresh();
     }
-    
+
     public void refresh() {
         pane.getList().removeAllCell();
         CommonService.getGameAll().values().forEach(data->pane.getList().addCell(new ListCellGame(data)));

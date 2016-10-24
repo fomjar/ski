@@ -19,12 +19,12 @@ public class Report {
     public static String createOCR(BeanCommodity commodity) {
         StringBuilder ocr = new StringBuilder(1024);
         DecimalFormat df = new DecimalFormat("###,###,###.##");
-        
+
         BeanChannelAccount user     = CommonService.getChannelAccountByCaid(CommonService.getOrderByOid(commodity.i_oid).i_caid);
         BeanPlatformAccount puser   = CommonService.getPlatformAccountByPaid(CommonService.getPlatformAccountByCaid(user.i_caid));
         BeanGameAccount account     = CommonService.getGameAccountByGaid(Integer.parseInt(commodity.c_arg0, 16));
         List<BeanGame>  games       = CommonService.getGameByGaid(account.i_gaid);
-        
+
         ocr.append(createReportHead(String.format("%s的租赁报告", user.getDisplayName())));
         List<Object> rows = new LinkedList<Object>();
         rows.add(new String[] {"<div style='font-weight: bold; background-color: #FFFF00'>游戏账号</div>",
@@ -42,7 +42,7 @@ public class Report {
         rows.add(new String[] {"账户余额",  puser.i_cash + "元"});
         if (0 != puser.i_coupon) rows.add(new String[] {"优惠券余额", puser.i_coupon + "元"});
         ocr.append(createReportTable("租赁信息", rows, 2));
-        
+
         if (!commodity.isClose()) {
             rows.clear();
             switch (commodity.c_arg1) {
@@ -64,7 +64,7 @@ public class Report {
         ocr.append(createReportFoot(user.getDisplayName()));
         return ocr.toString();
     }
-    
+
     public static String createReportHead(String title) {
         return String.format("<html><head><meta charset=\"utf-8\" />"
                 + "<style type=\"text/css\">"
@@ -79,7 +79,7 @@ public class Report {
                 title,
                 title);
     }
-    
+
     public static String createReportTable(String category, List<Object> data, int maxcol) {
         StringBuilder sb = new StringBuilder(512);
         sb.append("<table>");
@@ -101,7 +101,7 @@ public class Report {
         sb.append("</table>");
         return sb.toString();
     }
-    
+
     public static String createReportFoot(String foot) {
         return String.format("<table style='font-size: 90%%'><tr>"
                 + "<td style='background-color: #888888; color: #EEEEEE; padding: 0px; padding-left: 4px; text-align: left'>%s</td>"

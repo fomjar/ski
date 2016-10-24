@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanChannelCommodity {
-    
+
     public int      i_osn;
     public int      i_cid;
     public String   t_time;
@@ -19,7 +19,7 @@ public class BeanChannelCommodity {
     public String   c_shop_rate;
     public String   c_shop_score;
     public String   c_shop_addr;
-    
+
     public BeanChannelCommodity(String line) {
         String[] fields = line.split("\t", -1);
         this.i_osn              = Integer.parseInt(fields[0], 16);
@@ -40,5 +40,5 @@ public class BeanChannelCommodity {
         this.c_shop_score       = fields[15];
         this.c_shop_addr        = fields[16];
     }
-    
+
 }

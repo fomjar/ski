@@ -38,13 +38,13 @@ public class ManageTicket extends JDialog {
     private JButton        btn_accept;
     private JButton        btn_refuse;
     private JButton        btn_cancel;
-    
+
     public ManageTicket(int tid) {
         super(MainFrame.getInstance());
-        
+
         BeanTicket             ticket     = CommonService.getTicketByTid(tid);
         BeanChannelAccount     user     = CommonService.getChannelAccountByCaid(ticket.i_caid);
-        
+
         caid  = new JTextField(String.format("[%s] %s", getChannel2String(user.i_channel), user.getDisplayName()));
         caid.setEditable(false);
         time  = new JLabel(String.format("%19s ~ %19s", ticket.t_open, ticket.t_close));
@@ -62,19 +62,19 @@ public class ManageTicket extends JDialog {
         buttons.add(btn_accept);
         buttons.add(btn_refuse);
         buttons.add(btn_cancel);
-        
+
         JPanel head = new JPanel();
         head.setLayout(new GridLayout(3, 1));
         head.add(UIToolkit.createBasicInfoLabel("来源用户", caid));
         head.add(UIToolkit.createBasicInfoLabel("时    间", time));
         head.add(UIToolkit.createBasicInfoLabel("标    题", title));
-        
+
         JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(head, BorderLayout.NORTH);
         panel.add(new JScrollPane(content), BorderLayout.CENTER);
         panel.add(UIToolkit.createBasicInfoLabel("处理意见", result), BorderLayout.SOUTH);
-        
+
         setTitle(String.format("管理工单 - 0x%08X", tid));
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -84,18 +84,18 @@ public class ManageTicket extends JDialog {
         setLayout(new BorderLayout());
         add(panel, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
-        
+
         ActionListener a = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                
+
                 if (btn_cancel == e.getSource()) return;
-                
+
                 int state = CommonService.TICKET_STATE_OPEN;
                 if (btn_accept == e.getSource())         state = CommonService.TICKET_STATE_CLOSE;
                 else if (btn_refuse == e.getSource())     state = CommonService.TICKET_STATE_CANCEL;
-                
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 JSONObject args = new JSONObject();
                 args.put("tid",     ticket.i_tid);
@@ -105,7 +105,7 @@ public class ManageTicket extends JDialog {
                 FjDscpMessage rsp = CommonService.send("cdb", CommonDefinition.ISIS.INST_ECOM_UPDATE_TICKET, args);
                 CommonService.updateTicket();
                 UIToolkit.showServerResponse(rsp);
-                
+
                 ListTicket.getInstance().refresh();
                 if (MainFrame.getInstance().getDetailUser() == user.i_caid) MainFrame.getInstance().setDetailUser(user.i_caid);
             }
@@ -113,14 +113,14 @@ public class ManageTicket extends JDialog {
         btn_accept.addActionListener(a);
         btn_refuse.addActionListener(a);
         btn_cancel.addActionListener(a);
-        
+
         if (ticket.isClose()) {
             result.setEditable(false);
             result.setText("[" + getStateDesc(ticket.i_state) + "] " + ticket.c_result);
             buttons.setVisible(false);
         }
     }
-    
+
     private static String getTypeDesc(int type) {
         switch (type) {
         case CommonService.TICKET_TYPE_ADVICE:     return "意见建议";
@@ -131,7 +131,7 @@ public class ManageTicket extends JDialog {
         default: return "未    知";
         }
     }
-    
+
     private static String getStateDesc(int state) {
         switch (state) {
         case CommonService.TICKET_STATE_OPEN:     return "打开";
@@ -140,7 +140,7 @@ public class ManageTicket extends JDialog {
         default: return "未知";
         }
     }
-    
+
     private static String getChannel2String(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";

@@ -10,7 +10,7 @@ import com.ski.vcg.wa.AE;
 import net.sf.json.JSONObject;
 
 public class CreateUser implements AE {
-    
+
     private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
@@ -30,7 +30,7 @@ public class CreateUser implements AE {
         new Select(driver.findElement(By.id("monthDropDown"))).selectByValue(args.getString("month")); // 生日月份
         new Select(driver.findElement(By.id("dayDropDown"))).selectByValue(args.getString("day")); // 生日月份
         driver.findElement(By.id("regInput_MaleGender")).click();        // 选择性别
-        new Select(driver.findElement(By.id("account_address_provinceField"))).selectByVisibleText("香港"); // 地址       
+        new Select(driver.findElement(By.id("account_address_provinceField"))).selectByVisibleText("香港"); // 地址
         driver.findElement(By.id("createAccountButton")).click();  // 注册按钮点击
 
         if (driver.getCurrentUrl().endsWith("passwordSaved")) { // 密码保存成功

@@ -4,14 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class BeanOrder {
-    
+
     public int      i_oid;
     public int      i_platform;
     public int      i_caid;
     public String   t_open;
     public String   t_close;
     public Map<Integer, BeanCommodity> commodities;
-    
+
     public BeanOrder(String line) {
         String[] fields = line.split("\t", -1);
         i_oid       = Integer.parseInt(fields[0], 16);
@@ -21,7 +21,7 @@ public class BeanOrder {
         t_close     = fields[4];
         commodities = new LinkedHashMap<Integer, BeanCommodity>();
     }
-    
+
     public boolean isClose() {return 0 < t_close.length();}
 
 }

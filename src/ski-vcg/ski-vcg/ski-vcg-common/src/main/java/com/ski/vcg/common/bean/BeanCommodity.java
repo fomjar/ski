@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanCommodity {
-    
+
     public int      i_oid;
     public int      i_csn;
     public String   c_remark;
@@ -20,7 +20,7 @@ public class BeanCommodity {
     public String   c_arg7;
     public String   c_arg8;
     public String   c_arg9;
-    
+
     public BeanCommodity(String line) {
         String[] fields = line.split("\t", -1);
         i_oid       = Integer.parseInt(fields[0], 16);
@@ -42,7 +42,7 @@ public class BeanCommodity {
         c_arg8      = fields[16];
         c_arg9      = fields[17];
     }
-    
+
     public boolean isClose() {return 0 < t_end.length();}
-    
+
 }

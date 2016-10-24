@@ -27,9 +27,9 @@ import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class BcsTask implements FjServerTask {
-    
+
     private static final Logger logger = Logger.getLogger(BcsTask.class);
-    
+
     private DataMonitor     mon_data     = new DataMonitor();
     private CheckMonitor     mon_check     = new CheckMonitor();
     private CacheMonitor     mon_cache     = new CacheMonitor();
@@ -47,7 +47,7 @@ public class BcsTask implements FjServerTask {
         mon_check.close();
         mon_cache.close();
     }
-    
+
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
@@ -55,7 +55,7 @@ public class BcsTask implements FjServerTask {
             logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
             return;
         }
-        
+
         FjDscpMessage dmsg = (FjDscpMessage) msg;
         switch (dmsg.inst()) {
         case CommonDefinition.ISIS.INST_ECOM_APPLY_PLATFORM_ACCOUNT_MONEY:
@@ -74,7 +74,7 @@ public class BcsTask implements FjServerTask {
             break;
         }
     }
-    
+
     private static void processApplyRentBegin(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("platform") || !args.has("caid") || !args.has("gid") || !args.has("type")) {
@@ -82,7 +82,7 @@ public class BcsTask implements FjServerTask {
             response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
-        
+
         int platform= args.getInt("platform");
         int caid    = args.getInt("caid");
         int gid     = args.getInt("gid");
@@ -102,7 +102,7 @@ public class BcsTask implements FjServerTask {
                 return;
             }
         }
-        
+
         // choose account
         int gaid = -1;
         {
@@ -141,14 +141,14 @@ public class BcsTask implements FjServerTask {
                     break;
                 }
             }
-            
+
             if (-1 == gaid) {
                 logger.error(String.format("game account not enough for rent begin: args", args));
                 response(request, server, CommonDefinition.CODE.CODE_USER_NOT_ENOUGH_ACCOUNT, "该游戏已没有剩余帐号可租");
                 return;
             }
         }
-        
+
         // submit order
         {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -163,7 +163,7 @@ public class BcsTask implements FjServerTask {
                 return;
             }
             int oid = Integer.parseInt(CommonService.getResponseDesc(rsp), 16);
-            
+
             args_cdb.clear();
             args_cdb.put("oid", oid);
 //            args_cdb.put("remark", "");
@@ -181,7 +181,7 @@ public class BcsTask implements FjServerTask {
         }
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
-    
+
     private void processApplyRentEnd(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("caid") || !args.has("oid") || !args.has("csn")) {
@@ -189,17 +189,17 @@ public class BcsTask implements FjServerTask {
             response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
-        
+
         int caid = args.getInt("caid");
         int oid  = args.getInt("oid");
         int csn  = args.getInt("csn");
         BeanChannelAccount user = CommonService.getChannelAccountByCaid(caid);
-        
+
         // check order
         CommonService.updateOrder();
         BeanCommodity c = null;
         {
-            boolean isOrderMatch = false; 
+            boolean isOrderMatch = false;
             for (BeanOrder o : CommonService.getOrderByPaid(CommonService.getPlatformAccountByCaid(caid))) {
                 if (o.i_oid == oid && o.commodities.containsKey(csn)) {
                     isOrderMatch = true;
@@ -242,7 +242,7 @@ public class BcsTask implements FjServerTask {
                 }
                 return;
             }
-            
+
             switch (c.c_arg1) {
             case "A":
                 if (rsp.toString().contains(" binded")) {
@@ -278,7 +278,7 @@ public class BcsTask implements FjServerTask {
                 }
                 break;
             }
-            
+
             { // modify to psn
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("user",     account.c_user);
@@ -291,7 +291,7 @@ public class BcsTask implements FjServerTask {
                     return;
                 }
             }
-            
+
             { // notify to db
                 JSONObject args_cdb = new JSONObject();
                 args_cdb.put("gaid", account.i_gaid);
@@ -303,7 +303,7 @@ public class BcsTask implements FjServerTask {
                     return;
                 }
             }
-            
+
             { // notify
                 if (null != user_b) {
                     Notifier.notifyModifyNormally(server,
@@ -335,7 +335,7 @@ public class BcsTask implements FjServerTask {
         }
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
     }
-    
+
     private static void processApplyPlatformAccountMoney(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (!args.has("caid") || !args.has("money")) {
@@ -343,9 +343,9 @@ public class BcsTask implements FjServerTask {
             response(request, server, CommonDefinition.CODE.CODE_SYS_ILLEGAL_ARGS, "非法参数");
             return;
         }
-        
+
         float money = Float.parseFloat(args.getString("money"));
-        
+
         if (money > 0)      processApplyPlatformAccountMoney_Recharge(server, request);
         else if (money < 0) processApplyPlatformAccountMoney_Refund(server, request);
         else {
@@ -353,7 +353,7 @@ public class BcsTask implements FjServerTask {
             response(request, server, CommonDefinition.CODE.CODE_USER_ILLEGAL_MONEY, "无效金额");
         }
     }
-    
+
     private static void processApplyPlatformAccountMoney_Recharge(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         int     caid    = args.getInt("caid");
@@ -373,13 +373,13 @@ public class BcsTask implements FjServerTask {
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
         Notifier.notifyCashRecharge(server, paid, String.format("%.2f元", money));
     }
-    
+
     private static void processApplyPlatformAccountMoney_Refund(String server, FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         int     caid    = args.getInt("caid");
         float   money   = Float.parseFloat(args.getString("money"));
         int     paid    = CommonService.getPlatformAccountByCaid(caid);
-        
+
         // 校验订单
         CommonService.updateOrder();
         {
@@ -396,7 +396,7 @@ public class BcsTask implements FjServerTask {
                 return;
             }
         }
-        
+
         // 校验余额
         CommonService.updatePlatformAccount();
         {
@@ -453,14 +453,14 @@ public class BcsTask implements FjServerTask {
         response(request, server, CommonDefinition.CODE.CODE_SYS_SUCCESS, null);
         Notifier.notifyCashRefund(server, paid, String.format("%.2f元", -money));
     }
-    
+
     private static void response(FjDscpMessage request, String server, int code, String desc) {
         JSONObject args = new JSONObject();
         args.put("code", code);
         args.put("desc", desc);
         if (CommonDefinition.CODE.CODE_SYS_SUCCESS == code) logger.debug("response success: " + args);
         else logger.error("response fail: " + args);
-        
+
         FjDscpMessage response = new FjDscpMessage();
         response.json().put("fs",   server);
         response.json().put("ts",   request.fs());
@@ -469,13 +469,13 @@ public class BcsTask implements FjServerTask {
         response.json().put("args", args);
         FjServerToolkit.getAnySender().send(response);
     }
-    
+
 //    private static void processMoneyTransfer(String server, JSONObject args) {
 //        String  user    = args.getString("user");
 //        String  name    = args.getString("name");
 //        String  money   = args.getString("money");
 //        String  remark  = args.getString("remark");
-//        
+//
 //        Map<String, String> params = new HashMap<String, String>();
 //        // 基本参数
 //        params.put("service",           "batch_trans_notify");    // 接口名称
@@ -500,7 +500,7 @@ public class BcsTask implements FjServerTask {
 //        params.put("pay_date",          new SimpleDateFormat("yyyyMMdd").format(new Date()));   // 支付日期
 //        // 签名
 //        params.put("sign", createSignature(params, FjServerToolkit.getServerConfig("bcs.alipay.key")));
-//        
+//
 //        String url = "https://mapi.alipay.com/gateway.do?" + params.entrySet()
 //                .stream()
 //                .map(entry->entry.getKey() + "=" + entry.getValue())
@@ -508,7 +508,7 @@ public class BcsTask implements FjServerTask {
 //        FjMessage rsp = FjSender.sendHttpRequest(new FjHttpRequest("GET", url));
 //        logger.error("pay response: " + rsp);
 //    }
-//    
+//
 //    private static String createSignature(Map<String, String> params, String key) {
 //        List<String> keys = new LinkedList<String>(params.keySet());
 //        Collections.sort(keys);
@@ -516,7 +516,7 @@ public class BcsTask implements FjServerTask {
 //        keys.forEach(k->{
 //            if (k.equals("sing")) return;
 //            if (k.equals("sign_type")) return;
-//            
+//
 //            if (0 < sb.length()) sb.append("&");
 //            sb.append(k);
 //            sb.append("=");

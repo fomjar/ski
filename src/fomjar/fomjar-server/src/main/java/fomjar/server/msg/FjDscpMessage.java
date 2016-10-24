@@ -23,21 +23,21 @@ import net.sf.json.JSONObject;
  * <li>INST -- 消息指令，整型</li>
  * <li>ARGS -- 指令参数，字符串、JSON对象、JSON数组</li>
  * </p>
- * 
+ *
  * @author fomjar
  */
 public class FjDscpMessage extends FjJsonMessage {
-    
+
     /**
      * 初始化一个空的DSCP消息
      */
     public FjDscpMessage() {this(null);}
-    
+
     /**
      * 以JSON数据初始化一个DSCP消息，JSON的数据类型请参见{@link FjJsonMessage}
-     * 
+     *
      * @param json 具体的JSON数据
-     * 
+     *
      * @see FjJsonMessage
      */
     public FjDscpMessage(Object json) {
@@ -48,7 +48,7 @@ public class FjDscpMessage extends FjJsonMessage {
         if (!json().containsKey("inst")) json().put("inst", -1);
         if (!json().containsKey("args")) json().put("args", null);
     }
-    
+
     /** @return DSCP下的FS字段 */
     public String       fs()                {return json().getString("fs");}
     /** @return DSCP下的TS字段 */
@@ -65,10 +65,10 @@ public class FjDscpMessage extends FjJsonMessage {
     public JSONObject   argsToJsonObject()   {return json().getJSONObject("args");}
     /** @return ARGS字段转JSON数组格式 */
     public JSONArray    argsToJsonArray()    {return json().getJSONArray("args");}
-    
+
     /** @return 随机生成SID字段 */
     private static String newSid() {
         return UUID.randomUUID().toString().replace("-", "");
     }
-    
+
 }

@@ -17,7 +17,7 @@ import fomjar.server.web.FjWebFilter;
 import net.sf.json.JSONObject;
 
 public class Filter4CommonPreprocess extends FjWebFilter {
-    
+
     private static final Logger logger = Logger.getLogger(Filter4CommonPreprocess.class);
 
     @Override
@@ -32,23 +32,23 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             redirect(response, "/omc/index.html");
             return false;
         }
-        
+
         // 请求页面
         if (request.path().endsWith(".html")) {
             if (request.path().startsWith("/vcg"))  return filterVcg(response, request, conn);
             if (request.path().startsWith("/omc"))  return filterOmc(response, request);
         }
-        
+
         // 请求接口
         if (request.path().equals(Filter6CommonInterface.URL_KEY)) return filterInterface(response, request);
 
         return true;
     }
-    
+
     private static boolean filterVcg(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         JSONObject args = request.argsToJson();
         int user = -1;
-        
+
         // 用户预处理
         if (request.cookie().containsKey("user")) user = Integer.parseInt(request.cookie().get("user"), 16);
         else if (args.has("user")) {
@@ -57,12 +57,12 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             else user = Integer.parseInt(obj.toString(), 16);
             response.setcookie("user", Integer.toHexString(user));
         }
-        
+
         // 校验用户
         if (!request.path().startsWith("/vcg/index") && !request.path().startsWith("/vcg/query_game")) {
             if (-1 == user || null == CommonService.getChannelAccountByCaid(user)) {
                 logger.info("anonymous access deny: " + request.url());
-                
+
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", CommonDefinition.CODE.CODE_USER_AUTHORIZE_FAILED);
                 args_rsp.put("desc", "请关注微信“VC电玩”，然后从微信访问我们，非常感谢！");
@@ -71,7 +71,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 return false;
             }
         }
-        
+
         // 校验是否需要补充信息
         if (!request.path().startsWith("/vcg/index") && !request.path().startsWith("/vcg/query_game")) {
             if (-1 != user && null != CommonService.getChannelAccountByCaid(user)) {
@@ -83,16 +83,16 @@ public class Filter4CommonPreprocess extends FjWebFilter {
                 }
             }
         }
-        
+
         recordaccess(user, conn, request.url());
-        
+
         return true;
     }
-    
+
     private static boolean filterOmc(FjHttpResponse response, FjHttpRequest request) {
         return true;
     }
-    
+
     private static boolean filterInterface(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
         int inst = -1;
@@ -106,7 +106,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
             String user = null;
             if (obj instanceof Integer) user = Integer.toHexString((int) obj);
             else user = obj.toString();
-            
+
             String cookie = "";
             if (request.attr().containsKey("Cookie")) {
                 cookie = request.attr().get("Cookie");
@@ -127,7 +127,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
         }
         return true;
     }
-    
+
     private static void recordaccess(int user, SocketChannel conn, String url) {
         try {
             String remote = String.format("%15s|%6d",

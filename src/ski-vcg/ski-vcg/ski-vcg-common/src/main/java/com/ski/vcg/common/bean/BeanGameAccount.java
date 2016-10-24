@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanGameAccount {
-    
+
     public BeanGameAccount(String line) {
         String[] fields = line.split("\t", -1);
         this.i_gaid     = Integer.parseInt(fields[0], 16);
@@ -20,5 +20,5 @@ public class BeanGameAccount {
     public String    c_name;
     public String   t_birth;
     public String   t_create;
-    
+
 }

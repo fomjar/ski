@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class BeanGame {
-    
+
     public BeanGame(String line) {
         String[] fields = line.split("\t", -1);
         this.i_gid              = Integer.parseInt(fields[0], 16);
@@ -33,7 +33,7 @@ public class BeanGame {
         this.i_ign_score        = Float.parseFloat(fields[23]);
         this.c_producer         = fields[24];
     }
-    
+
     public int      i_gid;
     public String   c_name_zh_cn;
     public String   c_name_zh_hk;
@@ -59,7 +59,7 @@ public class BeanGame {
     public String   c_editor_word;
     public float    i_ign_score;
     public String   c_producer;
-    
+
     public String getDisplayName() {
         return String.format("%s %s %s",
                 c_name_zh_cn,

@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanGameRentPrice {
-    
+
     public BeanGameRentPrice(String line) {
         String[] fields = line.split("\t", -1);
         this.i_gid      = Integer.parseInt(fields[0], 16);

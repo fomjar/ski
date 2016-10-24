@@ -22,41 +22,41 @@ public class FjSearchBar extends JComponent {
     private JComboBox<String>   types;
     private FjTextField         field;
     private List<FjSearchListener> listeners;
-    
+
     public FjSearchBar() {
         this(null, null);
     }
-    
+
     public FjSearchBar(String[] types, String tipText) {
         this.types = new JComboBox<String>();
         setSearchTypes(types);
         this.field = new FjTextField();
         setSearchTips(tipText);
         this.listeners = new LinkedList<FjSearchListener>();
-        
+
         this.types.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, INSETS));
         this.types.setPreferredSize(new Dimension(120, field.getHeight()));
         setBorder(BorderFactory.createEmptyBorder(INSETS, INSETS, INSETS, INSETS));
         setLayout(new BorderLayout());
         add(this.types, BorderLayout.WEST);
         add(this.field, BorderLayout.CENTER);
-        
+
         this.types.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {doSearch();}
         });
-        
+
         this.field.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {doSearch();}
         });
-        
+
         this.field.addKeyListener(new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {doSearch();}
         });
     }
-    
+
     public void setSearchTypes(String[] types) {
         if (null == types || 0 == types.length) this.types.setVisible(false);
         else {
@@ -66,15 +66,15 @@ public class FjSearchBar extends JComponent {
             this.types.setVisible(true);
         }
     }
-    
+
     public void setSearchTips(String text) {
         this.field.setDefaultTips(text);
     }
-    
+
     public void addSearchListener(FjSearchListener listener) {
         listeners.add(listener);
     }
-    
+
     public void doSearch() {
         try {
             String type = FjSearchBar.this.types.isVisible() ? FjSearchBar.this.types.getSelectedItem().toString() : null;
@@ -84,19 +84,19 @@ public class FjSearchBar extends JComponent {
             listeners.forEach(listener->listener.searchPerformed(type, words.toArray(new String[] {})));
         } catch (Exception e) {e.printStackTrace();}
     }
-    
+
     public static interface FjSearchListener {
         void searchPerformed(String type, String[] words);
     }
-    
+
     public static abstract class FjSearchAdapterForFjList<E> implements FjSearchListener {
-        
+
         private final FjList<E> list;
-        
+
         public FjSearchAdapterForFjList(FjList<E> list) {
             this.list = list;
         }
-        
+
         @Override
         public void searchPerformed(String type, String[] words) {
             list.getCells().forEach(cell->{
@@ -105,8 +105,8 @@ public class FjSearchBar extends JComponent {
             });
             list.repaint();
         }
-        
+
         public abstract boolean isMatch(String type, String[] words, E celldata);
-        
+
     }
 }

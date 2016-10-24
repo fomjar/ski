@@ -11,7 +11,7 @@ import com.ski.vcg.common.CommonDefinition;
 import com.ski.vcg.wa.AE;
 
 public class Login implements AE {
-    
+
     private int     code = CommonDefinition.CODE.CODE_SYS_UNKNOWN_ERROR;
     private String  desc = null;
 
@@ -29,7 +29,7 @@ public class Login implements AE {
             desc = "unable to login for there is verify code";
             return;
         } catch (NoSuchElementException e) {}
-        
+
         driver.findElement(By.id("signInInput_SignInID")).clear();
         driver.findElement(By.id("signInInput_SignInID")).sendKeys(args.getString("user")); // 账号
         driver.findElement(By.id("signInInput_Password")).clear();

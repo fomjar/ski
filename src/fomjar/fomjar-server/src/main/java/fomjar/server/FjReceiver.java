@@ -21,42 +21,42 @@ import fomjar.util.FjLoopTask;
 import fomjar.util.FjThreadFactory;
 
 public class FjReceiver extends FjLoopTask {
-    
+
     private static Selector selector = null;
-    
+
     private static final Logger         logger  = Logger.getLogger(FjReceiver.class);
     private static final Set<Integer>   alive   = new HashSet<Integer>();
     private static final int            BUF_LEN = 1024;
-    
+
     static {
         alive.add(80);
         for (int i = 8080; i <= 8089; i++) alive.add(i);
     }
-    
+
     public static Set<Integer> getAlivePorts() {return alive;}
-    
+
     private ExecutorService pool;
     private FjMessageQueue mq;
     private int port;
     private ServerSocketChannel sock;
     private ByteBuffer buf;
-    
+
     public FjReceiver(FjMessageQueue mq) {
         if (null == mq) throw new NullPointerException();
         this.mq = mq;
         this.buf = ByteBuffer.allocate(BUF_LEN);
         this.pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new FjThreadFactory("fjreceiver"));
     }
-    
+
     public FjReceiver(FjMessageQueue mq, int port) {
         this(mq);
         reset(port);
     }
-    
+
     public FjMessageQueue mq() {return mq;}
 
     public int port() {return port;}
-    
+
     public void reset(int port) {
         try {if (null != sock) sock.close();}
         catch (IOException e) {logger.error("colse old server socket channel failed", e);}
@@ -73,7 +73,7 @@ public class FjReceiver extends FjLoopTask {
             this.port = -1;
         }
     }
-    
+
     @Override
     public void perform() {
         try {
@@ -84,7 +84,7 @@ public class FjReceiver extends FjLoopTask {
                 return;
             }
         } catch (IOException e) {e.printStackTrace();}
-        
+
         Set<SelectionKey> keys = selector.selectedKeys();
         keys.forEach(key->{
             try {
@@ -97,7 +97,7 @@ public class FjReceiver extends FjLoopTask {
                     SocketChannel conn = (SocketChannel) key.channel();
                     key.cancel();
                     if (port() != conn.socket().getLocalPort()) return;
-                    
+
                     if (alive.contains(port())) readAlive(conn);
                     else readClose(conn);
                 }
@@ -105,7 +105,7 @@ public class FjReceiver extends FjLoopTask {
         });
         keys.clear();
     }
-    
+
     private void readAlive(SocketChannel conn) {
         pool.submit(()->{
             try {
@@ -124,7 +124,7 @@ public class FjReceiver extends FjLoopTask {
                 }
                 String data = baos.toString("utf-8");
                 baos.close();
-                
+
                 logger.debug("read raw data is: " + data);
                 if (0 < data.length())
                     mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
@@ -134,7 +134,7 @@ public class FjReceiver extends FjLoopTask {
             } catch (Exception e) {logger.error("read alive connection failed", e);}
         });
     }
-    
+
     private void readClose(SocketChannel conn) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         buf.clear();
@@ -145,7 +145,7 @@ public class FjReceiver extends FjLoopTask {
         }
         String data = baos.toString("utf-8");
         baos.close();
-        
+
         logger.debug("read raw data is: " + data);
         if (0 < data.length())
             mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))

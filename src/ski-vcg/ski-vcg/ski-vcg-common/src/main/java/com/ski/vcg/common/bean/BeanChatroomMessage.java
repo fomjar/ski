@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanChatroomMessage {
-    
+
     public BeanChatroomMessage(String line) {
         String[] fields = line.split("\t", -1);
         i_crid      = Integer.parseInt(fields[0], 16);
@@ -16,7 +16,7 @@ public class BeanChatroomMessage {
         c_arg3      = fields[9];
         c_arg4      = fields[10];
     }
-    
+
     public int      i_crid;
     public int      i_mid;
     public int      i_member;

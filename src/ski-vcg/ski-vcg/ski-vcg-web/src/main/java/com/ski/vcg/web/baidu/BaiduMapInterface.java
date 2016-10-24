@@ -8,17 +8,17 @@ import fomjar.server.msg.FjJsonMessage;
 import net.sf.json.JSONObject;
 
 public class BaiduMapInterface {
-    
+
     private static String host = "api.map.baidu.com";
-    
+
     public static void setHost(String host) {BaiduMapInterface.host = host;}
     public static String host() {return host;}
-    
+
     public static FjJsonMessage sendRequest(String method, String url, String content) {
         FjJsonMessage rsp = (FjJsonMessage) FjSender.sendHttpRequest(new FjHttpRequest(method, url, null, content));
         return rsp;
     }
-    
+
     /**
      * {
      * "status":0,
@@ -40,7 +40,7 @@ public class BaiduMapInterface {
         String url = String.format("http://%s/place/v2/search?q=%s&region=全国&output=json&ak=%s", host(), place.replace(" ", "_"), ak);
         FjJsonMessage rsp = sendRequest("GET", url, null);
         if (0 != rsp.json().getInt("status")) return null;
-        
+
         JSONObject location = rsp.json().getJSONArray("results").getJSONObject(0).getJSONObject("location");
         return new Point2D.Double(location.getDouble("lat"), location.getDouble("lng"));
     }

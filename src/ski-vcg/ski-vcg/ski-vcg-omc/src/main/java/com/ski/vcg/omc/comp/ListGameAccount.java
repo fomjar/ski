@@ -21,16 +21,16 @@ import com.ski.vcg.omc.UIToolkit;
 public class ListGameAccount extends JDialog {
 
     private static final long serialVersionUID = 8198733950250010530L;
-    
+
     private static ListGameAccount instance = null;
     public static synchronized ListGameAccount getInstance() {
         if (null == instance) instance = new ListGameAccount();
         return instance;
     }
-    
+
     private JToolBar                    toolbar;
     private FjListPane<BeanGameAccount> pane;
-    
+
     private ListGameAccount() {
         super(MainFrame.getInstance(), "账号清单");
         setModal(false);
@@ -38,27 +38,27 @@ public class ListGameAccount extends JDialog {
         setSize(new Dimension(600, 600));
         Dimension owner = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation((owner.width - getWidth()) / 2, (owner.height - getHeight()) / 2);
-        
+
         toolbar = new JToolBar();
         toolbar.setFloatable(false);
         toolbar.add(new JButton("新账号"));
-        
+
         pane = new FjListPane<BeanGameAccount>();
         pane.enableSearchBar();
         pane.getSearchBar().setSearchTypes(new String[] {"按游戏名", "按用户名", "按账号名"});
         pane.getSearchBar().setSearchTips("键入关键词搜索");
-        
+
         ((JButton) toolbar.getComponent(0)).addActionListener(e->{
             UIToolkit.createGameAccount();
             refresh();
             ListGameAccount.getInstance().refresh();
         });
-        
+
         pane.getSearchBar().addSearchListener(new FjSearchBar.FjSearchAdapterForFjList<BeanGameAccount>(pane.getList()) {
             @Override
             public boolean isMatch(String type, String[] words, BeanGameAccount celldata) {
                 if (null == type) return true;
-                
+
                 switch(type) {
                 case "按游戏名": {
                     List<BeanGame> games = CommonService.getGameAll().values()
@@ -121,14 +121,14 @@ public class ListGameAccount extends JDialog {
                 }
             }
         });
-        
+
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(toolbar, BorderLayout.NORTH);
         getContentPane().add(pane, BorderLayout.CENTER);
-        
+
         refresh();
     }
-    
+
     public void refresh() {
         pane.getList().removeAllCell();
         CommonService.getGameAccountAll().values().forEach(data->pane.getList().addCell(new ListCellGameAccount(data)));

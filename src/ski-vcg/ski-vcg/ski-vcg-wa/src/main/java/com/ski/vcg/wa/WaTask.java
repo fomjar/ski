@@ -29,10 +29,10 @@ import fomjar.server.msg.FjDscpMessage;
 import net.sf.json.JSONObject;
 
 public class WaTask implements FjServerTask {
-    
+
     private static final Logger logger = Logger.getLogger(WaTask.class);
     private WebDriver driver;
-    
+
     @Override
     public void initialize(FjServer server) {
         System.setProperty("webdriver.ie.driver", "lib/IEDriverServer.exe");
@@ -54,7 +54,7 @@ public class WaTask implements FjServerTask {
         int        inst = req.inst();
         JSONObject args = req.argsToJsonObject();
         logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), inst));
-        
+
         AE ae = getAe(inst);
         if (null == ae) {
             logger.error(String.format("can not find an AE for instuction: 0x%08X", inst));
@@ -87,7 +87,7 @@ public class WaTask implements FjServerTask {
             driver.quit();
             driver = null;
         }
-        
+
         if (0 == server.mq().size()) {
             String home = FjServerToolkit.getServerConfig("wa.home");
             if (null != home) {
@@ -96,7 +96,7 @@ public class WaTask implements FjServerTask {
             }
         }
     }
-    
+
     private static void reset(WebDriver driver) {
         String[] reset = FjServerToolkit.getServerConfig("wa.reset").split("/");
         String user = reset[0];
@@ -106,9 +106,9 @@ public class WaTask implements FjServerTask {
         args.put("pass", pass);
         new Login().execute(driver, args);
     }
-    
+
     private static Robot robot = null;
-    
+
     private static void recordFail() {
         try {
             if (null == robot) robot = new Robot();
@@ -118,7 +118,7 @@ public class WaTask implements FjServerTask {
             logger.error("record fail failed", e);
         }
     }
-    
+
     public AE getAe(int inst) {
         String className = FjServerToolkit.getServerConfig(String.format("ae.0x%08X", inst));
         try {
@@ -132,7 +132,7 @@ public class WaTask implements FjServerTask {
         } catch (Exception e) {logger.error("error occurs when load ae class: " + className, e);}
         return null;
     }
-    
+
     private static void response(String server, FjDscpMessage req, Object args) {
         FjDscpMessage rsp = new FjDscpMessage();
         rsp.json().put("fs",   server);

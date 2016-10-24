@@ -8,7 +8,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 public class FjHttpRequest extends FjHttpMessage {
-    
+
     public static FjHttpRequest parse(String data) {
         String[] head         = data.split("\r\n")[0].split(" ");
         String[] contents   = data.split("\r\n\r\n");
@@ -23,10 +23,10 @@ public class FjHttpRequest extends FjHttpMessage {
         }
         return request;
     }
-    
+
     private String method;
     private String url;
-    
+
     public FjHttpRequest(String method, String url, String contentType, Object content) {
         super(contentType, content);
         this.method = method;
@@ -36,14 +36,14 @@ public class FjHttpRequest extends FjHttpMessage {
             e.printStackTrace();
         }
     }
-    
+
     public String method()    {return method;}
     public String url()     {return url;}
     public String path()    {return url().contains("?") ? url().substring(0, url.indexOf("?")) : url();}
-    
+
     public Map<String, String> urlArgs() {
         if (!url().contains("?")) return new HashMap<String, String>();
-        
+
         String paramLine = url().split("\\?")[1];
         String[] params = paramLine.split("&");
         Map<String, String> result = new HashMap<String, String>();
@@ -53,7 +53,7 @@ public class FjHttpRequest extends FjHttpMessage {
         }
         return result;
     }
-    
+
     public JSONObject argsToJson() {
         JSONObject json = contentToJson();
         json.putAll(urlArgs());

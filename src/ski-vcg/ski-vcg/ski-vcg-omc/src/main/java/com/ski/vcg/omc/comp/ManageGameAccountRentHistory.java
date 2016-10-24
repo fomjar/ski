@@ -16,7 +16,7 @@ import com.ski.vcg.common.CommonService;
 public class ManageGameAccountRentHistory extends JDialog {
 
     private static final long serialVersionUID = -5775197067437121539L;
-    
+
     public ManageGameAccountRentHistory(int gaid) {
         JTable table = new JTable();
         DefaultTableCellRenderer renderer = new DefaultTableCellRenderer();
@@ -35,7 +35,7 @@ public class ManageGameAccountRentHistory extends JDialog {
         getContentPane().setLayout(new BorderLayout());
         getContentPane().add(new JScrollPane(table), BorderLayout.CENTER);
 
-        
+
         setTitle("管理游戏帐号流水");
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);

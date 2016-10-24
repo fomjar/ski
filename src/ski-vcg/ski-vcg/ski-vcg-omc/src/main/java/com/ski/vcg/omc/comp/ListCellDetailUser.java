@@ -18,20 +18,20 @@ import com.ski.vcg.common.bean.BeanChannelAccount;
 public class ListCellDetailUser extends FjListCell<BeanChannelAccount> {
 
     private static final long serialVersionUID = -6820038235647058975L;
-    
+
     public ListCellDetailUser(BeanChannelAccount user) {
         JLabel      platf = new JLabel("[" + getPlatform(user.i_channel) + "] ");
         FjEditLabel infos = new FjEditLabel(String.format("用户名：%s 电话：%s", user.getDisplayName(), user.c_phone));
-        
+
         platf.setFont(platf.getFont().deriveFont(Font.ITALIC));
-        
+
         JPanel info = new JPanel();
         info.setOpaque(false);
         info.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 8));
         info.setLayout(new BorderLayout());
         info.add(platf, BorderLayout.WEST);
         info.add(infos, BorderLayout.CENTER);
-        
+
         JPanel oper = new JPanel();
         oper.setOpaque(false);
         oper.setLayout(new BoxLayout(oper, BoxLayout.X_AXIS));
@@ -42,16 +42,16 @@ public class ListCellDetailUser extends FjListCell<BeanChannelAccount> {
         oper.add(DetailPane.createToolBarButton("流水", e->{
             if (null != user) new ManageFlow(CommonService.getPlatformAccountByCaid(user.i_caid));
         }));
-        
+
         setLayout(new BorderLayout());
         add(info, BorderLayout.CENTER);
         add(oper, BorderLayout.EAST);
-        
+
         setColorDefault(Color.white);
-        
+
         passthroughMouseEvent(info);
     }
-    
+
     private static String getPlatform(int channel) {
         switch (channel) {
         case CommonService.CHANNEL_TAOBAO: return "淘  宝";

@@ -7,7 +7,7 @@ package fomjar.server.msg;
  * <p>
  * 注意：指令定义必须要符合协议规范
  * </p>
- * 
+ *
  * @author fomjar
  */
 public final class FjISIS {

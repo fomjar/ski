@@ -1,7 +1,7 @@
 package com.ski.vcg.common.bean;
 
 public class BeanTicket {
-    
+
     public BeanTicket(String line) {
         String[] fields = line.split("\t", -1);
         i_tid       = Integer.parseInt(fields[0], 16);
@@ -14,7 +14,7 @@ public class BeanTicket {
         i_state     = Integer.parseInt(fields[7], 16);
         c_result    = fields[8];
     }
-    
+
     public int      i_tid;
     public int      i_caid;
     public int      i_type;
@@ -24,7 +24,7 @@ public class BeanTicket {
     public String   c_content;
     public int      i_state;
     public String   c_result;
-    
+
     public boolean isClose() {
         return 0 < t_close.length();
     }

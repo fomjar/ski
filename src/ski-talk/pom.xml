@@ -6,8 +6,9 @@
   <packaging>pom</packaging>
   <modules>
   	<module>ski-talk-web</module>
-  	<module>ski-talk-ccm</module>
-  	<module>ski-talk-ccu</module>
   	<module>ski-talk-common</module>
+  	<module>ski-talk-bcs</module>
+  	<module>ski-talk-cdb</module>
+  	<module>ski-talk-wsi</module>
   </modules>
 </project>

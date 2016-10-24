@@ -5,5 +5,12 @@
     <artifactId>ski-talk</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>ski-talk-ccu</artifactId>
+  <artifactId>ski-talk-cdb</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>ski-talk</groupId>
+  		<artifactId>ski-talk-common</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
+  </dependencies>
 </project>

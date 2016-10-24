@@ -23,12 +23,12 @@ import com.ski.vcg.common.bean.BeanGame;
 import com.ski.vcg.omc.UIToolkit;
 
 public class ListCellGame extends FjListCell<BeanGame> {
-    
+
     private static final long serialVersionUID = 6352907380098820766L;
     private static final ExecutorService pool = Executors.newFixedThreadPool(10);
-    
+
     private static final int ICON_SIZE = 55;
-    
+
     private JLabel     c_url_icon;
     private JLabel  c_name;
     private JLabel  i_gid;
@@ -37,10 +37,10 @@ public class ListCellGame extends FjListCell<BeanGame> {
     private JLabel  i_price_a;
     private JLabel  i_price_b;
     private JPanel  tags;
-    
+
     public ListCellGame(BeanGame data) {
         super(data);
-        
+
         c_url_icon     = new JLabel();
         c_name       = new JLabel();
         i_gid       = new JLabel();
@@ -49,7 +49,7 @@ public class ListCellGame extends FjListCell<BeanGame> {
         i_price_a   = new JLabel();
         i_price_b   = new JLabel();
         tags        = new JPanel();
-        
+
         c_url_icon.setPreferredSize(new Dimension(ICON_SIZE, ICON_SIZE));
         c_name.setPreferredSize(new Dimension(1, 0));
         c_name.setFont(c_name.getFont().deriveFont(Font.BOLD));
@@ -65,35 +65,35 @@ public class ListCellGame extends FjListCell<BeanGame> {
         FlowLayout layout = new FlowLayout();
         layout.setVgap(0);
         tags.setLayout(layout);
-        
+
         JPanel panel0 = new JPanel();
         panel0.setOpaque(false);
         panel0.setLayout(new BorderLayout());
         panel0.add(c_name, BorderLayout.CENTER);
         panel0.add(tags, BorderLayout.EAST);
-        
+
         JPanel panel_name = new JPanel();
         panel_name.setOpaque(false);
         panel_name.setLayout(new BorderLayout());
         panel_name.add(panel0, BorderLayout.CENTER);
         panel_name.add(i_gid, BorderLayout.EAST);
-        
+
         JPanel panel_category = new JPanel();
         panel_category.setOpaque(false);
         panel_category.setLayout(new BorderLayout());
         panel_category.add(c_category, BorderLayout.CENTER);
-        
+
         JPanel panel_sale = new JPanel();
         panel_sale.setOpaque(false);
         panel_sale.setLayout(new BorderLayout());
         panel_sale.add(t_sale, BorderLayout.CENTER);
-        
+
         JPanel panel_price = new JPanel();
         panel_price.setOpaque(false);
         panel_price.setLayout(new GridLayout(1, 2));
         panel_price.add(i_price_a);
         panel_price.add(i_price_b);
-        
+
         JPanel panel_main = new JPanel();
         panel_main.setOpaque(false);
         panel_main.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
@@ -102,19 +102,19 @@ public class ListCellGame extends FjListCell<BeanGame> {
         panel_main.add(panel_category);
         panel_main.add(panel_sale);
         panel_main.add(panel_price);
-        
+
         setLayout(new BorderLayout());
         add(c_url_icon, BorderLayout.WEST);
         add(panel_main, BorderLayout.CENTER);
-        
+
         addActionListener(e->new ManageGame(data.i_gid).setVisible(true));
-        
+
         update();
     }
-    
+
     private void update() {
         BeanGame data = getData();
-        
+
         pool.submit(()->{
             try {
                 Image img = UIToolkit.LoadImage(data.c_url_icon);
