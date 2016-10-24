@@ -78,6 +78,8 @@ public final class CommonDefinition {
         public static final int INST_ECOM_QUERY_CHATROOM_MEMBER         = 0x00002012;
         /** 查询聊天室消息 */
         public static final int INST_ECOM_QUERY_CHATROOM_MESSAGE        = 0x00002013;
+        /** 查询游戏帐号租赁历史 */
+        public static final int INST_ECOM_QUERY_GAME_ACCOUNT_RENT_HISTORY = 0x00002014;
         // APPLY
         /** 验证账户、密码等的正确性 */
         public static final int INST_ECOM_APPLY_GAME_ACCOUNT_VERIFY     = 0x00002101;

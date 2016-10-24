@@ -69,7 +69,7 @@ create table tbl_game_account_rent(
     t_change    datetime    -- 变化时间
 );
 
--- 平台账户流水
+-- 游戏账户租赁状态历史
 drop table if exists tbl_game_account_rent_history;
 create table tbl_game_account_rent_history (
     i_gaid      integer,    -- 游戏账号ID

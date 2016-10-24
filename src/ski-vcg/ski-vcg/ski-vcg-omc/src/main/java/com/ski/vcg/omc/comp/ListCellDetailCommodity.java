@@ -58,6 +58,8 @@ public class ListCellDetailCommodity extends FjListCell<BeanCommodity> {
             }
         }));
         if (c.isClose()) b.setEnabled(false);
+        panel_oper.add(Box.createHorizontalStrut(4));
+        panel_oper.add(DetailPane.createToolBarButton("流水", e->new ManageGameAccountRentHistory(Integer.parseInt(c.c_arg0, 16)).setVisible(true)));
         
         setColorDefault(Color.white);
         

@@ -378,6 +378,22 @@ public class CommonService {
         return new LinkedHashSet<BeanGameAccountRent>(cache_game_account_rent);
     }
     
+    public static List<BeanGameAccountRent> getGameAccountRentHistoryByGaid(int gaid) {
+        JSONObject args = new JSONObject();
+        args.put("gaid", gaid);
+        String rsp = getResponseDesc(send("cdb", CommonDefinition.ISIS.INST_ECOM_QUERY_GAME_ACCOUNT_RENT_HISTORY, args));
+        
+        List<BeanGameAccountRent> list = new LinkedList<BeanGameAccountRent>();
+        if (null != rsp && !"null".equals(rsp)) {
+            String[] lines = rsp.split("\n");
+            for (String line : lines) {
+                BeanGameAccountRent bean = new BeanGameAccountRent(line);
+                list.add(bean);
+            }
+        }
+        return list;
+    }
+    
     public static int getGameAccountRentStateByGaid(int gaid, int type) {
         synchronized (cache_game_account_rent) {
             for (BeanGameAccountRent rent : cache_game_account_rent) {
@@ -684,14 +700,15 @@ public class CommonService {
             long millis = end - begin - 20 * 60 * 1000L; // 优惠20分钟
             if (millis <= 0) return 0.00f;
             int hours = (int) Math.ceil((double) millis / 1000 / 60 / 60);  // 向上取整
-            int times = (int) Math.ceil(((double) hours) / 12); 
+            int times = hours / 24;
+            times += (hours % 24) >= 3 ? 1 : 0;         // 超过3小时算1天
+            if (times == 0) times = 1;                  // 起租至少算1天
             float price = c.i_price;
             
-            if (times < 2) times = 2;                                       // 至少算1天
-            if (12 * 24 < hours && hours <= 15 * 24) times = 12 * 24 / 12;  // 12-15天的钱算作12天，倍数为24
-            else if (15 * 24 < hours) price *= 0.8;                         // 15天以上打八折
+            if (12 * 24 < hours && hours <= 15 * 24) times = 12;    // 12-15天的钱算作12天
+            else if (15 * 24 < hours) price *= 0.8;                 // 15天以上打八折
             
-            return times * (price / 2) * c.i_count;
+            return times * price * c.i_count;
         } catch (Exception e) {e.printStackTrace();}
         return 0.00f;
     }

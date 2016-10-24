@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<scenario xmlns="http://www.omnigroup.com/namespace/OmniPlan/v2" xmlns:opns="http://www.omnigroup.com/namespace/OmniPlan/v2" id="pFiFXJH5CzB">
+  <start-date>2016-10-20T00:00:00.000Z</start-date>
+  <prototype-task>
+    <task id="t-2">
+      <title>Task 1</title>
+      <effort>28800</effort>
+    </task>
+  </prototype-task>
+  <prototype-task>
+    <task id="t-3">
+      <title>Milestone 1</title>
+      <type>milestone</type>
+    </task>
+  </prototype-task>
+  <prototype-task>
+    <task id="t-4">
+      <title>Group 1</title>
+      <type>group</type>
+    </task>
+  </prototype-task>
+  <prototype-resource>
+    <resource id="r-2">
+      <name>Resource 1</name>
+      <type>Staff</type>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-3">
+      <name>Equipment 1</name>
+      <type>Equipment</type>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-4">
+      <name>Material 1</name>
+      <type>Material</type>
+      <units-available>0</units-available>
+      <efficiency>0</efficiency>
+    </resource>
+  </prototype-resource>
+  <prototype-resource>
+    <resource id="r-5">
+      <name>Group 1</name>
+      <type>Group</type>
+    </resource>
+  </prototype-resource>
+  <top-resource idref="r-1"/>
+  <resource id="r-1">
+    <type>Group</type>
+    <child-resource idref="r1"/>
+    <child-resource idref="r2"/>
+    <child-resource idref="r3"/>
+  </resource>
+  <resource id="r1">
+    <name>Fomjar</name>
+    <type>Staff</type>
+  </resource>
+  <resource id="r2">
+    <name>Teenth</name>
+    <type>Staff</type>
+  </resource>
+  <resource id="r3">
+    <name>Max</name>
+    <type>Staff</type>
+  </resource>
+  <top-task idref="t-1"/>
+  <task id="t-1">
+    <type>group</type>
+    <child-task idref="t1"/>
+    <child-task idref="t15"/>
+    <child-task idref="t7"/>
+    <child-task idref="t10"/>
+    <child-task idref="t38"/>
+    <child-task idref="t21"/>
+    <child-task idref="t35"/>
+    <child-task idref="t8"/>
+    <child-task idref="t39"/>
+    <child-task idref="t40"/>
+  </task>
+  <task id="t1">
+    <title>完成业务定义</title>
+    <effort>15300</effort>
+    <start-constraint-date>2016-10-21T03:45:00.000Z</start-constraint-date>
+    <assignment idref="r3"/>
+    <start-no-earlier-than>2016-10-21T03:45:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t7">
+    <title>里程碑：准备实战</title>
+    <type>milestone</type>
+    <start-constraint-date>2016-10-26T00:00:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t15"/>
+    <start-no-earlier-than>2016-10-26T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t8">
+    <title>第一轮投资</title>
+    <type>milestone</type>
+    <start-constraint-date>2016-11-30T03:15:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t21"/>
+    <prerequisite-task idref="t35"/>
+    <start-no-earlier-than>2016-11-30T03:15:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t10">
+    <title>MVP的搭建</title>
+    <type>group</type>
+    <start-constraint-date>2016-10-26T00:15:00.000Z</start-constraint-date>
+    <child-task idref="t13"/>
+    <child-task idref="t14"/>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>minimum viable product</lit>
+          </run>
+        </p>
+        <p>
+          <run>
+            <lit>最小可行产品</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <prerequisite-task idref="t7"/>
+    <start-no-earlier-than>2016-10-26T00:15:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t13">
+    <title>千人验证方案&amp;预算制定</title>
+    <effort>528300</effort>
+    <start-constraint-date>2016-10-21T08:30:00.000Z</start-constraint-date>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>获取高质量种子用户，推广让种子用户有参与感</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <assignment idref="r2"/>
+    <start-no-earlier-than>2016-10-21T08:30:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t14">
+    <title>功能实现</title>
+    <effort>528300</effort>
+    <start-constraint-date>2016-10-26T00:15:00.000Z</start-constraint-date>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>功能完整可用</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <assignment idref="r1"/>
+    <start-no-earlier-than>2016-10-26T00:15:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t15">
+    <title>核心功能确定&amp;论证</title>
+    <type>group</type>
+    <start-constraint-date>2016-10-24T00:00:00.000Z</start-constraint-date>
+    <child-task idref="t47"/>
+    <child-task idref="t36"/>
+    <child-task idref="t34"/>
+    <child-task idref="t33"/>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>做哪些，哪些不做，为什么做与不做</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <prerequisite-task idref="t1"/>
+    <start-no-earlier-than>2016-10-24T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t21">
+    <title>千人验证计划实施</title>
+    <type>group</type>
+    <start-constraint-date>2016-11-09T01:00:00.000Z</start-constraint-date>
+    <child-task idref="t44"/>
+    <child-task idref="t43"/>
+    <child-task idref="t45"/>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>目标：推荐注册比例</lit>
+          </run>
+          <run>
+            <lit>&gt;1</lit>
+          </run>
+          <run>
+            <lit>，次日存活</lit>
+          </run>
+          <run>
+            <lit>&gt;40%</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <prerequisite-task idref="t38"/>
+    <start-no-earlier-than>2016-11-09T01:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t33">
+    <title>确定核心功能点</title>
+    <effort>57600</effort>
+    <start-constraint-date>2016-10-24T00:00:00.000Z</start-constraint-date>
+    <assignment idref="r3"/>
+    <start-no-earlier-than>2016-10-24T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t34">
+    <title>功能前期准备</title>
+    <effort>56700</effort>
+    <start-constraint-date>2016-10-21T02:00:00.000Z</start-constraint-date>
+    <assignment idref="r1"/>
+    <start-no-earlier-than>2016-10-21T02:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t35">
+    <title>准备投资事宜</title>
+    <effort>320400</effort>
+    <start-constraint-date>2016-11-29T03:00:00.000Z</start-constraint-date>
+    <start-no-earlier-than>2016-11-29T03:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t36">
+    <title>推广计划前期准备</title>
+    <effort>57600</effort>
+    <start-constraint-date>2016-10-21T00:00:00.000Z</start-constraint-date>
+    <assignment idref="r2"/>
+    <start-no-earlier-than>2016-10-21T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t38">
+    <title>开始校园验证</title>
+    <type>milestone</type>
+    <start-constraint-date>2016-11-09T01:30:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t10"/>
+    <start-no-earlier-than>2016-11-09T01:30:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t39">
+    <title>组建团队，开发正式产品</title>
+    <effort>816300</effort>
+    <start-constraint-date>2016-11-30T03:15:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t8"/>
+    <start-no-earlier-than>2016-11-30T03:15:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t40">
+    <title>第二轮投资</title>
+    <type>milestone</type>
+    <start-constraint-date>2017-01-02T01:00:00.000Z</start-constraint-date>
+    <prerequisite-task idref="t39"/>
+    <start-no-earlier-than>2017-01-02T01:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t43">
+    <title>数据记录&amp;完善检测</title>
+    <effort>486000</effort>
+    <start-constraint-date>2016-10-21T00:00:00.000Z</start-constraint-date>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>方便跟踪日活，周活，增量，功能使用量，次日／</lit>
+          </run>
+          <run>
+            <lit>7</lit>
+          </run>
+          <run>
+            <lit>日存活</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <assignment idref="r1"/>
+    <start-no-earlier-than>2016-10-21T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t44">
+    <title>实地推广</title>
+    <effort>489600</effort>
+    <start-constraint-date>2016-11-09T02:00:00.000Z</start-constraint-date>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>总结渠道／方法，输出经验报告</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <assignment idref="r2"/>
+    <start-no-earlier-than>2016-11-09T02:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t45">
+    <title>用户访谈&amp;功能完善</title>
+    <effort>489600</effort>
+    <start-constraint-date>2016-10-21T00:00:00.000Z</start-constraint-date>
+    <note>
+      <text>
+        <p>
+          <run>
+            <lit>输出功能评价，分析报告</lit>
+          </run>
+        </p>
+      </text>
+    </note>
+    <assignment idref="r3"/>
+    <start-no-earlier-than>2016-10-21T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <task id="t47">
+    <title>调研设计&amp;实施&amp;分析</title>
+    <effort>54000</effort>
+    <start-constraint-date>2016-10-21T00:00:00.000Z</start-constraint-date>
+    <assignment idref="r3"/>
+    <start-no-earlier-than>2016-10-21T00:00:00.000Z</start-no-earlier-than>
+  </task>
+  <critical-path root="-1" enabled="false" resources="false">
+    <color r="1" g="0.5" b="0.5"/>
+  </critical-path>
+</scenario>

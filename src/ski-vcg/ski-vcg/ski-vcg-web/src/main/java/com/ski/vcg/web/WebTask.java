@@ -63,7 +63,7 @@ public class WebTask extends FjWebTask {
         } else if (msg instanceof FjDscpMessage) {
             wechat.dispatch((FjDscpMessage) msg);
         } else {
-            logger.error("unsupported format message, raw data:\n" + wrapper.attachment("raw"));
+            logger.error(String.format("unsupported format message from:%s, raw data:\n%s", ((SocketChannel)wrapper.attachment("conn")).socket().getRemoteSocketAddress(), wrapper.attachment("raw")));
         }
     }
 

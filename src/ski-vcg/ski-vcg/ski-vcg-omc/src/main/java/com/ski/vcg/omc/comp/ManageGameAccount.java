@@ -53,6 +53,8 @@ public class ManageGameAccount extends JDialog {
         toolbar.add(new JButton("测试账号"));
         toolbar.addSeparator();
         toolbar.add(new JButton("添加游戏"));
+        toolbar.addSeparator();
+        toolbar.add(new JButton("查看流水"));
         i_gaid = new FjEditLabel(false);
         c_user = new FjEditLabel();
         c_pass = new FjEditLabel();
@@ -243,6 +245,9 @@ public class ManageGameAccount extends JDialog {
             UIToolkit.showServerResponse(rsp);
             
             updateGameAccountGame();
+        });
+        ((JButton) toolbar.getComponent(6)).addActionListener(e->{
+            new ManageGameAccountRentHistory(this.gaid).setVisible(true);
         });
     }
     

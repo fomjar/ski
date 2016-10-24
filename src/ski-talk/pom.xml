@@ -8,5 +8,6 @@
   	<module>ski-talk-web</module>
   	<module>ski-talk-ccm</module>
   	<module>ski-talk-ccu</module>
+  	<module>ski-talk-common</module>
   </modules>
 </project>
