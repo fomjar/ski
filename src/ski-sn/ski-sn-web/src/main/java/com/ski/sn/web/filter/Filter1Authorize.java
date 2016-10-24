@@ -1,4 +1,4 @@
-package com.ski.talk.web.filter;
+package com.ski.sn.web.filter;
 
 import java.nio.channels.SocketChannel;
 

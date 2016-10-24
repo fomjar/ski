@@ -1,11 +1,11 @@
-package com.ski.talk.web.filter;
+package com.ski.sn.web.filter;
 
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
-import com.ski.talk.common.CommonService;
-import com.ski.talk.common.CommonDefinition;
+import com.ski.sn.common.CommonDefinition;
+import com.ski.sn.common.CommonService;
 
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;

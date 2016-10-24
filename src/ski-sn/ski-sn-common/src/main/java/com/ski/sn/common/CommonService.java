@@ -1,4 +1,4 @@
-package com.ski.talk.common;
+package com.ski.sn.common;
 
 import fomjar.server.FjSender;
 import fomjar.server.FjServerToolkit;

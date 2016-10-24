@@ -1,4 +1,4 @@
-package com.ski.talk.cdb;
+package com.ski.sn.cdb;
 
 
 import java.nio.charset.Charset;
@@ -17,7 +17,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.ski.talk.common.CommonDefinition;
+import com.ski.sn.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;

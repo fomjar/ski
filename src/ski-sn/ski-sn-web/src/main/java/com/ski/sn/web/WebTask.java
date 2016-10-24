@@ -1,4 +1,4 @@
-package com.ski.talk.web;
+package com.ski.sn.web;
 
 import fomjar.server.FjServer;
 import fomjar.server.web.FjWebTask;

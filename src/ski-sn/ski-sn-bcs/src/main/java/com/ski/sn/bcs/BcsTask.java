@@ -1,4 +1,4 @@
-package com.ski.talk.bcs;
+package com.ski.sn.bcs;
 
 import java.util.HashMap;
 import java.util.Map;

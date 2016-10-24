@@ -1,4 +1,4 @@
-package com.ski.talk.wsi;
+package com.ski.sn.wsi;
 
 
 import java.nio.channels.SocketChannel;
@@ -11,7 +11,7 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import com.ski.talk.common.CommonDefinition;
+import com.ski.sn.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
