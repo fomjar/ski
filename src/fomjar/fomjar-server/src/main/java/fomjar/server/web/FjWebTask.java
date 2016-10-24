@@ -2,6 +2,7 @@ package fomjar.server.web;
 
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -70,7 +71,8 @@ public class FjWebTask implements FjServer.FjServerTask {
     }
 
     protected void prepProtocol(FjHttpResponse response, FjHttpRequest request) {
-
+        response.attr().put("Server",   "fomjar/0.0.1");
+        response.attr().put("Date",     new Date().toString());
     }
 
     protected void postProtocol(FjHttpResponse response, FjHttpRequest request) {
