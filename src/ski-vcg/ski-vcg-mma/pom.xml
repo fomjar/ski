@@ -5,12 +5,12 @@
     <artifactId>ski-vcg</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>ski-vcg-bcs</artifactId>
+  <artifactId>ski-vcg-mma</artifactId>
   <dependencies>
   	<dependency>
-  		<groupId>ski-vcg</groupId>
-  		<artifactId>ski-vcg-common</artifactId>
-  		<version>0.0.1</version>
+     <groupId>ski-vcg</groupId>
+     <artifactId>ski-vcg-common</artifactId>
+     <version>0.0.1</version>
   	</dependency>
   </dependencies>
   <build>
@@ -21,7 +21,7 @@
           <!-- not append assembly id in release file name -->
           <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
-            <descriptor>../../../fomjar/fomjar-server/package.xml</descriptor>
+            <descriptor>../../fomjar/fomjar-server/package.xml</descriptor>
           </descriptors>
         </configuration>
         <executions>

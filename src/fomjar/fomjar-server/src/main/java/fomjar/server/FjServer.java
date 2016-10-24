@@ -61,9 +61,9 @@ public class FjServer extends FjLoopTask {
     }
 
     public static interface FjServerTask {
-        void initialize    (FjServer server);
+        void initialize (FjServer server);
         void destroy    (FjServer server);
-        void onMessage    (FjServer server, FjMessageWrapper wrapper);
+        void onMessage  (FjServer server, FjMessageWrapper wrapper);
     }
 
 }

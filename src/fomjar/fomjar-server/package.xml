@@ -7,7 +7,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-        	<directory>../../../fomjar/fomjar-server/bin</directory>
+        	<directory>../../fomjar/fomjar-server/bin</directory>
             <outputDirectory>${project.artifactId}/bin</outputDirectory>
         </fileSet>
         <fileSet>
@@ -23,7 +23,7 @@
             <outputDirectory>${project.artifactId}/conf</outputDirectory>
         </fileSet>
         <fileSet>
-        	<directory>../../../fomjar/fomjar-server/tools</directory>
+        	<directory>../../fomjar/fomjar-server/tools</directory>
             <outputDirectory>${project.artifactId}/tools</outputDirectory>
         </fileSet>
     </fileSets>
@@ -38,7 +38,7 @@
             <outputDirectory>${project.artifactId}/lib</outputDirectory>
             <scope>runtime</scope>
         	<excludes>
-        		<exclude>ski-vcg:${project.artifactId}</exclude>
+        		<exclude>${project.groupId}:${project.artifactId}</exclude>
         	</excludes>
         </dependencySet>
     </dependencySets>

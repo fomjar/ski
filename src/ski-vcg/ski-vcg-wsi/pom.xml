@@ -5,19 +5,14 @@
     <artifactId>ski-vcg</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>ski-vcg-wa</artifactId>
-    <dependencies>
-		<dependency>
-			<groupId>org.seleniumhq.selenium</groupId>
-			<artifactId>selenium-java</artifactId>
-			<version>2.49.1</version>
-		</dependency>
-    	<dependency>
-    		<groupId>ski-vcg</groupId>
-    		<artifactId>ski-vcg-common</artifactId>
-    		<version>0.0.1</version>
-    	</dependency>
-    </dependencies>
+  <artifactId>ski-vcg-wsi</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>ski-vcg</groupId>
+  		<artifactId>ski-vcg-common</artifactId>
+  		<version>0.0.1</version>
+  	</dependency>
+  </dependencies>
   <build>
     <plugins>
       <plugin>
@@ -26,7 +21,7 @@
           <!-- not append assembly id in release file name -->
           <appendAssemblyId>false</appendAssemblyId>
           <descriptors>
-            <descriptor>../../../fomjar/fomjar-server/package.xml</descriptor>
+            <descriptor>../../fomjar/fomjar-server/package.xml</descriptor>
           </descriptors>
         </configuration>
         <executions>

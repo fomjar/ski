@@ -5,7 +5,7 @@ alias ...='cd ../..'
 fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/fomjar"
 fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg/shell/bin"
 
-ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg/ski-vcg"
+ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-vcg"
 ski_rbase="/home/ski/ski"
 ski_host=vcg.craftvoid.com
 ski_user=ski

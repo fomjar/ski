@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ski-talk</groupId>
-  <artifactId>ski-talk</artifactId>
+  <groupId>ski-sn</groupId>
+  <artifactId>ski-sn</artifactId>
   <version>0.0.1</version>
   <packaging>pom</packaging>
   <modules>
-  	<module>ski-talk-web</module>
-  	<module>ski-talk-common</module>
-  	<module>ski-talk-bcs</module>
-  	<module>ski-talk-cdb</module>
-  	<module>ski-talk-wsi</module>
+  	<module>ski-sn-web</module>
+  	<module>ski-sn-common</module>
+  	<module>ski-sn-bcs</module>
+  	<module>ski-sn-cdb</module>
+  	<module>ski-sn-wsi</module>
   </modules>
 </project>
