@@ -20,6 +20,7 @@ public class Filter6Interface extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (!"/ski-web".equals(request.path())) return true;
+        
         logger.info(String.format("[ INTERFACE ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
         
         JSONObject args = request.argsToJson();

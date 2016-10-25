@@ -43,4 +43,25 @@ public class CommonService {
         return rsp;
     }
     
+    public static boolean isResponseSuccess(FjDscpMessage rsp) {
+        if (null == rsp) return false;
+
+        if (CommonDefinition.CODE.CODE_SUCCESS == getResponseCode(rsp)) return true;
+        else return false;
+    }
+
+    public static int getResponseCode(FjDscpMessage rsp) {
+        if (null == rsp) return -1;
+
+        return rsp.argsToJsonObject().getInt("code");
+    }
+
+    public static String getResponseDescToString(FjDscpMessage rsp) {
+        if (null == rsp) return null;
+
+        JSONObject args = rsp.argsToJsonObject();
+        if (args.has("desc")) return args.get("desc").toString();
+        else return null;
+    }
+    
 }

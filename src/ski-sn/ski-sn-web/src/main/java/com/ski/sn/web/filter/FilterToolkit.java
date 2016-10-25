@@ -11,5 +11,5 @@ public class FilterToolkit {
         if (obj instanceof Integer) return (Integer) obj;
         else return Integer.parseInt(obj.toString(), 16);
     }
-
+    
 }

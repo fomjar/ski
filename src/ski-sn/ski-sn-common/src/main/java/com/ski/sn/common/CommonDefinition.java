@@ -36,6 +36,7 @@ public class CommonDefinition {
         public static final int CODE_INTERNAL_ERROR     = 0x00000001;
         public static final int CODE_ILLEGAL_INST       = 0x00000002;
         public static final int CODE_ILLEGAL_ARGS       = 0x00000003;
+        public static final int CODE_UNAUTHORIZED       = 0x00000004;
         
     }
 
