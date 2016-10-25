@@ -46,7 +46,7 @@ public class FjWebTask implements FjServer.FjServerTask {
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
         if (!(msg instanceof FjHttpRequest)) {
-            logger.error("illagal request type: " + msg.getClass().getName());
+            logger.error("illegal message: " + msg);
             return;
         }
 

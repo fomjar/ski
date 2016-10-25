@@ -227,26 +227,21 @@ public class FjServerToolkit {
     }
 
     public static FjMessage createMessage(String data) {
-        if (data.startsWith("GET")
-                || data.startsWith("HEAD")
-                || data.startsWith("POST")
-                || data.startsWith("PUT")) {
-            return FjHttpRequest.parse(data);
-        }
-        if (data.startsWith("HTTP/")) {
-            return FjHttpResponse.parse(data);
-        }
+        if (FjHttpRequest.is(data))     return FjHttpRequest.parse(data);
+        if (FjHttpResponse.is(data))    return FjHttpResponse.parse(data);
+        
         if (data.startsWith("{")) {
             FjJsonMessage jmsg = new FjJsonMessage(data);
-            if (jmsg.json().containsKey("fs")
-                    && jmsg.json().containsKey("ts")
-                    && jmsg.json().containsKey("sid")
-                    && jmsg.json().containsKey("inst")
-                    && jmsg.json().containsKey("args"))
+            if (jmsg.json().has("fs")
+                    && jmsg.json().has("ts")
+                    && jmsg.json().has("sid")
+                    && jmsg.json().has("inst")
+                    && jmsg.json().has("args"))
                  return new FjDscpMessage(data);
             else return jmsg;
         }
-        if (data.startsWith("<")) return new FjXmlMessage(data);
+        
+        if (data.startsWith("<"))       return new FjXmlMessage(data);
         return new FjStringMessage(data);
     }
 

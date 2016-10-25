@@ -29,9 +29,9 @@ public abstract class FjWebFilter {
     private static final Map<String, Long>   cache_file_modify  = new ConcurrentHashMap<String, Long>();
     private static final Map<String, byte[]> cache_file_content = new ConcurrentHashMap<String, byte[]>();
 
-    public static void document(FjHttpResponse response, String path) {
+    public static boolean document(FjHttpResponse response, String path) {
         File file = new File(document_root + path);
-        if (!file.isFile()) return;
+        if (!file.isFile()) return false;
 
         byte[] content = null;
         if (!cache_file_modify.containsKey(path)) cache_file_modify.put(path, 0l);
@@ -58,10 +58,11 @@ public abstract class FjWebFilter {
                 } catch (IOException e) {e.printStackTrace();}
             }
         }
-        if (null != content) {
-            response.attr().put("Content-Type", mime(file));
-            response.content(content);
-        }
+        if (null == content) return false;
+        
+        response.attr().put("Content-Type", mime(file));
+        response.content(content);
+        return true;
     }
 
     public static void documentRoot(String root) {
@@ -109,7 +110,7 @@ public abstract class FjWebFilter {
     }
 
     public static void redirect(FjHttpResponse response, String url) {
-        response.code(302);
+        response.code(301);
         response.attr().put("Location", url);
     }
 }

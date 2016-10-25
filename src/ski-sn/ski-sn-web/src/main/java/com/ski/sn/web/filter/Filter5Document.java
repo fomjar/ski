@@ -19,9 +19,12 @@ public class Filter5Document extends FjWebFilter {
         if ("/ski-web".equals(request.path())) return true;
         logger.info(String.format("[ DOCUMENT  ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
         
-        document(response, request.path());
+        if (!document(response, request.path())) {
+            response.code(404);
+            document(response, "/404.html");
+        }
         response.attr().put("Content-Encoding", "gzip");
-        return true;
+        return false;
     }
 
 }

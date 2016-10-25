@@ -33,7 +33,7 @@ public abstract class FjHttpMessage implements FjMessage {
     protected abstract String head();
 
     public Map<String, String> attr()     {return attr;};
-    public int      contentLength() {return content().length;}
+    public int      contentLength() {return null == content() ? 0 : content().length;}
     public String   contentType()   {return attr().containsKey("Content-Type") ? attr.get("Content-Type") : contentType;}
     public byte[]   content()       {return content;}
 

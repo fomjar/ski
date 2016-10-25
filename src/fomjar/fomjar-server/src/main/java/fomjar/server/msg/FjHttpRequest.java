@@ -3,11 +3,40 @@ package fomjar.server.msg;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.json.JSONObject;
 
 public class FjHttpRequest extends FjHttpMessage {
+    
+    private static final Set<String> methods = new LinkedHashSet<String>();
+    static {
+        methods.add("GET");
+        methods.add("POST");
+        methods.add("HEAD");
+        methods.add("PUT");
+        methods.add("DELETE");
+        methods.add("CONNECT");
+        methods.add("OPTIONS");
+        methods.add("PATCH");
+        methods.add("PROPFIND");
+        methods.add("PROPPATCH");
+        methods.add("MKCOL");
+        methods.add("COPY");
+        methods.add("MOVE");
+        methods.add("LOCK");
+        methods.add("UNLOCK");
+        methods.add("TRACE");
+    }
+    
+    public static boolean is(String data) {
+        for (String m : methods) {
+            if (data.startsWith(m)) return true;
+        }
+        return false;
+    }
 
     public static FjHttpRequest parse(String data) {
         String[] head         = data.split("\r\n")[0].split(" ");
