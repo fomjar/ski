@@ -18,11 +18,11 @@ function build() {
     var button_recharge = $('<div></div>');
     button_recharge.addClass('button button-major button-large');
     button_recharge.text('充值');
-    button_recharge.bind('click', function() {window.location = 'apply_platform_account_money_recharge.html';});
+    button_recharge.bind('touchend', function() {window.location = 'apply_platform_account_money_recharge.html';});
     var button_refund = $('<div></div>');
     button_refund.addClass('button button-minor button-large');
     button_refund.text('退款');
-    button_refund.bind('click', function() {window.location = 'apply_platform_account_money_refund.html';});
+    button_refund.bind('touchend', function() {window.location = 'apply_platform_account_money_refund.html';});
 
     var table = $('<table></table>');
     var tr = $('<tr></tr>');

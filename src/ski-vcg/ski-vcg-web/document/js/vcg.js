@@ -52,7 +52,7 @@ var vcg = {
             var h = $('<div></div>');
             h.css('width', tab_name_width + '%');
             h.text(t.head);
-            h.bind('click', function() {
+            h.bind('touchend', function() {
                 $.each(head.children(), function(j, he) {
                     he = $(he);
                     he.removeClass('ac');
@@ -74,7 +74,7 @@ var vcg = {
             head.append(h);
         });
 
-        $(head.children()[select]).trigger('click');
+        $(head.children()[select]).trigger('touchend');
 
         tab.append([head, body]);
 

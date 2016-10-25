@@ -80,7 +80,7 @@ function build_menus() {
     ]);
     m1.css({'z-index' : '5', 'top' : '0px'});
     $('.vcg .frame .body').append(m1);
-    $('.index-searchbar .button').bind('click', function() {
+    $('.index-searchbar .button').bind('touchend', function() {
         if ('0px' == m1.css('top')) setTimeout(function() {m1.css('top', '3em');}, 0);
         else {
             if (null != m2) m2.remove();

@@ -48,11 +48,11 @@ function setup() {
                 var button_view = $('<div></div>');
                 button_view.addClass('button button-major button-small');
                 button_view.text('查看游戏');
-                button_view.bind('click', function() {window.location = 'query_game_by_gid.html?gid='+c.game.gid.toString(16);});
+                button_view.bind('touchend', function() {window.location = 'query_game_by_gid.html?gid='+c.game.gid.toString(16);});
                 var button_end = $('<div></div>');
                 button_end.addClass('button button-major button-small');
                 button_end.text('我要归还');
-                button_end.bind('click', function() {window.location = 'apply_rent_end.html?oid='+c.oid.toString(16)+'&csn='+c.csn.toString(16);});
+                button_end.bind('touchend', function() {window.location = 'apply_rent_end.html?oid='+c.oid.toString(16)+'&csn='+c.csn.toString(16);});
                 var buttons = $('<table></table>');
                 var tr = $('<tr></tr>');
                 var td_v = $('<td></td>');

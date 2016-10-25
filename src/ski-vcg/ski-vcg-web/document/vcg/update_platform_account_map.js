@@ -22,7 +22,7 @@ function build_list() {
     var button_verify = $('<div></div>');
     button_verify.addClass('button button-major button-small');
     button_verify.text('获取');
-    button_verify.bind('click', function() {
+    button_verify.bind('touchend', function() {
         var phone = $('#phone').val();
         if (!verify_phone(phone)) return;
 
@@ -59,7 +59,7 @@ function build_buttons() {
     var button = $('<div></div>');
     button.addClass('button button-major button-large');
     button.text('提交');
-    button.bind('click', function() {
+    button.bind('touchend', function() {
         var psn     = $('#psn').val(); // can be null
         var phone   = $('#phone').val();
         var verify  = $('#verify').val();

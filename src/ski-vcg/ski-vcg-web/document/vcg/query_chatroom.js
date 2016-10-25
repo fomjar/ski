@@ -28,7 +28,7 @@ function build_cp_tlk() {
     tgl_tlk.addClass('toggle');
     tgl_tlk.append("<img src='res/cr-tgl-voc.png' style='width : 50%;' />");
     tgl_tlk.append("<img src='res/cr-tgl-kbd.png' style='width : 70%; display : none;' />");
-    tgl_tlk.bind('click', toggle_talk);
+    tgl_tlk.bind('touchend', toggle_talk);
 
     var tlk_kbd = $('<input>');
     tlk_kbd.addClass('talk');
@@ -45,7 +45,7 @@ function build_cp_tlk() {
     var tgl_fns = $('<div></div>');
     tgl_fns.addClass('toggle');
     tgl_fns.append("<img src='res/cr-tgl-fns.png'/>");
-    tgl_fns.bind('click', toggle_functions);
+    tgl_fns.bind('touchend', toggle_functions);
 
     cp_talk.append(tgl_tlk);
     cp_talk.append(tlk_kbd);
@@ -61,7 +61,7 @@ function build_cp_fns() {
     var fn_pho = $('<div></div>');
     fn_pho.append("<div><img src='res/cr-fn-photo.png' /></div>");
     fn_pho.append('<div>照片</div>');
-    fn_pho.bind('click', function() {
+    fn_pho.bind('touchend', function() {
         wx.chooseImage({
             count       : 3, // 默认9
             sizeType    : ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -91,7 +91,7 @@ function build_cp_fns() {
     var fn_cmr = $('<div></div>');
     fn_cmr.append("<div><img src='res/cr-fn-camera.png'/></div>");
     fn_cmr.append('<div>相机</div>');
-    fn_cmr.bind('click', function() {
+    fn_cmr.bind('touchend', function() {
         wx.chooseImage({
             count       : 3, // 默认9
             sizeType    : ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -421,7 +421,7 @@ function create_msg_voc(m) {
     txt.text('声音');
     cnt.append(txt);
     cnt.append(audio);
-    cnt.bind('click', function(){
+    cnt.bind('touchend', function(){
         audio[0].play();
         txt.text('...');
     });

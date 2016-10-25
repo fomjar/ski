@@ -29,7 +29,7 @@ function build_buttons() {
     button.addClass('button button-major button-large');
     button.addClass('recharge-button-apply');
     button.text('退款');
-    button.bind('click', apply);
+    button.bind('touchend', apply);
 
     $('.vcg .frame .body').append(button);
 }

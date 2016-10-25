@@ -75,7 +75,7 @@ function build_rent() {
     var button = $('<div></div>');
     button.addClass('button button-major button-small');
     button.text('我要体验');
-    button.bind('click', function() {window.location = 'apply_rent_begin.html?gid=' + fomjar.util.args().gid});
+    button.bind('touchend', function() {window.location = 'apply_rent_begin.html?gid=' + fomjar.util.args().gid});
 
     rent.append([category, list, button]);
 
@@ -83,7 +83,7 @@ function build_rent() {
 }
 
 function build_chat() {
-    $('.game-body').append("<div style='margin-top: 20px; height : 3px;' onclick=\"window.location='query_chatroom.html?gid="+fomjar.util.args().gid+"'\"></div>");
+    $('.game-body').append("<div style='margin-top: 20px; height : 3px;' ontouchend=\"window.location='query_chatroom.html?gid="+fomjar.util.args().gid+"'\"></div>");
 }
 
 function setup() {

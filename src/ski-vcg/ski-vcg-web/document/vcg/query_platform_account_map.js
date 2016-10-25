@@ -13,7 +13,7 @@ function build_list() {
 function build_buttons() {
     var button = $('<div></div>');
     button.addClass('button button-major button-large');
-    button.bind('click', function() {window.location = 'update_platform_account_map.html';});
+    button.bind('touchend', function() {window.location = 'update_platform_account_map.html';});
     button.text('更新');
 
     $('.vcg .frame .body').append(button);

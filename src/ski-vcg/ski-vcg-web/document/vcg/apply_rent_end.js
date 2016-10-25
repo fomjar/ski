@@ -38,7 +38,7 @@ function build_buttons() {
     var button = $('<div></div>');
     button.addClass('button button-major button-large');
     button.text('确认归还');
-    button.bind('click', apply);
+    button.bind('touchend', apply);
 
     $('.vcg .frame .body').append(button);
 }
