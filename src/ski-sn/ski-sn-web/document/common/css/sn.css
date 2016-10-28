@@ -7,15 +7,127 @@
 /* layout */
 body {overflow : hidden;}
 .sn  {overflow : hidden;}
-.sn .bg     {position : absolute; z-index : -1; width : 100%; height : 100%; top :   0; left :   0; overflow : hidden;}
-.sn .bg img {position : absolute; z-index : -1; width : 100%; height : 100%; top : 70%; left : 50%; transform : translate(-50%, -70%); -webkit-transform : translate(-50%, -70%);}
-.sn .head {position : absolute; z-index :  1; width : 100%; height : 3em;  top :   0; left : 0;}
-.sn .body {position : absolute; z-index :  0; width : 100%; height : 100%; top :   0; bottom : 0; left : 0; overflow : auto}
-.sn .foot {position : absolute; z-index :  1; width : 100%; height : 3em;  bottom : 0; left : 0;}
+.sn .bg      {position : absolute; z-index : -2; width : 100%; height : 100%; top :   0; left :   0; overflow : hidden;}
+.sn .bg >img {position : absolute; z-index : -2; width : 105%; height : 105%; top : 70%; left : 50%; transform : translate(-50%, -70%); -webkit-transform : translate(-50%, -70%);}
+.sn .bg >div {position : absolute; z-index : -1; width : 100%; height : 100%; top :   0; left :   0;}
+.sn .body {position : absolute; z-index : 0; width : 100%; height : 100%; top : 0; bottom : 0; left : 0; overflow : auto}
+.sn .head {position : absolute; z-index : 1; width : 100%; height : 3em;  top : 0; left : 0;}
+.sn .foot {position : absolute; z-index : 1; width : 100%; height : 3em;  bottom : 0; left : 0;}
+.sn .mask   {position : absolute; z-index : 2; width : 100%; height : 100%; top :   0; left :   0;}
+.sn .dialog {position : absolute; z-index : 3; width :  70%; height :  70%; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
+.sn .page   {position : relative; width : 100%; height : 100%; overflow : hidden;}
+.sn .page >div:nth-child(1) {display : none; position : absolute; top :   0; left : 0; width : 100%; height : 2em; line-height : 2em;}
+.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {position : absolute; top : 2em; left : 0; width : 100%; bottom : 2em; overflow : auto;}
+.sn .button {display : inline; height : 2em; line-height : 2em; font-size : 1em; padding : .5em 1.5em;}
+
+
+.sn .head .cover {float : left; margin : .3em .5em;}
+.sn .head .cover >*:nth-child(1) {float : left; width : 2.4em; height : 2.4em;}
+.sn .head .cover >*:nth-child(2) {float : left; height : 2.4em; margin-left : .5em; line-height : 2.4em;}
+.sn .head .state {float : right; margin : .3em 0; margin-right : .5em; width : 2.4em; height : 2.4em;}
+.sn .head .state >img {position : relative; max-width : 50%; max-height : 50%; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
 
 /* apperence */
-.sn .bg {background-color : black;}
-.sn .bg img {
-            transition : width 8s, height 8s, filter 2s;
-    -webkit-transition : width 8s, height 8s, -webkit-filter 2s;
+.sn .bg     {background-color : black;}
+.sn .bg>img {
+            transition  : width 3s linear, height 3s linear,         filter .5s linear;
+    -webkit-transition  : width 3s linear, height 3s linear, -webkit-filter .5s linear;
+            filter      : blur(.3em);
+    -webkit-filter      : blur(.3em);
 }
+.sn .bg>div {
+    background-color    : black;
+    opacity             : .3;
+            transition  : opacity .5s linear;
+    -webkit-transition  : opacity .5s linear;
+}
+.sn .head * {
+    cursor              : default;
+            user-select : none;
+    -webkit-user-select : none;
+}
+.sn .head {
+    background-color    : white;
+    opacity             : .9;
+            transition  : top .3s cubic-bezier(0,0.5,0,1);
+    -webkit-transition  : top .3s cubic-bezier(0,0.5,0,1);
+}
+.sn .mask {
+    background-color    : black;
+    opacity             : 0;
+            transition  : opacity .5s cubic-bezier(0,0.5,0,1);
+    -webkit-transition  : opacity .5s cubic-bezier(0,0.5,0,1);
+}
+.sn .dialog {
+    background-color    : white;
+    opacity             : 0;
+            border-radius   : 1.5em;
+    -webkit-border-radius   : 1.5em;
+            transition  : width .2s cubic-bezier(0,0.5,0,1), height .2s cubic-bezier(0,0.5,0,1), opacity .2s cubic-bezier(0,0.5,0,1);
+    -webkit-transition  : width .2s cubic-bezier(0,0.5,0,1), height .2s cubic-bezier(0,0.5,0,1), opacity .2s cubic-bezier(0,0.5,0,1);
+}
+.sn .button {
+    cursor              : default;
+            user-select : none;
+    -webkit-user-select : none;
+    color               : blue;
+    background-color    : rgba(0, 0, 0, 0);
+            border-radius   : 1em;
+    -webkit-border-radius   : 1em;
+            transition  : background-color .2s linear;
+    -webkit-transition  : background-color .2s linear;
+}
+.sn .button:active {
+    background-color    : rgba(0, 0, 0, .2);
+}
+
+.sn .head .cover >*:nth-child(1) {
+    border : 1px solid gray;
+            border-radius : 1.2em;
+    -webkit-border-radius : 1.2em;
+}
+.sn .head .cover >*:nth-child(2) {}
+.sn .head .state {
+    background-color        : #d7d7d7;
+            border-radius   : 1.2em;
+    -webkit-border-radius   : 1.2em;
+            transition      : background-color .2s cubic-bezier(0,0.5,0,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0,1);
+}
+.sn .head .state:active {background-color : #bcbcbc;}
+
+.sn .foot {
+    background-color    : white;
+    opacity             : .9;
+            transition  : bottom .3s cubic-bezier(0,0.5,0,1);
+    -webkit-transition  : bottom .3s cubic-bezier(0,0.5,0,1);
+}
+
+
+.sn .page >div:nth-child(1) {
+    text-align          : center;
+            transition  : opacity .25s linear;
+    -webkit-transition  : opacity .25s linear;
+}
+.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {
+    opacity             : 0;
+            transition  : left .5s cubic-bezier(0,0.5,0,1), opacity .5s linear;
+    -webkit-transition  : left .5s cubic-bezier(0,0.5,0,1), opacity .5s linear;
+}
+
+
+
+.sn .page-login-1 {padding : 0 2em;}
+.sn .page-login-1 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
+.sn .page-login-1 >div:nth-child(1) {font-size  : 3em}
+.sn .page-login-1 >div:nth-child(2) {color : #999999;}
+.sn .page-login-1 >div:nth-child(3) input {width : 60%; max-width : 15em; text-align : center; font-size : 1em;}
+
+.sn .page-register-1 {padding : 0 2em;}
+.sn .page-register-1 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
+.sn .page-register-1 >div:nth-child(1) {font-size  : 3em}
+.sn .page-register-1 >div:nth-child(3) input {width : 60%; max-width : 15em; text-align : center; font-size : 1em;}
+.sn .page-register-1 >div:nth-child(4) input   {width : 40%; max-width : 10em; text-align : center; font-size : 1em;}
+.sn .page-register-1 >div:nth-child(4) .button {width : 20%; padding : .3em .5em; margin : 0 .5em;}
+.sn .page-register-1 >div:nth-child(5) input {width : 60%; max-width : 14em; text-align : center; font-size : 1em;}
+
