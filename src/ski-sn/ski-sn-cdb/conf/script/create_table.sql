@@ -13,9 +13,10 @@ drop table if exists tbl_user;
 create table tbl_user (
     i_uid       integer,        -- 编号
     t_create    datetime,       -- 创建时间
+    c_pass      varchar(16),    -- 密码
     c_phone     varchar(16),    -- 电话
     c_email     varchar(32),    -- 邮箱
-    c_nick      varchar(32),    -- 昵称
+    c_name      varchar(32),    -- 姓名
     c_cover     text            -- 封面图
 );
 

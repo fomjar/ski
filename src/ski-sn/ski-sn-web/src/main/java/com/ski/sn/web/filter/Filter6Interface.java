@@ -37,7 +37,7 @@ public class Filter6Interface extends FjWebFilter {
         int inst = FilterToolkit.getIntFromArgs(args, "inst");
         args.remove("inst");
         
-        FjDscpMessage rsp = CommonService.request("bcs", inst, args);
+        FjDscpMessage rsp = CommonService.requests("bcs", inst, args);
         response.attr().put("Content-Type", "application/json");
         response.content(rsp.args());
         return true;

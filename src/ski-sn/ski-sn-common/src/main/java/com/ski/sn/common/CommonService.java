@@ -23,7 +23,7 @@ public class CommonService {
         return String.format("http://%s:%d/ski-wsi", host, port);
     }
     
-    public static FjDscpMessage request(String report, int inst, JSONObject args) {
+    public static FjDscpMessage requests(String report, int inst, JSONObject args) {
         if (null == args) args = new JSONObject();
 
         args.put("report", report);
@@ -33,7 +33,7 @@ public class CommonService {
         return rsp;
     }
 
-    public static FjDscpMessage request(String report, int inst, JSONObject args, int timeout) {
+    public static FjDscpMessage requests(String report, int inst, JSONObject args, int timeout) {
         if (null == args) args = new JSONObject();
 
         args.put("report", report);
@@ -41,6 +41,28 @@ public class CommonService {
         FjHttpRequest req = new FjHttpRequest("POST", getWsiUrl(), "application/json", args.toString());
         FjDscpMessage rsp = (FjDscpMessage) FjSender.sendHttpRequest(req, timeout);
         return rsp;
+    }
+    
+    public static void requesta(String ts, int inst, JSONObject args) {
+        FjDscpMessage request = new FjDscpMessage();
+        request.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        request.json().put("ts",   ts);
+        request.json().put("inst", inst);
+        request.json().put("args", args);
+        FjServerToolkit.getAnySender().send(request);
+    }
+    
+    public static void response(FjDscpMessage request, int code, Object desc) {
+        JSONObject args = new JSONObject();
+        args.put("code", code);
+        args.put("desc", desc);
+        FjDscpMessage response = new FjDscpMessage();
+        response.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        response.json().put("ts",   request.fs());
+        response.json().put("sid",  request.sid());
+        response.json().put("inst", request.inst());
+        response.json().put("args", args);
+        FjServerToolkit.getAnySender().send(response);
     }
     
     public static boolean isResponseSuccess(FjDscpMessage rsp) {

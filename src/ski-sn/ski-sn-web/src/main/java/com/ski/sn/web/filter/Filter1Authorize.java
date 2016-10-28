@@ -52,7 +52,7 @@ public class Filter1Authorize extends FjWebFilter {
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
         args_bcs.put("user",    user);
-        FjDscpMessage rsp = CommonService.request("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
+        FjDscpMessage rsp = CommonService.requests("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonService.getResponseCode(rsp));
@@ -88,7 +88,7 @@ public class Filter1Authorize extends FjWebFilter {
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
         args_bcs.put("user",    user);
-        FjDscpMessage rsp = CommonService.request("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
+        FjDscpMessage rsp = CommonService.requests("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
             try {redirect(response, "/user/login.html?redirect=" + URLEncoder.encode(request.path(), "utf-8") + "&ready_msg=状态已失效，请重新登录");}
             catch (UnsupportedEncodingException e) {e.printStackTrace();}
