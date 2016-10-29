@@ -21,17 +21,17 @@ sn.ui = {
         
         div.appear = function() {
             div.css('opacity', '0');
-            div.css('width', '70%');
-            div.css('height', '70%');
+            div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
+            div.css('-webkit-transform', 'scale(.8, .8) translate(-60%, -60%)');
             sn.ui.mask().appear();
             div.show();
             div.css('opacity', '.9');
-            div.css('width', '90%');
-            div.css('height', '90%');
+            div.css(        'transform', 'scale(1, 1) translate(-50%, -50%)');
+            div.css('-webkit-transform', 'scale(1, 1) translate(-50%, -50%)');
         };
         div.disappear = function() {
-            div.css('width', '70%');
-            div.css('height', '70%');
+            div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
+            div.css('-webkit-transform', 'scale(.8, .8) translate(-60%, -60%)');
             div.css('opacity', '0');
             setTimeout(function() {
                 div.html('');
@@ -39,6 +39,21 @@ sn.ui = {
             }, 300);
             sn.ui.mask().disappear();
         };
+        div.addClose = function(title, onClose) {
+            var close = $('<div>' + title + '</div>');
+            close.addClass('button');
+            close.addClass('close');
+            
+            if (null != onClose) {
+                close.bind('click', function() {
+                    div.disappear();
+                    onClose();
+                });
+            } else {
+                close.bind('click', function() {div.disappear();});
+            }
+            div.append(close);
+        }
         return div;
     },
     page : function() {
@@ -194,6 +209,7 @@ function build_user_cover() {
     
     cover.bind('click', function() {
         var dialog = sn.ui.dialog();
+        dialog.addClose('取消');
         dialog.append(create_user_login());
         dialog.appear();
     });
