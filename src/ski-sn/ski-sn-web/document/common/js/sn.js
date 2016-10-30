@@ -70,6 +70,7 @@ sn.ui = {
                 div.append('<div>' + title + '</div>');
                 div.append(content);
                 content.css('opacity', '1');
+                if (content.onappear) content.onappear();
             }
         };
         div.page_index = function(title) {
@@ -133,6 +134,8 @@ sn.ui = {
                     }, 150);
                 }, 0);
             }
+            if (pages[title].onappear)    pages[title].onappear();
+            if (pages[t_old].ondisappear) pages[t_old].ondisappear();
         };
         div.page_title = function() {
             return div.find('>div:nth-child(1)');
@@ -427,7 +430,9 @@ function create_user_register_done(dialog) {
         dialog.disappear();
     });
     
-    dialog.removeClose();
+    div.onappear = function() {dialog.removeClose();};
+    div.ondisappear = function() {dialog.addClose();};
+    
     return div;
 }
 
