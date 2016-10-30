@@ -110,7 +110,7 @@ public class BcsTask implements FjServer.FjServerTask {
         String phone = args.getString("phone");
         String vcode = args.getString("vcode");
         String pass  = args.getString("pass");
-        String cover = args.getString("cover");
+        String cover = args.getString("cover"); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
         String name  = args.getString("name");
         logger.error(args);
         CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, null);

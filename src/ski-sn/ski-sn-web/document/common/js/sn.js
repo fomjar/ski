@@ -53,7 +53,10 @@ sn.ui = {
                 close.bind('click', function() {div.disappear();});
             }
             div.append(close);
-        }
+        };
+        div.removeClose = function() {
+            div.find('.close').remove();
+        };
         return div;
     },
     page : function() {
@@ -424,6 +427,7 @@ function create_user_register_done(dialog) {
         dialog.disappear();
     });
     
+    dialog.removeClose();
     return div;
 }
 
