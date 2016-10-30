@@ -346,7 +346,7 @@ function create_user_register_1(page) {
 
 function check_phone(phone) {
     if (0 == phone.length) {
-        return '电话不能位空';
+        return '电话不能为空';
     }
     if(!(/^1[3|4|5|7|8]\d{9}$/.test(phone))) {
         return '电话号码不合法';

@@ -104,13 +104,13 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void updateUser(FjDscpMessage request) {
-        if (!illegalArgs(request, "phone", "vcode", "name", "cover")) return;
+        if (!illegalArgs(request, "pass", "phone", "vcode", "name")) return;
         
         JSONObject args = request.argsToJsonObject();
         String phone = args.getString("phone");
         String vcode = args.getString("vcode");
         String pass  = args.getString("pass");
-        String cover = args.getString("cover"); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
+//        String cover = args.getString("cover"); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
         String name  = args.getString("name");
         logger.error(args);
         CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, null);

@@ -40,16 +40,36 @@ body {overflow : hidden;}
             transition  : opacity .5s linear;
     -webkit-transition  : opacity .5s linear;
 }
+.sn .head {
+    background-color    : #f2f2f2;
+    opacity             : .9;
+            transition  : top .3s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition  : top .3s cubic-bezier(0,0.5,0.5,1);
+}
 .sn .head * {
     cursor              : default;
             user-select : none;
     -webkit-user-select : none;
 }
-.sn .head {
-    background-color    : white;
+.sn .head .cover >*:nth-child(1) {
+    border : 1px solid gray;
+            border-radius : 1.2em;
+    -webkit-border-radius : 1.2em;
+}
+.sn .head .cover >*:nth-child(2) {}
+.sn .head .state {
+    background-color        : #d7d7d7;
+            border-radius   : 1.2em;
+    -webkit-border-radius   : 1.2em;
+            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .head .state:active {background-color : #bcbcbc;}
+.sn .foot {
+    background-color    : #f2f2f2;
     opacity             : .9;
-            transition  : top .3s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition  : top .3s cubic-bezier(0,0.5,0.5,1);
+            transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .mask {
     background-color    : black;
@@ -58,7 +78,7 @@ body {overflow : hidden;}
     -webkit-transition  : opacity .5s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .dialog {
-    background-color    : white;
+    background-color    : #f2f2f2;
     opacity             : 0;
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
@@ -80,28 +100,6 @@ body {overflow : hidden;}
     background-color    : rgba(0, 0, 0, .2);
 }
 
-.sn .head .cover >*:nth-child(1) {
-    border : 1px solid gray;
-            border-radius : 1.2em;
-    -webkit-border-radius : 1.2em;
-}
-.sn .head .cover >*:nth-child(2) {}
-.sn .head .state {
-    background-color        : #d7d7d7;
-            border-radius   : 1.2em;
-    -webkit-border-radius   : 1.2em;
-            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
-}
-.sn .head .state:active {background-color : #bcbcbc;}
-
-.sn .foot {
-    background-color    : white;
-    opacity             : .9;
-            transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
-}
-
 
 .sn .page >div:nth-child(1) {
     text-align          : center;
@@ -119,7 +117,7 @@ body {overflow : hidden;}
 .sn .page-login-1 {padding : 0 2em;}
 .sn .page-login-1 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
 .sn .page-login-1 >div:nth-child(1) {font-size : 3em}
-.sn .page-login-1 >div:nth-child(2) {color : #999999;}
+.sn .page-login-1 >div:nth-child(2) {color : gray;}
 .sn .page-login-1 >div:nth-child(3) input {width : 60%; max-width : 15em; text-align : center; font-size : 1em;}
 
 .sn .page-register-1 {padding : 0 2em;}
