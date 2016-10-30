@@ -41,7 +41,7 @@ public class BcsTask implements FjServer.FjServerTask {
         }
 
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        if (server.name().startsWith("wsi")) { // 用户侧请求
+        if (dmsg.fs().startsWith("wsi")) { // 用户侧请求
             logger.info(String.format("[ REQUEST  ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
             processRequest(dmsg);
         } else { // 平台侧响应
@@ -50,7 +50,7 @@ public class BcsTask implements FjServer.FjServerTask {
         }
     }
     
-    public static void processRequest(FjDscpMessage request) {
+    public void processRequest(FjDscpMessage request) {
         switch (request.inst()) {
         case CommonDefinition.ISIS.INST_APPLY_VERIFY:
             applyVerify(request);
@@ -61,7 +61,7 @@ public class BcsTask implements FjServer.FjServerTask {
         }
     }
     
-    public static void processResponse(FjDscpMessage response, FjDscpMessage request) {
+    public void processResponse(FjDscpMessage response, FjDscpMessage request) {
         if (null == request) {
             logger.warn("find no request for response: " + response);
             return;
@@ -72,8 +72,8 @@ public class BcsTask implements FjServer.FjServerTask {
         FjServerToolkit.getAnySender().send(response);
     }
     
-    private static Map<String, String> cache_vcode = new ConcurrentHashMap<String, String>();
-    private static void applyVerify(FjDscpMessage request) {
+    private Map<String, String> cache_vcode = new ConcurrentHashMap<String, String>();
+    private void applyVerify(FjDscpMessage request) {
         if (!illegalArgs(request, "type")) return;
         
         JSONObject args = request.argsToJsonObject();
@@ -95,22 +95,25 @@ public class BcsTask implements FjServer.FjServerTask {
                 JSONObject args_ura = new JSONObject();
                 args_ura.put("phone", phone);
                 args_ura.put("vcode", vcode);
-                CommonService.requesta("ura", CommonDefinition.ISIS.INST_APPLY_VERIFY, args_ura);
-                cache_vcode.put(phone, vcode);
-                CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, null);
+                CommonService.requesta("ura", request.sid(), CommonDefinition.ISIS.INST_APPLY_VERIFY, args_ura);
+                cache.put(request.sid(), request); // for response
+                cache_vcode.put(phone, vcode); // for verify
             }
             break;
         }
     }
     
-    private static void updateUser(FjDscpMessage request) {
+    private void updateUser(FjDscpMessage request) {
         if (!illegalArgs(request, "phone", "vcode", "name", "cover")) return;
         
         JSONObject args = request.argsToJsonObject();
         String phone = args.getString("phone");
         String vcode = args.getString("vcode");
-        String name  = args.getString("name");
+        String pass  = args.getString("pass");
         String cover = args.getString("cover");
+        String name  = args.getString("name");
+        logger.error(args);
+        CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, null);
     }
     
     private static boolean illegalArgs(FjDscpMessage request, String... keys) {

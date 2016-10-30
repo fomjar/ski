@@ -26,6 +26,12 @@ public class Filter1Authorize extends FjWebFilter {
         return true;
     }
     
+    private static int[] instruction_exclude = new int[] {
+            CommonDefinition.ISIS.INST_APPLY_AUTHORIZE,
+            CommonDefinition.ISIS.INST_APPLY_VERIFY,
+            CommonDefinition.ISIS.INST_UPDATE_USER
+    };
+    
     private static boolean authorizeInterface(FjHttpResponse response, FjHttpRequest request) {
         if (!request.argsToJson().has("inst")) {
             JSONObject args_rsp = new JSONObject();
@@ -36,6 +42,9 @@ public class Filter1Authorize extends FjWebFilter {
             response.content(args_rsp);
             logger.error(args_rsp);
             return false;
+        }
+        for (int ie : instruction_exclude) {
+            if (ie == FilterToolkit.getIntFromArgs(request.argsToJson(), "inst")) return true;
         }
         if (!request.cookie().containsKey("token") || !request.cookie().containsKey("user")) {
             JSONObject args_rsp = new JSONObject();
@@ -70,8 +79,6 @@ public class Filter1Authorize extends FjWebFilter {
     private static String[] document_exclude = new String[] {
             "/index.html",
             "/404.html",
-            "/user/login.html",
-            "/user/register.html"
     };
     
     private static boolean authorizeDocument(FjHttpResponse response, FjHttpRequest request) {

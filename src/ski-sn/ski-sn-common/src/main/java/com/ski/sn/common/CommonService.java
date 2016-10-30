@@ -43,13 +43,25 @@ public class CommonService {
         return rsp;
     }
     
-    public static void requesta(String ts, int inst, JSONObject args) {
+    public static FjDscpMessage requesta(String ts, int inst, JSONObject args) {
         FjDscpMessage request = new FjDscpMessage();
         request.json().put("fs",   FjServerToolkit.getAnyServer().name());
         request.json().put("ts",   ts);
         request.json().put("inst", inst);
         request.json().put("args", args);
         FjServerToolkit.getAnySender().send(request);
+        return request;
+    }
+    
+    public static FjDscpMessage requesta(String ts, String sid, int inst, JSONObject args) {
+        FjDscpMessage request = new FjDscpMessage();
+        request.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        request.json().put("ts",   ts);
+        request.json().put("sid",  sid);
+        request.json().put("inst", inst);
+        request.json().put("args", args);
+        FjServerToolkit.getAnySender().send(request);
+        return request;
     }
     
     public static void response(FjDscpMessage request, int code, Object desc) {

@@ -101,6 +101,8 @@ public class FjSender extends FjLoopTask {
     }
 
     public static FjMessage sendHttpRequest(FjHttpRequest req, int timeout) {
+        logger.debug("send http request:\n" + req);
+        
         HttpURLConnection conn = null;
         FjMessage rsp = null;
         try {
@@ -136,8 +138,8 @@ public class FjSender extends FjLoopTask {
     }
 
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
+        logger.debug("send http response:\n" + rsp);
         try {
-
             if (rsp.attr().containsKey("Content-Encoding")) {
                 byte[] content = rsp.content();
 

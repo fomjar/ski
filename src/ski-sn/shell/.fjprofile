@@ -41,6 +41,7 @@ function scpskiconfall() {
    scpskiconf wsi
    scpskiconf web
    scpskiconf bcs
+   scpskiconf ura
 }
 
 function scpskiconf() {
@@ -55,6 +56,7 @@ function scpskibinall() {
    scpskibin wsi
    scpskibin web
    scpskibin bcs
+   scpskibin ura
 }
 
 function scpskibin() {
@@ -73,6 +75,7 @@ function scpskiliball() {
    scpskilib wsi
    scpskilib web
    scpskilib bcs
+   scpskilib ura
 }
 
 function scpskilib() {

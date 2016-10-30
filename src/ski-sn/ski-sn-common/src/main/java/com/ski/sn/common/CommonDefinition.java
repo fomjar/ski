@@ -6,6 +6,7 @@ public class CommonDefinition {
         
         /** 认证 */
         public static final int INST_APPLY_AUTHORIZE            = 0x00001001;
+        /** 验证 */
         public static final int INST_APPLY_VERIFY               = 0x00001002;
         
         /** 查询用户 */
