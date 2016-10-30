@@ -209,7 +209,7 @@ function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
     cover.append('<div></div>');
-    cover.append('<div>登录</div>');
+    cover.append('<div>登录 / 注册</div>');
     
     $('.sn .head').append(cover);
     
