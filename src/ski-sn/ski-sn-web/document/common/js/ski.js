@@ -1,7 +1,7 @@
 
 var ski = {};
 ski.token   = (function() {return fomjar.util.cookie('token');})();
-ski.user    = (function() {return fomjar.util.cookie('user');})();
+ski.uid     = parseInt((function() {return fomjar.util.cookie('uid');})());
 ski.ISIS = {
     /** 认证 */
     INST_APPLY_AUTHORIZE            : 0x00001001,

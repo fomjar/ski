@@ -28,7 +28,14 @@ public class CommonDefinition {
         public static final int INST_UPDATE_MESSAGE             = 0x00003003;
         /** 更新用户状态 */
         public static final int INST_UPDATE_USER_STATE          = 0x00003004;
-
+        
+    }
+    
+    public static final class Field {
+        public static final int USER_STATE_OFFLINE  = 0;
+        public static final int USER_STATE_ONLINE   = 1;
+        public static final int USER_TERMINAL_WEB   = 1;
+        public static final int USER_TERMINAL_APP   = 2;
     }
     
     public static final class CODE {

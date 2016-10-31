@@ -208,17 +208,23 @@ function build_head() {
 function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
-    cover.append('<div></div>');
+    cover.append('<div><img /></div>');
     cover.append('<div>登录 / 注册</div>');
     
     $('.sn .head').append(cover);
     
-    cover.bind('click', function() {
+    var login = function() {
         var dialog = sn.ui.dialog();
         dialog.addClose('取消');
         dialog.append(create_user_login(dialog));
         dialog.appear();
-    });
+    };
+    
+    if (ski.token) {
+        user_login_automatic(function() {}, function() {cover.bind('click', login);});
+    } else {
+        cover.bind('click', login);
+    }
 }
 
 function build_user_state() {
@@ -230,27 +236,95 @@ function build_user_state() {
     $('.sn .head').append("<div class='state'><img src='/res/state-locate.png' /></div>");
 }
 
+function user_login_manually(phone, pass, success, failure) {
+    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {phone : phone, pass : pass, terminal : 1}, function(code, desc) {
+        if (0 != code) {
+            if (failure) failure(code, desc);
+            return;
+        }
+        
+        fomjar.util.cookie('token', desc.token, 365);
+        fomjar.util.cookie('uid',   desc.uid,   365);
+        ski.token = desc.token;
+        ski.uid   = desc.uid;
+        ski.user  = desc;
+        $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
+        $('.sn .head .cover >div:nth-child(2)').text(desc.name);
+        $('.sn .head .cover').unbind('click');
+        
+        if (success) success();
+    });
+}
+
+function user_login_automatic(success, failure) {
+   fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {uid : ski.uid, token : ski.token, terminal : 1}, function(code, desc) {
+        if (0 != code) {
+            if (failure) failure(code, desc);
+            return;
+        }
+        fomjar.util.cookie('token', desc.token, 365);
+        fomjar.util.cookie('uid',   desc.uid,   365);
+        ski.token = desc.token;
+        ski.uid   = desc.uid;
+        ski.user  = desc;
+        $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
+        $('.sn .head .cover >div:nth-child(2)').text(desc.name);
+        $('.sn .head .cover').unbind('click');
+        
+        if (success) success();
+    });
+}
+
 function create_user_login(dialog) {
     var page = sn.ui.page();
-    page.page_append('登录-1', create_user_login_1(page));
-//     page.page_append('登录-2', create_user_login_2(page));
+    page.page_append('登录-1',   create_user_login_1(dialog, page));
     page.page_append('注册-1',   create_user_register_1(page));
     page.page_append('注册-2',   create_user_register_2(page));
     page.page_append('注册-成功', create_user_register_done(dialog));
     return page;
 }
 
-function create_user_login_1(page) {
+function create_user_login_1(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-login-1');
     div.append('<div>登录</div>');
+    div.append('<div></div>');
     div.append('<div>输入要登录的账户的手机号码。</div>');
     div.append("<div><input type='text' placeholder='手机号码' ></div>");
-    div.append("<div><div class='button'>下一步</div></div>");
-    div.append("<div><input type='checkbox' ><label>自动登录</label></div>");
+    div.append("<div><input type='password' placeholder='密码' ></div>");
+    div.append("<div><div class='button button-default'>登录</div></div>");
     div.append("<div><label>还没有声呐账户？<label><div class='button'>立即注册</div></div>");
     
-    div.find('>div:nth-child(6) .button').bind('click', function() {page.page_set('注册-1');});
+    var div_err = div.find('>div:nth-child(2)');
+    var div_pho = div.find('>div:nth-child(4) input');
+    var div_pas = div.find('>div:nth-child(5) input');
+    var div_log = div.find('>div:nth-child(6) .button');
+    var div_reg = div.find('>div:nth-child(7) .button');
+    
+    div_log.bind('click', function() {
+        var phone = div_pho.val();
+        var pass  = div_pas.val();
+        var error = null;
+        if (error = check_phone(phone)) {
+            div_err.text(error);
+            div_err.show();
+            return;
+        }
+        if (0 == pass.length) {
+            div_err.text("请输入密码");
+            div_err.show();
+            return;
+        }
+        user_login_manually(phone, pass, function() {
+            dialog.disappear();
+        }, function(code, desc) {
+            div_err.text(desc);
+            div_err.show();
+        });
+    });
+    div_reg.bind('click', function() {
+        page.page_set('注册-1');
+    });
     return div;
 }
 
@@ -265,8 +339,8 @@ function create_user_register_1(page) {
     div.append("<div><input type='text' placeholder='手机号码' ></div>");
     div.append("<div><input type='text' placeholder='4位验证码' ><div class='button'>获取</div></div>");
     div.append("<div><input type='password' placeholder='创建密码' ></div>");
-    div.append("<div>选择“下一步”即表示你同意<br/><div class='button'>声呐服务协议</div>。</div>");
-    div.append("<div><div class='button'>返回登录</div><div class='button'>下一步</div></div>");
+    div.append("<div>选择“下一步”即表示您同意<br/><div class='button'>声呐服务协议</div>。</div>");
+    div.append("<div><div class='button'>返回登录</div><div class='button button-default'>下一步</div></div>");
     
     var div_err = div.find('>div:nth-child(2)');
     var div_pho = div.find('>div:nth-child(4) input');
@@ -291,7 +365,7 @@ function create_user_register_1(page) {
             if (0 == code) {
                 var t = 60;
                 var i = setInterval(function() {
-                    div_get.text('重试('+t+')');
+                    div_get.text('('+t+')');
                     t--;
                     if (t < 0) {
                         clearInterval(i);
@@ -324,6 +398,11 @@ function create_user_register_1(page) {
         var pass = div_pas.val();
         if (0 == pass.length) {
             div_err.text('密码不能为空');
+            div_err.show();
+            return;
+        }
+        if (/'|"/.test(pass)) {
+            div_err.text("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
             div_err.show();
             return;
         }
@@ -362,7 +441,7 @@ function create_user_register_2(page) {
     div.append("<div><img /><input type='file' accept='image/*'></div>");
     div.append("<div><label>姓名</label><input type='text' placeholder='您的姓名'></div>")
     div.append("<div>别担心，这些信息以后还能修改。</div>")
-    div.append("<div><div class='button'>上一步</div><div class='button'>提交</div></div>");
+    div.append("<div><div class='button'>上一步</div><div class='button button-default'>提交</div></div>");
     
     var div_err = div.find('>div:nth-child(2)');
     var div_img = div.find('>div:nth-child(3) img');
@@ -398,6 +477,12 @@ function create_user_register_2(page) {
             div_err.show();
             return;
         }
+        if (/'|"/.test(name)) {
+            div_err.text("姓名不能包含“\"”(英文双引号)或“'”(英文单引号)");
+            div_err.show();
+            return;
+        }
+        
         user_register.name = name;
         
         div_err.hide();
@@ -408,8 +493,14 @@ function create_user_register_2(page) {
             cover : user_register.cover,
             name  : user_register.name
         }, function(code, desc) {
-            if (0 == code) {page.page_to_next();}
-            else {
+            if (0 == code) {
+                user_login_manually(user_register.phone, user_register.pass, function() {
+                    page.page_to_next();
+                }, function(code, desc) {
+                    div_err.text(desc);
+                    div_err.show();
+                });
+            } else {
                 div_err.text(desc);
                 div_err.show();
             }
@@ -423,7 +514,7 @@ function create_user_register_done(dialog) {
     div.addClass('page-register-done');
     div.append('<div>注册成功</div>');
     div.append('<div>欢迎您加入声呐</div>');
-    div.append("<div><div class='button'>开启声呐之旅</div></div>");
+    div.append("<div><div class='button button-default'>开启声呐之旅</div></div>");
     
     var div_begin = div.find('>div:nth-child(3) .button');
     div_begin.bind('click', function() {

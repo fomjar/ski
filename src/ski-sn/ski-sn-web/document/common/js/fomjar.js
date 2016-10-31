@@ -230,6 +230,12 @@ fomjar.util.cookie = function(key, val, domain, path, expires)  {
         $.cookie(key, val, {path: "/"});
         return origin;
     }
+    case 3: {
+        var origin = $.cookie(key);
+        expires = domain;
+        $.cookie(key, val, {path: "/", expires : expires});
+        return origin;
+    }
     case 5: {
         var origin = $.cookie(key);
         $.cookie(key, val, {domain : domain, path : path, expires : expires});

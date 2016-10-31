@@ -1,7 +1,6 @@
 package com.ski.sn.cdb;
 
 
-import java.nio.charset.Charset;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -247,13 +246,13 @@ public class CdbTask implements FjServerTask {
             st.execute();
 
             inst.code = st.getInt(1);
-            List<String> desc = new LinkedList<String>();
+            List<String> descs = new LinkedList<String>();
             for (int i = 2; i <= inst.out; i++) {
-                byte[] data = st.getBytes(i);
-                if (null == data) desc.add(null);
-                else desc.add(new String(data, Charset.forName("utf-8")));
+                String desc = st.getString(i);
+                if (null == desc) descs.add(null);
+                else descs.add(desc);
             }
-            inst.desc = JSONArray.fromObject(desc).toString();
+            inst.desc = JSONArray.fromObject(descs).toString();
             logger.debug("execute sp success: " + inst.sql_use);
         } catch (SQLException e) {
             inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;

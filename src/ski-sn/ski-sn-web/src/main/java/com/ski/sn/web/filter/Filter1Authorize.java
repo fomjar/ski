@@ -1,7 +1,5 @@
 package com.ski.sn.web.filter;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
@@ -46,7 +44,7 @@ public class Filter1Authorize extends FjWebFilter {
         for (int ie : instruction_exclude) {
             if (ie == FilterToolkit.getIntFromArgs(request.argsToJson(), "inst")) return true;
         }
-        if (!request.cookie().containsKey("token") || !request.cookie().containsKey("user")) {
+        if (!request.cookie().containsKey("token") || !request.cookie().containsKey("uid")) {
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", CommonDefinition.CODE.CODE_UNAUTHORIZED);
             args_rsp.put("desc", "请先登录");
@@ -57,10 +55,10 @@ public class Filter1Authorize extends FjWebFilter {
             return false;
         }
         String token    = request.cookie().get("token");
-        int    user     = Integer.parseInt(request.cookie().get("user"), 16);
+        int    uid     = Integer.parseInt(request.cookie().get("uid"));
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
-        args_bcs.put("user",    user);
+        args_bcs.put("uid",     uid);
         FjDscpMessage rsp = CommonService.requests("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
             JSONObject args_rsp = new JSONObject();
@@ -85,20 +83,18 @@ public class Filter1Authorize extends FjWebFilter {
         for (String de : document_exclude) {
             if (de.equals(request.path())) return true;
         }
-        if (!request.cookie().containsKey("token") || !request.cookie().containsKey("user")) {
-            try {redirect(response, "/user/login.html?redirect=" + URLEncoder.encode(request.path(), "utf-8"));}
-            catch (UnsupportedEncodingException e) {e.printStackTrace();}
+        if (!request.cookie().containsKey("token") || !request.cookie().containsKey("uid")) {
+            redirect(response, "/index.html");
             return false;
         }
-        String token    = request.cookie().get("token");
-        int    user     = Integer.parseInt(request.cookie().get("user"), 16);
+        String token = request.cookie().get("token");
+        int    uid   = Integer.parseInt(request.cookie().get("uid"));
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
-        args_bcs.put("user",    user);
+        args_bcs.put("uid",     uid);
         FjDscpMessage rsp = CommonService.requests("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
-            try {redirect(response, "/user/login.html?redirect=" + URLEncoder.encode(request.path(), "utf-8") + "&ready_msg=状态已失效，请重新登录");}
-            catch (UnsupportedEncodingException e) {e.printStackTrace();}
+            redirect(response, "/index.html");
             return false;
         }
         
