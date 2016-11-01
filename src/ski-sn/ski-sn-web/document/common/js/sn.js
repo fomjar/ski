@@ -5,8 +5,10 @@ sn.ui = {
         var div = $('.sn .mask');
         div.appear = function() {
             div.css('opacity', '0');
-            div.show();
-            div.css('opacity', '.4');
+            setTimeout(function() {
+                div.show();
+                div.css('opacity', '.4');
+            }, 0);
         };
         div.disappear = function() {
             div.css('opacity', '0');
@@ -24,10 +26,12 @@ sn.ui = {
             div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
             div.css('-webkit-transform', 'scale(.8, .8) translate(-60%, -60%)');
             sn.ui.mask().appear();
-            div.show();
-            div.css('opacity', '.9');
-            div.css(        'transform', 'scale(1, 1) translate(-50%, -50%)');
-            div.css('-webkit-transform', 'scale(1, 1) translate(-50%, -50%)');
+            setTimeout(function() {
+                div.show();
+                div.css('opacity', '.9');
+                div.css(        'transform', 'scale(1, 1) translate(-50%, -50%)');
+                div.css('-webkit-transform', 'scale(1, 1) translate(-50%, -50%)');
+            }, 0);
         };
         div.disappear = function() {
             div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
@@ -161,15 +165,41 @@ sn.ui = {
         };
         
         return div;
+    },
+    state : function(i) {
+        var s = null;
+        if ('number' == typeof i) s = $('.sn .head .state:nth-child('+(i+1)+')');
+        else s = i;
+        s.flash = function() {
+            s.css(        'animation', 'state-flash 2s');
+            s.css('-webkit-animation', 'state-flash 2s');
+            setTimeout(function() {
+                s.css(        'animation', '');
+                s.css('-webkit-animation', '');
+            }, 2000);
+        };
+        s.isopen = function() {
+            return s.width() != s.height();
+        };
+        s.open = function() {
+            s.css('width', s.width() * 1.2 + s.find('>div').outerWidth(true) + 'px');
+            s.find('>div').css('opacity', '1');
+        };
+        s.close = function() {
+            s.css('width', s.height() + 'px');
+            s.find('>div').css('opacity', '0');
+        };
+        return s;
     }
 };
-sn.geo = {};
+
 
 (function($) {
 
 fomjar.framework.phase.append('ini', init_event);
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_head);
+fomjar.framework.phase.append('dom', build_foot);
 
 function init_event() {
     $('body').bind('touchstart', function() {});
@@ -231,11 +261,76 @@ function build_user_state() {
     var state_location = $("<div class='state'><img /></div>");
     state_location.addClass('state');
     
-    $('.sn .head').append("<div class='state'><img src='/res/state-notify.png' /></div>");
-    $('.sn .head').append("<div class='state'><img src='/res/state-nearby.png' /></div>");
-    $('.sn .head').append("<div class='state'><img src='/res/state-locate.png' /></div>");
+    $('.sn .head').append("<div class='state'><img src='/res/state-locate.png' /><div></div></div>");
+    $('.sn .head').append("<div class='state'><img src='/res/state-nearby.png' /><div></div></div>");
+    $('.sn .head').append("<div class='state'><img src='/res/state-notify.png' /><div></div></div>");
+    
+    var states = $('.sn .head .state');
+    $.each(states, function(i, state) {
+        state = sn.ui.state($(state));
+        state.bind('click', function() {
+            if (!state.isopen()) state.open();
+            else state.close();
+        });
+    });
 }
 
+function build_foot() {
+    var send = $('<div></div>');
+    send.addClass('send');
+    
+    $('.sn .foot').append(send);
+    
+    send.bind('click', function() {
+        var dialog = sn.ui.dialog();
+        dialog.append(create_sending(dialog));
+        dialog.appear();
+    });
+}
+
+function create_sending(dialog) {
+    dialog.addClass('dialog-sending');
+    
+    var div = $('<div></div>');
+    div.addClass('sending');
+    
+    div.append("<input type='text'>");
+    div.append("<div><div class='button'>取消</div></div>");
+    
+    div.find('>*:nth-child(2)').bind('click', function() {dialog.disappear();});
+    
+    return div;
+}
+
+function geowatch() {
+    var run = function(r){
+        if (this.getStatus() == BMAP_STATUS_SUCCESS){
+            var p = r.point;
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER_STATE, {
+                uid         : ski.uid,
+                state       : 1,
+                terminal    : 1,
+                location    : p.lat + ':' + p.lng
+            }, function(code, desc) {});
+            new BMap.Geocoder().getLocation(p, function(rs) {
+                var loc = rs.addressComponents.street + rs.addressComponents.streetNumber;
+                if (0 < rs.surroundingPois.length) {
+                    loc = rs.surroundingPois[0].title;
+                }
+                if (loc != ski.user.address) {
+                    ski.user.address = loc;
+                    var state_locate = sn.ui.state(1);
+                    state_locate.find('>div').text(loc);
+                    state_locate.find('>div').css('width', loc.length + 'em');
+                    state_locate.flash();
+                }
+            });
+        } else {}
+    };
+    setTimeout(function() {new BMap.Geolocation().getCurrentPosition(run);}, 5000);
+    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 10);
+}
+    
 function user_login_manually(phone, pass, success, failure) {
     fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {phone : phone, pass : pass, terminal : 1}, function(code, desc) {
         if (0 != code) {
@@ -251,6 +346,9 @@ function user_login_manually(phone, pass, success, failure) {
         $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
         $('.sn .head .cover >div:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
+        $('.sn .foot').css('bottom', '0');
+        
+        geowatch();
         
         if (success) success();
     });
@@ -270,6 +368,8 @@ function user_login_automatic(success, failure) {
         $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
         $('.sn .head .cover >div:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
+        
+        geowatch();
         
         if (success) success();
     });

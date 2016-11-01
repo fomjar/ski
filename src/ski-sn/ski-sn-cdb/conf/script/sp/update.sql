@@ -29,7 +29,8 @@ create procedure sp_update_user_state (
     in  location    varchar(64)
 )
 begin
-    declare di_count integer default -1;
+    declare di_count    integer default -1;
+    declare di_record   tinyint default -1;
 
     if uid is null then
         set i_code = 3;
@@ -58,6 +59,13 @@ begin
         end if;
 
         if state is not null then
+            select count(1)
+              into di_count
+              from tbl_user_state
+             where i_state = state
+               and i_uid = uid;
+            set di_record = di_record & di_count;
+
             update tbl_user_state
                set i_state = state
              where i_uid = uid;
@@ -73,6 +81,13 @@ begin
              where i_uid = uid;
         end if;
         if location is not null then
+            select count(1)
+              into di_count
+              from tbl_user_state
+             where c_location = location
+               and i_uid = uid;
+            set di_record = di_record & di_count;
+
             update tbl_user_state
                set c_location = location
              where i_uid = uid;
@@ -82,7 +97,9 @@ begin
            set t_change = now()
          where i_uid = uid;
 
-        insert into tbl_user_state_history select * from tbl_user_state where i_uid = uid;
+        if di_record = 0 then
+            insert into tbl_user_state_history select * from tbl_user_state where i_uid = uid;
+        end if;
 
         set i_code = 0;
     end if;

@@ -16,7 +16,6 @@ function bg_animate() {
     var bg_img  = $('.sn .bg >img');
     var bg_mask = $('.sn .bg >div');
     var sn_head = $('.sn .head');
-    var sn_foot = $('.sn .foot');
     
     bg_img.css('opacity', '0');
     bg_img.css('width', '100%');
@@ -27,7 +26,6 @@ function bg_animate() {
     bg_mask.css('opacity', '0');
     
     sn_head.css('top', '-3em');
-    sn_foot.css('bottom', '-3em');
     
     // animate
     bg_img.bind('load', function() {
@@ -44,7 +42,8 @@ function bg_animate() {
                 bg_mask.css('opacity', '.3');
                 
                 sn_head.css('top', '0');
-                sn_foot.css('bottom', '0');
+                
+                if (ski.user) $('.sn .foot').css('bottom', '0');
             }, 3000)
         }, 500);
     });

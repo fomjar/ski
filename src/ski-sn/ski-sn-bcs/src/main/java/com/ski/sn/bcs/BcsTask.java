@@ -22,16 +22,16 @@ public class BcsTask implements FjServer.FjServerTask {
     
     private static final Logger logger = Logger.getLogger(BcsTask.class);
     
-    private Map<String, FjDscpMessage> cache;
+    private Map<String, FjDscpMessage> cache_request;
     
     @Override
     public void initialize(FjServer server) {
-        cache = new HashMap<String, FjDscpMessage>();
+        cache_request = new HashMap<String, FjDscpMessage>();
     }
 
     @Override
     public void destroy(FjServer server) {
-        cache.clear();
+        cache_request.clear();
     }
 
     @Override
@@ -48,29 +48,32 @@ public class BcsTask implements FjServer.FjServerTask {
             processRequest(dmsg);
         } else { // 平台侧响应
             logger.info(String.format("[ RESPONSE ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
-            processResponse(dmsg, cache.remove(dmsg.sid()));
+            if (cache_request.containsKey(dmsg.sid())) processResponse(dmsg, cache_request.remove(dmsg.sid()));
         }
+    }
+    
+    private void catchResponse(FjDscpMessage request) {
+        cache_request.put(request.sid(), request);
     }
     
     public void processRequest(FjDscpMessage request) {
         switch (request.inst()) {
+        case CommonDefinition.ISIS.INST_APPLY_AUTHORIZE:
+            requestApplyAuthorize(request);
+            break;
         case CommonDefinition.ISIS.INST_APPLY_VERIFY:
             requestApplyVerify(request);
             break;
         case CommonDefinition.ISIS.INST_UPDATE_USER:
             requestUpdateUser(request);
             break;
-        case CommonDefinition.ISIS.INST_APPLY_AUTHORIZE:
-            requestApplyAuthorize(request);
+        case CommonDefinition.ISIS.INST_UPDATE_USER_STATE:
+            requestUpdateUserState(request);
+            break;
         }
     }
     
     public void processResponse(FjDscpMessage response, FjDscpMessage request) {
-        if (null == request) {
-            logger.warn("find no request for response: " + response);
-            return;
-        }
-        
         JSONObject args = response.argsToJsonObject();
         switch(response.inst()) {
         case CommonDefinition.ISIS.INST_APPLY_AUTHORIZE:
@@ -93,7 +96,7 @@ public class BcsTask implements FjServer.FjServerTask {
     private void requestApplyAuthorize(FjDscpMessage request) {
         JSONObject args = request.argsToJsonObject();
         if (args.has("token")) {    // 自动登录
-            if (!illegalArgs(request, "token", "uid", "terminal")) return;
+            if (!illegalArgs(request, "token", "uid")) return;
             
             String token = args.getString("token");
             String uid   = args.getString("uid");
@@ -102,9 +105,9 @@ public class BcsTask implements FjServer.FjServerTask {
             args_cdb.put("token", token);
             args_cdb.put("uid",   uid);
             CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_USER_STATE, args_cdb);
-            cache.put(request.sid(), request);
+            catchResponse(request);
         } else {    // 手动登录
-            if (!illegalArgs(request, "phone", "pass", "terminal")) return;
+            if (!illegalArgs(request, "phone", "pass")) return;
             
             String phone = args.getString("phone");
             String pass  = args.getString("pass");
@@ -113,24 +116,23 @@ public class BcsTask implements FjServer.FjServerTask {
             args_cdb.put("phone", phone);
             args_cdb.put("pass",  pass);
             CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_cdb);
-            cache.put(request.sid(), request);
+            catchResponse(request);
         }
     }
     
     private void responseApplyAuthorize(JSONObject args, FjDscpMessage request) {
-        JSONArray user = args.getJSONArray("desc").getJSONArray(0);
-        if (0 == user.size()) {
+        if (0 == args.getJSONArray("desc").size()) {
             logger.error("用户名或密码错误: " + request);
             args.put("code", CommonDefinition.CODE.CODE_ERROR);
             args.put("desc", "用户名或密码错误");
             return;
         }
         
+        JSONArray user = args.getJSONArray("desc").getJSONArray(0);
         String token = UUID.randomUUID().toString().replace("-", "");
         {
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("uid",         Integer.parseInt(user.getString(0)));
-            args_cdb.put("terminal",    request.argsToJsonObject().getInt("terminal"));
             args_cdb.put("state",       CommonDefinition.Field.USER_STATE_ONLINE);
             args_cdb.put("token",       token);
             CommonService.requesta("cdb", CommonDefinition.ISIS.INST_UPDATE_USER_STATE, args_cdb);
@@ -150,17 +152,16 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void responseQueryUserState(JSONObject args, FjDscpMessage request) {
-        JSONArray user = args.getJSONArray("desc").getJSONArray(0);
-        if (0 == user.size()) {
+        if (0 == args.getJSONArray("desc").size()) {
             logger.error("缓存已失效，请重新登录: " + request);
             args.put("code", CommonDefinition.CODE.CODE_ERROR);
             args.put("desc", "缓存已失效，请重新登录");
             return;
         }
+        JSONArray user = args.getJSONArray("desc").getJSONArray(0);
         {
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("uid",         Integer.parseInt(user.getString(0)));
-            args_cdb.put("terminal",    request.argsToJsonObject().getInt("terminal"));
             args_cdb.put("state",       CommonDefinition.Field.USER_STATE_ONLINE);
             CommonService.requesta("cdb", CommonDefinition.ISIS.INST_UPDATE_USER_STATE, args_cdb);
         }
@@ -202,7 +203,7 @@ public class BcsTask implements FjServer.FjServerTask {
                 args_ura.put("phone", phone);
                 args_ura.put("vcode", vcode);
                 CommonService.requesta("ura", request.sid(), CommonDefinition.ISIS.INST_APPLY_VERIFY, args_ura);
-                cache.put(request.sid(), request); // for response
+                catchResponse(request);
                 cache_vcode.put(phone, vcode); // for verify
             }
             break;
@@ -227,7 +228,13 @@ public class BcsTask implements FjServer.FjServerTask {
         args_cdb.put("name",    args.getString("name"));
         if (args.has("cover"))  args_cdb.put("cover", args.getString("cover")); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER, args_cdb);
-        cache.put(request.sid(), request);
+        catchResponse(request);
+    }
+    
+    private void requestUpdateUserState(FjDscpMessage request) {
+        if (!illegalArgs(request, "uid")) return;
+        
+        CommonService.requesta("cdb", CommonDefinition.ISIS.INST_UPDATE_USER_STATE, request.argsToJsonObject());
     }
     
     private static boolean illegalArgs(FjDscpMessage request, String... keys) {

@@ -280,6 +280,73 @@ fomjar.net = {
     }
 };
 
+fomjar.geo = {
+    convertor : function() {
+        var a    = 6378245.0;
+        var ee   = 0.00669342162296594323;
+        var x_pi = Math.PI * 3000.0 / 180.0;
+        
+        var transformLat = function(x, y) {
+            var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+            ret += ( 20.0 * Math.sin( 6.0 * x * Math.PI) +  20.0 * Math.sin( 2.0 * x * Math.PI)) * 2.0 / 3.0;
+            ret += ( 20.0 * Math.sin(       y * Math.PI) +  40.0 * Math.sin( y / 3.0 * Math.PI)) * 2.0 / 3.0;
+            ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320.0 * Math.sin(y / 30.0 * Math.PI)) * 2.0 / 3.0;
+            return ret;
+        };
+        var transformLng = function(x, y) {
+            var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+            ret += ( 20.0 * Math.sin( 6.0 * x * Math.PI) +  20.0 * sin( 2.0 * x * Math.PI)) * 2.0 / 3.0;
+            ret += ( 20.0 * Math.sin(       x * Math.PI) +  40.0 * sin( x / 3.0 * Math.PI)) * 2.0 / 3.0;
+            ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
+            return ret;
+        };
+        
+        this.out_china = function(p) {
+            if (
+                   p.lng < 72.004
+                || p.lng > 137.8347
+                || p.lat < 0.8293
+                || p.lat > 55.8271
+            ) return true;
+            return false;
+        };
+        this.earth_mars = function(p) {
+            if (out_china(p)) return p;
+            
+            var dLat = transformLat(p.lng - 105.0, p.lat - 35.0);
+            var dLng = transformLng(p.lng - 105.0, p.lat - 35.0);
+            var radLat = p.lat / 180.0 * Math.PI;
+            var magic = Math.sin(radLat);
+            magic = 1 - ee * magic * magic;
+            var sqrtMagic = Math.sqrt(magic);
+            dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * Math.PI);
+            dLng = (dLng * 180.0) / (a / sqrtMagic * Math.cos(radLat) * Math.PI);
+            
+            return {lat : p.lat + dLat, lng : p.lng + dLng};
+        };
+        this.mars_baidu = function(p) {
+            var x = p.lng;
+            var y = p.lat;
+            var z = Math.sqrt(x * x + y * y) + 0.00002 * Math.sin(y * x_pi);
+            var theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
+            return {
+                lng : z * Math.cos(theta) + 0.0065,
+                lat : z * Math.sin(theta) + 0.006
+            };
+        };
+        this.baidu_mars = function(p) {
+            var x = p.lng - 0.0065;
+            var y = p.lat - 0.006;
+            var z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * x_pi);
+            var theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * x_pi);
+            return {
+                lng : z * Math.cos(theta),
+                lat : z * Math.sin(theta)
+            };
+        };
+    }
+};
+
 fomjar.framework = {};
 fomjar.framework.phase = {
     boot : false,
