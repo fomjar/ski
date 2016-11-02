@@ -11,7 +11,9 @@ sn.ui = {
             }, 0);
         };
         div.disappear = function() {
-            div.css('opacity', '0');
+            setTimeout(function() {
+                div.css('opacity', '0');
+            }, 0);
             setTimeout(function() {
                 div.hide();
             }, 500);
@@ -23,25 +25,27 @@ sn.ui = {
         
         div.appear = function() {
             div.css('opacity', '0');
-            div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
-            div.css('-webkit-transform', 'scale(.8, .8) translate(-60%, -60%)');
+            div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+            div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
             sn.ui.mask().appear();
             setTimeout(function() {
                 div.show();
                 div.css('opacity', '.9');
-                div.css(        'transform', 'scale(1, 1) translate(-50%, -50%)');
-                div.css('-webkit-transform', 'scale(1, 1) translate(-50%, -50%)');
+                div.css(        'transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
+                div.css('-webkit-transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
             }, 0);
         };
         div.disappear = function() {
-            div.css(        'transform', 'scale(.8, .8) translate(-60%, -60%)');
-            div.css('-webkit-transform', 'scale(.8, .8) translate(-60%, -60%)');
-            div.css('opacity', '0');
+            setTimeout(function() {
+                div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+                div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+                div.css('opacity', '0');
+            }, 0);
+            sn.ui.mask().disappear();
             setTimeout(function() {
                 div.html('');
                 div.hide();
             }, 300);
-            sn.ui.mask().disappear();
         };
         div.addClose = function(title, onClose) {
             var close = $('<div>' + title + '</div>');
@@ -61,6 +65,14 @@ sn.ui = {
         div.removeClose = function() {
             div.find('.close').remove();
         };
+        div.shake = function() {
+            div.css(        'animation', 'dialog-shake .5s');
+            div.css('-webkit-animation', 'dialog-shake .5s');
+            setTimeout(function() {
+                div.css(        'animation', '');
+                div.css('-webkit-animation', '');
+            }, 500);
+        }
         return div;
     },
     page : function() {
@@ -232,7 +244,6 @@ function build_frame() {
 
 function build_head() {
     build_user_cover();
-    build_user_state();
 }
 
 function build_user_cover() {
@@ -258,9 +269,7 @@ function build_user_cover() {
 }
 
 function build_user_state() {
-    var state_location = $("<div class='state'><img /></div>");
-    state_location.addClass('state');
-    
+
     $('.sn .head').append("<div class='state'><img src='/res/state-locate.png' /><div></div></div>");
     $('.sn .head').append("<div class='state'><img src='/res/state-nearby.png' /><div></div></div>");
     $('.sn .head').append("<div class='state'><img src='/res/state-notify.png' /><div></div></div>");
@@ -294,10 +303,38 @@ function create_sending(dialog) {
     var div = $('<div></div>');
     div.addClass('sending');
     
-    div.append("<input type='text'>");
-    div.append("<div><div class='button'>取消</div></div>");
+    div.append("<div><textarea rows='3' placeholder='想法 / 问询 / 活动 / 段子'></textarea></div>");
+    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
     
-    div.find('>*:nth-child(2)').bind('click', function() {dialog.disappear();});
+    var div_tex = div.find('>*:nth-child(1) textarea');
+    var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
+    var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
+    
+    div_can.bind('click', function() {dialog.disappear();});
+    div_sen.bind('click', function() {
+        var text = div_tex.val();
+        if (0 == text.length) {
+            dialog.shake();
+            return;
+        }
+        if (/^ +$/.test(text)) {
+            dialog.shake();
+            return;
+        }
+        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
+            uid     : ski.uid,
+            coosys  : 1,
+            lat     : ski.user.location.point.lat,
+            lng     : ski.user.location.point.lng,
+            text    : text
+        }, function(code, desc) {
+            if (0 == code) {
+                dialog.disappear();
+            } else {
+                dialog.shake();
+            }
+        });
+    });
     
     return div;
 }
@@ -313,22 +350,62 @@ function geowatch() {
                 location    : p.lat + ':' + p.lng
             }, function(code, desc) {});
             new BMap.Geocoder().getLocation(p, function(rs) {
-                var loc = rs.addressComponents.street + rs.addressComponents.streetNumber;
+                var addr = rs.addressComponents.street + rs.addressComponents.streetNumber;
                 if (0 < rs.surroundingPois.length) {
-                    loc = rs.surroundingPois[0].title;
+                    addr = rs.surroundingPois[0].title;
                 }
-                if (loc != ski.user.address) {
-                    ski.user.address = loc;
+                ski.user.location = rs;
+                /*
+                Object =
+                    address: "中影国际影城南京雨花台南站店"
+                    addressComponents: Object
+                        city: "南京市"
+                        district: "雨花台区"
+                        province: "江苏省"
+                        street: "明城大道"
+                        streetNumber: ""
+                    “Object”原型
+                    business: "宁南"
+                    point: H
+                        lat: 31.98444
+                        lng: 118.803924
+                    “H”原型
+                    surroundingPois: Array (4)
+                        0 Object
+                            Ui: "休闲娱乐"
+                            address: "南京市雨花台区玉兰路99号(明发商业广场1幢B6区4层17室)"
+                            city: "南京市"
+                            eu: Array (1)
+                                0 "休闲娱乐"
+                            “Array”原型
+                            phoneNumber: null
+                            point: H
+                                lat: 31.984822
+                                lng: 118.804075
+                            “H”原型
+                            postcode: null
+                            title: "中影国际影城南京雨花台南站店"
+                            type: 0
+                            uid: "9abe5786376f2dd98bfc06ef"
+                        “Object”原型
+                        1 {title: "永辉超市(雨花店)", uid: "7a443c7ec83b4ccd2fe67bb8", point: H, city: "南京市", Ui: "购物", …}
+                        2 {title: "南京易居智能科技有限公司", uid: "3a46dbe174d7478203ec0106", point: H, city: "南京市", Ui: "公司企业", …}
+                        3 {title: "德居欣舒适家居体验中心", uid: "f270eba5dda323d682288ae4", point: H, city: "南京市", Ui: "购物", …}
+                    “Array”原型
+                    “Object”原型
+                */
+                if (addr != ski.user.location.address) {
+                    ski.user.location.address = addr;
                     var state_locate = sn.ui.state(1);
-                    state_locate.find('>div').text(loc);
-                    state_locate.find('>div').css('width', loc.length + 'em');
+                    state_locate.find('>div').text(addr);
+                    state_locate.find('>div').css('width', addr.length + 'em');
                     state_locate.flash();
                 }
             });
         } else {}
     };
     setTimeout(function() {new BMap.Geolocation().getCurrentPosition(run);}, 5000);
-    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 10);
+    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 30);
 }
     
 function user_login_manually(phone, pass, success, failure) {
@@ -348,6 +425,7 @@ function user_login_manually(phone, pass, success, failure) {
         $('.sn .head .cover').unbind('click');
         $('.sn .foot').css('bottom', '0');
         
+        build_user_state();
         geowatch();
         
         if (success) success();
@@ -369,6 +447,7 @@ function user_login_automatic(success, failure) {
         $('.sn .head .cover >div:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
         
+        build_user_state();
         geowatch();
         
         if (success) success();
@@ -378,8 +457,8 @@ function user_login_automatic(success, failure) {
 function create_user_login(dialog) {
     var page = sn.ui.page();
     page.page_append('登录-1',   create_user_login_1(dialog, page));
-    page.page_append('注册-1',   create_user_register_1(page));
-    page.page_append('注册-2',   create_user_register_2(page));
+    page.page_append('注册-1',   create_user_register_1(dialog, page));
+    page.page_append('注册-2',   create_user_register_2(dialog, page));
     page.page_append('注册-成功', create_user_register_done(dialog));
     return page;
 }
@@ -406,11 +485,13 @@ function create_user_login_1(dialog, page) {
         var pass  = div_pas.val();
         var error = null;
         if (error = check_phone(phone)) {
+            dialog.shake();
             div_err.text(error);
             div_err.show();
             return;
         }
         if (0 == pass.length) {
+            dialog.shake();
             div_err.text("请输入密码");
             div_err.show();
             return;
@@ -418,6 +499,7 @@ function create_user_login_1(dialog, page) {
         user_login_manually(phone, pass, function() {
             dialog.disappear();
         }, function(code, desc) {
+            dialog.shake();
             div_err.text(desc);
             div_err.show();
         });
@@ -430,7 +512,7 @@ function create_user_login_1(dialog, page) {
 
 var user_register = {};
 
-function create_user_register_1(page) {
+function create_user_register_1(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-register-1');
     div.append('<div>注册</div>');
@@ -454,6 +536,7 @@ function create_user_register_1(page) {
         var phone = div_pho.val();
         var error = null;
         if (error = check_phone(phone)) {
+            dialog.shake();
             div_err.text(error);
             div_err.show();
             return;
@@ -474,6 +557,7 @@ function create_user_register_1(page) {
                     }
                 }, 1000);
             } else {
+            dialog.shake();
                 div_err.text(desc);
                 div_err.show();
                 div_get.css('color', 'blue');
@@ -485,23 +569,27 @@ function create_user_register_1(page) {
         var phone = div_pho.val();
         var error = null;
         if (error = check_phone(phone)) {
+            dialog.shake();
             div_err.text(error);
             div_err.show();
             return;
         }
         var vcode = div_vco.val();
         if (0 == vcode.length) {
+            dialog.shake();
             div_err.text('验证码不能为空');
             div_err.show();
             return;
         }
         var pass = div_pas.val();
         if (0 == pass.length) {
+            dialog.shake();
             div_err.text('密码不能为空');
             div_err.show();
             return;
         }
         if (/'|"/.test(pass)) {
+            dialog.shake();
             div_err.text("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
             div_err.show();
             return;
@@ -515,6 +603,7 @@ function create_user_register_1(page) {
                 user_register.pass  = pass;
                 page.page_to_next();
             } else {
+                dialog.shake();
                 div_err.text(desc);
                 div_err.show();
             }
@@ -533,7 +622,7 @@ function check_phone(phone) {
     return null;
 }
 
-function create_user_register_2(page) {
+function create_user_register_2(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-register-2');
     div.append('<div>个人信息</div>');
@@ -556,6 +645,7 @@ function create_user_register_2(page) {
         
         var file = files[0];
         if (file.size > 1024 * 1024 * 2) {
+            dialog.shake();
             div_err.text('图片不能大于2M');
             div_err.show();
             return;
@@ -573,11 +663,13 @@ function create_user_register_2(page) {
     div_sub.bind('click', function() {
         var name = div_nam.val();
         if (0 == name.length) {
+            dialog.shake();
             div_err.text('请输入您的姓名');
             div_err.show();
             return;
         }
         if (/'|"/.test(name)) {
+            dialog.shake();
             div_err.text("姓名不能包含“\"”(英文双引号)或“'”(英文单引号)");
             div_err.show();
             return;
@@ -597,10 +689,12 @@ function create_user_register_2(page) {
                 user_login_manually(user_register.phone, user_register.pass, function() {
                     page.page_to_next();
                 }, function(code, desc) {
+                    dialog.shake();
                     div_err.text(desc);
                     div_err.show();
                 });
             } else {
+                dialog.shake();
                 div_err.text(desc);
                 div_err.show();
             }

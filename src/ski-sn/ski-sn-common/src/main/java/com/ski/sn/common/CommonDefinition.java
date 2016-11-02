@@ -36,6 +36,8 @@ public class CommonDefinition {
         public static final int USER_STATE_ONLINE   = 1;
         public static final int USER_TERMINAL_WEB   = 1;
         public static final int USER_TERMINAL_APP   = 2;
+        public static final int COOSYS_MARS     = 0;
+        public static final int COOSYS_BAIDU    = 1;
     }
     
     public static final class CODE {

@@ -30,7 +30,7 @@ public class GeoHash {
             buffer.append( Integer.toString(i, 2).substring(1) );
         }
 
-        BitSet lonset = new BitSet();
+        BitSet lngset = new BitSet();
         BitSet latset = new BitSet();
 
         //偶数位，经度
@@ -39,7 +39,7 @@ public class GeoHash {
             boolean isSet = false;
             if ( i < buffer.length() )
               isSet = buffer.charAt(i) == '1';
-            lonset.set(j++, isSet);
+            lngset.set(j++, isSet);
         }
 
         //奇数位，纬度
@@ -51,10 +51,10 @@ public class GeoHash {
             latset.set(j++, isSet);
         }
 
-        double lon = decode(lonset, -180, 180);
+        double lng = decode(lngset, -180, 180);
         double lat = decode(latset, -90, 90);
 
-        return new double[] {lat, lon};
+        return new double[] {lat, lng};
     }
 
     //根据二进制和范围解码
@@ -71,12 +71,12 @@ public class GeoHash {
     }
 
     //对经纬度进行编码
-    public static String encode(double lat, double lon) {
+    public static String encode(double lat, double lng) {
         BitSet latbits = getBits(lat, -90, 90);
-        BitSet lonbits = getBits(lon, -180, 180);
+        BitSet lngbits = getBits(lng, -180, 180);
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < numbits; i++) {
-            buffer.append( (lonbits.get(i))?'1':'0');
+            buffer.append( (lngbits.get(i))?'1':'0');
             buffer.append( (latbits.get(i))?'1':'0');
         }
         return base32(Long.parseLong(buffer.toString(), 2));

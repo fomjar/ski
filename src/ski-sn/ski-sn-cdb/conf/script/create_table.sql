@@ -29,7 +29,8 @@ create table tbl_user_state (
     t_change    datetime,       -- 变化时间
     i_terminal  tinyint,        -- 终端：1 - web; 2 - app
     c_token     varchar(64),    -- 口令
-    c_location  varchar(64)     -- 位置
+    c_location  varchar(64),    -- 位置
+    primary key (i_uid)
 );
 
 -- 用户状态历史
@@ -42,4 +43,26 @@ create table tbl_user_state_history (
     c_token     varchar(64),    -- 口令
     c_location  varchar(64)     -- 位置
 );
+
+-- 消息模板
+create table tbl_message_geohash6 (
+    c_mid       varchar(128),       -- 编号
+    t_time      datetime,           -- 时间
+    i_uid       integer,            -- 用户
+    i_coosys    tinyint,            -- 坐标系统：0 - mars; 1 - baidu
+    i_lat       decimal(24, 20),    -- 纬度
+    i_lng       decimal(24, 20),    -- 经度
+    c_geohash   varchar(16),        -- geohash编码
+    c_text      text,               -- 消息文本
+    c_image     mediumtext,         -- 消息图片
+    primary key (c_mid)
+);
+drop table if exists tbl_message_geohash6;
+
+-- 消息关注模板
+create table tbl_message_focus_geohash6 (
+    c_mid       varchar(128)
+);
+drop table if exists tbl_message_focus_geohash6;
+
 

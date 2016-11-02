@@ -43,12 +43,17 @@ public class BcsTask implements FjServer.FjServerTask {
         }
 
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        if (dmsg.fs().startsWith("wsi")) { // 用户侧请求
-            logger.info(String.format("[ REQUEST  ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
-            processRequest(dmsg);
-        } else { // 平台侧响应
-            logger.info(String.format("[ RESPONSE ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
-            if (cache_request.containsKey(dmsg.sid())) processResponse(dmsg, cache_request.remove(dmsg.sid()));
+        try {
+            if (dmsg.fs().startsWith("wsi")) { // 用户侧请求
+                logger.info(String.format("[ REQUEST  ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
+                processRequest(dmsg);
+            } else { // 平台侧响应
+                logger.info(String.format("[ RESPONSE ] - %s:%s:0x%08X", dmsg.fs(), dmsg.sid(), dmsg.inst()));
+                if (cache_request.containsKey(dmsg.sid())) processResponse(dmsg, cache_request.remove(dmsg.sid()));
+            }
+        } catch (Exception e) {
+            logger.error("unexpected error occurred by message: " + dmsg, e);
+            CommonService.response(dmsg, CommonDefinition.CODE.CODE_ERROR, "发生了一个奇怪的错误😱");
         }
     }
     
@@ -64,11 +69,18 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_APPLY_VERIFY:
             requestApplyVerify(request);
             break;
+        case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
+            requestUpdateMessage(request);
+            break;
         case CommonDefinition.ISIS.INST_UPDATE_USER:
             requestUpdateUser(request);
             break;
         case CommonDefinition.ISIS.INST_UPDATE_USER_STATE:
             requestUpdateUserState(request);
+            break;
+        default:
+            logger.error("illegal inst: " + request);
+            CommonService.response(request, CommonDefinition.CODE.CODE_ILLEGAL_INST, "未知指令");
             break;
         }
     }
@@ -81,6 +93,8 @@ public class BcsTask implements FjServer.FjServerTask {
             break;
         case CommonDefinition.ISIS.INST_QUERY_USER_STATE:
             responseQueryUserState(args, request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
             break;
         default:
             if (CommonDefinition.CODE.CODE_SUCCESS != CommonService.getResponseCode(response))
@@ -208,6 +222,33 @@ public class BcsTask implements FjServer.FjServerTask {
             }
             break;
         }
+    }
+    
+    private void requestUpdateMessage(FjDscpMessage request) {
+        if (!illegalArgs(request, "uid", "coosys", "lat", "lng")) return;
+        
+        JSONObject args = request.argsToJsonObject();
+        int     uid     = args.getInt("uid");
+        int     coosys  = args.getInt("coosys");
+        double  lat     = args.getDouble("lat");
+        double  lng     = args.getDouble("lng");
+        String  text    = args.has("text") ? args.getString("text") : null;
+        String  image   = args.has("image") ? args.getString("image") : null;
+        String  mid     = String.format("%f:%f:%d", lat, lng, System.currentTimeMillis());
+        String  geohash = GeoHash.encode(lat, lng);
+        
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("mid",     mid);
+        args_cdb.put("uid",     uid);
+        args_cdb.put("coosys",  coosys);
+        args_cdb.put("lat",     lat);
+        args_cdb.put("lng",     lng);
+        args_cdb.put("geohash", geohash);
+        args_cdb.put("text",    text);
+        args_cdb.put("image",   image);
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE, args_cdb);
+        catchResponse(request);
     }
     
     private void requestUpdateUser(FjDscpMessage request) {

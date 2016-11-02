@@ -107,3 +107,78 @@ end //
 delimiter ;
 
 
+
+-- INST_UPDATE_MESSAGE             = 0x00003003
+delete from tbl_instruction where i_inst = (conv('00003003', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003003', 16, 10) + 0), 'sp', 2, "sp_update_message(?, ?, \"$mid\", $uid, $coosys, $lat, $lng, \"$geohash\", \"$text\", \"$image\")");
+delimiter //
+drop procedure if exists sp_update_message //
+create procedure sp_update_message (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  mid     varchar(128),
+    in  uid     integer,
+    in  coosys  tinyint,
+    in  lat     decimal(24, 20),
+    in  lng     decimal(24, 20),
+    in  geohash varchar(16),
+    in  _text   text,
+    in  image   mediumtext
+)
+begin
+
+    declare di_count    integer         default -1;
+    declare dc_table    varchar(32)     default null;
+    declare dc_create   varchar(300)    default null;
+    declare dc_insert   mediumtext      default null;
+
+    if     mid      is null
+        or uid   is null
+        or coosys   is null
+        or lat      is null
+        or lng      is null
+        or geohash  is null then
+
+        set i_code = 3;
+        set c_desc = 'illegal arguments, null arguments';
+
+    else
+
+        set dc_table = concat('tbl_message_', left(geohash, 6));
+        select count(1)
+          into di_count
+          from information_schema.tables
+         where table_name = dc_table;
+
+        if 0 = di_count then
+            set dc_create = concat('create table ', dc_table, ' (c_mid varchar(128), t_time datetime, i_uid integer, i_coosys tinyint, i_lat decimal(24, 20), i_lng decimal(24, 20), c_geohash varchar(16), c_text text, c_image mediumtext, primary key (c_mid))');
+            set @s = dc_create;
+            prepare s from @s;
+            execute s;
+            deallocate prepare s;
+        end if;
+
+        set dc_insert = concat('insert into ', dc_table, " (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image) values (",
+                "\"", mid,      "\", ",
+                "\"", now(),    "\", ",
+                      uid,      ", ",
+                      coosys,   ", ",
+                      lat,      ", ",
+                      lng,      ", ",
+                "\"", geohash,  "\", ",
+                ifnull(concat("\"", _text, "\""), 'null'), ", ",
+                ifnull(concat("\"", image, "\""), 'null'), ")");
+        set @s = dc_insert;
+        prepare s from @s;
+        execute s;
+        deallocate prepare s;
+
+        set i_code = 0;
+
+    end if;
+
+end //
+delimiter ;
+
+
+
