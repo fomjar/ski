@@ -354,7 +354,6 @@ function geowatch() {
                 if (0 < rs.surroundingPois.length) {
                     addr = rs.surroundingPois[0].title;
                 }
-                ski.user.location = rs;
                 /*
                 Object =
                     address: "中影国际影城南京雨花台南站店"
@@ -395,12 +394,13 @@ function geowatch() {
                     “Object”原型
                 */
                 if (addr != ski.user.location.address) {
-                    ski.user.location.address = addr;
                     var state_locate = sn.ui.state(1);
                     state_locate.find('>div').text(addr);
                     state_locate.find('>div').css('width', addr.length + 'em');
                     state_locate.flash();
                 }
+                ski.user.location = rs;
+                ski.user.location.address = addr;
             });
         } else {}
     };
