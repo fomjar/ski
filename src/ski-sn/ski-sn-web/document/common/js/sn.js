@@ -393,7 +393,7 @@ function geowatch() {
                     “Array”原型
                     “Object”原型
                 */
-                if (addr != ski.user.location.address) {
+                if (undefined == ski.user.location || addr != ski.user.location.address) {
                     var state_locate = sn.ui.state(1);
                     state_locate.find('>div').text(addr);
                     state_locate.find('>div').css('width', addr.length + 'em');
