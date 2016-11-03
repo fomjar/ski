@@ -202,6 +202,35 @@ sn.ui = {
             s.find('>div').css('opacity', '0');
         };
         return s;
+    },
+    choose_image : function(size, success, failure) {
+        var div = $('<div></div>');
+        div.addClass('choose-image');
+        div.append('<img />');
+        div.append("<input type='file' accept='image/*'>");
+        
+        var div_image = div.find('img');
+        var div_input = div.find('input');
+        
+        div_input.bind('change', function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files || !files[0]) return;
+            
+            var file = files[0];
+            if (file.size > size) {
+                if (failure) failure(file.size);
+                return;
+            }
+            
+            var reader = new FileReader();
+            reader.onload = function(e1) {
+                div_image.attr('src', e1.target.result);
+                if (success) success(e1.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        return div;
     }
 };
 
@@ -303,16 +332,22 @@ function create_sending(dialog) {
     var div = $('<div></div>');
     div.addClass('sending');
     
-    div.append("<div><textarea rows='3' placeholder='想法 / 问询 / 活动 / 段子'></textarea></div>");
+    var div_content = $('<div></div>');
+    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
+    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
+    
+    div.append(div_content);
     div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
     
     var div_tex = div.find('>*:nth-child(1) textarea');
+    var div_ima = div.find('>*:nth-child(1) img');
     var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
     var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
     
     div_can.bind('click', function() {dialog.disappear();});
     div_sen.bind('click', function() {
-        var text = div_tex.val();
+        var text    = div_tex.val();
+        var image   = div_ima.attr('src');
         if (0 == text.length) {
             dialog.shake();
             return;
@@ -321,12 +356,14 @@ function create_sending(dialog) {
             dialog.shake();
             return;
         }
+        text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
             uid     : ski.uid,
             coosys  : 1,
             lat     : ski.user.location.point.lat,
             lng     : ski.user.location.point.lng,
-            text    : text
+            text    : text,
+            image   : image
         }, function(code, desc) {
             if (0 == code) {
                 dialog.disappear();
@@ -627,38 +664,23 @@ function create_user_register_2(dialog, page) {
     div.addClass('page-register-2');
     div.append('<div>个人信息</div>');
     div.append('<div></div>');
-    div.append("<div><img /><input type='file' accept='image/*'></div>");
+    var div_err = div.find('>div:nth-child(2)');
+    div.append(sn.ui.choose_image(1024 * 1024 * 2, function(image) {
+        div_err.hide();
+        user_register.cover = image;
+    }, function(size) {
+        dialog.shake();
+        div_err.text('图片不能大于2M');
+        div_err.show();
+    }));
     div.append("<div><label>姓名</label><input type='text' placeholder='您的姓名'></div>")
     div.append("<div>别担心，这些信息以后还能修改。</div>")
     div.append("<div><div class='button'>上一步</div><div class='button button-default'>提交</div></div>");
     
-    var div_err = div.find('>div:nth-child(2)');
-    var div_img = div.find('>div:nth-child(3) img');
-    var div_cho = div.find('>div:nth-child(3) input');
     var div_nam = div.find('>div:nth-child(4) input');
     var div_bac = div.find('>div:nth-child(6) .button:nth-child(1)');
     var div_sub = div.find('>div:nth-child(6) .button:nth-child(2)');
-    
-    div_cho.bind('change', function(e) {
-        var files = e.target.files || e.dataTransfer.files;
-        if (!files || !files[0]) return;
-        
-        var file = files[0];
-        if (file.size > 1024 * 1024 * 2) {
-            dialog.shake();
-            div_err.text('图片不能大于2M');
-            div_err.show();
-            return;
-        }
-        
-        div_err.hide();
-        var reader = new FileReader();
-        reader.onload = function(e1) {
-            div_img.attr('src', e1.target.result);
-            user_register.cover = e1.target.result;
-        };
-        reader.readAsDataURL(file);
-    });
+
     div_bac.bind('click', function() {page.page_to_prev();});
     div_sub.bind('click', function() {
         var name = div_nam.val();

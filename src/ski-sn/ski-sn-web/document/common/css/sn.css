@@ -1,13 +1,22 @@
 /* system */
-/* 边框体积 */
 * {
-            box-sizing  : border-box;
-    -webkit-box-sizing  : border-box;
-}
-/* 硬件加速 */
-{
+    /* 边框体积 */
+            box-sizing          : border-box;
+    -webkit-box-sizing          : border-box;
+    /* 硬件加速 */
             overflow-scrolling  : touch;
     -webkit-overflow-scrolling  : touch;
+    /* 长按菜单 */
+            touch-callout       : none;
+    -webkit-touch-callout       : none;
+    /* 点击遮罩 */
+            tap-highlight-color : rgba(0,0,0,0);
+    -webkit-tap-highlight-color : rgba(0,0,0,0);
+}
+div {
+    cursor              : default;
+            user-select : none;
+    -webkit-user-select : none;
 }
 /* 输入框外观 */
 input, textarea {
@@ -25,16 +34,7 @@ input {
 textarea {
     padding : 0 .5em;
 }
-/* 长按菜单 */
-img, .sn .button, .sn .head *, .sn .head .foot * {
-            touch-callout   : none;
-    -webkit-touch-callout   : none;
-}
-/* 点击遮罩 */
-a, input, textarea, .sn .button {
-            tap-highlight-color : rgba(0,0,0,0);
-    -webkit-tap-highlight-color : rgba(0,0,0,0);
-}
+
 
 /* layout */
 body {overflow : hidden;}
@@ -64,6 +64,8 @@ body {overflow : hidden;}
 .sn .page   {position : relative; width : 100%; height : 100%; overflow : hidden;}
 .sn .page >div:nth-child(1) {display : none; position : absolute; top :   0; left : 0; width : 100%; height : 2em; line-height : 2em;}
 .sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {position : absolute; top : 2em; left : 0; width : 100%; bottom : 2em; overflow : auto;}
+.sn .choose-image >img   {vertical-align : middle; width : 100%; height : 100%;}
+.sn .choose-image >input {vertical-align : middle; width : 100%; height : 100%; position : relative; top : -100%; border : none; opacity : 0;}
 
 /* apperence */
 .sn .bg     {background-color : black;}
@@ -86,11 +88,6 @@ body {overflow : hidden;}
     -webkit-transform   : translateZ(0);
             transition  : top .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : top .3s cubic-bezier(0,0.5,0.5,1);
-}
-.sn .head * {
-    cursor              : default;
-            user-select : none;
-    -webkit-user-select : none;
 }
 .sn .head .cover >div:nth-child(1) {
     border : 1px solid gray;
@@ -167,9 +164,6 @@ body {overflow : hidden;}
     100% {left : 50%;}
 }
 .sn .button {
-    cursor              : default;
-            user-select : none;
-    -webkit-user-select : none;
     color               : blue;
     background-color    : rgba(0, 0, 0, 0);
             border-radius   : 1em;
@@ -193,6 +187,13 @@ body {overflow : hidden;}
     -webkit-transform   : translateZ(0);
             transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .choose-image >img {
+    background-color    : white;
+    border              : 1px solid gray; 
+}
+.sn .choose-image >input {
+    border  : none;
 }
 
 
@@ -222,9 +223,8 @@ body {overflow : hidden;}
 .sn .page-register-2 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
 .sn .page-register-2 >div:nth-child(1) {font-size : 3em;}
 .sn .page-register-2 >div:nth-child(2) {color : red}
-.sn .page-register-2 >div:nth-child(3) {margin : 1em auto; width : 8em; height : 8em; background-color : white; border : 1px solid gray; border-radius : 4em; -webkit-border-radius : 4em;}
-.sn .page-register-2 >div:nth-child(3) img   {vertical-align : middle; width : 100%; height : 100%; border-radius : 4em; -webkit-border-radius : 4em;}
-.sn .page-register-2 >div:nth-child(3) input {vertical-align : middle; width : 100%; height : 100%; position : relative; top : -100%; border : none; opacity : 0;}
+.sn .page-register-2 .choose-image     {margin : 1em auto; width : 8em; height : 8em;}
+.sn .page-register-2 .choose-image >*  {border-radius : 4em; -webkit-border-radius : 4em;}
 .sn .page-register-2 >div:nth-child(4) label {width : 20%; text-align : center; margin-right : 1em;}
 .sn .page-register-2 >div:nth-child(4) input {width : 50%; text-align : center; font-size : 1em;}
 .sn .page-register-2 >div:nth-child(5) {color : gray; transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
@@ -235,11 +235,14 @@ body {overflow : hidden;}
 .sn .page-register-done >div:nth-child(1) {font-size : 3em;}
 .sn .page-register-done >div:nth-child(3) {margin-top : 2em; transform : scale(1.2, 1.2); -webkit-transofmr : scale(1.2, 1.2);}
 
-.sn .dialog-sending {height : 20%; top : 80%;}
+.sn .dialog-sending {height : 8em; top : 80%;}
 .sn .sending {position : absolute; width : 100%; height : 100%;}
-.sn .sending >*:nth-child(1)          {width : 100%; padding : .5em .7em;}
-.sn .sending >*:nth-child(1) textarea {width : 100%;}
-.sn .sending >*:nth-child(2)         {position : absolute; width : 100%; bottom : 1em; text-align : center; color : blue;}
+.sn .sending >*:nth-child(1) {width : 100%;}
+.sn .sending >*:nth-child(1) textarea {position : absolute; top : .5em; left  : .5em; bottom : 3em; right :  6em;}
+.sn .sending >*:nth-child(1) .choose-image {position : absolute; top : .5em; width :  5em; bottom : 3em; right : .5em;}
+.sn .sending >*:nth-child(1) .choose-image >*     {border-radius : 1em; -webkit-border-radius : 1em;}
+.sn .sending >*:nth-child(1) .choose-image >input {top : -4.5em;}
+.sn .sending >*:nth-child(2) {position : absolute; width : 100%; bottom : 1em; text-align : center; color : blue;}
 .sn .sending >*:nth-child(2) .button {margin : 0 1em;}
 
 

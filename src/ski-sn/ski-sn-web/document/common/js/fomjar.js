@@ -107,31 +107,31 @@ fomjar.util.base64 = function() {
         if (!str) {
             return '';
         }
-        var utf8    = this.UTF16ToUTF8(str); // 转成UTF8
+        var utf8    = UTF16ToUTF8(str); // 转成UTF8
         var i = 0; // 遍历索引
         var len = utf8.length;
         var res = [];
         while (i < len) {
             var c1 = utf8.charCodeAt(i++) & 0xFF;
-            res.push(this.table[c1 >> 2]);
+            res.push(table[c1 >> 2]);
             // 需要补2个=
             if (i == len) {
-                res.push(this.table[(c1 & 0x3) << 4]);
+                res.push(table[(c1 & 0x3) << 4]);
                 res.push('==');
                 break;
             }
             var c2 = utf8.charCodeAt(i++);
             // 需要补1个=
             if (i == len) {
-                res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
-                res.push(this.table[(c2 & 0x0F) << 2]);
+                res.push(table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
+                res.push(table[(c2 & 0x0F) << 2]);
                 res.push('=');
                 break;
             }
             var c3 = utf8.charCodeAt(i++);
-            res.push(this.table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
-            res.push(this.table[((c2 & 0x0F) << 2) | ((c3 & 0xC0) >> 6)]);
-            res.push(this.table[c3 & 0x3F]);
+            res.push(table[((c1 & 0x3) << 4) | ((c2 >> 4) & 0x0F)]);
+            res.push(table[((c2 & 0x0F) << 2) | ((c3 & 0xC0) >> 6)]);
+            res.push(table[c3 & 0x3F]);
         }
 
         return res.join('');
@@ -147,10 +147,10 @@ fomjar.util.base64 = function() {
         var res = [];
 
         while (i < len) {
-            code1 = this.table.indexOf(str.charAt(i++));
-            code2 = this.table.indexOf(str.charAt(i++));
-            code3 = this.table.indexOf(str.charAt(i++));
-            code4 = this.table.indexOf(str.charAt(i++));
+            code1 = table.indexOf(str.charAt(i++));
+            code2 = table.indexOf(str.charAt(i++));
+            code3 = table.indexOf(str.charAt(i++));
+            code4 = table.indexOf(str.charAt(i++));
 
             c1 = (code1 << 2) | (code2 >> 4);
             c2 = ((code2 & 0xF) << 4) | (code3 >> 2);
@@ -167,7 +167,7 @@ fomjar.util.base64 = function() {
 
         }
 
-        return this.UTF8ToUTF16(res.join(''));
+        return UTF8ToUTF16(res.join(''));
     };
 
 };
