@@ -239,7 +239,7 @@ body {overflow : hidden;}
 .sn .sending {position : absolute; width : 100%; height : 100%;}
 .sn .sending >*:nth-child(1) {width : 100%;}
 .sn .sending >*:nth-child(1) textarea {position : absolute; top : .5em; left  : .5em; bottom : 3em; right :  6em;}
-.sn .sending >*:nth-child(1) .choose-image {position : absolute; top : .5em; width :  5em; bottom : 3em; right : .5em;}
+.sn .sending >*:nth-child(1) .choose-image {position : absolute; top : .6em; width :  5em; bottom : 3.1em; right : .5em;}
 .sn .sending >*:nth-child(1) .choose-image >*     {border-radius : 1em; -webkit-border-radius : 1em;}
 .sn .sending >*:nth-child(1) .choose-image >input {top : -4.5em;}
 .sn .sending >*:nth-child(2) {position : absolute; width : 100%; bottom : 1em; text-align : center; color : blue;}

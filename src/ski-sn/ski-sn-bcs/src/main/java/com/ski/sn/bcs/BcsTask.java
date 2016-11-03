@@ -234,8 +234,8 @@ public class BcsTask implements FjServer.FjServerTask {
         double  lng     = args.getDouble("lng");
         String  text    = args.has("text") ? args.getString("text") : null;
         String  image   = args.has("image") ? args.getString("image") : null;
-        String  mid     = String.format("%f:%f:%d", lat, lng, System.currentTimeMillis());
         String  geohash = GeoHash.encode(lat, lng);
+        String  mid     = String.format("%s:%d", geohash, System.currentTimeMillis());
         
         JSONObject args_cdb = new JSONObject();
         args_cdb.put("mid",     mid);

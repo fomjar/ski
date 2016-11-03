@@ -2,7 +2,7 @@
 
 -- INST_UPDATE_USER                = 0x00003001
 delete from tbl_instruction where i_inst = (conv('00003001', 16, 10) + 0);
-insert into tbl_instruction(
+insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
@@ -152,6 +152,18 @@ begin
 
         if 0 = di_count then
             set dc_create = concat('create table ', dc_table, ' (c_mid varchar(128), t_time datetime, i_uid integer, i_coosys tinyint, i_lat decimal(24, 20), i_lng decimal(24, 20), c_geohash varchar(16), c_text text, c_image mediumtext, primary key (c_mid))');
+            set @s = dc_create;
+            prepare s from @s;
+            execute s;
+            deallocate prepare s;
+
+            set dc_create = concat('create table ', dc_table, '_focus (c_mid varchar(128), i_uid integer, t_time datetime, i_type tinyint)');
+            set @s = dc_create;
+            prepare s from @s;
+            execute s;
+            deallocate prepare s;
+
+            set dc_create = concat('create table ', dc_table, '_reply (c_mid varchar(128), c_rid varchar(128))');
             set @s = dc_create;
             prepare s from @s;
             execute s;
