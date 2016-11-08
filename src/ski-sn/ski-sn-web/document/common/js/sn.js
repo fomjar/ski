@@ -234,6 +234,8 @@ sn.ui = {
     }
 };
 
+sn.login = [];
+
 
 (function($) {
 
@@ -358,7 +360,6 @@ function create_sending(dialog) {
         }
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
-            uid     : ski.uid,
             coosys  : 1,
             lat     : ski.user.location.point.lat,
             lng     : ski.user.location.point.lng,
@@ -381,7 +382,6 @@ function geowatch() {
         if (this.getStatus() == BMAP_STATUS_SUCCESS){
             var p = r.point;
             fomjar.net.send(ski.ISIS.INST_UPDATE_USER_STATE, {
-                uid         : ski.uid,
                 state       : 1,
                 terminal    : 1,
                 location    : p.lat + ':' + p.lng
@@ -441,12 +441,17 @@ function geowatch() {
             });
         } else {}
     };
-    setTimeout(function() {new BMap.Geolocation().getCurrentPosition(run);}, 5000);
+    setTimeout(function() {new BMap.Geolocation().getCurrentPosition(run);}, 2000);
+    setTimeout(function() {if (ski.user.location) sn.ui.state(1).flash();}, 5000);
     setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 30);
 }
     
 function user_login_manually(phone, pass, success, failure) {
-    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {phone : phone, pass : pass, terminal : 1}, function(code, desc) {
+    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
+        phone       : phone,
+        pass        : pass,
+        terminal    : 1
+    }, function(code, desc) {
         if (0 != code) {
             if (failure) failure(code, desc);
             return;
@@ -465,12 +470,19 @@ function user_login_manually(phone, pass, success, failure) {
         build_user_state();
         geowatch();
         
-        if (success) success();
+        if (success) {
+            success();
+            $.each(sn.login, function(i, f) {f();});
+        }
     });
 }
 
 function user_login_automatic(success, failure) {
-   fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {uid : ski.uid, token : ski.token, terminal : 1}, function(code, desc) {
+    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
+        token       : ski.token,
+        uid         : ski.uid,
+        terminal    : 1
+    }, function(code, desc) {
         if (0 != code) {
             if (failure) failure(code, desc);
             return;
@@ -487,7 +499,10 @@ function user_login_automatic(success, failure) {
         build_user_state();
         geowatch();
         
-        if (success) success();
+        if (success) {
+            success();
+            $.each(sn.login, function(i, f) {f();});
+        }
     });
 }
 

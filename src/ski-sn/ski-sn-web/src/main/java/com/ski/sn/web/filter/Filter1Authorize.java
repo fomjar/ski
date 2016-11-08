@@ -75,6 +75,7 @@ public class Filter1Authorize extends FjWebFilter {
     }
     
     private static String[] document_exclude = new String[] {
+            "/",
             "/index.html",
             "/404.html",
     };
@@ -84,7 +85,7 @@ public class Filter1Authorize extends FjWebFilter {
             if (de.equals(request.path())) return true;
         }
         if (!request.cookie().containsKey("token") || !request.cookie().containsKey("uid")) {
-            redirect(response, "/index.html");
+            redirect(response, "/");
             return false;
         }
         String token = request.cookie().get("token");
@@ -94,7 +95,7 @@ public class Filter1Authorize extends FjWebFilter {
         args_bcs.put("uid",     uid);
         FjDscpMessage rsp = CommonService.requests("bcs", CommonDefinition.ISIS.INST_APPLY_AUTHORIZE, args_bcs);
         if (!CommonService.isResponseSuccess(rsp)) {
-            redirect(response, "/index.html");
+            redirect(response, "/");
             return false;
         }
         

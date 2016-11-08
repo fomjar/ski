@@ -112,9 +112,27 @@ insert into tbl_geohash_code (c_code) values ('y');
 insert into tbl_geohash_code (c_code) values ('z');
 
 -- 临时GeoHash序列
-create table tmp_geohash (c_geohash varchar(16));
 drop table if exists tmp_geohash;
+create table tmp_geohash (c_geohash varchar(16));
 
+-- 临时消息序列
+drop table if exists tmp_message;
+create table tmp_message (
+    c_mid       varchar(128),       -- 编号(geohash:timestamp)
+    t_time      datetime,           -- 时间
+    i_uid       integer,            -- 用户
+    i_coosys    tinyint,            -- 坐标系统：0 - mars; 1 - baidu
+    i_lat       decimal(24, 20),    -- 纬度
+    i_lng       decimal(24, 20),    -- 经度
+    c_geohash   varchar(16),        -- geohash编码
+    c_text      text,               -- 消息文本
+    c_image     mediumtext,         -- 消息图片
+    i_distance  integer,
+    i_second    integer,
+    i_focus     integer,
+    i_reply     integer,
+    i_weight    integer
+);
 
 
 

@@ -104,8 +104,6 @@ public class WsiTask implements FjServerTask {
 
         // 请求上报业务
         FjServerToolkit.getAnySender().send(newreq);
-
-        logger.debug(newreq);
     }
 
     private void responseDscpMessage(FjDscpMessage rsp) {

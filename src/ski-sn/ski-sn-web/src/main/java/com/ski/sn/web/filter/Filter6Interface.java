@@ -21,7 +21,7 @@ public class Filter6Interface extends FjWebFilter {
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (!"/ski-web".equals(request.path())) return true;
         
-        logger.info(String.format("[ INTERFACE ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
+        logger.info(String.format("[ INTERFACE ] - %s", request.url()));
         
         JSONObject args = request.argsToJson();
         if (!args.has("inst")) {
@@ -37,8 +37,12 @@ public class Filter6Interface extends FjWebFilter {
         int inst = FilterToolkit.getIntFromArgs(args, "inst");
         args.remove("inst");
         
+        if (request.cookie().containsKey("uid"))    args.put("uid",     Integer.parseInt(request.cookie().get("uid")));
+        if (request.cookie().containsKey("token"))  args.put("token",   request.cookie().get("token"));
+        
         FjDscpMessage rsp = CommonService.requests("bcs", inst, args);
         response.attr().put("Content-Type", "application/json");
+        response.attr().put("Content-Encoding", "gzip");
         response.content(rsp.args());
         return true;
     }

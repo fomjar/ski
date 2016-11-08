@@ -13,7 +13,6 @@ import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -124,9 +123,9 @@ public class FjSender extends FjLoopTask {
             }
             InputStream is = conn.getInputStream();
             ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-            byte[] buf = new byte[1024 * 4];
+            byte[] buf = new byte[1024];
             int n = -1;
-            while (0 < (n = is.read(buf))) baos.write(buf, 0, n);
+            while (0 <= (n = is.read(buf))) baos.write(buf, 0, n);
             rsp = FjServerToolkit.createMessage(baos.toString("utf-8"));
         } catch (IOException e) {logger.error("error occurs when send http request to url: " + req.url(), e);}
         finally {if (null != conn) conn.disconnect();}
@@ -140,22 +139,6 @@ public class FjSender extends FjLoopTask {
     public static void sendHttpResponse(FjHttpResponse rsp, SocketChannel conn, int timeout) {
         logger.debug("send http response:\n" + rsp);
         try {
-            if (rsp.attr().containsKey("Content-Encoding")) {
-                byte[] content = rsp.content();
-
-                switch (rsp.attr().get("Content-Encoding")) {
-                case "gzip":
-                    ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
-                    GZIPOutputStream gzos = new GZIPOutputStream(content_gzip);
-                    gzos.write(content);
-                    gzos.finish();
-                    gzos.close();
-
-                    rsp.content(content_gzip.toByteArray());
-                    break;
-                }
-            }
-
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             baos.write(rsp.toString().getBytes("utf-8"));
             baos.write(rsp.content());

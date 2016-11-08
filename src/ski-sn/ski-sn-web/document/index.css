@@ -1,0 +1,97 @@
+.sn .body {
+    padding : 3em 0;
+}
+
+.sn .body .msg {
+    width           : 100%;
+    padding         : .3em;
+    padding-bottom  : 0;
+}
+.sn .body .msg table {
+    width : 100%;
+}
+.sn .body .msg table td:nth-child(2) {
+    width           : 3em;
+    padding-left    : .3em;
+}
+.sn .body .msg .mc {
+    background-color        : rgba(255, 255, 255, .9);
+            border-radius   : 1.5em;
+    -webkit-border-radius   : 1.5em;
+}
+.sn .body .msg .mc .mh {
+    height  : 3em;
+}
+.sn .body .msg .mc .mh >div {
+    padding : .5em 1em;
+}
+.sn .body .msg .mc .mh >div:nth-child(1) {
+    float   : left;
+}
+.sn .body .msg .mc .mh >div:nth-child(1) img {
+    float   : left;
+    width   : 2em;
+    height  : 2em;
+    border  : 1px solid gray;
+            border-radius   : 1em;
+    -webkit-border-radius   : 1em;
+}
+.sn .body .msg .mc .mh >div:nth-child(1) div {
+    float       : left;
+    line-height : 2em;
+    padding     : 0 .5em;
+}
+.sn .body .msg .mc .mh >div:nth-child(2) {
+    float       : right;
+    padding-top : 1.2em;
+}
+.sn .body .msg .mc .mh >div:nth-child(2) * {
+    float       : right;
+}
+.sn .body .msg .mc .mh >div:nth-child(2) img {
+    width       : .8em;
+    margin-left : 1em;
+}
+.sn .body .msg .mc .mh >div:nth-child(2) div {
+    font-size   : .8em;
+    line-height : 1.1em;
+    margin-left : .5em;
+    color       : gray;
+}
+.sn .body .msg .mc .mb {
+    padding     : .5em 1em;
+    line-height : 1.5em;
+    font-size   : 105%;
+    font-weight : 600;
+}
+.sn .body .msg .mc .mb {
+    width       : 100%;
+}
+.sn .body .msg .mc .mf {
+    padding     : .5em 1em;
+    text-align  : center;
+}
+.sn .body .msg .ma {
+    text-align  : center;
+}
+.sn .body .msg .ma img {
+    width           : 1.2em;
+    margin          : .5em;
+    vertical-align  : middle;
+}
+.sn .body .msg .ma >div:nth-child(1) {
+    background-color    : rgba(255, 255, 255, .9);
+    border-radius       : 1.5em 1.5em 0 0;
+}
+.sn .body .msg .ma >div:nth-child(2) {
+    line-height : 1.5em;
+    padding     : .3em;
+    margin      : 1px 0;
+    background-color    : rgba(255, 255, 255, .9);
+}
+.sn .body .msg .ma >div:nth-child(3) {
+    background-color    : rgba(255, 255, 255, .9);
+    border-radius: 0 0 1.5em 1.5em;
+}
+
+

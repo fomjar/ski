@@ -1,8 +1,12 @@
 package fomjar.server.msg;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -29,6 +33,27 @@ public abstract class FjHttpMessage implements FjMessage {
         this.attr           = new HashMap<String, String>();
         this.setcookie      = new HashMap<String, Map<String, String>>();
     }
+    
+    public void contentCatch(SocketChannel conn, ByteBuffer buf, long timeout) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        baos.write(content());
+        
+        int protocal_length = 0;
+        if (attr().containsKey("Content-Length"))
+            protocal_length = Integer.parseInt(attr().get("Content-Length"));
+        
+        long begin = System.currentTimeMillis();
+        buf.clear();
+        while (baos.size() < protocal_length && System.currentTimeMillis() - begin < timeout) {
+            if (conn.read(buf) > 0) {
+                buf.flip();
+                baos.write(buf.array(), buf.position(), buf.limit());
+                buf.clear();
+                begin = System.currentTimeMillis();
+            }
+        }
+        content(baos.toByteArray());
+    }
 
     protected abstract String head();
 
@@ -37,7 +62,7 @@ public abstract class FjHttpMessage implements FjMessage {
     public String   contentType()   {return attr().containsKey("Content-Type") ? attr.get("Content-Type") : contentType;}
     public byte[]   content()       {return content;}
 
-    public void            content(Object content) {
+    public void         content(Object content) {
         if (content instanceof byte[]) {
             this.content = (byte[]) content;
         } else {

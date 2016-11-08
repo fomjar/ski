@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.msg.FjHttpMessage;
 import fomjar.util.FjLoopTask;
 import fomjar.util.FjThreadFactory;
 
@@ -27,6 +28,7 @@ public class FjReceiver extends FjLoopTask {
     private static final Logger         logger  = Logger.getLogger(FjReceiver.class);
     private static final Set<Integer>   alive   = new HashSet<Integer>();
     private static final int            BUF_LEN = 1024;
+    private static final long           TIMEOUT = 3000;
 
     static {
         alive.add(80);
@@ -108,30 +110,46 @@ public class FjReceiver extends FjLoopTask {
 
     private void readAlive(SocketChannel conn) {
         pool.submit(()->{
+            String data = null;
             try {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ByteBuffer buf = ByteBuffer.allocate(BUF_LEN);
-                buf.clear();
-                int     n = -1;
-                long    begin = System.currentTimeMillis();
-                while (0 <= (n = conn.read(buf)) && 100 > System.currentTimeMillis() - begin) {
-                    if (0 < n) {
+                
+                FjMessage msg = null;
+                long begin = System.currentTimeMillis();
+                while (true) {
+                    if (System.currentTimeMillis() - begin > TIMEOUT) break;
+                    
+                    buf.clear();
+                    while (0 < conn.read(buf)) {
                         buf.flip();
                         baos.write(buf.array(), buf.position(), buf.limit());
                         buf.clear();
+                        
                         begin = System.currentTimeMillis();
                     }
+                    data = baos.toString("utf-8");
+                    try {
+                        msg = FjServerToolkit.createMessage(data);
+                        break;
+                    } catch (Exception e) {
+                        continue;
+                    }
                 }
-                String data = baos.toString("utf-8");
                 baos.close();
-
+                
+                if (msg == null) {
+                    logger.error("connection is bad or data can not be parsed: " + data);
+                    return;
+                }
+                
+                if (msg instanceof FjHttpMessage) ((FjHttpMessage) msg).contentCatch(conn, buf, TIMEOUT);
+                
                 logger.debug("read raw data is: " + data);
-                if (0 < data.length())
-                    mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
-                            .attach("conn", conn)
-                            .attach("raw", data));
-                else conn.close();
-            } catch (Exception e) {logger.error("read alive connection failed", e);}
+                mq.offer(new FjMessageWrapper(msg)
+                        .attach("conn", conn)
+                        .attach("raw", data));
+            } catch (Exception e) {logger.error("read alive connection failed, data: " + data, e);}
         });
     }
 

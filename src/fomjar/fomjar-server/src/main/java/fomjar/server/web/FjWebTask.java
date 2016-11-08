@@ -1,5 +1,8 @@
 package fomjar.server.web;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.Arrays;
 import java.util.Date;
@@ -9,6 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -71,11 +76,40 @@ public class FjWebTask implements FjServer.FjServerTask {
     }
 
     protected void prepProtocol(FjHttpResponse response, FjHttpRequest request) {
+        prepProtocolCommon(response, request);
+        prepProtocolGzip(response, request);
+    }
+    
+    protected void prepProtocolCommon(FjHttpResponse response, FjHttpRequest request) {
         response.attr().put("Server",   "fomjar/0.0.1");
         response.attr().put("Date",     new Date().toString());
     }
+    
+    protected void prepProtocolGzip(FjHttpResponse response, FjHttpRequest request) {
+        if (request.attr().containsKey("Content-Encoding")
+                && request.attr().get("Content-Encoding").toLowerCase().contains("gzip")) {
+            try {
+                GZIPInputStream gzis = new GZIPInputStream(new ByteArrayInputStream(request.content()));
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                byte[] buf = new byte[1024];
+                int len = 0;
+                while (0 < (len = gzis.read(buf))) baos.write(buf, 0, len);
+                gzis.close();
+                
+                request.attr().put("Content-Length", String.valueOf(baos.size()));
+                request.content(baos.toByteArray());
+            } catch (IOException e) {
+                logger.error("prep protocol gzip failed", e);
+            }
+        }
+    }
 
     protected void postProtocol(FjHttpResponse response, FjHttpRequest request) {
+        postProtocolRange(response, request);
+        postProtocolGzip(response, request);
+    }
+    
+    protected void postProtocolRange(FjHttpResponse response, FjHttpRequest request) {
         if (request.attr().containsKey("Range")) {
             byte[] data = response.content();
 
@@ -87,6 +121,24 @@ public class FjWebTask implements FjServer.FjServerTask {
             data = Arrays.copyOfRange(data, range_start, range_end + 1);
 
             response.content(data);
+        }
+    }
+    
+    protected void postProtocolGzip(FjHttpResponse response, FjHttpRequest request) {
+        if (response.attr().containsKey("Content-Encoding")
+                && response.attr().get("Content-Encoding").toLowerCase().contains("gzip")) {
+            try {
+                ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
+                GZIPOutputStream gzos = new GZIPOutputStream(content_gzip);
+                gzos.write(response.content());
+                gzos.finish();
+                gzos.flush();
+                gzos.close();
+                
+                response.content(content_gzip.toByteArray());
+            } catch (IOException e) {
+                logger.error("post protocol gzip failed", e);
+            }
         }
     }
 

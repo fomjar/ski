@@ -125,32 +125,36 @@ begin
     declare r               decimal(24, 20) default 0;
     declare fl              decimal(24, 20) default 0;
     declare h1              decimal(24, 20) default 0;
-    declare h2              decimal(24, 20) default 0;
+    declare h2              decimal(40, 20) default 0;
 
-    set f = radians((lat1 + lat2) / 2);
-    set g = radians((lat1 - lat2) / 2);
-    set l = radians((lng1 - lng2) / 2);
+    if lat1 = lat2 and lng1 = lng2 then
+        return 0;
+    else
+        set f = radians((lat1 + lat2) / 2);
+        set g = radians((lat1 - lat2) / 2);
+        set l = radians((lng1 - lng2) / 2);
 
-    set sf = sin(f);
-    set sg = sin(g);
-    set sl = sin(l);
+        set sf = sin(f);
+        set sg = sin(g);
+        set sl = sin(l);
 
-    set fl = 1/298.257;
+        set fl = 1/298.257;
 
-    set sf = sf * sf;
-    set sg = sg * sg;
-    set sl = sl * sl;
+        set sf = sf * sf;
+        set sg = sg * sg;
+        set sl = sl * sl;
 
-    set s = sg * (1 - sl) + (1 - sf) * sl;
-    set c = (1 - sg) * (1 - sl) + sf * sl;
+        set s = sg * (1 - sl) + (1 - sf) * sl;
+        set c = (1 - sg) * (1 - sl) + sf * sl;
 
-    set w = atan(sqrt(s / c));
-    set r = sqrt(s * c) / w;
+        set w = atan(sqrt(s / c));
+        set r = sqrt(s * c) / w;
 
-    set h1 = (3 * r - 1) / 2 / c;
-    set h2 = (3 * r + 1) / 2 / s;
+        set h1 = (3 * r - 1) / 2 / c;
+        set h2 = (3 * r + 1) / 2 / s;
 
-    return 2 * w * EARTH_RADIUS * (1 + fl * (h1 * sf * (1 - sg) - h2 * (1 - sf) * sg));
+        return 2 * w * EARTH_RADIUS * (1 + fl * (h1 * sf * (1 - sg) - h2 * (1 - sf) * sg));
+    end if;
 
 end //
 delimiter ;
@@ -169,6 +173,7 @@ begin
     declare cr  tinyint         default 0;
     declare st  varchar(500)    default null;
 
+    delete from tmp_geohash;
     insert into tmp_geohash (c_geohash) values (geohash6);
 
     set cl = length(geohash6);
