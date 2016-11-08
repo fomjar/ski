@@ -1,8 +1,5 @@
 
 var ski = {};
-ski.token   = (function() {return fomjar.util.cookie('token');})();
-ski.uid     = parseInt((function() {return fomjar.util.cookie('uid');})());
-ski.message = [];
 
 ski.ISIS = {
     /** 认证 */

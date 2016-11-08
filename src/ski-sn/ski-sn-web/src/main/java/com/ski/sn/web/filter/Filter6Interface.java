@@ -105,6 +105,8 @@ public class Filter6Interface extends FjWebFilter {
     private static byte[] compressImage(String type, byte[] data, int width) {
         try {
             BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
+            if (img.getWidth() <= width) return data;
+            
             int height = (int) (((float) width) / img.getWidth() * img.getHeight());
             BufferedImage img1 = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics g = img1.getGraphics();

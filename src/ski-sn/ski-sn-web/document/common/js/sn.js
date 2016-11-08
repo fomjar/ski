@@ -1,5 +1,14 @@
 
 var sn = {};
+sn.token    = (function() {return fomjar.util.cookie('token');})();
+sn.uid      = parseInt((function() {return fomjar.util.cookie('uid');})());
+sn.message  = [];
+// sn.user      = {};
+// sn.location  = {};
+sn.stub         = {};
+sn.stub.login  = [];
+sn.stub.locate = [];
+
 sn.ui = {
     mask : function() {
         var div = $('.sn .mask');
@@ -234,8 +243,6 @@ sn.ui = {
     }
 };
 
-sn.login = [];
-
 
 (function($) {
 
@@ -243,6 +250,8 @@ fomjar.framework.phase.append('ini', init_event);
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_head);
 fomjar.framework.phase.append('dom', build_foot);
+fomjar.framework.phase.append('ren', watch_location);
+fomjar.framework.phase.append('ren', login_automatic);
 
 function init_event() {
     $('body').bind('touchstart', function() {});
@@ -285,18 +294,12 @@ function build_user_cover() {
     
     $('.sn .head').append(cover);
     
-    var login = function() {
+    cover.bind('click', function() {
         var dialog = sn.ui.dialog();
         dialog.addClose('取消');
         dialog.append(create_user_login(dialog));
         dialog.appear();
-    };
-    
-    if (ski.token) {
-        user_login_automatic(function() {}, function() {cover.bind('click', login);});
-    } else {
-        cover.bind('click', login);
-    }
+    });
 }
 
 function build_user_state() {
@@ -328,56 +331,8 @@ function build_foot() {
     });
 }
 
-function create_sending(dialog) {
-    dialog.addClass('dialog-sending');
-    
-    var div = $('<div></div>');
-    div.addClass('sending');
-    
-    var div_content = $('<div></div>');
-    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
-    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
-    
-    div.append(div_content);
-    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
-    
-    var div_tex = div.find('>*:nth-child(1) textarea');
-    var div_ima = div.find('>*:nth-child(1) img');
-    var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
-    var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
-    
-    div_can.bind('click', function() {dialog.disappear();});
-    div_sen.bind('click', function() {
-        var text    = div_tex.val();
-        var image   = div_ima.attr('src');
-        if (0 == text.length) {
-            dialog.shake();
-            return;
-        }
-        if (/^ +$/.test(text)) {
-            dialog.shake();
-            return;
-        }
-        text = new fomjar.util.base64().encode(text);
-        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
-            coosys  : 1,
-            lat     : ski.user.location.point.lat,
-            lng     : ski.user.location.point.lng,
-            text    : text,
-            image   : image
-        }, function(code, desc) {
-            if (0 == code) {
-                dialog.disappear();
-            } else {
-                dialog.shake();
-            }
-        });
-    });
-    
-    return div;
-}
 
-function geowatch() {
+function watch_location() {
     var run = function(r){
         if (this.getStatus() == BMAP_STATUS_SUCCESS){
             var p = r.point;
@@ -430,23 +385,26 @@ function geowatch() {
                     “Array”原型
                     “Object”原型
                 */
-                if (undefined == ski.user.location || addr != ski.user.location.address) {
+                if (sn.user && (!sn.location || addr != sn.location.address)) {
                     var state_locate = sn.ui.state(1);
                     state_locate.find('>div').text(addr);
                     state_locate.find('>div').css('width', addr.length + 'em');
                     state_locate.flash();
                 }
-                ski.user.location = rs;
-                ski.user.location.address = addr;
+                sn.location = rs;
+                sn.location.address = addr;
+                
+                $.each(sn.stub.locate, function(i, f) {f(sn.location);});
             });
         } else {}
     };
-    setTimeout(function() {new BMap.Geolocation().getCurrentPosition(run);}, 2000);
-    setTimeout(function() {if (ski.user.location) sn.ui.state(1).flash();}, 5000);
+    new BMap.Geolocation().getCurrentPosition(run);
+    
+    setTimeout(function() {if (sn.location) sn.ui.state(1).flash();}, 5000);
     setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 30);
 }
     
-function user_login_manually(phone, pass, success, failure) {
+function login_manually(phone, pass, success, failure) {
     fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
         phone       : phone,
         pass        : pass,
@@ -459,50 +417,43 @@ function user_login_manually(phone, pass, success, failure) {
         
         fomjar.util.cookie('token', desc.token, 365);
         fomjar.util.cookie('uid',   desc.uid,   365);
-        ski.token = desc.token;
-        ski.uid   = desc.uid;
-        ski.user  = desc;
+        sn.token = desc.token;
+        sn.uid   = desc.uid;
+        sn.user  = desc;
         $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
         $('.sn .head .cover >div:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
         $('.sn .foot').css('bottom', '0');
         
         build_user_state();
-        geowatch();
         
-        if (success) {
-            success();
-            $.each(sn.login, function(i, f) {f();});
-        }
+        if (success) success();
+        
+        $.each(sn.stub.login, function(i, f) {f(sn.user);});
     });
 }
 
-function user_login_automatic(success, failure) {
+function login_automatic() {
+    if (!sn.token) return;
+
     fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
-        token       : ski.token,
-        uid         : ski.uid,
+        token       : sn.token,
+        uid         : sn.uid,
         terminal    : 1
     }, function(code, desc) {
-        if (0 != code) {
-            if (failure) failure(code, desc);
-            return;
-        }
+        if (0 != code) return;
+        
         fomjar.util.cookie('token', desc.token, 365);
         fomjar.util.cookie('uid',   desc.uid,   365);
-        ski.token = desc.token;
-        ski.uid   = desc.uid;
-        ski.user  = desc;
+        sn.token = desc.token;
+        sn.uid   = desc.uid;
+        sn.user  = desc;
         $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
         $('.sn .head .cover >div:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
         
         build_user_state();
-        geowatch();
-        
-        if (success) {
-            success();
-            $.each(sn.login, function(i, f) {f();});
-        }
+        $.each(sn.stub.login, function(i, f) {f(sn.user);});
     });
 }
 
@@ -548,7 +499,7 @@ function create_user_login_1(dialog, page) {
             div_err.show();
             return;
         }
-        user_login_manually(phone, pass, function() {
+        login_manually(phone, pass, function() {
             dialog.disappear();
         }, function(code, desc) {
             dialog.shake();
@@ -723,7 +674,7 @@ function create_user_register_2(dialog, page) {
             name  : user_register.name
         }, function(code, desc) {
             if (0 == code) {
-                user_login_manually(user_register.phone, user_register.pass, function() {
+                login_manually(user_register.phone, user_register.pass, function() {
                     page.page_to_next();
                 }, function(code, desc) {
                     dialog.shake();
@@ -758,5 +709,54 @@ function create_user_register_done(dialog) {
     return div;
 }
 
+
+function create_sending(dialog) {
+    dialog.addClass('dialog-sending');
+    
+    var div = $('<div></div>');
+    div.addClass('sending');
+    
+    var div_content = $('<div></div>');
+    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
+    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
+    
+    div.append(div_content);
+    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
+    
+    var div_tex = div.find('>*:nth-child(1) textarea');
+    var div_ima = div.find('>*:nth-child(1) img');
+    var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
+    var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
+    
+    div_can.bind('click', function() {dialog.disappear();});
+    div_sen.bind('click', function() {
+        var text    = div_tex.val();
+        var image   = div_ima.attr('src');
+        if (0 == text.length) {
+            dialog.shake();
+            return;
+        }
+        if (/^ +$/.test(text)) {
+            dialog.shake();
+            return;
+        }
+        text = new fomjar.util.base64().encode(text);
+        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
+            coosys  : 1,
+            lat     : sn.location.point.lat,
+            lng     : sn.location.point.lng,
+            text    : text,
+            image   : image
+        }, function(code, desc) {
+            if (0 == code) {
+                dialog.disappear();
+            } else {
+                dialog.shake();
+            }
+        });
+    });
+    
+    return div;
+}
 
 })(jQuery);

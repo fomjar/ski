@@ -51,7 +51,7 @@ begin
     declare di_reply        integer         default 0;
 
     declare done            integer         default 0;
-    declare rs_gh           cursor for select c_geohash from tmp_geohash;
+    declare rs_gh           cursor for select distinct c_geohash from tmp_geohash;
     declare rs_mid          cursor for select c_mid from tmp_message;
     /* 异常处理 */
     declare continue handler for sqlstate '02000' set done = 1;
@@ -69,9 +69,9 @@ begin
         fetch rs_gh into dc_cgh;
         while done = 0 do
 
-            if di_length = 6
-                or (left(dc_cgh, di_length) = left(geohash, di_length)
-                    and left(dc_cgh, di_length+1) != left(geohash, di_length+1))
+            if left(dc_cgh, di_length) = left(geohash, di_length)
+                and (di_length = 6
+                    or left(dc_cgh, di_length+1) != left(geohash, di_length+1))
                 then
 
                 set dc_statement = concat(
@@ -150,11 +150,12 @@ begin
             '\'\t', u.c_name,
             '\'\t', ifnull(u.c_cover, ''),
             '\'\t', ifnull(m.c_text, ''),
-            '\'\t', ifnull(m.c_image, '')) separator '\'\n')
+            '\'\t', ifnull(m.c_image, ''))
+           order by m.i_weight desc, m.c_mid desc
+           separator '\'\n')
       into c_desc
       from tmp_message m, tbl_user u
-     where m.i_uid = u.i_uid
-     order by m.i_weight, m.c_mid desc;
+     where m.i_uid = u.i_uid;
 
 end //
 delimiter ;

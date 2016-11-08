@@ -27,6 +27,7 @@ public class Filter1Authorize extends FjWebFilter {
     private static int[] instruction_exclude = new int[] {
             CommonDefinition.ISIS.INST_APPLY_AUTHORIZE,
             CommonDefinition.ISIS.INST_APPLY_VERIFY,
+            CommonDefinition.ISIS.INST_QUERY_MESSAGE,
             CommonDefinition.ISIS.INST_UPDATE_USER
     };
     

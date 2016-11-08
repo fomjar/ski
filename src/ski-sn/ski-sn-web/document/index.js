@@ -1,13 +1,9 @@
 
 (function($) {
 
-fomjar.framework.phase.append('dom', init_animate);
+fomjar.framework.phase.append('dom', animate);
 
-function init_animate() {
-    bg_animate();
-}
-
-function bg_animate() {
+function animate() {
     // revert
     var bg_img  = $('.sn .bg >img');
     var bg_mask = $('.sn .bg >div');
@@ -39,47 +35,45 @@ function bg_animate() {
                 
                 sn_head.css('top', '0');
                 
-                if (ski.user) {
-                    $('.sn .foot').css('bottom', '0');
-                    show_message();
-                }
+                animate_done();
             }, 3000);
         }, 500);
     });
-    
-    var i = setInterval(function() {
-        if (ski.user && ski.user.location) {
-            load_message(0, 30);
-            clearInterval(i);
-        }
+}
+
+function animate_done() {
+    load_message();
+    if (sn.user) {
+        $('.sn .foot').css('bottom', '0');
+    } else {
+        sn.stub.login.push(function() {
+            $('.sn .foot').css('bottom', '0')
+        });
+    }
+}
+
+function load_message() {
+    var iv = setInterval(function() {
+        if (!sn.location) return;
+        
+        fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE, {
+            lat : sn.location.point.lat,
+            lng : sn.location.point.lng,
+            pos : sn.message.length,
+            len : 20
+        }, function(code, desc) {
+            if (0 != code) return;
+            
+            $.each(desc, function(i, msg) {sn.message.push(msg);});
+            $.each(sn.message, function(i, msg) {
+                if (!msg.visible) {
+                    msg.visible = true;
+                    $('.sn .body').append(create_message_panel(msg));
+                }
+            });
+            clearInterval(iv);
+        });
     }, 1000);
-    
-}
-
-function load_message(pos, len) {
-    if (pos == 0) ski.message = [];
-    
-    fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE, {
-        lat : ski.user.location.point.lat,
-        lng : ski.user.location.point.lng,
-        pos : pos,
-        len : len
-    }, function(code, desc) {
-        if (0 == code) ski.message = desc;
-    });
-}
-
-function clear_message() {
-    $('.sn .body').html('');
-}
-
-function show_message() {
-    $.each(ski.message, function(i, msg) {
-        if (!msg.visible) {
-            msg.visible = true;
-            $('.sn .body').append(create_message_panel(msg));
-        }
-    });
 }
 
 function create_message_panel(msg) {

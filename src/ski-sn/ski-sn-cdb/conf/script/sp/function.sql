@@ -170,8 +170,6 @@ begin
     declare n   integer         default 0;
     declare cl  tinyint         default 0;
     declare ch  varchar(16)     default null;
-    declare tr  tinyint         default 0;
-    declare cr  tinyint         default 0;
     declare st  varchar(500)    default null;
 
     delete from tmp_geohash;
@@ -186,31 +184,16 @@ begin
     end if;
 
     set cl = length(geohash6);
-    while cl > 0 and length(geohash6) - cl < 4 do
+    while cl > 0 and length(geohash6) - cl < 3 do
         set cl = cl - 1;
         set ch = left(geohash6, cl);
-        set tr = length(geohash6) - cl;
 
-        set @ch = ch;
-        set st = 'select concat(@ch';
-
-        set cr = 0;
-        while cr < tr do
-            set st = concat(st, ', t', cr, '.c_code');
-            set cr = cr + 1;
-        end while;
-
-        set st = concat(st, ') as gh from tbl_geohash_code t0');
-
-        set cr = 1;
-        while cr < tr do
-            set st = concat(st, ', tbl_geohash_code t', cr);
-            set cr = cr + 1;
-        end while;
-
-        set st = concat('insert into tmp_geohash (c_geohash) select t.gh from (', st);
-        set st = concat(st, ") t where t.gh in (select right(table_name, 6) from information_schema.tables where table_name like 'tbl_message_%' and table_name not like 'tbl_message_%_focus' and table_name not like 'tbl_message_%_reply')");
-        set st = concat(st, ' order by t.gh');
+        set st = concat("insert into tmp_geohash ",
+                        "select right(table_name, 6) ",
+                        "  from information_schema.tables ",
+                        " where table_name like 'tbl_message_", ch , "%' ",
+                        "   and table_name not like 'tbl_message_%_focus' ",
+                        "   and table_name not like 'tbl_message_%_reply'");
 
         set @s = st;
         prepare s from @s;
@@ -218,6 +201,9 @@ begin
         deallocate prepare s;
 
     end while;
+
+    update tmp_geohash
+       set c_geohash = right(c_geohash, 6);
 
 end //
 delimiter ;

@@ -59,17 +59,26 @@
     color       : gray;
 }
 .sn .body .msg .mc .mb {
-    padding     : .5em 1em;
-    line-height : 1.5em;
-    font-size   : 105%;
-    font-weight : 600;
+    width           : 100%;
+    padding         : .5em 1em;
+    padding-bottom  : 0;
+    line-height     : 1.5em;
+    font-size       : 105%;
+    font-weight     : 600;
+    text-align      : center;
 }
-.sn .body .msg .mc .mb {
-    width       : 100%;
+.sn .body .msg .mc .mb div {
+    text-align      : left;
+}
+.sn .body .msg .mc .mb img {
+    max-width   : 100%;
+    margin-top  : 1em;
+    border      : 1px solid gray;
 }
 .sn .body .msg .mc .mf {
-    padding     : .5em 1em;
-    text-align  : center;
+    padding-top     : .5em;
+    padding-bottom  : 1em;
+    text-align      : center;
 }
 .sn .body .msg .ma {
     text-align  : center;
