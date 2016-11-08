@@ -287,8 +287,8 @@ public class BcsTask implements FjServer.FjServerTask {
             return;
         }
         
-        for (String message : desc.split("\\|", -1)) {
-            String[] fields = message.split("#", -1);
+        for (String message : desc.split("'\n", -1)) {
+            String[] fields = message.split("'\t", -1);
             int i = 0;
             JSONObject msg = new JSONObject();
             msg.put("mid",      fields[i++]);

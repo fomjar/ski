@@ -113,4 +113,15 @@ public abstract class FjWebFilter {
         response.code(301);
         response.attr().put("Location", url);
     }
+    
+    public static String[] data(String data) {
+        if (!data.startsWith("data:")) return null;
+        
+        String[] result = new String[3];
+        result[0] = data.substring(5, data.indexOf(";"));
+        result[1] = data.substring(data.indexOf(";") + 1, data.indexOf(","));
+        result[2] = data.substring(data.indexOf(",") + 1);
+        
+        return result;
+    }
 }

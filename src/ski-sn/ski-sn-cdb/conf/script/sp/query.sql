@@ -140,17 +140,17 @@ begin
 
     set i_code = 0;
     select group_concat(concat(
-                 m.c_mid,
-            '#', m.t_time,
-            '#', m.i_distance,
-            '#', m.i_second,
-            '#', m.i_focus,
-            '#', m.i_reply,
-            '#', u.i_uid,
-            '#', u.c_name,
-            '#', ifnull(u.c_cover, ''),
-            '#', ifnull(m.c_text, ''),
-            '#', ifnull(m.c_image, '')) separator '|')
+                    m.c_mid,
+            '\'\t', m.t_time,
+            '\'\t', m.i_distance,
+            '\'\t', m.i_second,
+            '\'\t', m.i_focus,
+            '\'\t', m.i_reply,
+            '\'\t', u.i_uid,
+            '\'\t', u.c_name,
+            '\'\t', ifnull(u.c_cover, ''),
+            '\'\t', ifnull(m.c_text, ''),
+            '\'\t', ifnull(m.c_image, '')) separator '\'\n')
       into c_desc
       from tmp_message m, tbl_user u
      where m.i_uid = u.i_uid

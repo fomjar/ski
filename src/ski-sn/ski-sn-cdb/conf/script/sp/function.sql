@@ -167,6 +167,7 @@ create procedure sp_generate_geohash (
 )
 begin
 
+    declare n   integer         default 0;
     declare cl  tinyint         default 0;
     declare ch  varchar(16)     default null;
     declare tr  tinyint         default 0;
@@ -174,7 +175,15 @@ begin
     declare st  varchar(500)    default null;
 
     delete from tmp_geohash;
-    insert into tmp_geohash (c_geohash) values (geohash6);
+
+    select count(1)
+      into n
+      from information_schema.tables
+     where table_name = concat('tbl_message_', geohash6);
+
+    if 0 < n then
+        insert into tmp_geohash (c_geohash) values (geohash6);
+    end if;
 
     set cl = length(geohash6);
     while cl > 0 and length(geohash6) - cl < 4 do
