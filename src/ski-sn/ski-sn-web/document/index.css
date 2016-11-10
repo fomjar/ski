@@ -24,15 +24,14 @@
 .sn .msg .mc .mh {
     height  : 3em;
 }
-.sn .msg .mc .mh >div {
+.sn .msg .mc .mh >div:nth-child(1) {
     padding         : .5em 1em;
     padding-bottom  : 0;
 }
-.sn .msg .mc .mh >div:nth-child(1) {
+.sn .msg .mc .mh >div:nth-child(1) * {
     float   : left;
 }
 .sn .msg .mc .mh >div:nth-child(1) img {
-    float   : left;
     width   : 2.5em;
     height  : 2.5em;
     border  : 1px solid gray;
@@ -40,41 +39,40 @@
     -webkit-border-radius   : 1.25em;
 }
 .sn .msg .mc .mh >div:nth-child(1) div {
-    float       : left;
-    font-size   : 90%;
-    line-height : 2.8em;
-    padding     : 0 .5em;
-}
-.sn .msg .mc .mh >div:nth-child(2) {
-    float       : right;
-    padding-top : 1.3em;
-}
-.sn .msg .mc .mh >div:nth-child(2) * {
-    float       : right;
-}
-.sn .msg .mc .mh >div:nth-child(2) img {
-    width       : .8em;
-    margin-left : .5em;
-}
-.sn .msg .mc .mh >div:nth-child(2) div {
-    font-size   : .8em;
-    line-height : 1.1em;
-    margin-left : .3em;
-    color       : gray;
+    line-height     : 2.5em;
+    padding-left    : .5em;
 }
 .sn .msg .mc .mb {
-    width           : 100%;
-    padding         : .5em 1em;
+    padding         : 0 1em;
     line-height     : 1.3em;
 }
-.sn .msg .mc .mb div {}
-.sn .msg .mc .mb img {
+.sn .msg .mc .mb >div:nth-child(1) {
+    margin-top  : .8em;
+    line-height : 1.5em;
+}
+.sn .msg .mc .mb >img:nth-child(2) {
     max-width   : 100%;
     max-height  : 10em;
     margin-top  : .5em;
 }
+.sn .msg .mc .mb .ass {
+    height      : 1em;
+    margin-top  : .5em;
+}
+.sn .msg .mc .mb .ass * {
+    float   : left;
+}
+.sn .msg .mc .mb .ass img {
+    width       : .8em;
+}
+.sn .msg .mc .mb .ass div {
+    font-size       : .8em;
+    line-height     : 1.1em;
+    margin-left     : .3em;
+    margin-right    : 1em;
+    color           : gray;
+}
 .sn .msg .mc .mf {
-    padding-top     : .8em;
     padding-bottom  : .8em;
     text-align      : center;
 }
@@ -93,7 +91,7 @@
     -webkit-transition  : background .2s linear;
 }
 .sn .msg .ma >div:nth-child(1):active {
-    background          : rgba(200, 200, 200, .9) url('res/msg-up.png') no-repeat center;
+    background          : rgba(160, 160, 160, .9) url('res/msg-up.png') no-repeat center;
     background-size     : 1.2em;
 }
 .sn .msg .ma >div:nth-child(2) {
@@ -112,24 +110,48 @@
     -webkit-transition  : background .2s linear;
 }
 .sn .msg .ma >div:nth-child(3):active {
-    background          : rgba(200, 200, 200, .9) url('res/msg-down.png') no-repeat center;
+    background          : rgba(160, 160, 160, .9) url('res/msg-down.png') no-repeat center;
     background-size     : 1.2em;
 }
 
-.sn .dialog .msg {
-    padding     : 0;
-    font-size   : 1.2em;
+.sn .reply {}
+.sn .reply .msg {
+    padding         : 0;
+    padding-right   : .5em;
+    font-size       : 1.2em;
 }
-.sn .dialog .msg .mc {
+.sn .reply .msg .mc {
     background-color    : rgba(0,0,0,0);
 }
-.sn .dialog .msg .mc img {
+.sn .reply .msg .mc .mb >img {
     max-height          : none;
 }
-.sn .dialog .msg table tr td {
+.sn .reply .msg table tr td {
     vertical-align: top;
 }
-.sn .dialog .msg .ma >div {
+.sn .reply .msg .ma >div {
     background-color    : rgba(0,0,0,0);
+}
+.sn .reply .focus {
+    padding     : .5em 1em;
+}
+.sn .reply .focus >div:nth-child(2n+1) {
+    color       : gray;
+    font-size   : .9em;
+}
+.sn .reply .focus >div:nth-child(2), .sn .reply .focus >div:nth-child(4) {
+    padding-bottom : .5em;
+}
+.sn .reply .focus img {
+    width   : 2.2em;
+    height  : 2.2em;
+    margin  : .2em;
+            border-radius   : 1.1em;
+    -webkit-border-radius   : 1.1em;
+}
+.sn .reply .focus >div:nth-child(6) {
+}
+.sn .reply .cell {
+    
 }
 

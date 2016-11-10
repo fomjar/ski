@@ -118,8 +118,18 @@ function load_message(pos, len) {
         $.each(desc, function(i, msg) {
             sn.message.push(msg);
             
-            var div = create_message_panel(msg);
-            msg.div = div;
+            var panel = create_message_panel(msg);
+            var reply = create_message_reply(msg);
+            msg.panel = panel;
+            msg.reply = reply;
+            
+            var div_msg = $([panel[0], reply.find('.msg')[0]]);
+            
+            panel.find('.mf .button').bind('click', function() {
+                var dialog = sn.ui.dialog();
+                dialog.append(reply);
+                dialog.appear();
+            });
             
             fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE_FOCUS, {
                 mid : msg.mid
@@ -127,23 +137,24 @@ function load_message(pos, len) {
                 if (0 != code) return;
                 msg.focuser = desc;
                 
-                var up = msg.div.find('.ma >div:nth-child(1)');
-                var num = msg.div.find('.ma >div:nth-child(2)');
-                var down = msg.div.find('.ma >div:nth-child(3)');
+                var up = div_msg.find('.ma >div:nth-child(1)');
+                var num = div_msg.find('.ma >div:nth-child(2)');
+                var down = div_msg.find('.ma >div:nth-child(3)');
                 switch (msg.attitude().type) {
                 case ATTITUDE_NONE:
                     up.css('background-color', '');
                     down.css('background-color', '');
                     break;
                 case ATTITUDE_UP:
-                    up.css('background-color', 'lightgray');
+                    up.css('background-color', '#bbbbbb');
                     down.css('background-color', '');
                     break;
                 case ATTITUDE_DOWN:
                     up.css('background-color', '');
-                    down.css('background-color', 'lightgray');
+                    down.css('background-color', '#bbbbbb');
                     break;
                 }
+                reply.onfocuser(desc);
             });
             msg.attitude = function() {
                 if (!sn.user) return null;
@@ -166,26 +177,26 @@ function load_message(pos, len) {
                     return;
                 }
                 var a = msg.attitude();
-                var up = msg.div.find('.ma >div:nth-child(1)');
-                var num = msg.div.find('.ma >div:nth-child(2)');
-                var down = msg.div.find('.ma >div:nth-child(3)');
+                var up = div_msg.find('.ma >div:nth-child(1)');
+                var num = div_msg.find('.ma >div:nth-child(2)');
+                var down = div_msg.find('.ma >div:nth-child(3)');
                 switch (a.type) {
                 case ATTITUDE_NONE:
                     a.type = ATTITUDE_UP;
-                    up.css('background-color', 'lightgray');
-                    num.text(parseInt(num.text()) + 1);
+                    up.css('background-color', '#bbbbbb');
+                    num.text(parseInt(num[0].innerText) + 1);
                     down.css('background-color', '');
                     break;
                 case ATTITUDE_UP:
                     a.type = ATTITUDE_NONE;
                     up.css('background-color', '');
-                    num.text(parseInt(num.text()) - 1);
+                    num.text(parseInt(num[0].innerText) - 1);
                     down.css('background-color', '');
                     break;
                 case ATTITUDE_DOWN:
                     a.type = ATTITUDE_UP;
-                    up.css('background-color', 'lightgray');
-                    num.text(parseInt(num.text()) + 2);
+                    up.css('background-color', '#bbbbbb');
+                    num.text(parseInt(num[0].innerText) + 2);
                     down.css('background-color', '');
                     break;
                 }
@@ -197,26 +208,26 @@ function load_message(pos, len) {
                     return;
                 }
                 var a = msg.attitude();
-                var up = msg.div.find('.ma >div:nth-child(1)');
-                var num = msg.div.find('.ma >div:nth-child(2)');
-                var down = msg.div.find('.ma >div:nth-child(3)');
+                var up = div_msg.find('.ma >div:nth-child(1)');
+                var num = div_msg.find('.ma >div:nth-child(2)');
+                var down = div_msg.find('.ma >div:nth-child(3)');
                 switch (a.type) {
                 case ATTITUDE_NONE:
                     a.type = ATTITUDE_DOWN;
                     up.css('background-color', '');
-                    num.text(parseInt(num.text()) - 1);
-                    down.css('background-color', 'lightgray');
+                    num.text(parseInt(num[0].innerText) - 1);
+                    down.css('background-color', '#bbbbbb');
                     break;
                 case ATTITUDE_UP:
                     a.type = ATTITUDE_DOWN;
                     up.css('background-color', '');
-                    num.text(parseInt(num.text()) - 2);
-                    down.css('background-color', 'lightgray');
+                    num.text(parseInt(num[0].innerText) - 2);
+                    down.css('background-color', '#bbbbbb');
                     break;
                 case ATTITUDE_DOWN:
                     a.type = ATTITUDE_NONE;
                     up.css('background-color', '');
-                    num.text(parseInt(num.text()) + 1);
+                    num.text(parseInt(num[0].innerText) + 1);
                     down.css('background-color', '');
                     break;
                 }
@@ -235,9 +246,9 @@ function load_message(pos, len) {
                     else sn.ui.toast('操作成功');
                 })
             };
-            div.css('opacity', '0');
-            $('.sn .body').append(div);
-            setTimeout(function() {div.css('opacity', '1');}, delay);
+            panel.css('opacity', '0');
+            $('.sn .body').append(panel);
+            setTimeout(function() {panel.css('opacity', '1');}, delay);
             delay += 100;
         });
 
@@ -255,15 +266,16 @@ function create_message_panel(msg) {
     var mh = $('<div></div>');
     mh.addClass('mh');
     mh.append("<div><img src='" + msg.ucover + "'/><div>" + msg.uname + "</div></div>")
-    mh.append("<div><div>" + get_distance_description(msg.distance) + "</div><img src='res/msg-dist.png'/><div>" + get_time_description(msg.second) + "</div><img src='res/msg-time.png'/></div>")
+    
     var mb = $('<div></div>');
     mb.addClass('mb');
     if (0 < msg.mtext.length)  mb.append('<div>' + new fomjar.util.base64().decode(msg.mtext)  + '</div>');
     if (0 < msg.mimage.length) mb.append("<img src='" + msg.mimage + "' / >");
+    mb.append("<div class='ass'><img src='res/msg-time.png'/><div>" + get_time_description(msg.second) + "</div><img src='res/msg-dist.png'/><div>" + get_distance_description(msg.distance) + "</div></div>")
+    
     var mf = $('<div></div>');
     mf.addClass('mf');
     mf.append("<div class='button'>回复(" + msg.reply + ")</div>");
-    mf.find('.button').bind('click', function() {show_message_reply(msg);});
     
     mc.append([mh, mb, mf]);
     
@@ -324,17 +336,46 @@ function get_time_description(second) {
     return '刚刚';
 }
 
-function show_message_reply(msg) {
-    var dialog = sn.ui.dialog();
-    var detail = create_message_panel(msg);
-    detail.find('.mf').remove();
+function create_message_reply(msg) {
+    var div = $('<div></div>');
+    div.addClass('reply');
     
+    var panel = create_message_panel(msg);
+    panel.find('.mf').remove();
     if (!sn.user) {
-        detail.find('.ma').remove();
+        panel.find('.ma').remove();
     }
+    div.append(panel);
     
-    dialog.append(detail);
-    dialog.appear();
+    var focus = $('<div></div>');
+    focus.addClass('focus');
+    
+    focus.append("<div>支持</div>");
+    var focus_up = $('<div></div>');
+    focus.append(focus_up);
+    
+//     focus.append("<div>反对</div>");
+//     var focus_down = $('<div></div>');
+//     focus.append(focus_down);
+    
+    div.append(focus);
+    
+    div.onfocuser = function(focuser) {
+        $.each(focuser, function(i, f) {
+            switch (f.type) {
+            case ATTITUDE_UP:
+                focus_up.append("<img src='" + f.ucover + "' />");
+                break;
+//             case ATTITUDE_DOWN:
+//                 focus_down.append("<img src='" + f.ucover + "' />");
+//                 break;
+            }
+        });
+        if (0 == focus_up.html().length)    focus_up.text('无');
+//         if (0 == focus_down.html().length)  focus_down.text('无');
+    };
+    
+    return div;
 }
 
 })(jQuery)

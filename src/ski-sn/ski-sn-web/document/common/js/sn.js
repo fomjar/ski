@@ -96,11 +96,6 @@ sn.ui = {
                 div.css('-webkit-animation', '');
             }, 500);
         }
-        var pd = function(e) {e.preventDefault();};
-        div.bind('click',       pd);
-        div.bind('touchstart',  pd);
-        div.bind('touchmove',   pd);
-        div.bind('touchend',    pd);
         return div;
     },
     toast : function(text, timeout) {
