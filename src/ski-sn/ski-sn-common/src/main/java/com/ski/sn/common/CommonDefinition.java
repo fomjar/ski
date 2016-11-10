@@ -18,7 +18,11 @@ public class CommonDefinition {
         /** 查询用户状态 */
         public static final int INST_QUERY_USER_STATE           = 0x00002004;
         /** 查询用户状态历史 */
-        public static final int INST_QUERY_USER_STATE_HISTORY   = 0X00002005;
+        public static final int INST_QUERY_USER_STATE_HISTORY   = 0x00002005;
+        /** 查询消息关注 */
+        public static final int INST_QUERY_MESSAGE_FOCUS        = 0x00002006;
+        /** 查询消息回复 */
+        public static final int INST_QUERY_MESSAGE_REPLY        = 0x00002007;
         
         /** 更新用户 */
         public static final int INST_UPDATE_USER                = 0x00003001;
@@ -28,6 +32,10 @@ public class CommonDefinition {
         public static final int INST_UPDATE_MESSAGE             = 0x00003003;
         /** 更新用户状态 */
         public static final int INST_UPDATE_USER_STATE          = 0x00003004;
+        /** 更新消息关注 */
+        public static final int INST_UPDATE_MESSAGE_FOCUS       = 0x00003006;
+        /** 更新消息回复 */
+        public static final int INST_UPDATE_MESSAGE_REPLY       = 0x00003007;
         
     }
     

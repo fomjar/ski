@@ -76,7 +76,7 @@ public class Filter6Interface extends FjWebFilter {
         switch (data[1]) {
         case "base64":
             byte[] img0 = Base64.getDecoder().decode(data[2]);
-            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 200);
+            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 80);
             String cover_new = String.format("data:%s;%s,%s", data[0], data[1], Base64.getEncoder().encodeToString(img1));
             args.put("cover", cover_new);
             break;
@@ -94,7 +94,7 @@ public class Filter6Interface extends FjWebFilter {
         switch (data[1]) {
         case "base64": {
             byte[] img0 = Base64.getDecoder().decode(data[2]);
-            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 600);
+            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 360);
             String image_new = String.format("data:%s;%s,%s", data[0], data[1], Base64.getEncoder().encodeToString(img1));
             args.put("image", image_new);
             break;

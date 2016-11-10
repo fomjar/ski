@@ -75,42 +75,6 @@ create table tbl_message_geohash6_reply (
 );
 drop table if exists tbl_message_geohash6_reply;
 
--- GeoHash编码表
-drop table if exists tbl_geohash_code;
-create table tbl_geohash_code (c_code char(1));
-insert into tbl_geohash_code (c_code) values ('0');
-insert into tbl_geohash_code (c_code) values ('1');
-insert into tbl_geohash_code (c_code) values ('2');
-insert into tbl_geohash_code (c_code) values ('3');
-insert into tbl_geohash_code (c_code) values ('4');
-insert into tbl_geohash_code (c_code) values ('5');
-insert into tbl_geohash_code (c_code) values ('6');
-insert into tbl_geohash_code (c_code) values ('7');
-insert into tbl_geohash_code (c_code) values ('8');
-insert into tbl_geohash_code (c_code) values ('9');
-insert into tbl_geohash_code (c_code) values ('b');
-insert into tbl_geohash_code (c_code) values ('c');
-insert into tbl_geohash_code (c_code) values ('d');
-insert into tbl_geohash_code (c_code) values ('e');
-insert into tbl_geohash_code (c_code) values ('f');
-insert into tbl_geohash_code (c_code) values ('g');
-insert into tbl_geohash_code (c_code) values ('h');
-insert into tbl_geohash_code (c_code) values ('j');
-insert into tbl_geohash_code (c_code) values ('k');
-insert into tbl_geohash_code (c_code) values ('m');
-insert into tbl_geohash_code (c_code) values ('n');
-insert into tbl_geohash_code (c_code) values ('p');
-insert into tbl_geohash_code (c_code) values ('q');
-insert into tbl_geohash_code (c_code) values ('r');
-insert into tbl_geohash_code (c_code) values ('s');
-insert into tbl_geohash_code (c_code) values ('t');
-insert into tbl_geohash_code (c_code) values ('u');
-insert into tbl_geohash_code (c_code) values ('v');
-insert into tbl_geohash_code (c_code) values ('w');
-insert into tbl_geohash_code (c_code) values ('x');
-insert into tbl_geohash_code (c_code) values ('y');
-insert into tbl_geohash_code (c_code) values ('z');
-
 -- 临时GeoHash序列
 drop table if exists tmp_geohash;
 create table tmp_geohash (c_geohash varchar(16));
@@ -131,7 +95,7 @@ create table tmp_message (
     i_second    integer,
     i_focus     integer,
     i_reply     integer,
-    i_weight    integer
+    i_weight    integer,
 );
 
 

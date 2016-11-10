@@ -77,6 +77,9 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_QUERY_MESSAGE:
             requestQueryMessage(request);
             break;
+        case CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS:
+            requestQueryMessageFocus(request);
+            break;
         case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
             requestUpdateMessage(request);
             break;
@@ -85,6 +88,12 @@ public class BcsTask implements FjServer.FjServerTask {
             break;
         case CommonDefinition.ISIS.INST_UPDATE_USER_STATE:
             requestUpdateUserState(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_FOCUS:
+            requestUpdateMessageFocus(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY:
+            requestUpdateMessageReply(request);
             break;
         default:
             logger.error("illegal inst: " + request);
@@ -109,9 +118,16 @@ public class BcsTask implements FjServer.FjServerTask {
             case CommonDefinition.ISIS.INST_QUERY_MESSAGE:
                 responseQueryMessage(args, request);
                 break;
+            case CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS:
+                responseQueryMessageFocus(args, request);
+                break;
             case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_USER_STATE:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_FOCUS:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY:
                 break;
             default:
                 if (CommonDefinition.CODE.CODE_SUCCESS != CommonService.getResponseCode(response)) {
@@ -157,7 +173,6 @@ public class BcsTask implements FjServer.FjServerTask {
     private void responseApplyAuthorize(JSONObject args, FjDscpMessage request) {
         if (0 == args.getJSONArray("desc").size()) {
             logger.error("用户名或密码错误: " + request);
-            args.put("code", CommonDefinition.CODE.CODE_ERROR);
             args.put("desc", "用户名或密码错误");
             return;
         }
@@ -181,14 +196,12 @@ public class BcsTask implements FjServer.FjServerTask {
         desc.put("cover",   user.getString(5));
         desc.put("token",   token);
         
-        args.put("code", CommonDefinition.CODE.CODE_SUCCESS);
         args.put("desc", desc);
     }
     
     private void responseQueryUserState(JSONObject args, FjDscpMessage request) {
         if (0 == args.getJSONArray("desc").size()) {
             logger.error("缓存已失效，请重新登录: " + request);
-            args.put("code", CommonDefinition.CODE.CODE_ERROR);
             args.put("desc", "缓存已失效，请重新登录");
             return;
         }
@@ -209,7 +222,6 @@ public class BcsTask implements FjServer.FjServerTask {
         desc.put("cover",   user.getString(5));
         desc.put("token",   request.argsToJsonObject().getString("token"));
         
-        args.put("code", CommonDefinition.CODE.CODE_SUCCESS);
         args.put("desc", desc);
     }
     
@@ -279,14 +291,14 @@ public class BcsTask implements FjServer.FjServerTask {
         int pos = args_req.getInt("pos");
         int len = args_req.getInt("len");
         
-        JSONArray msgs = new JSONArray();
         String  desc = args.getJSONArray("desc").getString(0);
         if ("null".equals(desc)) {
             logger.info("no message queried for request: " + request);
-            CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, new JSONArray());
+            args.put("desc", new JSONArray());
             return;
         }
         
+        JSONArray msgs = new JSONArray();
         for (String message : desc.split("'\n", -1)) {
             String[] fields = message.split("'\t", -1);
             int i = 0;
@@ -309,7 +321,42 @@ public class BcsTask implements FjServer.FjServerTask {
         JSONArray msgs_rsp = cache_message.get(uid);
         JSONArray desc_rsp = new JSONArray();
         for (int i = pos; i < pos + len && i < msgs_rsp.size(); i++) desc_rsp.add(msgs_rsp.get(i));
-        CommonService.response(request, CommonDefinition.CODE.CODE_SUCCESS, desc_rsp);
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryMessageFocus(FjDscpMessage request) {
+        if (!illegalArgs(request, "mid")) return;
+        
+        JSONObject args = request.argsToJsonObject();
+        String mid = args.getString("mid");
+        String geohash6 = mid.substring(0, 6);
+        
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("mid", mid);
+        args_cdb.put("geohash6", geohash6);
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS, args_cdb);
+        catchResponse(request);
+    }
+    
+    private void responseQueryMessageFocus(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject focus = new JSONObject();
+            int i = 0;
+            focus.put("mid",    fields.getString(i++));
+            focus.put("uid",    Integer.parseInt(fields.getString(i++)));
+            focus.put("uname",  fields.getString(i++));
+            focus.put("ucover", fields.getString(i++));
+            focus.put("time",   fields.getString(i++));
+            focus.put("type",   Integer.parseInt(fields.getString(i++)));
+            desc_rsp.add(focus);
+        }
+        args.put("desc", desc_rsp);
     }
     
     private void requestUpdateMessage(FjDscpMessage request) {
@@ -364,6 +411,42 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid")) return;
         
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER_STATE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateMessageFocus(FjDscpMessage request) {
+        if (!illegalArgs(request, "uid", "mid", "type")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE_FOCUS, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateMessageReply(FjDscpMessage request) {
+        if (!illegalArgs(request, "uid", "mid", "coosys", "lat", "lng")) return;
+        
+        JSONObject args = request.argsToJsonObject();
+        int     uid     = args.getInt("uid");
+        String  mid     = args.getString("mid");
+        int     coosys  = args.getInt("coosys");
+        double  lat     = args.getDouble("lat");
+        double  lng     = args.getDouble("lng");
+        String  text    = args.has("text") ? args.getString("text") : null;
+        String  image   = args.has("image") ? args.getString("image") : null;
+        String  geohash = GeoHash.encode(lat, lng);
+        String  rid     = String.format("%s:%d", geohash, System.currentTimeMillis());
+        
+        JSONObject args_cdb = new JSONObject();
+        args_cdb.put("mid",     mid);
+        args_cdb.put("rid",     rid);
+        args_cdb.put("uid",     uid);
+        args_cdb.put("coosys",  coosys);
+        args_cdb.put("lat",     lat);
+        args_cdb.put("lng",     lng);
+        args_cdb.put("geohash", geohash);
+        args_cdb.put("text",    text);
+        args_cdb.put("image",   image);
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY, args_cdb);
         catchResponse(request);
     }
     

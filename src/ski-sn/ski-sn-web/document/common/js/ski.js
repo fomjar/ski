@@ -17,6 +17,10 @@ ski.ISIS = {
     INST_QUERY_USER_STATE           : 0x00002004,
     /** 查询用户状态历史 */
     INST_QUERY_USER_STATE_HISTORY   : 0x00002005,
+    /** 查询消息关注 */
+    INST_QUERY_MESSAGE_FOCUS        : 0x00002006,
+    /** 查询消息回复 */
+    INST_QUERY_MESSAGE_REPLY        : 0x00002007,
     
     /** 更新用户 */
     INST_UPDATE_USER                : 0x00003001,
@@ -25,5 +29,11 @@ ski.ISIS = {
     /** 更新消息 */
     INST_UPDATE_MESSAGE             : 0x00003003,
     /** 更新用户状态 */
-    INST_UPDATE_USER_STATE          : 0x00003004
+    INST_UPDATE_USER_STATE          : 0x00003004,
+    /** 更新消息关注 */
+    INST_UPDATE_MESSAGE_FOCUS       : 0x00003006,
+    /** 更新消息回复 */
+    INST_UPDATE_MESSAGE_REPLY       : 0x00003007,
+    
+    INST_UNKNOWN                    : 0xFFFFFFFF
 };

@@ -83,7 +83,6 @@ begin
                 prepare s from @s;
                 execute s;
                 deallocate prepare s;
-
             end if;
 
             fetch rs_gh into dc_cgh;
@@ -95,7 +94,7 @@ begin
           into di_count
           from tmp_message;
 
-        if di_count >= 1000 then
+        if di_count >= 500 then
             set di_length = 0;
         else
             set di_length = di_length - 1;
@@ -159,5 +158,103 @@ begin
 
 end //
 delimiter ;
+
+-- INST_QUERY_MESSAGE_FOCUS        = 0x00002006
+delete from tbl_instruction where i_inst = (conv('00002006', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002006', 16, 10) + 0),
+    'st',
+    6,
+    "select f.c_mid, u.i_uid, u.c_name, u.c_cover, f.t_time, f.i_type from tbl_message_$geohash6_focus f, tbl_user u where f.i_uid = u.i_uid and f.c_mid = \"$mid\""
+);
+
+-- INST_QUERY_MESSAGE_REPLY        = 0x00002007
+delete from tbl_instruction where i_inst = (conv('00002007', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002007', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_query_message_reply(?, ?, \"$mid\")"
+);
+
+
+delimiter //
+drop procedure if exists sp_query_message_reply;
+create procedure sp_query_message_reply (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  mid     varchar(128)
+)
+begin
+
+    declare dc_statement    varchar(300)    default null;
+    declare dc_mid          varchar(128)    default null;
+
+    declare done            integer         default 0;
+    declare rs_mid          cursor for select c_mid from tmp_message;
+    /* 异常处理 */
+    declare continue handler for sqlstate '02000' set done = 1;
+
+    delete from tmp_message;
+    set dc_statement = concat(
+            'insert into tmp_message (c_mid) ',
+            'select c_rid ',
+            '  from tbl_message_', left(mid, 6), '_reply ',
+            " where c_mid = \"", mid, "\""
+    );
+    set @s = dc_statement;
+    prepare s from @s;
+    execute s;
+    deallocate prepare s;
+
+    open rs_mid;
+    fetch rs_mid into dc_mid;
+    while done = 0 do
+        set dc_statement = concat(
+            'update tmp_message t, tbl_message_', left(dc_mid, 6), ' m',
+            '   set t.t_time    = m.t_time,',
+            '       t.i_uid     = m.i_uid,',
+            '       t.i_coosys  = m.i_coosys,',
+            '       t.i_lat     = m.i_lat,',
+            '       t.i_lng     = m.i_lng,',
+            '       t.c_geohash = m.c_geohash,',
+            '       t.c_text    = m.c_text,',
+            '       t.c_image   = m.c_image'
+        );
+        set @s = dc_statement;
+        prepare s from @s;
+        execute s;
+        deallocate prepare s;
+    end while;
+    close rs_mid;
+
+    set i_code = 0;
+    select group_concat(concat(
+                    m.c_mid,
+            '\'\t', m.t_time,
+            '\'\t', u.i_uid,
+            '\'\t', u.c_name,
+            '\'\t', ifnull(u.c_cover, ''),
+            '\'\t', ifnull(m.c_text, ''),
+            '\'\t', ifnull(m.c_image, ''))
+           order by m.t_time desc, m.c_mid desc
+           separator '\'\n')
+      into c_desc
+      from tmp_message m, tbl_user u
+     where m.i_uid = u.i_uid;
+
+end //
+delimiter ;
+
 
 

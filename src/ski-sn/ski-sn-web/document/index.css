@@ -2,105 +2,134 @@
     padding : 3em 0;
 }
 
-.sn .body .msg {
-    width           : 100%;
-    padding         : .3em;
-    padding-bottom  : 0;
+.sn .msg {
+    width               : 100%;
+    padding             : .3em;
+    padding-bottom      : 0;
+            transition  : opacity .5s;
+    -webkit-transition  : opacity .5s;
 }
-.sn .body .msg table {
+.sn .msg table {
     width : 100%;
 }
-.sn .body .msg table td:nth-child(2) {
+.sn .msg table td:nth-child(2) {
     width           : 3em;
     padding-left    : .3em;
 }
-.sn .body .msg .mc {
+.sn .msg .mc {
     background-color        : rgba(255, 255, 255, .9);
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
 }
-.sn .body .msg .mc .mh {
+.sn .msg .mc .mh {
     height  : 3em;
 }
-.sn .body .msg .mc .mh >div {
-    padding : .5em 1em;
-}
-.sn .body .msg .mc .mh >div:nth-child(1) {
-    float   : left;
-}
-.sn .body .msg .mc .mh >div:nth-child(1) img {
-    float   : left;
-    width   : 2em;
-    height  : 2em;
-    border  : 1px solid gray;
-            border-radius   : 1em;
-    -webkit-border-radius   : 1em;
-}
-.sn .body .msg .mc .mh >div:nth-child(1) div {
-    float       : left;
-    line-height : 2em;
-    padding     : 0 .5em;
-}
-.sn .body .msg .mc .mh >div:nth-child(2) {
-    float       : right;
-    padding-top : 1.2em;
-}
-.sn .body .msg .mc .mh >div:nth-child(2) * {
-    float       : right;
-}
-.sn .body .msg .mc .mh >div:nth-child(2) img {
-    width       : .8em;
-    margin-left : 1em;
-}
-.sn .body .msg .mc .mh >div:nth-child(2) div {
-    font-size   : .8em;
-    line-height : 1.1em;
-    margin-left : .5em;
-    color       : gray;
-}
-.sn .body .msg .mc .mb {
-    width           : 100%;
+.sn .msg .mc .mh >div {
     padding         : .5em 1em;
     padding-bottom  : 0;
-    line-height     : 1.5em;
-    font-size       : 105%;
-    font-weight     : 600;
-    text-align      : center;
 }
-.sn .body .msg .mc .mb div {
-    text-align      : left;
+.sn .msg .mc .mh >div:nth-child(1) {
+    float   : left;
 }
-.sn .body .msg .mc .mb img {
+.sn .msg .mc .mh >div:nth-child(1) img {
+    float   : left;
+    width   : 2.5em;
+    height  : 2.5em;
+    border  : 1px solid gray;
+            border-radius   : 1.25em;
+    -webkit-border-radius   : 1.25em;
+}
+.sn .msg .mc .mh >div:nth-child(1) div {
+    float       : left;
+    font-size   : 90%;
+    line-height : 2.8em;
+    padding     : 0 .5em;
+}
+.sn .msg .mc .mh >div:nth-child(2) {
+    float       : right;
+    padding-top : 1.3em;
+}
+.sn .msg .mc .mh >div:nth-child(2) * {
+    float       : right;
+}
+.sn .msg .mc .mh >div:nth-child(2) img {
+    width       : .8em;
+    margin-left : .5em;
+}
+.sn .msg .mc .mh >div:nth-child(2) div {
+    font-size   : .8em;
+    line-height : 1.1em;
+    margin-left : .3em;
+    color       : gray;
+}
+.sn .msg .mc .mb {
+    width           : 100%;
+    padding         : .5em 1em;
+    line-height     : 1.3em;
+}
+.sn .msg .mc .mb div {}
+.sn .msg .mc .mb img {
     max-width   : 100%;
-    margin-top  : 1em;
-    border      : 1px solid gray;
+    max-height  : 10em;
+    margin-top  : .5em;
 }
-.sn .body .msg .mc .mf {
-    padding-top     : .5em;
-    padding-bottom  : 1em;
+.sn .msg .mc .mf {
+    padding-top     : .8em;
+    padding-bottom  : .8em;
     text-align      : center;
 }
-.sn .body .msg .ma {
+.sn .msg .mc .mf .button {
+    padding     : .4em .8em;
+}
+.sn .msg .ma {
     text-align  : center;
 }
-.sn .body .msg .ma img {
-    width           : 1.2em;
-    margin          : .5em;
-    vertical-align  : middle;
-}
-.sn .body .msg .ma >div:nth-child(1) {
-    background-color    : rgba(255, 255, 255, .9);
+.sn .msg .ma >div:nth-child(1) {
+    height              : 2.5em;
     border-radius       : 1.5em 1.5em 0 0;
+    background          : rgba(255, 255, 255, .9) url('res/msg-up.png') no-repeat center;
+    background-size     : 1.2em;
+            transition  : background .2s linear;
+    -webkit-transition  : background .2s linear;
 }
-.sn .body .msg .ma >div:nth-child(2) {
+.sn .msg .ma >div:nth-child(1):active {
+    background          : rgba(200, 200, 200, .9) url('res/msg-up.png') no-repeat center;
+    background-size     : 1.2em;
+}
+.sn .msg .ma >div:nth-child(2) {
     line-height : 1.5em;
     padding     : .3em;
     margin      : 1px 0;
     background-color    : rgba(255, 255, 255, .9);
+    color       : gray;
 }
-.sn .body .msg .ma >div:nth-child(3) {
-    background-color    : rgba(255, 255, 255, .9);
-    border-radius: 0 0 1.5em 1.5em;
+.sn .msg .ma >div:nth-child(3) {
+    height              : 2.5em;
+    border-radius       : 0 0 1.5em 1.5em;
+    background          : rgba(255, 255, 255, .9) url('res/msg-down.png') no-repeat center;
+    background-size     : 1.2em;
+            transition  : background .2s linear;
+    -webkit-transition  : background .2s linear;
+}
+.sn .msg .ma >div:nth-child(3):active {
+    background          : rgba(200, 200, 200, .9) url('res/msg-down.png') no-repeat center;
+    background-size     : 1.2em;
 }
 
+.sn .dialog .msg {
+    padding     : 0;
+    font-size   : 1.2em;
+}
+.sn .dialog .msg .mc {
+    background-color    : rgba(0,0,0,0);
+}
+.sn .dialog .msg .mc img {
+    max-height          : none;
+}
+.sn .dialog .msg table tr td {
+    vertical-align: top;
+}
+.sn .dialog .msg .ma >div {
+    background-color    : rgba(0,0,0,0);
+}
 

@@ -194,3 +194,83 @@ delimiter ;
 
 
 
+-- INST_UPDATE_MESSAGE_FOCUS       = 0x00003006
+delete from tbl_instruction where i_inst = (conv('00003006', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003006', 16, 10) + 0), 'sp', 2, "sp_update_message_focus(?, ?, \"$mid\", $uid, $type)");
+delimiter //
+drop procedure if exists sp_update_message_focus //
+create procedure sp_update_message_focus (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  mid     varchar(128),
+    in  uid     integer,
+    in  _type    tinyint
+)
+begin
+
+    declare dc_statement    varchar(300)    default 0;
+
+    set dc_statement = concat(
+            'delete from tbl_message_', left(mid, 6), '_focus ',
+            " where c_mid = \"", mid, "\""
+    );
+    set @s = dc_statement;
+    prepare s from @s;
+    execute s;
+    deallocate prepare s;
+
+    set dc_statement = concat(
+            'insert into tbl_message_', left(mid, 6), '_focus (c_mid, i_uid, t_time, i_type) ',
+            "values (\"", mid, "\", ", uid, ", now(), ", _type, ")"
+    );
+    set @s = dc_statement;
+    prepare s from @s;
+    execute s;
+    deallocate prepare s;
+
+end //
+delimiter ;
+
+
+
+-- INST_UPDATE_MESSAGE_REPLY       = 0x00003007
+delete from tbl_instruction where i_inst = (conv('00003007', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003007', 16, 10) + 0), 'sp', 2, "sp_update_message_reply(?, ?, \"$mid\", \"$rid\", $uid, $coosys, $lat, $lng, \"$geohash\", \"$text\", \"$image\")");
+delimiter //
+drop procedure if exists sp_update_message_reply //
+create procedure sp_update_message_reply (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  mid     varchar(128),
+    in  rid     varchar(128),
+    in  uid     integer,
+    in  coosys  tinyint,
+    in  lat     decimal(24, 20),
+    in  lng     decimal(24, 20),
+    in  geohash varchar(16),
+    in  _text   text,
+    in  image   mediumtext
+)
+begin
+
+    declare dc_statement    varchar(300)    default null;
+
+    call sp_update_message(i_code, c_desc, rid, uid, coosys, lat, lng, geohash, _text, image);
+
+    if i_code = 0 then
+        set dc_statement = concat(
+                'insert into tbl_message_', left(mid, 6), '_reply (c_mid, c_rid) ',
+                "values (\"", mid, "\", \"", rid, "\")"
+        );
+        set @s = dc_statement;
+        prepare s from @s;
+        execute s;
+        deallocate prepare s;
+    end if;
+
+end //
+delimiter ;
+
+
+
+

@@ -5,9 +5,12 @@ sn.uid      = parseInt((function() {return fomjar.util.cookie('uid');})());
 sn.message  = [];
 // sn.user      = {};
 // sn.location  = {};
-sn.stub         = {};
-sn.stub.login  = [];
-sn.stub.locate = [];
+// sn.login     = function(){};
+sn.stub             = {};
+sn.stub.login       = [];
+sn.stub.locate      = [];
+sn.stub.pulldown    = [];
+sn.stub.pullup      = [];
 
 sn.ui = {
     mask : function() {
@@ -25,8 +28,13 @@ sn.ui = {
             }, 0);
             setTimeout(function() {
                 div.hide();
-            }, 500);
+            }, 200);
         };
+        var pd = function(e) {e.preventDefault();};
+        div.bind('click',       pd);
+        div.bind('touchstart',  pd);
+        div.bind('touchmove',   pd);
+        div.bind('touchend',    pd);
         return div;
     },
     dialog : function() {
@@ -39,10 +47,16 @@ sn.ui = {
             sn.ui.mask().appear();
             setTimeout(function() {
                 div.show();
-                div.css('opacity', '.9');
+                div.css('opacity', '.95');
                 div.css(        'transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
                 div.css('-webkit-transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
             }, 0);
+            setTimeout(function() {
+                var d = null;
+                if (0 < div.find('input:nth-child(1)').length) d = div.find('input')[0];
+                else if (0 < div.find('textarea:nth-child(1)').length) d = div.find('textarea')[0];
+                if (d) d.focus();
+            }, 200);
         };
         div.disappear = function() {
             setTimeout(function() {
@@ -54,7 +68,7 @@ sn.ui = {
             setTimeout(function() {
                 div.html('');
                 div.hide();
-            }, 300);
+            }, 200);
         };
         div.addClose = function(title, onClose) {
             var close = $('<div>' + title + '</div>');
@@ -82,7 +96,28 @@ sn.ui = {
                 div.css('-webkit-animation', '');
             }, 500);
         }
+        var pd = function(e) {e.preventDefault();};
+        div.bind('click',       pd);
+        div.bind('touchstart',  pd);
+        div.bind('touchmove',   pd);
+        div.bind('touchend',    pd);
         return div;
+    },
+    toast : function(text, timeout) {
+        if (!timeout) timeout = 1500;
+        
+        var div = $('.sn .toast');
+        div.text(text);
+        div.hide();
+        div.css('opacity', '0');
+        div.show();
+        div.css('opacity', '1');
+        setTimeout(function() {
+            div.css('opacity', '0');
+            setTimeout(function() {
+                div.hide();
+            }, 200);
+        }, timeout);
     },
     page : function() {
         var div = $('<div></div>');
@@ -240,23 +275,105 @@ sn.ui = {
         });
         
         return div;
+    },
+    scroll : function(div, begin, end, top, bottom, timeout) {
+        div.scrolling = false;
+        
+        div.bind('scroll', function(e) {
+            div.scrollend = new Date().getTime();
+            
+            if (!div.scrolling) {
+                div.scrolling = true;
+                
+                var i = setInterval(function() {
+                    if (new Date().getTime() - div.scrollend > timeout) {
+                        div.scrolling = false;
+                        clearInterval(i);
+                        
+                        if (end) end();
+                    }
+                }, 100);
+                
+                if (begin) begin();
+            }
+            if (0 == div.scrollTop() && top) top();
+            if (div.scrollTop() + div.outerHeight(true) == div[0].scrollHeight && bottom) bottom();
+        });
+    },
+    pull : function(div, down, up, offset) {
+        var istop = false;
+        var isbottom = false;
+        var isdown = false;
+        var isup = false;
+        var length_down = 0;
+        var length_up = 0;
+        var t = 0;
+        var y = 0;
+        div.bind('touchstart', function(e) {
+            var touch = e.targetTouches[0];
+            t = div.css('top');
+            y = touch.pageY;
+            
+            if (div.scrollTop() == 0) istop = true;
+            else istop = false;
+            
+            if (div.scrollTop() + div.outerHeight(true) == div[0].scrollHeight) isbottom = true;
+            else isbottom = false;
+            
+            isdown = false;
+            isup = false;
+        });
+        div.bind('touchmove', function(e) {
+            var touch = e.targetTouches[0];
+            if (istop) {
+                if (touch.pageY - y > 0) {
+                    isdown = true;
+                    length_down = Math.pow(touch.pageY - y, 1 / 1.2);
+                    div.css('top', length_down + 'px');
+                    e.preventDefault(); // band elastic
+                } else {
+                    istop = false; // band elastic
+                    isdown = false;
+                }
+            }
+            if (isbottom) {
+                if (touch.pageY - y < 0) {
+                    isup = true;
+                    length_up = Math.pow(y - touch.pageY, 1 / 1.2);
+                    div.css('top', (0 - length_up) + 'px');
+                    e.preventDefault(); // band elastic
+                } else {
+                    isbottom = false; // band elastic
+                    isup = false;
+                }
+            }
+        });
+        div.bind('touchend', function(e) {
+            var touch = e.targetTouches[0];
+            div.css('top', t);
+            
+            if (isdown && length_down > offset && down) down();
+            if (isup && length_up > offset && up) up();
+        });
     }
 };
 
 
 (function($) {
 
-fomjar.framework.phase.append('ini', init_event);
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_head);
 fomjar.framework.phase.append('dom', build_foot);
-fomjar.framework.phase.append('ren', watch_location);
+fomjar.framework.phase.append('ren', init_event);
 fomjar.framework.phase.append('ren', login_automatic);
+fomjar.framework.phase.append('ren', watch_location);
 
-function init_event() {
-    $('body').bind('touchstart', function() {});
-    FastClick.attach(document.body);
-}
+sn.login = function() {
+    var dialog = sn.ui.dialog();
+    dialog.addClose('取消');
+    dialog.append(create_user_login(dialog));
+    dialog.appear();
+};
 
 function build_frame() {
     var sn = $('<div></div>');
@@ -277,8 +394,11 @@ function build_frame() {
     var dialog = $('<div></div>');
     dialog.addClass('dialog');
     dialog.hide();
+    var toast = $('<div></div>');
+    toast.addClass('toast');
+    toast.hide();
     
-    sn.append([bg, head, body, foot, mask, dialog]);
+    sn.append([bg, head, body, foot, mask, dialog, toast]);
     $('body').append(sn);
 }
 
@@ -294,12 +414,7 @@ function build_user_cover() {
     
     $('.sn .head').append(cover);
     
-    cover.bind('click', function() {
-        var dialog = sn.ui.dialog();
-        dialog.addClose('取消');
-        dialog.append(create_user_login(dialog));
-        dialog.appear();
-    });
+    cover.bind('click', sn.login);
 }
 
 function build_user_state() {
@@ -331,16 +446,22 @@ function build_foot() {
     });
 }
 
+function init_event() {
+    // fast click
+    FastClick.attach(document.body);
+}
 
 function watch_location() {
     var run = function(r){
         if (this.getStatus() == BMAP_STATUS_SUCCESS){
             var p = r.point;
-            fomjar.net.send(ski.ISIS.INST_UPDATE_USER_STATE, {
-                state       : 1,
-                terminal    : 1,
-                location    : p.lat + ':' + p.lng
-            }, function(code, desc) {});
+            if (sn.user) {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_USER_STATE, {
+                    state       : 1,
+                    terminal    : 1,
+                    location    : p.lat + ':' + p.lng
+                }, function(code, desc) {});
+            }
             new BMap.Geocoder().getLocation(p, function(rs) {
                 var addr = rs.addressComponents.street + rs.addressComponents.streetNumber;
                 if (0 < rs.surroundingPois.length) {
@@ -399,9 +520,8 @@ function watch_location() {
         } else {}
     };
     new BMap.Geolocation().getCurrentPosition(run);
-    
-    setTimeout(function() {if (sn.location) sn.ui.state(1).flash();}, 5000);
-    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 30);
+    setTimeout(function() {if (sn.location) sn.ui.state(1).flash();}, 1000 * 5);
+    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 5);
 }
     
 function login_manually(phone, pass, success, failure) {
@@ -648,6 +768,7 @@ function create_user_register_2(dialog, page) {
     var div_sub = div.find('>div:nth-child(6) .button:nth-child(2)');
 
     div_bac.bind('click', function() {page.page_to_prev();});
+    div_sub.doing = false;
     div_sub.bind('click', function() {
         var name = div_nam.val();
         if (0 == name.length) {
@@ -662,7 +783,10 @@ function create_user_register_2(dialog, page) {
             div_err.show();
             return;
         }
+        if (div_sub.doing) return;
         
+        div_sub.doing = true;
+        div_sub.css('color', 'gray');
         user_register.name = name;
         
         div_err.hide();
@@ -673,6 +797,8 @@ function create_user_register_2(dialog, page) {
             cover : user_register.cover,
             name  : user_register.name
         }, function(code, desc) {
+            div_sub.doing = false;
+            div_sub.css('color', '');
             if (0 == code) {
                 login_manually(user_register.phone, user_register.pass, function() {
                     page.page_to_next();
@@ -729,6 +855,7 @@ function create_sending(dialog) {
     var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
     
     div_can.bind('click', function() {dialog.disappear();});
+    div_sen.doing = false;
     div_sen.bind('click', function() {
         var text    = div_tex.val();
         var image   = div_ima.attr('src');
@@ -740,6 +867,12 @@ function create_sending(dialog) {
             dialog.shake();
             return;
         }
+        
+        if (div_sen.doing) return;
+        
+        div_sen.doing = true;
+        div_sen.css('color', 'gray');
+        
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
             coosys  : 1,
@@ -748,6 +881,8 @@ function create_sending(dialog) {
             text    : text,
             image   : image
         }, function(code, desc) {
+            div_sen.doing = false;
+            div_sen.css('color', '');
             if (0 == code) {
                 dialog.disappear();
             } else {

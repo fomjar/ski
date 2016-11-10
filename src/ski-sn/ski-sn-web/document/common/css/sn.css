@@ -44,7 +44,7 @@ body {overflow : hidden;}
 .sn .bg      {position : absolute; z-index : -2; width : 100%; height : 100%; top :   0; left :   0; overflow : hidden;}
 .sn .bg >img {position : absolute; z-index : -2; width : 105%; height : 105%; top : 70%; left : 50%; transform : translate(-50%, -70%); -webkit-transform : translate(-50%, -70%);}
 .sn .bg >div {position : absolute; z-index : -1; width : 100%; height : 100%; top :   0; left :   0;}
-.sn .body {position : absolute; z-index : 1; width : 100%; height : 100%; top : 0; bottom : 0; left : 0; overflow : auto}
+.sn .body {position : absolute; z-index : 1; width : 100%; height : 100%; top : 0; bottom : 0; left : 0; overflow-x : hidden; overflow-y : auto;}
 .sn .head {position : absolute; z-index : 2; width : 100%; height : 3em;  top : 0; left : 0;}
 .sn .head .cover {float : left; margin : .3em .5em;}
 .sn .head .cover >div:nth-child(1)     {float : left; width : 2.4em; height : 2.4em;}
@@ -61,7 +61,8 @@ body {overflow : hidden;}
 .sn .mask   {position : absolute; z-index : 10; width : 100%; height : 100%; top :   0; left :   0;}
 .sn .dialog {position : absolute; z-index : 11; width :  90%; height :  90%; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%); overflow : auto;}
 .sn .dialog .close {position : absolute; z-index : 12; top : .5em; left : .5em; padding : .5em;}
-.sn .button         {display : inline; height : 2em; line-height : 1em; font-size : 1em; padding : .5em 1.5em;}
+.sn .toast {position : absolute; z-index : 15; top : 80%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%); padding : .6em 1.5em; line-height : 1.2em;}
+.sn .button         {display : inline; padding : .5em 1.5em;}
 .sn .button-default {}
 .sn .page   {position : relative; width : 100%; height : 100%; overflow : hidden;}
 .sn .page >div:nth-child(1) {display : none; position : absolute; top :   0; left : 0; width : 100%; height : 2em; line-height : 2em;}
@@ -70,6 +71,11 @@ body {overflow : hidden;}
 .sn .choose-image >input {vertical-align : middle; width : 100%; height : 100%; position : relative; top : -100%; border : none; opacity : 0;}
 
 /* apperence */
+.sn {
+    /* 字体 */
+    font-size   : 14px;
+    font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
+}
 .sn .bg     {background-color : black;}
 .sn .bg>img {
             transition  : opacity .5s linear, width 3s linear, height 3s linear,         filter .5s linear;
@@ -82,6 +88,10 @@ body {overflow : hidden;}
     opacity             : .3;
             transition  : opacity .5s linear;
     -webkit-transition  : opacity .5s linear;
+}
+.sn .body {
+            transition  : top .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition  : top .2s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .head {
     background-color    : #f2f2f2;
@@ -145,8 +155,8 @@ body {overflow : hidden;}
 .sn .mask {
     background-color    : black;
     opacity             : 0;
-            transition  : opacity .5s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition  : opacity .5s cubic-bezier(0,0.5,0.5,1);
+            transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .dialog {
     background-color        : #f2f2f2;
@@ -164,6 +174,14 @@ body {overflow : hidden;}
      60% {left : 53%;}
      80% {left : 49%;}
     100% {left : 50%;}
+}
+.sn .toast {
+    background-color        : rgba(0, 0, 0, .8);
+    color                   : white;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+            transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .button {
     color               : blue;
@@ -237,14 +255,14 @@ body {overflow : hidden;}
 .sn .page-register-done >div:nth-child(1) {font-size : 3em;}
 .sn .page-register-done >div:nth-child(3) {margin-top : 2em; transform : scale(1.2, 1.2); -webkit-transofmr : scale(1.2, 1.2);}
 
-.sn .dialog-sending {height : 8em; top : 80%;}
+.sn .dialog-sending {height : 10em; top : 80%; overflow : hidden;}
 .sn .sending {position : absolute; width : 100%; height : 100%;}
 .sn .sending >*:nth-child(1) {width : 100%;}
-.sn .sending >*:nth-child(1) textarea {position : absolute; top : .5em; left  : .5em; bottom : 3em; right :  6em;}
-.sn .sending >*:nth-child(1) .choose-image {position : absolute; top : .6em; width :  5em; bottom : 3.1em; right : .5em;}
+.sn .sending >*:nth-child(1) textarea {position : absolute; top : .5em; left  : .5em; bottom : 2.5em; right :  6em;}
+.sn .sending >*:nth-child(1) .choose-image {position : absolute; top : .6em; width :  5em; bottom : 2.6em; right : .5em;}
 .sn .sending >*:nth-child(1) .choose-image >*     {border-radius : 1em; -webkit-border-radius : 1em;}
-.sn .sending >*:nth-child(1) .choose-image >input {top : -4.5em;}
-.sn .sending >*:nth-child(2) {position : absolute; width : 100%; bottom : 1em; text-align : center; color : blue;}
+.sn .sending >*:nth-child(1) .choose-image >input {top : -6.8em;}
+.sn .sending >*:nth-child(2) {position : absolute; width : 100%; bottom : .5em; text-align : center; color : blue;}
 .sn .sending >*:nth-child(2) .button {margin : 0 1em;}
 
 
