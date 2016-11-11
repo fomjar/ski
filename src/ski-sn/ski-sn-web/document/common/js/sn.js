@@ -67,9 +67,10 @@ sn.ui = {
             }, 0);
             sn.ui.mask().disappear();
             setTimeout(function() {
-                div.html('');
-                div.hide();
+                div.children().detach();
                 div.attr('class', '');
+                div.attr('style', '');
+                div.hide();
                 div.addClass('dialog');
             }, 200);
         };

@@ -72,13 +72,12 @@ function init_event() {
 }
 
 function animate_done() {
+    load_message(0, 20);
     if (sn.user) {
         $('.sn .foot').css('bottom', '0');
-        load_message(0, 20);
     } else {
         sn.stub.login.push(function() {
             $('.sn .foot').css('bottom', '0');
-            load_message(0, 20);
         });
     }
 }
@@ -151,6 +150,7 @@ function load_message(pos, len) {
             };
             msg.attitude_up = function() {
                 if (!sn.user) {
+                    sn.ui.dialog().children().detach();
                     sn.login();
                     return;
                 }
@@ -182,6 +182,7 @@ function load_message(pos, len) {
             };
             msg.attitude_down = function() {
                 if (!sn.user) {
+                    sn.ui.dialog().children().detach();
                     sn.login();
                     return;
                 }
@@ -354,20 +355,23 @@ function create_message_reply(msg) {
     
     var panel = create_message_panel(msg);
     panel.find('.mf').remove();
-    div.append(panel);
     
     var focus = $('<div></div>');
     focus.addClass('focus');
-    
     focus.append("<div>支持</div>");
     var focus_up = $('<div></div>');
     focus.append(focus_up);
-    
 //     focus.append("<div>反对</div>");
 //     var focus_down = $('<div></div>');
 //     focus.append(focus_down);
     
-    div.append(focus);
+    var action = $('<div></div>');
+    action.addClass('action');
+    action.append("<div class='button'>返回</div>");
+    action.append("<div class='button'>回复</div>");
+    action.find('.button:nth-child(1)').bind('click', function() {sn.ui.dialog().disappear();});
+    
+    div.append([panel, focus, action]);
     
     div.onfocuser = function(focuser) {
         panel.onfocuser(focuser);

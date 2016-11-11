@@ -123,7 +123,7 @@
 .sn .reply .msg {
     padding         : 0;
     padding-right   : .5em;
-    font-size       : 1.2em;
+    font-size       : 1.1em;
 }
 .sn .reply .msg .mc {
     background-color    : rgba(0,0,0,0);
@@ -159,4 +159,13 @@
 .sn .reply .cell {
     
 }
-
+.sn .reply .action {
+    position    : absolute;
+    width       : 100%;
+    height      : 2em;
+    bottom      : 0;
+    text-align  : center;
+}
+.sn .reply .action .button {
+    margin      : .5em 1em;
+}
