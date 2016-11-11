@@ -1,6 +1,6 @@
 
 var sn = {};
-sn.token    = (function() {return fomjar.util.cookie('token');})();
+sn.token    = (function() {var token = fomjar.util.cookie('token'); return token && 0 < token.length ? token : undefined})();
 sn.uid      = parseInt((function() {return fomjar.util.cookie('uid');})());
 sn.message  = [];
 // sn.user      = {};
@@ -41,11 +41,12 @@ sn.ui = {
         var div = $('.sn .dialog');
         
         div.appear = function() {
-            div.css('opacity', '0');
-            div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
-            div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
-            sn.ui.mask().appear();
             setTimeout(function() {
+                div.css('opacity', '0');
+                div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+                div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+                
+                sn.ui.mask().appear();
                 div.show();
                 div.css('opacity', '.95');
                 div.css(        'transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
@@ -68,6 +69,8 @@ sn.ui = {
             setTimeout(function() {
                 div.html('');
                 div.hide();
+                div.attr('class', '');
+                div.addClass('dialog');
             }, 200);
         };
         div.addClose = function(title, onClose) {

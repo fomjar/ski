@@ -28,7 +28,9 @@ public class Filter1Authorize extends FjWebFilter {
             CommonDefinition.ISIS.INST_APPLY_AUTHORIZE,
             CommonDefinition.ISIS.INST_APPLY_VERIFY,
             CommonDefinition.ISIS.INST_QUERY_MESSAGE,
-            CommonDefinition.ISIS.INST_UPDATE_USER
+            CommonDefinition.ISIS.INST_UPDATE_USER,
+            CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS,
+            CommonDefinition.ISIS.INST_QUERY_MESSAGE_REPLY,
     };
     
     private static boolean authorizeInterface(FjHttpResponse response, FjHttpRequest request) {

@@ -173,6 +173,7 @@ public class BcsTask implements FjServer.FjServerTask {
     private void responseApplyAuthorize(JSONObject args, FjDscpMessage request) {
         if (0 == args.getJSONArray("desc").size()) {
             logger.error("用户名或密码错误: " + request);
+            args.put("code", CommonDefinition.CODE.CODE_UNAUTHORIZED);
             args.put("desc", "用户名或密码错误");
             return;
         }
@@ -202,6 +203,7 @@ public class BcsTask implements FjServer.FjServerTask {
     private void responseQueryUserState(JSONObject args, FjDscpMessage request) {
         if (0 == args.getJSONArray("desc").size()) {
             logger.error("缓存已失效，请重新登录: " + request);
+            args.put("code", CommonDefinition.CODE.CODE_UNAUTHORIZED);
             args.put("desc", "缓存已失效，请重新登录");
             return;
         }

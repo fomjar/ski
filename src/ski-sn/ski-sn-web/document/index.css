@@ -20,6 +20,11 @@
     background-color        : rgba(255, 255, 255, .9);
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
+            transition      : background-color .5s;
+    -webkit-transition      : background-color .5s;
+}
+.sn .msg .mc:active {
+    background-color        : rgba(200, 200, 200, .9);
 }
 .sn .msg .mc .mh {
     height  : 3em;

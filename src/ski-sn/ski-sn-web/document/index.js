@@ -72,12 +72,13 @@ function init_event() {
 }
 
 function animate_done() {
-    load_message(0, 20);
     if (sn.user) {
         $('.sn .foot').css('bottom', '0');
+        load_message(0, 20);
     } else {
         sn.stub.login.push(function() {
-            $('.sn .foot').css('bottom', '0')
+            $('.sn .foot').css('bottom', '0');
+            load_message(0, 20);
         });
     }
 }
@@ -125,37 +126,14 @@ function load_message(pos, len) {
             
             var div_msg = $([panel[0], reply.find('.msg')[0]]);
             
-            panel.find('.mf .button').bind('click', function() {
+            var show_detail = function() {
                 var dialog = sn.ui.dialog();
                 dialog.append(reply);
                 dialog.appear();
-            });
-            
-            fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE_FOCUS, {
-                mid : msg.mid
-            }, function(code, desc) {
-                if (0 != code) return;
-                msg.focuser = desc;
-                
-                var up = div_msg.find('.ma >div:nth-child(1)');
-                var num = div_msg.find('.ma >div:nth-child(2)');
-                var down = div_msg.find('.ma >div:nth-child(3)');
-                switch (msg.attitude().type) {
-                case ATTITUDE_NONE:
-                    up.css('background-color', '');
-                    down.css('background-color', '');
-                    break;
-                case ATTITUDE_UP:
-                    up.css('background-color', '#bbbbbb');
-                    down.css('background-color', '');
-                    break;
-                case ATTITUDE_DOWN:
-                    up.css('background-color', '');
-                    down.css('background-color', '#bbbbbb');
-                    break;
-                }
-                reply.onfocuser(desc);
-            });
+            };
+            panel.find('.mc').bind('click', show_detail);
+            panel.find('.mf .button').bind('click', show_detail);
+
             msg.attitude = function() {
                 if (!sn.user) return null;
                 var a = null;
@@ -246,6 +224,18 @@ function load_message(pos, len) {
                     else sn.ui.toast('操作成功');
                 })
             };
+            
+            fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE_FOCUS, {
+                mid : msg.mid
+            }, function(code, desc) {
+                if (0 != code) return;
+                
+                msg.focuser = desc;
+                
+                panel.onfocuser(desc);
+                reply.onfocuser(desc);
+            });
+            
             panel.css('opacity', '0');
             $('.sn .body').append(panel);
             setTimeout(function() {panel.css('opacity', '1');}, delay);
@@ -293,6 +283,28 @@ function create_message_panel(msg) {
     table.append(tr);
     
     div.append(table);
+    
+    div.onfocuser = function(focuser) {
+        if (!sn.user) return;
+        
+        var up = ma.find('div:nth-child(1)');
+        var num = ma.find('div:nth-child(2)');
+        var down = ma.find('div:nth-child(3)');
+        switch (msg.attitude().type) {
+        case ATTITUDE_NONE:
+            up.css('background-color', '');
+            down.css('background-color', '');
+            break;
+        case ATTITUDE_UP:
+            up.css('background-color', '#bbbbbb');
+            down.css('background-color', '');
+            break;
+        case ATTITUDE_DOWN:
+            up.css('background-color', '');
+            down.css('background-color', '#bbbbbb');
+            break;
+        }
+    };
     
     return div;
 }
@@ -342,9 +354,6 @@ function create_message_reply(msg) {
     
     var panel = create_message_panel(msg);
     panel.find('.mf').remove();
-    if (!sn.user) {
-        panel.find('.ma').remove();
-    }
     div.append(panel);
     
     var focus = $('<div></div>');
@@ -361,6 +370,8 @@ function create_message_reply(msg) {
     div.append(focus);
     
     div.onfocuser = function(focuser) {
+        panel.onfocuser(focuser);
+        
         $.each(focuser, function(i, f) {
             switch (f.type) {
             case ATTITUDE_UP:

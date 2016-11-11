@@ -29,8 +29,6 @@ public class Filter6Interface extends FjWebFilter {
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if (!"/ski-web".equals(request.path())) return true;
         
-        logger.info(String.format("[ INTERFACE ] - %s", request.url()));
-        
         JSONObject args = request.argsToJson();
         if (!args.has("inst")) {
             logger.error("illegal arguments, no inst: " + args);
@@ -43,8 +41,9 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         int inst = FilterToolkit.getIntFromArgs(args, "inst");
-        args.remove("inst");
+        logger.info(String.format("[ INTERFACE ] - %s - 0x%08X", request.url(), inst));
         
+        args.remove("inst");
         if (request.cookie().containsKey("uid"))    args.put("uid",     Integer.parseInt(request.cookie().get("uid")));
         if (request.cookie().containsKey("token"))  args.put("token",   request.cookie().get("token"));
         
