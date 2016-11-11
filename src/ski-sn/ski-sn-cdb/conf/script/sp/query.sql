@@ -220,6 +220,7 @@ begin
     open rs_mid;
     fetch rs_mid into dc_mid;
     while done = 0 do
+
         set dc_statement = concat(
             'update tmp_message t, tbl_message_', left(dc_mid, 6), ' m',
             '   set t.t_time    = m.t_time,',
@@ -235,6 +236,8 @@ begin
         prepare s from @s;
         execute s;
         deallocate prepare s;
+
+        fetch rs_mid into dc_mid;
     end while;
     close rs_mid;
 

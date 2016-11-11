@@ -119,53 +119,95 @@
     background-size     : 1.2em;
 }
 
-.sn .reply {}
-.sn .reply .msg {
+.sn .detail {
+    position        : absolute;
+    top             : 0;
+    left            : 0;
+    width           : 100%;
+    min-height      : 100%;
+    padding-bottom  : 2.5em;
+    overflow        : hidden;
+}
+.sn .detail .msg {
     padding         : 0;
     padding-right   : .5em;
     font-size       : 1.1em;
 }
-.sn .reply .msg .mc {
+.sn .detail .msg .mc {
     background-color    : rgba(0,0,0,0);
 }
-.sn .reply .msg .mc .mb >img {
+.sn .detail .msg .mc .mb >img {
     max-height          : none;
 }
-.sn .reply .msg table tr td {
+.sn .detail .msg table tr td {
     vertical-align: top;
 }
-.sn .reply .msg .ma >div {
+.sn .detail .msg .ma >div {
     background-color    : rgba(0,0,0,0);
 }
-.sn .reply .focus {
+.sn .detail .focus {
     padding     : .5em 1em;
 }
-.sn .reply .focus >div:nth-child(2n+1) {
+.sn .detail .focus >div:nth-child(2n+1) {
     color       : gray;
     font-size   : .9em;
 }
-.sn .reply .focus >div:nth-child(2), .sn .reply .focus >div:nth-child(4) {
+.sn .detail .focus >div:nth-child(2), .sn .detail .focus >div:nth-child(4) {
     padding-bottom : .5em;
 }
-.sn .reply .focus img {
+.sn .detail .focus img {
     width   : 2.2em;
     height  : 2.2em;
     margin  : .2em;
             border-radius   : 1.1em;
     -webkit-border-radius   : 1.1em;
 }
-.sn .reply .focus >div:nth-child(6) {
-}
-.sn .reply .cell {
+.sn .detail .reply {}
+.sn .detail .reply >div {
     
 }
-.sn .reply .action {
+.sn .detail .send {
     position    : absolute;
+    z-index     : 12;
     width       : 100%;
-    height      : 2em;
+    height      : 10em;
+    padding     : .5em 1em;
     bottom      : 0;
+    opacity     : 0;
+            transition  : opacity .5s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition  : opacity .5s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .detail .send textarea {
+    float   : left;
+    width   : 74%;
+    height  : 6.5em;
+}
+.sn .detail .send .choose-image {
+    float   : right;
+    width   : 25%;
+    height  : 6.5em;
+    border-radius   : 1em;
+}
+.sn .detail .send .choose-image >* {
+    border-radius   : 1em;
+}
+.sn .detail .send div:nth-child(3) {
+    margin-top          : 7.5em;
+    text-align          : center;
+    background-color    : lightgray;
+}
+.sn .detail .send div:nth-child(3) .button {
+    margin      : .5em 1em;
+}
+.sn .detail .action {
+    position    : absolute;
+    z-index     : 11;
+    bottom      : 0;
+    width       : 100%;
+    height      : 2.5em;
+    line-height : 2.5em;
     text-align  : center;
 }
-.sn .reply .action .button {
+.sn .detail .action .button {
     margin      : .5em 1em;
 }

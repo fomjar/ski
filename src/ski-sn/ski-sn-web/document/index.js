@@ -119,15 +119,15 @@ function load_message(pos, len) {
             sn.message.push(msg);
             
             var panel = create_message_panel(msg);
-            var reply = create_message_reply(msg);
+            var detail = create_message_detail(msg);
             msg.panel = panel;
-            msg.reply = reply;
+            msg.detail = detail;
             
-            var div_msg = $([panel[0], reply.find('.msg')[0]]);
+            var div_msg = $([panel[0], detail.find('.msg')[0]]);
             
             var show_detail = function() {
                 var dialog = sn.ui.dialog();
-                dialog.append(reply);
+                dialog.append(detail);
                 dialog.appear();
             };
             panel.find('.mc').bind('click', show_detail);
@@ -213,10 +213,6 @@ function load_message(pos, len) {
                 msg.attitude_update();
             };
             msg.attitude_update = function() {
-                if (!sn.user) {
-                    sn.login();
-                    return;
-                }
                 fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE_FOCUS, {
                     mid     : msg.mid,
                     type    : msg.attitude().type
@@ -234,7 +230,16 @@ function load_message(pos, len) {
                 msg.focuser = desc;
                 
                 panel.onfocuser(desc);
-                reply.onfocuser(desc);
+                detail.onfocuser(desc);
+            });
+            fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE_REPLY, {
+                mid : msg.mid
+            }, function(code, desc) {
+                if (0 != code) return;
+                
+                msg.replyer = desc;
+                
+                detail.onreplyer(desc);
             });
             
             panel.css('opacity', '0');
@@ -349,9 +354,11 @@ function get_time_description(second) {
     return '刚刚';
 }
 
-function create_message_reply(msg) {
+function create_message_detail(msg) {
+    var dialog = sn.ui.dialog();
+
     var div = $('<div></div>');
-    div.addClass('reply');
+    div.addClass('detail');
     
     var panel = create_message_panel(msg);
     panel.find('.mf').remove();
@@ -364,14 +371,77 @@ function create_message_reply(msg) {
 //     focus.append("<div>反对</div>");
 //     var focus_down = $('<div></div>');
 //     focus.append(focus_down);
+
+    var reply = $('<div></div>');
+    reply.addClass('reply');
+    
+    var send = $('<div></div>');
+    send.addClass('send');
+    send.append("<textarea></textarea>");
+    send.append(sn.ui.choose_image(1024 * 1024 * 2, function() {}, function() {dialog.shake();}));
+    send.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
+    var div_can = send.find('.button:nth-child(1)');
+    var div_sen = send.find('.button:nth-child(2)');
+    div_can.bind('click', function() {
+        send.css('opacity', '0');
+        setTimeout(function() {send.hide();}, 500);
+    });
+    div_sen.doing = false;
+    div_sen.bind('click', function() {
+        var text = send.find('textarea').val();
+        if (0 == text.length) {
+            dialog.shake();
+            return;
+        }
+        if (/^ +$/.test(text)) {
+            dialog.shake();
+            return;
+        }
+        
+        if (div_sen.doing) return;
+        
+        div_sen.doing = true;
+        div_sen.css('color', 'gray');
+        
+        text = new fomjar.util.base64().encode(text);
+        image = send.find('.choose-image img').attr('src');
+        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE_REPLY, {
+            mid     : msg.mid,
+            coosys  : 1,
+            lat     : sn.location.point.lat,
+            lng     : sn.location.point.lng,
+            text    : text,
+            image   : image
+        }, function(code, desc) {
+            div_sen.doing = false;
+            div_sen.css('color', '');
+            if (0 == code) {
+                div_can.trigger('click');
+            } else {
+                dialog.shake();
+            }
+        });
+    });
+    send.hide();
     
     var action = $('<div></div>');
     action.addClass('action');
     action.append("<div class='button'>返回</div>");
     action.append("<div class='button'>回复</div>");
-    action.find('.button:nth-child(1)').bind('click', function() {sn.ui.dialog().disappear();});
+    action.find('.button:nth-child(1)').bind('click', function() {dialog.disappear();});
+    action.find('.button:nth-child(2)').bind('click', function() {
+        if (!sn.user) {
+            dialog.children().detach();
+            sn.login();
+            return;
+        }
+        
+        send.css('opacity', '0');
+        send.show();
+        send.css('opacity', '1');
+    });
     
-    div.append([panel, focus, action]);
+    div.append([panel, focus, reply, send, action]);
     
     div.onfocuser = function(focuser) {
         panel.onfocuser(focuser);
@@ -389,6 +459,17 @@ function create_message_reply(msg) {
         if (0 == focus_up.html().length)    focus_up.text('无');
 //         if (0 == focus_down.html().length)  focus_down.text('无');
     };
+    div.onreplyer = function(replyer) {
+        $.each(replyer, function(i, r) {
+            var d = $('<div></div>');
+            d.append("<img src='" + r.ucover + "' />");
+            d.append('<div>' + r.uname + '</div>');
+            d.append('<div>' + r.time + '</div>');
+            if (0 < r.mtext.length) d.append('<div>' + r.mtext + '</div>');
+            if (0 < r.mimage.length) d.append("<img src='" + r.mimage + "' />");
+            reply.append(d);
+        });
+    }
     
     return div;
 }

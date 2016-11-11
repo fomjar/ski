@@ -80,6 +80,9 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS:
             requestQueryMessageFocus(request);
             break;
+        case CommonDefinition.ISIS.INST_QUERY_MESSAGE_REPLY:
+            requestQueryMessageReply(request);
+            break;
         case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
             requestUpdateMessage(request);
             break;
@@ -120,6 +123,9 @@ public class BcsTask implements FjServer.FjServerTask {
                 break;
             case CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS:
                 responseQueryMessageFocus(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_MESSAGE_REPLY:
+                responseQueryMessageReply(args, request);
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
                 break;
@@ -357,6 +363,37 @@ public class BcsTask implements FjServer.FjServerTask {
             focus.put("time",   fields.getString(i++));
             focus.put("type",   Integer.parseInt(fields.getString(i++)));
             desc_rsp.add(focus);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryMessageReply(FjDscpMessage request) {
+        if (!illegalArgs(request, "mid")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_MESSAGE_REPLY, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryMessageReply(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if ("null".equals(desc.getString(0))) {
+            args.put("desc", new JSONArray());
+            return;
+        }
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject reply = new JSONObject();
+            int i = 0;
+            reply.put("mid",    fields.getString(i++));
+            reply.put("time",   fields.getString(i++));
+            reply.put("uid",    Integer.parseInt(fields.getString(i++)));
+            reply.put("uname",  fields.getString(i++));
+            reply.put("ucover", fields.getString(i++));
+            reply.put("mtext",  fields.getString(i++));
+            reply.put("mimage", fields.getString(i++));
+            desc_rsp.add(reply);
         }
         args.put("desc", desc_rsp);
     }
