@@ -372,6 +372,7 @@ function create_message_detail(msg) {
     focus.append("<div>支持</div>");
     var focus_up = $('<div></div>');
     focus.append(focus_up);
+    focus.append("<div>回复</div>");
 //     focus.append("<div>反对</div>");
 //     var focus_down = $('<div></div>');
 //     focus.append(focus_down);
