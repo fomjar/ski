@@ -93,7 +93,7 @@ function load_message(pos, len) {
     if (!sn.location) return;
     if (loading) return;
     
-    sn.ui.toast('正在加载消息');
+    sn.ui.toast('正在加载消息', 5000);
     loading = true;
     if (!sn.uid) {
         sn.uid = new Date().getTime();

@@ -17,8 +17,8 @@ public class Filter5Document extends FjWebFilter {
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
         if ("/ski-web".equals(request.path())) return true;
-        logger.info(String.format("[ DOCUMENT  ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
         
+        logger.info(String.format("[ DOCUMENT  ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
         if (!document(response, request.path())) {
             response.code(404);
             document(response, "/404.html");

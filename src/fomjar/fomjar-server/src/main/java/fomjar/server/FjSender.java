@@ -149,6 +149,10 @@ public class FjSender extends FjLoopTask {
             while(buf.hasRemaining() && timeout > System.currentTimeMillis() - begin) {
                 int n = conn.write(buf);
                 if (0 < n) begin = System.currentTimeMillis();
+                else {
+                    try {Thread.sleep(100L);}
+                    catch (InterruptedException e) {e.printStackTrace();}
+                }
             }
         } catch (IOException e) {logger.error("error occurs when send http response: " + rsp, e);}
         finally {if (null != conn) try {conn.close();} catch (IOException e) {e.printStackTrace();}}

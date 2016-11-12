@@ -12,6 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -106,7 +108,7 @@ public class FjWebTask implements FjServer.FjServerTask {
 
     protected void postProtocol(FjHttpResponse response, FjHttpRequest request) {
         postProtocolRange(response, request);
-        postProtocolGzip(response, request);
+        postProtocolEncoding(response, request);
     }
     
     protected void postProtocolRange(FjHttpResponse response, FjHttpRequest request) {
@@ -124,20 +126,34 @@ public class FjWebTask implements FjServer.FjServerTask {
         }
     }
     
-    protected void postProtocolGzip(FjHttpResponse response, FjHttpRequest request) {
-        if (response.attr().containsKey("Content-Encoding")
-                && response.attr().get("Content-Encoding").toLowerCase().contains("gzip")) {
-            try {
-                ByteArrayOutputStream content_gzip = new ByteArrayOutputStream();
-                GZIPOutputStream gzos = new GZIPOutputStream(content_gzip);
-                gzos.write(response.content());
-                gzos.finish();
-                gzos.flush();
-                gzos.close();
-                
-                response.content(content_gzip.toByteArray());
-            } catch (IOException e) {
-                logger.error("post protocol gzip failed", e);
+    protected void postProtocolEncoding(FjHttpResponse response, FjHttpRequest request) {
+        if (response.attr().containsKey("Content-Encoding")) {
+            if (response.attr().get("Content-Encoding").toLowerCase().contains("gzip")) {
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    GZIPOutputStream gzos = new GZIPOutputStream(baos);
+                    gzos.write(response.content());
+                    gzos.finish();
+                    gzos.flush();
+                    gzos.close();
+                    
+                    response.content(baos.toByteArray());
+                } catch (IOException e) {
+                    logger.error("post protocol gzip failed", e);
+                }
+            } else if (response.attr().get("Content-Encoding").toLowerCase().contains("deflate")) {
+                try {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DeflaterOutputStream dos = new DeflaterOutputStream(baos, new Deflater(9));
+                    dos.write(response.content());
+                    dos.finish();
+                    dos.flush();
+                    dos.close();
+                    
+                    response.content(baos.toByteArray());
+                } catch (IOException e) {
+                    logger.error("post protocol gzip failed", e);
+                }
             }
         }
     }
