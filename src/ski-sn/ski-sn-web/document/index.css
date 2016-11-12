@@ -78,7 +78,7 @@
     color           : gray;
 }
 .sn .msg .mc .mf {
-    padding-bottom  : .8em;
+    padding-bottom  : .5em;
     text-align      : center;
 }
 .sn .msg .mc .mf .button {
@@ -162,9 +162,38 @@
             border-radius   : 1.1em;
     -webkit-border-radius   : 1.1em;
 }
-.sn .detail .reply {}
+.sn .detail .reply {
+    border-top  : 1px solid green;
+}
 .sn .detail .reply >div {
-    
+    padding         : .5em 1em;
+    border-bottom   : 1px solid green;
+    background      : #e0e0e0;
+}
+.sn .detail .reply >div *:nth-child(1) {
+    float   : left;
+    width   : 2.4em;
+    height  : 2.4em;
+            border-radius   : 1.2em;
+    -webkit-border-radius   : 1.2em;
+}
+.sn .detail .reply >div *:nth-child(2) {
+    float       : left;
+    line-height : 2.5em;
+    margin-left : .5em;
+}
+.sn .detail .reply >div *:nth-child(3) {
+    float       : right;
+    font-size   : .9em;
+    margin-top  : .5em;
+    color       : gray;
+}
+.sn .detail .reply >div *:nth-child(4) {
+    margin-top  : 2.5em;
+}
+.sn .detail .reply >div *:nth-child(5) {
+    max-width   : 100%;
+    max-height  : 10em;
 }
 .sn .detail .send {
     position    : absolute;

@@ -95,6 +95,10 @@ function load_message(pos, len) {
     
     sn.ui.toast('正在加载消息');
     loading = true;
+    if (!sn.uid) {
+        sn.uid = new Date().getTime();
+        fomjar.util.cookie('uid', sn.uid);
+    }
     fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE, {
         lat : sn.location.point.lat,
         lng : sn.location.point.lng,
@@ -464,8 +468,8 @@ function create_message_detail(msg) {
             var d = $('<div></div>');
             d.append("<img src='" + r.ucover + "' />");
             d.append('<div>' + r.uname + '</div>');
-            d.append('<div>' + r.time + '</div>');
-            if (0 < r.mtext.length) d.append('<div>' + r.mtext + '</div>');
+            d.append('<div>' + r.time.substring(5, 16) + '</div>');
+            if (0 < r.mtext.length) d.append('<div>' + new fomjar.util.base64().decode(r.mtext) + '</div>');
             if (0 < r.mimage.length) d.append("<img src='" + r.mimage + "' />");
             reply.append(d);
         });

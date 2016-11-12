@@ -197,7 +197,7 @@ create procedure sp_query_message_reply (
 )
 begin
 
-    declare dc_statement    varchar(300)    default null;
+    declare dc_statement    varchar(400)    default null;
     declare dc_mid          varchar(128)    default null;
 
     declare done            integer         default 0;
@@ -230,7 +230,9 @@ begin
             '       t.i_lng     = m.i_lng,',
             '       t.c_geohash = m.c_geohash,',
             '       t.c_text    = m.c_text,',
-            '       t.c_image   = m.c_image'
+            '       t.c_image   = m.c_image ',
+            ' where t.c_mid = m.c_mid ',
+            "   and t.c_mid = \"", dc_mid, "\""
         );
         set @s = dc_statement;
         prepare s from @s;

@@ -23,13 +23,13 @@ public class BcsTask implements FjServer.FjServerTask {
     
     private Map<String, FjDscpMessage>  cache_request;
     private Map<String, String>         cache_vcode;
-    private Map<Integer, JSONArray>     cache_message;
+    private Map<Long, JSONArray>        cache_message;
     
     @Override
     public void initialize(FjServer server) {
         cache_request   = new ConcurrentHashMap<String, FjDscpMessage>();
         cache_vcode     = new ConcurrentHashMap<String, String>();
-        cache_message   = new ConcurrentHashMap<Integer, JSONArray>();
+        cache_message   = new ConcurrentHashMap<Long, JSONArray>();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class BcsTask implements FjServer.FjServerTask {
             if (!illegalArgs(request, "token", "uid")) return;
             
             String token = args.getString("token");
-            String uid   = args.getString("uid");
+            long   uid   = args.getLong("uid");
             
             JSONObject args_cdb = new JSONObject();
             args_cdb.put("token", token);
@@ -188,14 +188,14 @@ public class BcsTask implements FjServer.FjServerTask {
         String token = UUID.randomUUID().toString().replace("-", "");
         {
             JSONObject args_cdb = new JSONObject();
-            args_cdb.put("uid",         Integer.parseInt(user.getString(0)));
+            args_cdb.put("uid",         Long.parseLong(user.getString(0)));
             args_cdb.put("state",       CommonDefinition.Field.USER_STATE_ONLINE);
             args_cdb.put("token",       token);
             CommonService.requesta("cdb", CommonDefinition.ISIS.INST_UPDATE_USER_STATE, args_cdb);
         }
         
         JSONObject desc = new JSONObject();
-        desc.put("uid",     Integer.parseInt(user.getString(0)));
+        desc.put("uid",     Long.parseLong(user.getString(0)));
         desc.put("create",  user.getString(1));
         desc.put("phone",   user.getString(2));
         desc.put("email",   user.getString(3));
@@ -216,13 +216,13 @@ public class BcsTask implements FjServer.FjServerTask {
         JSONArray user = args.getJSONArray("desc").getJSONArray(0);
         {
             JSONObject args_cdb = new JSONObject();
-            args_cdb.put("uid",         Integer.parseInt(user.getString(0)));
+            args_cdb.put("uid",         Long.parseLong(user.getString(0)));
             args_cdb.put("state",       CommonDefinition.Field.USER_STATE_ONLINE);
             CommonService.requesta("cdb", CommonDefinition.ISIS.INST_UPDATE_USER_STATE, args_cdb);
         }
         
         JSONObject desc = new JSONObject();
-        desc.put("uid",     Integer.parseInt(user.getString(0)));
+        desc.put("uid",     Long.parseLong(user.getString(0)));
         desc.put("create",  user.getString(1));
         desc.put("phone",   user.getString(2));
         desc.put("email",   user.getString(3));
@@ -267,7 +267,7 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid", "lat", "lng", "pos", "len")) return;
         
         JSONObject args = request.argsToJsonObject();
-        int     uid = args.getInt("uid");
+        long    uid = args.getLong("uid");
         double  lat = args.getDouble("lat");
         double  lng = args.getDouble("lng");
         int     pos = args.getInt("pos");
@@ -295,9 +295,9 @@ public class BcsTask implements FjServer.FjServerTask {
     
     private void responseQueryMessage(JSONObject args, FjDscpMessage request) {
         JSONObject args_req = request.argsToJsonObject();
-        int uid = args_req.getInt("uid");
-        int pos = args_req.getInt("pos");
-        int len = args_req.getInt("len");
+        long    uid = args_req.getLong("uid");
+        int     pos = args_req.getInt("pos");
+        int     len = args_req.getInt("len");
         
         String  desc = args.getJSONArray("desc").getString(0);
         if ("null".equals(desc)) {
@@ -317,7 +317,7 @@ public class BcsTask implements FjServer.FjServerTask {
             msg.put("second",   Integer.parseInt(fields[i++]));
             msg.put("focus",    Integer.parseInt(fields[i++]));
             msg.put("reply",    Integer.parseInt(fields[i++]));
-            msg.put("uid",      Integer.parseInt(fields[i++]));
+            msg.put("uid",      Long.parseLong(fields[i++]));
             msg.put("uname",    fields[i++]);
             msg.put("ucover",   fields[i++]);
             msg.put("mtext",    fields[i++]);
@@ -357,7 +357,7 @@ public class BcsTask implements FjServer.FjServerTask {
             JSONObject focus = new JSONObject();
             int i = 0;
             focus.put("mid",    fields.getString(i++));
-            focus.put("uid",    Integer.parseInt(fields.getString(i++)));
+            focus.put("uid",    Long.parseLong(fields.getString(i++)));
             focus.put("uname",  fields.getString(i++));
             focus.put("ucover", fields.getString(i++));
             focus.put("time",   fields.getString(i++));
@@ -375,24 +375,24 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void responseQueryMessageReply(JSONObject args, FjDscpMessage request) {
-        JSONArray desc = args.getJSONArray("desc");
-        if ("null".equals(desc.getString(0))) {
+        String desc = args.getJSONArray("desc").getString(0);
+        if ("null".equals(desc)) {
             args.put("desc", new JSONArray());
             return;
         }
         
         JSONArray desc_rsp = new JSONArray();
-        for (Object obj : args.getJSONArray("desc")) {
-            JSONArray fields = (JSONArray) obj;
+        for (String message : desc.split("'\n", -1)) {
+            String[] fields = message.split("'\t", -1);
             JSONObject reply = new JSONObject();
             int i = 0;
-            reply.put("mid",    fields.getString(i++));
-            reply.put("time",   fields.getString(i++));
-            reply.put("uid",    Integer.parseInt(fields.getString(i++)));
-            reply.put("uname",  fields.getString(i++));
-            reply.put("ucover", fields.getString(i++));
-            reply.put("mtext",  fields.getString(i++));
-            reply.put("mimage", fields.getString(i++));
+            reply.put("mid",    fields[i++]);
+            reply.put("time",   fields[i++]);
+            reply.put("uid",    Long.parseLong(fields[i++]));
+            reply.put("uname",  fields[i++]);
+            reply.put("ucover", fields[i++]);
+            reply.put("mtext",  fields[i++]);
+            reply.put("mimage", fields[i++]);
             desc_rsp.add(reply);
         }
         args.put("desc", desc_rsp);
@@ -402,7 +402,7 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid", "coosys", "lat", "lng")) return;
         
         JSONObject args = request.argsToJsonObject();
-        int     uid     = args.getInt("uid");
+        long    uid     = args.getLong("uid");
         int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");
         double  lng     = args.getDouble("lng");
@@ -464,7 +464,7 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid", "mid", "coosys", "lat", "lng")) return;
         
         JSONObject args = request.argsToJsonObject();
-        int     uid     = args.getInt("uid");
+        long    uid     = args.getLong("uid");
         String  mid     = args.getString("mid");
         int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");

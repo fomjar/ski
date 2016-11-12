@@ -54,19 +54,13 @@ begin
     if di_count = 0 then
         set result = 0;
     else
-        set dc_statement = concat("select count(1) into @result_1 from tbl_message_", left(mid, 6), "_reply where c_mid = \"", mid ,"\"");
+        set dc_statement = concat("select count(1) into @result from tbl_message_", left(mid, 6), "_reply where c_mid = \"", mid ,"\"");
         set @s = dc_statement;
         prepare s from @s;
         execute s;
         deallocate prepare s;
 
-        set dc_statement = concat("select count(1) into @result_2 from tbl_message_", left(mid, 6), "_reply where c_mid = \"", mid ,"\"");
-        set @s = dc_statement;
-        prepare s from @s;
-        execute s;
-        deallocate prepare s;
-
-        set result = @result_1 - @result_2;
+        set result = @result;
     end if;
 end //
 delimiter ;

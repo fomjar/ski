@@ -58,7 +58,7 @@ public class Filter1Authorize extends FjWebFilter {
             return false;
         }
         String token    = request.cookie().get("token");
-        int    uid     = Integer.parseInt(request.cookie().get("uid"));
+        long   uid     = Long.parseLong(request.cookie().get("uid"));
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
         args_bcs.put("uid",     uid);
@@ -92,7 +92,7 @@ public class Filter1Authorize extends FjWebFilter {
             return false;
         }
         String token = request.cookie().get("token");
-        int    uid   = Integer.parseInt(request.cookie().get("uid"));
+        long   uid   = Long.parseLong(request.cookie().get("uid"));
         JSONObject args_bcs = new JSONObject();
         args_bcs.put("token",   token);
         args_bcs.put("uid",     uid);

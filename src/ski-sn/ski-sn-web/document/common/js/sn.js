@@ -1,7 +1,7 @@
 
 var sn = {};
-sn.token    = (function() {var token = fomjar.util.cookie('token'); return token && 0 < token.length ? token : undefined})();
-sn.uid      = parseInt((function() {return fomjar.util.cookie('uid');})());
+sn.token    = (function() {var token = fomjar.util.cookie('token'); return token && 0 < token.length ? token : undefined;})();
+sn.uid      = (function() {var uid = fomjar.util.cookie('uid'); return uid && 0 < uid.length ? parseInt(uid) : undefined;})();
 sn.message  = [];
 // sn.user      = {};
 // sn.location  = {};
