@@ -2,6 +2,29 @@
     padding : 3em 0;
 }
 
+.sn .foot .send {position : absolute; z-index : 3; width : 3em; height : 3em; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
+.sn .foot .send {
+    background-color        : lightgray;
+            border-radius   : 1.5em;
+    -webkit-border-radius   : 1.5em;
+            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .foot .send:active {
+    background-color        : gray;
+}
+
+.sn .dialog-send {height : 10em; top : 80%; overflow : hidden;}
+.sn .send-panel {position : absolute; width : 100%; height : 100%;}
+.sn .send-panel >*:nth-child(1) {width : 100%;}
+.sn .send-panel >*:nth-child(1) textarea {position : absolute; top : .5em; left  : .5em; bottom : 2.5em; right :  6em;}
+.sn .send-panel >*:nth-child(1) .choose-image {position : absolute; top : .6em; width :  5em; bottom : 2.6em; right : .5em;}
+.sn .send-panel >*:nth-child(1) .choose-image >*     {border-radius : 1em; -webkit-border-radius : 1em;}
+.sn .send-panel >*:nth-child(1) .choose-image >input {top : -6.8em;}
+.sn .send-panel >*:nth-child(2) {position : absolute; width : 100%; bottom : .5em; text-align : center; color : blue;}
+.sn .send-panel >*:nth-child(2) .button {margin : 0 1em;}
+
+
 .sn .msg {
     width               : 100%;
     padding             : .3em;
@@ -39,7 +62,6 @@
 .sn .msg .mc .mh >div:nth-child(1) img {
     width   : 2.5em;
     height  : 2.5em;
-    border  : 1px solid gray;
             border-radius   : 1.25em;
     -webkit-border-radius   : 1.25em;
 }
@@ -146,14 +168,15 @@
     background-color    : rgba(0,0,0,0);
 }
 .sn .detail .focus {
-    padding     : .5em 1em;
+    padding         : .5em 1em;
+    padding-bottom  : 0;
 }
 .sn .detail .focus >div:nth-child(2n+1) {
     color       : gray;
     font-size   : .9em;
 }
 .sn .detail .focus >div:nth-child(2), .sn .detail .focus >div:nth-child(4) {
-    padding-bottom : .5em;
+    padding-bottom : .8em;
 }
 .sn .detail .focus img {
     width   : 2.2em;
@@ -163,11 +186,11 @@
     -webkit-border-radius   : 1.1em;
 }
 .sn .detail .reply {
-    border-top  : 1px solid green;
+    border-top  : 1px solid rgba(0, 120, 0, .2);
 }
 .sn .detail .reply >div {
     padding         : .5em 1em;
-    border-bottom   : 1px solid green;
+    border-bottom   : 1px solid rgba(0, 120, 0, .2);
     background      : #e0e0e0;
 }
 .sn .detail .reply >div *:nth-child(1) {

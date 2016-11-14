@@ -41,13 +41,13 @@ sn.ui = {
         var div = $('.sn .dialog');
         
         div.appear = function() {
+            sn.ui.mask().appear();
+            div.css('opacity', '0');
+            div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+            div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
+            div.show();
+            div.scrollTop(0);
             setTimeout(function() {
-                div.css('opacity', '0');
-                div.css(        'transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
-                div.css('-webkit-transform', 'translate(-50%, -50%) scale(.8, .8) translateZ(0)');
-                
-                sn.ui.mask().appear();
-                div.show();
                 div.css('opacity', '.95');
                 div.css(        'transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
                 div.css('-webkit-transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
@@ -117,6 +117,21 @@ sn.ui = {
                 div.hide();
             }, 200);
         }, timeout);
+    },
+    browse : function(img) {
+        var div = $('.sn .browse');
+        div.bind('click', function() {
+            div.css('opacity', '0');
+            setTimeout(function() {
+                div.hide();
+            }, 200);
+        });
+        img.bind('click', function() {
+            div.find('img').attr('src', img.attr('src'));
+            div.css('opacity', '0');
+            div.show();
+            div.css('opacity', '1');
+        });
     },
     page : function() {
         var div = $('<div></div>');
@@ -362,7 +377,6 @@ sn.ui = {
 
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_head);
-fomjar.framework.phase.append('dom', build_foot);
 fomjar.framework.phase.append('ren', init_event);
 fomjar.framework.phase.append('ren', login_automatic);
 fomjar.framework.phase.append('ren', watch_location);
@@ -393,11 +407,15 @@ function build_frame() {
     var dialog = $('<div></div>');
     dialog.addClass('dialog');
     dialog.hide();
+    var browse = $('<div></div>');
+    browse.addClass('browse');
+    browse.append('<img />');
+    browse.hide();
     var toast = $('<div></div>');
     toast.addClass('toast');
     toast.hide();
     
-    sn.append([bg, head, body, foot, mask, dialog, toast]);
+    sn.append([bg, head, body, foot, mask, dialog, browse, toast]);
     $('body').append(sn);
 }
 
@@ -408,11 +426,10 @@ function build_head() {
 function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
-    cover.append('<div><img /></div>');
+    cover.append('<img />');
     cover.append('<div>登录 / 注册</div>');
     
     $('.sn .head').append(cover);
-    
     cover.bind('click', sn.login);
 }
 
@@ -429,19 +446,6 @@ function build_user_state() {
             if (!state.isopen()) state.open();
             else state.close();
         });
-    });
-}
-
-function build_foot() {
-    var send = $('<div></div>');
-    send.addClass('send');
-    
-    $('.sn .foot').append(send);
-    
-    send.bind('click', function() {
-        var dialog = sn.ui.dialog();
-        dialog.append(create_sending(dialog));
-        dialog.appear();
     });
 }
 
@@ -539,11 +543,16 @@ function login_manually(phone, pass, success, failure) {
         sn.token = desc.token;
         sn.uid   = desc.uid;
         sn.user  = desc;
-        $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
-        $('.sn .head .cover >div:nth-child(2)').text(desc.name);
+        $('.sn .head .cover >*:nth-child(1)').attr('src', desc.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
-        $('.sn .foot').css('bottom', '0');
-        
+        $('.sn .head .cover').bind('click', function() {
+            var dialog = sn.ui.dialog();
+            dialog.addClose('关闭');
+            dialog.append(create_user_detail(dialog));
+            dialog.appear();
+        });
+
         build_user_state();
         
         if (success) success();
@@ -567,9 +576,15 @@ function login_automatic() {
         sn.token = desc.token;
         sn.uid   = desc.uid;
         sn.user  = desc;
-        $('.sn .head .cover >div:nth-child(1) img').attr('src', desc.cover);
-        $('.sn .head .cover >div:nth-child(2)').text(desc.name);
+        $('.sn .head .cover >*:nth-child(1)').attr('src', desc.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(desc.name);
         $('.sn .head .cover').unbind('click');
+        $('.sn .head .cover').bind('click', function() {
+            var dialog = sn.ui.dialog();
+            dialog.addClose('关闭');
+            dialog.append(create_user_detail(dialog));
+            dialog.appear();
+        });
         
         build_user_state();
         $.each(sn.stub.login, function(i, f) {f(sn.user);});
@@ -834,62 +849,36 @@ function create_user_register_done(dialog) {
     return div;
 }
 
+function create_user_detail(dialog) {
+    var page = sn.ui.page();
+    page.page_append('信息',  create_user_detail_info(dialog, page));
+    page.page_append('头像',  create_user_detail_cover(dialog, page));
+    page.page_append('姓名',  create_user_detail_name(dialog, page));
+    page.page_append('手机',  create_user_detail_phone(dialog, page));
+    return page;
+}
 
-function create_sending(dialog) {
-    dialog.addClass('dialog-sending');
-    
+function create_user_detail_info(dialog, page) {
     var div = $('<div></div>');
-    div.addClass('sending');
-    
-    var div_content = $('<div></div>');
-    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
-    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
-    
-    div.append(div_content);
-    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
-    
-    var div_tex = div.find('>*:nth-child(1) textarea');
-    var div_ima = div.find('>*:nth-child(1) img');
-    var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
-    var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
-    
-    div_can.bind('click', function() {dialog.disappear();});
-    div_sen.doing = false;
-    div_sen.bind('click', function() {
-        var text    = div_tex.val();
-        var image   = div_ima.attr('src');
-        if (0 == text.length) {
-            dialog.shake();
-            return;
-        }
-        if (/^ +$/.test(text)) {
-            dialog.shake();
-            return;
-        }
-        
-        if (div_sen.doing) return;
-        
-        div_sen.doing = true;
-        div_sen.css('color', 'gray');
-        
-        text = new fomjar.util.base64().encode(text);
-        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
-            coosys  : 1,
-            lat     : sn.location.point.lat,
-            lng     : sn.location.point.lng,
-            text    : text,
-            image   : image
-        }, function(code, desc) {
-            div_sen.doing = false;
-            div_sen.css('color', '');
-            if (0 == code) {
-                dialog.disappear();
-            } else {
-                dialog.shake();
-            }
-        });
-    });
-    
+    div.addClass('page-user-detail-info');
+    return div;
+}
+
+function create_user_detail_cover(dialog, page) {
+    var div = $('<div></div>');
+    div.addClass('page-user-detail-cover');
+    return div;
+}
+
+function create_user_detail_name(dialog, page) {
+    var div = $('<div></div>');
+    div.addClass('page-user-detail-name');
+    return div;
+}
+
+function create_user_detail_phone(dialog, page) {
+    var div = $('<div></div>');
+    div.addClass('page-user-detail-phone');
     return div;
 }
 
