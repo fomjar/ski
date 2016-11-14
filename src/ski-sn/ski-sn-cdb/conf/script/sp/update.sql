@@ -266,6 +266,18 @@ begin
         prepare s from @s;
         execute s;
         deallocate prepare s;
+
+        if left(mid, 6) != left(rid, 6) then
+            set dc_statement = concat(
+                    'insert into tbl_message_', left(rid, 6), '_reply (c_mid, c_rid) ',
+                    "values (\"", mid, "\", \"", rid, "\")"
+            );
+            set @s = dc_statement;
+            prepare s from @s;
+            execute s;
+            deallocate prepare s;
+        end if;
+
     end if;
 
 end //

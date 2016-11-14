@@ -95,7 +95,7 @@ create table tmp_message (
     i_second    integer,
     i_focus     integer,
     i_reply     integer,
-    i_weight    integer,
+    i_weight    integer
 );
 
 

@@ -39,7 +39,7 @@ create procedure sp_query_message (
 )
 begin
 
-    declare dc_statement    varchar(300)    default null;
+    declare dc_statement    varchar(500)    default null;
     declare di_count        integer         default 0;
     declare di_length       tinyint         default 6;
     declare dc_cgh          varchar(16)     default null;
@@ -77,7 +77,8 @@ begin
                 set dc_statement = concat(
                         'insert into tmp_message (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image, i_distance, i_second, i_focus, i_reply, i_weight) ',
                         'select c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image, 0, 0, 0, 0, 0 ',
-                        '  from tbl_message_', dc_cgh
+                        '  from tbl_message_', dc_cgh , ' ',
+                        ' where c_mid not in (select c_rid from tbl_message_', dc_cgh,'_reply)'
                 );
                 set @s = dc_statement;
                 prepare s from @s;
