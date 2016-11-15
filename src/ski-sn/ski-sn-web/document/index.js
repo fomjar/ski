@@ -245,9 +245,10 @@ function init_message(msg) {
             
     msg.attitude = function() {
         if (!sn.user) return null;
+        if (!msg.focuser) msg.focuser = [];
         var a = null;
         $.each(msg.focuser, function(i, f) {
-            if (f.uid = sn.uid) {
+            if (f.uid == sn.uid) {
                 a = f;
                 return false;
             }
@@ -327,8 +328,11 @@ function init_message(msg) {
             mid     : msg.mid,
             type    : msg.attitude().type
         }, function(code, desc) {
-            if (0 != code) sn.ui.toast('操作失败');
-            else sn.ui.toast('操作成功');
+            if (0 != code) {
+                sn.ui.toast('操作失败');
+            }
+            sn.ui.toast('操作成功');
+            load_message_focus(msg);
         })
     };
 }
@@ -470,6 +474,9 @@ function create_message_detail(msg) {
     var div = $('<div></div>');
     div.addClass('detail');
     
+    var content = $('<div></div>');
+    content.addClass('ct');
+    
     var panel = create_message_panel(msg);
     panel.find('.mf').remove();
     
@@ -555,11 +562,13 @@ function create_message_detail(msg) {
         send.css('opacity', '1');
     });
     
-    div.append([panel, focus, replys, send, action]);
+    content.append([panel, focus, replys]);
+    div.append([content, send, action]);
     
     div.onfocuser = function(focuser) {
         panel.onfocuser(focuser);
         
+        focus_up.children().remove();
         $.each(focuser, function(i, f) {
             switch (f.type) {
             case ATTITUDE_UP:
@@ -570,8 +579,8 @@ function create_message_detail(msg) {
 //                 break;
             }
         });
-        if (0 == focus_up.html().length)    focus_up.text('无');
-//         if (0 == focus_down.html().length)  focus_down.text('无');
+        if (0 == focus_up.html().length)    focus_up.append('<div>无</div>');
+//         if (0 == focus_down.html().length)  focus_down.append('<div>无</div>');
     };
     div.onreplyer = function(replyer) {
         replys.children().remove();

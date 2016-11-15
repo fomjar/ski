@@ -321,7 +321,8 @@ begin
 
     set dc_statement = concat(
             'delete from tbl_message_', left(mid, 6), '_focus ',
-            " where c_mid = \"", mid, "\""
+            " where c_mid = \"", mid, "\" ",
+            '   and i_uid = ', uid
     );
     set @s = dc_statement;
     prepare s from @s;
