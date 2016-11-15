@@ -18,6 +18,7 @@ create table tbl_user (
     c_email     varchar(32),    -- 邮箱
     c_name      varchar(32),    -- 姓名
     c_cover     mediumtext,     -- 封面图
+    i_gender    tinyint,        -- 性别：0 - 女；1 - 男
     primary key (i_uid)
 );
 
@@ -53,6 +54,7 @@ create table tbl_message_geohash6 (
     i_lat       decimal(24, 20),    -- 纬度
     i_lng       decimal(24, 20),    -- 经度
     c_geohash   varchar(16),        -- geohash编码
+    i_type      tinyint,            -- 类型：0 - 普通
     c_text      text,               -- 消息文本
     c_image     mediumtext,         -- 消息图片
     primary key (c_mid)
@@ -89,6 +91,7 @@ create table tmp_message (
     i_lat       decimal(24, 20),    -- 纬度
     i_lng       decimal(24, 20),    -- 经度
     c_geohash   varchar(16),        -- geohash编码
+    i_type      tinyint,            -- 类型：0 - 普通
     c_text      text,               -- 消息文本
     c_image     mediumtext,         -- 消息图片
     i_distance  integer,

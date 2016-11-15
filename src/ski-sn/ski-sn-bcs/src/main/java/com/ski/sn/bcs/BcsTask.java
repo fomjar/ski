@@ -203,6 +203,7 @@ public class BcsTask implements FjServer.FjServerTask {
         desc.put("email",   user.getString(i++));
         desc.put("name",    user.getString(i++));
         desc.put("cover",   user.getString(i++));
+        desc.put("gender",  Integer.parseInt(user.getString(i++)));
         desc.put("token",   token);
         
         args.put("desc", desc);
@@ -232,6 +233,7 @@ public class BcsTask implements FjServer.FjServerTask {
         desc.put("email",   user.getString(i++));
         desc.put("name",    user.getString(i++));
         desc.put("cover",   user.getString(i++));
+        desc.put("gender",  Integer.parseInt(user.getString(i++)));
         desc.put("token",   request.argsToJsonObject().getString("token"));
         
         args.put("desc", desc);
@@ -324,6 +326,8 @@ public class BcsTask implements FjServer.FjServerTask {
             msg.put("uid",      Long.parseLong(fields[i++]));
             msg.put("uname",    fields[i++]);
             msg.put("ucover",   fields[i++]);
+            msg.put("ugender",  Integer.parseInt(fields[i++]));
+            msg.put("mtype",    Integer.parseInt(fields[i++]));
             msg.put("mtext",    fields[i++]);
             msg.put("mimage",   fields[i++]);
             msgs.add(msg);
@@ -360,12 +364,13 @@ public class BcsTask implements FjServer.FjServerTask {
             JSONArray fields = (JSONArray) obj;
             JSONObject focus = new JSONObject();
             int i = 0;
-            focus.put("mid",    fields.getString(i++));
-            focus.put("uid",    Long.parseLong(fields.getString(i++)));
-            focus.put("uname",  fields.getString(i++));
-            focus.put("ucover", fields.getString(i++));
-            focus.put("time",   fields.getString(i++));
-            focus.put("type",   Integer.parseInt(fields.getString(i++)));
+            focus.put("mid",        fields.getString(i++));
+            focus.put("uid",        Long.parseLong(fields.getString(i++)));
+            focus.put("uname",      fields.getString(i++));
+            focus.put("ucover",     fields.getString(i++));
+            focus.put("ugender",    Integer.parseInt(fields.getString(i++)));
+            focus.put("time",       fields.getString(i++));
+            focus.put("type",       Integer.parseInt(fields.getString(i++)));
             desc_rsp.add(focus);
         }
         args.put("desc", desc_rsp);
@@ -390,26 +395,29 @@ public class BcsTask implements FjServer.FjServerTask {
             String[] fields = message.split("'\t", -1);
             JSONObject reply = new JSONObject();
             int i = 0;
-            reply.put("mid",    fields[i++]);
-            reply.put("time",   fields[i++]);
-            reply.put("uid",    Long.parseLong(fields[i++]));
-            reply.put("uname",  fields[i++]);
-            reply.put("ucover", fields[i++]);
-            reply.put("mtext",  fields[i++]);
-            reply.put("mimage", fields[i++]);
+            reply.put("mid",        fields[i++]);
+            reply.put("time",       fields[i++]);
+            reply.put("uid",        Long.parseLong(fields[i++]));
+            reply.put("uname",      fields[i++]);
+            reply.put("ucover",     fields[i++]);
+            reply.put("ugender",    Integer.parseInt(fields[i++]));
+            reply.put("mtype",      Integer.parseInt(fields[i++]));
+            reply.put("mtext",      fields[i++]);
+            reply.put("mimage",     fields[i++]);
             desc_rsp.add(reply);
         }
         args.put("desc", desc_rsp);
     }
     
     private void requestUpdateMessage(FjDscpMessage request) {
-        if (!illegalArgs(request, "uid", "coosys", "lat", "lng")) return;
+        if (!illegalArgs(request, "uid", "coosys", "lat", "lng", "type")) return;
         
         JSONObject args = request.argsToJsonObject();
         long    uid     = args.getLong("uid");
         int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");
         double  lng     = args.getDouble("lng");
+        int     type    = args.getInt("type");
         String  text    = args.has("text") ? args.getString("text") : null;
         String  image   = args.has("image") ? args.getString("image") : null;
         String  geohash = GeoHash.encode(lat, lng);
@@ -422,6 +430,7 @@ public class BcsTask implements FjServer.FjServerTask {
         args_cdb.put("lat",     lat);
         args_cdb.put("lng",     lng);
         args_cdb.put("geohash", geohash);
+        args_cdb.put("type",    type);
         args_cdb.put("text",    text);
         args_cdb.put("image",   image);
         
@@ -447,6 +456,7 @@ public class BcsTask implements FjServer.FjServerTask {
         if (args.has("phone"))  args_cdb.put("phone",   args.getString("phone"));
         if (args.has("name"))   args_cdb.put("name",    args.getString("name"));
         if (args.has("cover"))  args_cdb.put("cover",   args.getString("cover")); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
+        if (args.has("gender")) args_cdb.put("gender",  args.getInt("gender"));
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER, args_cdb);
         catchResponse(request);
     }
@@ -466,7 +476,7 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void requestUpdateMessageReply(FjDscpMessage request) {
-        if (!illegalArgs(request, "uid", "mid", "coosys", "lat", "lng")) return;
+        if (!illegalArgs(request, "uid", "mid", "coosys", "lat", "lng", "type")) return;
         
         JSONObject args = request.argsToJsonObject();
         long    uid     = args.getLong("uid");
@@ -474,6 +484,7 @@ public class BcsTask implements FjServer.FjServerTask {
         int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");
         double  lng     = args.getDouble("lng");
+        int     type    = args.getInt("type");
         String  text    = args.has("text") ? args.getString("text") : null;
         String  image   = args.has("image") ? args.getString("image") : null;
         String  geohash = GeoHash.encode(lat, lng);
@@ -487,6 +498,7 @@ public class BcsTask implements FjServer.FjServerTask {
         args_cdb.put("lat",     lat);
         args_cdb.put("lng",     lng);
         args_cdb.put("geohash", geohash);
+        args_cdb.put("type",    type);
         args_cdb.put("text",    text);
         args_cdb.put("image",   image);
         

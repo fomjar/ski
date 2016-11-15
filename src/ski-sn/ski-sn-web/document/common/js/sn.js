@@ -429,6 +429,16 @@ function build_frame() {
 
 function build_head() {
     build_user_cover();
+    $('.sn .head').bind('click', function(e) {
+        if (!$(e.target).hasClass('head')) return;
+        
+        var i = setInterval(function() {
+            var s = Math.pow($('.sn .body').scrollTop(), 1 / 1.5);
+            if (s < 1) s = 1;
+            $('.sn .body').scrollTop($('.sn .body').scrollTop() - s);
+            if ($('.sn .body').scrollTop() <= 0) clearInterval(i);
+        }, 10);
+    });
 }
 
 function build_user_cover() {
@@ -762,12 +772,14 @@ function create_user_register_2(dialog, page) {
         sn.ui.toast('图片不能大于2M');
     }));
     div.append("<div><label>姓名</label><input type='text' placeholder='您的姓名'></div>")
-    div.append("<div>别担心，这些信息以后还能修改。</div>")
+    div.append("<div><label>性别</label><select><option value='0' selected='selected'>女</option><option value='1'>男</option></select></div>");
+    div.append("<div>性别一旦注册成功无法修改，请谨慎选择</div>")
     div.append("<div><div class='button'>上一步</div><div class='button button-default'>提交</div></div>");
     
     var div_nam = div.find('>div:nth-child(3) input');
-    var div_bac = div.find('>div:nth-child(5) .button:nth-child(1)');
-    var div_sub = div.find('>div:nth-child(5) .button:nth-child(2)');
+    var div_gen = div.find('>div:nth-child(4) select');
+    var div_bac = div.find('>div:nth-child(6) .button:nth-child(1)');
+    var div_sub = div.find('>div:nth-child(6) .button:nth-child(2)');
 
     div_bac.bind('click', function() {page.page_to_prev();});
     div_sub.doing = false;
@@ -788,13 +800,15 @@ function create_user_register_2(dialog, page) {
         div_sub.doing = true;
         div_sub.css('color', 'gray');
         user_register.name = name;
+        user_register.gender = parseInt(div_gen.val());
         
         fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            phone : user_register.phone,
-            vcode : user_register.vcode,
-            pass  : user_register.pass,
-            cover : user_register.cover,
-            name  : user_register.name
+            phone   : user_register.phone,
+            vcode   : user_register.vcode,
+            pass    : user_register.pass,
+            cover   : user_register.cover,
+            name    : user_register.name,
+            gender  : user_register.gender
         }, function(code, desc) {
             div_sub.doing = false;
             div_sub.css('color', '');
@@ -850,6 +864,7 @@ function create_user_detail_info(dialog, page) {
     list.addClass('list');
     list.append("<div class='pair'><div>姓名</div><div>" + sn.user.name + "</div></div>");
     list.append("<div class='pair'><div>手机</div><div>" + sn.user.phone + "</div></div>");
+    list.append("<div class='pair'><div>性别</div><div>" + (0 == sn.user.gender ? '女' : '男') + "</div></div>");
     list.append("<div class='pair'><div>密码</div><div>******</div></div>");
     div.append(list);
     div.append("<div class='button'>注销</div>");
@@ -857,7 +872,8 @@ function create_user_detail_info(dialog, page) {
     div.find('img').bind('click', function() {page.page_set('头像');});
     div.find('.list .pair:nth-child(1)').bind('click', function() {page.page_set('姓名');});
     div.find('.list .pair:nth-child(2)').bind('click', function() {page.page_set('手机');});
-    div.find('.list .pair:nth-child(3)').bind('click', function() {page.page_set('密码');});
+    div.find('.list .pair:nth-child(3)').bind('click', function() {dialog.shake();});
+    div.find('.list .pair:nth-child(4)').bind('click', function() {page.page_set('密码');});
     div.find('.button').bind('click', function() {
         fomjar.util.cookie('token', '');
         fomjar.util.cookie('uid', '');

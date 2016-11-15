@@ -141,6 +141,7 @@ function create_send_panel(dialog) {
             coosys  : 1,
             lat     : sn.location.point.lat,
             lng     : sn.location.point.lng,
+            type    : 0,
             text    : text,
             image   : image
         }, function(code, desc) {
@@ -170,7 +171,7 @@ function load_message(pos, len) {
     if (!sn.location) return;
     if (loading) return;
     
-    sn.ui.toast('正在加载消息', 1000 * 10);
+    sn.ui.toast('正在加载', 1000 * 10);
     loading = true;
     if (!sn.uid) {
         sn.uid = new Date().getTime();
@@ -198,6 +199,15 @@ function load_message(pos, len) {
         var delay = 0;
         
         $.each(desc, function(i, msg) {
+            var exist = false;
+            $.each(sn.message, function(i, m0) {
+                if (m0.mid == msg.mid) {
+                    exist = true;
+                    return false;
+                }
+            });
+            if (exist) return true;
+            
             sn.message.push(msg);
 
             init_message(msg);
@@ -221,8 +231,8 @@ function init_message(msg) {
     msg.panel = panel;
     msg.detail = detail;
     
-    var show_detail = function() {
-        if ($('.sn .browse').is(':visible')) return;
+    var show_detail = function(e) {
+        if (e.target.tagName == 'IMG') return;
         
         var dialog = sn.ui.dialog();
         dialog.append(detail);
@@ -511,6 +521,7 @@ function create_message_detail(msg) {
             coosys  : 1,
             lat     : sn.location.point.lat,
             lng     : sn.location.point.lng,
+            type    : 0,
             text    : text,
             image   : image
         }, function(code, desc) {

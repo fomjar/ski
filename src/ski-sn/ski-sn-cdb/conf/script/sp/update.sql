@@ -2,7 +2,7 @@
 
 -- INST_UPDATE_USER                = 0x00003001
 delete from tbl_instruction where i_inst = (conv('00003001', 16, 10) + 0);
-insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003001', 16, 10) + 0), 'sp', 2, "sp_update_user(?, ?, $uid, \"$pass\", \"$phone\", \"$email\", \"$name\", \"$cover\")");
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003001', 16, 10) + 0), 'sp', 2, "sp_update_user(?, ?, $uid, \"$pass\", \"$phone\", \"$email\", \"$name\", \"$cover\", $gender)");
 delimiter //
 drop procedure if exists sp_update_user //
 create procedure sp_update_user (
@@ -13,7 +13,8 @@ create procedure sp_update_user (
     in  phone   varchar(16),
     in  email   varchar(32),
     in  name    varchar(32),
-    in  cover   mediumtext
+    in  cover   mediumtext,
+    in  gender  tinyint
 )
 begin
 
@@ -42,7 +43,8 @@ begin
             c_phone,
             c_email,
             c_name,
-            c_cover
+            c_cover,
+            i_gender
         ) values (
             di_uid,
             now(),
@@ -50,7 +52,8 @@ begin
             phone,
             email,
             name,
-            cover
+            cover,
+            gender
         );
     else
         select count(1)
@@ -66,15 +69,17 @@ begin
                 c_phone,
                 c_email,
                 c_name,
-                c_cover
+                c_cover,
+                i_gender
             ) values (
-                di_uid,
+                uid,
                 now(),
                 pass,
                 phone,
                 email,
                 name,
-                cover
+                cover,
+                gender
             );
         else
             if pass is not null then
@@ -100,6 +105,11 @@ begin
             if cover is not null then
                 update tbl_user
                    set c_cover = cover
+                 where i_uid = uid;
+            end if;
+            if gender is not null then
+                update tbl_user
+                   set i_gender = gender
                  where i_uid = uid;
             end if;
         end if;
@@ -206,7 +216,7 @@ delimiter ;
 
 -- INST_UPDATE_MESSAGE             = 0x00003003
 delete from tbl_instruction where i_inst = (conv('00003003', 16, 10) + 0);
-insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003003', 16, 10) + 0), 'sp', 2, "sp_update_message(?, ?, \"$mid\", $uid, $coosys, $lat, $lng, \"$geohash\", \"$text\", \"$image\")");
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003003', 16, 10) + 0), 'sp', 2, "sp_update_message(?, ?, \"$mid\", $uid, $coosys, $lat, $lng, \"$geohash\", $type, \"$text\", \"$image\")");
 delimiter //
 drop procedure if exists sp_update_message //
 create procedure sp_update_message (
@@ -218,6 +228,7 @@ create procedure sp_update_message (
     in  lat     decimal(24, 20),
     in  lng     decimal(24, 20),
     in  geohash varchar(16),
+    in  _type   tinyint,
     in  _text   text,
     in  image   mediumtext
 )
@@ -233,7 +244,8 @@ begin
         or coosys   is null
         or lat      is null
         or lng      is null
-        or geohash  is null then
+        or geohash  is null
+        or _type    is null then
 
         set i_code = 3;
         set c_desc = 'illegal arguments, null arguments';
@@ -247,7 +259,7 @@ begin
          where table_name = dc_table;
 
         if 0 = di_count then
-            set dc_create = concat('create table ', dc_table, ' (c_mid varchar(128), t_time datetime, i_uid integer, i_coosys tinyint, i_lat decimal(24, 20), i_lng decimal(24, 20), c_geohash varchar(16), c_text text, c_image mediumtext, primary key (c_mid))');
+            set dc_create = concat('create table ', dc_table, ' (c_mid varchar(128), t_time datetime, i_uid integer, i_coosys tinyint, i_lat decimal(24, 20), i_lng decimal(24, 20), c_geohash varchar(16), i_type tinyint, c_text text, c_image mediumtext, primary key (c_mid))');
             set @s = dc_create;
             prepare s from @s;
             execute s;
@@ -266,7 +278,7 @@ begin
             deallocate prepare s;
         end if;
 
-        set dc_insert = concat('insert into ', dc_table, " (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image) values (",
+        set dc_insert = concat('insert into ', dc_table, " (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, i_type, c_text, c_image) values (",
                 "\"", mid,      "\", ",
                 "\"", now(),    "\", ",
                       uid,      ", ",
@@ -274,6 +286,7 @@ begin
                       lat,      ", ",
                       lng,      ", ",
                 "\"", geohash,  "\", ",
+                      _type,    ", ",
                 ifnull(concat("\"", _text, "\""), 'null'), ", ",
                 ifnull(concat("\"", image, "\""), 'null'), ")");
         set @s = dc_insert;
@@ -331,7 +344,7 @@ delimiter ;
 
 -- INST_UPDATE_MESSAGE_REPLY       = 0x00003007
 delete from tbl_instruction where i_inst = (conv('00003007', 16, 10) + 0);
-insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003007', 16, 10) + 0), 'sp', 2, "sp_update_message_reply(?, ?, \"$mid\", \"$rid\", $uid, $coosys, $lat, $lng, \"$geohash\", \"$text\", \"$image\")");
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003007', 16, 10) + 0), 'sp', 2, "sp_update_message_reply(?, ?, \"$mid\", \"$rid\", $uid, $coosys, $lat, $lng, \"$geohash\", $type, \"$text\", \"$image\")");
 delimiter //
 drop procedure if exists sp_update_message_reply //
 create procedure sp_update_message_reply (
@@ -344,6 +357,7 @@ create procedure sp_update_message_reply (
     in  lat     decimal(24, 20),
     in  lng     decimal(24, 20),
     in  geohash varchar(16),
+    in  _type   tinyint,
     in  _text   text,
     in  image   mediumtext
 )
@@ -351,7 +365,7 @@ begin
 
     declare dc_statement    varchar(300)    default null;
 
-    call sp_update_message(i_code, c_desc, rid, uid, coosys, lat, lng, geohash, _text, image);
+    call sp_update_message(i_code, c_desc, rid, uid, coosys, lat, lng, geohash, _type, _text, image);
 
     if i_code = 0 then
         set dc_statement = concat(

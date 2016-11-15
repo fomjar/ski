@@ -44,7 +44,10 @@ public class Filter6Interface extends FjWebFilter {
         logger.info(String.format("[ INTERFACE ] - %s - 0x%08X", request.url(), inst));
         
         args.remove("inst");
-        if (request.cookie().containsKey("uid"))    args.put("uid",     Long.parseLong(request.cookie().get("uid")));
+        if (request.cookie().containsKey("uid"))    {
+            String uid = request.cookie().get("uid");
+            if (0 < uid.length()) args.put("uid",     Long.parseLong(uid));
+        }
         if (request.cookie().containsKey("token"))  args.put("token",   request.cookie().get("token"));
         
         switch (inst) {

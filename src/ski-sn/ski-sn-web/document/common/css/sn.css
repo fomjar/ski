@@ -19,7 +19,7 @@ div {
     -webkit-user-select : none;
 }
 /* 输入框外观 */
-input, textarea {
+input, textarea, select {
     border                  : none;
     background-color        : white;
     font-size               : 1em;
@@ -28,7 +28,7 @@ input, textarea {
             appearance      : none;
     -webkit-appearance      : none;
 }
-input {
+input, select {
     padding : 0 1em;
     height  : 2em;
 }
@@ -275,10 +275,12 @@ body {overflow : hidden;}
 .sn .page-register-2 >div:nth-child(1) {font-size : 3em;}
 .sn .page-register-2 .choose-image     {margin : 1em auto; width : 8em; height : 8em;}
 .sn .page-register-2 .choose-image >*  {border-radius : 4em; -webkit-border-radius : 4em;}
-.sn .page-register-2 >div:nth-child(3) label {width : 20%; text-align : center; margin-right : 1em;}
-.sn .page-register-2 >div:nth-child(3) input {width : 50%; text-align : center; font-size : 1em;}
-.sn .page-register-2 >div:nth-child(4) {color : gray; transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
-.sn .page-register-2 >div:nth-child(5) {margin-top : 2em;}
+.sn .page-register-2 >div:nth-child(3) label  {width : 20%; text-align : center; margin-right : 1em;}
+.sn .page-register-2 >div:nth-child(3) input  {width : 50%; text-align : center; font-size : 1em;}
+.sn .page-register-2 >div:nth-child(4) label  {width : 20%; text-align : center; margin-right : 1em;}
+.sn .page-register-2 >div:nth-child(4) select {width : 50%; text-align : center; font-size : 1em;}
+.sn .page-register-2 >div:nth-child(5) {color : gray; transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
+.sn .page-register-2 >div:nth-child(6) {margin-top : 2em;}
 
 .sn .page-register-done {padding : 0 2em;}
 .sn .page-register-done >* {text-align : center; line-height : 1.5em; margin : .5em 0;}

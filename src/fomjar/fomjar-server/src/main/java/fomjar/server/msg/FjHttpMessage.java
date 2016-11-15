@@ -50,6 +50,9 @@ public abstract class FjHttpMessage implements FjMessage {
                 baos.write(buf.array(), buf.position(), buf.limit());
                 buf.clear();
                 begin = System.currentTimeMillis();
+            } else {
+                try {Thread.sleep(100L);}
+                catch (InterruptedException e) {e.printStackTrace();}
             }
         }
         content(baos.toByteArray());

@@ -10,8 +10,8 @@ insert into tbl_instruction (
 ) values (
     (conv('00002004', 16, 10) + 0),
     'st',
-    7,
-    "select u.i_uid, u.t_create, u.c_pass, u.c_phone, u.c_email, u.c_name, u.c_cover from tbl_user u, tbl_user_state s where u.i_uid = s.i_uid and s.i_uid = $uid and s.c_token = \"$token\""
+    8,
+    "select u.i_uid, u.t_create, u.c_pass, u.c_phone, u.c_email, u.c_name, u.c_cover, u.i_gender from tbl_user u, tbl_user_state s where u.i_uid = s.i_uid and s.i_uid = $uid and s.c_token = \"$token\""
 );
 
 -- INST_QUERY_MESSAGE              = 0x00002003
@@ -75,8 +75,8 @@ begin
                 then
 
                 set dc_statement = concat(
-                        'insert into tmp_message (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image, i_distance, i_second, i_focus, i_reply, i_weight) ',
-                        'select c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, c_text, c_image, 0, 0, 0, 0, 0 ',
+                        'insert into tmp_message (c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, i_type, c_text, c_image, i_distance, i_second, i_focus, i_reply, i_weight) ',
+                        'select c_mid, t_time, i_uid, i_coosys, i_lat, i_lng, c_geohash, i_type, c_text, c_image, 0, 0, 0, 0, 0 ',
                         '  from tbl_message_', dc_cgh , ' ',
                         ' where c_mid not in (select c_rid from tbl_message_', dc_cgh,'_reply)'
                 );
@@ -149,6 +149,8 @@ begin
             '\'\t', u.i_uid,
             '\'\t', u.c_name,
             '\'\t', ifnull(u.c_cover, ''),
+            '\'\t', u.i_gender,
+            '\'\t', m.i_type,
             '\'\t', ifnull(m.c_text, ''),
             '\'\t', ifnull(m.c_image, ''))
            order by m.i_weight desc, m.c_mid desc
@@ -170,8 +172,8 @@ insert into tbl_instruction (
 ) values (
     (conv('00002006', 16, 10) + 0),
     'st',
-    6,
-    "select f.c_mid, u.i_uid, u.c_name, u.c_cover, f.t_time, f.i_type from tbl_message_$geohash6_focus f, tbl_user u where f.i_uid = u.i_uid and f.c_mid = \"$mid\""
+    7,
+    "select f.c_mid, u.i_uid, u.c_name, u.c_cover, u.i_gender, f.t_time, f.i_type from tbl_message_$geohash6_focus f, tbl_user u where f.i_uid = u.i_uid and f.c_mid = \"$mid\""
 );
 
 -- INST_QUERY_MESSAGE_REPLY        = 0x00002007
@@ -230,6 +232,7 @@ begin
             '       t.i_lat     = m.i_lat,',
             '       t.i_lng     = m.i_lng,',
             '       t.c_geohash = m.c_geohash,',
+            '       t.i_type    = m.i_type,',
             '       t.c_text    = m.c_text,',
             '       t.c_image   = m.c_image ',
             ' where t.c_mid = m.c_mid ',
@@ -251,6 +254,8 @@ begin
             '\'\t', u.i_uid,
             '\'\t', u.c_name,
             '\'\t', ifnull(u.c_cover, ''),
+            '\'\t', u.i_gender,
+            '\'\t', m.i_type,
             '\'\t', ifnull(m.c_text, ''),
             '\'\t', ifnull(m.c_image, ''))
            order by m.t_time desc, m.c_mid desc
