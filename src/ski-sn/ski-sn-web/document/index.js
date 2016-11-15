@@ -103,6 +103,8 @@ function create_send_panel(dialog) {
     var div = $('<div></div>');
     div.addClass('send-panel');
     
+    div.append("<div><img src='res/msg-dist.png'/><div>" + sn.location.address + "</div></div>");
+    
     var div_content = $('<div></div>');
     div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
     div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
@@ -110,10 +112,10 @@ function create_send_panel(dialog) {
     div.append(div_content);
     div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
     
-    var div_tex = div.find('>*:nth-child(1) textarea');
-    var div_ima = div.find('>*:nth-child(1) img');
-    var div_can = div.find('>*:nth-child(2) .button:nth-child(1)');
-    var div_sen = div.find('>*:nth-child(2) .button:nth-child(2)');
+    var div_tex = div.find('>*:nth-child(2) textarea');
+    var div_ima = div.find('>*:nth-child(2) img');
+    var div_can = div.find('>*:nth-child(3) .button:nth-child(1)');
+    var div_sen = div.find('>*:nth-child(3) .button:nth-child(2)');
     
     div_can.bind('click', function() {dialog.disappear();});
     div_sen.doing = false;
@@ -471,8 +473,8 @@ function create_message_detail(msg) {
 //     var focus_down = $('<div></div>');
 //     focus.append(focus_down);
 
-    var reply = $('<div></div>');
-    reply.addClass('reply');
+    var replys = $('<div></div>');
+    replys.addClass('list');
     
     var send = $('<div></div>');
     send.addClass('send');
@@ -542,7 +544,7 @@ function create_message_detail(msg) {
         send.css('opacity', '1');
     });
     
-    div.append([panel, focus, reply, send, action]);
+    div.append([panel, focus, replys, send, action]);
     
     div.onfocuser = function(focuser) {
         panel.onfocuser(focuser);
@@ -561,9 +563,10 @@ function create_message_detail(msg) {
 //         if (0 == focus_down.html().length)  focus_down.text('无');
     };
     div.onreplyer = function(replyer) {
-        reply.children().remove();
+        replys.children().remove();
         $.each(replyer, function(i, r) {
             var d = $('<div></div>');
+            d.addClass('reply');
             d.append("<img src='" + r.ucover + "' />");
             d.append('<div>' + r.uname + '</div>');
             d.append('<div>' + r.time.substring(5, 16) + '</div>');
@@ -574,7 +577,7 @@ function create_message_detail(msg) {
                 d.append(img);
                 sn.ui.browse(img);
             }
-            reply.append(d);
+            replys.append(d);
         });
     }
     

@@ -2,17 +2,113 @@
 
 -- INST_UPDATE_USER                = 0x00003001
 delete from tbl_instruction where i_inst = (conv('00003001', 16, 10) + 0);
-insert into tbl_instruction (
-    i_inst,
-    c_mode,
-    i_out,
-    c_sql
-) values (
-    (conv('00003001', 16, 10) + 0),
-    'st',
-    0,
-    "replace into tbl_user(i_uid, t_create, c_pass, c_phone, c_email, c_name, c_cover) values ((case (select count(1) from tbl_user u where u.c_phone = \"$phone\") when 0 then (select (ifnull(max(u.i_uid), 0) + 1) from tbl_user u) else (select u.i_uid from tbl_user u where u.c_phone = \"$phone\") end), now(), \"$pass\", \"$phone\", \"$email\", \"$name\", \"$cover\")"
-);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003001', 16, 10) + 0), 'sp', 2, "sp_update_user(?, ?, $uid, \"$pass\", \"$phone\", \"$email\", \"$name\", \"$cover\")");
+delimiter //
+drop procedure if exists sp_update_user //
+create procedure sp_update_user (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  uid     integer,
+    in  pass    varchar(16),
+    in  phone   varchar(16),
+    in  email   varchar(32),
+    in  name    varchar(32),
+    in  cover   mediumtext
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_uid      integer default 0;
+
+    if uid is null then
+        select count(1)
+          into di_count
+          from tbl_user;
+
+        if di_count = 0 then
+            set di_uid = 1;
+        else
+            select max(i_uid)
+              into di_uid
+              from tbl_user;
+
+            set di_uid = di_uid + 1;
+        end if;
+
+        insert into tbl_user (
+            i_uid,
+            t_create,
+            c_pass,
+            c_phone,
+            c_email,
+            c_name,
+            c_cover
+        ) values (
+            di_uid,
+            now(),
+            pass,
+            phone,
+            email,
+            name,
+            cover
+        );
+    else
+        select count(1)
+          into di_count
+          from tbl_user
+         where i_uid = uid;
+
+        if di_count = 0 then
+            insert into tbl_user (
+                i_uid,
+                t_create,
+                c_pass,
+                c_phone,
+                c_email,
+                c_name,
+                c_cover
+            ) values (
+                di_uid,
+                now(),
+                pass,
+                phone,
+                email,
+                name,
+                cover
+            );
+        else
+            if pass is not null then
+                update tbl_user
+                   set c_pass = pass
+                 where i_uid = uid;
+            end if;
+            if phone is not null then
+                update tbl_user
+                   set c_phone = phone
+                 where i_uid = uid;
+            end if;
+            if email is not null then
+                update tbl_user
+                   set c_email = email
+                 where i_uid = uid;
+            end if;
+            if name is not null then
+                update tbl_user
+                   set c_name = name
+                 where i_uid = uid;
+            end if;
+            if cover is not null then
+                update tbl_user
+                   set c_cover = cover
+                 where i_uid = uid;
+            end if;
+        end if;
+    end if;
+
+    set i_code = 0;
+    set c_desc = null;
+end //
+delimiter ;
 
 -- INST_UPDATE_USER_STATE          = 0x00003004
 delete from tbl_instruction where i_inst = (conv('00003004', 16, 10) + 0);

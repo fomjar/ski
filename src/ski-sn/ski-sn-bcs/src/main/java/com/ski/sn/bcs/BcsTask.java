@@ -195,12 +195,14 @@ public class BcsTask implements FjServer.FjServerTask {
         }
         
         JSONObject desc = new JSONObject();
-        desc.put("uid",     Long.parseLong(user.getString(0)));
-        desc.put("create",  user.getString(1));
-        desc.put("phone",   user.getString(2));
-        desc.put("email",   user.getString(3));
-        desc.put("name",    user.getString(4));
-        desc.put("cover",   user.getString(5));
+        int i = 0;
+        desc.put("uid",     Long.parseLong(user.getString(i++)));
+        desc.put("create",  user.getString(i++));
+        desc.put("pass",    user.getString(i++));
+        desc.put("phone",   user.getString(i++));
+        desc.put("email",   user.getString(i++));
+        desc.put("name",    user.getString(i++));
+        desc.put("cover",   user.getString(i++));
         desc.put("token",   token);
         
         args.put("desc", desc);
@@ -222,12 +224,14 @@ public class BcsTask implements FjServer.FjServerTask {
         }
         
         JSONObject desc = new JSONObject();
-        desc.put("uid",     Long.parseLong(user.getString(0)));
-        desc.put("create",  user.getString(1));
-        desc.put("phone",   user.getString(2));
-        desc.put("email",   user.getString(3));
-        desc.put("name",    user.getString(4));
-        desc.put("cover",   user.getString(5));
+        int i = 0;
+        desc.put("uid",     Long.parseLong(user.getString(i++)));
+        desc.put("create",  user.getString(i++));
+        desc.put("pass",    user.getString(i++));
+        desc.put("phone",   user.getString(i++));
+        desc.put("email",   user.getString(i++));
+        desc.put("name",    user.getString(i++));
+        desc.put("cover",   user.getString(i++));
         desc.put("token",   request.argsToJsonObject().getString("token"));
         
         args.put("desc", desc);
@@ -426,22 +430,23 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void requestUpdateUser(FjDscpMessage request) {
-        if (!illegalArgs(request, "pass", "phone", "vcode", "name")) return;
-        
         JSONObject args = request.argsToJsonObject();
-        String phone = args.getString("phone");
-        String vcode = args.getString("vcode");
-        if (!vcode.equals(cache_vcode.get(phone))) {
-            CommonService.response(request, CommonDefinition.CODE.CODE_ERROR, "验证失败");
-            return;
+        if (args.has("phone") && args.has("vcode")) {
+            String phone = args.getString("phone");
+            String vcode = args.getString("vcode");
+            if (!vcode.equals(cache_vcode.get(phone))) {
+                CommonService.response(request, CommonDefinition.CODE.CODE_ERROR, "验证失败");
+                return;
+            }
+            cache_vcode.remove(phone);
         }
-//        cache_vcode.remove(phone);
         
         JSONObject args_cdb = new JSONObject();
-        args_cdb.put("pass",    args.getString("pass"));
-        args_cdb.put("phone",   args.getString("phone"));
-        args_cdb.put("name",    args.getString("name"));
-        if (args.has("cover"))  args_cdb.put("cover", args.getString("cover")); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
+        if (args.has("uid"))    args_cdb.put("uid",     args.getInt("uid"));
+        if (args.has("pass"))   args_cdb.put("pass",    args.getString("pass"));
+        if (args.has("phone"))  args_cdb.put("phone",   args.getString("phone"));
+        if (args.has("name"))   args_cdb.put("name",    args.getString("name"));
+        if (args.has("cover"))  args_cdb.put("cover",   args.getString("cover")); // data:image/jpeg;base64,/9j/4SxpRXhpZgA...
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER, args_cdb);
         catchResponse(request);
     }
