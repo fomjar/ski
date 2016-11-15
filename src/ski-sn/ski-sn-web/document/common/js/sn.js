@@ -48,7 +48,7 @@ sn.ui = {
             div.show();
             div.scrollTop(0);
             setTimeout(function() {
-                div.css('opacity', '.95');
+                div.css('opacity', '.98');
                 div.css(        'transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
                 div.css('-webkit-transform', 'translate(-50%, -50%) scale(1, 1) translateZ(0)');
             }, 0);
@@ -454,8 +454,8 @@ function build_user_cover() {
 function build_user_state() {
 
     $('.sn .head').append("<div class='state'><img src='/res/state-locate.png' /><div style='display:none'></div></div>");
-    $('.sn .head').append("<div class='state'><img src='/res/state-nearby.png' /><div style='display:none'></div></div>");
-    $('.sn .head').append("<div class='state'><img src='/res/state-notify.png' /><div style='display:none'></div></div>");
+//     $('.sn .head').append("<div class='state'><img src='/res/state-nearby.png' /><div style='display:none'></div></div>");
+//     $('.sn .head').append("<div class='state'><img src='/res/state-notify.png' /><div style='display:none'></div></div>");
     
     var states = $('.sn .head .state');
     $.each(states, function(i, state) {
