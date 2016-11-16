@@ -212,13 +212,15 @@ function load_message(pos, len) {
 
             init_message(msg);
             
-            load_message_focus(msg);
+            setTimeout(function() {
+                load_message_focus(msg);
+                load_message_reply(msg);
+                
+                msg.panel.css('opacity', '0');
+                $('.sn .body').append(msg.panel);
+                msg.panel.css('opacity', '1');
+            }, delay);
             
-            load_message_reply(msg);
-    
-            msg.panel.css('opacity', '0');
-            $('.sn .body').append(msg.panel);
-            setTimeout(function() {msg.panel.css('opacity', '1');}, delay);
             delay += 150;
         });
 
