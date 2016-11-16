@@ -24,12 +24,15 @@ public class BcsTask implements FjServer.FjServerTask {
     private Map<String, FjDscpMessage>  cache_request;
     private Map<String, String>         cache_vcode;
     private Map<Long, JSONArray>        cache_message;
+    private MonitorUserState            monitor_userstate;
     
     @Override
     public void initialize(FjServer server) {
         cache_request   = new ConcurrentHashMap<String, FjDscpMessage>();
         cache_vcode     = new ConcurrentHashMap<String, String>();
         cache_message   = new ConcurrentHashMap<Long, JSONArray>();
+        monitor_userstate = new MonitorUserState();
+        monitor_userstate.start();
     }
 
     @Override
@@ -37,6 +40,7 @@ public class BcsTask implements FjServer.FjServerTask {
         cache_request.clear();
         cache_vcode.clear();
         cache_message.clear();
+        monitor_userstate.close();
     }
 
     @Override
@@ -464,7 +468,12 @@ public class BcsTask implements FjServer.FjServerTask {
     private void requestUpdateUserState(FjDscpMessage request) {
         if (!illegalArgs(request, "uid")) return;
         
-        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER_STATE, request.argsToJsonObject());
+        JSONObject args = request.argsToJsonObject();
+        
+        int uid = args.getInt("uid");
+        monitor_userstate.notify(uid);
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_USER_STATE, args);
         catchResponse(request);
     }
     

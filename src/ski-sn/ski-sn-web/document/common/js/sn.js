@@ -555,7 +555,7 @@ function watch_location() {
     };
     new BMap.Geolocation().getCurrentPosition(run);
     setTimeout(function() {if (sn.location) sn.ui.state(1).flash();}, 1000 * 5);
-    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 5);
+    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 10);
 }
     
 function login_manually(phone, pass, success, failure) {
@@ -650,7 +650,10 @@ function create_user_login_1(dialog, page) {
     var div_log = div.find('>div:nth-child(5) .button');
     var div_reg = div.find('>div:nth-child(6) .button');
     
+    div_log.doing = false;
     div_log.bind('click', function() {
+        if (div_log.doing) return;
+    
         var phone = div_pho.val();
         var pass  = div_pas.val();
         var error = null;
@@ -664,9 +667,15 @@ function create_user_login_1(dialog, page) {
             sn.ui.toast("请输入密码");
             return;
         }
+        div_log.doing = true;
+        div_log.css('color', 'gray');
         login_manually(phone, pass, function() {
+            div_log.doing = false;
+            div_log.css('color', '');
             dialog.disappear();
         }, function(code, desc) {
+            div_log.doing = false;
+            div_log.css('color', '');
             dialog.shake();
             sn.ui.toast(desc);
         });
