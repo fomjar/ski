@@ -457,7 +457,7 @@ function build_head() {
 function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
-    cover.append("<img src='src/user.png' />");
+    cover.append("<img src='res/user.png' />");
     cover.append('<div>登录 / 注册</div>');
     
     $('.sn .head').append(cover);

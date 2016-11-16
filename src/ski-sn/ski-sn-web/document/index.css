@@ -186,9 +186,10 @@
     padding-bottom : .8em;
 }
 .sn .detail .ct .focus img {
-    width   : 2.2em;
-    height  : 2.2em;
-    margin  : .2em;
+    width           : 2.2em;
+    height          : 2.2em;
+    margin-top      : .2em;
+    margin-right    : .2em;
             border-radius   : 1.1em;
     -webkit-border-radius   : 1.1em;
 }
@@ -207,15 +208,17 @@
 .sn .detail .ct .reply >*:nth-child(3) {
     float       : right;
     font-size   : .9em;
-    margin-top  : .5em;
+    margin-top  : .7em;
     color       : gray;
 }
 .sn .detail .ct .reply >*:nth-child(4) {
-    margin-top  : 2.5em;
+    margin-top  : 2.7em;
+    line-height : 1.5em;
 }
 .sn .detail .ct .reply >*:nth-child(5) {
     max-width   : 100%;
     max-height  : 10em;
+    margin-top  : .5em;
 }
 .sn .detail .send {
     position    : absolute;
