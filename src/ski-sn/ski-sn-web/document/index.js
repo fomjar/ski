@@ -22,16 +22,16 @@ function init_event() {
     // scroll event
     sn.ui.scroll($('.sn .body'),
         function() {    // begin
-            $('.sn .head').css('top', '-3em');
-            if (sn.user) $('.sn .foot').css('bottom', '-4em');
+//             $('.sn .head').css('top', '-3em');
+//             if (sn.user) $('.sn .foot').css('bottom', '-4em');
         },
         function() {    // end
-            $('.sn .head').css('top', '0');
-            if (sn.user) $('.sn .foot').css('bottom', '0');
+//             $('.sn .head').css('top', '0');
+//             if (sn.user) $('.sn .foot').css('bottom', '0');
         },
         function() {    // top
-            $('.sn .head').css('top', '0');
-            if (sn.user) $('.sn .foot').css('bottom', '0');
+//             $('.sn .head').css('top', '0');
+//             if (sn.user) $('.sn .foot').css('bottom', '0');
         },
         function() {    // bottom
             load_message(sn.message.length, 10);
@@ -226,6 +226,9 @@ function load_message(pos, len) {
 }
 
 function init_message(msg) {
+    
+    if (!msg.ucover) msg.ucover = 'res/user.png';
+    
     var panel = create_message_panel(msg);
     var detail = create_message_detail(msg);
     msg.panel = panel;
@@ -570,6 +573,8 @@ function create_message_detail(msg) {
         
         focus_up.children().remove();
         $.each(focuser, function(i, f) {
+            if (!f.ucover) f.ucover = 'res/user.png';
+            
             switch (f.type) {
             case ATTITUDE_UP:
                 focus_up.append("<img src='" + f.ucover + "' />");
@@ -585,6 +590,8 @@ function create_message_detail(msg) {
     div.onreplyer = function(replyer) {
         replys.children().remove();
         $.each(replyer, function(i, r) {
+            if (!r.ucover) r.ucover = 'res/user.png';
+        
             var d = $('<div></div>');
             d.addClass('reply');
             d.append("<img src='" + r.ucover + "' />");

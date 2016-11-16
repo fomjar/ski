@@ -95,10 +95,7 @@ body {overflow : hidden;}
             transition  : opacity .5s linear;
     -webkit-transition  : opacity .5s linear;
 }
-.sn .body {
-            transition  : top .2s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition  : top .2s cubic-bezier(0,0.5,0.5,1);
-}
+.sn .body {}
 .sn .head {
     background-color    : #335522;
             transform   : translateZ(0);

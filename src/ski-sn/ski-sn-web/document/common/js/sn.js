@@ -395,6 +395,19 @@ sn.login = function() {
     dialog.append(create_user_login(dialog));
     dialog.appear();
 };
+sn.logout = function() {
+    fomjar.util.cookie('token', '');
+    fomjar.util.cookie('uid', '');
+    sn.token = null;
+    sn.uid = null;
+    sn.user = null;
+    $('.sn .head .cover img').attr('src', 'res/user.png');
+    $('.sn .head .cover div').text('登录 / 注册');
+    $('.sn .head .cover').unbind('click');
+    $('.sn .head .cover').bind('click', sn.login);
+    $('.sn .head .state').remove();
+    $('.sn .foot').css('bottom', '-4em');
+};
 
 function build_frame() {
     var sn = $('<div></div>');
@@ -444,7 +457,7 @@ function build_head() {
 function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
-    cover.append('<img />');
+    cover.append("<img src='src/user.png' />");
     cover.append('<div>登录 / 注册</div>');
     
     $('.sn .head').append(cover);
@@ -561,8 +574,10 @@ function login_manually(phone, pass, success, failure) {
         sn.token = desc.token;
         sn.uid   = desc.uid;
         sn.user  = desc;
-        $('.sn .head .cover >*:nth-child(1)').attr('src', desc.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(desc.name);
+        if (!sn.user.cover) sn.user.cover = 'res/user.png';
+        
+        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
         $('.sn .head .cover').unbind('click');
         $('.sn .head .cover').bind('click', function() {
             var dialog = sn.ui.dialog();
@@ -594,8 +609,10 @@ function login_automatic() {
         sn.token = desc.token;
         sn.uid   = desc.uid;
         sn.user  = desc;
-        $('.sn .head .cover >*:nth-child(1)').attr('src', desc.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(desc.name);
+        if (!sn.user.cover) sn.user.cover = 'res/user.png';
+        
+        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
         $('.sn .head .cover').unbind('click');
         $('.sn .head .cover').bind('click', function() {
             var dialog = sn.ui.dialog();
@@ -875,17 +892,7 @@ function create_user_detail_info(dialog, page) {
     div.find('.list .pair:nth-child(3)').bind('click', function() {dialog.shake();});
     div.find('.list .pair:nth-child(4)').bind('click', function() {page.page_set('密码');});
     div.find('.button').bind('click', function() {
-        fomjar.util.cookie('token', '');
-        fomjar.util.cookie('uid', '');
-        sn.token = null;
-        sn.uid = null;
-        sn.user = null;
-        $('.sn .head .cover img').removeAttr('src');
-        $('.sn .head .cover div').text('登录 / 注册');
-        $('.sn .head .cover').unbind('click');
-        $('.sn .head .cover').bind('click', sn.login);
-        $('.sn .head .state').remove();
-        $('.sn .foot').css('bottom', '-4em');
+        sn.logout();
         dialog.disappear();
     });
     
