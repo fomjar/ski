@@ -407,7 +407,6 @@ sn.ui.logout = function() {
     $('.sn .head .cover div').text('登录 / 注册');
     $('.sn .head .cover').unbind('click');
     $('.sn .head .cover').bind('click', sn.ui.login);
-    $('.sn .head .state').remove();
     $('.sn .foot').removeClass('foot-appear');
 };
 

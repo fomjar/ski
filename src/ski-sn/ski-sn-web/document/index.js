@@ -4,7 +4,6 @@
 fomjar.framework.phase.append('dom', build_foot);
 fomjar.framework.phase.append('ren', init_event);
 fomjar.framework.phase.append('ren', animate);
-fomjar.framework.phase.append('ren', watch_location);
 
 function build_foot() {
     var send = $('<div></div>');
@@ -97,79 +96,6 @@ function animate_done() {
             $('.sn .foot').addClass('foot-appear');
         });
     }
-}
-
-function watch_location() {
-    var run = function(r){
-        if (this.getStatus() == BMAP_STATUS_SUCCESS){
-            var p = r.point;
-            if (sn.user) {
-                fomjar.net.send(ski.ISIS.INST_UPDATE_USER_STATE, {
-                    state       : 1,
-                    terminal    : 1,
-                    location    : p.lat + ':' + p.lng
-                }, function(code, desc) {});
-            }
-            new BMap.Geocoder().getLocation(p, function(rs) {
-                var addr = rs.addressComponents.street + rs.addressComponents.streetNumber;
-                if (0 < rs.surroundingPois.length) {
-                    addr = rs.surroundingPois[0].title;
-                }
-                /*
-                Object =
-                    address: "中影国际影城南京雨花台南站店"
-                    addressComponents: Object
-                        city: "南京市"
-                        district: "雨花台区"
-                        province: "江苏省"
-                        street: "明城大道"
-                        streetNumber: ""
-                    “Object”原型
-                    business: "宁南"
-                    point: H
-                        lat: 31.98444
-                        lng: 118.803924
-                    “H”原型
-                    surroundingPois: Array (4)
-                        0 Object
-                            Ui: "休闲娱乐"
-                            address: "南京市雨花台区玉兰路99号(明发商业广场1幢B6区4层17室)"
-                            city: "南京市"
-                            eu: Array (1)
-                                0 "休闲娱乐"
-                            “Array”原型
-                            phoneNumber: null
-                            point: H
-                                lat: 31.984822
-                                lng: 118.804075
-                            “H”原型
-                            postcode: null
-                            title: "中影国际影城南京雨花台南站店"
-                            type: 0
-                            uid: "9abe5786376f2dd98bfc06ef"
-                        “Object”原型
-                        1 {title: "永辉超市(雨花店)", uid: "7a443c7ec83b4ccd2fe67bb8", point: H, city: "南京市", Ui: "购物", …}
-                        2 {title: "南京易居智能科技有限公司", uid: "3a46dbe174d7478203ec0106", point: H, city: "南京市", Ui: "公司企业", …}
-                        3 {title: "德居欣舒适家居体验中心", uid: "f270eba5dda323d682288ae4", point: H, city: "南京市", Ui: "购物", …}
-                    “Array”原型
-                    “Object”原型
-                */
-                if (sn.user && (!sn.location || addr != sn.location.address)) {
-                    var state_locate = sn.ui.state(1);
-                    state_locate.find('>div').text(addr);
-                    state_locate.find('>div').css('width', addr.length + 'em');
-                    state_locate.flash();
-                }
-                sn.location = rs;
-                if (sn.user) sn.location.address = addr;
-                
-                $.each(sn.stub.locate, function(i, f) {f(sn.location);});
-            });
-        } else {}
-    };
-    new BMap.Geolocation().getCurrentPosition(run);
-    setTimeout(function() {if (sn.location) sn.ui.state(1).flash();}, 1000 * 5);
-    setInterval(function() {new BMap.Geolocation().getCurrentPosition(run);}, 1000 * 10);
 }
 
 function create_send_panel(dialog) {
