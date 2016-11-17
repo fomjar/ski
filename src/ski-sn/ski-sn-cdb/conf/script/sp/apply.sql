@@ -15,4 +15,3 @@ insert into tbl_instruction(
 );
 
 
-

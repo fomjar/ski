@@ -52,11 +52,14 @@ public class Filter6Interface extends FjWebFilter {
         
         switch (inst) {
         case CommonDefinition.ISIS.INST_UPDATE_USER:
-            preprocessUpdateUser(args);
+            compressImage(args, "cover", 80);
             break;
         case CommonDefinition.ISIS.INST_UPDATE_MESSAGE:
         case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY:
-            preprocesssUpdateMessage(args);
+            compressImage(args, "image", 240);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY:
+            compressImage(args, "image", 320);
             break;
         }
         
@@ -68,44 +71,24 @@ public class Filter6Interface extends FjWebFilter {
         return true;
     }
     
-    private void preprocessUpdateUser(JSONObject args) {
-        if (!args.has("cover")) return;
+    private static void compressImage(JSONObject args, String key, int width) {
+        if (!args.has(key)) return;
         
-        String cover = args.getString("cover");
+        String img = args.getString(key);
+        if (null == img || 0 == img.length() || "null".equals(img)) return;
         
-        if (null == cover || 0 == cover.length() || "null".equals(cover)) return;
-        
-        String[] data = data(cover);
+        String[] data = data(img);
         switch (data[1]) {
         case "base64":
             byte[] img0 = Base64.getDecoder().decode(data[2]);
-            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 80);
-            String cover_new = String.format("data:%s;%s,%s", data[0], data[1], Base64.getEncoder().encodeToString(img1));
-            args.put("cover", cover_new);
+            byte[] img1 = compressImageData(data[0].substring(data[0].indexOf("/") + 1), img0, width);
+            String img_new = String.format("data:%s;%s,%s", data[0], data[1], Base64.getEncoder().encodeToString(img1));
+            args.put(key, img_new);
             break;
         }
     }
     
-    private void preprocesssUpdateMessage(JSONObject args) {
-        if (!args.has("image")) return;
-        
-        String image = args.getString("image");
-        
-        if (null == image || 0 == image.length() || "null".equals(image)) return;
-        
-        String[] data = data(image);
-        switch (data[1]) {
-        case "base64": {
-            byte[] img0 = Base64.getDecoder().decode(data[2]);
-            byte[] img1 = compressImage(data[0].substring(data[0].indexOf("/") + 1), img0, 240);
-            String image_new = String.format("data:%s;%s,%s", data[0], data[1], Base64.getEncoder().encodeToString(img1));
-            args.put("image", image_new);
-            break;
-        }
-        }
-    }
-    
-    private static byte[] compressImage(String type, byte[] data, int width) {
+    private static byte[] compressImageData(String type, byte[] data, int width) {
         try {
             BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
             if (img.getWidth() <= width) return data;

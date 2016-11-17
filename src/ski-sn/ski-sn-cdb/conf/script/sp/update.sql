@@ -24,44 +24,27 @@ begin
     if uid is null then
         select count(1)
           into di_count
-          from tbl_user;
+          from tbl_user
+         where c_phone = phone;
 
-        if di_count = 0 then
-            set di_uid = 1;
+        if di_count > 0 then
+            set i_code = 5;
+            set c_desc = 'phone already registered';
         else
-            select max(i_uid)
-              into di_uid
+            select count(1)
+              into di_count
               from tbl_user;
 
-            set di_uid = di_uid + 1;
-        end if;
+            if di_count = 0 then
+                set di_uid = 1;
+            else
+                select max(i_uid)
+                  into di_uid
+                  from tbl_user;
 
-        insert into tbl_user (
-            i_uid,
-            t_create,
-            c_pass,
-            c_phone,
-            c_email,
-            c_name,
-            c_cover,
-            i_gender
-        ) values (
-            di_uid,
-            now(),
-            pass,
-            phone,
-            email,
-            name,
-            cover,
-            gender
-        );
-    else
-        select count(1)
-          into di_count
-          from tbl_user
-         where i_uid = uid;
+                set di_uid = di_uid + 1;
+            end if;
 
-        if di_count = 0 then
             insert into tbl_user (
                 i_uid,
                 t_create,
@@ -72,7 +55,7 @@ begin
                 c_cover,
                 i_gender
             ) values (
-                uid,
+                di_uid,
                 now(),
                 pass,
                 phone,
@@ -81,6 +64,47 @@ begin
                 cover,
                 gender
             );
+            set i_code = 0;
+            set c_desc = null;
+        end if;
+    else
+        select count(1)
+          into di_count
+          from tbl_user
+         where i_uid = uid;
+
+        if di_count = 0 then
+            select count(1)
+              into di_count
+              from tbl_user
+             where c_phone = phone;
+
+            if di_count > 0 then
+                set i_code = 5;
+                set c_desc = 'phone already registered';
+            else
+                insert into tbl_user (
+                    i_uid,
+                    t_create,
+                    c_pass,
+                    c_phone,
+                    c_email,
+                    c_name,
+                    c_cover,
+                    i_gender
+                ) values (
+                    uid,
+                    now(),
+                    pass,
+                    phone,
+                    email,
+                    name,
+                    cover,
+                    gender
+                );
+                set i_code = 0;
+                set c_desc = null;
+            end if;
         else
             if pass is not null then
                 update tbl_user
@@ -112,11 +136,11 @@ begin
                    set i_gender = gender
                  where i_uid = uid;
             end if;
+
+            set i_code = 0;
+            set c_desc = null;
         end if;
     end if;
-
-    set i_code = 0;
-    set c_desc = null;
 end //
 delimiter ;
 
@@ -393,6 +417,857 @@ begin
 
 end //
 delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY            = 0x00003008
+delete from tbl_instruction where i_inst = (conv('00003008', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003008', 16, 10) + 0), 'sp', 2, "sp_update_activity(?, ?, $aid, $owner, $lat, $lng, \"$geohash\", \"$title\", \"$text\", \"$image\", \"$begin\", \"$end\")");
+delimiter //
+drop procedure if exists sp_update_activity //
+create procedure sp_update_activity (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  aid         integer,
+    in  owner       integer,
+    in  lat         decimal(24, 20),
+    in  lng         decimal(24, 20),
+    in  geohash     varchar(16),
+    in  title       varchar(256),
+    in  _text       text,
+    in  image       mediumtext,
+    in  _begin      datetime,
+    in  _end        datetime
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_aid      integer default 0;
+
+    if aid is null then
+        select count(1)
+          into di_count
+          from tbl_activity;
+
+        if di_count = 0 then
+            set di_aid = 1;
+        else
+            select max(i_aid)
+              into di_aid
+              from tbl_activity;
+
+            set di_aid = di_aid + 1;
+        end if;
+
+        insert into tbl_activity (
+            i_aid,
+            i_owner,
+            t_create,
+            i_lat,
+            i_lng,
+            c_geohash,
+            c_title,
+            c_text,
+            c_image,
+            t_begin,
+            t_end
+        ) values (
+            di_aid,
+            owner,
+            now(),
+            lat,
+            lng,
+            geohash,
+            title,
+            _text,
+            image,
+            _begin,
+            _end
+        );
+    else
+        set di_aid = aid;
+
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = di_aid;
+
+        if di_count = 0 then
+            insert into tbl_activity (
+                i_aid,
+                i_owner,
+                t_create,
+                i_lat,
+                i_lng,
+                c_geohash,
+                c_title,
+                c_text,
+                c_image,
+                t_begin,
+                t_end
+            ) values (
+                di_aid,
+                owner,
+                now(),
+                lat,
+                lng,
+                geohash,
+                title,
+                _text,
+                image,
+                _begin,
+                _end
+            );
+        else
+            if owner is not null then
+                update tbl_activity
+                   set i_owner = owner
+                 where i_aid = di_aid;
+            end if;
+            if lat is not null then
+                update tbl_activity
+                   set i_lat = lat
+                 where i_aid = di_aid;
+            end if;
+            if lng is not null then
+                update tbl_activity
+                   set i_lng = lng
+                 where i_aid = di_aid;
+            end if;
+            if geohash is not null then
+                update tbl_activity
+                   set c_geohash = geohash
+                 where i_aid = di_aid;
+            end if;
+            if title is not null then
+                update tbl_activity
+                   set c_title = title
+                 where i_aid = di_aid;
+            end if;
+            if _text is not null then
+                update tbl_activity
+                   set c_text = _text
+                 where i_aid = di_aid;
+            end if;
+            if image is not null then
+                update tbl_activity
+                   set c_image = image
+                 where i_aid = di_aid;
+            end if;
+            if _begin is not null then
+                update tbl_activity
+                   set t_begin = _begin
+                 where i_aid = di_aid;
+            end if;
+            if _end is not null then
+                update tbl_activity
+                   set t_end = _end
+                 where i_aid = di_aid;
+            end if;
+        end if;
+    end if;
+
+    set i_code = 0;
+    set c_desc = concat(di_aid, '');
+
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_ROLE       = 0x00003009
+delete from tbl_instruction where i_inst = (conv('00003009', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003009', 16, 10) + 0), 'sp', 2, "sp_update_activity_role(?, ?, $aid, $arsn, \"$name\", $apply, $count)");
+delimiter //
+drop procedure if exists sp_update_activity_role //
+create procedure sp_update_activity_role (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  aid     integer,
+    in  arsn    tinyint,
+    in  name    varchar(32),
+    in  apply   tinyint,
+    in  _count  integer
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_arsn     tinyint default 0;
+
+    if aid is null then
+        set i_code = 3;
+        set c_desc = 'illegal arguments, aid must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count = 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            if arsn is null then
+                select count(1)
+                  into di_count
+                  from tbl_activity_role
+                 where i_aid = aid;
+
+                if di_count = 0 then
+                    set di_arsn = 1;
+                else
+                    select max(i_arsn)
+                      into di_arsn
+                      from tbl_activity_role
+                     where i_aid = aid;
+
+                    set di_arsn = di_arsn + 1;
+                end if;
+
+                insert into tbl_activity_role (
+                    i_aid,
+                    i_arsn,
+                    c_name,
+                    i_apply,
+                    i_count
+                ) values (
+                    aid,
+                    di_arsn,
+                    name,
+                    apply,
+                    _count
+                );
+            else
+                set di_arsn = arsn;
+
+                select count(1)
+                  into di_count
+                  from tbl_activity_role
+                 where i_aid = aid
+                   and i_arsn = di_arsn;
+
+                if di_count = 0 then
+                    insert into tbl_activity_role (
+                        i_aid,
+                        i_arsn,
+                        c_name,
+                        i_apply,
+                        i_count
+                    ) values (
+                        aid,
+                        di_arsn,
+                        name,
+                        apply,
+                        _count
+                    );
+                else
+                    if name is not null then
+                        update tbl_activity_role
+                           set c_name = name
+                         where i_aid = aid
+                           and i_arsn = di_arsn;
+                    end if;
+                    if apply is not null then
+                        update tbl_activity_role
+                           set i_apply = apply
+                         where i_aid = aid
+                           and i_arsn = di_arsn;
+                    end if;
+                    if _count is not null then
+                        update tbl_activity_role
+                           set i_count = _count
+                         where i_aid = aid
+                           and i_arsn = di_arsn;
+                    end if;
+                end if;
+            end if;
+
+            set i_code = 0;
+            set c_desc = concat(di_amsn, '');
+        end if;
+    end if;
+
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_PLAYER     = 0x0000300A
+delete from tbl_instruction where i_inst = (conv('0000300A', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300A', 16, 10) + 0), 'sp', 2, "sp_update_activity_player(?, ?, $aid, $uid, $arsn)");
+delimiter //
+drop procedure if exists sp_update_activity_player //
+create procedure sp_update_activity_player (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  aid     integer,
+    in  uid     integer,
+    in  arsn    tinyint
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_max      integer default 0;
+
+    if aid is null or uid is null then
+        set i_code = 3;
+        set c_desc = 'illegal arguments, aid and uid must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count = 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            select i_count
+              into di_max
+              from tbl_activity_role
+             where i_aid = aid
+               and i_arsn = arsn;
+
+            select count(1)
+              into di_count
+              from tbl_activity_player
+             where i_aid = aid
+               and i_arsn = arsn;
+
+            if di_count >= di_max then
+                set i_code = 5;
+                set c_desc = 'max player';
+            else
+                select count(1)
+                  into di_count
+                  from tbl_activity_player
+                 where i_aid = aid
+                   and i_uid = uid;
+
+                if di_count > 0 then
+                    if arsn is not null then
+                        update tbl_activity_player
+                           set i_arsn = arsn
+                         where i_aid = aid
+                           and i_uid = uid;
+                    end if;
+                else
+                    insert into tbl_activity_player (
+                        i_aid,
+                        i_uid,
+                        i_arsn,
+                        t_time
+                    ) values (
+                        aid,
+                        uid,
+                        arsn,
+                        now()
+                    );
+                end if;
+
+                set i_code = 0;
+
+            end if;
+        end if;
+    end if;
+
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_MODULE     = 0x0000300B
+delete from tbl_instruction where i_inst = (conv('0000300B', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300B', 16, 10) + 0), 'sp', 2, "sp_update_activity_module(?, ?, $owner, $aid, $amsn, $type, $title, \"$text\")");
+delimiter //
+drop procedure if exists sp_update_activity_module //
+create procedure sp_update_activity_module (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  owner   integer,
+    in  aid     integer,
+    in  amsn    tinyint,
+    in  _type   tinyint,
+    in  title   varchar(256),
+    in  _text   text
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_amsn     tinyint default 0;
+
+    if aid is null then
+        set i_code = 3;
+        set c_desc = 'illegal arguments, aid must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count = 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            if amsn is null then
+                select count(1)
+                  into di_count
+                  from tbl_activity_module
+                 where i_aid = aid;
+
+                if di_count = 0 then
+                    set di_amsn = 1;
+                else
+                    select max(i_amsn)
+                      into di_amsn
+                      from tbl_activity_module
+                     where i_aid = aid;
+
+                    set di_amsn = di_amsn + 1;
+                end if;
+
+                insert into tbl_activity_module (
+                    i_aid,
+                    i_amsn,
+                    i_type,
+                    c_title,
+                    c_text
+                ) values (
+                    aid,
+                    di_amsn,
+                    _type,
+                    title,
+                    _text
+                );
+            else
+                set di_amsn = amsn;
+
+                select count(1)
+                  into di_count
+                  from tbl_activity_module
+                 where i_aid = aid
+                   and i_amsn = di_amsn;
+
+                if di_count = 0 then
+                    insert into tbl_activity_module (
+                        i_aid,
+                        i_amsn,
+                        i_type,
+                        c_title,
+                        c_text
+                    ) values (
+                        aid,
+                        di_amsn,
+                        _type,
+                        title,
+                        _text
+                    );
+                else
+                    if _type is not null then
+                        update tbl_activity_module
+                           set i_type = _type
+                         where i_aid = aid
+                           and i_amsn = di_amsn;
+                    end if;
+                    if title is not null then
+                        update tbl_activity_module
+                           set c_title = title
+                         where i_aid = aid
+                           and i_amsn = di_amsn;
+                    end if;
+                    if _text is not null then
+                        update tbl_activity_module
+                           set c_text = _text
+                         where i_aid = aid
+                           and i_amsn = di_amsn;
+                    end if;
+                end if;
+            end if;
+
+            set i_code = 0;
+            set c_desc = concat(di_amsn, '');
+        end if;
+    end if;
+
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE   = 0x0000300C
+delete from tbl_instruction where i_inst = (conv('0000300C', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300C', 16, 10) + 0), 'sp', 2, "sp_update_activity_module_privilege(?, ?, $aid, $amsn, $arsn, $privilege)");
+delimiter //
+drop procedure if exists sp_update_activity_module_privilege //
+create procedure sp_update_activity_module_privilege (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  aid         integer,
+    in  amsn        tinyint,
+    in  arsn        tinyint,
+    in  _privilege  integer
+)
+begin
+
+    declare di_count    integer default 0;
+
+    if aid is null or amsn is null or arsn is null or _privilege then
+        set i_code = 3;
+        set c_desc = 'illegal argument, aid or amsn or arsn or privilege must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count > 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            select count(1)
+              into di_count
+              from tbl_activity_module_privilege
+             where i_aid = aid
+               and i_amsn = amsn
+               and i_arsn = arsn;
+
+            if di_count = 0 then
+                insert into tbl_activity_module_privilege (
+                    i_aid,
+                    i_amsn,
+                    i_arsn,
+                    i_privilege
+                ) values (
+                    aid,
+                    amsn,
+                    arsn,
+                    privilege
+                );
+            else
+                update tbl_activity_module_privilege
+                   set i_privilege = privilege
+                 where i_aid = aid
+                   and i_amsn = amsn
+                   and i_arsn = arsn;
+            end if;
+
+            set i_code = 0;
+
+        end if;
+    end if;
+
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_MODULE_VOTE        = 0x0000300D
+delete from tbl_instruction where i_inst = (conv('0000300D', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300D', 16, 10) + 0), 'sp', 2, "sp_update_activity_module_vote(?, ?, $aid, $amsn, $select, $anonym, $item)");
+delimiter //
+drop procedure if exists sp_update_activity_module_vote //
+create procedure sp_update_activity_module_vote (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  aid         integer,
+    in  amsn        tinyint,
+    in  _select     tinyint,
+    in  anonym      tinyint,
+    in  item        tinyint
+)
+begin
+
+    declare di_count    integer default 0;
+
+    if aid is null or amsn is null then
+        set i_code = 3;
+        set c_desc = 'illegal argument, aid or amsn must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count > 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            select count(1)
+              into di_count
+              from tbl_activity_module_vote
+             where i_aid = aid
+               and i_amsn = amsn;
+
+            if di_count = 0 then
+               insert into tbl_activity_module_vote (
+                   i_aid,
+                   i_amsn,
+                   i_select,
+                   i_anonym,
+                   i_item
+               ) values (
+                   aid,
+                   amsn,
+                   _select,
+                   anonym,
+                   item
+               );
+            else
+               if _select is not null then
+                   update tbl_activity_module_vote
+                      set i_select = _select
+                    where i_aid = aid
+                      and i_amsn = amsn;
+               end if;
+               if anonym is not null then
+                   update tbl_activity_module_vote
+                      set i_anonym = anonym
+                    where i_aid = aid
+                      and i_amsn = amsn;
+               end if;
+               if item is not null then
+                   update tbl_activity_module_vote
+                      set i_item = item
+                    where i_aid = aid
+                      and i_amsn = amsn;
+               end if;
+            end if;
+
+            set i_code = 0;
+
+        end if;
+    end if;
+end //
+delimiter ;
+
+
+
+-- INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM   = 0x0000300E
+delete from tbl_instruction where i_inst = (conv('0000300E', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300E', 16, 10) + 0), 'sp', 2, "sp_update_activity_module_vote_item(?, ?, $aid, $amsn, $amvisn, \"$arg0\", \"$arg1\", \"$arg2\", \"$arg3\", \"$arg4\", \"$arg5\", \"$arg6\", \"$arg7\", \"$arg8\", \"$arg9\")");
+delimiter //
+drop procedure if exists sp_update_activity_module_vote_item //
+create procedure sp_update_activity_module_vote_item (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  aid     integer,
+    in  amsn    tinyint,
+    in  amvisn  tinyint,
+    in  arg0    varchar(32),
+    in  arg1    varchar(32),
+    in  arg2    varchar(32),
+    in  arg3    varchar(32),
+    in  arg4    varchar(32),
+    in  arg5    varchar(32),
+    in  arg6    varchar(32),
+    in  arg7    varchar(32),
+    in  arg8    varchar(32),
+    in  arg9    varchar(32)
+)
+begin
+
+    declare di_count    integer default 0;
+
+    if aid is null or amsn is null or amvisn is null then
+        set i_code = 3;
+        set c_desc = 'illegal argument, aid or amsn or amvisn must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count > 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            select count(1)
+              into di_count
+              from tbl_activity_module_vote_item
+             where i_aid = aid
+               and i_amsn = amsn
+               and i_amvisn = amvisn;
+
+            if di_count = 0 then
+                insert into tbl_activity_module_vote_item (
+                    i_aid,
+                    i_amsn,
+                    i_amvisn,
+                    c_arg0,
+                    c_arg1,
+                    c_arg2,
+                    c_arg3,
+                    c_arg4,
+                    c_arg5,
+                    c_arg6,
+                    c_arg7,
+                    c_arg8,
+                    c_arg9
+                ) values (
+                    aid,
+                    amsn,
+                    amvis,
+                    arg0,
+                    arg1,
+                    arg2,
+                    arg3,
+                    arg4,
+                    arg5,
+                    arg6,
+                    arg7,
+                    arg8,
+                    arg9
+                );
+            else
+                if arg0 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg0 = arg0
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg1 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg1 = arg1
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg2 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg2 = arg2
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg3 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg3 = arg3
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg4 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg4 = arg4
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg5 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg5 = arg5
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg6 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg6 = arg6
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg7 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg7 = arg7
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg8 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg8 = arg8
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+                if arg9 is not null then
+                    update tbl_activity_module_vote_item
+                       set c_arg9 = arg9
+                     where i_aid = aid
+                       and i_amsn = amsn
+                       and i_amvisn = amvisn;
+                end if;
+            end if;
+
+            set i_code = 0;
+
+        end if;
+    end if;
+end //
+delimiter ;
+
+
+-- INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER = 0x0000300F
+delete from tbl_instruction where i_inst = (conv('0000300F', 16, 10) + 0);
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300F', 16, 10) + 0), 'sp', 2, "sp_update_activity_module_vote_player(?, ?, $aid, $amsn, $amvisn, $uid, $result)");
+delimiter //
+drop procedure if exists sp_update_activity_module_vote_player //
+create procedure sp_update_activity_module_vote_player (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  aid         integer,
+    in  amsn        tinyint,
+    in  amvisn      tinyint,
+    in  uid         integer,
+    in  result      tinyint
+)
+begin
+
+    declare di_count    integer default 0;
+
+    if aid is null or amsn is null or amvisn is null or uid is null or result is null then
+        set i_code = 3;
+        set c_desc = 'illegal argument, aid or amsn or amvisn or uid or result must be not null';
+    else
+        select count(1)
+          into di_count
+          from tbl_activity
+         where i_aid = aid;
+
+        if di_count > 0 then
+            set i_code = 3;
+            set c_desc = 'illegal arguments, activity does not exist';
+        else
+            select count(1)
+              into di_count
+              from tbl_activity_module_vote_player
+             where i_aid = aid
+               and i_amsn = amsn
+               and i_amvisn = amvisn
+               and i_uid = uid;
+
+            if di_count = 0 then
+                insert into tbl_activity_module_vote_player (
+                    i_aid,
+                    i_amsn,
+                    i_amvisn,
+                    i_uid,
+                    i_result,
+                    t_time
+                ) values (
+                    aid,
+                    amsn,
+                    amvisn,
+                    uid,
+                    result,
+                    now()
+                );
+            else
+                update tbl_activity_module_vote_player
+                   set i_result = result
+                 where i_aid = aid
+                   and i_amsn = amsn
+                   and i_amvisn = amvisn
+                   and i_uid = uid;
+            end if;
+
+            set i_code = 0;
+
+        end if;
+    end if;
+end //
+delimiter ;
+
+
+
+
+
 
 
 

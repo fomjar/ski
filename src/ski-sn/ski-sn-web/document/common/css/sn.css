@@ -228,23 +228,23 @@ body {overflow : hidden;}
 .sn .page-user-detail-info  >.button {display : block; margin : 1em; background-color : rgba(255, 0, 0, .5); color : white;}
 .sn .page-user-detail-info  >.button:active {background-color : rgba(255, 0, 0, .9); }
 .sn .page-user-detail-cover {text-align : center;}
-.sn .page-user-detail-cover >div:nth-child(1) {font-size : 3em;}
+.sn .page-user-detail-cover >div:nth-child(1) {font-size : 2em;}
 .sn .page-user-detail-cover .choose-image {width : 5em; height : 5em; border-radius : 2.5em; -webkit-border-radius : 2.5em; margin-top : 2em; margin-bottom : 4em; margin-left : 50%; transform: translateX(-50%); -webkit-transform: translateX(-50%);}
 .sn .page-user-detail-cover .choose-image * {border-radius : 2.5em; -webkit-border-radius : 2.5em}
 .sn .page-user-detail-cover .button {margin : .5em 1em;}
 .sn .page-user-detail-name  {text-align : center;}
-.sn .page-user-detail-name  >div:nth-child(1) {font-size : 3em;}
+.sn .page-user-detail-name  >div:nth-child(1) {font-size : 2em;}
 .sn .page-user-detail-name  input {width : 60%; margin-top : 2em; margin-bottom : 4em; text-align : center;}
 .sn .page-user-detail-name  .button {margin : .5em 1em;}
 .sn .page-user-detail-phone {text-align : center;}
-.sn .page-user-detail-phone >div:nth-child(1) {font-size : 3em;}
+.sn .page-user-detail-phone >div:nth-child(1) {font-size : 2em;}
 .sn .page-user-detail-phone >*:nth-child(2) {width : 60%; margin-top : 2em; text-align : center;}
 .sn .page-user-detail-phone >*:nth-child(3) {margin-top : .5em; margin-bottom : 4em; text-align : center;}
 .sn .page-user-detail-phone >*:nth-child(3) input   {position : relative; left :  2em; width : 60%; text-align : center;}
 .sn .page-user-detail-phone >*:nth-child(3) .button {position : relative; left : -2em; padding : .3em .5em; margin : 0 .5em;}
 .sn .page-user-detail-phone .button {margin : .5em 1em;}
 .sn .page-user-detail-pass  {text-align : center;}
-.sn .page-user-detail-pass  >div:nth-child(1) {font-size : 3em;}
+.sn .page-user-detail-pass  >div:nth-child(1) {font-size : 2em;}
 .sn .page-user-detail-pass  >*:nth-child(2) {margin-top : 2em; margin-bottom : 4em;}
 .sn .page-user-detail-pass  .button {margin : .5em 1em;}
 

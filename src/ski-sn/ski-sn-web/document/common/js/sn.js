@@ -329,9 +329,11 @@ sn.ui = {
         var isup = false;
         var length_down = 0;
         var length_up = 0;
-        var t = 0;
+        var t = null;
         var y = 0;
         div.bind('touchstart', function(e) {
+            if (t) return;
+            
             var touch = e.targetTouches[0];
             t = div.css('top');
             y = touch.pageY;
@@ -373,6 +375,7 @@ sn.ui = {
         div.bind('touchend', function(e) {
             var touch = e.targetTouches[0];
             div.css('top', t);
+            t = null;
             
             if (isdown && length_down > offset && down) down();
             if (isup && length_up > offset && up) up();

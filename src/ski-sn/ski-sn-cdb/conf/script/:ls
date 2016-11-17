@@ -1,0 +1,73 @@
+
+
+-- INST_APPLY_AUTHORIZE            = 0x00001001
+delete from tbl_instruction where i_inst = (conv('00001001', 16, 10) + 0);
+insert into tbl_instruction(
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001001', 16, 10) + 0),
+    'st',
+    8,
+    "select i_uid, t_create, c_pass, c_phone, c_email, c_name, c_cover, i_gender from tbl_user where c_phone = \"$phone\" and c_pass = \"$pass\""
+);
+
+
+-- INST_APPLY_PLAY                 = 0x00001003
+delete from tbl_instruction where i_inst = (conv('00001003', 16, 10) + 0);
+insert into tbl_instruction(
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001003', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_apply_play(?, ?, $aid, $player)"
+);
+delimiter //
+drop procedure if exists sp_apply_play;
+create procedure sp_apply_play (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  aid     integer,
+    in  player  integer
+)
+begin
+
+    declare di_count    integer default 0;
+
+    select count(1)
+      into di_count
+      from tbl_activity
+     where i_aid = aid
+       and i_player = player;
+
+    if di_count > 0 then
+        set i_code = 0;
+        set c_desc = 'already in';
+    else
+
+        select count(1)
+          into di_count
+          from tbl_activity
+         where 
+
+        insert into tbl_activity (
+            i_aid,
+            i_player,
+            t_time
+        ) values (
+            aid,
+            player,
+            now()
+        );
+        set i_code = 0;
+    end if;
+
+end //
+delimiter ;
+

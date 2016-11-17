@@ -101,5 +101,102 @@ create table tmp_message (
     i_weight    integer
 );
 
+-- 活动
+drop table if exists tbl_activity;
+create table tbl_activity (
+    i_aid       integer,            -- 编号
+    i_owner     integer,            -- 发起人
+    t_create    datetime,           -- 创建时间
+    i_lat       decimal(24, 20),    -- 维度
+    i_lng       decimal(24, 20),    -- 经度
+    c_geohash   varchar(16),        -- geohash编码
+    c_title     varchar(256),       -- 标题
+    c_text      text,               -- 描述
+    c_image     mediumtext,         -- 图片
+    t_begin     datetime,           -- 开始时间
+    t_end       datetime,           -- 结束时间
+    primary key (i_aid)
+);
+
+-- 活动角色
+drop table if exists tbl_activity_role;
+create table tbl_activity_role (
+    i_aid   integer,        -- 活动编号
+    i_arsn  tinyint,        -- 角色序号
+    c_name  varchar(32),    -- 名称
+    i_apply tinyint,        -- 可申请：0 - 不能；1 - 能
+    i_count integer         -- 人数
+);
+
+-- 活动参与人
+drop table if exists tbl_activity_player;
+create table tbl_activity_player (
+    i_aid   integer,    -- 活动编号
+    i_uid   integer,    -- 用户
+    i_arsn  tinyint,    -- 角色序号
+    t_time  datetime    -- 加入时间
+);
+
+-- 活动模块
+drop table if exists tbl_activity_module;
+create table tbl_activity_module (
+    i_aid       integer,        -- 活动编号
+    i_amsn      tinyint,        -- 模块编号
+    i_type      tinyint         -- 模块类型: 0 - 投票
+    c_title     varchar(256),   -- 标题
+    c_text      text            -- 描述
+);
+
+-- 活动模块 - 权限
+drop table if exists tbl_activity_module_privilege;
+create table tbl_activity_module_privilege (
+    i_aid       integer,    -- 活动编号
+    i_amsn      tinyint,    -- 模块序号
+    i_arsn      tinyint,    -- 角色序号
+    i_privilege integer     -- 权限：1<<0 - 可读；1<<1 - 可写
+);
+
+-- 活动模块 - 投票
+drop table if exists tbl_activity_module_vote;
+create table tbl_activity_module_vote (
+    i_aid       integer,        -- 活动编号
+    i_amsn      tinyint,        -- 模块编号
+    i_select    tinyint,        -- 选择类型: 0 - 单选，n - 多选，最多n个
+    i_anonym    tinyint,        -- 匿名模式: 0 - 实名，1 - 匿名，2 - 半实名
+    i_item      tinyint         -- 选项类型: 0 - 文字，1 - 图文，2 - 用户
+);
+
+-- 活动模块 - 投票项
+drop table if exists tbl_activity_module_vote_item;
+create table tbl_activity_module_vote_item (
+    i_aid       integer,
+    i_amsn      tinyint,
+    i_amvisn    tinyint,
+    c_arg0      varchar(32),
+    c_arg1      varchar(32),
+    c_arg2      varchar(32),
+    c_arg3      varchar(32),
+    c_arg4      varchar(32),
+    c_arg5      varchar(32),
+    c_arg6      varchar(32),
+    c_arg7      varchar(32),
+    c_arg8      varchar(32),
+    c_arg9      varchar(32)
+);
+
+-- 活动模块 - 投票项投票人
+drop table if exists tbl_activity_module_vote_player;
+create table tbl_activity_module_vote_player (
+    i_aid       integer,
+    i_amsn      tinyint,
+    i_amvisn    tinyint,
+    i_uid       integer,
+    i_result    tinyint,    -- 投票结果：0 - 取消，1 - 确认
+    t_time      datetime
+);
+
+
+
+
 
 

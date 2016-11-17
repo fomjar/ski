@@ -213,12 +213,13 @@ function load_message(pos, len) {
             init_message(msg);
             
             setTimeout(function() {
-                load_message_focus(msg);
-                load_message_reply(msg);
-                
                 msg.panel.css('opacity', '0');
                 $('.sn .body').append(msg.panel);
-                msg.panel.css('opacity', '1');
+                setTimeout(function() {msg.panel.css('opacity', '1');}, 0);
+                
+                load_message_focus(msg);
+                
+                load_message_reply(msg);
             }, delay);
             
             delay += 150;
