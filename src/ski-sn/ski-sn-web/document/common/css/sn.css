@@ -68,7 +68,7 @@ body {overflow : hidden;}
 .sn .button-default {}
 .sn .page   {position : relative; width : 100%; height : 100%; overflow : hidden;}
 .sn .page >div:nth-child(1) {display : none; position : absolute; top :   0; left : 0; width : 100%; height : 2em; line-height : 2em;}
-.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {position : absolute; top : 2em; left : 0; width : 100%; bottom : 2em; overflow : auto;}
+.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {position : absolute; top : 2em; width : 100%; bottom : 2em; overflow : auto;}
 .sn .choose-image >img   {vertical-align : middle; width : 100%; height : 100%;}
 .sn .choose-image >input {vertical-align : middle; width : 100%; height : 100%; position : relative; top : -100%; border : none; opacity : 0;}
 .sn .list >div {padding : .5em 1em;}
@@ -124,6 +124,10 @@ body {overflow : hidden;}
             transition      : opacity .2s linear;
     -webkit-transition      : opacity .2s linear;
 }
+.sn .head .state-flash {
+            animation   : state-flash 2s;
+    -webkit-animation   : state-flash 2s;
+}
 @keyframes state-flash {
       0% {background-color : lightgray;}
      10% {background-color : green;}
@@ -142,19 +146,33 @@ body {overflow : hidden;}
             transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .foot-appear {bottom    : 0;}
 .sn .mask {
     background-color    : black;
     opacity             : 0;
             transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .mask-appear {opacity : .4;}
+
 .sn .dialog {
     background-color        : lightgray;
-    opacity                 : 0;
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
             transition      :         transform .2s cubic-bezier(0,0.5,0.5,1), opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition      : -webkit-transform .2s cubic-bezier(0,0.5,0.5,1), opacity .2s cubic-bezier(0,0.5,0.5,1);
+    opacity                 : 0;
+            transform       : translate(-50%, -50%) scale(.8, .8) translateZ(0);
+    -webkit-transform       : translate(-50%, -50%) scale(.8, .8) translateZ(0);
+}
+.sn .dialog-appear {
+    opacity                 : .98;
+            transform       : translate(-50%, -50%) scale(1, 1) translateZ(0);
+    -webkit-transform       : translate(-50%, -50%) scale(1, 1) translateZ(0);
+}
+.sn .dialog-shake {
+            animation   : dialog-shake .5s;
+    -webkit-animation   : dialog-shake .5s;
 }
 @keyframes dialog-shake {
       0% {left : 50%;}
@@ -165,19 +183,33 @@ body {overflow : hidden;}
      80% {left : 49%;}
     100% {left : 50%;}
 }
+@-webkit-keyframes dialog-shake {
+      0% {left : 50%;}
+     10% {left : 45%;}
+     20% {left : 55%;}
+     40% {left : 47%;}
+     60% {left : 53%;}
+     80% {left : 49%;}
+    100% {left : 50%;}
+}
 .sn .browse {
     background-color    : rgba(0, 0, 0, .8);
+    opacity             : 0;
             transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .browse-appear {opacity : 1;}
+
 .sn .toast {
     background-color        : rgba(0, 51, 0, .8);
     color                   : lightgray;
+    opacity                 : 0;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
             transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .toast-appear {opacity  : 1;}
 .sn .button {
     color               : green;
     background-color    : rgba(0, 0, 0, 0);
@@ -189,6 +221,7 @@ body {overflow : hidden;}
 .sn .button:active          {background-color : rgba(0, 0, 0, .2);}
 .sn .button-default         {background-color : rgba(0, 0, 0, .1);}
 .sn .button-default:active  {background-color : rgba(0, 0, 0, .3);}
+.sn .button-disable         {color : gray;}
 
 
 .sn .page >div:nth-child(1) {
@@ -197,12 +230,14 @@ body {overflow : hidden;}
     -webkit-transition  : opacity .15s linear;
 }
 .sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {
-    opacity             : 0;
             transform   : translateZ(0);
     -webkit-transform   : translateZ(0);
             transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .page .ol {opacity  : 0; left : -100%;}
+.sn .page .or {opacity  : 0; left : 100%;}
+.sn .page .in {opacity  : 1; left : 0;}
 .sn .choose-image >img {
     background-color    : white;
     border              : none; 
