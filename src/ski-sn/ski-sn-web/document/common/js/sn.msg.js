@@ -58,7 +58,7 @@ sn.msg.wrap = function(data) {
     panel.find('.mc').bind('click', show_detail);
     panel.find('.mf .button').bind('click', show_detail);
 
-    var div_msg = $([panel[0], detail.find('.msg')[0]]);
+    var div_msg = $([panel[0], detail.find('.msg-panel')[0]]);
     msg.ui.attitude_up = function() {
         if (!sn.user) {
             sn.ui.dialog().children().detach();
