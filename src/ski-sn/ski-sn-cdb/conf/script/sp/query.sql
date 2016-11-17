@@ -14,6 +14,8 @@ insert into tbl_instruction (
     "select u.i_uid, u.t_create, u.c_pass, u.c_phone, u.c_email, u.c_name, u.c_cover, u.i_gender from tbl_user u, tbl_user_state s where u.i_uid = s.i_uid and s.i_uid = $uid and s.c_token = \"$token\""
 );
 
+
+
 -- INST_QUERY_MESSAGE              = 0x00002003
 delete from tbl_instruction where i_inst = (conv('00002003', 16, 10) + 0);
 insert into tbl_instruction (
@@ -27,9 +29,8 @@ insert into tbl_instruction (
     2,
     "sp_query_message(?, ?, $lat, $lng, \"$geohash\")"
 );
-
 delimiter //
-drop procedure if exists sp_query_message;
+drop procedure if exists sp_query_message //
 create procedure sp_query_message (
     out i_code  integer,
     out c_desc  longtext,
@@ -162,6 +163,9 @@ begin
 end //
 delimiter ;
 
+
+
+
 -- INST_QUERY_MESSAGE_FOCUS        = 0x00002006
 delete from tbl_instruction where i_inst = (conv('00002006', 16, 10) + 0);
 insert into tbl_instruction (
@@ -176,6 +180,9 @@ insert into tbl_instruction (
     "select f.c_mid, u.i_uid, u.c_name, u.c_cover, u.i_gender, f.t_time, f.i_type from tbl_message_$geohash6_focus f, tbl_user u where f.i_uid = u.i_uid and f.c_mid = \"$mid\""
 );
 
+
+
+
 -- INST_QUERY_MESSAGE_REPLY        = 0x00002007
 delete from tbl_instruction where i_inst = (conv('00002007', 16, 10) + 0);
 insert into tbl_instruction (
@@ -189,10 +196,8 @@ insert into tbl_instruction (
     2,
     "sp_query_message_reply(?, ?, \"$mid\")"
 );
-
-
 delimiter //
-drop procedure if exists sp_query_message_reply;
+drop procedure if exists sp_query_message_reply //
 create procedure sp_query_message_reply (
     out i_code  integer,
     out c_desc  mediumtext,
@@ -266,6 +271,188 @@ begin
 
 end //
 delimiter ;
+
+
+-- INST_QUERY_ACTIVITY             = 0x00002008
+delete from tbl_instruction where i_inst = (conv('00002008', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002008', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_query_activity(?, ?, $owner, \"$geohash\")"
+);
+delimiter //
+drop procedure if exists sp_query_activity //
+create procedure sp_query_activity (
+    out i_code  integer,
+    out c_desc  mediumtext,
+    in  owner   integer,
+    in  geohash varchar(16)
+)
+begin
+
+    if owner is not null then
+        set i_code = 0;
+        select group_concat(concat(
+                        a.i_aid,
+                '\'\t', u.i_uid,
+                '\'\t', u.c_name,
+                '\'\t', ifnull(u.c_cover, ''),
+                '\'\t', u.i_gender,
+                '\'\t', a.t_create,
+                '\'\t', a.i_lat,
+                '\'\t', a.i_lng,
+                '\'\t', a.c_geohash,
+                '\'\t', ifnull(a.c_title, ''),
+                '\'\t', ifnull(a.c_text, ''),
+                '\'\t', ifnull(a.c_image, ''),
+                '\'\t', a.t_begin,
+                '\'\t', a.t_end)
+               order by a.t_begin desc
+               separator '\'\n')
+          into c_desc
+          from tbl_activity a, tbl_user u
+         where a.i_owner = u.i_uid
+           and a.i_owner = owner;
+    elseif geohash is not null then
+        set i_code = 0;
+        select group_concat(concat(
+                        a.i_aid,
+                '\'\t', u.i_uid,
+                '\'\t', u.c_name,
+                '\'\t', ifnull(u.c_cover, ''),
+                '\'\t', u.i_gender,
+                '\'\t', a.t_create,
+                '\'\t', a.i_lat,
+                '\'\t', a.i_lng,
+                '\'\t', a.c_geohash,
+                '\'\t', ifnull(a.c_title, ''),
+                '\'\t', ifnull(a.c_text, ''),
+                '\'\t', ifnull(a.c_image, ''),
+                '\'\t', a.t_begin,
+                '\'\t', a.t_end)
+               order by a.t_begin desc
+               separator '\'\n')
+          into c_desc
+          from tbl_activity a, tbl_user u
+         where a.i_owner = u.i_uid
+           and left(a.c_geohash, 4) = left(geohash, 4);
+    else
+        set i_code = 3;
+        set c_desc = 'illegal argument, owner and geohash must be not null';
+    end if;
+
+end //
+delimiter ;
+
+
+
+-- INST_QUERY_ACTIVITY_ROLE        = 0x00002009
+delete from tbl_instruction where i_inst = (conv('00002009', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002009', 16, 10) + 0),
+    'st',
+    5,
+    "select i_aid, i_arsn, c_name, i_apply, i_count from tbl_activity_role where i_aid = $aid"
+);
+
+-- INST_QUERY_ACTIVITY_PLAYER      = 0x0000200A
+delete from tbl_instruction where i_inst = (conv('0000200A', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200A', 16, 10) + 0),
+    'st',
+    7,
+    "select p.i_aid, u.i_uid, u.c_name, u.c_cover, u.i_gender, p.i_arsn, p.t_time from tbl_activity_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid"
+);
+
+-- INST_QUERY_ACTIVITY_MODULE      = 0x0000200B
+delete from tbl_instruction where i_inst = (conv('0000200B', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200B', 16, 10) + 0),
+    'st',
+    5,
+    "select i_aid, i_amsn, i_type, c_title, c_text from tbl_activity_module where i_aid = $aid"
+);
+
+
+-- INST_QUERY_ACTIVITY_MODULE_PRIVILEGE    = 0x0000200C
+delete from tbl_instruction where i_inst = (conv('0000200C', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200C', 16, 10) + 0),
+    'st',
+    4,
+    "select i_aid, i_amsn, i_arsn, i_privilege from tbl_activity_module_privilege where i_aid = $aid"
+);
+
+
+-- INST_QUERY_ACTIVITY_MODULE_VOTE         = 0x0000200D
+delete from tbl_instruction where i_inst = (conv('0000200D', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200D', 16, 10) + 0),
+    'st',
+    5,
+    "select i_aid, i_amsn, i_select, i_anonym, i_item from tbl_activity_module_vote where i_aid = $aid and i_amsn = $amsn"
+);
+
+-- INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM    = 0x0000200E
+delete from tbl_instruction where i_inst = (conv('0000200E', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200E', 16, 10) + 0),
+    'st',
+    13,
+    "select i_aid, i_amsn, i_amvisn, c_arg0, c_arg1, c_arg2, c_arg3, c_arg4, c_arg5, c_arg6, c_arg7, c_arg8, c_arg9 from tbl_activity_module_vote_item where i_aid = $aid and i_amsn = $amsn"
+);
+
+-- INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER  = 0x0000200F
+delete from tbl_instruction where i_inst = (conv('0000200F', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('0000200F', 16, 10) + 0),
+    'st',
+    9,
+    "select p.i_aid, p.i_amsn, p.i_amvisn, u.i_uid, u.c_name, u.c_cover, u.i_gender, p.i_result, p.t_time from tbl_activity_module_vote_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid and p.i_amsn = $amsn order by p.t_time"
+);
+
+
 
 
 
