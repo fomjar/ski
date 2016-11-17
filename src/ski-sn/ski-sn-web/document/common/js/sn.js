@@ -8,12 +8,72 @@ sn.stub             = {};
 sn.stub.login       = [];
 sn.stub.locate      = [];
 
+
+sn.login_manually = function(phone, pass, success, failure) {
+    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
+        phone       : phone,
+        pass        : pass,
+        terminal    : 1
+    }, function(code, desc) {
+        if (0 != code) {
+            if (failure) failure(code, desc);
+            return;
+        }
+        
+        fomjar.util.cookie('token', desc.token, 365);
+        fomjar.util.cookie('uid',   desc.uid,   365);
+        sn.token = desc.token;
+        sn.uid   = desc.uid;
+        sn.user  = desc;
+        if (!sn.user.cover) sn.user.cover = 'res/user.png';
+        
+        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
+        $('.sn .head .cover').unbind('click');
+        $('.sn .head .cover').bind('click', sn.ui.detail);
+
+        build_user_state();
+        
+        if (success) success();
+        
+        $.each(sn.stub.login, function(i, f) {f(sn.user);});
+    });
+};
+
+sn.login_automatic = function() {
+    if (!sn.token) return;
+
+    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
+        token       : sn.token,
+        uid         : sn.uid,
+        terminal    : 1
+    }, function(code, desc) {
+        if (0 != code) return;
+        
+        fomjar.util.cookie('token', desc.token, 365);
+        fomjar.util.cookie('uid',   desc.uid,   365);
+        sn.token = desc.token;
+        sn.uid   = desc.uid;
+        sn.user  = desc;
+        if (!sn.user.cover) sn.user.cover = 'res/user.png';
+        
+        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
+        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
+        $('.sn .head .cover').unbind('click');
+        $('.sn .head .cover').bind('click', sn.ui.detail);
+        
+        build_user_state();
+        $.each(sn.stub.login, function(i, f) {f(sn.user);});
+    });
+};
+
+
 (function($) {
 
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_head);
 fomjar.framework.phase.append('ren', init_event);
-fomjar.framework.phase.append('ren', login_automatic);
+fomjar.framework.phase.append('ren', sn.login_automatic);
 
 function build_frame() {
     var sn = $('<div></div>');
@@ -89,64 +149,6 @@ function build_user_state() {
 function init_event() {
     // fast click
     FastClick.attach(document.body);
-}
-    
-function login_manually(phone, pass, success, failure) {
-    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
-        phone       : phone,
-        pass        : pass,
-        terminal    : 1
-    }, function(code, desc) {
-        if (0 != code) {
-            if (failure) failure(code, desc);
-            return;
-        }
-        
-        fomjar.util.cookie('token', desc.token, 365);
-        fomjar.util.cookie('uid',   desc.uid,   365);
-        sn.token = desc.token;
-        sn.uid   = desc.uid;
-        sn.user  = desc;
-        if (!sn.user.cover) sn.user.cover = 'res/user.png';
-        
-        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
-        $('.sn .head .cover').unbind('click');
-        $('.sn .head .cover').bind('click', sn.ui.detail);
-
-        build_user_state();
-        
-        if (success) success();
-        
-        $.each(sn.stub.login, function(i, f) {f(sn.user);});
-    });
-}
-
-function login_automatic() {
-    if (!sn.token) return;
-
-    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
-        token       : sn.token,
-        uid         : sn.uid,
-        terminal    : 1
-    }, function(code, desc) {
-        if (0 != code) return;
-        
-        fomjar.util.cookie('token', desc.token, 365);
-        fomjar.util.cookie('uid',   desc.uid,   365);
-        sn.token = desc.token;
-        sn.uid   = desc.uid;
-        sn.user  = desc;
-        if (!sn.user.cover) sn.user.cover = 'res/user.png';
-        
-        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
-        $('.sn .head .cover').unbind('click');
-        $('.sn .head .cover').bind('click', sn.ui.detail);
-        
-        build_user_state();
-        $.each(sn.stub.login, function(i, f) {f(sn.user);});
-    });
 }
 
 

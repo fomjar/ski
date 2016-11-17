@@ -462,7 +462,7 @@ function create_user_login_1(dialog, page) {
         }
         div_log.doing = true;
         div_log.addClass('button-disable');
-        login_manually(phone, pass, function() {
+        sn.login_manually(phone, pass, function() {
             div_log.doing = false;
             div_log.removeClass('button-disable');
             dialog.disappear();
@@ -632,7 +632,7 @@ function create_user_register_2(dialog, page) {
             div_sub.doing = false;
             div_sub.removeClass('button-disable');
             if (0 == code) {
-                login_manually(user_register.phone, user_register.pass, function() {
+                sn.login_manually(user_register.phone, user_register.pass, function() {
                     page.page_to_next();
                 }, function(code, desc) {
                     dialog.shake();
