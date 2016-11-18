@@ -6,6 +6,7 @@ sn.uid      = (function() {var uid = fomjar.util.cookie('uid'); return uid && 0 
 // sn.location  = {};
 sn.stub             = {};
 sn.stub.login       = [];
+sn.stub.logout      = [];
 sn.stub.locate      = [];
 
 
@@ -41,27 +42,29 @@ sn.login_manually = function(phone, pass, success, failure) {
 sn.login_automatic = function() {
     if (!sn.token) return;
 
-    fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
-        token       : sn.token,
-        uid         : sn.uid,
-        terminal    : 1
-    }, function(code, desc) {
-        if (0 != code) return;
-        
-        fomjar.util.cookie('token', desc.token, 365);
-        fomjar.util.cookie('uid',   desc.uid,   365);
-        sn.token = desc.token;
-        sn.uid   = desc.uid;
-        sn.user  = desc;
-        if (!sn.user.cover) sn.user.cover = 'res/user.png';
-        
-        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
-        $('.sn .head .cover').unbind('click');
-        $('.sn .head .cover').bind('click', sn.ui.detail);
-        
-        $.each(sn.stub.login, function(i, f) {f(sn.user);});
-    });
+    setTimeout(function() {
+        fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
+            token       : sn.token,
+            uid         : sn.uid,
+            terminal    : 1
+        }, function(code, desc) {
+            if (0 != code) return;
+            
+            fomjar.util.cookie('token', desc.token, 365);
+            fomjar.util.cookie('uid',   desc.uid,   365);
+            sn.token = desc.token;
+            sn.uid   = desc.uid;
+            sn.user  = desc;
+            if (!sn.user.cover) sn.user.cover = 'res/user.png';
+            
+            $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
+            $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
+            $('.sn .head .cover').unbind('click');
+            $('.sn .head .cover').bind('click', sn.ui.detail);
+            
+            $.each(sn.stub.login, function(i, f) {f(sn.user);});
+        });
+    }, 500);
 };
 
 

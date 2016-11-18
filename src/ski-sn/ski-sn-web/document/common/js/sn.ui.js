@@ -359,6 +359,36 @@ sn.ui.pull = function(div, down, up, offset) {
 };
 
 
+sn.ui.longtouch = function(div, cb) {
+    var timer = null;
+    var down = function(e) {
+        timer = setTimeout(function() {
+            cb(e);
+        }, 1000);
+    };
+    var up = function(e) {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        e.preventDefault();
+    };
+    var out = function(e) {
+        if (timer) {
+            clearTimeout(timer);
+            timer = null;
+        }
+        e.preventDefault();
+    };
+    div.bind('touchstart',  down);
+    div.bind('mousedown',   down);
+    div.bind('touchend',    up);
+    div.bind('mouseup',     up);
+    div.bind('touchmove',   out);
+    div.bind('mouseleave',  out);
+};
+
+
 sn.ui.state = function(i) {
     var s = null;
     if ('number' == typeof i) s = $('.sn .head .state:nth-child('+(i+1)+')');
@@ -407,7 +437,8 @@ sn.ui.logout = function() {
     $('.sn .head .cover div').text('登录 / 注册');
     $('.sn .head .cover').unbind('click');
     $('.sn .head .cover').bind('click', sn.ui.login);
-    $('.sn .foot').removeClass('foot-appear');
+    
+    $.each(sn.stub.logout, function(i, f) {f();});
 };
 
 sn.ui.detail = function() {

@@ -142,7 +142,7 @@ drop table if exists tbl_activity_module;
 create table tbl_activity_module (
     i_aid       integer,        -- 活动编号
     i_amsn      tinyint,        -- 模块编号
-    i_type      tinyint         -- 模块类型: 0 - 投票
+    i_type      tinyint         -- 模块类型: 1 - 投票
     c_title     varchar(256),   -- 标题
     c_text      text            -- 描述
 );

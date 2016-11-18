@@ -258,13 +258,25 @@ fomjar.util.title = function(t) {
 fomjar.net = {
 
     api : '/ski-web',
+    
+    time : new Date().getTime(),
 
     sendto : function(url, data, cb) {
         if (2 == arguments.length) {
             cb = data;
             data = {};
         }
-        $.post(url, $.toJSON(data), function(args) {cb(args.code, args.desc)});
+        
+        var interval = 200;
+        var lasttime = fomjar.net.time;
+        var currtime = new Date().getTime();
+        var delay = currtime - lasttime >= interval ? 0 : interval - (currtime - lasttime);
+        
+        setTimeout(function() {
+            $.post(url, $.toJSON(data), function(args) {cb(args.code, args.desc)});
+        }, delay);
+        
+        fomjar.net.time = currtime + delay;
     },
 
     send : function(inst, data, cb) {

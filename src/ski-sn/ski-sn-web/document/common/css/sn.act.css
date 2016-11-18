@@ -1,0 +1,37 @@
+
+
+
+.sn .act-basic {text-align : center;}
+.sn .act-basic >* {margin : 1em 0;}
+.sn .act-basic >*:nth-child(1) {font-size : 2em;}
+.sn .act-basic >*:nth-child(2) input    {width : 60%;}
+.sn .act-basic >*:nth-child(3) textarea {width : 60%; height : 4em;}
+.sn .act-basic >*:nth-child(4) {position : relative; left : 20%; width : 60%; height: 3em; border-radius : 1em; -webkit-border-radius : 1em;}
+.sn .act-basic >*:nth-child(4) *        {border-radius : 1em; -webkit-border-radius : 1em;}
+.sn .act-basic >*:nth-child(5) input    {width : 28%; margin : 0 2%;}
+.sn .act-basic >*:nth-child(6) {margin-top : 2em;}
+
+.sn .act-roles {text-align : center;}
+.sn .act-roles >* {margin : 1em 0;}
+.sn .act-roles >*:nth-child(1) {font-size : 2em;}
+.sn .act-roles >*:nth-child(3) >* {margin : 1em 0;}
+.sn .act-roles >*:nth-child(4) {margin-top : 2em;}
+.sn .act-roles >*:nth-child(4) .button {margin : 0 1em;}
+
+.sn .act-role {}
+.sn .act-role >* {margin : 0 .3em;}
+.sn .act-role >*:nth-child(1) {padding: .5em; margin-right : 0;}
+.sn .act-role >*:nth-child(2) {width : 5em;}
+.sn .act-role >*:nth-child(3) {width : 4em; padding : 0 .5em;}
+.sn .act-role >*:nth-child(4) {appearance: revert; -webkit-appearance: revert; vertical-align : middle; height : 1em; margin-right : 0;}
+.sn .act-role >*:nth-child(5) {margin-left : 0;}
+
+.sn .act-mod {text-align : center;}
+.sn .act-mod >* {margin : 1em 0;}
+.sn .act-mod >*:nth-child(1) {font-size : 2em;}
+.sn .act-mod >*:nth-child(2) select {width : 60%;}
+.sn .act-mod >*:nth-child(3) {margin-top : 2em;}
+.sn .act-mod >*:nth-child(3) .button {margin : 0 1em;}
+
+.sn .act-mod-pvl >div {margin : 1em 0;}
+.sn .act-mod-pvl >div >input {appearance: revert; -webkit-appearance: revert; vertical-align : middle; height : 1em; margin-right : 0;}

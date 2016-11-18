@@ -123,12 +123,20 @@ sn.msg.wrap = function(data) {
         }
         msg.data.attitude_update();
     };
-                
+    
     load_message_focus(msg);
+    
     load_message_reply(msg);
     
     return msg;
 };
+
+sn.msg.new = function() {
+    var dialog = sn.ui.dialog();
+    dialog.addClass('dialog-msg-new');
+    dialog.append(create_new_message_panel(dialog));
+    dialog.appear();
+}
 
 function create_message_panel(msg) {
     var div = $('<div></div>');
@@ -399,6 +407,67 @@ function load_message_reply(msg) {
         
         msg.ui.detail.onreplyer(desc);
     });
+}
+
+function create_new_message_panel(dialog) {
+    var div = $('<div></div>');
+    div.addClass('msg-new');
+    
+    div.append("<div><img src='res/msg-dist.png'/><div>" + sn.location.address + "</div></div>");
+    
+    var div_content = $('<div></div>');
+    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
+    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
+    
+    div.append(div_content);
+    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
+    
+    var div_tex = div.find('>*:nth-child(2) textarea');
+    var div_ima = div.find('>*:nth-child(2) img');
+    var div_can = div.find('>*:nth-child(3) .button:nth-child(1)');
+    var div_sen = div.find('>*:nth-child(3) .button:nth-child(2)');
+    
+    div_can.bind('click', function() {dialog.disappear();});
+    div_sen.doing = false;
+    div_sen.bind('click', function() {
+        var text    = div_tex.val();
+        var image   = div_ima.attr('src');
+        if (0 == text.length) {
+            dialog.shake();
+            return;
+        }
+        if (/^ +$/.test(text)) {
+            dialog.shake();
+            return;
+        }
+        
+        if (div_sen.doing) return;
+        
+        div_sen.doing = true;
+        div_sen.addClass('button-disable');
+        
+        text = new fomjar.util.base64().encode(text);
+        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
+            coosys  : 1,
+            lat     : sn.location.point.lat,
+            lng     : sn.location.point.lng,
+            type    : 0,
+            text    : text,
+            image   : image
+        }, function(code, desc) {
+            div_sen.doing = false;
+            div_sen.removeClass('button-disable');
+            if (0 == code) {
+                dialog.disappear();
+                load_message(0, MSG_COUNT_FIRST);
+            } else {
+                dialog.shake();
+                sn.ui.toast(desc);
+            }
+        });
+    });
+    
+    return div;
 }
 
 })(jQuery)
