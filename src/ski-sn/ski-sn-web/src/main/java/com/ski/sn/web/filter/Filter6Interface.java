@@ -61,6 +61,9 @@ public class Filter6Interface extends FjWebFilter {
         case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY:
             compressImage(args, "image", 320);
             break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM:
+            compressImage(args, "arg1", 320);
+            break;
         }
         
         FjDscpMessage rsp = CommonService.requests("bcs", inst, args);

@@ -102,6 +102,15 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY:
             requestUpdateMessageReply(request);
             break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY:
+            requestUpdateActivity(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE:
+            requestUpdateActivityRole(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE:
+            requestUpdateActivityModule(request);
+            break;
         default:
             logger.error("illegal inst: " + request);
             CommonService.response(request, CommonDefinition.CODE.CODE_ILLEGAL_INST, "未知指令");
@@ -138,6 +147,12 @@ public class BcsTask implements FjServer.FjServerTask {
             case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_FOCUS:
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE:
                 break;
             default:
                 if (CommonDefinition.CODE.CODE_SUCCESS != CommonService.getResponseCode(response)) {
@@ -512,6 +527,33 @@ public class BcsTask implements FjServer.FjServerTask {
         args_cdb.put("image",   image);
         
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY, args_cdb);
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivity(FjDscpMessage request) {
+        if (!illegalArgs(request, "owner", "lat", "lng", "title")) return;
+        
+        JSONObject args = request.argsToJsonObject();
+        double  lat     = args.getDouble("lat");
+        double  lng     = args.getDouble("lng");
+        String  geohash = GeoHash.encode(lat, lng);
+        args.put("geohash", geohash);
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY, args);
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivityRole(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "arsn", "name", "apply", "count")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivityModule(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn", "type", "title")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE, request.argsToJsonObject());
         catchResponse(request);
     }
     
