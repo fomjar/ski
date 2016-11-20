@@ -108,6 +108,9 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE:
             requestUpdateActivityRole(request);
             break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_PLAYER:
+            requestUpdateActivityPlayer(request);
+            break;
         case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE:
             requestUpdateActivityModule(request);
             break;
@@ -119,6 +122,9 @@ public class BcsTask implements FjServer.FjServerTask {
             break;
         case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM:
             requestUpdateActivityModuleVoteItem(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER:
+            requestUpdateActivityModuleVotePlayer(request);
             break;
         case CommonDefinition.ISIS.INST_QUERY_ACTIVITY:
             requestQueryActivity(request);
@@ -185,6 +191,8 @@ public class BcsTask implements FjServer.FjServerTask {
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE:
                 break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_PLAYER:
+                break;
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE:
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE:
@@ -192,6 +200,8 @@ public class BcsTask implements FjServer.FjServerTask {
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE:
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER:
                 break;
             case CommonDefinition.ISIS.INST_QUERY_ACTIVITY:
                 responseQueryActivity(args, request);
@@ -585,6 +595,13 @@ public class BcsTask implements FjServer.FjServerTask {
         catchResponse(request);
     }
     
+    private void requestUpdateActivityPlayer(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "uid", "arsn")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_PLAYER, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
     private void requestUpdateActivityModule(FjDscpMessage request) {
         if (!illegalArgs(request, "aid", "amsn", "type", "title")) return;
         
@@ -610,6 +627,13 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "aid", "amsn", "amvisn", "arg0")) return;
         
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivityModuleVotePlayer(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn", "amvisn", "uid", "result")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER, request.argsToJsonObject());
         catchResponse(request);
     }
     

@@ -31,6 +31,14 @@ public class Filter1Authorize extends FjWebFilter {
             CommonDefinition.ISIS.INST_UPDATE_USER,
             CommonDefinition.ISIS.INST_QUERY_MESSAGE_FOCUS,
             CommonDefinition.ISIS.INST_QUERY_MESSAGE_REPLY,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_PLAYER,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM,
+            CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER,
     };
     
     private static boolean authorizeInterface(FjHttpResponse response, FjHttpRequest request) {

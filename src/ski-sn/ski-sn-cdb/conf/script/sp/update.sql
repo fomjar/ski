@@ -716,9 +716,9 @@ begin
     declare di_count    integer default 0;
     declare di_max      integer default 0;
 
-    if aid is null or uid is null then
+    if aid is null or uid is null or arsn is null then
         set i_code = 3;
-        set c_desc = 'illegal arguments, aid and uid must be not null';
+        set c_desc = 'illegal arguments, aid and uid and arsn must be not null';
     else
         select count(1)
           into di_count
@@ -752,12 +752,10 @@ begin
                    and i_uid = uid;
 
                 if di_count > 0 then
-                    if arsn is not null then
-                        update tbl_activity_player
-                           set i_arsn = arsn
-                         where i_aid = aid
-                           and i_uid = uid;
-                    end if;
+                    update tbl_activity_player
+                       set i_arsn = arsn
+                     where i_aid = aid
+                       and i_uid = uid;
                 else
                     insert into tbl_activity_player (
                         i_aid,
@@ -1239,7 +1237,6 @@ begin
               from tbl_activity_module_vote_player
              where i_aid = aid
                and i_amsn = amsn
-               and i_amvisn = amvisn
                and i_uid = uid;
 
             if di_count = 0 then
@@ -1260,10 +1257,11 @@ begin
                 );
             else
                 update tbl_activity_module_vote_player
-                   set i_result = result
+                   set i_amvisn = amvisn,
+                       i_result = result,
+                       t_time = now()
                  where i_aid = aid
                    and i_amsn = amsn
-                   and i_amvisn = amvisn
                    and i_uid = uid;
             end if;
 

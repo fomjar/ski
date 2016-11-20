@@ -192,16 +192,27 @@ function load_activity() {
                                             }
                                             m.vote.items = desc;
                                             
-                                            var act = sn.act.wrap(data);
-                                            sn.act.data.push(act);
+                                            fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER, {
+                                                aid     : activity.aid,
+                                                amsn    : m.amsn
+                                            }, function(code, desc) {
+                                                if (0 != code) {
+                                                    sn.ui.toast(desc);
+                                                    return;
+                                                }
+                                                m.vote.players = desc;
                                             
-                                            setTimeout(function() {
-                                                act.ui.panel.css('opacity', '0');
-                                                $('.sn .body').prepend(act.ui.panel);
-                                                setTimeout(function() {act.ui.panel.css('opacity', '1');}, 0);
-                                            }, delay);
-                                            
-                                            delay += 50;
+                                                var act = sn.act.wrap(data);
+                                                sn.act.data.push(act);
+                                                
+                                                setTimeout(function() {
+                                                    act.ui.panel.css('opacity', '0');
+                                                    $('.sn .body').prepend(act.ui.panel);
+                                                    setTimeout(function() {act.ui.panel.css('opacity', '1');}, 0);
+                                                }, delay);
+                                                
+                                                delay += 50;
+                                            });
                                         });
                                     });
                                     break;

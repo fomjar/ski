@@ -17,23 +17,7 @@ sn.act.wrap = function(data) {
     if (!data.ucover) data.ucover = 'res/user.png';
     activity.data = data;
     
-    var panel = create_activity_panel(activity);
-    var detail = create_activity_detail(activity);
-    activity.ui = {};
-    activity.ui.panel = panel;
-    activity.ui.detail = detail;
-    
-    panel.bind('click', function() {
-        if (!sn.user) {
-            sn.login();
-            return;
-        }
-        var dialog = sn.ui.dialog();
-        dialog.append(activity.ui.detail);
-        dialog.appear();
-    });
-    
-    activity.data.getRole = function(arsn)
+    activity.data.getRole = function(arsn) {
         var result = null;
         $.each(activity.data.roles, function(i, role) {
             if (role.arsn == arsn) {
@@ -45,7 +29,7 @@ sn.act.wrap = function(data) {
     };
     
     activity.data.getModule = function(amsn) {
-        var role = activity.data.getRole();
+        var role = activity.data.role();
         if (!role) return null;
         
         var result = null;
@@ -59,7 +43,7 @@ sn.act.wrap = function(data) {
     };
     
     activity.data.getPrivilege = function(amsn) {
-        var role = activity.data.getRole();
+        var role = activity.data.role();
         if (!role) return null;
         var module = activity.data.getModule(amsn);
         if (!module) return null;
@@ -77,12 +61,12 @@ sn.act.wrap = function(data) {
     activity.data.role = function() {
         var result = null;
         $.each(activity.data.players, function(i, p) {
-            if (p.uid = sn.uid) {
+            if (p.uid == sn.uid) {
                 result = activity.data.getRole(p.arsn);
                 return false;
             }
-            return null;
         });
+        return result;
     };
     
     $.each(activity.data.modules, function(i, module) {
@@ -96,6 +80,48 @@ sn.act.wrap = function(data) {
             if (!privilege) return false;
             return 0 < (privilege.privilege & (1<<1));
         };
+        switch (module.type) {
+        case 1:
+            if (module.vote) {
+                var values = [];
+                var total = 0;
+                var voted = false;
+                $.each(module.vote.players, function(i, p) {
+                    if (!values[p.amvisn]) values[p.amvisn] = 0;
+                    if (1 == p.result) {
+                        values[p.amvisn]++;
+                        total++;
+                    }
+                    if (p.uid == sn.uid) {
+                        voted = true;
+                    }
+                });
+                module.vote.total = total;
+                $.each(module.vote.items, function(i, item) {
+                    item.value      = values[item.amvisn];
+                    if (!item.value) item.value = 0;
+                    item.percentage = function() {return 0 == module.vote.total ? 0 : item.value / module.vote.total * 100;};
+                });
+                module.vote.voted = voted;
+            }
+            break;
+        }
+    });
+    
+    var panel = create_activity_panel(activity);
+    var detail = create_activity_detail(activity);
+    activity.ui = {};
+    activity.ui.panel = panel;
+    activity.ui.detail = detail;
+    
+    panel.bind('click', function() {
+        if (!sn.user) {
+            sn.ui.login();
+            return;
+        }
+        var dialog = sn.ui.dialog();
+        dialog.append(activity.ui.detail);
+        dialog.appear();
     });
     
     return activity;
@@ -114,9 +140,9 @@ function create_activity_panel(activity) {
     ac.append('<div>' + activity.data.player + '人已参与</div>');
     ac.append('<div>' + activity.data.atitle + '</div>');
     if (activity.data.atext)        ac.append('<div>' + activity.data.atext + '</div>');
-    if (activity.data.aimage)       ac.append('<div>' + activity.data.aimage + '</div>');
-    if (activity.data.abegin)       ac.append("<div class='time'>开始: " + activity.data.abegin + '</div>');
-    if (activity.data.aend)         ac.append("<div class='time'>结束: " + activity.data.aend + '</div>');
+    if (activity.data.aimage)       ac.append("<img class='image' src='" + activity.data.aimage + "' />");
+    if (activity.data.abegin)       ac.append('<div>开始: ' + activity.data.abegin + '</div>');
+    if (activity.data.aend)         ac.append('<div>结束: ' + activity.data.aend + '</div>');
     
     div.append(ac);
     
@@ -130,10 +156,14 @@ function create_activity_detail(activity) {
     div.addClass('act-detail');
     div.append(create_activity_panel(activity));
     
+    var mods = $('<div></div>');
     if (!activity.data.role()) {
+        div.append('<div>正确选择你的角色</div>');
         var roles = $('<div></div>');
         roles.addClass('roles');
         $.each(activity.data.roles, function(i, role) {
+            if (1 != role.apply) return;
+            
             var div_rol = $("<div class='button'>" + role.name + "</div>");
             roles.append(div_rol);
             div_rol.bind('click', function() {
@@ -148,20 +178,98 @@ function create_activity_detail(activity) {
                         return;
                     }
                     
+                    activity.data.players.push({
+                        aid     : activity.data.aid,
+                        uid     : sn.uid,
+                        arsn    : role.arsn
+                    });
                     sn.ui.toast('选择成功');
                     roles.remove();
+    
+                    $.each(activity.data.modules, function(i, module) {
+                        if (!module.readable()) return true;
+                        
+                        switch (module.type) {
+                        case 1: {
+                            mods.append(create_activity_detail_vote(activity, module));
+                            break;
+                        }
+                        }
+                    });
                 });
             });
         });
+        div.append(roles);
+    } else {
+        $.each(activity.data.modules, function(i, module) {
+            if (!module.readable()) return true;
+            
+            switch (module.type) {
+            case 1: {
+                mods.append(create_activity_detail_vote(activity, module));
+                break;
+            }
+            }
+        });
     }
-    
-    $.each(activity.data.modules, function(i, module) {
-        if (module.readable()) {
-        }
-        if (module.writable()) {
-        }
-    });
+    div.append(mods);
+    var close = $("<div class='button'>关闭</div>");
+    close.bind('click', function() {dialog.disappear()});
+    var buttons = $('<div></div>');
+    buttons.addClass('btns');
+    buttons.append(close);
+    div.append(buttons);
     return div;
+}
+
+function create_activity_detail_vote(activity, module) {
+    var vote = $('<div></div>');
+    vote.addClass('vote');
+    vote.append('<div>' + module.title + '</div>')
+    if (module.text) vote.append('<div>' + module.text + '</div>')
+    var items = $('<div></div>');
+    items.addClass('items');
+    $.each(module.vote.items, function(i, item) {
+        var div_ite = $('<div></div>');
+        div_ite.append('<div></div>');  // value
+        div_ite.append("<img src='" + item.arg1 + "' />");   // image
+        div_ite.append('<div>' + item.arg0 + '</div>'); // name
+        div_ite.append('<div>(' + item.value + ', ' + item.percentage().toFixed(1) + '%)</div>')
+        
+        div_ite.find('>*:nth-child(1)').css('width', item.percentage().toFixed(1) + '%');
+        
+        if (module.writable() && !module.vote.voted) {
+            var div_vot = $("<div class='button'>投票</div>");
+            div_ite.append(div_vot);
+            div_vot.bind('click', function() {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER, {
+                    aid     : activity.data.aid,
+                    amsn    : module.amsn,
+                    amvisn  : item.amvisn,
+                    uid     : sn.uid,
+                    result  : 1
+                }, function(code, desc) {
+                    if (0 != code) {
+                        dialog.shake();
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    module.vote.voted = true;
+                    module.vote.total ++;
+                    item.value ++;
+                    
+                    div_ite.find('>*:nth-child(5)').text('(' + item.value + ', ' + item.percentage().toFixed(1) + '%)');
+                    div_ite.find('>*:nth-child(1)').css('width', item.percentage().toFixed(1) + '%');
+                    
+                    items.find('.button').remove();
+                });
+            });
+        }
+        
+        items.append(div_ite);
+    });
+    vote.append(items);
+    return vote;
 }
 
 
@@ -491,7 +599,7 @@ function create_activity_creating(dialog, pages, activity) {
             });
             setTimeout(function() {
                 pages.page_set('成功');
-            }, 3000);
+            }, 5000);
         });
     };
     
