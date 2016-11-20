@@ -44,6 +44,7 @@ function init_event() {
     // pull event
     sn.ui.pull($('.sn .body'),
         function() {    // down
+            load_activity();
             load_message(0, MSG_COUNT_FIRST);
         },
         function() {},  // up
@@ -90,17 +91,128 @@ function animate() {
 }
 
 function animate_done() {
+    load_activity();
     load_message(0, MSG_COUNT_FIRST);
     
     if (sn.user) $('.sn .foot').addClass('foot-appear');
     
     sn.stub.login.push(function() {
         $('.sn .foot').addClass('foot-appear');
+        load_activity();
         load_message(0, MSG_COUNT_FIRST);
     });
     sn.stub.logout.push(function() {
         $('.sn .foot').removeClass('foot-appear');
+        load_activity();
         load_message(0, MSG_COUNT_FIRST);
+    });
+}
+
+function load_activity() {
+    if (!sn.location) return;
+    if (loading) return;
+    
+    if (!sn.uid) {
+        sn.uid = new Date().getTime();
+        fomjar.util.cookie('uid', sn.uid);
+    }
+    
+    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY, {
+        lat : sn.location.point.lat,
+        lng : sn.location.point.lng
+    }, function(code, desc) {
+        if (0 != code) {
+            sn.ui.toast(desc);
+            return;
+        }
+        var delay = 0;
+        $.each(desc, function(i, data) {
+            var activity = data;
+            
+            fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_ROLE, {
+                aid : activity.aid
+            }, function(code, desc) {
+                if (0 != code) {
+                    sn.ui.toast(desc);
+                    return;
+                }
+                activity.roles = desc;
+                
+                fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_PLAYER, {
+                    aid : activity.aid
+                }, function(code, desc) {
+                    if (0 != code) {
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    activity.players = desc;
+                    
+                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE, {
+                        aid : activity.aid
+                    }, function(code, desc) {
+                        if (0 != code) {
+                            sn.ui.toast(desc);
+                            return;
+                        }
+                        activity.modules = desc;
+                        
+                        fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE, {
+                            aid : activity.aid
+                        }, function(code, desc) {
+                            if (0 != code) {
+                                sn.ui.toast(desc);
+                                return;
+                            }
+                            $.each(activity.modules, function(i, m) {
+                                var ps = [];
+                                $.each(desc, function(i, p) {
+                                    if (m.amsn == p.amsn) ps.push(p);
+                                });
+                                m.privilege = ps;
+                        
+                                switch (m.type) {
+                                case 1: {
+                                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE, {
+                                        aid     : activity.aid,
+                                        amsn    : m.amsn
+                                    }, function(code, desc) {
+                                        if (0 != code) {
+                                            sn.ui.toast(desc);
+                                            return;
+                                        }
+                                        m.vote = desc[0];
+                                        
+                                        fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM, {
+                                            aid     : activity.aid,
+                                            amsn    : m.amsn
+                                        }, function(code, desc) {
+                                            if (0 != code) {
+                                                sn.ui.toast(desc);
+                                                return;
+                                            }
+                                            m.vote.items = desc;
+                                            
+                                            var act = sn.act.wrap(data);
+                                            sn.act.data.push(act);
+                                            
+                                            setTimeout(function() {
+                                                act.ui.panel.css('opacity', '0');
+                                                $('.sn .body').prepend(act.ui.panel);
+                                                setTimeout(function() {act.ui.panel.css('opacity', '1');}, 0);
+                                            }, delay);
+                                            
+                                            delay += 50;
+                                        });
+                                    });
+                                    break;
+                                }
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+        });
     });
 }
 

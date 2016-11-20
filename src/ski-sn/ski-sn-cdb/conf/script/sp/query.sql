@@ -305,15 +305,14 @@ begin
                 '\'\t', ifnull(u.c_cover, ''),
                 '\'\t', u.i_gender,
                 '\'\t', a.t_create,
-                '\'\t', a.i_lat,
-                '\'\t', a.i_lng,
-                '\'\t', a.c_geohash,
                 '\'\t', ifnull(a.c_title, ''),
                 '\'\t', ifnull(a.c_text, ''),
                 '\'\t', ifnull(a.c_image, ''),
-                '\'\t', a.t_begin,
-                '\'\t', a.t_end)
-               order by a.t_begin desc
+                '\'\t', a.c_begin,
+                '\'\t', a.c_end,
+                '\'\t', a.i_state,
+                '\'\t', (select count(1) from tbl_activity a, tbl_activity_player p where a.i_aid = p.i_aid and left(a.c_geohash, 4) = left(geohash, 4)))
+               order by a.t_create desc
                separator '\'\n')
           into c_desc
           from tbl_activity a, tbl_user u
@@ -328,15 +327,14 @@ begin
                 '\'\t', ifnull(u.c_cover, ''),
                 '\'\t', u.i_gender,
                 '\'\t', a.t_create,
-                '\'\t', a.i_lat,
-                '\'\t', a.i_lng,
-                '\'\t', a.c_geohash,
                 '\'\t', ifnull(a.c_title, ''),
                 '\'\t', ifnull(a.c_text, ''),
                 '\'\t', ifnull(a.c_image, ''),
-                '\'\t', a.t_begin,
-                '\'\t', a.t_end)
-               order by a.t_begin desc
+                '\'\t', a.c_begin,
+                '\'\t', a.c_end,
+                '\'\t', a.i_state,
+                '\'\t', (select count(1) from tbl_activity a, tbl_activity_player p where a.i_aid = p.i_aid and left(a.c_geohash, 4) = left(geohash, 4)))
+               order by a.t_create desc
                separator '\'\n')
           into c_desc
           from tbl_activity a, tbl_user u

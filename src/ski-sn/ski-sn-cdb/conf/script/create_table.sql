@@ -113,8 +113,9 @@ create table tbl_activity (
     c_title     varchar(256),       -- 标题
     c_text      text,               -- 描述
     c_image     mediumtext,         -- 图片
-    t_begin     datetime,           -- 开始时间
-    t_end       datetime,           -- 结束时间
+    c_begin     varchar(32),        -- 开始时间
+    c_end       varchar(32),        -- 结束时间
+    i_state     tinyint,            -- 状态：0 - 初始化；1 - 开始；2 - 关闭
     primary key (i_aid)
 );
 
@@ -142,7 +143,7 @@ drop table if exists tbl_activity_module;
 create table tbl_activity_module (
     i_aid       integer,        -- 活动编号
     i_amsn      tinyint,        -- 模块编号
-    i_type      tinyint         -- 模块类型: 1 - 投票
+    i_type      tinyint,        -- 模块类型: 1 - 投票
     c_title     varchar(256),   -- 标题
     c_text      text            -- 描述
 );

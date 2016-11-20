@@ -105,11 +105,44 @@ public class BcsTask implements FjServer.FjServerTask {
         case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY:
             requestUpdateActivity(request);
             break;
-        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE:
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE:
             requestUpdateActivityRole(request);
             break;
-        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE:
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE:
             requestUpdateActivityModule(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE:
+            requestUpdateActivityModulePrivilege(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE:
+            requestUpdateActivityModuleVote(request);
+            break;
+        case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM:
+            requestUpdateActivityModuleVoteItem(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY:
+            requestQueryActivity(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE:
+            requestQueryActivityRole(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_PLAYER:
+            requestQueryActivityPlayer(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE:
+            requestQueryActivityModule(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE:
+            requestQueryActivityModulePrivilege(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE:
+            requestQueryActivityModuleVote(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM:
+            requestQueryActivityModuleVoteItem(request);
+            break;
+        case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER:
+            requestQueryActivityModuleVotePlayer(request);
             break;
         default:
             logger.error("illegal inst: " + request);
@@ -153,6 +186,36 @@ public class BcsTask implements FjServer.FjServerTask {
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_ROLE:
                 break;
             case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE:
+                break;
+            case CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM:
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY:
+                responseQueryActivity(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE:
+                responseQueryActivityRole(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_PLAYER:
+                responseQueryActivityPlayer(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE:
+                responseQueryActivityModule(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE:
+                responseQueryActivityModulePrivilege(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE:
+                responseQueryActivityModuleVote(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM:
+                responseQueryActivityModuleVoteItem(args, request);
+                break;
+            case CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER:
+                responseQueryActivityModuleVotePlayer(args, request);
                 break;
             default:
                 if (CommonDefinition.CODE.CODE_SUCCESS != CommonService.getResponseCode(response)) {
@@ -432,28 +495,15 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid", "coosys", "lat", "lng", "type")) return;
         
         JSONObject args = request.argsToJsonObject();
-        long    uid     = args.getLong("uid");
-        int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");
         double  lng     = args.getDouble("lng");
-        int     type    = args.getInt("type");
-        String  text    = args.has("text") ? args.getString("text") : null;
-        String  image   = args.has("image") ? args.getString("image") : null;
         String  geohash = GeoHash.encode(lat, lng);
         String  mid     = String.format("%s:%d", geohash, System.currentTimeMillis());
         
-        JSONObject args_cdb = new JSONObject();
-        args_cdb.put("mid",     mid);
-        args_cdb.put("uid",     uid);
-        args_cdb.put("coosys",  coosys);
-        args_cdb.put("lat",     lat);
-        args_cdb.put("lng",     lng);
-        args_cdb.put("geohash", geohash);
-        args_cdb.put("type",    type);
-        args_cdb.put("text",    text);
-        args_cdb.put("image",   image);
+        args.put("geohash", geohash);
+        args.put("mid",     mid);
         
-        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE, args_cdb);
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE, args);
         catchResponse(request);
     }
     
@@ -503,30 +553,15 @@ public class BcsTask implements FjServer.FjServerTask {
         if (!illegalArgs(request, "uid", "mid", "coosys", "lat", "lng", "type")) return;
         
         JSONObject args = request.argsToJsonObject();
-        long    uid     = args.getLong("uid");
-        String  mid     = args.getString("mid");
-        int     coosys  = args.getInt("coosys");
         double  lat     = args.getDouble("lat");
         double  lng     = args.getDouble("lng");
-        int     type    = args.getInt("type");
-        String  text    = args.has("text") ? args.getString("text") : null;
-        String  image   = args.has("image") ? args.getString("image") : null;
         String  geohash = GeoHash.encode(lat, lng);
         String  rid     = String.format("%s:%d", geohash, System.currentTimeMillis());
         
-        JSONObject args_cdb = new JSONObject();
-        args_cdb.put("mid",     mid);
-        args_cdb.put("rid",     rid);
-        args_cdb.put("uid",     uid);
-        args_cdb.put("coosys",  coosys);
-        args_cdb.put("lat",     lat);
-        args_cdb.put("lng",     lng);
-        args_cdb.put("geohash", geohash);
-        args_cdb.put("type",    type);
-        args_cdb.put("text",    text);
-        args_cdb.put("image",   image);
+        args.put("rid",     rid);
+        args.put("geohash", geohash);
         
-        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY, args_cdb);
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_MESSAGE_REPLY, args);
         catchResponse(request);
     }
     
@@ -555,6 +590,269 @@ public class BcsTask implements FjServer.FjServerTask {
         
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE, request.argsToJsonObject());
         catchResponse(request);
+    }
+    
+    private void requestUpdateActivityModulePrivilege(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn", "arsn", "privilege")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivityModuleVote(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn", "select", "anonym", "item")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestUpdateActivityModuleVoteItem(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn", "amvisn", "arg0")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void requestQueryActivity(FjDscpMessage request) {
+        JSONObject args = request.argsToJsonObject();
+        if (args.has("owner")) {
+            // do nothing
+        } else {
+            if (!illegalArgs(request, "lat", "lng")) return;
+            
+            double  lat     = args.getDouble("lat");
+            double  lng     = args.getDouble("lng");
+            String  geohash = GeoHash.encode(lat, lng);
+            args.put("geohash", geohash);
+        }
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY, args);
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivity(JSONObject args, FjDscpMessage request) {
+        String desc = args.getJSONArray("desc").getString(0);
+        if ("null".equals(desc)) {
+            args.put("desc", new JSONArray());
+            return;
+        }
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (String message : desc.split("'\n", -1)) {
+            String[] fields = message.split("'\t", -1);
+            JSONObject activity = new JSONObject();
+            int i = 0;
+            activity.put("aid",     Integer.parseInt(fields[i++]));
+            activity.put("owner",   Integer.parseInt(fields[i++]));
+            activity.put("uname",   fields[i++]);
+            activity.put("ucover",  fields[i++]);
+            activity.put("ugender", Integer.parseInt(fields[i++]));
+            activity.put("acreate", fields[i++]);
+            activity.put("atitle",  fields[i++]);
+            activity.put("atext",   fields[i++]);
+            activity.put("aimage",  fields[i++]);
+            activity.put("abegin",  fields[i++]);
+            activity.put("aend",    fields[i++]);
+            activity.put("astate",  Integer.parseInt(fields[i++]));
+            activity.put("player",  Integer.parseInt(fields[i++]));
+            desc_rsp.add(activity);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityRole(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_ROLE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityRole(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("arsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("name",    fields.getString(i++));
+            role.put("apply",   Integer.parseInt(fields.getString(i++)));
+            role.put("count",   Integer.parseInt(fields.getString(i++)));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityPlayer(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_PLAYER, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityPlayer(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("uid",     Integer.parseInt(fields.getString(i++)));
+            role.put("uname",   fields.getString(i++));
+            role.put("ucover",  fields.getString(i++));
+            role.put("ugender", Integer.parseInt(fields.getString(i++)));
+            role.put("arsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("time",    fields.getString(i++));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityModule(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityModule(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("amsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("type",    Integer.parseInt(fields.getString(i++)));
+            role.put("title",   fields.getString(i++));
+            role.put("text",    fields.getString(i++));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityModulePrivilege(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityModulePrivilege(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",         Integer.parseInt(fields.getString(i++)));
+            role.put("amsn",        Integer.parseInt(fields.getString(i++)));
+            role.put("arsn",        Integer.parseInt(fields.getString(i++)));
+            role.put("privilege",   Integer.parseInt(fields.getString(i++)));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityModuleVote(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityModuleVote(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("amsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("select",  Integer.parseInt(fields.getString(i++)));
+            role.put("anonym",  Integer.parseInt(fields.getString(i++)));
+            role.put("item",    Integer.parseInt(fields.getString(i++)));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityModuleVoteItem(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityModuleVoteItem(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("amsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("amvisn",  Integer.parseInt(fields.getString(i++)));
+            role.put("arg0",    fields.getString(i++));
+            role.put("arg1",    fields.getString(i++));
+            role.put("arg2",    fields.getString(i++));
+            role.put("arg3",    fields.getString(i++));
+            role.put("arg4",    fields.getString(i++));
+            role.put("arg5",    fields.getString(i++));
+            role.put("arg6",    fields.getString(i++));
+            role.put("arg7",    fields.getString(i++));
+            role.put("arg8",    fields.getString(i++));
+            role.put("arg9",    fields.getString(i++));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
+    }
+    
+    private void requestQueryActivityModuleVotePlayer(FjDscpMessage request) {
+        if (!illegalArgs(request, "aid", "amsn")) return;
+        
+        CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER, request.argsToJsonObject());
+        catchResponse(request);
+    }
+    
+    private void responseQueryActivityModuleVotePlayer(JSONObject args, FjDscpMessage request) {
+        JSONArray desc = args.getJSONArray("desc");
+        if (0 == desc.size()) return;
+        
+        JSONArray desc_rsp = new JSONArray();
+        for (Object obj : args.getJSONArray("desc")) {
+            JSONArray fields = (JSONArray) obj;
+            JSONObject role = new JSONObject();
+            int i = 0;
+            role.put("aid",     Integer.parseInt(fields.getString(i++)));
+            role.put("amsn",    Integer.parseInt(fields.getString(i++)));
+            role.put("amvisn",  Integer.parseInt(fields.getString(i++)));
+            role.put("uid",     Integer.parseInt(fields.getString(i++)));
+            role.put("uname",   fields.getString(i++));
+            role.put("ucover",  fields.getString(i++));
+            role.put("ugender", Integer.parseInt(fields.getString(i++)));
+            role.put("result",  Integer.parseInt(fields.getString(i++)));
+            role.put("time",    fields.getString(i++));
+            desc_rsp.add(role);
+        }
+        args.put("desc", desc_rsp);
     }
     
     private static boolean illegalArgs(FjDscpMessage request, String... keys) {

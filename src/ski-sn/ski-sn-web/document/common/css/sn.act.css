@@ -1,5 +1,56 @@
 
 
+.sn .act-panel {
+    padding : .3em;
+            transition      : opacity .5s;
+    -webkit-transition      : opacity .5s;
+}
+.sn .act-panel .ac {
+    width           : 100%;
+    padding         : .5em;
+    background-color        : rgba(255, 255, 255, .9);
+            border-radius   : 1.5em;
+    -webkit-border-radius   : 1.5em;
+            transition      : background-color .5s;
+    -webkit-transition      : background-color .5s;
+}
+.sn .act-panel .ac:active {
+    background-color        : rgba(200, 200, 200, .9);
+}
+.sn .act-panel .ac >*:nth-child(1) {
+    float   : left;
+    width   : 2.5em;
+    height  : 2.5em;
+            border-radius   : 1.25em;
+    -webkit-border-radius   : 1.25em;
+}
+.sn .act-panel .ac >*:nth-child(2) {
+    float       : left;
+    line-height : 2.5em;
+    margin-left : .5em;
+}
+.sn .act-panel .ac >*:nth-child(3) {
+    text-align  : right;
+    font-size   : .8em;
+    color       : gray;
+}
+.sn .act-panel .ac >*:nth-child(4) {
+    text-align  : right;
+    font-size   : .8em;
+    color       : gray;
+}
+.sn .act-panel .ac >*:nth-child(5) {
+    margin-top  : .5em;
+    text-align  : center;
+    font-size   : 1.2em;
+}
+.sn .act-panel .ac .time {
+    font-size   : .8em;
+}
+
+.sn .act-detail .act-panel .ac {
+    background-color : rgba(0, 0, 0, 0);
+}
 
 .sn .act-basic {text-align : center;}
 .sn .act-basic >* {margin : 1em 0;}

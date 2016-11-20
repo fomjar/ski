@@ -421,7 +421,7 @@ delimiter ;
 
 -- INST_UPDATE_ACTIVITY            = 0x00003008
 delete from tbl_instruction where i_inst = (conv('00003008', 16, 10) + 0);
-insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003008', 16, 10) + 0), 'sp', 2, "sp_update_activity(?, ?, $aid, $owner, $lat, $lng, \"$geohash\", \"$title\", \"$text\", \"$image\", \"$begin\", \"$end\")");
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('00003008', 16, 10) + 0), 'sp', 2, "sp_update_activity(?, ?, $aid, $owner, $lat, $lng, \"$geohash\", \"$title\", \"$text\", \"$image\", \"$begin\", \"$end\", $state)");
 delimiter //
 drop procedure if exists sp_update_activity //
 create procedure sp_update_activity (
@@ -435,8 +435,9 @@ create procedure sp_update_activity (
     in  title       varchar(256),
     in  _text       text,
     in  image       mediumtext,
-    in  _begin      datetime,
-    in  _end        datetime
+    in  _begin      varchar(32),
+    in  _end        varchar(32),
+    in  state       tinyint
 )
 begin
 
@@ -468,8 +469,9 @@ begin
             c_title,
             c_text,
             c_image,
-            t_begin,
-            t_end
+            c_begin,
+            c_end,
+            i_state
         ) values (
             di_aid,
             owner,
@@ -481,7 +483,8 @@ begin
             _text,
             image,
             _begin,
-            _end
+            _end,
+            0
         );
     else
         set di_aid = aid;
@@ -502,8 +505,9 @@ begin
                 c_title,
                 c_text,
                 c_image,
-                t_begin,
-                t_end
+                c_begin,
+                c_end,
+                i_state
             ) values (
                 di_aid,
                 owner,
@@ -515,7 +519,8 @@ begin
                 _text,
                 image,
                 _begin,
-                _end
+                _end,
+                0
             );
         else
             if owner is not null then
@@ -555,12 +560,17 @@ begin
             end if;
             if _begin is not null then
                 update tbl_activity
-                   set t_begin = _begin
+                   set c_begin = _begin
                  where i_aid = di_aid;
             end if;
             if _end is not null then
                 update tbl_activity
-                   set t_end = _end
+                   set c_end = _end
+                 where i_aid = di_aid;
+            end if;
+            if state is not null then
+                update tbl_activity
+                   set i_state = state
                  where i_aid = di_aid;
             end if;
         end if;
@@ -681,7 +691,7 @@ begin
             end if;
 
             set i_code = 0;
-            set c_desc = concat(di_amsn, '');
+            set c_desc = concat(di_arsn, '');
         end if;
     end if;
 
@@ -774,7 +784,7 @@ delimiter ;
 
 -- INST_UPDATE_ACTIVITY_MODULE     = 0x0000300B
 delete from tbl_instruction where i_inst = (conv('0000300B', 16, 10) + 0);
-insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300B', 16, 10) + 0), 'sp', 2, "sp_update_activity_module(?, ?, $owner, $aid, $amsn, $type, $title, \"$text\")");
+insert into tbl_instruction (i_inst, c_mode, i_out, c_sql) values ((conv('0000300B', 16, 10) + 0), 'sp', 2, "sp_update_activity_module(?, ?, $owner, $aid, $amsn, $type, \"$title\", \"$text\")");
 delimiter //
 drop procedure if exists sp_update_activity_module //
 create procedure sp_update_activity_module (
@@ -906,7 +916,7 @@ begin
 
     declare di_count    integer default 0;
 
-    if aid is null or amsn is null or arsn is null or _privilege then
+    if aid is null or amsn is null or arsn is null or _privilege is null then
         set i_code = 3;
         set c_desc = 'illegal argument, aid or amsn or arsn or privilege must be not null';
     else
@@ -915,7 +925,7 @@ begin
           from tbl_activity
          where i_aid = aid;
 
-        if di_count > 0 then
+        if di_count = 0 then
             set i_code = 3;
             set c_desc = 'illegal arguments, activity does not exist';
         else
@@ -936,11 +946,11 @@ begin
                     aid,
                     amsn,
                     arsn,
-                    privilege
+                    _privilege
                 );
             else
                 update tbl_activity_module_privilege
-                   set i_privilege = privilege
+                   set i_privilege = _privilege
                  where i_aid = aid
                    and i_amsn = amsn
                    and i_arsn = arsn;
@@ -982,7 +992,7 @@ begin
           from tbl_activity
          where i_aid = aid;
 
-        if di_count > 0 then
+        if di_count = 0 then
             set i_code = 3;
             set c_desc = 'illegal arguments, activity does not exist';
         else
@@ -1071,7 +1081,7 @@ begin
           from tbl_activity
          where i_aid = aid;
 
-        if di_count > 0 then
+        if di_count = 0 then
             set i_code = 3;
             set c_desc = 'illegal arguments, activity does not exist';
         else
@@ -1100,7 +1110,7 @@ begin
                 ) values (
                     aid,
                     amsn,
-                    amvis,
+                    amvisn,
                     arg0,
                     arg1,
                     arg2,
@@ -1220,7 +1230,7 @@ begin
           from tbl_activity
          where i_aid = aid;
 
-        if di_count > 0 then
+        if di_count = 0 then
             set i_code = 3;
             set c_desc = 'illegal arguments, activity does not exist';
         else

@@ -12,6 +12,158 @@ sn.act.new = function() {
     dialog.appear();
 };
 
+sn.act.wrap = function(data) {
+    var activity = {};
+    if (!data.ucover) data.ucover = 'res/user.png';
+    activity.data = data;
+    
+    var panel = create_activity_panel(activity);
+    var detail = create_activity_detail(activity);
+    activity.ui = {};
+    activity.ui.panel = panel;
+    activity.ui.detail = detail;
+    
+    panel.bind('click', function() {
+        if (!sn.user) {
+            sn.login();
+            return;
+        }
+        var dialog = sn.ui.dialog();
+        dialog.append(activity.ui.detail);
+        dialog.appear();
+    });
+    
+    activity.data.getRole = function(arsn)
+        var result = null;
+        $.each(activity.data.roles, function(i, role) {
+            if (role.arsn == arsn) {
+                result = role;
+                return false;
+            }
+        });
+        return result;
+    };
+    
+    activity.data.getModule = function(amsn) {
+        var role = activity.data.getRole();
+        if (!role) return null;
+        
+        var result = null;
+        $.each(activity.data.modules, function(i, module) {
+            if (module.amsn == amsn) {
+                result = module;
+                return false;
+            }
+        });
+        return result;
+    };
+    
+    activity.data.getPrivilege = function(amsn) {
+        var role = activity.data.getRole();
+        if (!role) return null;
+        var module = activity.data.getModule(amsn);
+        if (!module) return null;
+        
+        var result = null;
+        $.each(module.privilege, function(i, p) {
+            if (p.amsn == module.amsn && p.arsn == role.arsn) {
+                result = p;
+                return false;
+            }
+        });
+        return result;
+    };
+    
+    activity.data.role = function() {
+        var result = null;
+        $.each(activity.data.players, function(i, p) {
+            if (p.uid = sn.uid) {
+                result = activity.data.getRole(p.arsn);
+                return false;
+            }
+            return null;
+        });
+    };
+    
+    $.each(activity.data.modules, function(i, module) {
+        module.readable = function() {
+            var privilege = activity.data.getPrivilege(module.amsn);
+            if (!privilege) return false;
+            return 0 < (privilege.privilege & (1<<0));
+        };
+        module.writable = function() {
+            var privilege = activity.data.getPrivilege(module.amsn);
+            if (!privilege) return false;
+            return 0 < (privilege.privilege & (1<<1));
+        };
+    });
+    
+    return activity;
+};
+
+
+function create_activity_panel(activity) {
+    var div = $('<div></div>');
+    div.addClass('act-panel');
+
+    var ac = $('<div></div>');
+    ac.addClass('ac');
+    ac.append("<img src='" + activity.data.ucover + "' />")
+    ac.append('<div>' + activity.data.uname + '</div>')
+    ac.append('<div>' + activity.data.acreate.substring(5, 16) + '</div>');
+    ac.append('<div>' + activity.data.player + '人已参与</div>');
+    ac.append('<div>' + activity.data.atitle + '</div>');
+    if (activity.data.atext)        ac.append('<div>' + activity.data.atext + '</div>');
+    if (activity.data.aimage)       ac.append('<div>' + activity.data.aimage + '</div>');
+    if (activity.data.abegin)       ac.append("<div class='time'>开始: " + activity.data.abegin + '</div>');
+    if (activity.data.aend)         ac.append("<div class='time'>结束: " + activity.data.aend + '</div>');
+    
+    div.append(ac);
+    
+    return div;
+}
+
+function create_activity_detail(activity) {
+    var dialog = sn.ui.dialog();
+
+    var div = $('<div></div>');
+    div.addClass('act-detail');
+    div.append(create_activity_panel(activity));
+    
+    if (!activity.data.role()) {
+        var roles = $('<div></div>');
+        roles.addClass('roles');
+        $.each(activity.data.roles, function(i, role) {
+            var div_rol = $("<div class='button'>" + role.name + "</div>");
+            roles.append(div_rol);
+            div_rol.bind('click', function() {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_PLAYER, {
+                    aid     : activity.data.aid,
+                    uid     : sn.uid,
+                    arsn    : role.arsn
+                }, function(code, desc) {
+                    if (0 != code) {
+                        dialog.shake();
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    
+                    sn.ui.toast('选择成功');
+                    roles.remove();
+                });
+            });
+        });
+    }
+    
+    $.each(activity.data.modules, function(i, module) {
+        if (module.readable()) {
+        }
+        if (module.writable()) {
+        }
+    });
+    return div;
+}
+
 
 function create_new_activity_panel(dialog) {
     var activity = {};
@@ -227,6 +379,7 @@ function create_activity_module_vote(dialog, pages, activity) {
         
         var vote = {};
         vote.amsn   = amsn;
+        vote.select = 0;    // 单选
         vote.anonym = 0;    // 实名
         vote.item   = 1;    // 图文
         
@@ -316,27 +469,29 @@ function create_activity_creating(dialog, pages, activity) {
             var aid = parseInt(desc);
             $.each(activity.roles, function(i, r) {
                 r.aid = aid;
-                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_ROLE, r);
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_ROLE, r, function() {});
             });
             
             $.each(activity.modules, function(i, m) {
                 m.module.aid = aid;
-                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE, m.module);
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE, m.module, function() {});
                 
                 $.each(m.privileges, function(i, p) {
                     p.aid = aid;
-                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE, p);
+                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_PRIVILEGE, p, function() {});
                 });
                 if (m.vote) {
                     m.vote.aid = aid;
-                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE, m.vote);
+                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE, m.vote, function() {});
                     $.each(m.vote.items, function(i, it) {
                         it.aid = aid;
-                        fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM, it);
+                        fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_ITEM, it, function() {});
                     });
                 }
             });
-            pages.page_set('成功');
+            setTimeout(function() {
+                pages.page_set('成功');
+            }, 3000);
         });
     };
     
