@@ -139,7 +139,7 @@ function create_activity_panel(activity) {
 
     var ac = $('<div></div>');
     ac.addClass('ac');
-    ac.append("<img src='" + activity.data.ucover + "' />")
+    ac.append(sn.ui.cover(activity.data.ucover));
     ac.append('<div>' + activity.data.uname + '</div>')
     ac.append('<div>' + activity.data.acreate.substring(5, 16) + '</div>');
     ac.append('<div>' + activity.data.player + '人已参与</div>');

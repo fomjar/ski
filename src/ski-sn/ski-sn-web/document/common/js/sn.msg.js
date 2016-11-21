@@ -148,7 +148,8 @@ function create_message_panel(msg) {
     
     var mh = $('<div></div>');
     mh.addClass('mh');
-    mh.append("<div><img src='" + msg.data.ucover + "'/><div>" + msg.data.uname + "</div></div>")
+    mh.append(sn.ui.cover(msg.data.ucover));
+    mh.append('<div>' + msg.data.uname + '</div>');
     
     var mb = $('<div></div>');
     mb.addClass('mb');

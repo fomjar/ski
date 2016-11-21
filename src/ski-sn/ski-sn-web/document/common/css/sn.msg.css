@@ -48,22 +48,17 @@
     background-color        : rgba(200, 200, 200, .9);
 }
 .sn .msg-panel .mc .mh {
-    height  : 3em;
-}
-.sn .msg-panel .mc .mh >div:nth-child(1) {
+    height          : 3em;
     padding         : .5em 1em;
     padding-bottom  : 0;
 }
-.sn .msg-panel .mc .mh >div:nth-child(1) * {
+.sn .msg-panel .mc .mh .cover {
     float   : left;
-}
-.sn .msg-panel .mc .mh >div:nth-child(1) img {
     width   : 2.5em;
     height  : 2.5em;
-            border-radius   : 1.25em;
-    -webkit-border-radius   : 1.25em;
 }
-.sn .msg-panel .mc .mh >div:nth-child(1) div {
+.sn .msg-panel .mc .mh >*:nth-child(2) {
+    float           : left;
     line-height     : 2.5em;
     padding-left    : .5em;
 }

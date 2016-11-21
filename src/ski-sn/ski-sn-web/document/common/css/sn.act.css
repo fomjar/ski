@@ -1,7 +1,8 @@
 
 
 .sn .act-panel {
-    padding : .3em;
+    padding         : .3em;
+    padding-bottom  : 0;
             transition      : opacity .5s;
     -webkit-transition      : opacity .5s;
 }
@@ -21,8 +22,6 @@
     float   : left;
     width   : 2.5em;
     height  : 2.5em;
-            border-radius   : 1.25em;
-    -webkit-border-radius   : 1.25em;
 }
 .sn .act-panel .ac >*:nth-child(2) {
     float       : left;

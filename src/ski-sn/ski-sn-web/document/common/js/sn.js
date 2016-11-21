@@ -28,8 +28,8 @@ sn.login_manually = function(phone, pass, success, failure) {
         sn.user  = desc;
         if (!sn.user.cover) sn.user.cover = 'res/user.png';
         
-        $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
-        $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
+        $('.sn .head .cover img').attr('src', sn.user.cover);
+        $('.sn .head >*:nth-child(2)').text(sn.user.name);
         $('.sn .head .cover').unbind('click');
         $('.sn .head .cover').bind('click', sn.ui.detail);
 
@@ -57,8 +57,8 @@ sn.login_automatic = function() {
             sn.user  = desc;
             if (!sn.user.cover) sn.user.cover = 'res/user.png';
             
-            $('.sn .head .cover >*:nth-child(1)').attr('src', sn.user.cover);
-            $('.sn .head .cover >*:nth-child(2)').text(sn.user.name);
+            $('.sn .head .cover img').attr('src', sn.user.cover);
+            $('.sn .head >*:nth-child(2)').text(sn.user.name);
             $('.sn .head .cover').unbind('click');
             $('.sn .head .cover').bind('click', sn.ui.detail);
             
@@ -127,10 +127,10 @@ function build_user_cover() {
     var cover = $('<div></div>');
     cover.addClass('cover');
     cover.append("<img src='res/user.png' />");
-    cover.append('<div>登录 / 注册</div>');
+    cover.bind('click', sn.ui.login);
     
     $('.sn .head').append(cover);
-    cover.bind('click', sn.ui.login);
+    $('.sn .head').append('<div>登录 / 注册</div>');
 }
 
 function build_user_state() {

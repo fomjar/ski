@@ -271,6 +271,13 @@ sn.ui.choose_image = function(size, success, failure) {
     return div;
 };
 
+sn.ui.cover = function(src) {
+    var div = $('<div></div>');
+    div.addClass('cover');
+    div.append("<img src='" + src + "' />");
+    return div;
+}
+
 
 sn.ui.scroll = function(div, begin, end, top, bottom, timeout) {
     div.scrolling = false;
@@ -434,7 +441,7 @@ sn.ui.logout = function() {
     sn.uid = null;
     sn.user = null;
     $('.sn .head .cover img').attr('src', 'res/user.png');
-    $('.sn .head .cover div').text('登录 / 注册');
+    $('.sn .head >*:nth-child(2)').text('登录 / 注册');
     $('.sn .head .cover').unbind('click');
     $('.sn .head .cover').bind('click', sn.ui.login);
     
@@ -795,7 +802,7 @@ function create_user_detail_name(dialog, page) {
                 sn.ui.toast('修改姓名成功');
                 sn.user.name = div.find('input').val();
                 page.page_get('信息').find('.pair:nth-child(1) div:nth-child(2)').text(sn.user.name);
-                $('.sn .head .cover div').text(sn.user.name);
+                $('.sn .head >*:nth-child(2)').text(sn.user.name);
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);
