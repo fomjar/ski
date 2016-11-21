@@ -576,13 +576,13 @@ public class BcsTask implements FjServer.FjServerTask {
     }
     
     private void requestUpdateActivity(FjDscpMessage request) {
-        if (!illegalArgs(request, "owner", "lat", "lng", "title")) return;
-        
         JSONObject args = request.argsToJsonObject();
-        double  lat     = args.getDouble("lat");
-        double  lng     = args.getDouble("lng");
-        String  geohash = GeoHash.encode(lat, lng);
-        args.put("geohash", geohash);
+        if (args.has("lat") && args.has("lng")) {
+            double  lat     = args.getDouble("lat");
+            double  lng     = args.getDouble("lng");
+            String  geohash = GeoHash.encode(lat, lng);
+            args.put("geohash", geohash);
+        }
         
         CommonService.requesta("cdb", request.sid(), CommonDefinition.ISIS.INST_UPDATE_ACTIVITY, args);
         catchResponse(request);

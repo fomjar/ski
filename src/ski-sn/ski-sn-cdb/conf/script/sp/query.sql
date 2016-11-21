@@ -375,7 +375,7 @@ insert into tbl_instruction (
     (conv('0000200A', 16, 10) + 0),
     'st',
     7,
-    "select p.i_aid, u.i_uid, u.c_name, u.c_cover, u.i_gender, p.i_arsn, p.t_time from tbl_activity_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid"
+    "select p.i_aid, u.i_uid, u.c_name, u.c_name, u.i_gender, p.i_arsn, p.t_time from tbl_activity_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid"
 );
 
 -- INST_QUERY_ACTIVITY_MODULE      = 0x0000200B
@@ -447,7 +447,7 @@ insert into tbl_instruction (
     (conv('0000200F', 16, 10) + 0),
     'st',
     9,
-    "select p.i_aid, p.i_amsn, p.i_amvisn, u.i_uid, u.c_name, u.c_cover, u.i_gender, p.i_result, p.t_time from tbl_activity_module_vote_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid and p.i_amsn = $amsn order by p.t_time"
+    "select p.i_aid, p.i_amsn, p.i_amvisn, u.i_uid, u.c_name, u.c_name, u.i_gender, p.i_result, p.t_time from tbl_activity_module_vote_player p, tbl_user u where p.i_uid = u.i_uid and p.i_aid = $aid and p.i_amsn = $amsn order by p.t_time"
 );
 
 

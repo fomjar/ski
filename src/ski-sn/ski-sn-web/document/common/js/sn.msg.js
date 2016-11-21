@@ -459,7 +459,6 @@ function create_new_message_panel(dialog) {
             div_sen.removeClass('button-disable');
             if (0 == code) {
                 dialog.disappear();
-                load_message(0, MSG_COUNT_FIRST);
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);

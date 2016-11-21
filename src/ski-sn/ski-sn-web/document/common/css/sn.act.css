@@ -47,7 +47,7 @@
 .sn .act-panel .ac .image {
     max-width   : 100%;
     max-height  : 10em;
-    margin-top  : .5em;
+    margin      : .5em 0;
 }
 
 .sn .act-detail {
@@ -65,12 +65,13 @@
 }
 .sn .act-detail .roles {
     text-align  : center;
-}
-.sn .act-detail .roles {
     margin-top  : 1em;
 }
 .sn .act-detail .roles >div {
     margin  : 0 1em;
+}
+.sn .act-detail .vote {
+    margin-top  : 1em;
 }
 .sn .act-detail .vote >*:nth-child(1) {
     font-size   : 1.2em;

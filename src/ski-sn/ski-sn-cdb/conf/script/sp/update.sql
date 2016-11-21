@@ -1055,16 +1055,16 @@ create procedure sp_update_activity_module_vote_item (
     in  aid     integer,
     in  amsn    tinyint,
     in  amvisn  tinyint,
-    in  arg0    varchar(32),
-    in  arg1    varchar(32),
-    in  arg2    varchar(32),
-    in  arg3    varchar(32),
-    in  arg4    varchar(32),
-    in  arg5    varchar(32),
-    in  arg6    varchar(32),
-    in  arg7    varchar(32),
-    in  arg8    varchar(32),
-    in  arg9    varchar(32)
+    in  arg0    mediumtext,
+    in  arg1    mediumtext,
+    in  arg2    mediumtext,
+    in  arg3    mediumtext,
+    in  arg4    mediumtext,
+    in  arg5    mediumtext,
+    in  arg6    mediumtext,
+    in  arg7    mediumtext,
+    in  arg8    mediumtext,
+    in  arg9    mediumtext
 )
 begin
 

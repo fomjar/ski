@@ -173,16 +173,16 @@ create table tbl_activity_module_vote_item (
     i_aid       integer,
     i_amsn      tinyint,
     i_amvisn    tinyint,
-    c_arg0      varchar(32),
-    c_arg1      varchar(32),
-    c_arg2      varchar(32),
-    c_arg3      varchar(32),
-    c_arg4      varchar(32),
-    c_arg5      varchar(32),
-    c_arg6      varchar(32),
-    c_arg7      varchar(32),
-    c_arg8      varchar(32),
-    c_arg9      varchar(32)
+    c_arg0      mediumtext,
+    c_arg1      mediumtext,
+    c_arg2      mediumtext,
+    c_arg3      mediumtext,
+    c_arg4      mediumtext,
+    c_arg5      mediumtext,
+    c_arg6      mediumtext,
+    c_arg7      mediumtext,
+    c_arg8      mediumtext,
+    c_arg9      mediumtext
 );
 
 -- 活动模块 - 投票项投票人

@@ -69,6 +69,29 @@ sn.act.wrap = function(data) {
         return result;
     };
     
+
+    wrap_module(activity);
+    
+    var panel = create_activity_panel(activity);
+    var detail = create_activity_detail(activity);
+    activity.ui = {};
+    activity.ui.panel = panel;
+    activity.ui.detail = detail;
+    
+    panel.bind('click', function() {
+        if (!sn.user) {
+            sn.ui.login();
+            return;
+        }
+        var dialog = sn.ui.dialog();
+        dialog.append(activity.ui.detail);
+        dialog.appear();
+    });
+    
+    return activity;
+};
+
+function wrap_module(activity) {
     $.each(activity.data.modules, function(i, module) {
         module.readable = function() {
             var privilege = activity.data.getPrivilege(module.amsn);
@@ -107,25 +130,7 @@ sn.act.wrap = function(data) {
             break;
         }
     });
-    
-    var panel = create_activity_panel(activity);
-    var detail = create_activity_detail(activity);
-    activity.ui = {};
-    activity.ui.panel = panel;
-    activity.ui.detail = detail;
-    
-    panel.bind('click', function() {
-        if (!sn.user) {
-            sn.ui.login();
-            return;
-        }
-        var dialog = sn.ui.dialog();
-        dialog.append(activity.ui.detail);
-        dialog.appear();
-    });
-    
-    return activity;
-};
+}
 
 
 function create_activity_panel(activity) {
@@ -138,9 +143,11 @@ function create_activity_panel(activity) {
     ac.append('<div>' + activity.data.uname + '</div>')
     ac.append('<div>' + activity.data.acreate.substring(5, 16) + '</div>');
     ac.append('<div>' + activity.data.player + '人已参与</div>');
-    ac.append('<div>' + activity.data.atitle + '</div>');
+    ac.append('<div>[' + (activity.data.astate == 0 ? '未开始' : activity.data.astate == 1 ? '已开始' : '已结束') + '] ' + activity.data.atitle + '</div>');
     if (activity.data.atext)        ac.append('<div>' + activity.data.atext + '</div>');
-    if (activity.data.aimage)       ac.append("<img class='image' src='" + activity.data.aimage + "' />");
+    var img = $("<img class='image' src='" + (activity.data.aimage ? activity.data.aimage : '') + "' />");
+    sn.ui.browse(img);
+    ac.append(img);
     if (activity.data.abegin)       ac.append('<div>开始: ' + activity.data.abegin + '</div>');
     if (activity.data.aend)         ac.append('<div>结束: ' + activity.data.aend + '</div>');
     
@@ -157,52 +164,52 @@ function create_activity_detail(activity) {
     div.append(create_activity_panel(activity));
     
     var mods = $('<div></div>');
-    if (!activity.data.role()) {
-        div.append('<div>正确选择你的角色</div>');
-        var roles = $('<div></div>');
-        roles.addClass('roles');
-        $.each(activity.data.roles, function(i, role) {
-            if (1 != role.apply) return;
-            
-            var div_rol = $("<div class='button'>" + role.name + "</div>");
-            roles.append(div_rol);
-            div_rol.bind('click', function() {
-                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_PLAYER, {
-                    aid     : activity.data.aid,
-                    uid     : sn.uid,
-                    arsn    : role.arsn
-                }, function(code, desc) {
-                    if (0 != code) {
-                        dialog.shake();
-                        sn.ui.toast(desc);
-                        return;
-                    }
-                    
-                    activity.data.players.push({
-                        aid     : activity.data.aid,
-                        uid     : sn.uid,
-                        arsn    : role.arsn
-                    });
-                    sn.ui.toast('选择成功');
-                    roles.remove();
-    
-                    $.each(activity.data.modules, function(i, module) {
-                        if (!module.readable()) return true;
-                        
-                        switch (module.type) {
-                        case 1: {
-                            mods.append(create_activity_detail_vote(activity, module));
-                            break;
-                        }
-                        }
-                    });
-                });
-            });
-        });
-        div.append(roles);
-    } else {
+//     if (!activity.data.role()) {
+//         div.append('<div>正确选择你的角色</div>');
+//         var roles = $('<div></div>');
+//         roles.addClass('roles');
+//         $.each(activity.data.roles, function(i, role) {
+//             if (1 != role.apply) return;
+//             
+//             var div_rol = $("<div class='button'>" + role.name + "</div>");
+//             roles.append(div_rol);
+//             div_rol.bind('click', function() {
+//                 fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_PLAYER, {
+//                     aid     : activity.data.aid,
+//                     uid     : sn.uid,
+//                     arsn    : role.arsn
+//                 }, function(code, desc) {
+//                     if (0 != code) {
+//                         dialog.shake();
+//                         sn.ui.toast(desc);
+//                         return;
+//                     }
+//                     
+//                     activity.data.players.push({
+//                         aid     : activity.data.aid,
+//                         uid     : sn.uid,
+//                         arsn    : role.arsn
+//                     });
+//                     sn.ui.toast('选择成功');
+//                     roles.remove();
+//     
+//                     $.each(activity.data.modules, function(i, module) {
+//                         if (!module.readable()) return true;
+//                         
+//                         switch (module.type) {
+//                         case 1: {
+//                             mods.append(create_activity_detail_vote(activity, module));
+//                             break;
+//                         }
+//                         }
+//                     });
+//                 });
+//             });
+//         });
+//         div.append(roles);
+//     } else {
         $.each(activity.data.modules, function(i, module) {
-            if (!module.readable()) return true;
+//             if (!module.readable()) return true;
             
             switch (module.type) {
             case 1: {
@@ -211,13 +218,137 @@ function create_activity_detail(activity) {
             }
             }
         });
-    }
+        setInterval(function() {
+            if (activity.data.astate == 1 && div.is(':visible')) {
+                sn.ui.toast('正在刷新投票结果');
+                
+                fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE, {
+                    aid : activity.data.aid
+                }, function(code, desc) {
+                    if (0 != code) {
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    activity.data.modules = desc;
+                    
+                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE, {
+                        aid : activity.data.aid
+                    }, function(code, desc) {
+                        if (0 != code) {
+                            sn.ui.toast(desc);
+                            return;
+                        }
+                        $.each(activity.data.modules, function(i, m) {
+                            var ps = [];
+                            $.each(desc, function(i, p) {
+                                if (m.amsn == p.amsn) ps.push(p);
+                            });
+                            m.privilege = ps;
+                    
+                            switch (m.type) {
+                            case 1: {
+                                fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE, {
+                                    aid     : activity.data.aid,
+                                    amsn    : m.amsn
+                                }, function(code, desc) {
+                                    if (0 != code) {
+                                        sn.ui.toast(desc);
+                                        return;
+                                    }
+                                    m.vote = desc[0];
+                                    
+                                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM, {
+                                        aid     : activity.data.aid,
+                                        amsn    : m.amsn
+                                    }, function(code, desc) {
+                                        if (0 != code) {
+                                            sn.ui.toast(desc);
+                                            return;
+                                        }
+                                        m.vote.items = desc;
+                                        
+                                        fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER, {
+                                            aid     : activity.data.aid,
+                                            amsn    : m.amsn
+                                        }, function(code, desc) {
+                                            if (0 != code) {
+                                                sn.ui.toast(desc);
+                                                return;
+                                            }
+                                            m.vote.players = desc;
+                                            
+                                            wrap_module(activity);
+                                            mods.children().remove();
+                                            $.each(activity.data.modules, function(i, module) {
+                                    //             if (!module.readable()) return true;
+                                                
+                                                switch (module.type) {
+                                                case 1: {
+                                                    mods.append(create_activity_detail_vote(activity, module));
+                                                    break;
+                                                }
+                                                }
+                                            });
+                                        });
+                                    });
+                                });
+                                break;
+                            }
+                            }
+                        });
+                    });
+                });
+            }
+        }, 5000);
+//     }
     div.append(mods);
-    var close = $("<div class='button'>关闭</div>");
-    close.bind('click', function() {dialog.disappear()});
     var buttons = $('<div></div>');
     buttons.addClass('btns');
-    buttons.append(close);
+    var back = $("<div class='button'>返回</div>");
+    back.bind('click', function() {dialog.disappear()});
+    buttons.append(back);
+    if (sn.uid == activity.data.owner) {
+        switch (activity.data.astate) {
+        case 0: // 初始化
+            var open = $("<div class='button'>开启活动</div>");
+            open.bind('click', function() {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
+                    aid     : activity.data.aid,
+                    state   : 1
+                }, function(code, desc) {
+                    if (0 != code) {
+                        sn.ui.dialog().shake();
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    open.remove();
+                });
+            });
+            buttons.append(open);
+            break;
+        case 1: { // 开始
+            var close = $("<div class='button'>关闭活动</div>");
+            close.bind('click', function() {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
+                    aid     : activity.data.aid,
+                    state   : 2
+                }, function(code, desc) {
+                    if (0 != code) {
+                        sn.ui.dialog().shake();
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    close.remove();
+                });
+            });
+            buttons.append(close);
+            break;
+        }
+        case 2: { // 关闭
+            break;
+        }
+        }
+    }
     div.append(buttons);
     return div;
 }
@@ -236,12 +367,33 @@ function create_activity_detail_vote(activity, module) {
         div_ite.append('<div>' + item.arg0 + '</div>'); // name
         div_ite.append('<div>(' + item.value + ', ' + item.percentage().toFixed(1) + '%)</div>')
         
+        sn.ui.browse(div_ite.find('img'));
         div_ite.find('>*:nth-child(1)').css('width', item.percentage().toFixed(1) + '%');
         
-        if (module.writable() && !module.vote.voted) {
+//         if (module.writable() && !module.vote.voted) {
+        if (activity.data.astate == 1 && !module.vote.voted) {
             var div_vot = $("<div class='button'>投票</div>");
             div_ite.append(div_vot);
             div_vot.bind('click', function() {
+                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_PLAYER, {
+                    aid     : activity.data.aid,
+                    uid     : sn.uid,
+                    arsn    : 0
+//                     arsn    : role.arsn
+                }, function(code, desc) {
+                    if (0 != code) {
+                        dialog.shake();
+                        sn.ui.toast(desc);
+                        return;
+                    }
+                    
+                    activity.data.players.push({
+                        aid     : activity.data.aid,
+                        uid     : sn.uid,
+                        arsn    : 0
+                    });
+                });
+                
                 fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_MODULE_VOTE_PLAYER, {
                     aid     : activity.data.aid,
                     amsn    : module.amsn,
@@ -395,7 +547,10 @@ function create_activity_role(name) {
     div.append("<input type='checkbox' checked='checked' >");
     div.append('<label>开放申请</label>');
     
-    if (name) div.find('>*:nth-child(2)').val(name);
+    if (name) {
+        div.find('>*:nth-child(2)').val(name);
+        div.find('>*:nth-child(3)').val(9999);
+    }
     
     div.find('.button').bind('click', function() {div.remove();});
     
@@ -440,7 +595,7 @@ function create_activity_module(dialog, pages, activity) {
 }
 
 function create_activity_module_privilege(activity) {
-    var div = $('<div></div>');
+    var div = $("<div style='display : none'></div>");
     div.addClass('act-mod-pvl');
     
     div.onappear = function() {
@@ -464,7 +619,7 @@ function create_activity_module_vote(dialog, pages, activity) {
     var div_ite = $('<div></div>');
     div_ite.addClass('act-mod-vote-items');
     div.append(div_ite);
-    div.append("<div>模块 - 权限</div>");
+    div.append("<div style='display : none'>模块 - 权限</div>");
     var div_pvl = create_activity_module_privilege(activity);
     div.append(div_pvl);
     div.append("<div><div class='button'>返回</div><div class='button button-default'>确认</div></div>");
