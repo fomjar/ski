@@ -333,7 +333,7 @@ function create_message_detail(msg) {
             
             switch (f.type) {
             case ATTITUDE_UP:
-                focus_up.append("<img src='" + f.ucover + "' />");
+                focus_up.append(sn.ui.cover(f.ucover));
                 break;
 //             case ATTITUDE_DOWN:
 //                 focus_down.append("<img src='" + f.ucover + "' />");

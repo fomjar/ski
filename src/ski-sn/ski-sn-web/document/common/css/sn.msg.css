@@ -196,13 +196,11 @@
 .sn .msg-detail .ct .focus >div:nth-child(2), .sn .msg-detail .focus >div:nth-child(4) {
     padding-bottom : .8em;
 }
-.sn .msg-detail .ct .focus img {
+.sn .msg-detail .ct .focus .cover {
     width           : 2.2em;
     height          : 2.2em;
     margin-top      : .2em;
     margin-right    : .2em;
-            border-radius   : 1.1em;
-    -webkit-border-radius   : 1.1em;
 }
 .sn .msg-detail .ct .reply >*:nth-child(1) {
     float   : left;

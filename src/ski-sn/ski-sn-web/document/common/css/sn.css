@@ -74,7 +74,7 @@ body {overflow : hidden;}
 .sn .list .pair {height : 2.5em;}
 .sn .list .pair >*:nth-child(1) {float : left;}
 .sn .list .pair >*:nth-child(2) {float : right;}
-.sn .cover {position : relative; overflow : hidden; border-radius : 50%; -webkit-border-radius : 50%;}
+.sn .cover {display : inline-block; position : relative; overflow : hidden; border-radius : 50%; -webkit-border-radius : 50%;}
 .sn .cover img {position : absolute; width : 100%; top : 50%; left : 50%; vertical-align : middle; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
 
 /* apperence */
