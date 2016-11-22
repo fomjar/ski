@@ -267,7 +267,7 @@ fomjar.net = {
             data = {};
         }
         
-        var interval = 200;
+        var interval = 100;
         var lasttime = fomjar.net.time;
         var currtime = new Date().getTime();
         var delay = currtime - lasttime >= interval ? 0 : interval - (currtime - lasttime);

@@ -310,8 +310,7 @@ begin
                 '\'\t', ifnull(a.c_image, ''),
                 '\'\t', a.c_begin,
                 '\'\t', a.c_end,
-                '\'\t', a.i_state,
-                '\'\t', (select count(1) from tbl_activity a, tbl_activity_player p where a.i_aid = p.i_aid and left(a.c_geohash, 4) = left(geohash, 4)))
+                '\'\t', a.i_state)
                order by a.t_create desc
                separator '\'\n')
           into c_desc
@@ -332,8 +331,7 @@ begin
                 '\'\t', ifnull(a.c_image, ''),
                 '\'\t', a.c_begin,
                 '\'\t', a.c_end,
-                '\'\t', a.i_state,
-                '\'\t', (select count(1) from tbl_activity a, tbl_activity_player p where a.i_aid = p.i_aid and left(a.c_geohash, 4) = left(geohash, 4)))
+                '\'\t', a.i_state)
                order by a.t_create desc
                separator '\'\n')
           into c_desc

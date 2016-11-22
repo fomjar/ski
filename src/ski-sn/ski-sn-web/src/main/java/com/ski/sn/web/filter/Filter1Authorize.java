@@ -88,6 +88,7 @@ public class Filter1Authorize extends FjWebFilter {
     private static String[] document_exclude = new String[] {
             "/",
             "/index.html",
+            "/protocol.html",
             "/404.html",
     };
     

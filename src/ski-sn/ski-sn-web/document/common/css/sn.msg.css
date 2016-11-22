@@ -1,5 +1,26 @@
 
 
+.sn .first-send {
+    padding : 0 2em;
+}
+.sn .first-send h2 {
+    text-align  : center;
+}
+.sn .first-send img {
+    width   : 1em;
+    height  : 1em;
+    margin  : 0 .5em;
+    border : 1px solid gray;
+    vertical-align  : middle;
+}
+.sn .first-send >div {
+    position    : absolute;
+    left        : 0;
+    bottom      : 1em;
+    width       : 100%;
+    text-align  : center;
+}
+.sn .first-send >div .button {margin : 0 1em;}
 
 .sn .dialog-msg-new {
     height      : 10em;

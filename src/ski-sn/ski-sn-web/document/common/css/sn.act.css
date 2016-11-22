@@ -30,12 +30,12 @@
 }
 .sn .act-panel .ac >*:nth-child(3) {
     text-align  : right;
-    font-size   : .8em;
+    font-size   : .9em;
     color       : gray;
 }
 .sn .act-panel .ac >*:nth-child(4) {
     text-align  : right;
-    font-size   : .8em;
+    font-size   : .9em;
     color       : gray;
 }
 .sn .act-panel .ac >*:nth-child(5) {
@@ -85,6 +85,9 @@
 .sn .act-detail .vote .items >div >*:nth-child(1) {
     background  : rgba(0, 120, 0, .2);
     height      : 3em;
+    width       : 0;
+            transition  : width .2s;
+    -webkit-transition  : width .2s;
 }
 .sn .act-detail .vote .items >div >*:nth-child(2) {
     position    : absolute;
@@ -114,10 +117,12 @@
     padding-left    : 3em;
     line-height     : 2em;
     background-color: lightgray;
+            border-radius   : 0;
+    -webkit-border-radius   : 0;
 }
 .sn .act-detail .btns {
     text-align  : center;
-    marign-top  : 2em;
+    margin-top  : 2em;
 }
 .sn .act-detail .btns >* {
     margin  : .5em 1em;

@@ -4,6 +4,23 @@
 sn.msg = {};
 sn.msg.data = [];
 
+sn.msg.load = function(pos, len, cb) {
+    if (!sn.location) return;
+    if (!sn.uid) {
+        sn.uid = new Date().getTime();
+        fomjar.util.cookie('uid', sn.uid);
+    }
+    fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE, {
+        lat : sn.location.point.lat,
+        lng : sn.location.point.lng,
+        pos : pos,
+        len : len
+    }, function(code, desc) {
+        if (0 != code) sn.ui.toast(desc);
+        cb(desc);
+    });
+};
+
 var ATTITUDE_NONE   = 0;
 var ATTITUDE_UP     = 1;
 var ATTITUDE_DOWN   = 2;
@@ -133,9 +150,13 @@ sn.msg.wrap = function(data) {
 
 sn.msg.new = function() {
     var dialog = sn.ui.dialog();
-    dialog.addClass('dialog-msg-new');
-    dialog.append(create_new_message_panel(dialog));
-    dialog.appear();
+    if (!sn.config('first_send')) {
+        show_first_send(dialog);
+    } else {
+        dialog.addClass('dialog-msg-new');
+        dialog.append(create_new_message_panel(dialog));
+        dialog.appear();
+    }
 }
 
 function create_message_panel(msg) {
@@ -408,6 +429,30 @@ function load_message_reply(msg) {
         
         msg.ui.detail.onreplyer(desc);
     });
+}
+
+function show_first_send(dialog) {
+    var div = $('<div></div>');
+    div.addClass('first-send');
+    div.append('<h2>声呐礼仪</h2>');
+    div.append("<p><b>收获<img src='res/msg-up.png' />:</b>发周围小伙伴都喜欢的消息会获得<img src='res/msg-up.png' />。<img src='res/msg-up.png' />的越多，就会有更多人看到！</p>");
+    div.append("<p><b>不要被<img src='res/msg-down.png' />:</b>如果消息其他人不喜欢／觉得不合适会获得<img src='res/msg-down.png' />。<img src='res/msg-down.png' />收到一定数量，您的消息会被删除哦</p>");
+    div.append("<p><b>请不要</b>针对其他小伙伴，进行人身攻击，隐私曝光</p>");
+    div.append("<p><b>请不要</b>发广告，或者重复发消息刷屏</p>");
+    div.append("<div><div class='button'>拒绝</div><div class='button button-default'>接受</div></div>");
+    
+    dialog.append(div);
+    dialog.appear();
+    
+    div.find('>div .button:nth-child(1)').bind('click', function() {
+        dialog.disappear();
+    });
+    div.find('>div .button:nth-child(2)').bind('click', function() {
+        sn.config('first_send', 'true');
+        dialog.addClass('dialog-msg-new');
+        dialog.children().remove();
+        dialog.append(create_new_message_panel(dialog));
+    })
 }
 
 function create_new_message_panel(dialog) {

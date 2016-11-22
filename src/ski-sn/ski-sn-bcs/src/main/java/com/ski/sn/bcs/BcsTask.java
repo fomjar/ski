@@ -678,7 +678,6 @@ public class BcsTask implements FjServer.FjServerTask {
             activity.put("abegin",  fields[i++]);
             activity.put("aend",    fields[i++]);
             activity.put("astate",  Integer.parseInt(fields[i++]));
-            activity.put("player",  Integer.parseInt(fields[i++]));
             desc_rsp.add(activity);
         }
         args.put("desc", desc_rsp);

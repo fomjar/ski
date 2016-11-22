@@ -1,14 +1,22 @@
 
 var sn = {};
-sn.token    = (function() {var token = fomjar.util.cookie('token'); return token && 0 < token.length ? token : undefined;})();
-sn.uid      = (function() {var uid = fomjar.util.cookie('uid'); return uid && 0 < uid.length ? parseInt(uid) : undefined;})();
+sn.config = function(key, val) {
+    if (val) {
+        return fomjar.util.cookie(key, val);
+    } else {
+        val = fomjar.util.cookie(key);
+        if (val && 0 < val.length) return val;
+        else return undefined;
+    }
+}
+sn.token    = sn.config('token');
+sn.uid      = parseInt(sn.config('uid'));
 // sn.user      = {};
 // sn.location  = {};
 sn.stub             = {};
 sn.stub.login       = [];
 sn.stub.logout      = [];
 sn.stub.locate      = [];
-
 
 sn.login_manually = function(phone, pass, success, failure) {
     fomjar.net.send(ski.ISIS.INST_APPLY_AUTHORIZE, {
@@ -124,13 +132,12 @@ function build_head() {
 }
 
 function build_user_cover() {
-    var cover = $('<div></div>');
-    cover.addClass('cover');
-    cover.append("<img src='res/user.png' />");
-    cover.bind('click', sn.ui.login);
-    
-    $('.sn .head').append(cover);
+    $('.sn .head').append("<div class='cover'><img src='res/user.png' /></div>");
     $('.sn .head').append('<div>登录 / 注册</div>');
+    $('.sn .head').find('>*:nth-child(1)').bind('click', sn.ui.login);
+    $('.sn .head').find('>*:nth-child(2)').bind('click', function() {
+        $('.sn .head').find('>*:nth-child(1)').trigger('click');
+    });
 }
 
 function build_user_state() {

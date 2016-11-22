@@ -110,157 +110,50 @@ function animate_done() {
 
 function load_activity() {
     if (!sn.location) return;
-    if (loading) return;
     
-    if (!sn.uid) {
-        sn.uid = new Date().getTime();
-        fomjar.util.cookie('uid', sn.uid);
-    }
-    
-    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY, {
-        lat : sn.location.point.lat,
-        lng : sn.location.point.lng
-    }, function(code, desc) {
-        if (0 != code) {
-            sn.ui.toast(desc);
-            return;
-        }
+    sn.act.data = [];
+    sn.act.load(function(activities) {
         var delay = 0;
-        $.each(desc, function(i, data) {
-            var activity = data;
-            
-            fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_ROLE, {
-                aid : activity.aid
-            }, function(code, desc) {
-                if (0 != code) {
-                    sn.ui.toast(desc);
-                    return;
+        $.each(activities, function(i, data) {
+            var exist = false;
+            $.each(sn.act.data, function(i, a0) {
+                if (data.aid == a0.data.aid) {
+                    exist = true;
+                    return false;
                 }
-                activity.roles = desc;
-                
-                fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_PLAYER, {
-                    aid : activity.aid
-                }, function(code, desc) {
-                    if (0 != code) {
-                        sn.ui.toast(desc);
-                        return;
-                    }
-                    activity.players = desc;
-                    
-                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE, {
-                        aid : activity.aid
-                    }, function(code, desc) {
-                        if (0 != code) {
-                            sn.ui.toast(desc);
-                            return;
-                        }
-                        activity.modules = desc;
-                        
-                        fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_PRIVILEGE, {
-                            aid : activity.aid
-                        }, function(code, desc) {
-                            if (0 != code) {
-                                sn.ui.toast(desc);
-                                return;
-                            }
-                            $.each(activity.modules, function(i, m) {
-                                var ps = [];
-                                $.each(desc, function(i, p) {
-                                    if (m.amsn == p.amsn) ps.push(p);
-                                });
-                                m.privilege = ps;
-                        
-                                switch (m.type) {
-                                case 1: {
-                                    fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE, {
-                                        aid     : activity.aid,
-                                        amsn    : m.amsn
-                                    }, function(code, desc) {
-                                        if (0 != code) {
-                                            sn.ui.toast(desc);
-                                            return;
-                                        }
-                                        m.vote = desc[0];
-                                        
-                                        fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_ITEM, {
-                                            aid     : activity.aid,
-                                            amsn    : m.amsn
-                                        }, function(code, desc) {
-                                            if (0 != code) {
-                                                sn.ui.toast(desc);
-                                                return;
-                                            }
-                                            m.vote.items = desc;
-                                            
-                                            fomjar.net.send(ski.ISIS.INST_QUERY_ACTIVITY_MODULE_VOTE_PLAYER, {
-                                                aid     : activity.aid,
-                                                amsn    : m.amsn
-                                            }, function(code, desc) {
-                                                if (0 != code) {
-                                                    sn.ui.toast(desc);
-                                                    return;
-                                                }
-                                                m.vote.players = desc;
-                                            
-                                                var act = sn.act.wrap(data);
-                                                sn.act.data.push(act);
-                                                
-                                                setTimeout(function() {
-                                                    act.ui.panel.css('opacity', '0');
-                                                    $('.sn .body').prepend(act.ui.panel);
-                                                    setTimeout(function() {act.ui.panel.css('opacity', '1');}, 0);
-                                                }, delay);
-                                                
-                                                delay += 50;
-                                            });
-                                        });
-                                    });
-                                    break;
-                                }
-                                }
-                            });
-                        });
-                    });
-                });
             });
+            if (exist) return true;
+            
+            var act = sn.act.wrap(data);
+            sn.act.data.push(act);
+            setTimeout(function() {
+                act.ui.panel.css('opacity', '0');
+                $('.sn .body').prepend(act.ui.panel);
+                setTimeout(function() {act.ui.panel.css('opacity', '1');}, 0);
+            }, delay);
+            
+            delay += 50;
         });
     });
 }
 
 
-var loading = false;
-
 function load_message(pos, len) {
     if (!sn.location) return;
-    if (loading) return;
     
     sn.ui.toast('正在加载', 1000 * 10);
-    loading = true;
-    if (!sn.uid) {
-        sn.uid = new Date().getTime();
-        fomjar.util.cookie('uid', sn.uid);
-    }
     if (0 == pos) {
-        $('.sn .body').children().detach();
+        $('.sn .body').children().remove();
         sn.msg.data = [];
     }
-    fomjar.net.send(ski.ISIS.INST_QUERY_MESSAGE, {
-        lat : sn.location.point.lat,
-        lng : sn.location.point.lng,
-        pos : pos,
-        len : len
-    }, function(code, desc) {
-        loading = false;
-        if (0 != code) return;
-        
-        if (0 == desc.length) {
+    sn.msg.load(pos, len, function(msgs) {
+        if (0 == msgs.length) {
             sn.ui.toast('已没有消息');
             return;
         }
         sn.ui.toast('加载完成', 1000);
-        
         var delay = 0;
-        $.each(desc, function(i, data) {
+        $.each(msgs, function(i, data) {
             var exist = false;
             $.each(sn.msg.data, function(i, msg) {
                 if (msg.data.mid == data.mid) {
@@ -279,7 +172,7 @@ function load_message(pos, len) {
                 setTimeout(function() {msg.ui.panel.css('opacity', '1');}, 0);
             }, delay);
             
-            delay += 50;
+            delay += 100;
         });
     });
 }

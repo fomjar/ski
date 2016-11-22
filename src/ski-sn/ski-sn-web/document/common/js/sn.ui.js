@@ -462,6 +462,7 @@ function create_user_login(dialog) {
     page.page_append('注册-1',   create_user_register_1(dialog, page));
     page.page_append('注册-2',   create_user_register_2(dialog, page));
     page.page_append('注册-成功', create_user_register_done(dialog));
+    page.page_append('协议',     create_user_protocol(dialog, page));
     return page;
 }
 
@@ -533,6 +534,7 @@ function create_user_register_1(dialog, page) {
     var div_vco = div.find('>div:nth-child(4) input');
     var div_get = div.find('>div:nth-child(4) .button');
     var div_pas = div.find('>div:nth-child(5) input');
+    var div_pro = div.find('>div:nth-child(6) .button');
     var div_bac = div.find('>div:nth-child(7) .button:nth-child(1)');
     var div_nex = div.find('>div:nth-child(7) .button:nth-child(2)');
     
@@ -565,6 +567,7 @@ function create_user_register_1(dialog, page) {
             }
         });
     });
+    div_pro.bind('click', function() {page.page_set('协议');});
     div_bac.bind('click', function() {page.page_set('登录-1');});
     div_nex.bind('click', function() {
         var phone = div_pho.val();
@@ -702,6 +705,18 @@ function create_user_register_done(dialog) {
     return div;
 }
 
+function create_user_protocol(dialog, page) {
+    var iframe = $('<iframe></iframe>');
+    iframe.addClass('protocol');
+    iframe.attr('src', 'protocol.html');
+    var div = $('<div></div>');
+    div.append(iframe);
+    div.append("<div class='button'>返回</div>");
+    div.find('.button').bind('click', function() {
+        page.page_set('注册-1');
+    });
+    return div;
+}
 
 
 function create_user_detail(dialog) {
