@@ -44,8 +44,7 @@ function init_event() {
     // pull event
     sn.ui.pull($('.sn .body'),
         function() {    // down
-            load_activity();
-            load_message(0, MSG_COUNT_FIRST);
+            sn.msg.reload();
         },
         function() {},  // up
         80);
@@ -90,21 +89,23 @@ function animate() {
     });
 }
 
-function animate_done() {
+sn.msg.reload = function() {
     load_activity();
     load_message(0, MSG_COUNT_FIRST);
+};
+
+function animate_done() {
+    sn.msg.reload();
     
     if (sn.user) $('.sn .foot').addClass('foot-appear');
     
     sn.stub.login.push(function() {
         $('.sn .foot').addClass('foot-appear');
-        load_activity();
-        load_message(0, MSG_COUNT_FIRST);
+        sn.msg.reload();
     });
     sn.stub.logout.push(function() {
         $('.sn .foot').removeClass('foot-appear');
-        load_activity();
-        load_message(0, MSG_COUNT_FIRST);
+        sn.msg.reload();
     });
 }
 
@@ -136,7 +137,6 @@ function load_activity() {
         });
     });
 }
-
 
 function load_message(pos, len) {
     if (!sn.location) return;

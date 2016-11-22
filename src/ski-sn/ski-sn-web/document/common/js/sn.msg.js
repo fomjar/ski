@@ -491,6 +491,7 @@ function create_new_message_panel(dialog) {
         
         div_sen.doing = true;
         div_sen.addClass('button-disable');
+        sn.ui.toast('正在发送');
         
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
@@ -505,6 +506,7 @@ function create_new_message_panel(dialog) {
             div_sen.removeClass('button-disable');
             if (0 == code) {
                 dialog.disappear();
+                sn.msg.reload();
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);

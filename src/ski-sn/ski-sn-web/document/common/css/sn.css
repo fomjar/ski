@@ -234,8 +234,11 @@ body {overflow : hidden;}
 .sn .page .ol {opacity  : 0; left : -100%;}
 .sn .page .or {opacity  : 0; left : 100%;}
 .sn .page .in {opacity  : 1; left : 0;}
+.sn .choose-image {
+    background          : url('/res/camera.png') no-repeat center;
+    background-size     : 60%;
+}
 .sn .choose-image >img {
-    background-color    : white;
     border              : none; 
 }
 .sn .list {

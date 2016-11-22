@@ -782,6 +782,7 @@ function create_user_detail_cover(dialog, page) {
                 sn.user.cover = div.find('img').attr('src');
                 page.page_get('信息').find('img').attr('src', sn.user.cover);
                 $('.sn .head .cover img').attr('src', sn.user.cover);
+                page.page_set('信息');
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);
@@ -818,6 +819,7 @@ function create_user_detail_name(dialog, page) {
                 sn.user.name = div.find('input').val();
                 page.page_get('信息').find('.pair:nth-child(1) div:nth-child(2)').text(sn.user.name);
                 $('.sn .head >*:nth-child(2)').text(sn.user.name);
+                page.page_set('信息');
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);
@@ -903,6 +905,7 @@ function create_user_detail_phone(dialog, page) {
                 sn.ui.toast('修改电话成功');
                 sn.user.phone = div_pho.val();
                 page.page_get('信息').find('.pair:nth-child(2) div:nth-child(2)').text(sn.user.phone);
+                page.page_set('信息');
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);
@@ -970,6 +973,7 @@ function create_user_detail_pass(dialog, page) {
             if (0 == code) {
                 sn.ui.toast('修改密码成功');
                 sn.user.pass = pass_new1;
+                page.page_set('信息');
             } else {
                 dialog.shake();
                 sn.ui.toast(desc);

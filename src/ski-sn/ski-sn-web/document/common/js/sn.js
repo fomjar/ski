@@ -216,14 +216,14 @@ function watch_location() {
                     “Array”原型
                     “Object”原型
                 */
-                if (sn.user && (!sn.location || addr != sn.location.address)) {
+                if (!sn.location || addr != sn.location.address) {
                     var state_locate = sn.ui.state(1);
                     state_locate.find('>div').text(addr);
                     state_locate.find('>div').css('width', addr.length + 'em');
                     state_locate.flash();
                 }
                 sn.location = rs;
-                if (sn.user) sn.location.address = addr;
+                sn.location.address = addr;
                 
                 $.each(sn.stub.locate, function(i, f) {f(sn.location);});
             });
