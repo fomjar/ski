@@ -131,7 +131,7 @@ begin
                i_second = di_second,
                i_focus = di_focus,
                i_reply = di_reply,
-               i_weight = 0 - di_distance - di_second * 2 + di_focus * 50 + di_reply * 100
+               i_weight = 0 - di_distance - di_second * 2 + di_focus * 3600 + di_reply * 3600
          where c_mid = dc_mid;
 
         fetch rs_mid into dc_mid;

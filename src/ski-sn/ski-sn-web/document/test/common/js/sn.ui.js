@@ -36,6 +36,23 @@ sn.ui.mask = function() {
 sn.ui.dialog = function() {
     if (!sn.ui._dialog) {
         var div = $('.sn .dialog');
+        div.content = div.find('.content');
+        div.action = div.find('.action');
+        
+        div.action.add = function(data) {
+            var d = $('<div></div>');
+            d.addClass('button');
+            d.append(data);
+            div.action.append(d);
+            return d;
+        };
+        div.action.add_default = function(data) {
+            var d = div.action.add(data);
+            d.addClass('button-default');
+            return d;
+        };
+        div.action.clear = function(data) {div.action.children().remove();};
+        
         div.appear = function() {
             sn.ui.mask().appear();
             div.removeClass('dialog-appear');
@@ -57,29 +74,33 @@ sn.ui.dialog = function() {
             }, 0);
             sn.ui.mask().disappear();
             setTimeout(function() {
-                div.children().detach();
+                div.content.children().detach();
+                div.action.clear();
+                div.remove_close();
                 div.attr('class', '');
                 div.attr('style', '');
                 div.hide();
                 div.addClass('dialog');
             }, 200);
         };
-        div.addClose = function(title, onClose) {
+        div.add_close = function(title, cb) {
+            if (0 < div.find('.close').length) return;
+            
             var close = $('<div>' + title + '</div>');
             close.addClass('button');
             close.addClass('close');
             
-            if (null != onClose) {
+            if (null != cb) {
                 close.bind('click', function() {
                     div.disappear();
-                    onClose();
+                    cb();
                 });
             } else {
                 close.bind('click', function() {div.disappear();});
             }
             div.append(close);
         };
-        div.removeClose = function() {
+        div.remove_close = function() {
             div.find('.close').remove();
         };
         div.shake = function() {
@@ -87,7 +108,49 @@ sn.ui.dialog = function() {
             setTimeout(function() {
                 div.addClass('dialog-shake');
             }, 0);
-        }
+        };
+        div.h1 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('h1');
+            d.append(data);
+            return d;
+        };
+        div.h2 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('h2');
+            d.append(data);
+            return d;
+        };
+        div.h3 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('h3');
+            d.append(data);
+            return d;
+        };
+        div.p1 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('p1');
+            d.append(data);
+            return d;
+        };
+        div.p2 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('p2');
+            d.append(data);
+            return d;
+        };
+        div.t1 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('t1');
+            d.append(data);
+            return d;
+        };
+        div.t2 = function(data) {
+            var d = $('<div></div>');
+            d.addClass('t2');
+            d.append(data);
+            return d;
+        };
         sn.ui._dialog = div;
     }
     return sn.ui._dialog;
@@ -135,6 +198,7 @@ sn.ui.page = function() {
     var div = $('<div></div>');
     div.addClass('page');
     var pages = {};
+    var curr = null;
     
     div.page_get = function(title) {
         return pages[title];
@@ -142,7 +206,7 @@ sn.ui.page = function() {
     div.page_append = function(title, content) {
         pages[title] = content;
         if (0 == div.html().length) {
-            div.append('<div>' + title + '</div>');
+            curr = title;
             div.append(content);
             content.addClass('in');
             if (content.onappear) content.onappear();
@@ -174,6 +238,7 @@ sn.ui.page = function() {
         var i_old = div.page_index(t_old);
         var i_new = div.page_index(title);
         if (i_old == i_new) return;
+        curr = title;
         if (i_old > i_new) { // come in from left
             pages[title].removeClass('ol or in');
             pages[title].addClass('ol');
@@ -185,12 +250,7 @@ sn.ui.page = function() {
                 pages[title].removeClass('ol or in');
                 pages[title].addClass('in');
                 
-                div.page_title().css('opacity', '0');
                 setTimeout(function(){pages[t_old].detach();}, 300);
-                setTimeout(function() {
-                    div.page_title().text(title);
-                    div.page_title().css('opacity', '1');
-                }, 150);
             }, 0);
         } else { // come in from right
             pages[title].removeClass('ol or in');
@@ -203,23 +263,13 @@ sn.ui.page = function() {
                 pages[title].removeClass('ol or in');
                 pages[title].addClass('in');
                 
-                div.page_title().css('opacity', '0');
                 setTimeout(function(){pages[t_old].detach();}, 300);
-                setTimeout(function() {
-                    div.page_title().text(title);
-                    div.page_title().css('opacity', '1');
-                }, 150);
             }, 0);
         }
-        if (pages[title].onappear)    pages[title].onappear();
         if (pages[t_old].ondisappear) pages[t_old].ondisappear();
+        if (pages[title].onappear)    pages[title].onappear();
     };
-    div.page_title = function() {
-        return div.find('>div:nth-child(1)');
-    }
-    div.page_curr = function() {
-        return div.page_title().text();
-    };
+    div.page_curr = function() {return curr;};
     div.page_prev = function() {
         var i = div.page_index(div.page_curr());
         if (0 < i) return div.page_of_index(i - 1);
@@ -428,8 +478,9 @@ sn.ui.state = function(i) {
 
 sn.ui.login = function() {
     var dialog = sn.ui.dialog();
-    dialog.addClose('取消');
-    dialog.append(create_user_login(dialog));
+    dialog.addClass('dialog-login');
+    dialog.add_close('关闭');
+    dialog.content.append(create_user_login(dialog));
     dialog.appear();
 };
 
@@ -450,31 +501,30 @@ sn.ui.logout = function() {
 
 sn.ui.detail = function() {
     var dialog = sn.ui.dialog();
-    dialog.addClose('关闭');
-    dialog.append(create_user_detail(dialog));
+    dialog.add_close('关闭');
+    dialog.content.append(create_user_detail(dialog));
     dialog.appear();
 };
 
 
 function create_user_login(dialog) {
     var page = sn.ui.page();
-    page.page_append('登录-1',   create_user_login_1(dialog, page));
-    page.page_append('注册-1',   create_user_register_1(dialog, page));
-    page.page_append('注册-2',   create_user_register_2(dialog, page));
-    page.page_append('注册-成功', create_user_register_done(dialog));
-    page.page_append('协议',     create_user_protocol(dialog, page));
+    page.page_append('登录',      create_user_login_1(dialog, page));
+    page.page_append('注册-1',    create_user_register_1(dialog, page));
+    page.page_append('注册-2',    create_user_register_2(dialog, page));
+    page.page_append('注册-成功',  create_user_register_done(dialog));
+    page.page_append('协议',      create_user_protocol(dialog, page));
     return page;
 }
 
 function create_user_login_1(dialog, page) {
     var div = $('<div></div>');
-    div.addClass('page-login-1');
-    div.append('<div>登录</div>');
-    div.append('<div>输入要登录的账户的手机号码。</div>');
-    div.append("<div><input type='text' placeholder='手机号码' ></div>");
-    div.append("<div><input type='password' placeholder='密码' ></div>");
-    div.append("<div><div class='button button-default'>登录</div></div>");
-    div.append("<div><label>还没有声呐账户？<label><div class='button'>立即注册</div></div>");
+    div.append(dialog.h1('登录'));
+    div.append(dialog.t1('输入要登录的账户的手机号码。'));
+    div.append(dialog.p1("<input type='text' placeholder='手机号码' >"));
+    div.append(dialog.p1("<input type='password' placeholder='密码' >"));
+    div.append(dialog.p1("<div class='button button-default'>登录</div>"));
+    div.append(dialog.p2("还没有声呐账户？<div class='button'>立即注册</div>"));
     
     var div_pho = div.find('>div:nth-child(3) input');
     var div_pas = div.find('>div:nth-child(4) input');
@@ -522,21 +572,18 @@ var user_register = {};
 function create_user_register_1(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-register-1');
-    div.append('<div>注册</div>');
-    div.append('<div>声呐账户会开启很多权益。</div>');
-    div.append("<div><input type='text' placeholder='手机号码' ></div>");
-    div.append("<div><input type='text' placeholder='4位验证码' ><div class='button'>获取</div></div>");
-    div.append("<div><input type='password' placeholder='创建密码' ></div>");
-    div.append("<div>选择“下一步”即表示您同意<br/><div class='button'>声呐服务协议</div>。</div>");
-    div.append("<div><div class='button'>返回登录</div><div class='button button-default'>下一步</div></div>");
+    div.append(dialog.h1('注册'));
+    div.append(dialog.p1('声呐账户会开启很多权益。'));
+    div.append(dialog.p1("<input type='text' placeholder='手机号码' >"));
+    div.append(dialog.p1("<input type='text' placeholder='4位验证码' ><div class='button'>获取</div>"));
+    div.append(dialog.p1("<input type='password' placeholder='创建密码' >"));
+    div.append(dialog.p2("选择“下一步”即表示您同意<br/><div class='button'>声呐服务协议</div>。"));
     
     var div_pho = div.find('>div:nth-child(3) input');
     var div_vco = div.find('>div:nth-child(4) input');
     var div_get = div.find('>div:nth-child(4) .button');
     var div_pas = div.find('>div:nth-child(5) input');
     var div_pro = div.find('>div:nth-child(6) .button');
-    var div_bac = div.find('>div:nth-child(7) .button:nth-child(1)');
-    var div_nex = div.find('>div:nth-child(7) .button:nth-child(2)');
     
     div_get.bind('click', function() {
         var phone = div_pho.val();
@@ -568,45 +615,50 @@ function create_user_register_1(dialog, page) {
         });
     });
     div_pro.bind('click', function() {page.page_set('协议');});
-    div_bac.bind('click', function() {page.page_set('登录-1');});
-    div_nex.bind('click', function() {
-        var phone = div_pho.val();
-        var error = null;
-        if (error = check_phone(phone)) {
-            dialog.shake();
-            sn.ui.toast(error);
-            return;
-        }
-        var vcode = div_vco.val();
-        if (0 == vcode.length) {
-            dialog.shake();
-            sn.ui.toast('验证码不能为空');
-            return;
-        }
-        var pass = div_pas.val();
-        if (0 == pass.length) {
-            dialog.shake();
-            sn.ui.toast('密码不能为空');
-            return;
-        }
-        if (/'|"/.test(pass)) {
-            dialog.shake();
-            sn.ui.toast("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
-            return;
-        }
-        
-        fomjar.net.send(ski.ISIS.INST_APPLY_VERIFY, {type : 'phone', phone : phone, vcode : vcode}, function(code, desc) {
-            if (0 == code) {
-                user_register.phone = phone;
-                user_register.vcode = vcode;
-                user_register.pass  = pass;
-                page.page_to_next();
-            } else {
+    
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回登录').bind('click', function() {page.page_set('登录');});
+        dialog.action.add_default('下一步').bind('click', function() {
+            var phone = div_pho.val();
+            var error = null;
+            if (error = check_phone(phone)) {
                 dialog.shake();
-                sn.ui.toast(desc);
+                sn.ui.toast(error);
+                return;
             }
+            var vcode = div_vco.val();
+            if (0 == vcode.length) {
+                dialog.shake();
+                sn.ui.toast('验证码不能为空');
+                return;
+            }
+            var pass = div_pas.val();
+            if (0 == pass.length) {
+                dialog.shake();
+                sn.ui.toast('密码不能为空');
+                return;
+            }
+            if (/'|"/.test(pass)) {
+                dialog.shake();
+                sn.ui.toast("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
+                return;
+            }
+            
+            fomjar.net.send(ski.ISIS.INST_APPLY_VERIFY, {type : 'phone', phone : phone, vcode : vcode}, function(code, desc) {
+                if (0 == code) {
+                    user_register.phone = phone;
+                    user_register.vcode = vcode;
+                    user_register.pass  = pass;
+                    page.page_to_next();
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
+    };
     return div;
 }
 
@@ -623,98 +675,99 @@ function check_phone(phone) {
 function create_user_register_2(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-register-2');
-    div.append('<div>个人信息</div>');
-    div.append(sn.ui.choose_image(1024 * 1024 * 2, function(image) {
+    div.append(dialog.h1('个人信息'));
+    div.append(dialog.p1(sn.ui.choose_image(1024 * 1024 * 2, function(image) {
         user_register.cover = image;
     }, function(size) {
         dialog.shake();
         sn.ui.toast('图片不能大于2M');
-    }));
-    div.append("<div><label>姓名</label><input type='text' placeholder='您的姓名'></div>")
-    div.append("<div><label>性别</label><select><option value='0' selected='selected'>女</option><option value='1'>男</option></select></div>");
-    div.append("<div>性别一旦注册成功无法修改，请谨慎选择</div>")
-    div.append("<div><div class='button'>上一步</div><div class='button button-default'>提交</div></div>");
+    })));
+    div.append(dialog.p1("<label>姓名</label><input type='text' placeholder='您的姓名'>"));
+    div.append(dialog.p1("<label>性别</label><select><option value='0' selected='selected'>女</option><option value='1'>男</option></select>"));
+    div.append(dialog.t2('性别一旦注册成功无法修改，请谨慎选择'));
     
     var div_nam = div.find('>div:nth-child(3) input');
     var div_gen = div.find('>div:nth-child(4) select');
-    var div_bac = div.find('>div:nth-child(6) .button:nth-child(1)');
-    var div_sub = div.find('>div:nth-child(6) .button:nth-child(2)');
-
-    div_bac.bind('click', function() {page.page_to_prev();});
-    div_sub.doing = false;
-    div_sub.bind('click', function() {
-        var name = div_nam.val();
-        if (0 == name.length) {
-            dialog.shake();
-            sn.ui.toast('请输入您的姓名');
-            return;
-        }
-        if (/'|"/.test(name)) {
-            dialog.shake();
-            sn.ui.toast("姓名不能包含“\"”(英文双引号)或“'”(英文单引号)");
-            return;
-        }
-        if (div_sub.doing) return;
-        
-        div_sub.doing = true;
-        div_sub.addClass('button-disable');
-        user_register.name = name;
-        user_register.gender = parseInt(div_gen.val());
-        
-        fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            phone   : user_register.phone,
-            vcode   : user_register.vcode,
-            pass    : user_register.pass,
-            cover   : user_register.cover,
-            name    : user_register.name,
-            gender  : user_register.gender
-        }, function(code, desc) {
-            div_sub.doing = false;
-            div_sub.removeClass('button-disable');
-            if (0 == code) {
-                sn.login_manually(user_register.phone, user_register.pass, function() {
-                    page.page_to_next();
-                }, function(code, desc) {
+    
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('上一步').bind('click', function() {page.page_to_prev();});
+        var doing = false;
+        dialog.action.add_default('提交').bind('click', function() {
+            var name = div_nam.val();
+            if (0 == name.length) {
+                dialog.shake();
+                sn.ui.toast('请输入您的姓名');
+                return;
+            }
+            if (/'|"/.test(name)) {
+                dialog.shake();
+                sn.ui.toast("姓名不能包含“\"”(英文双引号)或“'”(英文单引号)");
+                return;
+            }
+            if (doing) return;
+            
+            doing = true;
+            sn.ui.toast('正在提交', 10000);
+            user_register.name = name;
+            user_register.gender = parseInt(div_gen.val());
+            
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                phone   : user_register.phone,
+                vcode   : user_register.vcode,
+                pass    : user_register.pass,
+                cover   : user_register.cover,
+                name    : user_register.name,
+                gender  : user_register.gender
+            }, function(code, desc) {
+                doing = false;
+                sn.ui.toast('', 0);
+                if (0 == code) {
+                    sn.login_manually(user_register.phone, user_register.pass, function() {
+                        page.page_to_next();
+                    }, function(code, desc) {
+                        dialog.shake();
+                        sn.ui.toast(desc);
+                    });
+                } else {
                     dialog.shake();
                     sn.ui.toast(desc);
-                });
-            } else {
-                dialog.shake();
-                sn.ui.toast(desc);
-            }
+                }
+            });
         });
-    });
+    };
+
     return div;
 }
 
 function create_user_register_done(dialog) {
     var div = $('<div></div>');
-    div.addClass('page-register-done');
-    div.append('<div>注册成功</div>');
-    div.append('<div>欢迎您加入声呐</div>');
-    div.append("<div><div class='button button-default'>开启声呐之旅</div></div>");
+    div.append(dialog.h1('注册成功'));
+    div.append(dialog.p1('欢迎您加入声呐'));
+    div.append(dialog.p1("<div class='button button-default'>开启声呐之旅</div>"));
     
-    var div_begin = div.find('>div:nth-child(3) .button');
-    div_begin.bind('click', function() {
-        dialog.disappear();
-    });
+    div.find('.button').bind('click', function() {dialog.disappear();});
     
-    div.onappear = function() {dialog.removeClose();};
-    div.ondisappear = function() {dialog.addClose();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.remove_close();
+    };
     
     return div;
 }
 
 function create_user_protocol(dialog, page) {
     var iframe = $('<iframe></iframe>');
-    iframe.addClass('protocol');
     iframe.attr('src', 'protocol.html');
     var div = $('<div></div>');
+    div.addClass('protocol');
     div.append(iframe);
-    div.append("<div class='button'>返回</div>");
-    div.find('.button').bind('click', function() {
-        page.page_set('注册-1');
-    });
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {page.page_set('注册-1');});
+    };
+    div.ondisappear = function() {dialog.action.clear();};
     return div;
 }
 
