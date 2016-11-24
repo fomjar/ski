@@ -32,126 +32,121 @@ input, select {
     padding : 0 1em;
     height  : 2em;
 }
-textarea {
-    padding : 0 .5em;
-}
-table {
-    border-collapse : collapse;
-}
+textarea {padding : 0 .5em;}
+table {border-collapse : collapse;}
 
-/* layout */
+/* sonar basic */
 body {overflow : hidden;}
-.sn  {position : absolute; z-index : 0; width : 100%; height : 100%; top : 0; left : 0; overflow : hidden;}
-.sn .bg      {position : absolute; z-index : -2; width : 100%; height : 100%; top :   0; left :   0; overflow : hidden;}
-.sn .bg >img {position : absolute; z-index : -2; width : 105%; height : 105%; top : 70%; left : 50%; transform : translate(-50%, -70%); -webkit-transform : translate(-50%, -70%);}
-.sn .bg >div {position : absolute; z-index : -1; width : 100%; height : 100%; top :   0; left :   0;}
-.sn .body {position : absolute; z-index : 1; width : 100%; height : 100%; top : 0; bottom : 0; left : 0; overflow-x : hidden; overflow-y : auto;}
-.sn .head {position : absolute; z-index : 2; width : 100%; height : 3em;  top : 0; left : 0;}
-.sn .head .cover {float : left; margin : .3em .5em; width : 2.4em; height : 2.4em;}
-.sn .head >*:nth-child(2) {float : left; height : 3em; line-height : 3em;}
-.sn .head .state              {position : absolute; z-index : 3; top : .3em; width : 2.4em; height : 2.4em;}
-.sn .head .state:nth-child(3) {right : .5em;}
-/* .sn .head .state:nth-child(3) {right : 6.3em;}
-.sn .head .state:nth-child(4) {right : 3.4em;}
-.sn .head .state:nth-child(5) {right :  .5em;} */
-.sn .head .state >img {position : relative; max-width : 1.2em; max-height : 1.2em; top : 1.2em; left : 1.2em; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
-.sn .head .state >div {position : absolute; z-index : 2; top : 0; right : .9em; line-height : 2.4em;}
-.sn .foot {position : absolute; z-index : 2; width : 100%; height : 4em;  bottom : -4em; left : 0;}
-.sn .mask   {position : absolute; z-index : 10; width : 100%; height : 100%; top :   0; left :   0;}
-.sn .dialog {position : absolute; z-index : 11; width :  90%; height :  90%; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%); overflow : auto;}
-.sn .dialog .close {position : absolute; z-index : 12; top : .5em; left : .5em; padding : .5em;}
-.sn .browse {position : absolute; z-index : 13; width : 100%; height : 100%; top : 0; left : 0; overflow : auto;}
-.sn .browse img {position : absolute; z-index : 14; left : 50%; transform : translateX(-50%); -webkit-transform : translateX(-50%); min-width : 80%;}
-.sn .toast {position : absolute; z-index : 15; top : 80%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%); padding : .6em 1.5em; line-height : 1.2em;}
-.sn .button         {display : inline; padding : .5em 1.5em;}
-.sn .button-default {}
-.sn .page   {position : relative; width : 100%; height : 100%; overflow : hidden;}
-.sn .page >div:nth-child(1) {display : none; position : absolute; top :   0; left : 0; width : 100%; height : 2em; line-height : 2em;}
-.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {position : absolute; top : 2em; width : 100%; bottom : 2em; overflow : auto;}
-.sn .choose-image >img   {vertical-align : middle; width : 100%; height : 100%;}
-.sn .choose-image >input {vertical-align : middle; width : 100%; height : 100%; position : relative; top : -100%; border : none; opacity : 0;}
-.sn .list >div {padding : .5em 1em;}
-.sn .list .pair {height : 2.5em;}
-.sn .list .pair >*:nth-child(1) {float : left;}
-.sn .list .pair >*:nth-child(2) {float : right;}
-.sn .cover {display : inline-block; position : relative; overflow : hidden; border-radius : 50%; -webkit-border-radius : 50%;}
-.sn .cover img {position : absolute; width : 100%; top : 50%; left : 50%; vertical-align : middle; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
-
-/* apperence */
 .sn {
+    position    : absolute;
+    z-index     : 0;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    overflow    : hidden;
     /* 字体 */
     font-size   : 14px;
     font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
 }
-.sn .bg     {background-color : white;}
-.sn .bg>img {
-            transition  : opacity .5s linear, width 3s linear, height 3s linear,         filter .5s linear;
-    -webkit-transition  : opacity .5s linear, width 3s linear, height 3s linear, -webkit-filter .5s linear;
+.sn .bg {
+    position    : absolute;
+    z-index     : -2;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    overflow    : hidden;
+    background-color : white;
+}
+.sn .bg >img {
+    position    : absolute;
+    z-index     : -2;
+    width       : 105%;
+    height      : 105%;
+    top         : 70%;
+    left        : 50%;
             filter      : blur(.3em);
     -webkit-filter      : blur(.3em);
+            transform   : translate(-50%, -70%);
+    -webkit-transform   : translate(-50%, -70%);
+            transition  : opacity .5s linear, width 3s linear, height 3s linear,         filter .5s linear;
+    -webkit-transition  : opacity .5s linear, width 3s linear, height 3s linear, -webkit-filter .5s linear;
 }
-.sn .bg>div {
+.sn .bg >div {
+    position    : absolute;
+    z-index     : -1;
+    width       : 100%;
+    height      : 100%;
+    top         :   0;
+    left        :   0;
     background-color    : black;
     opacity             : .3;
             transition  : opacity .5s linear;
     -webkit-transition  : opacity .5s linear;
 }
-.sn .body {}
+.sn .body {
+    position    : absolute;
+    z-index     : 1;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    bottom      : 0;
+    left        : 0;
+    overflow-x  : hidden;
+    overflow-y  : auto;
+}
 .sn .head {
+    position    : absolute;
+    z-index     : 2;
+    width       : 100%;
+    height      : 3em;
+    top         : 0;
+    left        : 0;
     background-color    : #335522;
             transform   : translateZ(0);
     -webkit-transform   : translateZ(0);
             transition  : top .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : top .3s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .head >*:nth-child(2) {
-    color   : lightgray;
-}
-.sn .head .state {
-    background-color        : lightgray;
-            border-radius   : 1.2em;
-    -webkit-border-radius   : 1.2em;
-            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
-}
-.sn .head .state:active {background-color : gray;}
-.sn .head .state >div {
-    opacity                 : 0;
-            transition      : opacity .2s linear;
-    -webkit-transition      : opacity .2s linear;
-}
-.sn .head .state-flash {
-            animation   : state-flash 2s;
-    -webkit-animation   : state-flash 2s;
-}
-@keyframes state-flash {
-      0% {background-color : lightgray;}
-     10% {background-color : green;}
-    100% {background-color : lightgray;}
-}
-@-webkit-keyframes state-flash {
-      0% {background-color : lightgray;}
-     10% {background-color : green;}
-    100% {background-color : lightgray;}
-}
 .sn .foot {
-    background          :         linear-gradient(rgba(17, 51, 34, 0), rgba(17, 51, 34, .7), rgba(17, 51, 34, 1));
-    background          : -webkit-linear-gradient(rgba(17, 51, 34, 0), rgba(17, 51, 34, .7), rgba(17, 51, 34, 1));
+    position    : absolute;
+    z-index     : 2;
+    width       : 100%;
+    height      : 4em;
+    bottom      : -4em;
+    left        : 0;
+    background  :         linear-gradient(rgba(17, 51, 34, 0), rgba(17, 51, 34, .7), rgba(17, 51, 34, 1));
+    background  : -webkit-linear-gradient(rgba(17, 51, 34, 0), rgba(17, 51, 34, .7), rgba(17, 51, 34, 1));
             transform   : translateZ(0);
     -webkit-transform   : translateZ(0);
             transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : bottom .3s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .foot-appear {bottom    : 0;}
-.sn .mask {
+.sn .foot-appear {bottom : 0;}
+.sn .mask   {
+    position    : absolute;
+    z-index     : 10;
+    width       : 100%;
+    height      : 100%;
+    top         :   0;
+    left        :   0;
     background-color    : black;
     opacity             : 0;
             transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .mask-appear {opacity : .4;}
-
 .sn .dialog {
+    position    : absolute;
+    z-index     : 11;
+    width       : 90%;
+    height      : 90%;
+    top         : 50%;
+    left        : 50%;
+            transform : translate(-50%, -50%);
+    -webkit-transform : translate(-50%, -50%);
+    overflow    : hidden;
     background-color        : lightgray;
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
@@ -162,9 +157,9 @@ body {overflow : hidden;}
     -webkit-transform       : translate(-50%, -50%) scale(.8, .8) translateZ(0);
 }
 .sn .dialog-appear {
-    opacity                 : .98;
-            transform       : translate(-50%, -50%) scale(1, 1) translateZ(0);
-    -webkit-transform       : translate(-50%, -50%) scale(1, 1) translateZ(0);
+    opacity             : .98;
+            transform   : translate(-50%, -50%) scale(1, 1) translateZ(0);
+    -webkit-transform   : translate(-50%, -50%) scale(1, 1) translateZ(0);
 }
 .sn .dialog-shake {
             animation   : dialog-shake .5s;
@@ -188,15 +183,71 @@ body {overflow : hidden;}
      80% {left : 49%;}
     100% {left : 50%;}
 }
+.sn .dialog .h1 {margin : .5em 0; font-size : 3em;}
+.sn .dialog .h2 {margin : .5em 0; font-size : 2em;}
+.sn .dialog .h3 {margin : .5em 0; font-size : 1.5em;}
+.sn .dialog .p1 {margin : .5em 0; font-size : 1em;}
+.sn .dialog .p2 {margin : .5em 0; font-size : .8em;}
+.sn .dialog .t1 {margin : .5em 0; font-size :  1em; color : gray;}
+.sn .dialog .t2 {margin : .5em 0; font-size : .8em; color : gray;}
+.sn .dialog .close {
+    position    : absolute;
+    z-index     : 13;
+    top         : .5em;
+    left        : .5em;
+    padding     : .5em;
+}
+.sn .dialog .content {
+    position    : absolute;
+    z-index     : 12;
+    top         : 0;
+    left        : 0;
+    width       : 100%;
+    bottom      : 3em;
+    overflow    : auto;
+}
+.sn .dialog .action {
+    position    : absolute;
+    z-index     : 12;
+    bottom      : 0;
+    left        : 0;
+    width       : 100%;
+    padding     : .5em;
+    text-align  : center;
+    overflow    : auto;
+}
+.sn .dialog .action .button {margin : 0 .8em;}
 .sn .browse {
+    position    : absolute;
+    z-index     : 20;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    overflow    : auto;
     background-color    : rgba(0, 0, 0, .8);
     opacity             : 0;
             transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
+.sn .browse img {
+    position    : absolute;
+    z-index     : 21;
+    left        : 50%;
+            transform : translateX(-50%);
+    -webkit-transform : translateX(-50%);
+    min-width   : 80%;
+}
 .sn .browse-appear {opacity : 1;}
-
 .sn .toast {
+    position    : absolute;
+    z-index     : 30;
+    top         : 80%;
+    left        : 50%;
+            transform : translate(-50%, -50%);
+    -webkit-transform : translate(-50%, -50%);
+    padding     : .6em 1.5em;
+    line-height : 1.2em;
     background-color        : rgba(0, 51, 0, .8);
     color                   : lightgray;
     opacity                 : 0;
@@ -205,12 +256,14 @@ body {overflow : hidden;}
             transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition      : opacity .2s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .toast-appear {opacity  : 1;}
+.sn .toast-appear {opacity : 1;}
 .sn .button {
-    color               : green;
+    display : inline-block;
+    padding : .4em 1.2em;
+    color   : green;
     background-color    : rgba(0, 0, 0, 0);
-            border-radius   : 1em;
-    -webkit-border-radius   : 1em;
+            border-radius   : 3em;
+    -webkit-border-radius   : 3em;
             transition  : background-color .2s linear;
     -webkit-transition  : background-color .2s linear;
 }
@@ -218,107 +271,197 @@ body {overflow : hidden;}
 .sn .button-default         {background-color : rgba(0, 0, 0, .1);}
 .sn .button-default:active  {background-color : rgba(0, 0, 0, .3);}
 .sn .button-disable         {color : gray;}
-
-
-.sn .page >div:nth-child(1) {
-    text-align          : center;
-            transition  : opacity .15s linear;
-    -webkit-transition  : opacity .15s linear;
-}
-.sn .page >div:nth-child(2), .sn .page >div:nth-child(3) {
+.sn .page >div {
+    position    : absolute;
+    top         : 0;
+    width       : 100%;
             transform   : translateZ(0);
     -webkit-transform   : translateZ(0);
             transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : left .3s cubic-bezier(0,0.5,0.5,1), opacity .3s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .page .ol {opacity  : 0; left : -100%;}
-.sn .page .or {opacity  : 0; left : 100%;}
-.sn .page .in {opacity  : 1; left : 0;}
+.sn .page .ol {opacity : 0; left : -100%;}
+.sn .page .or {opacity : 0; left : 100%;}
+.sn .page .in {opacity : 1; left : 0;}
 .sn .choose-image {
-    background          : url('../../res/camera.png') no-repeat center;
-    background-size     : 60%;
+    position        : relative;
+    display         : inline-block;
+    background      : white url('../../res/camera.png') no-repeat center;
+    background-size : 60%;
+    overflow        : hidden;
 }
 .sn .choose-image >img {
-    border              : none; 
+    position        : absolute;
+    top             : 0;
+    left            : 0;
+    width           : 100%;
+    height          : 100%;
+    border          : none;
+    vertical-align  : middle;
 }
-.sn .list {
-    border-top : 1px solid rgba(0, 120, 0, .2);
+.sn .choose-image >input {
+    position        : absolute;
+    top             : 0;
+    left            : 0;
+    width           : 100%;
+    height          : 100%;
+    border          : none;
+    vertical-align  : middle;
+    opacity         : 0;
 }
+.sn .list {border-top : 1px solid rgba(0, 120, 0, .2);}
 .sn .list >div {
+    padding : .5em 1em;
     background-color    : rgba(255, 255, 255, .1);
     border-bottom       : 1px solid rgba(0, 120, 0, .2);
             transition  : background-color .2s cubic-bezier(0,0.5,0.5,1);
     -webkit-transition  : background-color .2s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .list >div:active {
-    background-color    : rgba(0, 0, 0, .1);
+.sn .list >div:active {background-color : rgba(0, 0, 0, .1);}
+.sn .list .pair >* {display : inline-block; height : 1.5em; background : rgba(0, 0, 0, 0);}
+.sn .list .pair >*:nth-child(1) {width : 40%; text-align : left;}
+.sn .list .pair >*:nth-child(2) {width : 60%; text-align : right; color : gray;}
+.sn .cover {
+    display     : inline-block;
+    position    : relative;
+    overflow    : hidden;
+            border-radius : 50%;
+    -webkit-border-radius : 50%;
 }
-.sn .list .pair >*:nth-child(1) {}
-.sn .list .pair >*:nth-child(2) {color : gray;}
-.sn .list .pair >input:nth-child(2) {height : 1.5em; text-align : right; background : rgba(0, 0, 0, 0);}
-.sn .cover img {background : lightgray;}
-
-.sn .page-user-detail-info  {text-align : center;}
-.sn .page-user-detail-info  img {width : 5em; height : 5em; border-radius : 2.5em; -webkit-border-radius : 2.5em; margin-top : 2em; margin-bottom : 4em;}
-.sn .page-user-detail-info  >.button {display : block; margin : 1em; background-color : rgba(255, 0, 0, .5); color : white;}
-.sn .page-user-detail-info  >.button:active {background-color : rgba(255, 0, 0, .9); }
-.sn .page-user-detail-cover {text-align : center;}
-.sn .page-user-detail-cover >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-cover .choose-image {width : 5em; height : 5em; border-radius : 2.5em; -webkit-border-radius : 2.5em; margin-top : 2em; margin-bottom : 4em; margin-left : 50%; transform: translateX(-50%); -webkit-transform: translateX(-50%);}
-.sn .page-user-detail-cover .choose-image * {border-radius : 2.5em; -webkit-border-radius : 2.5em}
-.sn .page-user-detail-cover .button {margin : .5em 1em;}
-.sn .page-user-detail-name  {text-align : center;}
-.sn .page-user-detail-name  >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-name  input {width : 60%; margin-top : 2em; margin-bottom : 4em; text-align : center;}
-.sn .page-user-detail-name  .button {margin : .5em 1em;}
-.sn .page-user-detail-phone {text-align : center;}
-.sn .page-user-detail-phone >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-phone >*:nth-child(2) {width : 60%; margin-top : 2em; text-align : center;}
-.sn .page-user-detail-phone >*:nth-child(3) {margin-top : .5em; margin-bottom : 4em; text-align : center;}
-.sn .page-user-detail-phone >*:nth-child(3) input   {position : relative; left :  2em; width : 60%; text-align : center;}
-.sn .page-user-detail-phone >*:nth-child(3) .button {position : relative; left : -2em; padding : .3em .5em; margin : 0 .5em;}
-.sn .page-user-detail-phone .button {margin : .5em 1em;}
-.sn .page-user-detail-pass  {text-align : center;}
-.sn .page-user-detail-pass  >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-pass  >*:nth-child(2) {margin-top : 2em; margin-bottom : 4em;}
-.sn .page-user-detail-pass  .button {margin : .5em 1em;}
+.sn .cover img {
+    position    : absolute;
+    width       : 100%;
+    top         : 50%;
+    left        : 50%;
+            transform : translate(-50%, -50%);
+    -webkit-transform : translate(-50%, -50%);
+    vertical-align  : middle;
+    background      : lightgray;
+}
 
 
-.sn .page-login-1 {padding : 0 2em;}
-.sn .page-login-1 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
-.sn .page-login-1 >div:nth-child(1) {font-size : 3em}
-.sn .page-login-1 >div:nth-child(2) {color : gray;}
-.sn .page-login-1 >div:nth-child(3) input {width : 80%; text-align : center; font-size : 1em;}
-.sn .page-login-1 >div:nth-child(4) input {width : 80%; text-align : center; font-size : 1em;}
-.sn .page-login-1 >div:nth-child(5) {margin-top : 1em;}
-.sn .page-login-1 >div:nth-child(6) {margin-top : 2em; transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
 
-.sn .page-register-1 {padding : 0 2em;}
-.sn .page-register-1 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
-.sn .page-register-1 >div:nth-child(1) {font-size : 3em}
-.sn .page-register-1 >div:nth-child(3) input   {width : 70%; text-align : center; font-size : 1em;}
-.sn .page-register-1 >div:nth-child(4) input   {position : relative; left :  2em; width : 70%; text-align : center; font-size : 1em;}
-.sn .page-register-1 >div:nth-child(4) .button {position : relative; left : -2em; padding : .3em .5em; margin : 0 .5em;}
-.sn .page-register-1 >div:nth-child(5) input   {width : 70%; text-align : center; font-size : 1em;}
-.sn .page-register-1 >div:nth-child(6) {transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
-.sn .page-register-1 >div:nth-child(7) {margin-top : 2em;}
 
-.sn .page-register-2 {padding : 0 2em;}
-.sn .page-register-2 >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
-.sn .page-register-2 >div:nth-child(1) {font-size : 3em;}
-.sn .page-register-2 .choose-image     {margin : 1em auto; width : 8em; height : 8em;}
-.sn .page-register-2 .choose-image >*  {border-radius : 4em; -webkit-border-radius : 4em;}
-.sn .page-register-2 >div:nth-child(3) label  {width : 20%; text-align : center; margin-right : 1em;}
-.sn .page-register-2 >div:nth-child(3) input  {width : 50%; text-align : center; font-size : 1em;}
-.sn .page-register-2 >div:nth-child(4) label  {width : 20%; text-align : center; margin-right : 1em;}
-.sn .page-register-2 >div:nth-child(4) select {width : 50%; text-align : center; font-size : 1em;}
-.sn .page-register-2 >div:nth-child(5) {color : gray; transform : scale(.8, .8); -webkit-transofmr : scale(.8, .8);}
-.sn .page-register-2 >div:nth-child(6) {margin-top : 2em;}
 
-.sn .page-register-done {padding : 0 2em;}
-.sn .page-register-done >* {text-align : center; line-height : 1.5em; margin : .5em 0;}
-.sn .page-register-done >div:nth-child(1) {font-size : 3em;}
-.sn .page-register-done >div:nth-child(3) {margin-top : 2em; transform : scale(1.2, 1.2); -webkit-transofmr : scale(1.2, 1.2);}
+.sn .head .cover {
+    float   : left;
+    margin  : .3em .5em;
+    width   : 2.4em;
+    height  : 2.4em;
+}
+.sn .head >*:nth-child(2) {
+    float       : left;
+    height      : 3em;
+    line-height : 3em;
+    color   : lightgray;
+}
+.sn .head .state {
+    position    : absolute;
+    z-index     : 3;
+    top         : .3em;
+    width       : 2.4em;
+    height      : 2.4em;
+    background-color        : lightgray;
+            border-radius   : 1.2em;
+    -webkit-border-radius   : 1.2em;
+            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .head .state:nth-child(3) {right : .5em;}
+/* .sn .head .state:nth-child(3) {right : 6.3em;}
+.sn .head .state:nth-child(4) {right : 3.4em;}
+.sn .head .state:nth-child(5) {right :  .5em;} */
+.sn .head .state >img {
+    position    : relative;
+    max-width   : 1.2em;
+    max-height  : 1.2em;
+    top         : 1.2em;
+    left        : 1.2em;
+            transform : translate(-50%, -50%);
+    -webkit-transform : translate(-50%, -50%);
+}
+.sn .head .state >div {
+    position    : absolute;
+    z-index     : 2;
+    top         : 0;
+    right       : .9em;
+    line-height : 2.4em;
+    opacity     : 0;
+            transition : opacity .2s linear;
+    -webkit-transition : opacity .2s linear;
+}
+.sn .head .state:active {background-color : gray;}
+.sn .head .state-flash {
+            animation   : state-flash 2s;
+    -webkit-animation   : state-flash 2s;
+}
+@keyframes state-flash {
+      0% {background-color : lightgray;}
+     10% {background-color : green;}
+    100% {background-color : lightgray;}
+}
+@-webkit-keyframes state-flash {
+      0% {background-color : lightgray;}
+     10% {background-color : green;}
+    100% {background-color : lightgray;}
+}
 
-.sn .protocol {width : 100%; height : 95%; border : none;}
+.sn .dialog-user-detail {text-align : center;}
+.sn .dialog-user-detail input {width : 80%; text-align : center;}
+
+.sn .page-user-detail-info .cover {
+    width   : 2em;
+    height  : 2em;
+            border-radius : 50%;
+    -webkit-border-radius : 50%;
+}
+.sn .page-user-detail-info .button {
+    display : block;
+    margin  : 1em;
+    color   : white;
+    background-color : rgba(255, 0, 0, .5);
+}
+.sn .page-user-detail-info .button:active {background-color : rgba(255, 0, 0, .9);}
+
+.sn .page-user-detail-cover .choose-image {
+    width   : 2em;
+    height  : 2em;
+            border-radius : 50%;
+    -webkit-border-radius : 50%;
+}
+
+.sn .page-user-detail-phone >*:nth-child(3) .button {
+    position    : absolute;
+    right       : 10%;
+}
+
+
+.sn .dialog-login {text-align : center;}
+.sn .dialog-login * {text-align : center;}
+.sn .dialog-login input:nth-child(1) {width : 80%;}
+.sn .dialog-login input:nth-child(2) {width : 60%; margin-left : 1em;}
+.sn .dialog-login select:nth-child(2) {width : 60%; margin-left : 1em;}
+
+.sn .page-register-1 >div:nth-child(4) .button {
+    position    : absolute;
+    right       : 10%;
+}
+.sn .page-register-2 .choose-image {
+    width   : 8em;
+    height  : 8em;
+            border-radius   : 50%;
+    -webkit-border-radius   : 50%;
+}
+.sn .page-register-2 .choose-image input {width : 100%;}
+
+.sn .protocol {
+    width : 100%;
+    height : 100%;
+    padding-top : 3em;
+}
+.sn .protocol iframe {
+    width : 100%;
+    height : 100%;
+    border : none;
+}
 

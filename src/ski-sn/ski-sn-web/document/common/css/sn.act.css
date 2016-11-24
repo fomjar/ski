@@ -133,7 +133,7 @@
 .sn .act-basic >*:nth-child(1) {font-size : 2em;}
 .sn .act-basic >*:nth-child(2) input    {width : 60%;}
 .sn .act-basic >*:nth-child(3) textarea {width : 60%; height : 4em;}
-.sn .act-basic >*:nth-child(4) {position : relative; padding : 0 20%; height: 3em; border-radius : 1em; -webkit-border-radius : 1em;}
+.sn .act-basic >*:nth-child(4) {width: 60%; height: 4em; border-radius : 1em; -webkit-border-radius : 1em;}
 .sn .act-basic >*:nth-child(4) *        {border-radius : 1em; -webkit-border-radius : 1em;}
 .sn .act-basic >*:nth-child(5) input    {width : 28%; margin : 0 2%;}
 .sn .act-basic >*:nth-child(6) {margin-top : 2em;}

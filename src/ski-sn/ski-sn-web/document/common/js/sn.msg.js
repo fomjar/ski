@@ -56,11 +56,11 @@ sn.msg.wrap = function(data) {
             }
             sn.ui.toast('操作成功');
             load_message_focus(msg);
-        })
+        });
     };
 
     var panel = create_message_panel(msg);
-    var detail = create_message_detail(msg);
+    var detail = create_message_detail(sn.ui.dialog(), msg);
     msg.ui = {};
     msg.ui.panel = panel;
     msg.ui.detail = detail;
@@ -69,7 +69,8 @@ sn.msg.wrap = function(data) {
         if (e.target.tagName == 'IMG') return;
         
         var dialog = sn.ui.dialog();
-        dialog.append(detail);
+        dialog.content.append(detail);
+        detail.page_get('detail').onappear();
         dialog.appear();
     };
     panel.find('.mc').bind('click', show_detail);
@@ -154,7 +155,7 @@ sn.msg.new = function() {
         show_first_send(dialog);
     } else {
         dialog.addClass('dialog-msg-new');
-        dialog.append(create_new_message_panel(dialog));
+        dialog.content.append(create_new_message_panel(dialog));
         dialog.appear();
     }
 }
@@ -227,104 +228,86 @@ function create_message_panel(msg) {
     return div;
 }
 
-function create_message_detail(msg) {
-    var dialog = sn.ui.dialog();
-
-    var div = $('<div></div>');
-    div.addClass('msg-detail');
+function create_message_detail(dialog, msg) {
+    var page = sn.ui.page();
     
-    var content = $('<div></div>');
-    content.addClass('ct');
+    var div_detail = $('<div></div>');
+    div_detail.addClass('msg-detail');
     
     var panel = create_message_panel(msg);
     panel.find('.mf').remove();
     
     var focus = $('<div></div>');
     focus.addClass('focus');
-    focus.append("<div>支持</div>");
+    focus.append(dialog.t2('支持'));
     var focus_up = $('<div></div>');
     focus.append(focus_up);
-    focus.append("<div>回复</div>");
-//     focus.append("<div>反对</div>");
-//     var focus_down = $('<div></div>');
-//     focus.append(focus_down);
+    focus.append(dialog.t2('回复'));
 
     var replys = $('<div></div>');
     replys.addClass('list');
     
-    var send = $('<div></div>');
-    send.addClass('send');
-    send.append("<textarea></textarea>");
-    send.append(sn.ui.choose_image(1024 * 1024 * 2, function() {}, function() {dialog.shake();}));
-    send.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
-    var div_can = send.find('.button:nth-child(1)');
-    var div_sen = send.find('.button:nth-child(2)');
-    div_can.bind('click', function() {
-        send.css('opacity', '0');
-        setTimeout(function() {send.hide();}, 500);
-    });
-    div_sen.doing = false;
-    div_sen.bind('click', function() {
-        var text = send.find('textarea').val();
-        if (0 == text.length) {
-            dialog.shake();
-            return;
-        }
-        if (/^ +$/.test(text)) {
-            dialog.shake();
-            return;
-        }
-        
-        if (div_sen.doing) return;
-        
-        div_sen.doing = true;
-        div_sen.addClass('button-disable');
-        
-        text = new fomjar.util.base64().encode(text);
-        image = send.find('.choose-image img').attr('src');
-        fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE_REPLY, {
-            mid     : msg.data.mid,
-            coosys  : 1,
-            lat     : sn.location.point.lat,
-            lng     : sn.location.point.lng,
-            type    : 0,
-            text    : text,
-            image   : image
-        }, function(code, desc) {
-            div_sen.doing = false;
-            div_sen.removeClass('button-disable');
-            if (0 == code) {
-                div_can.trigger('click');
-                load_message_reply(msg);
-            } else {
+    div_detail.append([panel, focus, replys]);
+    div_detail.ondisappear = function() {dialog.action.clear();}; 
+    div_detail.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {dialog.disappear();});
+        dialog.action.add('回复').bind('click', function() {page.page_set('reply');});
+    };
+    
+    var div_reply = $('<div></div>');
+    div_reply.addClass('msg-reply');
+    div_reply.append("<textarea></textarea>");
+    div_reply.append(sn.ui.choose_image());
+    div_reply.ondisappear = function() {dialog.action.clear();};
+    div_reply.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('取消').bind('click', function() {page.page_set('detail');});
+        var doing = false;
+        dialog.action.add('发送').bind('click', function() {
+            var text = div_reply.find('textarea').val();
+            if (0 == text.length) {
                 dialog.shake();
-                sn.ui.toast(desc);
+                sn.ui.toast('必须要输入文字');
+                return;
             }
+            if (/^ +$/.test(text)) {
+                dialog.shake();
+                sn.ui.toast('必须要输入文字');
+                return;
+            }
+            
+            if (doing) return;
+            doing = true;
+            sn.ui.toast('正在发送', 10000);
+            text = new fomjar.util.base64().encode(text);
+            var image = div_reply.find('.choose-image img').attr('src');
+            fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE_REPLY, {
+                mid     : msg.data.mid,
+                coosys  : 1,
+                lat     : sn.location.point.lat,
+                lng     : sn.location.point.lng,
+                type    : 0,
+                text    : text,
+                image   : image
+            }, function(code, desc) {
+                doing = false;
+                if (0 == code) {
+                    load_message_reply(msg);
+                    page.page_set('detail');
+                    sn.ui.toast('发送成功');
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
-    send.hide();
+    };
     
-    var action = $('<div></div>');
-    action.addClass('action');
-    action.append("<div class='button'>返回</div>");
-    action.append("<div class='button'>回复</div>");
-    action.find('.button:nth-child(1)').bind('click', function() {dialog.disappear();});
-    action.find('.button:nth-child(2)').bind('click', function() {
-        if (!sn.user) {
-            dialog.children().detach();
-            sn.ui.login();
-            return;
-        }
-        
-        send.css('opacity', '0');
-        send.show();
-        send.css('opacity', '1');
-    });
+    page.page_append('detail',  div_detail);
+    page.page_append('reply',   div_reply);
     
-    content.append([panel, focus, replys]);
-    div.append([content, send, action]);
-    
-    div.onfocuser = function(focuser) {
+    page.onfocuser = function(focuser) {
         panel.onfocuser(focuser);
         
         focus_up.children().remove();
@@ -335,22 +318,18 @@ function create_message_detail(msg) {
             case ATTITUDE_UP:
                 focus_up.append(sn.ui.cover(f.ucover));
                 break;
-//             case ATTITUDE_DOWN:
-//                 focus_down.append("<img src='" + f.ucover + "' />");
-//                 break;
             }
         });
         if (0 == focus_up.html().length)    focus_up.append('<div>无</div>');
-//         if (0 == focus_down.html().length)  focus_down.append('<div>无</div>');
     };
-    div.onreplyer = function(replyer) {
+    page.onreplyer = function(replyer) {
         replys.children().remove();
         $.each(replyer, function(i, r) {
             if (!r.ucover) r.ucover = 'res/user.png';
         
             var d = $('<div></div>');
             d.addClass('reply');
-            d.append("<img src='" + r.ucover + "' />");
+            d.append(sn.ui.cover(r.ucover));
             d.append('<div>' + r.uname + '</div>');
             d.append('<div>' + r.time.substring(5, 16) + '</div>');
             if (0 < r.mtext.length) d.append('<div>' + new fomjar.util.base64().decode(r.mtext) + '</div>');
@@ -364,7 +343,7 @@ function create_message_detail(msg) {
         });
     }
     
-    return div;
+    return page;
 }
 
 function get_distance_description(distance) {
@@ -383,7 +362,7 @@ function get_distance_description(distance) {
     if (1 <= i) return i.toFixed(1) + '公里';
     
     i = distance / 100;
-    if (1 <= i) return i.toFixed(0) + '米';
+    if (1 <= i) return i.toFixed(0) + '00米';
     
     return '身边';
 }
@@ -434,65 +413,56 @@ function load_message_reply(msg) {
 function show_first_send(dialog) {
     var div = $('<div></div>');
     div.addClass('first-send');
-    div.append('<h2>声呐礼仪</h2>');
-    div.append("<p><b>收获<img src='res/msg-up.png' />:</b>发周围小伙伴都喜欢的消息会获得<img src='res/msg-up.png' />。<img src='res/msg-up.png' />的越多，就会有更多人看到！</p>");
-    div.append("<p><b>不要被<img src='res/msg-down.png' />:</b>如果消息其他人不喜欢／觉得不合适会获得<img src='res/msg-down.png' />。<img src='res/msg-down.png' />收到一定数量，您的消息会被删除哦</p>");
-    div.append("<p><b>请不要</b>针对其他小伙伴，进行人身攻击，隐私曝光</p>");
-    div.append("<p><b>请不要</b>发广告，或者重复发消息刷屏</p>");
-    div.append("<div><div class='button'>拒绝</div><div class='button button-default'>接受</div></div>");
+    div.append(dialog.h2('声呐礼仪'));
+    div.append(dialog.p1("<p><b>收获<img src='res/msg-up.png' />:</b>发周围小伙伴都喜欢的消息会获得<img src='res/msg-up.png' />。<img src='res/msg-up.png' />的越多，就会有更多人看到！</p>"));
+    div.append(dialog.p1("<p><b>不要被<img src='res/msg-down.png' />:</b>如果消息其他人不喜欢／觉得不合适会获得<img src='res/msg-down.png' />。<img src='res/msg-down.png' />收到一定数量，您的消息会被删除哦</p>"));
+    div.append(dialog.p1("<p><b>请不要</b>针对其他小伙伴，进行人身攻击，隐私曝光</p>"));
+    div.append(dialog.p1("<p><b>请不要</b>发广告，或者重复发消息刷屏</p>"));
     
-    dialog.append(div);
-    dialog.appear();
-    
-    div.find('>div .button:nth-child(1)').bind('click', function() {
-        dialog.disappear();
-    });
-    div.find('>div .button:nth-child(2)').bind('click', function() {
+    dialog.content.append(div);
+    dialog.action.add('拒绝').bind('click', function() {dialog.disappear();});
+    dialog.action.add_default('接受').bind('click', function() {
         sn.config('first_send', 'true');
-        dialog.addClass('dialog-msg-new');
-        dialog.children().remove();
-        dialog.append(create_new_message_panel(dialog));
-    })
+        dialog.disappear();
+        setTimeout(function() {
+            dialog.addClass('dialog-msg-new');
+            dialog.content.append(create_new_message_panel(dialog));
+            dialog.appear();
+        }, 200);
+    });
+    
+    dialog.appear();
 }
 
 function create_new_message_panel(dialog) {
     var div = $('<div></div>');
-    div.addClass('msg-new');
     
-    div.append("<div><img src='res/msg-dist.png'/><div>" + sn.location.address + "</div></div>");
-    
-    var div_content = $('<div></div>');
-    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
-    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
-    
-    div.append(div_content);
-    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
+    div.append(dialog.t1("<img src='res/msg-dist.png'/><div>" + sn.location.address + "</div>"));
+    div.append(dialog.p1("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>"));
+    div.append(dialog.p1(sn.ui.choose_image()));
     
     var div_tex = div.find('>*:nth-child(2) textarea');
     var div_ima = div.find('>*:nth-child(2) img');
-    var div_can = div.find('>*:nth-child(3) .button:nth-child(1)');
-    var div_sen = div.find('>*:nth-child(3) .button:nth-child(2)');
     
-    div_can.bind('click', function() {dialog.disappear();});
-    div_sen.doing = false;
-    div_sen.bind('click', function() {
+    dialog.action.add('取消').bind('click', function() {dialog.disappear();});
+    var doing = true;
+    dialog.action.add_default('发送').bind('click', function() {
         var text    = div_tex.val();
         var image   = div_ima.attr('src');
         if (0 == text.length) {
+            sn.ui.toast('必须要输入文字');
             dialog.shake();
             return;
         }
         if (/^ +$/.test(text)) {
+            sn.ui.toast('必须要输入文字');
             dialog.shake();
             return;
         }
         
-        if (div_sen.doing) return;
+        if (doing) return;
         
-        div_sen.doing = true;
-        div_sen.addClass('button-disable');
         sn.ui.toast('正在发送');
-        
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
             coosys  : 1,
@@ -502,8 +472,7 @@ function create_new_message_panel(dialog) {
             text    : text,
             image   : image
         }, function(code, desc) {
-            div_sen.doing = false;
-            div_sen.removeClass('button-disable');
+            doing = false;
             if (0 == code) {
                 dialog.disappear();
                 sn.msg.reload();

@@ -102,6 +102,8 @@ function build_frame() {
     mask.hide();
     var dialog = $('<div></div>');
     dialog.addClass('dialog');
+    dialog.append("<div class='content'></div>");
+    dialog.append("<div class='action'></div>");
     dialog.hide();
     var browse = $('<div></div>');
     browse.addClass('browse');

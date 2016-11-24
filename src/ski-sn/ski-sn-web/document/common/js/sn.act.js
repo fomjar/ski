@@ -7,8 +7,8 @@ sn.act.data = [];
 
 sn.act.new = function() {
     var dialog = sn.ui.dialog();
-    dialog.addClose('取消');
-    dialog.append(create_new_activity_panel(dialog));
+    dialog.add_close('取消');
+    dialog.content.append(create_new_activity_panel(dialog));
     dialog.appear();
 };
 
@@ -200,7 +200,7 @@ sn.act.wrap = function(data) {
     };
     
     var panel = create_activity_panel(activity);
-    var detail = create_activity_detail(activity);
+    var detail = create_activity_detail(sn.ui.dialog(), activity);
     activity.ui = {};
     activity.ui.panel = panel;
     activity.ui.detail = detail;
@@ -211,7 +211,8 @@ sn.act.wrap = function(data) {
             return;
         }
         var dialog = sn.ui.dialog();
-        dialog.append(activity.ui.detail);
+        dialog.content.append(detail);
+        detail.onappear();
         dialog.appear();
     });
     
@@ -289,7 +290,7 @@ function create_activity_panel(activity) {
     return div;
 }
 
-function create_activity_detail(activity) {
+function create_activity_detail(dialog, activity) {
     var dialog = sn.ui.dialog();
 
     var div = $('<div></div>');
@@ -298,7 +299,7 @@ function create_activity_detail(activity) {
     
     var mods = $('<div></div>');
     div.append(mods);
-    mods.append('<h3>正在加载...</h3>');
+    mods.append(dialog.h3('正在加载...'));
     
     div.onmodule = function(activity) {
         mods.children().remove();
@@ -322,54 +323,52 @@ function create_activity_detail(activity) {
             });
         }
     }, 5000);
-    var buttons = $('<div></div>');
-    buttons.addClass('btns');
-    var back = $("<div class='button'>返回</div>");
-    back.bind('click', function() {dialog.disappear()});
-    buttons.append(back);
-    if (sn.uid == activity.data.owner) {
-        switch (activity.data.astate) {
-        case 0: // 初始化
-            var open = $("<div class='button'>开启活动</div>");
-            open.bind('click', function() {
-                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
-                    aid     : activity.data.aid,
-                    state   : 1
-                }, function(code, desc) {
-                    if (0 != code) {
-                        sn.ui.dialog().shake();
-                        sn.ui.toast(desc);
-                        return;
-                    }
-                    open.remove();
+    
+    div.onappear = function() {
+        dialog.action.add('返回').bind('click', function() {dialog.disappear();});
+        if (sn.uid == activity.data.owner) {
+            switch (activity.data.astate) {
+            case 0: // 初始化
+                var open = $("<div class='button'>开启活动</div>");
+                open.bind('click', function() {
+                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
+                        aid     : activity.data.aid,
+                        state   : 1
+                    }, function(code, desc) {
+                        if (0 != code) {
+                            sn.ui.dialog().shake();
+                            sn.ui.toast(desc);
+                            return;
+                        }
+                        open.remove();
+                    });
                 });
-            });
-            buttons.append(open);
-            break;
-        case 1: { // 开始
-            var close = $("<div class='button'>关闭活动</div>");
-            close.bind('click', function() {
-                fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
-                    aid     : activity.data.aid,
-                    state   : 2
-                }, function(code, desc) {
-                    if (0 != code) {
-                        sn.ui.dialog().shake();
-                        sn.ui.toast(desc);
-                        return;
-                    }
-                    close.remove();
+                dialog.action.append(open);
+                break;
+            case 1: { // 开始
+                var close = $("<div class='button'>关闭活动</div>");
+                close.bind('click', function() {
+                    fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, {
+                        aid     : activity.data.aid,
+                        state   : 2
+                    }, function(code, desc) {
+                        if (0 != code) {
+                            sn.ui.dialog().shake();
+                            sn.ui.toast(desc);
+                            return;
+                        }
+                        close.remove();
+                    });
                 });
-            });
-            buttons.append(close);
-            break;
+                dialog.action.append(close);
+                break;
+            }
+            case 2: { // 关闭
+                break;
+            }
+            }
         }
-        case 2: { // 关闭
-            break;
-        }
-        }
-    }
-    div.append(buttons);
+    };
     return div;
 }
 
@@ -459,7 +458,7 @@ function create_activity_basic(dialog, pages, activity) {
     div.append('<div>新活动</div>');
     div.append("<div><input type='text' placeholder='活动标题'></div>");
     div.append("<div><textarea placeholder='活动描述'></textarea></div>");
-    div.append(sn.ui.choose_image(1024 * 1024 * 2, function() {}, function() {dialog.shake();}));
+    div.append(sn.ui.choose_image());
     div.append("<div><input type='text' placeholder='开始时间'><input type='text' placeholder='结束时间'></div>");
     div.append("<div><div class='button'>继续</div></div>");
     
@@ -736,7 +735,7 @@ function create_activity_creating(dialog, pages, activity) {
     div.append('<div>创建中</div>');
     
     div.onappear = function() {
-        dialog.removeClose();
+        dialog.remove_close();
         var ds = [];
         fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, activity.basic, function(code, desc) {
             if (0 != code) {
