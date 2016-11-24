@@ -349,20 +349,20 @@ function create_message_detail(dialog, msg) {
 function get_distance_description(distance) {
     var i = 0;
     
-    i = distance / 1000 / 10000;
-    if (1 <= i) return i.toFixed(0) + '万公里';
+    i = (distance / 1000 / 10000).toFixed(0);
+    if (1 <= i) return i + '万公里';
     
-    i = distance / 1000 / 1000;
-    if (1 <= i) return i.toFixed(0) + '千公里';
+    i = (distance / 1000 / 1000).toFixed(0);
+    if (1 <= i) return i + '千公里';
     
-    i = distance / 1000 / 100;
-    if (1 <= i) return i.toFixed(0) + '百公里';
+    i = (distance / 1000 / 100).toFixed(0);
+    if (1 <= i) return i + '百公里';
     
-    i = distance / 1000;
-    if (1 <= i) return i.toFixed(1) + '公里';
+    i = (distance / 1000).toFixed(1);
+    if (1 <= i) return i + '公里';
     
-    i = distance / 100;
-    if (1 <= i) return i.toFixed(0) + '00米';
+    i = (distance / 100).toFixed(0);
+    if (1 <= i) return i + '00米';
     
     return '身边';
 }
