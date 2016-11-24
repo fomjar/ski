@@ -154,13 +154,8 @@
     padding         : .5em 1em;
     padding-bottom  : 0;
 }
-.sn .msg-detail .focus >div:nth-child(2n+1) {
-    color       : gray;
-    font-size   : .9em;
-}
-.sn .msg-detail .focus >div:nth-child(2), .sn .msg-detail .focus >div:nth-child(4) {
-    padding-bottom : .8em;
-}
+.sn .msg-detail .focus .t2 {margin-bottom : 0;}
+.sn .msg-detail .focus >div:nth-child(2n) {padding-bottom : .8em;}
 .sn .msg-detail .focus .cover {
     width           : 2.2em;
     height          : 2.2em;

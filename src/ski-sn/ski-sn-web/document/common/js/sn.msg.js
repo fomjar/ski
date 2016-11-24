@@ -79,8 +79,8 @@ sn.msg.wrap = function(data) {
     var div_msg = $([panel[0], detail.find('.msg-panel')[0]]);
     msg.ui.attitude_up = function() {
         if (!sn.user) {
-            sn.ui.dialog().children().detach();
-            sn.ui.login();
+            sn.ui.dialog().disappear();
+            setTimeout(function() {sn.ui.login();}, 210)
             return;
         }
         var a = msg.data.attitude();
@@ -111,8 +111,8 @@ sn.msg.wrap = function(data) {
     };
     msg.ui.attitude_down = function() {
         if (!sn.user) {
-            sn.ui.dialog().children().detach();
-            sn.ui.login();
+            sn.ui.dialog().disappear();
+            setTimeout(function() {sn.ui.login();}, 210)
             return;
         }
         var a = msg.data.attitude();
@@ -252,7 +252,14 @@ function create_message_detail(dialog, msg) {
     div_detail.onappear = function() {
         dialog.action.clear();
         dialog.action.add('返回').bind('click', function() {dialog.disappear();});
-        dialog.action.add('回复').bind('click', function() {page.page_set('reply');});
+        dialog.action.add('回复').bind('click', function() {
+            if (!sn.user) {
+                sn.ui.dialog().disappear();
+                setTimeout(function() {sn.ui.login();}, 210)
+                return;
+            }
+            page.page_set('reply');
+        });
     };
     
     var div_reply = $('<div></div>');
@@ -428,7 +435,7 @@ function show_first_send(dialog) {
             dialog.addClass('dialog-msg-new');
             dialog.content.append(create_new_message_panel(dialog));
             dialog.appear();
-        }, 200);
+        }, 210);
     });
     
     dialog.appear();
