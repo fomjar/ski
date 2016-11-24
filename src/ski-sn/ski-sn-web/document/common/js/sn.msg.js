@@ -445,7 +445,7 @@ function create_new_message_panel(dialog) {
     var div_ima = div.find('>*:nth-child(2) img');
     
     dialog.action.add('取消').bind('click', function() {dialog.disappear();});
-    var doing = true;
+    var doing = false;
     dialog.action.add_default('发送').bind('click', function() {
         var text    = div_tex.val();
         var image   = div_ima.attr('src');
@@ -461,7 +461,7 @@ function create_new_message_panel(dialog) {
         }
         
         if (doing) return;
-        
+        doing = true;
         sn.ui.toast('正在发送');
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {

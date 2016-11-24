@@ -449,7 +449,7 @@ sn.ui.longtouch = function(div, cb) {
 
 sn.ui.state = function(i) {
     var s = null;
-    if ('number' == typeof i) s = $('.sn .head .state:nth-child('+(i+1)+')');
+    if ('number' == typeof i) s = $($('.sn .head .state')[0]);
     else s = i;
     s.flash = function() {
         s.removeClass('state-flash');
@@ -708,8 +708,8 @@ function create_user_register_2(dialog, page) {
                 sn.ui.toast("姓名不能包含“\"”(英文双引号)或“'”(英文单引号)");
                 return;
             }
-            if (doing) return;
             
+            if (doing) return;
             doing = true;
             sn.ui.toast('正在提交', 10000);
             user_register.name = name;
@@ -824,7 +824,6 @@ function create_user_detail_cover(dialog, page) {
         var doing = false;
         dialog.action.add('提交').bind('click', function() {
             if (doing) return;
-            
             doing = true;
             sn.ui.toast('正在提交', 10000);
             fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
