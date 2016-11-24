@@ -1,48 +1,25 @@
 
-
-.sn .first-send {
-    padding : 0 2em;
-}
-.sn .first-send h2 {
-    text-align  : center;
-}
+.sn .first-send .h2 {text-align : center;}
 .sn .first-send img {
     width   : 1em;
     height  : 1em;
-    margin  : 0 .5em;
-    border : 1px solid gray;
     vertical-align  : middle;
+    margin  : 0 .5em;
 }
-.sn .first-send >div {
-    position    : absolute;
-    left        : 0;
-    bottom      : 1em;
-    width       : 100%;
-    text-align  : center;
-}
-.sn .first-send >div .button {margin : 0 1em;}
 
 .sn .dialog-msg-new {
     height      : 10em;
     top         : 80%;
     overflow    : hidden;
 }
-.sn .msg-new {
-    position    : absolute;
-    width       : 100%;
-    height      : 100%;
-}
-.sn .msg-new >*:nth-child(1) {padding : .5em 1em;}
-.sn .msg-new >*:nth-child(1) img {width : 1em; vertical-align: middle;}
-.sn .msg-new >*:nth-child(1) div {display : inline; font-size : .9em; color : gray; margin-left : .5em;}
-.sn .msg-new >*:nth-child(2) {width : 100%;}
-.sn .msg-new >*:nth-child(2) textarea {position : absolute; top : 2em; width : 70%; left : .5em; bottom : 2.5em;}
-.sn .msg-new >*:nth-child(2) .choose-image {position : absolute; top : 2.1em; width : 20%; bottom : 2.6em; right : .5em;}
-.sn .msg-new >*:nth-child(2) .choose-image >*     {border-radius : 1em; -webkit-border-radius : 1em;}
-.sn .msg-new >*:nth-child(2) .choose-image >input {top : -5.2em;}
-.sn .msg-new >*:nth-child(3) {position : absolute; width : 100%; bottom : .5em; text-align : center; color : blue;}
-.sn .msg-new >*:nth-child(3) .button {margin : 0 1em;}
-
+.sn .dialog-msg-new .content >div {padding : .5em 1em;}
+.sn .dialog-msg-new .content >div >*:nth-child(1) {margin : 0;}
+.sn .dialog-msg-new .content >div >*:nth-child(1) img {width : 1em; vertical-align: middle;}
+.sn .dialog-msg-new .content >div >*:nth-child(1) div {display : inline; margin-left : 1em;}
+.sn .dialog-msg-new .content >div >*:nth-child(2) {display : inline-block; width : 70%;}
+.sn .dialog-msg-new .content >div >*:nth-child(2) textarea {width : 100%; height : 4em;}
+.sn .dialog-msg-new .content >div >*:nth-child(3) {display : inline-block; width : 30%;}
+.sn .dialog-msg-new .content >div >*:nth-child(3) .choose-image {width : 100%; height : 4em; border-radius : 1em; -webkit-border-radius : 1em;}
 
 .sn .msg-panel {
     width               : 100%;

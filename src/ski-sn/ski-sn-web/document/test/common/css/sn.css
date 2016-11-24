@@ -213,6 +213,7 @@ body {overflow : hidden;}
     left        : 0;
     width       : 100%;
     padding     : .5em;
+    text-align  : center;
     overflow    : auto;
 }
 .sn .dialog .action .button {margin : 0 .8em;}
@@ -317,9 +318,9 @@ body {overflow : hidden;}
     -webkit-transition  : background-color .2s cubic-bezier(0,0.5,0.5,1);
 }
 .sn .list >div:active {background-color : rgba(0, 0, 0, .1);}
-.sn .list .pair >*:nth-child(1) {float : left;}
-.sn .list .pair >*:nth-child(2) {float : right; color : gray;}
-.sn .list .pair >input:nth-child(2) {height : 1.5em; text-align : right; background : rgba(0, 0, 0, 0);}
+.sn .list .pair >* {display : inline-block; height : 1.5em; background : rgba(0, 0, 0, 0);}
+.sn .list .pair >*:nth-child(1) {width : 40%; text-align : left;}
+.sn .list .pair >*:nth-child(2) {width : 60%; text-align : right; color : gray;}
 .sn .cover {
     display     : inline-block;
     position    : relative;
@@ -404,84 +405,35 @@ body {overflow : hidden;}
      10% {background-color : green;}
     100% {background-color : lightgray;}
 }
-.sn .page-user-detail-info  {
-    text-align : center;
-}
-.sn .page-user-detail-info  img {
-    width : 5em;
-    height : 5em;
-    border-radius : 2.5em;
-    -webkit-border-radius : 2.5em;
-    margin-top : 2em;
-    margin-bottom : 4em;
-}
-.sn .page-user-detail-info  >.button {
-    display : block;
-    margin : 1em;
-    background-color : rgba(255, 0, 0, .5);
-    color : white;
-}
-.sn .page-user-detail-info  >.button:active {background-color : rgba(255, 0, 0, .9);}
-.sn .page-user-detail-cover {text-align : center;}
-.sn .page-user-detail-cover >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-cover .choose-image {
-    width : 5em;
-    height : 5em;
-    border-radius : 2.5em;
-    -webkit-border-radius : 2.5em;
-    margin-top : 2em;
-    margin-bottom : 4em;
-    margin-left : 50%;
-    transform: translateX(-50%);
-    -webkit-transform: translateX(-50%);
-}
-.sn .page-user-detail-cover .choose-image * {
-    border-radius : 2.5em;
-    -webkit-border-radius : 2.5em;
-}
-.sn .page-user-detail-cover .button {margin : .5em 1em;}
-.sn .page-user-detail-name  {text-align : center;}
-.sn .page-user-detail-name  >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-name  input {
-    width : 60%;
-    margin-top : 2em;
-    margin-bottom : 4em;
-    text-align : center;
-}
-.sn .page-user-detail-name  .button {margin : .5em 1em;}
-.sn .page-user-detail-phone {text-align : center;}
-.sn .page-user-detail-phone >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-phone >*:nth-child(2) {
-    width : 60%;
-    margin-top : 2em;
-    text-align : center;
-}
-.sn .page-user-detail-phone >*:nth-child(3) {
-    margin-top : .5em;
-    margin-bottom : 4em;
-    text-align : center;
-}
-.sn .page-user-detail-phone >*:nth-child(3) input   {
-    position : relative;
-    left :  2em;
-    width : 60%;
-    text-align : center;
-}
-.sn .page-user-detail-phone >*:nth-child(3) .button {
-    position : relative;
-    left : -2em;
-    padding : .3em .5em;
-    margin : 0 .5em;
-}
-.sn .page-user-detail-phone .button {margin : .5em 1em;}
-.sn .page-user-detail-pass  {text-align : center;}
-.sn .page-user-detail-pass  >div:nth-child(1) {font-size : 2em;}
-.sn .page-user-detail-pass  >*:nth-child(2) {
-    margin-top : 2em;
-    margin-bottom : 4em;
-}
-.sn .page-user-detail-pass  .button {margin : .5em 1em;}
 
+.sn .dialog-user-detail {text-align : center;}
+.sn .dialog-user-detail input {width : 80%; text-align : center;}
+
+.sn .page-user-detail-info .cover {
+    width   : 2em;
+    height  : 2em;
+            border-radius : 50%;
+    -webkit-border-radius : 50%;
+}
+.sn .page-user-detail-info .button {
+    display : block;
+    margin  : 1em;
+    color   : white;
+    background-color : rgba(255, 0, 0, .5);
+}
+.sn .page-user-detail-info .button:active {background-color : rgba(255, 0, 0, .9);}
+
+.sn .page-user-detail-cover .choose-image {
+    width   : 2em;
+    height  : 2em;
+            border-radius : 50%;
+    -webkit-border-radius : 50%;
+}
+
+.sn .page-user-detail-phone >*:nth-child(3) .button {
+    position    : absolute;
+    right       : 10%;
+}
 
 
 .sn .dialog-login {text-align : center;}

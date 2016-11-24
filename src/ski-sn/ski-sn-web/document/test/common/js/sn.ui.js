@@ -501,6 +501,7 @@ sn.ui.logout = function() {
 
 sn.ui.detail = function() {
     var dialog = sn.ui.dialog();
+    dialog.addClass('dialog-user-detail');
     dialog.add_close('关闭');
     dialog.content.append(create_user_detail(dialog));
     dialog.appear();
@@ -538,9 +539,9 @@ function create_user_login_1(dialog, page) {
         var phone = div_pho.val();
         var pass  = div_pas.val();
         var error = null;
-        if (error = check_phone(phone)) {
+        if (0 == phone.length) {
             dialog.shake();
-            sn.ui.toast(error);
+            sn.ui.toast("请输入手机号");
             return;
         }
         if (0 == pass.length) {
@@ -785,17 +786,17 @@ function create_user_detail(dialog) {
 function create_user_detail_info(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-user-detail-info');
-    div.append("<img src='" + sn.user.cover + "' />");
+    div.append(dialog.h1(sn.ui.cover(sn.user.cover)));
     var list = $('<div></div>');
     list.addClass('list');
     list.append("<div class='pair'><div>姓名</div><div>" + sn.user.name + "</div></div>");
     list.append("<div class='pair'><div>手机</div><div>" + sn.user.phone + "</div></div>");
     list.append("<div class='pair'><div>性别</div><div>" + (0 == sn.user.gender ? '女' : '男') + "</div></div>");
     list.append("<div class='pair'><div>密码</div><div>******</div></div>");
-    div.append(list);
-    div.append("<div class='button'>注销</div>");
+    div.append(dialog.p1(list));
+    div.append(dialog.p1("<div class='button'>注销</div>"));
     
-    div.find('img').bind('click', function() {page.page_set('头像');});
+    div.find('.cover').bind('click', function() {page.page_set('头像');});
     div.find('.list .pair:nth-child(1)').bind('click', function() {page.page_set('姓名');});
     div.find('.list .pair:nth-child(2)').bind('click', function() {page.page_set('手机');});
     div.find('.list .pair:nth-child(3)').bind('click', function() {dialog.shake();});
@@ -811,95 +812,86 @@ function create_user_detail_info(dialog, page) {
 function create_user_detail_cover(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-user-detail-cover');
-    div.append('<div>修改头像</div>');
-    div.append(sn.ui.choose_image((1024 * 1024 * 2), function() {}, function() {dialog.shake();}));
-    div.append("<div><div class='button'>返回</div><div class='button button-default'>提交</div></div>");
+    div.append(dialog.h1('修改头像'));
+    div.append(dialog.h1(sn.ui.choose_image((1024 * 1024 * 2), function() {}, function() {dialog.shake();})));
     div.find('img').attr('src', sn.user.cover);
-    div.find('.button:nth-child(1)').bind('click', function() {
-        page.page_set('信息');
-    });
-    var div_sub = div.find('.button:nth-child(2)');
-    div_sub.doing = false;
-    div_sub.bind('click', function() {
-        if (div_sub.doing) return;
-        
-        div_sub.doing = true;
-        div_sub.addClass('button-disable');
-        fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            cover : div.find('img').attr('src')
-        }, function(code, desc) {
-            div_sub.doing = false;
-            div_sub.removeClass('button-disable');
-            if (0 == code) {
-                sn.ui.toast('修改头像成功');
-                sn.user.cover = div.find('img').attr('src');
-                page.page_get('信息').find('img').attr('src', sn.user.cover);
-                $('.sn .head .cover img').attr('src', sn.user.cover);
-                page.page_set('信息');
-            } else {
-                dialog.shake();
-                sn.ui.toast(desc);
-            }
+    
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {page.page_set('信息');});
+        var doing = false;
+        dialog.action.add('提交').bind('click', function() {
+            if (doing) return;
+            
+            doing = true;
+            sn.ui.toast('正在提交', 10000);
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                cover : div.find('img').attr('src')
+            }, function(code, desc) {
+                doing = false;
+                if (0 == code) {
+                    sn.ui.toast('修改头像成功');
+                    sn.user.cover = div.find('img').attr('src');
+                    page.page_get('信息').find('img').attr('src', sn.user.cover);
+                    $('.sn .head .cover img').attr('src', sn.user.cover);
+                    page.page_set('信息');
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
+    };
     return div;
 }
 
 function create_user_detail_name(dialog, page) {
     var div = $('<div></div>');
-    div.addClass('page-user-detail-name');
-    div.append('<div>修改姓名</div>');
-    div.append("<input type='text' placeholder='姓名'>")
-    div.append("<div><div class='button'>返回</div><div class='button button-default'>提交</div></div>");
+    div.append(dialog.h1('修改姓名'));
+    div.append(dialog.p1("<input type='text' placeholder='姓名'>"));
     div.find('input').val(sn.user.name);
-    div.find('.button:nth-child(1)').bind('click', function() {
-        page.page_set('信息');
-    });
-    var div_sub = div.find('.button:nth-child(2)');
-    div_sub.doing = false;
-    div_sub.bind('click', function() {
-        if (div_sub.doing) return;
-        
-        div_sub.doing = true;
-        div_sub.addClass('button-disable');
-        fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            name : div.find('input').val()
-        }, function(code, desc) {
-            div_sub.doing = false;
-            div_sub.removeClass('button-disable');
-            if (0 == code) {
-                sn.ui.toast('修改姓名成功');
-                sn.user.name = div.find('input').val();
-                page.page_get('信息').find('.pair:nth-child(1) div:nth-child(2)').text(sn.user.name);
-                $('.sn .head >*:nth-child(2)').text(sn.user.name);
-                page.page_set('信息');
-            } else {
-                dialog.shake();
-                sn.ui.toast(desc);
-            }
+    
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {page.page_set('信息');});
+        dialog.action.add('提交').bind('click', function() {
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                name : div.find('input').val()
+            }, function(code, desc) {
+                if (0 == code) {
+                    sn.ui.toast('修改姓名成功');
+                    sn.user.name = div.find('input').val();
+                    page.page_get('信息').find('.pair:nth-child(1) div:nth-child(2)').text(sn.user.name);
+                    $('.sn .head >*:nth-child(2)').text(sn.user.name);
+                    page.page_set('信息');
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
+    };
     return div;
 }
 
 function create_user_detail_phone(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-user-detail-phone');
-    div.append('<div>修改手机</div>');
-    div.append("<input type='text' placeholder='手机号码'>");
-    div.append("<div><input type='text' placeholder='4位验证码' ><div class='button'>获取</div></div>");
-    div.append("<div><div class='button'>返回</div><div class='button button-default'>提交</div></div>");
+    div.append(dialog.h1('修改手机'));
+    div.append(dialog.p1("<input type='text' placeholder='手机号码'>"));
+    div.append(dialog.p1("<input type='text' placeholder='4位验证码' ><div class='button'>获取</div>"));
     div.find('>input').val(sn.user.phone);
-    div.find('>div:nth-child(4) .button:nth-child(1)').bind('click', function() {
-        page.page_set('信息');
-    });
     
-    var div_pho = div.find('>input');
+    var div_pho = div.find('>div:nth-child(2) input');
     var div_vco = div.find('>div:nth-child(3) input');
     var div_get = div.find('>div:nth-child(3) .button');
-    var div_sub = div.find('>div:nth-child(4) .button:nth-child(2)');
     
+    div_get.doing = false;
     div_get.bind('click', function() {
+        if (div_get.hasClass('button-disable')) return;
+        
         var phone = div_pho.val();
         var error = null;
         if (error = check_phone(phone)) {
@@ -928,111 +920,104 @@ function create_user_detail_phone(dialog, page) {
             }
         });
     });
-    div_sub.doing = false;
-    div_sub.bind('click', function() {
-        if (div_sub.doing) return;
-        
-        var phone = div_pho.val();
-        var error = null;
-        if (error = check_phone(phone)) {
-            dialog.shake();
-            sn.ui.toast(error);
-            return;
-        }
-        var vcode = div_vco.val();
-        if (0 == vcode.length) {
-            dialog.shake();
-            sn.ui.toast('验证码不能为空');
-            return;
-        }
-        
-        div_sub.doing = true;
-        div_sub.addClass('button-disable')
-        fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            phone : div_pho.val(),
-            vcode : vcode
-        }, function(code, desc) {
-            div_sub.doing = false;
-            div_sub.removeClass('button-disable');
-            if (0 == code) {
-                sn.ui.toast('修改电话成功');
-                sn.user.phone = div_pho.val();
-                page.page_get('信息').find('.pair:nth-child(2) div:nth-child(2)').text(sn.user.phone);
-                page.page_set('信息');
-            } else {
+    
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {page.page_set('信息');});
+        dialog.action.add('提交').bind('click', function() {
+            var phone = div_pho.val();
+            var error = null;
+            if (error = check_phone(phone)) {
                 dialog.shake();
-                sn.ui.toast(desc);
+                sn.ui.toast(error);
+                return;
             }
+            var vcode = div_vco.val();
+            if (0 == vcode.length) {
+                dialog.shake();
+                sn.ui.toast('验证码不能为空');
+                return;
+            }
+            
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                phone : div_pho.val(),
+                vcode : vcode
+            }, function(code, desc) {
+                if (0 == code) {
+                    sn.ui.toast('修改电话成功');
+                    sn.user.phone = div_pho.val();
+                    page.page_get('信息').find('.pair:nth-child(2) div:nth-child(2)').text(sn.user.phone);
+                    page.page_set('信息');
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
+    };
+    
     return div;
 }
 
 function create_user_detail_pass(dialog, page) {
     var div = $('<div></div>');
-    div.addClass('page-user-detail-pass');
-    div.append('<div>修改密码</div>');
+    div.append(dialog.h1('修改密码'));
     var list = $('<div></div>');
     list.addClass('list');
     list.append("<div class='pair'><div>旧密码</div><input type='password' placeholder='旧密码'>");
     list.append("<div class='pair'><div>新密码</div><input type='password' placeholder='新密码'>");
     list.append("<div class='pair'><div>重复</div><input type='password' placeholder='重复新密码'>");
     div.append(list);
-    div.append("<div><div class='button'>返回</div><div class='button button-default'>提交</div></div>");
-    div.find('.button:nth-child(1)').bind('click', function() {
-        page.page_set('信息');
-    });
+    
     var div_old = div.find('.pair:nth-child(1) input');
     var div_new1 = div.find('.pair:nth-child(2) input');
     var div_new2 = div.find('.pair:nth-child(3) input');
-    var div_sub = div.find('.button:nth-child(2)');
     
-    div_sub.doing = false;
-    div_sub.bind('click', function() {
-        if (div_sub.doing) return;
-        
-        var pass_old = div_old.val();
-        var pass_new1 = div_new1.val();
-        var pass_new2 = div_new2.val();
-        
-        if (pass_new1 != pass_new2) {
-            dialog.shake();
-            sn.ui.toast('两次输入密码不相同');
-            return;
-        }
-        if (0 == pass_new1.length) {
-            dialog.shake();
-            sn.ui.toast('密码不能为空');
-            return;
-        }
-        if (/'|"/.test(pass_new1)) {
-            dialog.shake();
-            sn.ui.toast("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
-            return;
-        }
-        if (sn.user.pass != pass_old) {
-            dialog.shake();
-            sn.ui.toast('旧密码错误');
-            return;
-        }
-        
-        div_sub.doing = true;
-        div_sub.addClass('button-disable');
-        fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
-            pass : pass_new1
-        }, function(code, desc) {
-            div_sub.doing = false;
-            div_sub.removeClass('button-disable');
-            if (0 == code) {
-                sn.ui.toast('修改密码成功');
-                sn.user.pass = pass_new1;
-                page.page_set('信息');
-            } else {
+    div.ondisappear = function() {dialog.action.clear();};
+    div.onappear = function() {
+        dialog.action.clear();
+        dialog.action.add('返回').bind('click', function() {page.page_set('信息');});
+        dialog.action.add('提交').bind('click', function() {
+            var pass_old = div_old.val();
+            var pass_new1 = div_new1.val();
+            var pass_new2 = div_new2.val();
+            
+            if (pass_new1 != pass_new2) {
                 dialog.shake();
-                sn.ui.toast(desc);
+                sn.ui.toast('两次输入密码不相同');
+                return;
             }
+            if (0 == pass_new1.length) {
+                dialog.shake();
+                sn.ui.toast('密码不能为空');
+                return;
+            }
+            if (/'|"/.test(pass_new1)) {
+                dialog.shake();
+                sn.ui.toast("密码不能包含“\"”(英文双引号)或“'”(英文单引号)");
+                return;
+            }
+            if (sn.user.pass != pass_old) {
+                dialog.shake();
+                sn.ui.toast('旧密码错误');
+                return;
+            }
+            
+            fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                pass : pass_new1
+            }, function(code, desc) {
+                if (0 == code) {
+                    sn.ui.toast('修改密码成功');
+                    sn.user.pass = pass_new1;
+                    page.page_set('信息');
+                } else {
+                    dialog.shake();
+                    sn.ui.toast(desc);
+                }
+            });
         });
-    });
+    };
     return div;
 }
 

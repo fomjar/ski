@@ -488,9 +488,9 @@ function create_user_login_1(dialog, page) {
         var phone = div_pho.val();
         var pass  = div_pas.val();
         var error = null;
-        if (error = check_phone(phone)) {
+        if (0 == phone.length) {
             dialog.shake();
-            sn.ui.toast(error);
+            sn.ui.toast("请输入手机号");
             return;
         }
         if (0 == pass.length) {

@@ -7,8 +7,8 @@ sn.act.data = [];
 
 sn.act.new = function() {
     var dialog = sn.ui.dialog();
-    dialog.addClose('取消');
-    dialog.append(create_new_activity_panel(dialog));
+    dialog.add_close('取消');
+    dialog.content.append(create_new_activity_panel(dialog));
     dialog.appear();
 };
 
@@ -211,7 +211,7 @@ sn.act.wrap = function(data) {
             return;
         }
         var dialog = sn.ui.dialog();
-        dialog.append(activity.ui.detail);
+        dialog.content.append(activity.ui.detail);
         dialog.appear();
     });
     
@@ -736,7 +736,7 @@ function create_activity_creating(dialog, pages, activity) {
     div.append('<div>创建中</div>');
     
     div.onappear = function() {
-        dialog.removeClose();
+        dialog.remove_close();
         var ds = [];
         fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY, activity.basic, function(code, desc) {
             if (0 != code) {

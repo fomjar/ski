@@ -69,7 +69,7 @@ sn.msg.wrap = function(data) {
         if (e.target.tagName == 'IMG') return;
         
         var dialog = sn.ui.dialog();
-        dialog.append(detail);
+        dialog.content.append(detail);
         dialog.appear();
     };
     panel.find('.mc').bind('click', show_detail);
@@ -154,7 +154,7 @@ sn.msg.new = function() {
         show_first_send(dialog);
     } else {
         dialog.addClass('dialog-msg-new');
-        dialog.append(create_new_message_panel(dialog));
+        dialog.content.append(create_new_message_panel(dialog));
         dialog.appear();
     }
 }
@@ -434,48 +434,38 @@ function load_message_reply(msg) {
 function show_first_send(dialog) {
     var div = $('<div></div>');
     div.addClass('first-send');
-    div.append('<h2>声呐礼仪</h2>');
-    div.append("<p><b>收获<img src='res/msg-up.png' />:</b>发周围小伙伴都喜欢的消息会获得<img src='res/msg-up.png' />。<img src='res/msg-up.png' />的越多，就会有更多人看到！</p>");
-    div.append("<p><b>不要被<img src='res/msg-down.png' />:</b>如果消息其他人不喜欢／觉得不合适会获得<img src='res/msg-down.png' />。<img src='res/msg-down.png' />收到一定数量，您的消息会被删除哦</p>");
-    div.append("<p><b>请不要</b>针对其他小伙伴，进行人身攻击，隐私曝光</p>");
-    div.append("<p><b>请不要</b>发广告，或者重复发消息刷屏</p>");
-    div.append("<div><div class='button'>拒绝</div><div class='button button-default'>接受</div></div>");
+    div.append(dialog.h2('声呐礼仪'));
+    div.append(dialog.p1("<p><b>收获<img src='res/msg-up.png' />:</b>发周围小伙伴都喜欢的消息会获得<img src='res/msg-up.png' />。<img src='res/msg-up.png' />的越多，就会有更多人看到！</p>"));
+    div.append(dialog.p1("<p><b>不要被<img src='res/msg-down.png' />:</b>如果消息其他人不喜欢／觉得不合适会获得<img src='res/msg-down.png' />。<img src='res/msg-down.png' />收到一定数量，您的消息会被删除哦</p>"));
+    div.append(dialog.p1("<p><b>请不要</b>针对其他小伙伴，进行人身攻击，隐私曝光</p>"));
+    div.append(dialog.p1("<p><b>请不要</b>发广告，或者重复发消息刷屏</p>"));
     
-    dialog.append(div);
-    dialog.appear();
-    
-    div.find('>div .button:nth-child(1)').bind('click', function() {
-        dialog.disappear();
-    });
-    div.find('>div .button:nth-child(2)').bind('click', function() {
+    dialog.content.append(div);
+    dialog.action.add('拒绝').bind('click', function() {dialog.disappear();});
+    dialog.action.add_default('接受').bind('click', function() {
         sn.config('first_send', 'true');
+        dialog.disappear();
         dialog.addClass('dialog-msg-new');
-        dialog.children().remove();
-        dialog.append(create_new_message_panel(dialog));
-    })
+        dialog.content.append(create_new_message_panel(dialog));
+        dialog.appear();
+    });
+    
+    dialog.appear();
 }
 
 function create_new_message_panel(dialog) {
     var div = $('<div></div>');
-    div.addClass('msg-new');
     
-    div.append("<div><img src='res/msg-dist.png'/><div>" + sn.location.address + "</div></div>");
-    
-    var div_content = $('<div></div>');
-    div_content.append("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>");
-    div_content.append(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();}));
-    
-    div.append(div_content);
-    div.append("<div><div class='button'>取消</div><div class='button button-default'>发送</div></div>");
+    div.append(dialog.t1("<img src='res/msg-dist.png'/><div>" + sn.location.address + "</div>"));
+    div.append(dialog.p1("<textarea placeholder='想法 / 问询 / 活动 / 段子'></textarea>"));
+    div.append(dialog.p1(sn.ui.choose_image(1024 * 1024 * 2, function(){}, function(){dialog.shake();})));
     
     var div_tex = div.find('>*:nth-child(2) textarea');
     var div_ima = div.find('>*:nth-child(2) img');
-    var div_can = div.find('>*:nth-child(3) .button:nth-child(1)');
-    var div_sen = div.find('>*:nth-child(3) .button:nth-child(2)');
     
-    div_can.bind('click', function() {dialog.disappear();});
-    div_sen.doing = false;
-    div_sen.bind('click', function() {
+    dialog.action.add('取消').bind('click', function() {dialog.disappear();});
+    var doing = true;
+    dialog.action.add_default('发送').bind('click', function() {
         var text    = div_tex.val();
         var image   = div_ima.attr('src');
         if (0 == text.length) {
@@ -487,12 +477,9 @@ function create_new_message_panel(dialog) {
             return;
         }
         
-        if (div_sen.doing) return;
+        if (doing) return;
         
-        div_sen.doing = true;
-        div_sen.addClass('button-disable');
         sn.ui.toast('正在发送');
-        
         text = new fomjar.util.base64().encode(text);
         fomjar.net.send(ski.ISIS.INST_UPDATE_MESSAGE, {
             coosys  : 1,
@@ -502,8 +489,7 @@ function create_new_message_panel(dialog) {
             text    : text,
             image   : image
         }, function(code, desc) {
-            div_sen.doing = false;
-            div_sen.removeClass('button-disable');
+            doing = false;
             if (0 == code) {
                 dialog.disappear();
                 sn.msg.reload();
