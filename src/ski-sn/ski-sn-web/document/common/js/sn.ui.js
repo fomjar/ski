@@ -461,7 +461,7 @@ sn.ui.state = function(i) {
         return s.width() != s.height();
     };
     s.open = function() {
-        s.css('width', s.width() * 1.2 + s.find('>div').outerWidth(true) + 'px');
+        s.css('width', s.width() * 1.4 + s.find('>div').outerWidth(true) + 'px');
         s.find('>div').css('opacity', '0');
         s.find('>div').show();
         s.find('>div').css('opacity', '1');

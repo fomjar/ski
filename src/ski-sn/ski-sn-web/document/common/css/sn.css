@@ -356,22 +356,22 @@ body {overflow : hidden;}
     color   : lightgray;
 }
 .sn .head .state {
-    position    : absolute;
+    display     : inline-block;
+    position    : relative;
+    float       : right;
     z-index     : 3;
-    top         : .3em;
     width       : 2.4em;
     height      : 2.4em;
+    margin      : .3em .5em;
+    overflow    : hidden;
     background-color        : lightgray;
             border-radius   : 1.2em;
     -webkit-border-radius   : 1.2em;
-            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
-    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1), right .2s cubic-bezier(0,0.5,0.5,1);
+            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1), width .2s cubic-bezier(0,0.5,0.5,1);
 }
-.sn .head .state:nth-child(3) {right : .5em;}
-/* .sn .head .state:nth-child(3) {right : 6.3em;}
-.sn .head .state:nth-child(4) {right : 3.4em;}
-.sn .head .state:nth-child(5) {right :  .5em;} */
 .sn .head .state >img {
+    float       : left;
     position    : relative;
     max-width   : 1.2em;
     max-height  : 1.2em;
@@ -381,11 +381,11 @@ body {overflow : hidden;}
     -webkit-transform : translate(-50%, -50%);
 }
 .sn .head .state >div {
+    float       : left;
     position    : absolute;
-    z-index     : 2;
-    top         : 0;
-    right       : .9em;
+    left        : 2.2em;
     line-height : 2.4em;
+    z-index     : 2;
     opacity     : 0;
             transition : opacity .2s linear;
     -webkit-transition : opacity .2s linear;
