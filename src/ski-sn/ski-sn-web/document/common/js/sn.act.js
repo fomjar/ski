@@ -299,7 +299,7 @@ function create_activity_detail(dialog, activity) {
     
     var mods = $('<div></div>');
     div.append(mods);
-    mods.append(dialog.h3('正在加载...'));
+    mods.append(dialog.h2('正在加载...'));
     
     div.onmodule = function(activity) {
         mods.children().remove();

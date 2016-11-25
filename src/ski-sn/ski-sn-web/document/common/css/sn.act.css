@@ -9,14 +9,14 @@
 .sn .act-panel .ac {
     width           : 100%;
     padding         : .5em 1em;
-    background-color        : rgba(255, 255, 255, .9);
+    background-color        : rgba(220, 255, 220, .9);
             border-radius   : 1.5em;
     -webkit-border-radius   : 1.5em;
             transition      : background-color .5s;
     -webkit-transition      : background-color .5s;
 }
 .sn .act-panel .ac:active {
-    background-color        : rgba(200, 200, 200, .9);
+    background-color        : rgba(180, 220, 180, .9);
 }
 .sn .act-panel .ac >*:nth-child(1) {
     float   : left;
@@ -112,10 +112,11 @@
 }
 .sn .act-detail .vote .items >div >*:nth-child(5) {
     position        : absolute;
-    bottom          : .5em;
-    right           : .5em;
+    right           : 0;
+    bottom          : 0;
+    height          : 100%;
+    line-height     : 3em;
     padding-left    : 3em;
-    line-height     : 2em;
     background-color: lightgray;
             border-radius   : 0;
     -webkit-border-radius   : 0;
@@ -177,8 +178,8 @@
 
 .sn .act-mod-vote-items {text-align : center;}
 .sn .act-mod-vote-items >div {position: relative; padding : 0 20%; margin : 1em 0;}
-.sn .act-mod-vote-items >div >*:nth-child(2) {width: 100%;}
-.sn .act-mod-vote-items >div >*:nth-child(3) {height: 4em;}
+.sn .act-mod-vote-items >div >*:nth-child(2) {width : 100%;}
+.sn .act-mod-vote-items >div >*:nth-child(3) {width : 100%; height: 4em;}
 
 .sn .act-create {text-align : center;}
 .sn .act-create >*:nth-child(1) {font-size : 2em;}

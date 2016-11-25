@@ -311,7 +311,7 @@ begin
                 '\'\t', a.c_begin,
                 '\'\t', a.c_end,
                 '\'\t', a.i_state)
-               order by a.t_create desc
+               order by a.t_create
                separator '\'\n')
           into c_desc
           from tbl_activity a, tbl_user u
@@ -332,7 +332,7 @@ begin
                 '\'\t', a.c_begin,
                 '\'\t', a.c_end,
                 '\'\t', a.i_state)
-               order by a.t_create desc
+               order by a.t_create
                separator '\'\n')
           into c_desc
           from tbl_activity a, tbl_user u
