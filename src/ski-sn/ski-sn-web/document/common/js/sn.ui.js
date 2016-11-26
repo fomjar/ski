@@ -237,33 +237,42 @@ sn.ui.page = function() {
         var i_old = div.page_index(t_old);
         var i_new = div.page_index(title);
         if (i_old == i_new) return;
+        
         curr = title;
-        if (i_old > i_new) { // come in from left
-            pages[title].removeClass('ol or in');
-            pages[title].addClass('ol');
+        if (!div.is(':visible')) {
+            div.children().detach();
             div.append(pages[title]);
-            
-            setTimeout(function() {
-                pages[t_old].removeClass('ol or in');
-                pages[t_old].addClass('or');
-                pages[title].removeClass('ol or in');
-                pages[title].addClass('in');
-                
-                setTimeout(function(){pages[t_old].detach();}, 300);
-            }, 0);
-        } else { // come in from right
+            pages[t_old].removeClass('ol or in');
             pages[title].removeClass('ol or in');
-            pages[title].addClass('or');
-            div.append(pages[title]);
-            
-            setTimeout(function() {
-                pages[t_old].removeClass('ol or in');
-                pages[t_old].addClass('ol');
+            pages[title].addClass('in');
+        } else {
+            if (i_old > i_new) { // come in from left
                 pages[title].removeClass('ol or in');
-                pages[title].addClass('in');
+                pages[title].addClass('ol');
+                div.append(pages[title]);
                 
-                setTimeout(function(){pages[t_old].detach();}, 300);
-            }, 0);
+                setTimeout(function() {
+                    pages[t_old].removeClass('ol or in');
+                    pages[t_old].addClass('or');
+                    pages[title].removeClass('ol or in');
+                    pages[title].addClass('in');
+                    
+                    setTimeout(function(){pages[t_old].detach();}, 300);
+                }, 0);
+            } else { // come in from right
+                pages[title].removeClass('ol or in');
+                pages[title].addClass('or');
+                div.append(pages[title]);
+                
+                setTimeout(function() {
+                    pages[t_old].removeClass('ol or in');
+                    pages[t_old].addClass('ol');
+                    pages[title].removeClass('ol or in');
+                    pages[title].addClass('in');
+                    
+                    setTimeout(function(){pages[t_old].detach();}, 300);
+                }, 0);
+            }
         }
         if (pages[t_old].ondisappear) pages[t_old].ondisappear();
         if (pages[title].onappear)    pages[title].onappear();
@@ -516,6 +525,7 @@ function create_user_login(dialog) {
     page.page_append('注册-2',    create_user_register_2(dialog, page));
     page.page_append('注册-成功',  create_user_register_done(dialog));
     page.page_append('协议',      create_user_protocol(dialog, page));
+    page.page_set('注册-1');
     return page;
 }
 
@@ -621,7 +631,7 @@ function create_user_register_1(dialog, page) {
     div.ondisappear = function() {dialog.action.clear();};
     div.onappear = function() {
         dialog.action.clear();
-        dialog.action.add('返回登录').bind('click', function() {page.page_set('登录');});
+        dialog.action.add('直接登录').bind('click', function() {page.page_set('登录');});
         dialog.action.add_default('下一步').bind('click', function() {
             var phone = div_pho.val();
             var error = null;
