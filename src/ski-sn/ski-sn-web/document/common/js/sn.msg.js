@@ -449,7 +449,7 @@ function create_new_message_panel(dialog) {
     div.append(dialog.p1(sn.ui.choose_image()));
     
     var div_tex = div.find('>*:nth-child(2) textarea');
-    var div_ima = div.find('>*:nth-child(2) img');
+    var div_ima = div.find('>*:nth-child(3) img');
     
     dialog.action.add('取消').bind('click', function() {dialog.disappear();});
     var doing = false;

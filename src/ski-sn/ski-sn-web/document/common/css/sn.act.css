@@ -95,12 +95,13 @@
     top         : 1em;
     width       : 2em;
     height      : 2em;
+    display     : none;
 }
 .sn .act-detail .vote .items >div >*:nth-child(3) {
     position    : absolute;
     top         : .5em;
     line-height : 3em;
-    left        : 3.5em;
+    left        : 1em;
 }
 .sn .act-detail .vote .items >div >*:nth-child(4) {
     position    : absolute;
@@ -120,13 +121,6 @@
     background-color: lightgray;
             border-radius   : 0;
     -webkit-border-radius   : 0;
-}
-.sn .act-detail .btns {
-    text-align  : center;
-    margin-top  : 2em;
-}
-.sn .act-detail .btns >* {
-    margin  : .5em 1em;
 }
 
 .sn .act-basic {text-align : center;}
