@@ -584,12 +584,15 @@ var user_register = {};
 function create_user_register_1(dialog, page) {
     var div = $('<div></div>');
     div.addClass('page-register-1');
-    div.append(dialog.h1('注册'));
+//    div.append(dialog.h1('注册'));
+    div.append(dialog.h1('身份验证'));
     div.append(dialog.p1('声呐账户会开启很多权益。'));
     div.append(dialog.p1("<input type='text' placeholder='手机号码' >"));
     div.append(dialog.p1("<input type='text' placeholder='4位验证码' ><div class='button'>获取</div>"));
     div.append(dialog.p1("<input type='password' placeholder='创建密码' >"));
-    div.append(dialog.p2("选择“下一步”即表示您同意<br/><div class='button'>声呐服务协议</div>。"));
+    div.append(dialog.p2("选择“提交”即表示您同意<br/><div class='button'>声呐服务协议</div>。"));
+    
+    div.find('>div:nth-child(2)').css('display', 'none');
     
     var div_pho = div.find('>div:nth-child(3) input');
     var div_vco = div.find('>div:nth-child(4) input');
@@ -632,7 +635,7 @@ function create_user_register_1(dialog, page) {
     div.onappear = function() {
         dialog.action.clear();
         dialog.action.add('直接登录').bind('click', function() {page.page_set('登录');});
-        dialog.action.add_default('下一步').bind('click', function() {
+        dialog.action.add_default('提交').bind('click', function() {
             var phone = div_pho.val();
             var error = null;
             if (error = check_phone(phone)) {
@@ -663,7 +666,31 @@ function create_user_register_1(dialog, page) {
                     user_register.phone = phone;
                     user_register.vcode = vcode;
                     user_register.pass  = pass;
-                    page.page_to_next();
+                    user_register.cover = null;
+                    user_register.name  = phone.substring(0, phone.length - 4) + '****';
+                    user_register.gender= 0;
+//                    page.page_to_next();
+                    fomjar.net.send(ski.ISIS.INST_UPDATE_USER, {
+                        phone   : user_register.phone,
+                        vcode   : user_register.vcode,
+                        pass    : user_register.pass,
+                        cover   : user_register.cover,
+                        name    : user_register.name,
+                        gender  : user_register.gender
+                    }, function(code, desc) {
+                        doing = false;
+                        if (0 == code) {
+                            sn.login_manually(user_register.phone, user_register.pass, function() {
+                                page.page_set('注册-成功');
+                            }, function(code, desc) {
+                                dialog.shake();
+                                sn.ui.toast(desc);
+                            });
+                        } else {
+                            dialog.shake();
+                            sn.ui.toast(desc);
+                        }
+                    });
                 } else {
                     dialog.shake();
                     sn.ui.toast(desc);

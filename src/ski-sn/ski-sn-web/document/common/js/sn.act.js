@@ -206,10 +206,6 @@ sn.act.wrap = function(data) {
     activity.ui.detail = detail;
     
     panel.bind('click', function() {
-        if (!sn.user) {
-            sn.ui.login();
-            return;
-        }
         var dialog = sn.ui.dialog();
         dialog.content.append(detail);
         detail.onappear();
@@ -394,6 +390,11 @@ function create_activity_detail_vote(activity, module) {
             var div_vot = $("<div class='button'>投票</div>");
             div_ite.append(div_vot);
             div_vot.bind('click', function() {
+                if (!sn.user) {
+                    sn.ui.dialog().disappear();
+                    setTimeout(function() {sn.ui.login();}, 210);
+                    return;
+                }
                 fomjar.net.send(ski.ISIS.INST_UPDATE_ACTIVITY_PLAYER, {
                     aid     : activity.data.aid,
                     uid     : sn.uid,

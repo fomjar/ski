@@ -337,7 +337,7 @@ begin
           into c_desc
           from tbl_activity a, tbl_user u
          where a.i_owner = u.i_uid
-           and left(a.c_geohash, 4) = left(geohash, 4);
+           and left(a.c_geohash, 2) = left(geohash, 2);
     else
         set i_code = 3;
         set c_desc = 'illegal argument, owner and geohash must be not null';
