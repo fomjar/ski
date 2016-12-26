@@ -75,7 +75,8 @@ function build_rent() {
     var button = $('<div></div>');
     button.addClass('button button-major button-small');
     button.text('我要体验');
-    button.bind('touchend', function() {window.location = 'apply_rent_begin.html?gid=' + fomjar.util.args().gid});
+    // button.bind('touchend', function() {window.location = 'apply_rent_begin.html?gid=' + fomjar.util.args().gid});
+    button.bind('touchend', function() {vcg.show_toast('请到淘宝\"VC电玩\"进行体验', 10000);});
 
     rent.append([category, list, button]);
 

@@ -52,7 +52,8 @@ function setup() {
                 var button_end = $('<div></div>');
                 button_end.addClass('button button-major button-small');
                 button_end.text('我要归还');
-                button_end.bind('touchend', function() {window.location = 'apply_rent_end.html?oid='+c.oid.toString(16)+'&csn='+c.csn.toString(16);});
+                // button_end.bind('touchend', function() {window.location = 'apply_rent_end.html?oid='+c.oid.toString(16)+'&csn='+c.csn.toString(16);});
+                button_end.bind('touchend', function() {vcg.show_toast('请到淘宝\"VC电玩\"进行归还', 10000);});
                 var buttons = $('<table></table>');
                 var tr = $('<tr></tr>');
                 var td_v = $('<td></td>');
