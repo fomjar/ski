@@ -1,0 +1,17 @@
+.sn .body {
+    padding : 3em 0;
+}
+
+.sn .foot .send {position : absolute; z-index : 3; width : 3em; height : 3em; top : 50%; left : 50%; transform : translate(-50%, -50%); -webkit-transform : translate(-50%, -50%);}
+.sn .foot .send {
+    background              : lightgray url('res/send.png') no-repeat center;
+    background-size         : 2em;
+            border-radius   : 1.5em;
+    -webkit-border-radius   : 1.5em;
+            transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+    -webkit-transition      : background-color .2s cubic-bezier(0,0.5,0.5,1);
+}
+.sn .foot .send:active {
+    background-color        : gray;
+}
+

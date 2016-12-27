@@ -1,0 +1,132 @@
+/* system */
+* {
+    /* 边框体积 */
+            box-sizing          : border-box;
+    -webkit-box-sizing          : border-box;
+    /* 硬件加速 */
+            overflow-scrolling  : touch;
+    -webkit-overflow-scrolling  : touch;
+    /* 长按菜单 */
+            touch-callout       : none;
+    -webkit-touch-callout       : none;
+    /* 点击遮罩 */
+            tap-highlight-color : rgba(0,0,0,0);
+    -webkit-tap-highlight-color : rgba(0,0,0,0);
+}
+div {
+    cursor              : default;
+            user-select : none;
+    -webkit-user-select : none;
+}
+/* 输入框外观 */
+input, textarea, select {
+    border                  : none;
+    background-color        : white;
+    font-size               : 1em;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
+            appearance      : none;
+    -webkit-appearance      : none;
+}
+input, select {
+    padding : 0 1em;
+    height  : 2em;
+}
+textarea {padding : 0 .5em;}
+table {border-collapse : collapse;}
+body {margin : 0;}
+
+/* basic */
+div {
+            transition  : opacity 1s, left .5s, right .5s, top .5s, bottom .5s;
+    -webkit-transition  : opacity 1s, left .5s, right .5s, top .5s, bottom .5s;
+}
+.xs {
+    width       : 100%;
+    /* 字体 */
+    font-size   : 14px;
+    font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
+    opacity     : 0;
+}
+
+.xs-appear {opacity : 1;}
+
+.xs .cover {display : inline-block;}
+.xs .cover img {
+    width   : 3em;
+    height  : 3em;
+    border-radius   : .5em;
+}
+.xs .cover div {
+    display     : inline-block;
+    vertical-align  : top;
+    line-height : 3em;
+    margin-left : .5em;
+}
+
+.xs .button {
+    display     : inline-block;
+    vertical-align  : top;
+}
+.xs .button:active {
+    opacity : .6;
+}
+
+.xs .page-set {}
+.xs .page-set .page {
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+}
+.xs .page-set .page-l {
+    opacity : 0;
+    left    : -100%;
+}
+.xs .page-set .page-r {
+    opacity : 0;
+    right   : -100%;
+}
+
+.xs .head {
+    position    : absolute;
+    width       : 100%;
+    height      : 4em;
+    top         : 0;
+    left        : 0;
+    padding     : .5em;
+    background  : #000033;
+}
+.xs .head .cover div {
+    color       : #f2f2f2;
+    font-weight : 600;
+    font-size   : 1.2em;
+    position    : relative;
+    top         : -.2em;
+}
+.xs .head .m {
+    position    : absolute;
+    display : inline-block;
+    height  : 100%;
+    top     : 0;
+    left    : 50%;
+            transform   : translateX(-50%);
+    -webkit-transform   : translateX(-50%);
+    padding : .5em;
+}
+.xs .head .r {
+    display : inline-block;
+    float   : right;
+    padding : .5em;
+}
+.xs .body {
+    position    : absolute;
+    width       : 100%;
+    top         : 4em;
+    left        : 0;
+    bottom      : 0;
+    overflow    : auto;
+}
+
+
