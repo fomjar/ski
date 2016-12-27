@@ -16,10 +16,11 @@ xs.uid      = parseInt(xs.config('uid'));
 
 fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('ren', login_auto);
+fomjar.framework.phase.append('ren', test);
 
 function build_frame() {
     var frame = $('<div></div>');
-    frame.addClass('xs');
+    frame.addClass('xs disappear');
 
     var head = $('<div></div>');
     head.addClass('head');
@@ -30,11 +31,25 @@ function build_frame() {
     frame.append([head, body]);
     $('body').append(frame);
 
-    fomjar.util.async(function() {frame.addClass('xs-appear');});
+    fomjar.util.async(function() {frame.removeClass('disappear');});
 }
 
 function login_auto() {
     xs.user.login_auto();
 }
 
+function test() {
+    var ps = new xs.ui.PageSet();
+    ps.page_set_switch_cb(ps.PAGE_SWITCH_CB_DEFAULT);
+
+    xs.ui.body().append(ps);
+
+    ps.page_append(new xs.ui.Page({
+        name    : 'test',
+        view    : $("<div></div>"),
+        oper    : new xs.ui.HeadButton($('<img src=\'res/share.png\'/>'))
+    }));
+}
+
 })(jQuery)
+

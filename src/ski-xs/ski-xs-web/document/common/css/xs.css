@@ -18,7 +18,7 @@ div {
             user-select : none;
     -webkit-user-select : none;
 }
-/* 输入框外观 */
+img {vertical-align     : middle;}
 input, textarea, select {
     border                  : none;
     background-color        : white;
@@ -34,33 +34,40 @@ input, select {
 }
 textarea {padding : 0 .5em;}
 table {border-collapse : collapse;}
-body {margin : 0;}
+html, body {
+    margin  : 0;
+    width   : 100%;
+    height  : 100%;
+}
 
 /* basic */
 div {
-            transition  : opacity 1s, left .5s, right .5s, top .5s, bottom .5s;
-    -webkit-transition  : opacity 1s, left .5s, right .5s, top .5s, bottom .5s;
+            transition  : opacity .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
+    -webkit-transition  : opacity .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
+}
+
+.disappear {
+    opacity : 0 !important;
 }
 .xs {
     width       : 100%;
+    height      : 100%;
     /* 字体 */
     font-size   : 14px;
     font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
-    opacity     : 0;
 }
-
-.xs-appear {opacity : 1;}
 
 .xs .cover {display : inline-block;}
 .xs .cover img {
-    width   : 3em;
-    height  : 3em;
-    border-radius   : .5em;
+    width   : 2.5em;
+    height  : 2.5em;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
 }
 .xs .cover div {
     display     : inline-block;
     vertical-align  : top;
-    line-height : 3em;
+    line-height : 2.5em;
     margin-left : .5em;
 }
 
@@ -72,13 +79,16 @@ div {
     opacity : .6;
 }
 
-.xs .page-set {}
+.xs .page-set {
+    overflow-x  : hidden;
+}
 .xs .page-set .page {
     position    : absolute;
     width       : 100%;
     height      : 100%;
     top         : 0;
     left        : 0;
+    overflow    : auto;
 }
 .xs .page-set .page-l {
     opacity : 0;
@@ -89,10 +99,43 @@ div {
     right   : -100%;
 }
 
+.xs .mask {
+    position    : absolute;
+    z-index     : 1;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    background  : white;
+    opacity     : .5;
+}
+.xs .dialog {
+    position    : absolute;
+    z-index     : 10;
+    display     : inline-block;
+    top         : 50%;
+    left        : 50%;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+    border      : 1px solid gray;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+    background  : white;
+    box-shadow  : gray 0px 0px 10px;
+}
+.xs .dialog-disappear {
+    opacity : 0     !important;
+    top     : 55%   !important;
+}
+
+.xs .article .h1 {
+    font-weight : 600;
+}
+
 .xs .head {
     position    : absolute;
     width       : 100%;
-    height      : 4em;
+    height      : 3.5em;
     top         : 0;
     left        : 0;
     padding     : .5em;
@@ -118,12 +161,19 @@ div {
 .xs .head .r {
     display : inline-block;
     float   : right;
+    height  : 100%;
     padding : .5em;
+}
+.xs .head .r .button img {
+    height  : 100%;
+}
+.xs .head .r .button div {
+    line-height : 100%;
 }
 .xs .body {
     position    : absolute;
     width       : 100%;
-    top         : 4em;
+    top         : 3.5em;
     left        : 0;
     bottom      : 0;
     overflow    : auto;
