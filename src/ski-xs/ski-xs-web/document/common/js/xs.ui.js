@@ -200,3 +200,5 @@ xs.ui.body = function() {
     return xs.ui._body;
 }
 
+FastClick.attach(document.body);
+
