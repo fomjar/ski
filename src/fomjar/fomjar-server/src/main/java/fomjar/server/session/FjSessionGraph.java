@@ -108,15 +108,15 @@ public class FjSessionGraph {
         // no any match
         if (null == node) {
             closeSession(sid);
-            if (!path.isEmpty()) { // not match on an existing path, will close existing session and try again from head
-                logger.info(String.format("message mismatch graph, try dispatch again, sid=%s, inst=0x%08X", sid, inst));
-                dispatch(server, wrapper);
-            } else { // not match on the head, it's really not match
-                logger.info(String.format("message mismatch graph, do mismatch process and then drop, sid=%s, inst=0x%08X", sid, inst));
+            if (path.isEmpty()) { // not match on the head, it's really not match
+                logger.debug(String.format("message mismatch graph, do mismatch process and then drop, sid=%s, inst=0x%08X", sid, inst));
                 if (null != task_mismatch) {
                     try {task_mismatch.onSession(context, path, wrapper);}
                     catch (Exception e) {logger.error("on mismatch session failed for message: " + msg, e);}
                 }
+            } else { // not match on an existing path, will close existing session and try again from head
+                logger.debug(String.format("message mismatch graph, try dispatch again, sid=%s, inst=0x%08X", sid, inst));
+                dispatch(server, wrapper);
             }
             return;
         }

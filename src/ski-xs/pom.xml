@@ -10,5 +10,7 @@
   	<module>ski-xs-ura</module>
   	<module>ski-xs-cdb</module>
   	<module>ski-xs-bcs</module>
+  	<module>ski-xs-wca</module>
+  	<module>ski-xs-cfs</module>
   </modules>
 </project>

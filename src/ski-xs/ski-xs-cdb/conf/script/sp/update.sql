@@ -8,7 +8,7 @@ insert into tbl_instruction (
 ) values (
     (conv('00002001', 16, 10) + 0),
     'sp',
-    2
+    2,
     "sp_update_user(?, ?, $uid, \"$pass\", \"$phone\", \"$email\", \"$cover\", \"$name\", $gender)"
 );
 delimiter //
@@ -160,7 +160,7 @@ insert into tbl_instruction (
 ) values (
     (conv('00002002', 16, 10) + 0),
     'sp',
-    2
+    2,
     "sp_update_article(?, ?, $aid, $author, \"$location\", $weather, \"$title\", $status)"
 );
 delimiter //
@@ -289,7 +289,7 @@ insert into tbl_instruction (
 ) values (
     (conv('00002003', 16, 10) + 0),
     'sp',
-    2
+    2,
     "sp_update_paragraph(?, ?, $aid, $pid, $psn)"
 );
 delimiter //
@@ -349,14 +349,404 @@ begin
             set i_code = 0;
             set c_desc = concat(di_pid, '');
         else
+            set di_pid = pid;
+
             select count(1)
               into di_count
               from tbl_paragraph
              where i_aid = aid
-               and i_pid = pid;
+               and i_pid = di_pid;
 
-            if 
+            if di_count = 0 then
+                if psn is not null then
+                    set di_psn = psn;
+                else
+                    select max(i_psn)
+                      into di_psn
+                      from tbl_paragraph
+                     where i_aid = aid;
+
+                    set di_psn = ifnull(di_psn, 0);
+                    set di_psn = di_psn + 1;
+                end if;
+
+                insert into tbl_paragraph (
+                    i_aid,
+                    i_pid,
+                    i_psn
+                ) values (
+                    aid,
+                    di_pid,
+                    di_psn
+                );
+
+                set i_code = 0;
+                set c_desc = concat(di_pid, '');
+            else
+                if psn is null then
+                    set i_code = 3;
+                    set c_desc = 'psn must be not null';
+                else
+                    set di_psn = psn;
+
+                    update tbl_paragraph
+                       set i_psn = di_psn
+                     where i_aid = aid
+                       and i_pid = di_pid;
+
+                    set i_code = 0;
+                    set c_desc = concat(di_pid, '');
+                end if;
+            end if;
         end if;
     end if;
+end //
+delimiter ;
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002004', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002004', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_paragraph_del(?, ?, $aid, $pid)"
+);
+delimiter //
+drop procedure if exists sp_update_paragraph_del //
+create procedure sp_update_paragraph_del (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  aid         integer,
+    in  pid         integer
+)
+begin
+
+    declare di_count    integer default 0;
+
+    select count(1)
+      into di_count
+      from tbl_paragraph
+     where i_aid = aid
+       and i_pid = pid;
+
+    if di_count = 0 then
+        set i_code = 3;
+        set c_desc = 'no paragraph found';
+    else
+        delete from tbl_paragraph
+         where i_aid = aid
+           and i_pid = pid;
+
+        call sp_update_element_del(i_code, c_desc, pid, null);
+    end if;
+
+end //
+delimiter ;
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002005', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002005', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_element(?, ?, $pid, $esn, $et, \"$ec\")"
+);
+delimiter //
+drop procedure if exists sp_update_element //
+create procedure sp_update_element (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  pid         integer,
+    in  esn         integer,
+    in  et          tinyint,
+    in  ec          mediumtext
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_esn      integer default 0;
+
+    if pid is null then
+        set i_code = 3;
+        set c_desc = 'pid must be not null';
+    else
+        if esn is null then
+            select max(i_esn)
+              into di_esn
+              from tbl_element
+             where i_pid = pid;
+
+            set di_esn = ifnull(di_esn, 0);
+            set di_esn = di_esn + 1;
+
+            insert into tbl_element (
+                i_pid,
+                i_esn,
+                i_et,
+                c_ec
+            ) values (
+                pid,
+                di_esn,
+                et,
+                ec
+            );
+
+            set i_code = 0;
+            set c_desc = concat(di_esn, '');
+        else
+            set di_esn = esn;
+
+            select count(1)
+              into di_count
+              from tbl_element
+             where i_pid = pid
+               and i_esn = di_esn;
+
+            if di_count = 0 then
+                insert into tbl_element (
+                    i_pid,
+                    i_esn,
+                    i_et,
+                    c_ec
+                ) values (
+                    pid,
+                    di_esn,
+                    et,
+                    ec
+                );
+
+                set i_code = 0;
+                set c_desc = concat(di_esn, '');
+            else
+                if et is not null then
+                    update tbl_element
+                       set i_et = et
+                     where i_pid = pid
+                       and i_esn = di_esn;
+                end if;
+                if ec is not null then
+                    update tbl_element
+                       set c_ec = ec
+                     where i_pid = pid
+                       and i_esn = di_esn;
+                end if;
+
+                set i_code = 0;
+                set c_desc = concat(di_esn, '');
+            end if;
+        end if;
+    end if;
+end //
+delimiter ;
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002006', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002006', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_element_del(?, ?, $pid, $esn)"
+);
+delimiter //
+drop procedure if exists sp_update_element_del //
+create procedure sp_update_element_del (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  pid         integer,
+    in  esn         integer
+)
+begin
+
+    declare di_count    integer default 0;
+
+    if pid is null then
+        set i_code = 3;
+        set c_desc = 'pid must be not null';
+    else
+        if esn is null then
+            select count(1)
+              into di_count
+              from tbl_element
+             where i_pid = pid;
+
+            delete from tbl_element
+             where i_pid = pid;
+        else
+            select count(1)
+              into di_count
+              from tbl_element
+             where i_pid = pid
+               and i_esn = esn;
+
+            delete from tbl_element
+             where i_pid = pid
+               and i_esn = esn;
+        end if;
+
+        set i_code = 0;
+        set c_desc = concat(di_count, '');
+    end if;
+
+end //
+delimiter ;
+
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002007', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002007', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_tag(?, ?, $tid, $it, $io, \"$tag\")"
+);
+delimiter //
+drop procedure if exists sp_update_tag //
+create procedure sp_update_tag (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  tid         integer,
+    in  it          integer,
+    in  io          integer,
+    in  tag         varchar(256)
+)
+begin
+
+    declare di_count    integer default 0;
+    declare di_tid      integer default 0;
+
+    if tid is null then
+        select max(i_tid)
+          into di_tid
+          from tbl_tag;
+
+        set di_tid = ifnull(di_tid, 0);
+        set di_tid = di_tid + 1;
+
+        insert into tbl_tag (
+            i_tid,
+            i_it,
+            i_io,
+            c_tag
+        ) values (
+            di_tid,
+            it,
+            io,
+            tag
+        );
+
+        set i_code = 0;
+        set c_desc = concat(di_tid, '');
+    else
+        set di_tid = tid;
+
+        select count(1)
+          into di_count
+          from tbl_tag
+         where i_tid = di_tid;
+
+        if di_count = 0 then
+            insert into tbl_tag (
+                i_tid,
+                i_it,
+                i_io,
+                c_tag
+            ) values (
+                di_tid,
+                it,
+                io,
+                tag
+            );
+
+            set i_code = 0;
+            set c_desc = concat(di_tid, '');
+        else
+            if it is not null then
+                update tbl_tag
+                   set i_it = it
+                 where i_tid = di_tid;
+            end if;
+            if io is not null then
+                update tbl_tag
+                   set i_io = io
+                 where i_tid = di_tid;
+            end if;
+            if tag is not null then
+                update tbl_tag
+                   set c_tag = tag
+                 where i_tid = di_tid;
+            end if;
+
+            set i_code = 0;
+            set c_desc = concat(di_tid, '');
+        end if;
+    end if;
+
+end //
+delimiter ;
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002008', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002008', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_tag_del(?, ?, $tid)"
+);
+delimiter //
+drop procedure if exists sp_update_tag_del //
+create procedure sp_update_tag_del (
+    out i_code      integer,
+    out c_desc      mediumtext,
+    in  tid         integer
+)
+begin
+
+    declare di_count    integer default 0;
+
+    select count(1)
+      into di_count
+      from tbl_tag
+     where i_tid = tid;
+
+    delete from tbl_tag
+     where i_tid = tid;
+
+    set i_code = 0;
+    set c_desc = concat(di_count, '');
+
 end //
 delimiter ;

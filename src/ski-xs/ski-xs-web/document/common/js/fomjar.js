@@ -227,24 +227,12 @@ fomjar.net = {
 
     api : '/ski-web',
     
-    time : new Date().getTime(),
-
     sendto : function(url, data, cb) {
         if (2 == arguments.length) {
             cb = data;
             data = {};
         }
-        
-        var interval = 100;
-        var lasttime = fomjar.net.time;
-        var currtime = new Date().getTime();
-        var delay = currtime - lasttime >= interval ? 0 : interval - (currtime - lasttime);
-        
-        setTimeout(function() {
-            $.post(url, $.toJSON(data), function(args) {cb(args.code, args.desc)});
-        }, delay);
-        
-        fomjar.net.time = currtime + delay;
+        $.post(url, $.toJSON(data), function(args) {cb(args.code, args.desc)});
     },
 
     send : function(inst, data, cb) {
