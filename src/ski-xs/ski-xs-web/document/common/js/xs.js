@@ -47,7 +47,10 @@ function test() {
     ps.page_append(new xs.ui.Page({
         name    : 'test',
         view    : $("<div></div>"),
-        oper    : new xs.ui.HeadButton($('<img src=\'res/share.png\'/>'))
+        oper    : [
+            new xs.ui.HeadButton($('<img src=\'res/new.png\'/>')),
+            new xs.ui.HeadButton($('<img src=\'res/share.png\'/>')),
+        ]
     }));
 }
 

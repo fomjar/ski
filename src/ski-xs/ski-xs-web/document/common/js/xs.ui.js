@@ -156,6 +156,53 @@ xs.ui.Cover = function(src, txt) {
     return cover;
 }
 
+xs.ui.Spin = function(scale) {
+    if (!scale) scale = 1.0;
+    var opts = {
+        lines       : 12            // The number of lines to draw
+        , length    : 6             // The length of each line
+        , width     : 3             // The line thickness
+        , radius    : 8             // The radius of the inner circle
+        , scale     : scale         // Scales overall size of the spinner
+        , corners   : 1             // Corner roundness (0..1)
+        , color     : '#999'        // #rgb or #rrggbb or array of colors
+        , opacity   : 0.25          // Opacity of the lines
+        , rotate    : 0             // The rotation offset
+        , direction : 1             // 1: clockwise, -1: counterclockwise
+        , speed     : 0.8           // Rounds per second
+        , trail     : 40            // Afterglow percentage
+        , fps       : 20            // Frames per second when using setTimeout() as a fallback for CSS
+        , zIndex    : 2e9           // The z-index (defaults to 2000000000)
+        , className : 'spinner'     // The CSS class to assign to the spinner
+        , top       : '50%'         // Top position relative to parent
+        , left      : '50%'         // Left position relative to parent
+        , shadow    : false         // Whether to render a shadow
+        , hwaccel   : false         // Whether to use hardware acceleration
+        , position  : 'absolute'    // Element positioning
+    };
+    var spinner = new Spinner(opts);
+
+    var size = scale * 35;
+    var sc = $('<div></div>');
+    sc.addClass('spinnerc disappear');
+    sc.css('width', size);
+    sc.css('height', size);
+    sc.spinner = spinner;
+    sc.appear = function() {
+        sc.removeClass('disappear');
+    };
+    sc.disappear = function() {
+        sc.addClass('disappear');
+        fomjar.util.async(function() {
+            spinner.spin();
+            sc.remove();
+        }, 500);
+    };
+
+    spinner.spin(sc[0]);
+    return sc;
+}
+
 xs.ui.HeadButton = function(child, click) {
     var hb = $('<div></div>');
     hb.addClass('button');

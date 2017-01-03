@@ -8,6 +8,7 @@ public class CfsTask extends FjWebTask {
     @Override
     public void initialize(FjServer server) {
         super.initialize(server);
+        registerFilter(new CfsFilter());
     }
 
     @Override

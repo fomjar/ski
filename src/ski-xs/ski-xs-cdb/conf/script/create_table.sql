@@ -65,6 +65,16 @@ create table tbl_tag (
     c_tag   varchar(256)    -- TAG内容
 );
 
+-- 用户状态
+drop table if exists tbl_user_state;
+create table tbl_user_state (
+    i_uid   integer,        -- 用户
+    c_token varchar(64),    -- 凭证
+    i_state tinyint,        -- 状态：0-离线；1-在线
+    t_time  datetime,       -- 变化时间
+    primary key (i_uid)
+);
+
 
 
 

@@ -117,7 +117,7 @@ div {
     left        : 50%;
             transform   : translate(-50%, -50%);
     -webkit-transform   : translate(-50%, -50%);
-    border      : 1px solid gray;
+    border      : .1px solid gray;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
     background  : white;
@@ -126,6 +126,11 @@ div {
 .xs .dialog-disappear {
     opacity : 0     !important;
     top     : 55%   !important;
+}
+
+.xs .spinnerc {
+    position    : relative;
+    display     : inline-block;
 }
 
 .xs .article .h1 {
@@ -143,7 +148,6 @@ div {
 }
 .xs .head .cover div {
     color       : #f2f2f2;
-    font-weight : 600;
     font-size   : 1.2em;
     position    : relative;
     top         : -.2em;
@@ -163,6 +167,10 @@ div {
     float   : right;
     height  : 100%;
     padding : .5em;
+}
+.xs .head .r .button {
+    margin  : 0 .3em;
+    height  : 100%;
 }
 .xs .head .r .button img {
     height  : 100%;

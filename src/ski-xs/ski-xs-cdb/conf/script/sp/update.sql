@@ -1,12 +1,12 @@
 
-delete from tbl_instruction where i_inst = (conv('00002001', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003001', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002001', 16, 10) + 0),
+    (conv('00003001', 16, 10) + 0),
     'sp',
     2,
     "sp_update_user(?, ?, $uid, \"$pass\", \"$phone\", \"$email\", \"$cover\", \"$name\", $gender)"
@@ -151,14 +151,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002002', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003002', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002002', 16, 10) + 0),
+    (conv('00003002', 16, 10) + 0),
     'sp',
     2,
     "sp_update_article(?, ?, $aid, $author, \"$location\", $weather, \"$title\", $status)"
@@ -280,14 +280,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002003', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003003', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002003', 16, 10) + 0),
+    (conv('00003003', 16, 10) + 0),
     'sp',
     2,
     "sp_update_paragraph(?, ?, $aid, $pid, $psn)"
@@ -406,14 +406,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002004', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003004', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002004', 16, 10) + 0),
+    (conv('00003004', 16, 10) + 0),
     'sp',
     2,
     "sp_update_paragraph_del(?, ?, $aid, $pid)"
@@ -453,14 +453,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002005', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003005', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002005', 16, 10) + 0),
+    (conv('00003005', 16, 10) + 0),
     'sp',
     2,
     "sp_update_element(?, ?, $pid, $esn, $et, \"$ec\")"
@@ -556,14 +556,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002006', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003006', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002006', 16, 10) + 0),
+    (conv('00003006', 16, 10) + 0),
     'sp',
     2,
     "sp_update_element_del(?, ?, $pid, $esn)"
@@ -615,14 +615,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002007', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003007', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002007', 16, 10) + 0),
+    (conv('00003007', 16, 10) + 0),
     'sp',
     2,
     "sp_update_tag(?, ?, $tid, $it, $io, \"$tag\")"
@@ -714,14 +714,14 @@ delimiter ;
 
 
 
-delete from tbl_instruction where i_inst = (conv('00002008', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00003008', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00002008', 16, 10) + 0),
+    (conv('00003008', 16, 10) + 0),
     'sp',
     2,
     "sp_update_tag_del(?, ?, $tid)"

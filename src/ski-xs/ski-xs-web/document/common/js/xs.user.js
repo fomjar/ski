@@ -10,9 +10,13 @@ xs.user.login_manual = function() {
 
     var dialog = new xs.ui.Dialog();
     dialog.size('50%', '50%');
+    var spin = new xs.ui.Spin();
+    dialog.append(spin);
     dialog.appear();
+    spin.appear();
 
     dialog.bind('click', function() {
+        spin.disappear();
         mask.disappear();
         dialog.disappear();
     });

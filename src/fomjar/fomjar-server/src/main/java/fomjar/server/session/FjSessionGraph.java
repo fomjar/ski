@@ -135,9 +135,10 @@ public class FjSessionGraph {
         } else { // fail, roll back
             logger.error("on session failed for message: " + msg);
             path.removeLast();
+            if (path.isEmpty()) closeSession(sid);
         }
     }
-
+    
     private boolean isSessionOpened(String sid) {return contexts.containsKey(sid);}
 
     private void openSession(String sid) {
