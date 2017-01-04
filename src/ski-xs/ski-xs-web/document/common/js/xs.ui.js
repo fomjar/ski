@@ -57,16 +57,30 @@ xs.ui.PageSet = function() {
         ps.page_switch_cb = cb;
     };
     ps.PAGE_SWITCH_CB_DEFAULT = function(page_old, page_new) {
+        xs.ui.head().l.addClass('disappear');
+        xs.ui.head().m.addClass('disappear');
         xs.ui.head().r.addClass('disappear');
+
         fomjar.util.async(function() {
+            xs.ui.head().l.children().detach();
+            xs.ui.head().m.children().detach();
             xs.ui.head().r.children().detach();
 
-            if (page_new.oper) {
-                xs.ui.head().r.append(page_new.oper);
+            if (page_new.op_l) {
+                xs.ui.head().l.append(page_new.op_l);
+                xs.ui.head().l.removeClass('disappear');
+            }
+            if (page_new.op_m) {
+                xs.ui.head().m.append(page_new.op_m);
+                xs.ui.head().m.removeClass('disappear');
+            }
+            if (page_new.op_r) {
+                xs.ui.head().r.append(page_new.op_r);
                 xs.ui.head().r.removeClass('disappear');
             }
         }, 250);
     };
+    ps.page_set_switch_cb(ps.PAGE_SWITCH_CB_DEFAULT);
 
     return ps;
 }
@@ -77,7 +91,9 @@ xs.ui.Page = function(options) {
 
     this.name   = options.name;
     this.view   = options.view;
-    this.oper   = options.oper ? options.oper : null;
+    this.op_l   = options.op_l ? options.op_l : null;
+    this.op_m   = options.op_m ? options.op_m : null;
+    this.op_r   = options.op_r ? options.op_r : null;
 
     this.view.addClass('page');
 
@@ -125,7 +141,7 @@ xs.ui.Mask = function() {
 
 xs.ui.Dialog = function() {
     var dialog = $('<div></div>');
-    dialog.addClass('dialog dialog-disappear');
+    dialog.addClass('dialog center dialog-disappear');
 
     dialog.appear = function() {
         $('.xs').append(dialog);
@@ -198,6 +214,9 @@ xs.ui.Spin = function(scale) {
             sc.remove();
         }, 500);
     };
+    sc.center = function() {
+        sc.addClass('center');
+    };
 
     spinner.spin(sc[0]);
     return sc;
@@ -221,13 +240,18 @@ xs.ui.head = function() {
     head.reset = function() {
         head.children().detach();
 
+        head.l = $('<div></div>');
+        head.l.addClass('l');
         head.cover = new xs.ui.Cover();
+        head.l.append(head.cover);
+
         head.m = $('<div></div>');
         head.m.addClass('m');
+
         head.r = $('<div></div>');
         head.r.addClass('r');
 
-        head.append([head.cover, head.m, head.r]);
+        head.append([head.l, head.m, head.r]);
     };
     
     xs.ui._head = head;
@@ -245,6 +269,12 @@ xs.ui.body = function() {
 
     xs.ui._body = body;
     return xs.ui._body;
+}
+
+// 以下业务相关
+
+xs.ui.CellArticle = function() {
+    var cell = $('<div></div>');
 }
 
 FastClick.attach(document.body);

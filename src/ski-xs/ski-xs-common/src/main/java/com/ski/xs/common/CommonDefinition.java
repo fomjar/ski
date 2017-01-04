@@ -41,11 +41,19 @@ public class CommonDefinition {
         public static final int INST_BUSI_UPDATE_TAG            = 0x00003007;
         /** 删除TAG */
         public static final int INST_BUSI_UPDATE_TAG_DEL        = 0x00003008;
+        /** 更新文件夹 */
+        public static final int INST_BUSI_UPDATE_FOLDER         = 0x00003009;
+        /** 删除文件夹 */
+        public static final int INST_BUSI_UPDATE_FOLDER_DEL     = 0x0000300A;
+        /** 更新文件夹文章映射关系 */
+        public static final int INST_BUSI_UPDATE_FOLDER_ARTICLE = 0x0000300B;
         
         /** 查询用户 */
         public static final int INST_BUSI_QUERY_USER            = 0x00004001;
         /** 查询文章 */
         public static final int INST_BUSI_QUERY_ARTICLE_BY_AID  = 0x00004002;
+        /** 查询文件夹 */
+        public static final int INST_BUSI_QUERY_FOLDER          = 0x00004003;
     }
     
     public static final class CODE {

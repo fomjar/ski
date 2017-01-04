@@ -15,8 +15,7 @@ xs.uid      = parseInt(xs.config('uid'));
 (function($) {
 
 fomjar.framework.phase.append('dom', build_frame);
-fomjar.framework.phase.append('ren', login_auto);
-fomjar.framework.phase.append('ren', test);
+fomjar.framework.phase.append('ren', xsmain);
 
 function build_frame() {
     var frame = $('<div></div>');
@@ -34,24 +33,31 @@ function build_frame() {
     fomjar.util.async(function() {frame.removeClass('disappear');});
 }
 
-function login_auto() {
+function xsmain() {
+    xs.ui.head().reset();
+    xs.ui.body().reset();
+    xs.ui.body().append(create_page_set());
+
     xs.user.login_auto();
 }
 
-function test() {
-    var ps = new xs.ui.PageSet();
-    ps.page_set_switch_cb(ps.PAGE_SWITCH_CB_DEFAULT);
+function create_page_set() {
+    var set = new xs.ui.PageSet();
+    set.page_append(create_page_folder());
+    return set;
+}
 
-    xs.ui.body().append(ps);
-
-    ps.page_append(new xs.ui.Page({
+function create_page_folder() {
+    var page = new xs.ui.Page({
         name    : 'test',
         view    : $("<div></div>"),
-        oper    : [
+        op_l    : xs.ui.head().cover,
+        op_r    : [
             new xs.ui.HeadButton($('<img src=\'res/new.png\'/>')),
             new xs.ui.HeadButton($('<img src=\'res/share.png\'/>')),
         ]
-    }));
+    });
+    return page;
 }
 
 })(jQuery)

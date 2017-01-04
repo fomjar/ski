@@ -42,8 +42,8 @@ html, body {
 
 /* basic */
 div {
-            transition  : opacity .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
-    -webkit-transition  : opacity .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
+            transition  : opacity .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
+    -webkit-transition  : opacity .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
 }
 
 .disappear {
@@ -57,7 +57,18 @@ div {
     font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
 }
 
-.xs .cover {display : inline-block;}
+.xs .center {
+    position    : absolute;
+    top         : 50%;
+    left        : 50%;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+}
+
+.xs .cover {
+    display : inline-block;
+    height  : 2.5em;
+}
 .xs .cover img {
     width   : 2.5em;
     height  : 2.5em;
@@ -110,13 +121,8 @@ div {
     opacity     : .5;
 }
 .xs .dialog {
-    position    : absolute;
     z-index     : 10;
     display     : inline-block;
-    top         : 50%;
-    left        : 50%;
-            transform   : translate(-50%, -50%);
-    -webkit-transform   : translate(-50%, -50%);
     border      : .1px solid gray;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
@@ -137,6 +143,18 @@ div {
     font-weight : 600;
 }
 
+.xs .list {
+    border-top : .1px solid #eeeeee;
+}
+/* cell */
+.xs .list >div {
+    border-bottom   : .1px solid #eeeeee;
+}
+.xs .list >div:active {
+    background  : #eeeeee;
+}
+
+
 .xs .head {
     position    : absolute;
     width       : 100%;
@@ -146,7 +164,16 @@ div {
     padding     : .5em;
     background  : #000033;
 }
-.xs .head .cover div {
+.xs .head .l {
+    display : inline-block;
+    height  : 100%;
+    padding : .5em 0;
+}
+.xs .head .l .cover {
+    position    : relative;
+    top         : -.5em;
+}
+.xs .head .l .cover div {
     color       : #f2f2f2;
     font-size   : 1.2em;
     position    : relative;
@@ -160,16 +187,16 @@ div {
     left    : 50%;
             transform   : translateX(-50%);
     -webkit-transform   : translateX(-50%);
-    padding : .5em;
+    padding : .5em 0;
 }
 .xs .head .r {
     display : inline-block;
     float   : right;
     height  : 100%;
-    padding : .5em;
+    padding : .5em 0;
 }
 .xs .head .r .button {
-    margin  : 0 .3em;
+    margin  : 0 .5em;
     height  : 100%;
 }
 .xs .head .r .button img {
