@@ -312,19 +312,28 @@ begin
         set c_desc = 'aid must be not null';
     else
         if pid is null then
-            if pid is not null then
-                set di_pid = pid;
-            else
-                select max(i_pid)
-                  into di_pid
-                  from tbl_paragraph
-                 where i_aid = aid;
+            select max(i_pid)
+              into di_pid
+              from tbl_paragraph
+             where i_aid = aid;
 
-                set di_pid = ifnull(di_pid, 0);
-                set di_pid = di_pid + 1;
-            end if;
+            set di_pid = ifnull(di_pid, 0);
+            set di_pid = di_pid + 1;
 
             if psn is not null then
+                select count(1)
+                  into di_count
+                  from tbl_paragraph
+                 where i_aid = aid
+                   and i_psn >= psn;
+
+                if di_count > 0 then
+                    update tbl_paragraph
+                       set i_psn = i_psn + 1
+                     where i_aid = aid
+                       and i_psn >= psn;
+                end if;
+
                 set di_psn = psn;
             else
                 select max(i_psn)
@@ -359,6 +368,19 @@ begin
 
             if di_count = 0 then
                 if psn is not null then
+                    select count(1)
+                      into di_count
+                      from tbl_paragraph
+                     where i_aid = aid
+                       and i_psn >= psn;
+
+                    if di_count > 0 then
+                        update tbl_paragraph
+                           set i_psn = i_psn + 1
+                         where i_aid = aid
+                           and i_psn >= psn;
+                    end if;
+
                     set di_psn = psn;
                 else
                     select max(i_psn)
@@ -387,6 +409,19 @@ begin
                     set i_code = 3;
                     set c_desc = 'psn must be not null';
                 else
+                    select count(1)
+                      into di_count
+                      from tbl_paragraph
+                     where i_aid = aid
+                       and i_psn >= psn;
+
+                    if di_count > 0 then
+                        update tbl_paragraph
+                           set i_psn = i_psn + 1
+                         where i_aid = aid
+                           and i_psn >= psn;
+                    end if;
+
                     set di_psn = psn;
 
                     update tbl_paragraph
@@ -429,6 +464,7 @@ create procedure sp_update_paragraph_del (
 begin
 
     declare di_count    integer default 0;
+    declare di_psn      integer default 0;
 
     select count(1)
       into di_count
@@ -440,13 +476,23 @@ begin
         set i_code = 3;
         set c_desc = 'no paragraph found';
     else
+        select i_psn
+          into di_psn
+          from tbl_paragraph
+         where i_aid = aid
+           and i_pid = pid;
+
         delete from tbl_paragraph
          where i_aid = aid
            and i_pid = pid;
 
+        update tbl_paragraph
+           set i_psn = i_psn - 1
+         where i_aid = aid
+           and i_psn > di_psn;
+
         call sp_update_element_del(i_code, c_desc, pid, null);
     end if;
-
 end //
 delimiter ;
 
@@ -463,7 +509,7 @@ insert into tbl_instruction (
     (conv('00003005', 16, 10) + 0),
     'sp',
     2,
-    "sp_update_element(?, ?, $pid, $esn, $et, \"$ec\")"
+    "sp_update_element(?, ?, $pid, $eid, $esn, $et, \"$ec\")"
 );
 delimiter //
 drop procedure if exists sp_update_element //
@@ -471,6 +517,7 @@ create procedure sp_update_element (
     out i_code      integer,
     out c_desc      mediumtext,
     in  pid         integer,
+    in  eid         integer,
     in  esn         integer,
     in  et          tinyint,
     in  ec          mediumtext
@@ -478,77 +525,114 @@ create procedure sp_update_element (
 begin
 
     declare di_count    integer default 0;
+    declare di_eid      integer default 0;
     declare di_esn      integer default 0;
 
     if pid is null then
         set i_code = 3;
         set c_desc = 'pid must be not null';
     else
-        if esn is null then
-            select max(i_esn)
-              into di_esn
-              from tbl_element
-             where i_pid = pid;
+        if eid is null then
+            select max(i_eid)
+              into di_eid
+              from tbl_element;
 
-            set di_esn = ifnull(di_esn, 0);
-            set di_esn = di_esn + 1;
+            set di_eid = ifnull(di_eid, 0);
+            set di_eid = di_eid + 1;
+
+            if esn is null then
+                select max(i_esn)
+                  into di_esn
+                  from tbl_element
+                 where i_pid = pid;
+
+                set di_esn = di_esn + 1;
+            else
+                update tbl_element
+                   set i_esn = i_esn + 1
+                 where i_pid = pid
+                   and i_esn >= esn;
+
+                set di_esn = esn;
+            end if;
 
             insert into tbl_element (
                 i_pid,
+                i_eid,
                 i_esn,
                 i_et,
                 c_ec
             ) values (
                 pid,
+                di_eid,
                 di_esn,
                 et,
                 ec
             );
-
-            set i_code = 0;
-            set c_desc = concat(di_esn, '');
         else
-            set di_esn = esn;
+            set di_eid = eid;
 
             select count(1)
               into di_count
               from tbl_element
              where i_pid = pid
-               and i_esn = di_esn;
-
+               and i_eid = di_eid;
+            
             if di_count = 0 then
+                if esn is null then
+                    select max(i_esn)
+                      into di_esn
+                      from tbl_element
+                     where i_pid = pid;
+
+                    set di_esn = di_esn + 1;
+                else
+                    update tbl_element
+                       set i_esn = i_esn + 1
+                     where i_pid = pid
+                       and i_esn >= esn;
+
+                    set di_esn = esn;
+                end if;
+
                 insert into tbl_element (
                     i_pid,
+                    i_eid,
                     i_esn,
                     i_et,
                     c_ec
                 ) values (
                     pid,
+                    di_eid,
                     di_esn,
                     et,
                     ec
                 );
-
-                set i_code = 0;
-                set c_desc = concat(di_esn, '');
             else
+                if esn is not null then
+                    update tbl_element
+                       set i_esn = esn
+                     where i_pid = pid
+                       and i_eid = di_eid;
+                end if;
                 if et is not null then
                     update tbl_element
                        set i_et = et
                      where i_pid = pid
-                       and i_esn = di_esn;
+                       and i_eid = di_eid;
                 end if;
                 if ec is not null then
                     update tbl_element
                        set c_ec = ec
                      where i_pid = pid
-                       and i_esn = di_esn;
+                       and i_eid = di_eid;
                 end if;
 
-                set i_code = 0;
-                set c_desc = concat(di_esn, '');
             end if;
         end if;
+
+        set i_code = 0;
+        set c_desc = concat(di_eid, '');
     end if;
 end //
 delimiter ;
@@ -566,7 +650,7 @@ insert into tbl_instruction (
     (conv('00003006', 16, 10) + 0),
     'sp',
     2,
-    "sp_update_element_del(?, ?, $pid, $esn)"
+    "sp_update_element_del(?, ?, $pid, $eid)"
 );
 delimiter //
 drop procedure if exists sp_update_element_del //
@@ -574,17 +658,18 @@ create procedure sp_update_element_del (
     out i_code      integer,
     out c_desc      mediumtext,
     in  pid         integer,
-    in  esn         integer
+    in  eid         integer
 )
 begin
 
     declare di_count    integer default 0;
+    declare di_esn      integer default 0;
 
     if pid is null then
         set i_code = 3;
         set c_desc = 'pid must be not null';
     else
-        if esn is null then
+        if eid is null then
             select count(1)
               into di_count
               from tbl_element
@@ -597,11 +682,24 @@ begin
               into di_count
               from tbl_element
              where i_pid = pid
-               and i_esn = esn;
+               and i_eid = eid;
 
-            delete from tbl_element
-             where i_pid = pid
-               and i_esn = esn;
+            if di_count > 0 then
+                select i_esn
+                  into di_esn
+                  from tbl_element
+                 where i_pid = pid
+                   and i_eid = eid;
+
+                delete from tbl_element
+                 where i_pid = pid
+                   and i_eid = eid;
+
+                update tbl_element
+                   set i_esn = i_esn - 1
+                 where i_pid = pid
+                   and i_esn >= di_esn;
+            end if;
         end if;
 
         set i_code = 0;
@@ -752,4 +850,27 @@ end //
 delimiter ;
 
 
+     
+delete from tbl_instruction where i_inst = (conv('00003008', 16, 10) + 0);        
+insert into tbl_instruction (                                                     
+    i_inst,
+    c_mode,
+    i_out,  
+    c_sql   
+) values (  
+    (conv('00003008', 16, 10) + 0),
+    'sp',   
+    2,      
+    "sp_update_tag_del(?, ?, $tid)"
+);          
+delimiter //
+drop procedure if exists sp_update_tag_del //                                     
+create procedure sp_update_tag_del (
+    out i_code      integer,
+    out c_desc      mediumtext,                                                   
+    in  tid         integer
+)        
+begin      
 
+end //
+delimiter ;

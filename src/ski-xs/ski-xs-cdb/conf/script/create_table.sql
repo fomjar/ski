@@ -24,25 +24,6 @@ create table tbl_user (
     primary key (i_uid)
 );
 
--- 文件夹
-drop table if exists tbl_folder;
-create table tbl_folder (
-    i_fid       integer,        -- 编号
-    i_uid       integer,        -- 用户
-    i_fsn       integer,        -- 序号
-    t_create    datetime,       -- 创建时间
-    c_path      varchar(256),   -- 路径：/日记/2016年/1月/
-    i_type      tinyint,        -- 类型：0-系统(不可删除)，1-用户
-    primary key (i_fid)
-);
-
--- 文件夹-文章 映射
-drop table if exists tbl_folder_article;
-create table tbl_folder_article (
-    i_fid   integer,
-    i_aid   integer
-);
-
 -- 文章
 drop table if exists tbl_article;
 create table tbl_article (
@@ -70,9 +51,11 @@ create table tbl_paragraph (
 drop table if exists tbl_element;
 create table tbl_element (
     i_pid   integer,    -- 段落编号
+    i_eid   integer,    -- 元素编号
     i_esn   integer,    -- 元素序号
     i_et    tinyint,    -- 元素类型：0-文字；1-图片；2-音频；3-视频
-    c_ec    mediumtext  -- 元素内容
+    c_ec    mediumtext, -- 元素内容
+    primary key (i_eid)
 );
 
 -- TAG
@@ -94,6 +77,24 @@ create table tbl_user_state (
     primary key (i_uid)
 );
 
+-- 文件夹
+drop table if exists tbl_folder;
+create table tbl_folder (
+    i_fid       integer,        -- 编号
+    i_uid       integer,        -- 用户
+    i_fsn       integer,        -- 序号
+    t_create    datetime,       -- 创建时间
+    c_path      varchar(256),   -- 路径：/日记/2016年/1月/
+    i_type      tinyint,        -- 类型：0-系统(不可删除)，1-用户
+    primary key (i_fid)
+);
+
+-- 文件夹-文章 映射
+drop table if exists tbl_folder_article;
+create table tbl_folder_article (
+    i_fid   integer,
+    i_aid   integer
+);
 
 
 

@@ -33,7 +33,7 @@ create procedure sp_query_article_by_aid (
     out i_code  integer,
     out c_desc  mediumtext, 
     in  aid     integer
-)   
+)
 begin
 
     declare dj_article  json    default null;
