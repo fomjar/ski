@@ -42,8 +42,8 @@ html, body {
 
 /* basic */
 div {
-            transition  : opacity .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
-    -webkit-transition  : opacity .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
+            transition  : opacity .5s, color .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
+    -webkit-transition  : opacity .5s, color .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
 }
 
 .disappear {
@@ -143,15 +143,17 @@ div {
     font-weight : 600;
 }
 
-.xs .list {
-    border-top : .1px solid #eeeeee;
-}
-/* cell */
+.xs .list {}
 .xs .list >div {
     border-bottom   : .1px solid #eeeeee;
 }
+.xs .list >div:last-child {
+    border-bottom   : none  !important;
+}
 .xs .list >div:active {
-    background  : #eeeeee;
+    color           : white;
+    background      : #aaaaff;
+    border-bottom   : none;
 }
 
 
