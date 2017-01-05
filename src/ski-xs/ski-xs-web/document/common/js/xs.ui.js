@@ -1,65 +1,58 @@
 
 xs.ui = {};
 
-xs.ui.PageSet = function() {
-    var ps = $('<div></div>');
-    ps.addClass('page-set');
-    var pages = [];
-    var cpage = null;
+xs.ui.PageStack = function() {
+    var stack = $('<div></div>');
+    stack.addClass('page-stack');
+    stack.pages = [];
 
-    var index_of_name = function(name) {
-        var i = 0;
-        $.each(pages, function(key, val) {
-            if (key == name) {
-                return false;
-            }
-            i++;
-        });
-        return i;
-    };
-
-    ps.page_append = function(page) {
-        pages[page.name] = page;
-
-        if (!cpage) ps.page_switch(page.name);
-    };
-
-    ps.page_switch = function(name) {
-        if (cpage) {
-            var i_o = index_of_name(cpage.name);
-            var i_n = index_of_name(name);
-            if (i_o <= i_n) {
-                pages[name].or();
-                ps.append(pages[name].view);
-
-                cpage.ol(true);
-                pages[name].in();
-            } else {
-                pages[name].ol();
-                ps.append(pages[name].view);
-
-                cpage.or(true);
-                pages[name].in();
-            }
+    stack.page_push = function(page) {
+        if (stack.pages.length > 0) {
+            var down = stack.pages[stack.pages.length - 1];
+            fomjar.util.async(function() {down.to_down();});
+        }
+        if (stack.pages.length == 0) {
+            page.to_mid();
+            stack.append(page);
         } else {
-            pages[name].or();
-            ps.append(pages[name].view);
-
-            pages[name].in();
+            page.to_up();
+            stack.append(page);
+            fomjar.util.async(function() {page.to_mid();});
         }
 
-        if (ps.page_switch_cb) ps.page_switch_cb(cpage, pages[name]);
-        cpage = pages[name];
+        stack.pages.push(page);
+        if (stack.page_switch_cb) stack.page_switch_cb('push', stack.pages[stack.pages.length - 2], page);
+    };
+    stack.page_pop = function() {
+        if (stack.pages.length <= 1) return;
+
+        var page_up = stack.pages[stack.pages.length - 1];
+        var page_down = stack.pages[stack.pages.length - 2];
+        fomjar.util.async(function() {
+            page_up.to_up();
+            page_down.to_mid();
+        });
+        fomjar.util.async(function() {
+            page_up.detach();
+            stack.pages.pop();
+        }, 500);
+        if (stack.page_switch_cb) stack.page_switch_cb('pop', page_up, page_down);
+
+        return page_up;
+    };
+    stack.page_current = function() {
+        if (stack.pages.length == 0) return null;
+        return stack.pages[stack.pages.length - 1];
     };
 
-    ps.page_switch_cb = null;
-    ps.page_set_switch_cb = function(cb) {
-        ps.page_switch_cb = cb;
+    stack.page_switch_cb = null;
+    stack.page_set_switch_cb = function(cb) {
+        stack.page_switch_cb = cb;
     };
-    ps.PAGE_SWITCH_CB_DEFAULT = function(page_old, page_new) {
-        xs.ui.head().l.addClass('disappear');
-        xs.ui.head().m.addClass('disappear');
-        xs.ui.head().r.addClass('disappear');
+    stack.PAGE_SWITCH_CB_DEFAULT = function(operation, page_old, page_new) {
+        xs.ui.head().l.addClass('head-disappear');
+        xs.ui.head().m.addClass('head-disappear');
+        xs.ui.head().r.addClass('head-disappear');
 
         fomjar.util.async(function() {
             xs.ui.head().l.children().detach();
@@ -68,57 +61,44 @@ xs.ui.PageSet = function() {
 
             if (page_new.op_l) {
                 xs.ui.head().l.append(page_new.op_l);
-                xs.ui.head().l.removeClass('disappear');
+                xs.ui.head().l.removeClass('head-disappear');
             }
             if (page_new.op_m) {
                 xs.ui.head().m.append(page_new.op_m);
-                xs.ui.head().m.removeClass('disappear');
+                xs.ui.head().m.removeClass('head-disappear');
             }
             if (page_new.op_r) {
                 xs.ui.head().r.append(page_new.op_r);
-                xs.ui.head().r.removeClass('disappear');
+                xs.ui.head().r.removeClass('head-disappear');
             }
         }, 250);
     };
-    ps.page_set_switch_cb(ps.PAGE_SWITCH_CB_DEFAULT);
 
-    return ps;
+    return stack;
 }
 
 xs.ui.Page = function(options) {
-    if (!options.name) throw 'field \'name\' must be offered';
-    if (!options.view) throw 'field \'view\' must be offered';
+    var div = $('<div></div>');
+    div.addClass('page');
 
-    this.name   = options.name;
-    this.view   = options.view;
-    this.op_l   = options.op_l ? options.op_l : null;
-    this.op_m   = options.op_m ? options.op_m : null;
-    this.op_r   = options.op_r ? options.op_r : null;
+    if (options.name) div.name = options.name;
+    if (options.op_l) div.op_l = options.op_l;
+    if (options.op_m) div.op_m = options.op_m;
+    if (options.op_r) div.op_r = options.op_r;
 
-    this.view.addClass('page');
-
-    this.in = function() {
-        var view = this.view;
-        fomjar.util.async(function() {view.removeClass('page-l page-r');}, 0);
+    div.to_mid = function() {
+        div.removeClass('page-down page-up');
     };
-    this.ol = function(detach) {
-        var view = this.view;
-        fomjar.util.async(function() {
-            view.removeClass('page-l page-r');
-            view.addClass('page-l');
-            if (detach) fomjar.util.async(function() {view.detach();}, 500);
-        }, 0);
+    div.to_down = function() {
+        div.removeClass('page-down page-up');
+        div.addClass('page-down');
     };
-    this.or = function(detach) {
-        var view = this.view;
-        fomjar.util.async(function() {
-            view.removeClass('page-l page-r');
-            view.addClass('page-r');
-            if (detach) fomjar.util.async(function() {view.detach();}, 500);
-        }, 0);
+    div.to_up = function() {
+        div.removeClass('page-down page-up');
+        div.addClass('page-up');
     };
 
-    return this;
+    return div;
 }
 
 xs.ui.Mask = function() {
@@ -151,11 +131,97 @@ xs.ui.Dialog = function() {
         dialog.addClass('dialog-disappear');
         fomjar.util.async(function() {dialog.detach();}, 500);
     };
-    dialog.size = function(width, height) {
-        if (width)  dialog.css('width',     width);
-        if (height) dialog.css('height',    height);
+    dialog.shake = function() {
+        dialog.addClass('dialog-shake');
+        fomjar.util.async(function() {dialog.removeClass('dialog-shake');}, 500);
     };
+    dialog.append_space = function(height) {
+        if (!height) height = '1em';
+        var space = $('<div></div>');
+        space.css('height', height);
+        dialog.append(space);
+        return space;
+    };
+    dialog.append_text_h1 = function(text) {
+        var div = $('<div></div>');
+        div.css('padding',      '.5em');
+        div.css('font-weight',  '600');
+        div.append(text);
+        dialog.append(div);
+        return div;
+    };
+    dialog.append_text_h1c = function(text) {
+        var div = $('<div></div>');
+        div.css('padding',      '.5em');
+        div.css('font-weight',  '600');
+        div.css('text-align',   'center');
+        div.append(text);
+        dialog.append(div);
+        return div;
+    };
+    dialog.append_text_p1 = function(text) {
+        var div = $('<div></div>');
+        div.css('padding',  '.5em');
+        div.append(text);
+        dialog.append(div);
+        return div;
+    };
+    dialog.append_text_p1c = function(text) {
+        var div = $('<div></div>');
+        div.css('padding',      '.5em');
+        div.css('text-align',   'center');
+        div.append(text);
+        dialog.append(div);
+        return div;
+    };
+    dialog.append_input = function(attr) {
+        var div = $('<input>');
+        div.css('width',    '100%');
+        if (attr) {
+            $.each(attr, function(k, v) {
+                div.attr(k, v);
+            });
+        }
+        dialog.append(div);
+        return div;
+    };
+    dialog.append_button = function(button) {
+        var div = $('<div></div>');
+        div.append(button);
 
+        div.css('padding', '.5em');
+        button.css('width',         '100%');
+        button.css('text-align',    'center');
+
+        dialog.append(div);
+        return button;
+    }
+    dialog.style_popupmenu = function(options) {
+        dialog.children().detach();
+
+        var has_head = false;
+        if (options.icon) {
+            dialog.append_text_p1c(options.icon)
+            has_head = true;
+        }
+        if (options.title) {
+            dialog.append_text_h1c(options.title);
+            has_head = true;
+        }
+        if (options.subtitle) {
+            dialog.append_text_p1c(options.subtitle);
+            has_head = true;
+        }
+
+        if (has_head) {
+            dialog.append_space('1em');
+        }
+
+        if (options.content) {
+            dialog.append(options.content);
+        }
+
+    };
     return dialog;
 }
 
@@ -170,6 +236,26 @@ xs.ui.Cover = function(src, txt) {
     if (txt) cover.div.text(txt);
 
     return cover;
+}
+
+xs.ui.List = function() {
+    var list = $('<div></div>');
+    list.addClass('list');
+
+    list.append_text = function(text, action) {
+        if (!text) throw 'text must be not null';
+
+        var cell = $('<div></div>');
+        cell.addClass('cell-text');
+        cell.text(text);
+        list.append(cell);
+
+        if (action) {
+            cell.bind('click', action);
+        }
+    };
+
+    return list;
 }
 
 xs.ui.Spin = function(scale) {
@@ -222,14 +308,24 @@ xs.ui.Spin = function(scale) {
     return sc;
 }
 
-xs.ui.HeadButton = function(child, click) {
-    var hb = $('<div></div>');
-    hb.addClass('button');
-
-    if (child) hb.append(child);
-    if (click) hb.bind('click', click);
-
-    return hb;
+xs.ui.Button = function(content, action) {
+    var button = $('<div></div>');
+    button.addClass('button');
+    button.to_normal = function() {
+        button.removeClass('button-high');
+        button.removeClass('button-dark');
+    };
+    button.to_high = function() {
+        button.removeClass('button-dark');
+        button.addClass('button-high');
+    };
+    button.to_dark = function() {
+        button.removeClass('button-high');
+        button.addClass('button-dark');
+    };
+    if (content) button.append(content);
+    if (action) button.bind('click', action);
+    return button;
 }
 
 xs.ui.head = function() {

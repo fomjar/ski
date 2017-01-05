@@ -21,15 +21,12 @@ div {
 img {vertical-align     : middle;}
 input, textarea, select {
     border                  : none;
-    background-color        : white;
     font-size               : 1em;
-            border-radius   : .2em;
-    -webkit-border-radius   : .2em;
             appearance      : none;
     -webkit-appearance      : none;
 }
 input, select {
-    padding : 0 1em;
+    padding : .5em 1em;
     height  : 2em;
 }
 textarea {padding : 0 .5em;}
@@ -42,8 +39,8 @@ html, body {
 
 /* basic */
 div {
-            transition  : opacity .5s, color .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height,         transform;
-    -webkit-transition  : opacity .5s, color .5s, background .5s, background-color .5s, left .5s, right .5s, top .5s, bottom .5s, width, height, -webkit-transform;
+            transition  : all .5s ease-out;
+    -webkit-transition  : all .5s ease-out;
 }
 
 .disappear {
@@ -55,6 +52,7 @@ div {
     /* 字体 */
     font-size   : 14px;
     font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
+    color       : #000033;
 }
 
 .xs .center {
@@ -85,29 +83,51 @@ div {
 .xs .button {
     display     : inline-block;
     vertical-align  : top;
+    padding     : .5em;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
 }
 .xs .button:active {
     opacity : .6;
 }
-
-.xs .page-set {
-    overflow-x  : hidden;
+.xs .button-high {
+    background  : #333366;
+    color       : white;
+    border      : .1px solid gray;
 }
-.xs .page-set .page {
+.xs .button-dark {
+    background  : #dddddd;
+    color       : gray;
+    border      : .1px solid gray;
+}
+
+.xs .page-stack {
+    width       : 100%;
+    height      : 100%;
+    overflow-x  : hidden;
+    background  : black;
+}
+.xs .page-stack .page {
     position    : absolute;
     width       : 100%;
     height      : 100%;
     top         : 0;
     left        : 0;
     overflow    : auto;
+    background  : white;
+            transform   : scale(1, 1);
+    -webkit-transform   : scale(1, 1);
 }
-.xs .page-set .page-l {
-    opacity : 0;
-    left    : -100%;
+.xs .page-stack .page-down {
+    opacity : .6;
+    left    : -30%  !important;
+            transform   : scale(.9, .9);
+    -webkit-transform   : scale(.9, .9);
 }
-.xs .page-set .page-r {
-    opacity : 0;
-    right   : -100%;
+.xs .page-stack .page-mid {
+}
+.xs .page-stack .page-up {
+    left    : 100%  !important;
 }
 
 .xs .mask {
@@ -128,34 +148,62 @@ div {
     -webkit-border-radius   : .5em;
     background  : white;
     box-shadow  : gray 0px 0px 10px;
+
+    min-width   : 60%;
+    max-width   : 80%;
+    max-height  : 80%;
+    padding     : .5em 0;
 }
 .xs .dialog-disappear {
     opacity : 0     !important;
     top     : 55%   !important;
 }
+.xs .dialog-shake {
+            animation   : dialog-shake .5s;
+    -webkit-animation   : dialog-shake .5s;
+}
+@keyframes dialog-shake {
+      0% {left : 50%;}
+     10% {left : 45%;}
+     20% {left : 55%;}
+     40% {left : 47%;}
+     60% {left : 53%;}
+     80% {left : 49%;}
+    100% {left : 50%;}
+}
+@-webkit-keyframes dialog-shake {
+      0% {left : 50%;}
+     10% {left : 45%;}
+     20% {left : 55%;}
+     40% {left : 47%;}
+     60% {left : 53%;}
+     80% {left : 49%;}
+    100% {left : 50%;}
+}
+
 
 .xs .spinnerc {
     position    : relative;
     display     : inline-block;
 }
 
-.xs .article .h1 {
-    font-weight : 600;
+.xs .list {
+    overflow-x  : hidden;
+    overflow-y  : auto;
 }
-
-.xs .list {}
 .xs .list >div {
-    border-bottom   : .1px solid #eeeeee;
+    border-bottom   : .1px solid #dddddd;
 }
 .xs .list >div:last-child {
     border-bottom   : none  !important;
 }
 .xs .list >div:active {
-    color           : white;
-    background      : #aaaaff;
-    border-bottom   : none;
+    background      : #dddddd;
 }
-
+.xs .list .cell-text {
+    padding     : .5em;
+    text-align  : center;
+}
 
 .xs .head {
     position    : absolute;
@@ -170,16 +218,6 @@ div {
     display : inline-block;
     height  : 100%;
     padding : .5em 0;
-}
-.xs .head .l .cover {
-    position    : relative;
-    top         : -.5em;
-}
-.xs .head .l .cover div {
-    color       : #f2f2f2;
-    font-size   : 1.2em;
-    position    : relative;
-    top         : -.2em;
 }
 .xs .head .m {
     position    : absolute;
@@ -197,15 +235,31 @@ div {
     height  : 100%;
     padding : .5em 0;
 }
-.xs .head .r .button {
+.xs .head-disappear {
+    opacity : 0;
+            transition  : all .25s;
+    -webkit-transition  : all .25s;
+}
+.xs .head .cover {
+    position    : relative;
+    top         : -.5em;
+}
+.xs .head .cover div {
+    color       : white;
+    font-size   : 1.2em;
+    position    : relative;
+    top         : -.2em;
+}
+.xs .head .button {
+    padding : 0;
     margin  : 0 .5em;
-    height  : 100%;
+    color   : #ccccff;
+    font-size   : 110%;
+            border-radius   : 0;
+    -webkit-border-radius   : 0;
 }
-.xs .head .r .button img {
+.xs .head .button img {
     height  : 100%;
-}
-.xs .head .r .button div {
-    line-height : 100%;
 }
 .xs .body {
     position    : absolute;

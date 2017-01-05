@@ -36,28 +36,86 @@ function build_frame() {
 function xsmain() {
     xs.ui.head().reset();
     xs.ui.body().reset();
-    xs.ui.body().append(create_page_set());
+    xs.ui.body().append(create_page_stack());
 
     xs.user.login_auto();
 }
 
-function create_page_set() {
-    var set = new xs.ui.PageSet();
-    set.page_append(create_page_folder());
-    return set;
+function create_page_stack() {
+    var stack = new xs.ui.PageStack();
+    stack.page_set_switch_cb(stack.PAGE_SWITCH_CB_DEFAULT);
+    stack.page_push(create_page_folder(stack));
+    return stack;
 }
 
-function create_page_folder() {
+function create_page_folder(stack) {
     var page = new xs.ui.Page({
-        name    : 'test',
-        view    : $("<div></div>"),
+        name    : 'folder',
         op_l    : xs.ui.head().cover,
         op_r    : [
-            new xs.ui.HeadButton($('<img src=\'res/new.png\'/>')),
-            new xs.ui.HeadButton($('<img src=\'res/share.png\'/>')),
+            create_button_new(stack)
         ]
     });
     return page;
+}
+
+function create_page_article_new(stack) {
+    var page = new xs.ui.Page({
+        name    : 'article.new',
+        op_l    : new xs.ui.Button('返回', function() {stack.page_pop();}),
+        op_r    : new xs.ui.Button('完成', function() {stack.page_pop();})
+    });
+    return page;
+}
+
+function create_button_new(stack) {
+    var button = new xs.ui.Button($("<img src='res/new.png' />"), function() {
+        var list = new xs.ui.List();
+        var mask = new xs.ui.Mask();
+        var dialog = new xs.ui.Dialog();
+        dialog.style_popupmenu({
+            title   : '新建',
+            content : list
+        });
+        mask.bind('click', function() {
+            mask.disappear();
+            dialog.disappear();
+        });
+
+        list.append_text('文件夹', function() {
+            var mask1 = new xs.ui.Mask();
+            var dialog1 = new xs.ui.Dialog();
+            dialog1.append_text_h1c('新建文件夹');
+            dialog1.append_space('1em');
+            dialog1.append_input({
+                'type'          : 'text',
+                'placeholder'   : '输入文件夹名称'
+            });
+            dialog1.append_button(new xs.ui.Button('创建', function() {
+                dialog1.shake();
+            })).to_high();
+
+            mask1.bind('click', function() {
+                mask1.disappear();
+                dialog1.disappear();
+            });
+
+            mask.disappear();
+            dialog.disappear();
+            mask1.appear();
+            dialog1.appear();
+        });
+        list.append_text('文章', function() {
+            mask.disappear();
+            dialog.disappear();
+            stack.page_push(create_page_article_new(stack));
+        });
+
+        mask.appear();
+        dialog.appear();
+    });
+
+    return button;
 }
 
 })(jQuery)
