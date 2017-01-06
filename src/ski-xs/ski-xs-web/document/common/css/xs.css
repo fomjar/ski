@@ -61,11 +61,11 @@ html, body {
     opacity : 0 !important;
 }
 .xs .center {
-    position    : absolute;
-    top         : 50%;
-    left        : 50%;
-            transform   : translate(-50%, -50%);
-    -webkit-transform   : translate(-50%, -50%);
+    position    : absolute  !important;
+    top         : 50%       !important;
+    left        : 50%       !important;
+            transform   : translate(-50%, -50%) !important;
+    -webkit-transform   : translate(-50%, -50%) !important;
 }
 
 /* component */
@@ -241,9 +241,9 @@ html, body {
     padding : .5em 0;
 }
 .xs .head-disappear {
-    opacity : 0;
-            transition  : all .25s;
-    -webkit-transition  : all .25s;
+    opacity : 0 !important;
+            transition  : all .25s  !important;
+    -webkit-transition  : all .25s  !important;
 }
 .xs .head .cover {
     position    : relative;
