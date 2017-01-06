@@ -26,8 +26,7 @@ input, textarea, select {
     -webkit-appearance      : none;
 }
 input, select {
-    padding : .5em 1em;
-    height  : 2em;
+    padding : .75em 1em;
 }
 textarea {padding : 0 .5em;}
 table {border-collapse : collapse;}
@@ -83,7 +82,7 @@ div {
 .xs .button {
     display     : inline-block;
     vertical-align  : top;
-    padding     : .5em;
+    padding     : .75em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
 }
@@ -93,12 +92,12 @@ div {
 .xs .button-high {
     background  : #333366;
     color       : white;
-    border      : .1px solid gray;
+    border      : .5px solid gray;
 }
 .xs .button-dark {
     background  : #dddddd;
     color       : gray;
-    border      : .1px solid gray;
+    border      : .5px solid gray;
 }
 
 .xs .page-stack {
@@ -143,7 +142,7 @@ div {
 .xs .dialog {
     z-index     : 10;
     display     : inline-block;
-    border      : .1px solid gray;
+    border      : .5px solid gray;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
     background  : white;
@@ -192,7 +191,7 @@ div {
     overflow-y  : auto;
 }
 .xs .list >div {
-    border-bottom   : .1px solid #dddddd;
+    border-bottom   : .5px solid #dddddd;
 }
 .xs .list >div:last-child {
     border-bottom   : none  !important;
@@ -201,7 +200,7 @@ div {
     background      : #dddddd;
 }
 .xs .list .cell-text {
-    padding     : .5em;
+    padding     : .75em;
     text-align  : center;
 }
 
@@ -247,19 +246,19 @@ div {
 .xs .head .cover div {
     color       : white;
     font-size   : 1.2em;
-    position    : relative;
-    top         : -.2em;
+    line-height : 2.1em;
 }
 .xs .head .button {
     padding : 0;
     margin  : 0 .5em;
     color   : #ccccff;
-    font-size   : 110%;
+    font-size   : 1.2em;
+    line-height : 1.3em;
             border-radius   : 0;
     -webkit-border-radius   : 0;
 }
 .xs .head .button img {
-    height  : 100%;
+    height  : 1.2em;
 }
 .xs .body {
     position    : absolute;

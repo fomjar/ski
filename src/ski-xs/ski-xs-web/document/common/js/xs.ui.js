@@ -145,7 +145,7 @@ xs.ui.Dialog = function() {
     dialog.append_text_h1 = function(text) {
         var div = $('<div></div>');
         div.css('padding',      '.5em');
-        div.css('font-weight',  '600');
+        div.css('font-weight',  '700');
         div.append(text);
         dialog.append(div);
         return div;
@@ -153,7 +153,7 @@ xs.ui.Dialog = function() {
     dialog.append_text_h1c = function(text) {
         var div = $('<div></div>');
         div.css('padding',      '.5em');
-        div.css('font-weight',  '600');
+        div.css('font-weight',  '700');
         div.css('text-align',   'center');
         div.append(text);
         dialog.append(div);
