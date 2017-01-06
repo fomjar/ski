@@ -13,8 +13,8 @@
             tap-highlight-color : rgba(0,0,0,0);
     -webkit-tap-highlight-color : rgba(0,0,0,0);
     /* 动画效果 */
-            transition  : all .5s ease-out;
-    -webkit-transition  : all .5s ease-out;
+            transition          : all .5s ease-out;
+    -webkit-transition          : all .5s ease-out;
 }
 div {
     cursor      : default;
