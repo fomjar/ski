@@ -120,14 +120,12 @@ html, body {
     left        : 0;
     overflow-y  : auto;
     background  : white;
-            transform   : scale(1, 1);
-    -webkit-transform   : scale(1, 1);
 }
 .xs .page-stack .page-down {
     opacity : .6;
     left    : -30%  !important;
-            transform   : scale(.9, .9);
-    -webkit-transform   : scale(.9, .9);
+            transform   : scale(.9);
+    -webkit-transform   : scale(.9);
 }
 .xs .page-stack .page-mid {
 }
@@ -146,13 +144,14 @@ html, body {
     opacity     : .5;
 }
 .xs .dialog {
+    position    : absolute;
     z-index     : 10;
     display     : inline-block;
+    background  : white;
     border      : .5px solid gray;
+    box-shadow  : gray 0px 0px 10px;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
-    background  : white;
-    box-shadow  : gray 0px 0px 10px;
 
     min-width   : 60%;
     max-width   : 80%;
