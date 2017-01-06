@@ -19,18 +19,21 @@ fomjar.framework.phase.append('ren', xsmain);
 
 function build_frame() {
     var frame = $('<div></div>');
-    frame.addClass('xs disappear');
+    frame.addClass('xs');
 
     var head = $('<div></div>');
-    head.addClass('head');
+    head.addClass('head disappear');
     var body = $('<div></div>');
-    body.addClass('body');
+    body.addClass('body disappear');
 
 
     frame.append([head, body]);
     $('body').append(frame);
 
-    fomjar.util.async(function() {frame.removeClass('disappear');});
+    fomjar.util.async(function() {
+        head.removeClass('disappear');
+        body.removeClass('disappear');
+    });
 }
 
 function xsmain() {

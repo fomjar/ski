@@ -7,21 +7,20 @@ xs.ui.PageStack = function() {
     stack.pages = [];
 
     stack.page_push = function(page) {
-        if (stack.pages.length > 0) {
-            var down = stack.pages[stack.pages.length - 1];
-            fomjar.util.async(function() {down.to_down();});
-        }
         if (stack.pages.length == 0) {
             page.to_mid();
             stack.append(page);
         } else {
+            var down = stack.pages[stack.pages.length - 1];
+            fomjar.util.async(function() {down.to_down();});
+
             page.to_up();
             stack.append(page);
             fomjar.util.async(function() {page.to_mid();});
         }
 
         stack.pages.push(page);
-        if (stack.page_switch_cb) stack.page_switch_cb('push', stack.pages[stack.pages.length - 2], page);
+        if (stack.page_switch_cb) stack.page_switch_cb('push', stack.pages.length >= 2 ? stack.pages[stack.pages.length - 2] : null, page);
     };
     stack.page_pop = function() {
         if (stack.pages.length <= 1) return;
