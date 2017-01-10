@@ -76,8 +76,9 @@ html, body {
     height  : 2em;
 }
 .xs .cover img {
-    width   : 2em;
-    height  : 2em;
+    width           : 2em;
+    height          : 2em;
+    vertical-align  : bottom;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
 }
