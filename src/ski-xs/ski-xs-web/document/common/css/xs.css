@@ -73,19 +73,19 @@ html, body {
 /* component */
 .xs .cover {
     display : inline-block;
-    height  : 2.5em;
+    height  : 2em;
 }
 .xs .cover img {
-    width   : 2.5em;
-    height  : 2.5em;
+    width   : 2em;
+    height  : 2em;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
 }
 .xs .cover div {
-    display     : inline-block;
+    display         : inline-block;
     vertical-align  : top;
-    line-height : 2.5em;
-    margin-left : .5em;
+    line-height     : 2em;
+    margin-left     : .5em;
 }
 
 .xs .button {
@@ -107,6 +107,10 @@ html, body {
     background  : #dddddd;
     color       : gray;
     border      : 1px solid gray;
+}
+.xs .button .shape {
+    width   : 100%;
+    height  : 100%;
 }
 
 .xs .page-stack {
@@ -271,45 +275,40 @@ html, body {
 .xs .head {
     position    : absolute;
     width       : 100%;
-    height      : 3.5em;
+    height      : 3em;
     top         : 0;
     left        : 0;
-    padding     : .5em;
+    font-size   : 1.2em;
     background  : #000033;
 }
 .xs .head .l {
-    display : inline-block;
-    height  : 100%;
-    padding : .5em 0;
+    display     : inline-block;
+    position    : absolute;
+    top         : 50%;
+    left        : .5em;
+            transform   : translateY(-50%);
+    -webkit-transform   : translateY(-50%);
 }
 .xs .head .m {
+    display     : inline-block;
     position    : absolute;
-    display : inline-block;
-    height  : 100%;
-    top     : 0;
-    left    : 50%;
-            transform   : translateX(-50%);
-    -webkit-transform   : translateX(-50%);
-    padding : 1em 0;
 }
 .xs .head .r {
-    display : inline-block;
-    float   : right;
-    height  : 100%;
-    padding : .5em 0;
+    display     : inline-block;
+    position    : absolute;
+    top         : 50%;
+    right       : .5em;
+            transform   : translateY(-50%);
+    -webkit-transform   : translateY(-50%);
 }
 .xs .head-disappear {
     opacity : 0 !important;
             transition  : all .25s  !important;
     -webkit-transition  : all .25s  !important;
 }
-.xs .head .cover {
-    top         : -.5em;
-}
+.xs .head .cover {}
 .xs .head .cover div {
     color       : white;
-    font-size   : 1.2em;
-    line-height : 2.1em;
 }
 .xs .head .button {
     padding     : 0;
@@ -320,10 +319,6 @@ html, body {
     min-height  : 1.5em;
             border-radius   : 0;
     -webkit-border-radius   : 0;
-}
-.xs .head .button .shape {
-    width   : 1.5em;
-    height  : 1.5em;
 }
 .xs .body {
     position    : absolute;

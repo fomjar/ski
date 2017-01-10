@@ -377,7 +377,7 @@ xs.ui.head = function() {
         head.l.append(head.cover);
 
         head.m = $('<div></div>');
-        head.m.addClass('m');
+        head.m.addClass('m center');
 
         head.r = $('<div></div>');
         head.r.addClass('r');
