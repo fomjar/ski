@@ -1,4 +1,7 @@
 var fomjar = {};
+
+(function($) {
+
 fomjar.util = {};
 fomjar.util.Base64 = function() {
     // 转码表
@@ -358,3 +361,4 @@ Date.prototype.format = function (fmt) {
     return fmt;
 };
 
+})(jQuery);
