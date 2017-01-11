@@ -11,16 +11,16 @@ xs.ui.PageStack = function() {
 
     stack.page_push = function(page) {
         if (stack.pages.length == 0) {
-            page.to_mid();
+            page.to_center();
             stack.append(page);
         } else {
-            page.to_up();
+            page.to_right();
             stack.append(page);
             var down = stack.pages[stack.pages.length - 1];
 
             fomjar.util.async(function() {
-                page.to_mid();
-                down.to_down();
+                page.to_center();
+                down.to_left();
             });
         }
 
@@ -33,8 +33,8 @@ xs.ui.PageStack = function() {
         var page_down = stack.pages[stack.pages.length - 2];
         var page_up = stack.pages[stack.pages.length - 1];
         fomjar.util.async(function() {
-            page_down.to_mid();
-            page_up.to_up();
+            page_down.to_center();
+            page_up.to_right();
         });
         fomjar.util.async(function() {
             page_up.detach();
@@ -55,52 +55,103 @@ xs.ui.PageStack = function() {
         stack.page_switch_cb = cb;
     };
     stack.PAGE_SWITCH_CB_DEFAULT = function(operation, page_old, page_new) {
-        xs.ui.head().l.addClass('head-disappear');
-        xs.ui.head().m.addClass('head-disappear');
-        xs.ui.head().r.addClass('head-disappear');
-
-        fomjar.util.async(function() {
-            xs.ui.head().l.children().detach();
-            xs.ui.head().m.children().detach();
-            xs.ui.head().r.children().detach();
-
-            if (page_new.op_l) {
-                xs.ui.head().l.append(page_new.op_l);
-                xs.ui.head().l.removeClass('head-disappear');
+        switch (operation) {
+        case 'push':
+            if (page_old && page_old._head) {
+                page_old._head.addClass('page-head-l');
             }
-            if (page_new.op_m) {
-                xs.ui.head().m.append(page_new.op_m);
-                xs.ui.head().m.removeClass('head-disappear');
+            if (page_new && page_new._head) {
+                page_new._head.addClass('page-head-r');
+                xs.ui.head().append(page_new._head);
+                fomjar.util.async(function() {page_new._head.removeClass('page-head-r');});
             }
-            if (page_new.op_r) {
-                xs.ui.head().r.append(page_new.op_r);
-                xs.ui.head().r.removeClass('head-disappear');
+            break;
+        case 'pop':
+            if (page_old && page_old._head) {
+                page_old._head.addClass('page-head-r');
+                fomjar.util.async(function() {page_old._head.detach();}, xs.ui.DELAY);
             }
-        }, xs.ui.DELAY / 2);
+            if (page_new && page_new._head) {
+                page_new._head.removeClass('page-head-l');
+            }
+            break;
+        }
     };
 
     return stack;
 }
 
-xs.ui.Page = function(options) {
+xs.ui.Page = function() {
     var div = $('<div></div>');
     div.addClass('page');
 
-    if (options.name) div.name = options.name;
-    if (options.op_l) div.op_l = options.op_l;
-    if (options.op_m) div.op_m = options.op_m;
-    if (options.op_r) div.op_r = options.op_r;
+    div.to_center = function() {
+        div.removeClass('page-l page-r');
+    };
+    div.to_left = function() {
+        div.removeClass('page-l page-r');
+        div.addClass('page-l');
+    };
+    div.to_right = function() {
+        div.removeClass('page-l page-r');
+        div.addClass('page-r');
+    };
+    div.head = function(op_l, op_c, op_r) {
+        if (!div._head) {
+            var head = $('<div></div>');
+            head.addClass('page-head');
+            head.l = $('<div></div>');
+            head.l.addClass('l');
+            head.c = $('<div></div>');
+            head.c.addClass('c center');
+            head.r = $('<div></div>');
+            head.r.addClass('r');
+            div._head = head;
+            head.append([head.l, head.c, head.r]);
+        }
 
-    div.to_mid = function() {
-        div.removeClass('page-down page-up');
+        if (op_l) {
+            head.l.children().detach();
+            head.l.append(op_l);
+        }
+        if (op_c) {
+            head.c.children().detach();
+            head.c.append(op_c);
+        }
+        if (op_r) {
+            head.r.children().detach();
+            head.r.append(op_r);
+        }
+
+        return div._head;
     };
-    div.to_down = function() {
-        div.removeClass('page-down page-up');
-        div.addClass('page-down');
-    };
-    div.to_up = function() {
-        div.removeClass('page-down page-up');
-        div.addClass('page-up');
+    div.jump = function() {
+        var jump = $('<div></div>');
+        jump.addClass('page-jump page-jump-d');
+
+        if (div._head) {
+            var head = $('<div></div>');
+            head.addClass('head');
+            head.append(div._head);
+
+            var body = $('<div></div>');
+            body.addClass('body');
+            body.append(div);
+
+            jump.append([head, body]);
+        } else {
+            jump.append(div);
+        }
+
+        jump.drop = function() {
+            jump.addClass('page-jump-d');
+            fomjar.util.async(function() {jump.detach();}, xs.ui.DELAY);
+        };
+
+        $('.xs').append(jump);
+        fomjar.util.async(function() {jump.removeClass('page-jump-d');});
+
+        return jump;
     };
 
     return div;
@@ -370,19 +421,8 @@ xs.ui.head = function() {
 
     head.reset = function() {
         head.children().detach();
-
-        head.l = $('<div></div>');
-        head.l.addClass('l');
         head.cover = new xs.ui.Cover();
-        head.l.append(head.cover);
-
-        head.m = $('<div></div>');
-        head.m.addClass('m center');
-
-        head.r = $('<div></div>');
-        head.r.addClass('r');
-
-        head.append([head.l, head.m, head.r]);
+        head.cover.div.text('登陆');
     };
     
     xs.ui._head = head;

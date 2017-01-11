@@ -77,14 +77,14 @@ function create_page_stack() {
 function create_page_dir(stack, dir) {
     var op_l = dir == '/' ? xs.ui.head().cover : new xs.ui.Button('返回', function() {stack.dir_out();});
     var dir_name = xs.user.dir_name(dir);
-    var page = new xs.ui.Page({
-        name    : dir_name,
-        op_l    : op_l,
-        op_m    : new xs.ui.Button(dir_name),
-        op_r    : [
+    var page = new xs.ui.Page();
+    page.head(
+        op_l,
+        new xs.ui.Button(dir_name),
+        [
             create_button_new(stack)
         ]
-    });
+    );
     var list = new xs.ui.List();
     page.append(list);
 
@@ -110,15 +110,20 @@ function create_page_dir(stack, dir) {
 
 function create_page_art(stack) {
     var ae = new xs.ui.ArticleEditor();
-    var page = new xs.ui.Page({
-        name    : 'article.new',
-        op_l    : new xs.ui.Button('返回', function() {stack.page_pop();}),
-        op_m    : new xs.ui.Button('新文章'),
-        op_r    : [
-            new xs.ui.Button('预览', function() {stack.page_pop();}),
+    var page = new xs.ui.Page();
+    page.head(
+        new xs.ui.Button('返回', function() {stack.page_pop();}),
+        new xs.ui.Button('新文章'),
+        [
+            new xs.ui.Button('预览', function() {
+                var page = new xs.ui.Page();
+                var jump = null;
+                page.head(null, null, new xs.ui.Button('关闭', function() {jump.drop();}));
+                jump = page.jump();
+            }),
             new xs.ui.Button('完成', function() {stack.page_pop();})
         ]
-    });
+    );
     page.append(ae);
     return page;
 }
