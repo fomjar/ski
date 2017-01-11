@@ -564,8 +564,9 @@ xs.ui.ArticleEditor = function(article) {
 
         var plus = new xs.ui.shape.Plus('4px', 'gray');
         plus.addClass('center');
+        var input = $("<input type='file' accept='image/*' multiple=true >");
 
-        div.append(plus);
+        div.append([plus, input]);
 
         ae.append(div);
     };
