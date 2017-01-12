@@ -129,9 +129,7 @@ function create_page_art(stack) {
 }
 
 function create_button_new(stack) {
-    var shape = new xs.ui.shape.Plus('1px', '#ccccff');
-    shape.addClass('center');
-    var button = new xs.ui.Button(shape, function() {
+    var button = new xs.ui.Button(new xs.ui.shape.Plus('1px', '#ccccff'), function() {
         var list = new xs.ui.List();
         var mask = new xs.ui.Mask();
         var dialog = new xs.ui.Dialog();

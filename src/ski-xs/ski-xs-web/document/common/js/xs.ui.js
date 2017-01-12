@@ -233,15 +233,18 @@ xs.ui.Dialog = function() {
         return div;
     };
     dialog.append_input = function(attr) {
-        var div = $('<input>');
-        div.css('width',    '100%');
+        var div = $('<div></div>');
+        div.css('padding',  '.2em .5em');
+        var input = $('<input>');
+        input.css('width',  '100%');
         if (attr) {
             $.each(attr, function(k, v) {
-                div.attr(k, v);
+                input.attr(k, v);
             });
         }
+        div.append(input);
         dialog.append(div);
-        return div;
+        return input;
     };
     dialog.append_button = function(button) {
         var div = $('<div></div>');
@@ -476,6 +479,11 @@ xs.ui.shape.ArrowRight = function(line, color, width, height) {
 
     var div_a = $('<div></div>');
     div_a.addClass('arrow-r');
+    div_a.css('width',  '70%');
+    div_a.css('height', '70%');
+    div_a.css('left',   '15%');
+    div_a.css(        'transform',  'translate(-50%, -50%) rotate(45deg)');
+    div_a.css('-webkit-transform',  'translate(-50%, -50%) rotate(45deg)');
     div_a.css('border-top',   line + ' solid ' + color);
     div_a.css('border-right', line + ' solid ' + color);
 
@@ -490,13 +498,13 @@ xs.ui.shape.Plus = function(line, color, width, height) {
     div.addClass('shape');
 
     var div_h = $('<div></div>');
-    div_h.addClass('plus-h');
+    div_h.css('width',  '100%');
     div_h.css('height', line);
     div_h.css('background', color);
 
     var div_v = $('<div></div>');
-    div_v.addClass('plus-v');
-    div_v.css('width', line);
+    div_v.css('width',  line);
+    div_v.css('height', '100%');
     div_v.css('background', color);
 
     div.append([div_h, div_v]);
@@ -504,6 +512,32 @@ xs.ui.shape.Plus = function(line, color, width, height) {
     if (width)  div.css('width',  width);
     if (height) div.css('height', height);
     return div;
+};
+xs.ui.shape.Option = function(point, color, width, height) {
+    var div = $('<div></div>');
+    div.addClass('shape');
+
+    for (var i = 0; i < 3; i++) {
+        var p = $('<div></div>');
+        p.css('width',      point);
+        p.css('height',     point);
+        p.css('background', color);
+        p.css(        'border-radius', point);
+        p.css('-webkit-border-radius', point);
+        div.append(p);
+    }
+    div.find('>div:nth-child(1)').css('left',   '20%');
+    div.find('>div:nth-child(3)').css('right',  '80%');
+
+    if (width)  div.css('width',  width);
+    if (height) div.css('height', height);
+    return div;
+};
+xs.ui.shape.X = function(line, color, width, height) {
+    var plus = new xs.ui.shape.Plus(line, color, width, height);
+    plus.css(        'transform',  'translate(-50%, -50%) rotate(45deg)');
+    plus.css('-webkit-transform',  'translate(-50%, -50%) rotate(45deg)');
+    return plus;
 };
 
 // 以下业务相关
@@ -570,6 +604,15 @@ xs.ui.ArticleEditor = function(article) {
         type_img.text('图');
         var input = $("<input type='file' accept='image/*' multiple=true >");
         type_img.append(input);
+        input.bind('click', function() {
+            clearTimeout(div.timer);
+            div.to_normal();
+        });
+        input.bind('change', function(e) {
+            $.each(e.target.files, function(i, f) {
+                var src = window.URL.createObjectURL(f);
+            });
+        });
 
         var type_txt = $('<div></div>');
         type_txt.addClass('type type-txt disappear');
@@ -610,22 +653,35 @@ xs.ui.ArticleEditor = function(article) {
         ae.append(div);
     };
     ae.append_paragraph = function(paragraph) {
-        var has_img = false;
+        var div = $('<div></div>');
+        div.addClass('ap ap-disappear');
+
+        var div_del = new xs.ui.Button(new xs.ui.shape.X('2px', 'lightgray'), function() {
+            div.addClass('ap-disappear');
+            fomjar.util.async(function() {div.detach();}, xs.ui.DELAY);
+        });
+        div_del.addClass('del');
+        div.append(div_del);
+
         if (paragraph && paragraph.element) {
             $.each(paragraph.element, function(i, e) {
-                if (e.et == 1) has_img = true;
+                switch (e.et) {
+                case 0: {
+                    var txt = $('<textarea></textarea>');
+                    txt.attr('placeholder', '输入段落内容');
+                    txt.text(ec);
+                    div.append(txt);
+                    break;
+                }
+                }
             });
-        }
-
-        if (has_img) {
         } else {
-            var div_txt = $('<div></div>');
-            div_txt.addClass('ap-txt ap-disappear');
-            div_txt.append("<textarea placeholder='输入段落内容'></textarea>");
-
-            ae.find('.apn').before(div_txt);
-            fomjar.util.async(function() {div_txt.removeClass('ap-disappear');});
+            var txt = $('<textarea></textarea>');
+            txt.attr('placeholder', '输入段落内容');
+            div.append(txt);
         }
+        ae.find('.apn').before(div);
+        fomjar.util.async(function() {div.removeClass('ap-disappear');});
     };
 
     ae.append_head(ae.article);

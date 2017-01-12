@@ -23,7 +23,7 @@ div {
             user-select : none;
     -webkit-user-select : none;
 }
-img, input, textarea, select {
+input, textarea, select {
     border          : none;
     font-size       : 1em;
     vertical-align  : middle;
@@ -31,12 +31,21 @@ img, input, textarea, select {
     color           : #000033;
             appearance      : none;
     -webkit-appearance      : none;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+}
+input:focus, textarea:focus, select:focus {
+    border      : 1px solid #9999ff;
+    box-shadow  : #9999ff 0px 0px .4em;
 }
 input, select {
-    padding     : .75em 1em;
+    padding     : .75em .5em;
 }
 textarea {
-    padding : 0 .5em;
+    padding : 0 .25em;
+}
+img {
+    vertical-align  : middle;
 }
 table {
     border-collapse : collapse;
@@ -102,16 +111,19 @@ html, body {
 .xs .button-high {
     background  : #333366;
     color       : white;
-    border      : 1px solid gray;
+    border      : 1px solid lightgray;
 }
 .xs .button-dark {
-    background  : #dddddd;
+    background  : #eeeeee;
     color       : gray;
-    border      : 1px solid gray;
+    border      : 1px solid lightgray;
 }
 .xs .button .shape {
-    width   : 100%;
-    height  : 100%;
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    top         : 50%;
+    left        : 50%;
 }
 
 .xs .page-stack {
@@ -220,8 +232,8 @@ html, body {
     z-index     : 10;
     display     : inline-block;
     background  : white;
-    border      : 1px solid gray;
-    box-shadow  : gray 0px 0px 10px;
+    border      : 1px solid lightgray;
+    box-shadow  : lightgray 0px 0px 10px;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
 
@@ -267,13 +279,13 @@ html, body {
 }
 .xs .list >div {
     padding         : .75em;
-    border-bottom   : 1px solid #dddddd;
+    border-bottom   : 1px solid lightgray;
 }
 .xs .list >div:last-child {
     border-bottom   : none  !important;
 }
 .xs .list >div:active {
-    background      : #dddddd;
+    background      : lightgray;
 }
 .xs .list >div .icon {
     float           : left;
@@ -314,7 +326,9 @@ html, body {
 }
 
 .xs .shape {
-    display     : inline-block;
+    display : inline-block;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
 }
 .xs .shape * {
     display     : inline-block;
@@ -323,19 +337,6 @@ html, body {
     left        : 50%;
             transform   : translate(-50%, -50%);
     -webkit-transform   : translate(-50%, -50%);
-}
-.xs .shape .arrow-r {
-    width   : 70%;
-    height  : 70%;
-    left    : 15%;
-            transform   : translate(-50%, -50%) rotate(45deg);
-    -webkit-transform   : translate(-50%, -50%) rotate(45deg);
-}
-.xs .shape .plus-h {
-    width   : 100%;
-}
-.xs .shape .plus-v {
-    height  : 100%;
 }
 
 /* framework */
@@ -403,19 +404,24 @@ html, body {
     right       : 0;
     background  : #9999ff;
 }
+.xs .ae .ap {
+    padding         : .5em;
+    padding-right   : 4em;
+}
 .xs .ae .ap-disappear {
-    height      : 0 !important;
+    opacity     : 0;
 }
-.xs .ae .ap-txt {
-    margin      : .5em;
-    height      : 6em;
-    border      : 1px dashed gray;
-            border-radius   : .5em;
-    -webkit-border-radius   : .5em;
+.xs .ae .ap .del {
+    position    : absolute;
+    width       : 2em;
+    height      : 2em;
+    top         : .5em;
+    right       : 1em;
 }
-.xs .ae .ap-txt textarea {
+.xs .ae .ap textarea {
     width   : 100%;
-    height  : 6em;
+    height  : 8em;
+    border  : 1px dashed lightgray;
 }
 
 
