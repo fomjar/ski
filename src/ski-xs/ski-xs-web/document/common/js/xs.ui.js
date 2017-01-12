@@ -593,10 +593,10 @@ xs.ui.ArticleEditor = function(article) {
     };
 
     ae.append_paragraph_new = function() {
-        var div = $('<div></div>');
+        var div = new xs.ui.Button();
         div.addClass('apn');
 
-        var plus = new xs.ui.shape.Plus('4px', 'gray');
+        var plus = new xs.ui.shape.Plus('4px', 'lightgray');
         plus.addClass('center');
 
         var type_img = $('<div></div>');
