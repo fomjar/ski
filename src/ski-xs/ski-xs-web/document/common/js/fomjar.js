@@ -223,7 +223,7 @@ fomjar.util.title = function(t) {
 
 fomjar.util.async = function(d, t) {
     if (!t) t = 0;
-    setTimeout(d, t);
+    return setTimeout(d, t);
 };
 
 fomjar.net = {

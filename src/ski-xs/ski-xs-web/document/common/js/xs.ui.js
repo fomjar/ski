@@ -564,13 +564,68 @@ xs.ui.ArticleEditor = function(article) {
 
         var plus = new xs.ui.shape.Plus('4px', 'gray');
         plus.addClass('center');
-        var input = $("<input type='file' accept='image/*' multiple=true >");
 
-        div.append([plus, input]);
+        var type_img = $('<div></div>');
+        type_img.addClass('type type-img disappear');
+        type_img.text('图');
+        var input = $("<input type='file' accept='image/*' multiple=true >");
+        type_img.append(input);
+
+        var type_txt = $('<div></div>');
+        type_txt.addClass('type type-txt disappear');
+        type_txt.text('文');
+        type_txt.bind('click', function() {
+            clearTimeout(div.timer);
+            div.to_normal();
+            ae.append_paragraph();
+        });
+
+        var types = $([type_img[0], type_txt[0]]);
+        types.hide();
+
+        div.append([plus, type_img, type_txt]);
+        div.is_normal = function() {
+            return !plus.hasClass('disappear');
+        };
+        div.to_normal = function() {
+            fomjar.util.async(function() {
+                plus.removeClass('disappear');
+                types.addClass('disappear');
+            });
+            fomjar.util.async(function() {types.hide();}, xs.ui.DELAY);
+        };
+        div.timer = null;
+        div.to_choose = function() {
+            plus.addClass('disappear');
+            types.show();
+            types.removeClass('disappear');
+            div.timer = fomjar.util.async(function() {div.to_normal();}, 3000);
+        };
+        div.bind('click', function() {
+            if (div.is_normal()) {
+                div.to_choose();
+            }
+        });
 
         ae.append(div);
     };
     ae.append_paragraph = function(paragraph) {
+        var has_img = false;
+        if (paragraph && paragraph.element) {
+            $.each(paragraph.element, function(i, e) {
+                if (e.et == 1) has_img = true;
+            });
+        }
+
+        if (has_img) {
+        } else {
+            var div_txt = $('<div></div>');
+            div_txt.addClass('ap-txt ap-disappear');
+            div_txt.append("<textarea placeholder='输入段落内容'></textarea>");
+
+            ae.find('.apn').before(div_txt);
+            fomjar.util.async(function() {div_txt.removeClass('ap-disappear');});
+        }
     };
 
     ae.append_head(ae.article);
