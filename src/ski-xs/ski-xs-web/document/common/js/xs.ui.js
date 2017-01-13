@@ -656,7 +656,7 @@ xs.ui.ArticleEditor = function(article) {
         var div = $('<div></div>');
         div.addClass('ap ap-disappear');
 
-        var div_del = new xs.ui.Button(new xs.ui.shape.X('2px', 'lightgray'), function() {
+        var div_del = new xs.ui.Button(new xs.ui.shape.X('1px', 'gray'), function() {
             div.addClass('ap-disappear');
             fomjar.util.async(function() {div.detach();}, xs.ui.DELAY);
         });
