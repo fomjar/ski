@@ -356,7 +356,7 @@ xs.ui.Spin = function(scale) {
         , radius    : 8             // The radius of the inner circle
         , scale     : scale         // Scales overall size of the spinner
         , corners   : 1             // Corner roundness (0..1)
-        , color     : '#999'        // #rgb or #rrggbb or array of colors
+        , color     : 'gray'        // #rgb or #rrggbb or array of colors
         , opacity   : 0.25          // Opacity of the lines
         , rotate    : 0             // The rotation offset
         , direction : 1             // 1: clockwise, -1: counterclockwise
@@ -367,34 +367,20 @@ xs.ui.Spin = function(scale) {
         , className : 'spinner'     // The CSS class to assign to the spinner
         , top       : '50%'         // Top position relative to parent
         , left      : '50%'         // Left position relative to parent
-        , shadow    : false         // Whether to render a shadow
+        , shadow    : true          // Whether to render a shadow
         , hwaccel   : false         // Whether to use hardware acceleration
         , position  : 'absolute'    // Element positioning
     };
     var spinner = new Spinner(opts);
 
     var size = scale * 35;
-    var sc = $('<div></div>');
-    sc.addClass('spinnerc disappear');
-    sc.css('width', size);
-    sc.css('height', size);
-    sc.spinner = spinner;
-    sc.appear = function() {
-        sc.removeClass('disappear');
-        spinner.spin(sc[0]);
-    };
-    sc.disappear = function() {
-        sc.addClass('disappear');
-        fomjar.util.async(function() {
-            spinner.spin();
-            sc.detach();
-        }, xs.ui.DELAY);
-    };
-    sc.center = function() {
-        sc.addClass('center');
-    };
-
-    return sc;
+    var div = $('<div></div>');
+    div.css('display',   'inline-block');
+    div.css('width',     size);
+    div.css('height',    size);
+    div.spinner = spinner;
+    div.spinner.spin(div[0]);
+    return div;
 }
 
 xs.ui.Button = function(content, action) {
@@ -446,7 +432,40 @@ xs.ui.body = function() {
 }
 
 xs.ui.hud = {};
-xs.ui.hud.Major = function() {
+xs.ui.hud.Major = function(content) {
+    var div = $('<div></div>');
+    div.addClass('hud-major center');
+
+    div.style_loading = function(text) {
+        var spin = new xs.ui.Spin(1.5);
+        spin.css('margin',  '.5em');
+        div.append(spin);
+        if (text) {
+            var div_txt = $('<div></div>');
+            div_txt.css('margin',           '.5em 1em');
+            div_txt.css('margin-bottom',    '0');
+            div_txt.text(text);
+            div.append(div_txt);
+        }
+    };
+    div.appear = function(timeout) {
+        if (!timeout) timeout = 2e9;
+
+        div.addClass('disappear');
+        $('.xs').append(div);
+        fomjar.util.async(function() {div.removeClass('disappear');});
+        fomjar.util.async(function() {
+            div.disappear();
+        }, timeout)
+    };
+    div.disappear = function() {
+        div.addClass('disappear');
+        fomjar.util.async(function() {div.detach();}, xs.ui.DELAY);
+    };
+
+    if (content) div.append(content);
+
+    return div;
 };
 xs.ui.hud.Minor = function(content) {
     var div = $('<div></div>');
@@ -478,10 +497,9 @@ xs.ui.shape.ArrowRight = function(line, color, width, height) {
     div.addClass('shape');
 
     var div_a = $('<div></div>');
-    div_a.addClass('arrow-r');
-    div_a.css('width',  '70%');
-    div_a.css('height', '70%');
-    div_a.css('left',   '15%');
+    div_a.css('width',  '70.72%');
+    div_a.css('height', '70.72%');
+    div_a.css('left',   '29.28%');
     div_a.css(        'transform',  'translate(-50%, -50%) rotate(45deg)');
     div_a.css('-webkit-transform',  'translate(-50%, -50%) rotate(45deg)');
     div_a.css('border-top',   line + ' solid ' + color);
@@ -491,6 +509,29 @@ xs.ui.shape.ArrowRight = function(line, color, width, height) {
 
     if (width)  div.css('width',  width);
     if (height) div.css('height', height);
+    return div;
+};
+xs.ui.shape.ArrowLeft = function(line, color, width, height) {
+    var div = new xs.ui.shape.ArrowRight(line, color, width, height);
+    div.find('>div').css('left',    '70.72%');
+    div.find('>div').css(        'transform',  'translate(-50%, -50%) rotate(-135deg)');
+    div.find('>div').css('-webkit-transform',  'translate(-50%, -50%) rotate(-135deg)');
+    return div;
+};
+xs.ui.shape.ArrowUp = function(line, color, width, height) {
+    var div = new xs.ui.shape.ArrowRight(line, color, width, height);
+    div.find('>div').css('left',    '');
+    div.find('>div').css('top',     '70.72%');
+    div.find('>div').css(        'transform',  'translate(-50%, -50%) rotate(-45deg)');
+    div.find('>div').css('-webkit-transform',  'translate(-50%, -50%) rotate(-45deg)');
+    return div;
+};
+xs.ui.shape.ArrowDown = function(line, color, width, height) {
+    var div = new xs.ui.shape.ArrowRight(line, color, width, height);
+    div.find('>div').css('left',    '');
+    div.find('>div').css('top',     '29.28%');
+    div.find('>div').css(        'transform',  'translate(-50%, -50%) rotate(135deg)');
+    div.find('>div').css('-webkit-transform',  'translate(-50%, -50%) rotate(135deg)');
     return div;
 };
 xs.ui.shape.Plus = function(line, color, width, height) {
@@ -526,8 +567,8 @@ xs.ui.shape.Option = function(point, color, width, height) {
         p.css('-webkit-border-radius', point);
         div.append(p);
     }
-    div.find('>div:nth-child(1)').css('left',   '20%');
-    div.find('>div:nth-child(3)').css('right',  '80%');
+    div.find('>div:nth-child(1)').css('left',   '25%');
+    div.find('>div:nth-child(3)').css('left',   '75%');
 
     if (width)  div.css('width',  width);
     if (height) div.css('height', height);
@@ -535,9 +576,51 @@ xs.ui.shape.Option = function(point, color, width, height) {
 };
 xs.ui.shape.X = function(line, color, width, height) {
     var plus = new xs.ui.shape.Plus(line, color, width, height);
-    plus.css(        'transform',  'translate(-50%, -50%) rotate(45deg)');
-    plus.css('-webkit-transform',  'translate(-50%, -50%) rotate(45deg)');
+    plus.css(        'transform',  'scale(1.39) translate(-36%, -36%) rotate(45deg)');
+    plus.css('-webkit-transform',  'scale(1.39) translate(-36%, -36%) rotate(45deg)');
     return plus;
+};
+xs.ui.shape.Drag = function(line, color, width, height) {
+    var div = $('<div></div>');
+    div.addClass('shape');
+
+    for (var i = 0; i < 3; i++) {
+        var l = $('<div></div>');
+        l.css('width',      '100%');
+        l.css('height',     line);
+        l.css('background', color);
+        div.append(l);
+    }
+
+    div.find('>div:nth-child(1)').css('top',    '25%');
+    div.find('>div:nth-child(3)').css('top',    '75%');
+
+    if (width)  div.css('width',  width);
+    if (height) div.css('height', height);
+    return div;
+};
+
+xs.ui.preview = function(src) {
+    var div = $('<div></div>');
+    div.addClass('preview disappear');
+    var img = $('<img>');
+    img.attr('src',     src);
+    div.append(img);
+
+    div.disappear = function() {
+        mask.disappear();
+        div.addClass('disappear');
+        fomjar.util.async(function() {div.detach();}, xs.ui.DELAY);
+    };
+    var mask = new xs.ui.Mask();
+    mask.bind('click', div.disappear);
+    div.bind('click', div.disappear);
+
+    mask.appear();
+    $('.xs').append(div);
+    fomjar.util.async(function() {div.removeClass('disappear');});
+
+    return div;
 };
 
 // 以下业务相关
@@ -609,8 +692,20 @@ xs.ui.ArticleEditor = function(article) {
             div.to_normal();
         });
         input.bind('change', function(e) {
+            div.to_normal();
+            var delay = 0;
             $.each(e.target.files, function(i, f) {
                 var src = window.URL.createObjectURL(f);
+                var paragraph = {
+                    element : [
+                        {esn : 1, et : 1, ec : src},
+                        {esn : 2, et : 0, ec : ''}
+                    ]
+                };
+                fomjar.util.async(function() {
+                    ae.append_paragraph(paragraph);
+                }, delay);
+                delay += xs.ui.DELAY / 2;
             });
         });
 
@@ -654,23 +749,63 @@ xs.ui.ArticleEditor = function(article) {
     };
     ae.append_paragraph = function(paragraph) {
         var div = $('<div></div>');
-        div.addClass('ap ap-disappear');
+        div.addClass('ap fast disappear');
 
-        var div_del = new xs.ui.Button(new xs.ui.shape.X('1px', 'gray'), function() {
-            div.addClass('ap-disappear');
-            fomjar.util.async(function() {div.detach();}, xs.ui.DELAY);
+        var div_dele = new xs.ui.Button(new xs.ui.shape.X('1px', 'gray'), function() {
+            div.addClass('disappear');
+            fomjar.util.async(function() {div.detach();}, xs.ui.DELAY / 2);
         });
-        div_del.addClass('del');
-        div.append(div_del);
+        div_dele.addClass('oper oper-1');
+        div.append(div_dele);
 
+        var div_move_up = new xs.ui.Button(new xs.ui.shape.ArrowUp('1px', 'gray'), function() {
+            var i = div.index();
+            if (1 == i) return;
+
+            var before = $(ae.find('.ap')[i - 2]);
+            div.addClass('disappear');
+            before.addClass('disappear');
+            fomjar.util.async(function() {
+                div.detach();
+                before.before(div);
+                fomjar.util.async(function() {
+                    div.removeClass('disappear');
+                    before.removeClass('disappear');
+                });
+            }, xs.ui.DELAY / 2);
+        });
+        div_move_up.addClass('oper oper-2');
+        div.append(div_move_up);
+
+        // var div_move_down = new xs.ui.Button(new xs.ui.shape.ArrowDown('1px', 'gray'));
+        // div_move_down.addClass('oper move-down');
+        // div.append(div_move_down);
+
+        div.addClass('ap-txt');
         if (paragraph && paragraph.element) {
             $.each(paragraph.element, function(i, e) {
                 switch (e.et) {
                 case 0: {
                     var txt = $('<textarea></textarea>');
-                    txt.attr('placeholder', '输入段落内容');
-                    txt.text(ec);
+                    txt.attr('placeholder', '输入文字内容');
+                    txt.text(e.ec);
                     div.append(txt);
+                    break;
+                }
+                case 1: {
+                    div.removeClass('ap-txt');
+                    div.addClass('ap-img');
+
+                    var img = $('<img>');
+                    img.addClass('center');
+                    img.css('width',    '100%');
+                    img.attr('src',     e.ec);
+                    img.bind('click', function() {xs.ui.preview(e.ec);});
+
+                    var div_img = $('<div></div>');
+                    div_img.addClass('img');
+                    div_img.append(img);
+                    div.append(div_img);
                     break;
                 }
                 }
@@ -681,7 +816,34 @@ xs.ui.ArticleEditor = function(article) {
             div.append(txt);
         }
         ae.find('.apn').before(div);
-        fomjar.util.async(function() {div.removeClass('ap-disappear');});
+        fomjar.util.async(function() {div.removeClass('disappear');});
+    };
+
+    ae.generate_article = function() {
+        var article = {};
+        article.title = ae.find('.ah input').val();
+
+        var paragraph = [];
+        $.each(ae.find('.ap'), function(i, ap) {
+            ap = $(ap);
+            var element = [];
+            if (0 < ap.find('img').length) {
+                var e = {esn : 1, et : 1, ec : ap.find('img').attr('src')};
+                element.push(e);
+            }
+            if (0 < ap.find('textarea').length) {
+                var e = {esn : element.length + 1, et : 0, ec : ap.find('textarea').val()};
+                element.push(e);
+            }
+            var p = {};
+            p.psn = i;
+            p.element = element;
+            paragraph.push(p);
+        });
+        article.paragraph = paragraph;
+
+        ae.article = article;
+        return ae.article;
     };
 
     ae.append_head(ae.article);
@@ -690,7 +852,47 @@ xs.ui.ArticleEditor = function(article) {
     else $.each(ae.article.paragraph, function(i, p) {ae.append_paragraph(p);});
 
     return ae;
-}
+};
+
+xs.ui.ArticleViewer = function(article) {
+    var av = $('<div></div>');
+    av.addClass('av');
+
+    if (article.title) {
+        var ah = $('<div></div>');
+        ah.addClass('ah');
+        ah.text(article.title);
+        av.append(ah);
+    }
+    if (article.paragraph) {
+        $.each(article.paragraph, function(i, p) {
+            var ap = $('<div></div>');
+            ap.addClass('ap ap-txt');
+
+            $.each(p.element, function(i, e) {
+                switch (e.et) {
+                case 1: {
+                    ap.removeClass('ap-txt');
+                    ap.addClass('ap-img');
+
+                    var img = $('<img>');
+                    img.attr('src', e.ec);
+                    ap.append(img);
+                    break;
+                }
+                case 0: {
+                    var txt = $('<div></div>');
+                    txt.text(e.ec);
+                    ap.append(txt);
+                    break;
+                }
+                }
+            });
+            av.append(ap);
+        });
+    }
+    return av;
+};
 
 FastClick.attach(document.body);
 

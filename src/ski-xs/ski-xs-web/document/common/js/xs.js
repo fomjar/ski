@@ -27,8 +27,11 @@ function build_frame() {
     head.addClass('head disappear');
     var body = $('<div></div>');
     body.addClass('body disappear');
+    var foot = $('<div></div>');
+    foot.addClass('foot');
+    foot.append("<a href='http://www.miibeian.gov.cn/state/outPortal/loginPortal.action'>苏ICP备15025812号-1</a>");
 
-    frame.append([head, body]);
+    frame.append([head, body, foot]);
     $('body').append(frame);
 
     xs.ui.head().reset();
@@ -116,10 +119,21 @@ function create_page_art(stack) {
         new xs.ui.Button('新文章'),
         [
             new xs.ui.Button('预览', function() {
-                var page = new xs.ui.Page();
-                var jump = null;
-                page.head(null, null, new xs.ui.Button('关闭', function() {jump.drop();}));
-                jump = page.jump();
+                var hud = new xs.ui.hud.Major();
+                hud.style_loading('正在生成');
+                hud.appear();
+                fomjar.util.async(function() {
+                    ae.generate_article();
+
+                    var page = new xs.ui.Page();
+                    page.append(new xs.ui.ArticleViewer(ae.article));
+
+                    var jump = null;
+                    page.head(null, null, new xs.ui.Button('关闭', function() {jump.drop();}));
+                    jump = page.jump();
+
+                    hud.disappear();
+                }, 1000);
             }),
             new xs.ui.Button('完成', function() {stack.page_pop();})
         ]

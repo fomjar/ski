@@ -77,6 +77,10 @@ html, body {
             transform   : translate(-50%, -50%) !important;
     -webkit-transform   : translate(-50%, -50%) !important;
 }
+.xs .fast {
+            transition  : all .25s cubic-bezier(0.2, 0.2, 0, 0.9);
+    -webkit-transition  : all .25s cubic-bezier(0.2, 0.2, 0, 0.9);
+}
 
 /* component */
 .xs .cover {
@@ -104,6 +108,7 @@ html, body {
     padding         : .75em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
+    cursor          : pointer;
 }
 .xs .button:active {
     opacity : .6;
@@ -124,6 +129,10 @@ html, body {
     height      : 100%;
     top         : 50%;
     left        : 50%;
+    cursor      : pointer;
+}
+.xs .button .shape * {
+    cursor      : pointer;
 }
 
 .xs .page-stack {
@@ -261,9 +270,8 @@ html, body {
     100% {left : 50%;}
 }
 
-
-.xs .spinnerc {
-    display : inline-block;
+.xs .spinner, .xs .spinner * {
+    overflow    : visible;
 }
 
 .xs .list {
@@ -298,6 +306,19 @@ html, body {
     color       : gray;
 }
 
+.xs .hud-major {
+    z-index     : 50;
+    max-width   : 80%;
+
+    word-wrap   : break-word;
+    padding     : .75em;
+    text-align  : center;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+    background  : black;
+    color       : white;
+    opacity     : .7;
+}
 .xs .hud-minor {
     position    : absolute;
     z-index     : 50;
@@ -331,6 +352,17 @@ html, body {
     -webkit-transform   : translate(-50%, -50%);
 }
 
+.xs .preview {
+    position    : absolute;
+    z-index     : 20;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    overflow    : auto;
+    text-align  : center;
+}
+
 /* framework */
 .xs .head {
     position    : absolute;
@@ -346,6 +378,17 @@ html, body {
     top         : 3em;
     left        : 0;
     bottom      : 0;
+}
+.xs .foot {
+    position    : absolute;
+    width       : 100%;
+    left        : 0;
+    bottom      : 0;
+    text-align  : center;
+}
+.xs .foot a {
+    color       : lightgray;
+    font-size   : .8em;
 }
 
 /* article */
@@ -364,7 +407,7 @@ html, body {
 .xs .ae .apn {
     display     : block;
     margin      : .5em;
-    height      : 12em;
+    height      : 10em;
     border      : 4px solid lightgray;
     background  : #eeeeee;
 }
@@ -379,7 +422,7 @@ html, body {
     height      : 100%;
     top         : 0;
     text-align  : center;
-    line-height : 6em;
+    line-height : 5em;
     font-size   : 2em;
     color       : gray;
 }
@@ -403,22 +446,61 @@ html, body {
     padding         : .5em;
     padding-right   : 4em;
 }
-.xs .ae .ap-disappear {
-    opacity     : 0;
-}
-.xs .ae .ap .del {
+.xs .ae .ap .oper {
     position    : absolute;
     width       : 2em;
     height      : 2em;
-    top         : .5em;
     right       : 1em;
     background  : #eeeeee;
 }
+.xs .ae .ap .oper .shape {
+    width   : 60%;
+    height  : 60%;
+}
+.xs .ae .ap .oper-1 {
+    top : .5em;
+}
+.xs .ae .ap .oper-2 {
+    top : 3em;
+}
 .xs .ae .ap textarea {
     width   : 100%;
-    height  : 8em;
     border  : 1px dashed lightgray;
+            border-radius   : 0;
+    -webkit-border-radius   : 0;
+}
+.xs .ae .ap-txt textarea {
+    height  : 8em;
+}
+.xs .ae .ap-img .img {
+    height  : 8em;
+}
+.xs .ae .ap-img .img img {
+    border          : 1px dashed lightgray;
+    border-bottom   : 0;
+}
+.xs .ae .ap-img textarea {
+    height      : 4em;
+    border-top  : 0;
 }
 
+.xs .av .ah {
+    padding     : .5em;
+    font-size   : 1.5em;
+}
+.xs .av .ap {
+    margin  : 1em;
+}
+.xs .av .ap-txt {
+}
+.xs .av .ap-img img {
+    max-width   : 100%;
+}
+.xs .av .ap-img div {
+    background  : #eeeeee;
+    color       : gray;
+    font-style  : italic;
+    font-size   : 0.8em;
+}
 
 
