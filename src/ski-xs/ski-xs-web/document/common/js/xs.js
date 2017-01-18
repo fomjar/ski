@@ -27,11 +27,8 @@ function build_frame() {
     head.addClass('head disappear');
     var body = $('<div></div>');
     body.addClass('body disappear');
-    var foot = $('<div></div>');
-    foot.addClass('foot');
-    foot.append("<a href='http://www.miibeian.gov.cn/state/outPortal/loginPortal.action'>苏ICP备15025812号-1</a>");
 
-    frame.append([head, body, foot]);
+    frame.append([head, body]);
     $('body').append(frame);
 
     xs.ui.head().reset();

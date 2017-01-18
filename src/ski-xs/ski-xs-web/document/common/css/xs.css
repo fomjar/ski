@@ -379,17 +379,6 @@ html, body {
     left        : 0;
     bottom      : 0;
 }
-.xs .foot {
-    position    : absolute;
-    width       : 100%;
-    left        : 0;
-    bottom      : 0;
-    text-align  : center;
-}
-.xs .foot a {
-    color       : lightgray;
-    font-size   : .8em;
-}
 
 /* article */
 .xs .ae {}
