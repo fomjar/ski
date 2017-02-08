@@ -669,6 +669,7 @@ xs.ui.ArticleEditor = function(article) {
         div.addClass('ah');
 
         var input = $("<input placeholder='写下文章标题'>");
+        if (article.title) input.val(article.title);
 
         div.append([input]);
 
@@ -842,14 +843,14 @@ xs.ui.ArticleEditor = function(article) {
         });
         article.paragraph = paragraph;
 
-        ae.article = article;
-        return ae.article;
+        return article;
     };
 
     ae.append_head(ae.article);
 
-    if (!ae.article.paragraph || ae.article.paragraph.length == 0) ae.append_paragraph_new();
-    else $.each(ae.article.paragraph, function(i, p) {ae.append_paragraph(p);});
+    ae.append_paragraph_new();
+    if (ae.article.paragraph && ae.article.paragraph.length > 0)
+        $.each(ae.article.paragraph, function(i, p) {ae.append_paragraph(p);});
 
     return ae;
 };

@@ -101,6 +101,13 @@ function create_page_dir(stack, dir) {
                     action      : function() {stack.dir_in(d);}
                 });
             });
+            $.each(xs.user.map_art[dir], function(i, a) {
+                list.append_cell({
+                    icon        : 'res/file.png',
+                    major       : a.title,
+                    action      : function() {stack.page_push(create_page_art_view(stack, a));}
+                });
+            });
             list.removeClass('disappear')
         }, xs.ui.DELAY);
     };
@@ -108,8 +115,41 @@ function create_page_dir(stack, dir) {
     return page;
 }
 
-function create_page_art(stack) {
-    var ae = new xs.ui.ArticleEditor();
+function create_page_art_view(stack, article) {
+    var av = new xs.ui.ArticleViewer(article);
+    var page = new xs.ui.Page();
+    page.head(
+        new xs.ui.Button('返回', function() {stack.page_pop();}),
+        new xs.ui.Button(article.title),
+        new xs.ui.Button('编辑', function() {
+            var ae = new xs.ui.ArticleEditor(article);
+            var page_edit = new xs.ui.Page();
+            page_edit.append(ae);
+
+            var jump = null;
+            page_edit.head(
+                new xs.ui.Button('取消', function() {jump.drop();}),
+                null,
+                new xs.ui.Button('完成', function() {
+                    var art_new = ae.generate_article();
+                    article.title = art_new.title;
+                    article.paragraph = art_new.paragraph;
+
+                    jump.drop();
+
+                    page.children().detach();
+                    page.append(av = new xs.ui.ArticleViewer(article));
+                })
+            );
+            jump = page_edit.jump();
+        })
+    );
+    page.append(av);
+    return page;
+}
+
+function create_page_art_edit(stack, article) {
+    var ae = new xs.ui.ArticleEditor(article);
     var page = new xs.ui.Page();
     page.head(
         new xs.ui.Button('返回', function() {stack.page_pop();}),
@@ -122,17 +162,21 @@ function create_page_art(stack) {
                 fomjar.util.async(function() {
                     ae.generate_article();
 
-                    var page = new xs.ui.Page();
-                    page.append(new xs.ui.ArticleViewer(ae.article));
+                    var page_view = new xs.ui.Page();
+                    page_view.append(new xs.ui.ArticleViewer(ae.article));
 
                     var jump = null;
-                    page.head(null, null, new xs.ui.Button('关闭', function() {jump.drop();}));
-                    jump = page.jump();
+                    page_view.head(null, null, new xs.ui.Button('关闭', function() {jump.drop();}));
+                    jump = page_view.jump();
 
                     hud.disappear();
                 }, 1000);
             }),
-            new xs.ui.Button('完成', function() {stack.page_pop();})
+            new xs.ui.Button('完成', function() {
+                xs.user.art_new(ae.article);
+                stack.page_pop();
+                fomjar.util.async(function() {stack.page_cur().dir_refresh();}, xs.ui.DELAY);
+            })
         ]
     );
     page.append(ae);
