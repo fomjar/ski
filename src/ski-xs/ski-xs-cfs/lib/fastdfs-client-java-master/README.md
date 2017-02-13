@@ -1,3 +1,0 @@
-
-FastDFS java client SDK
-

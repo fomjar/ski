@@ -16,7 +16,7 @@ begin
     select count(1)
       into di_count
       from tbl_game_account
-     where i_gaid = gid;
+     where i_gaid = gaid;
 
     if di_count = 0 then
         set i_code = 2;
