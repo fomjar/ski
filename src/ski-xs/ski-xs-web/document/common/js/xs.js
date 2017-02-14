@@ -67,7 +67,7 @@ function create_page_stack() {
         stack.page_pop();
     };
     stack.art_new = function(art) {
-        stack.page_push(create_page_art(stack));
+        stack.page_push(create_page_art_edit(stack));
     };
 
     stack.dir_in();
