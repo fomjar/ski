@@ -42,7 +42,7 @@ ch.d = {
             strokeStyle : '#cccccc',
             lineWidth   : 1,
         },
-        force_move  : 0.0003
+        force_move  : 0.0002
     }
 };
 
