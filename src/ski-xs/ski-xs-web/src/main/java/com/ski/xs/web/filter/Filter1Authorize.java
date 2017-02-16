@@ -73,6 +73,7 @@ public class Filter1Authorize extends FjWebFilter {
             "/",
             "/index.html",
             "/404.html",
+            "/CrazyHuman/bin/index.html",
     };
     
     private static boolean authorizeDocument(FjHttpResponse response, FjHttpRequest request) {

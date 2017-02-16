@@ -121,28 +121,69 @@ function create_page_art_view(stack, article) {
     page.head(
         new xs.ui.Button('返回', function() {stack.page_pop();}),
         new xs.ui.Button(article.title),
-        new xs.ui.Button('编辑', function() {
-            var ae = new xs.ui.ArticleEditor(article);
-            var page_edit = new xs.ui.Page();
-            page_edit.append(ae);
+        [
+            new xs.ui.Button('分享', function() {
+                var list = new xs.ui.List();
+                var mask = new xs.ui.Mask();
+                var dialog = new xs.ui.Dialog();
+                dialog.style_popupmenu({
+                    title   : '分享到',
+                    content : list
+                });
+                mask.bind('click', function() {
+                    mask.disappear();
+                    dialog.disappear();
+                });
+                list.append_cell({
+                    major   : '微信好友',
+                    align   : 'center',
+                });
+                list.append_cell({
+                    major   : '微信朋友圈',
+                    align   : 'center',
+                });
+                list.append_cell({
+                    major   : 'QQ好友',
+                    align   : 'center',
+                });
+                list.append_cell({
+                    major   : 'QQ空间',
+                    align   : 'center',
+                });
+                list.append_cell({
+                    major   : '新浪微博',
+                    align   : 'center',
+                });
+                list.append_cell({
+                    major   : 'FaceBook',
+                    align   : 'center',
+                });
+                mask.appear();
+                dialog.appear();
+            }),
+            new xs.ui.Button('编辑', function() {
+                var ae = new xs.ui.ArticleEditor(article);
+                var page_edit = new xs.ui.Page();
+                page_edit.append(ae);
 
-            var jump = null;
-            page_edit.head(
-                new xs.ui.Button('取消', function() {jump.drop();}),
-                null,
-                new xs.ui.Button('完成', function() {
-                    var art_new = ae.generate_article();
-                    article.title = art_new.title;
-                    article.paragraph = art_new.paragraph;
+                var jump = null;
+                page_edit.head(
+                    new xs.ui.Button('取消', function() {jump.drop();}),
+                    null,
+                    new xs.ui.Button('完成', function() {
+                        var art_new = ae.generate_article();
+                        article.title = art_new.title;
+                        article.paragraph = art_new.paragraph;
 
-                    jump.drop();
+                        jump.drop();
 
-                    page.children().detach();
-                    page.append(av = new xs.ui.ArticleViewer(article));
-                })
-            );
-            jump = page_edit.jump();
-        })
+                        page.children().detach();
+                        page.append(av = new xs.ui.ArticleViewer(article));
+                    })
+                );
+                jump = page_edit.jump();
+            })
+        ]
     );
     page.append(av);
     return page;
