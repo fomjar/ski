@@ -3,7 +3,7 @@
 setup();
 
 function setup() {
-    Laya.init(ch.d.stage_width, ch.d.stage_height, Laya.WebGL);
+    Laya.init(ch.d.stage.width, ch.d.stage.height, Laya.WebGL);
     Laya.Stat.show(Laya.Browser.clientWidth - 150, 0);
 
     setupStage();
@@ -16,7 +16,7 @@ function setupStage() {
     Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
 
     Laya.stage.scaleMode = 'showall';
-    Laya.stage.bgColor = ch.d.stage_background;
+    Laya.stage.bgColor = ch.d.stage.background;
 }
 
 function setupEngine() {
@@ -26,17 +26,17 @@ function setupEngine() {
     Matter.Engine.run(engine);
     Matter.engine = engine;
 
-    var render = LayaRender.create({
+    var laya_render = LayaRender.create({
         engine      : engine,
         container   : Laya.stage,
         width       : Laya.stage.width,
         height      : Laya.stage.height,
         options     : {
             wireframes      : false,
-            background      : ch.d.stage_background,
+            background      : ch.d.stage.background,
         }
     });
-    LayaRender.run(render);
-    Laya.render = render;
+    LayaRender.run(laya_render);
+    Laya.render = laya_render;
 
 }
