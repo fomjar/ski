@@ -3,12 +3,16 @@
 setup();
 
 function setup() {
-    Laya.init(ch.d.stage.width, ch.d.stage.height, Laya.WebGL);
-    Laya.Stat.show(Laya.Browser.clientWidth - 150, 0);
-
+    setupLaya();
     setupStage();
     setupEngine();
-    new ch.event.EventDispatcher().open();
+    ch.event.Dispatcher.open();
+}
+
+function setupLaya() {
+    Config.isAntialias = true;
+    Laya.init(ch.d.stage.width, ch.d.stage.height, Laya.WebGL);
+    Laya.Stat.show(Laya.Browser.clientWidth - 150, 0);
 }
 
 function setupStage() {
@@ -32,11 +36,15 @@ function setupEngine() {
         width       : Laya.stage.width,
         height      : Laya.stage.height,
         options     : {
-            wireframes      : false,
-            background      : ch.d.stage.background,
+            width       : Laya.stage.width,
+            height      : Laya.stage.height,
+            wireframes  : false,
+            background  : ch.d.stage.background,
         }
     });
+    laya_render.options.hasBounds = true;
     LayaRender.run(laya_render);
     Laya.render = laya_render;
 
+    Laya.render.canvas = document.getElementById('layaCanvas');
 }
