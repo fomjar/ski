@@ -91,8 +91,8 @@ html, body {
     width           : 2em;
     height          : 2em;
     vertical-align  : bottom;
-            border-radius   : .5em;
-    -webkit-border-radius   : .5em;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
 }
 .xs .cover div {
     display         : inline-block;
@@ -477,6 +477,18 @@ html, body {
     padding     : .5em;
     font-size   : 1.5em;
 }
+.xs .av .at {
+    padding     : 0 1em;
+}
+.xs .av .at >div {
+    display         : inline-block;
+    font-size       : .8em;
+    padding         : .2em .5em;
+    margin-right    : .5em;
+    background      : #eeeeff;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+}
 .xs .av .ap {
     margin  : 1em;
 }
@@ -490,6 +502,8 @@ html, body {
     color       : gray;
     font-style  : italic;
     font-size   : 0.8em;
+    padding     : .2em .5em;
+    text-align  : center;
 }
 
 
