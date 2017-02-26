@@ -52,7 +52,7 @@ ch.d = {
     },
     map : {
         slop_factor : 6,
-        scale       : 50,
+        scale       : 100,
     }
 };
 

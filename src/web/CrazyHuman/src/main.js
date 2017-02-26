@@ -55,8 +55,8 @@ function init() {
     ch.go.map.rebuild(function() {
         var me = ch.go.me;
         var map = ch.go.map;
-        me.body.force.x = 0.25;
-        me.body.force.y = 0.58;
+        me.body.force.x = 0.42;
+        me.body.force.y = 1.1;
         me.body.look = {x : map.width / 2, y : 1e9, angle : Math.PI / 2};
     });
 }
