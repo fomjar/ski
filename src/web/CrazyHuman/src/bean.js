@@ -27,6 +27,8 @@ ch.d = {
     zorder : {
         debug   : 5,
         ui      : 4,
+        human   : 1,
+        map     : 0,
     },
     stage : {
         width       : 1280,
@@ -50,13 +52,13 @@ ch.d = {
     },
     map : {
         slop_factor : 6,
-        grid_size   : 20,
+        scale       : 50,
     }
 };
 
 ch.go = {};
 
-ch.go.Base = function() {
+ch.go.GO = function() {
     this.id     = 0;
     this.name   = 'object';
     this.icon   = new Laya.Sprite();
@@ -78,7 +80,7 @@ ch.go.Base = function() {
 };
 
 ch.go.Human = function() {
-    ch.go.Base.apply(this, arguments);
+    ch.go.GO.apply(this, arguments);
 
     var human = ch.d.human;
 
@@ -93,6 +95,9 @@ ch.go.Human = function() {
     this.body.frictionAir       = human.frictionAir;
     this.body.frictionStatic    = human.frictionStatic;
 
+    this.body.look = {x : 0, y : 0, angle : Math.PI / 2};
+
+    this.body.layaSprite.zOrder = ch.d.zorder.human;
     this.body.layaSprite.pivot(human.head / 2, human.head * 3 / 2);
     this.body.layaSprite.paint = function() {
         this.graphics.drawRect(0, 0, human.head, human.head * 3, human.render.fillStyle, human.render.strokeStyle, human.render.lineWidth);
@@ -103,55 +108,79 @@ ch.go.Human = function() {
 
 ch.go.Me = function() {
     ch.go.Human.apply(this, arguments);
-    
-    Matter.Body.setPosition(this.body, {x : Laya.stage.width / 2, y : Laya.stage.height / 2});
-    this.body.look = {x : Laya.stage.width / 2, y : 1e9, angle : Math.PI / 2};
 };
 
 ch.go.Map = function() {
-    ch.go.Base.apply(this, arguments);
+    ch.go.GO.apply(this, arguments);
 
-    var width = ch.d.stage.width;
-    var height = ch.d.stage.height;
-    var line = 1;
-    Matter.Body.setParts(this.body, [
-        this.body.wall_top      = Matter.Bodies.rectangle(width / 2, 0, width, line),
-        this.body.wall_bottom   = Matter.Bodies.rectangle(width / 2, height, width, line),
-        this.body.wall_left     = Matter.Bodies.rectangle(0, height / 2, line, height),
-        this.body.wall_right    = Matter.Bodies.rectangle(width, height / 2, line, height),
-    ]);
-    Matter.Body.setStatic(this.body, true);
+    var map = this;
+    this.rebuild = function(cb) {
+        Laya.loader.load('map.svg', Laya.Handler.create(this, function(string) {
+            var xml = Laya.Utils.parseXMLFromString(string);
+            var svg = xml.getElementsByTagName('svg')[0];
+            var attr = svg.attributes;
+            map.width   = parseInt(attr.width.value.replace('px', '')) * ch.d.map.scale;
+            map.height  = parseInt(attr.height.value.replace('px', '')) * ch.d.map.scale;
+            for (var ig = 0; ig < svg.children.length; ig++) {
+                var g = svg.children[ig];
+                for (var ip = 0; ip < g.children.length; ip++) {
+                    var p = g.children[ip];
+                    map.build_region(p);
+                }
+            }
+            map.body.repaint();
 
-    this.body.layaSprite.pivot(width / 2, height / 2);
-    this.body.layaSprite.paint = function() {
-        this.graphics.drawRect(0, 0, width, height, null, '#ffffff', line);
+            if (cb) cb();
+        }));
     };
-    this.body.repaint();
+    this.build_region = function(p) {
+        var sprite = new Laya.Sprite();
+        sprite.region = {
+            name    : p.tagName,
+            attr    : p.attributes,
+            color   : p.attributes.fill.value
+        };
+        sprite.region.points = [];
+        var points = sprite.region.attr.points.value.split(' ');
+        for (var ip in points) {
+            var p = points[ip];
+            if (p.length == 0) continue;
+            var pa = p.split(',');
+            var point = {
+                x   : parseFloat(pa[0]) * ch.d.map.scale,
+                y   : parseFloat(pa[1]) * ch.d.map.scale
+            };
+            sprite.region.points.push(point);
+        }
+        map.body.layaSprite.addChild(sprite);
 
-    // var map = this;
-    // this.reload = function() {
-    //     Laya.loader.load('map.svg', Laya.Handler.create(this, function(string) {
-    //         var xml = Laya.Utils.parseXMLFromString(string);
-    //         var svg = xml.getElementsByTagName('svg')[0];
-    //         var attr = svg.attributes;
-    //         map.width   = parseInt(attr.width.value.replace('px', ''));
-    //         map.height  = parseInt(attr.height.value.replace('px', ''));
-    //         var gs = svg.getElementsByTagName('g');
-    //         for (var i in gs) {
-    //             var g = gs[i];
-    //             switch (g.attributes.id.value) {
-    //             case 'dirt':
-    //                 break;
-    //             case 'grass':
-    //                 break;
-    //             }
-    //         }
-    //     }));
-    // };
+        var point_array = [];
+        for (var ip in sprite.region.points) {
+            point_array.push(sprite.region.points[ip].x);
+            point_array.push(sprite.region.points[ip].y);
+        }
+        sprite.paint = function() {
+            switch (this.region.name) {
+            case 'polygon':
+                // this.graphics.drawPoly(0, 0, point_array, null, this.region.color, 1);
+                this.graphics.drawPoly(0, 0, point_array, this.region.color);
+                break;
+            }
+        };
+    };
+
+    Matter.Body.setStatic(this.body, true);
+    this.body.layaSprite.zOrder = ch.d.zorder.map;
+    this.body.layaSprite.paint = function() {
+        for (var ic in map.body.layaSprite._childs) {
+            var sprite = map.body.layaSprite._childs[ic];
+            sprite.paint();
+        }
+    };
 };
 
 ch.go.Item = function() {
-    ch.go.Base.apply(this, arguments);
+    ch.go.GO.apply(this, arguments);
 };
 
 ch.event = {};
@@ -193,6 +222,8 @@ ch.event.Dispatcher.open = function() {
     });
 
     Laya.timer.frameLoop(1, this, function() {
+        if (!ch.go.me) return;
+
         var body = ch.go.me.body;
         debug1.text = body.position.x.toFixed(4) + ' : ' + body.position.y.toFixed(4);
         debug2.text = body.layaSprite.x.toFixed(4) + ' : ' + body.layaSprite.y.toFixed(4);

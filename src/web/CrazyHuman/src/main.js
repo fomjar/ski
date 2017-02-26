@@ -4,14 +4,15 @@ main();
 function main() {
     build_world();
     register_event();
+    init();
 }
 
 function build_world() {
-    ch.go.me  = new ch.go.Me();
     ch.go.map = new ch.go.Map();
+    ch.go.me  = new ch.go.Me();
 
-    Matter.World.add(Matter.engine.world, ch.go.me.body);
     Matter.World.add(Matter.engine.world, ch.go.map.body);
+    Matter.World.add(Matter.engine.world, ch.go.me.body);
 }
 
 function register_event() {
@@ -47,5 +48,15 @@ function register_event_look() {
     var body = ch.go.me.body;
     body.layaSprite.on(ch.event.ME_LOOK, this, function(e) {
         Matter.Body.setAngle(body, body.look.angle);   // 默认向右
+    });
+}
+
+function init() {
+    ch.go.map.rebuild(function() {
+        var me = ch.go.me;
+        var map = ch.go.map;
+        me.body.force.x = 0.25;
+        me.body.force.y = 0.58;
+        me.body.look = {x : map.width / 2, y : 1e9, angle : Math.PI / 2};
     });
 }
