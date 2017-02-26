@@ -6,7 +6,6 @@ function setup() {
     setupLaya();
     setupStage();
     setupEngine();
-    ch.event.Dispatcher.open();
 }
 
 function setupLaya() {

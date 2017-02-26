@@ -108,32 +108,94 @@ ch.go.Human = function() {
 
 ch.go.Me = function() {
     ch.go.Human.apply(this, arguments);
+    Matter.Body.setPosition(this.body, {x : Laya.stage.width / 2, y : Laya.stage.height / 2});
+
+    var me = this;
+    this.register_event = function() {
+        /***************** define event *****************/
+        (function() {
+        var up      = false;
+        var down    = false;
+        var left    = false;
+        var right   = false;
+        Laya.stage.on(Laya.Event.KEY_DOWN, this, function(e) {
+            switch (e.keyCode) {
+            case Laya.Keyboard.W: up    = true; break;
+            case Laya.Keyboard.S: down  = true; break;
+            case Laya.Keyboard.A: left  = true; break;
+            case Laya.Keyboard.D: right = true; break;
+            }
+        });
+        Laya.stage.on(Laya.Event.KEY_UP, this, function(e) {
+            switch (e.keyCode) {
+            case Laya.Keyboard.W: up    = false; break;
+            case Laya.Keyboard.S: down  = false; break;
+            case Laya.Keyboard.A: left  = false; break;
+            case Laya.Keyboard.D: right = false; break;
+            }
+        });
+        Laya.stage.on(Laya.Event.MOUSE_MOVE, this, function(e) {
+            var body = me.body;
+            body.look.x = e.stageX;
+            body.look.y = e.stageY;
+            body.look.angle = Math.atan2(body.look.y - body.position.y, body.look.x - body.position.x);
+            body.layaSprite.event(ch.event.ME_LOOK);
+        });
+
+        Laya.timer.frameLoop(1, this, function() {
+            if (up || down || left || right) {
+                me.body.layaSprite.event(ch.event.ME_MOVE, [{
+                    up      : up,
+                    down    : down,
+                    left    : left,
+                    right   : right
+                }]);
+
+                me.body.look.angle = Math.atan2(me.body.look.y - me.body.position.y, me.body.look.x - me.body.position.x);
+                me.body.layaSprite.event(ch.event.ME_LOOK);
+            }
+        });
+        }) ();
+
+        /***************** apply event *****************/
+        (function() {
+        // move
+        me.body.layaSprite.on(ch.event.ME_MOVE, this, function(e) {
+            if (e.up)           me.body.move({y : - ch.d.human.force_move});
+            else if (e.down)    me.body.move({y : ch.d.human.force_move});
+            else                me.body.move({y : 0});
+            if (e.left)         me.body.move({x : - ch.d.human.force_move});
+            else if (e.right)   me.body.move({x : ch.d.human.force_move});
+            else                me.body.move({x : 0});
+        });
+        // look
+        me.body.layaSprite.on(ch.event.ME_LOOK, this, function(e) {
+            Matter.Body.setAngle(me.body, me.body.look.angle);   // 默认向右
+        });
+        // view port
+        var max_width   = Laya.stage.width;
+        var max_height  = Laya.stage.height;
+        Laya.timer.frameLoop(1, this, function() {
+            var delta = {x : Laya.stage.width / 2 - me.body.position.x, y : Laya.stage.height / 2 - me.body.position.y};
+            var move_map = {x : delta.x, y : delta.y};
+            move_map.x *= Math.abs(move_map.x) / max_width / ch.d.map.slop_factor;
+            move_map.y *= Math.abs(move_map.y) / max_height / ch.d.map.slop_factor;
+            var move_me = {x : - delta.x + move_map.x, y : - delta.y + move_map.y};
+            Matter.Body.setPosition(me.body, {x : Laya.stage.width / 2 + move_me.x, y : Laya.stage.height / 2 + move_me.y});
+            if (ch.go.map) {
+                var map = ch.go.map;
+                Matter.Body.setPosition(map.body, {x : map.body.position.x + move_map.x, y : map.body.position.y + move_map.y});
+            }
+        });
+        }) ();
+    };
 };
 
 ch.go.Map = function() {
     ch.go.GO.apply(this, arguments);
 
     var map = this;
-    this.rebuild = function(cb) {
-        Laya.loader.load('map.svg', Laya.Handler.create(this, function(string) {
-            var xml = Laya.Utils.parseXMLFromString(string);
-            var svg = xml.getElementsByTagName('svg')[0];
-            var attr = svg.attributes;
-            map.width   = parseInt(attr.width.value.replace('px', '')) * ch.d.map.scale;
-            map.height  = parseInt(attr.height.value.replace('px', '')) * ch.d.map.scale;
-            for (var ig = 0; ig < svg.children.length; ig++) {
-                var g = svg.children[ig];
-                for (var ip = 0; ip < g.children.length; ip++) {
-                    var p = g.children[ip];
-                    map.build_region(p);
-                }
-            }
-            map.body.repaint();
-
-            if (cb) cb();
-        }));
-    };
-    this.build_region = function(p) {
+    var build_region = function(p) {
         var sprite = new Laya.Sprite();
         sprite.region = {
             name    : p.tagName,
@@ -162,11 +224,31 @@ ch.go.Map = function() {
         sprite.paint = function() {
             switch (this.region.name) {
             case 'polygon':
-                // this.graphics.drawPoly(0, 0, point_array, null, this.region.color, 1);
                 this.graphics.drawPoly(0, 0, point_array, this.region.color);
                 break;
             }
         };
+    };
+    this.clear = function() {
+    };
+    this.rebuild = function(cb) {
+        this.clear();
+        Laya.loader.load('map.svg', Laya.Handler.create(this, function(string) {
+            var xml = Laya.Utils.parseXMLFromString(string);
+            var svg = xml.getElementsByTagName('svg')[0];
+            var attr = svg.attributes;
+            map.width   = parseInt(attr.width.value.replace('px', '')) * ch.d.map.scale;
+            map.height  = parseInt(attr.height.value.replace('px', '')) * ch.d.map.scale;
+            for (var ig = 0; ig < svg.children.length; ig++) {
+                var g = svg.children[ig];
+                for (var ip = 0; ip < g.children.length; ip++) {
+                    var p = g.children[ip];
+                    build_region(p);
+                }
+            }
+            map.body.repaint();
+            if (cb) cb();
+        }));
     };
 
     Matter.Body.setStatic(this.body, true);
@@ -187,62 +269,6 @@ ch.event = {};
 
 ch.event.ME_MOVE = 'me move';
 ch.event.ME_LOOK = 'me look';
-ch.event.Dispatcher = {};
-ch.event.Dispatcher.open = function() {
-    var up      = false;
-    var down    = false;
-    var left    = false;
-    var right   = false;
-    var debug1 = ch.debug.open('物体');
-    var debug2 = ch.debug.open('精灵');
-    Laya.stage.on(Laya.Event.KEY_DOWN, this, function(e) {
-        switch (e.keyCode) {
-        case Laya.Keyboard.W: up    = true; break;
-        case Laya.Keyboard.S: down  = true; break;
-        case Laya.Keyboard.A: left  = true; break;
-        case Laya.Keyboard.D: right = true; break;
-        }
-    });
-    Laya.stage.on(Laya.Event.KEY_UP, this, function(e) {
-        switch (e.keyCode) {
-        case Laya.Keyboard.W: up    = false; break;
-        case Laya.Keyboard.S: down  = false; break;
-        case Laya.Keyboard.A: left  = false; break;
-        case Laya.Keyboard.D: right = false; break;
-        }
-    });
-    var debug3 = ch.debug.open('鼠标');
-    var debug4 = ch.debug.open('角度');
-    Laya.stage.on(Laya.Event.MOUSE_MOVE, this, function(e) {
-        var body = ch.go.me.body;
-        body.look.x = e.stageX;
-        body.look.y = e.stageY;
-        body.look.angle = Math.atan2(body.look.y - body.position.y, body.look.x - body.position.x);
-        body.layaSprite.event(ch.event.ME_LOOK);
-    });
-
-    Laya.timer.frameLoop(1, this, function() {
-        if (!ch.go.me) return;
-
-        var body = ch.go.me.body;
-        debug1.text = body.position.x.toFixed(4) + ' : ' + body.position.y.toFixed(4);
-        debug2.text = body.layaSprite.x.toFixed(4) + ' : ' + body.layaSprite.y.toFixed(4);
-        debug3.text = body.look.x + ' : ' + body.look.y;
-        debug4.text = body.look.angle.toFixed(4);
-
-        if (up || down || left || right) {
-            body.layaSprite.event(ch.event.ME_MOVE, [{
-                up      : up,
-                down    : down,
-                left    : left,
-                right   : right
-            }]);
-
-            body.look.angle = Math.atan2(body.look.y - body.position.y, body.look.x - body.position.x);
-            body.layaSprite.event(ch.event.ME_LOOK);
-        }
-    });
-};
 
 ch.debug = {};
 
