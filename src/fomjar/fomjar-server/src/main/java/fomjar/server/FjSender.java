@@ -126,7 +126,7 @@ public class FjSender extends FjLoopTask {
             byte[] buf = new byte[1024];
             int n = -1;
             while (0 <= (n = is.read(buf))) baos.write(buf, 0, n);
-            rsp = FjServerToolkit.createMessage(baos.toString("utf-8"));
+            rsp = FjServerToolkit.message(baos.toString("utf-8"));
         } catch (IOException e) {logger.error("error occurs when send http request to url: " + req.url(), e);}
         finally {if (null != conn) conn.disconnect();}
         return rsp;

@@ -21,6 +21,7 @@ import fomjar.server.msg.FjJsonMessage;
 import fomjar.server.msg.FjStringMessage;
 import fomjar.server.msg.FjXmlMessage;
 import fomjar.util.FjLoopTask;
+import net.sf.json.JSONObject;
 
 public class FjServerToolkit {
 
@@ -226,7 +227,7 @@ public class FjServerToolkit {
         return iterator.next();
     }
 
-    public static FjMessage createMessage(String data) {
+    public static FjMessage message(String data) {
         if (FjHttpRequest.is(data))     return FjHttpRequest.parse(data);
         if (FjHttpResponse.is(data))    return FjHttpResponse.parse(data);
         
@@ -243,6 +244,54 @@ public class FjServerToolkit {
         
         if (data.startsWith("<"))       return new FjXmlMessage(data);
         return new FjStringMessage(data);
+    }
+    
+    public static FjDscpMessage dscpRequest(String ts, int inst, JSONObject args) {
+        FjDscpMessage request = new FjDscpMessage();
+        request.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        request.json().put("ts",   ts);
+        request.json().put("inst", inst);
+        request.json().put("args", args);
+        FjServerToolkit.getAnySender().send(request);
+        return request;
+    }
+    
+    public static FjDscpMessage dscpRequest(String ts, String sid, int inst, JSONObject args) {
+        FjDscpMessage request = new FjDscpMessage();
+        request.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        request.json().put("ts",   ts);
+        request.json().put("sid",  sid);
+        request.json().put("inst", inst);
+        request.json().put("args", args);
+        FjServerToolkit.getAnySender().send(request);
+        return request;
+    }
+    
+    public static void dscpResponse(FjDscpMessage request, int code, Object desc) {
+        JSONObject args = new JSONObject();
+        args.put("code", code);
+        args.put("desc", desc);
+        FjDscpMessage response = new FjDscpMessage();
+        response.json().put("fs",   FjServerToolkit.getAnyServer().name());
+        response.json().put("ts",   request.fs());
+        response.json().put("sid",  request.sid());
+        response.json().put("inst", request.inst());
+        response.json().put("args", args);
+        FjServerToolkit.getAnySender().send(response);
+    }
+
+    public static int dscpResponseCode(FjDscpMessage rsp) {
+        if (null == rsp) return -1;
+
+        return rsp.argsToJsonObject().getInt("code");
+    }
+
+    public static Object dscpResponseDesc(FjDscpMessage rsp) {
+        if (null == rsp) return null;
+
+        JSONObject args = rsp.argsToJsonObject();
+        if (args.has("desc")) return args.get("desc");
+        else return null;
     }
 
 }

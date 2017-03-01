@@ -150,9 +150,6 @@ ch.go.Me = function() {
                     left    : left,
                     right   : right
                 }]);
-
-                me.body.look.angle = Math.atan2(me.body.look.y - me.body.position.y, me.body.look.x - me.body.position.x);
-                me.body.layaSprite.event(ch.event.ME_LOOK);
             }
         });
         }) ();
@@ -257,20 +254,32 @@ ch.debug.open = function(label) {
 
 ch.ui = {};
 
-ch.ui.load_svg_to_sprite = function(path, options, cb) {
+ch.ui.load_xml = function(path, handler) {
+    Laya.loader.load(svg_path, Laya.Handler.create(this, function(string) {
+        var xml = Laya.Utils.parseXMLFromString(string);
+        var svg = xml.getElementsByTagName('svg')[0];
+        if (!xml.hasChildNodes()) return;
+
+        var 
+
+        var attr = svg.attributes;
+    }));
+}
+
+ch.ui.load_svg_to_sprite = function(svg_path, options, cb) {
     options = options || {};
     options.scale = options.scale || 1;
 
-    var build_region = function(r) {
+    var build_paths = function(paths) {
         var sprite = new Laya.Sprite();
         sprite.paint = function() {
             this.graphics.clear();
-            switch (r.tagName) {
+            switch (paths.tagName) {
             case 'polygon':
                 var points = [];
-                var color = r.attributes.fill.value;
+                var color = paths.attributes.fill.value;
                 (function() {
-                var points_str = r.attributes.points.value.split(' ');
+                var points_str = paths.attributes.points.value.split(' ');
                 for (var ip in points_str) {
                     var p = points_str[ip];
                     if (p.length == 0) continue;
@@ -285,7 +294,7 @@ ch.ui.load_svg_to_sprite = function(path, options, cb) {
         };
         return sprite;
     };
-    Laya.loader.load(path, Laya.Handler.create(this, function(string) {
+    Laya.loader.load(svg_path, Laya.Handler.create(this, function(string) {
         var xml = Laya.Utils.parseXMLFromString(string);
         var svg = xml.getElementsByTagName('svg')[0];
 
@@ -293,9 +302,9 @@ ch.ui.load_svg_to_sprite = function(path, options, cb) {
         var sprite = new Laya.Sprite();
         for (var ig = 0; ig < svg.children.length; ig++) {
             var g = svg.children[ig];
-            for (var ir = 0; ir < g.children.length; ir++) {
-                var r = g.children[ir];
-                sprite.addChildren(build_region(r));
+            for (var ip = 0; ip < g.children.length; ip++) {
+                var ps = g.children[ip];
+                sprite.addChildren(build_paths(ps));
             }
         }
         sprite.paint = function() {

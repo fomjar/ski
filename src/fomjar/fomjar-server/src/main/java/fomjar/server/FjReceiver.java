@@ -130,7 +130,7 @@ public class FjReceiver extends FjLoopTask {
                     }
                     data = baos.toString("utf-8");
                     try {
-                        msg = FjServerToolkit.createMessage(data);
+                        msg = FjServerToolkit.message(data);
                         break;
                     } catch (Exception e) {
                         continue;
@@ -166,7 +166,7 @@ public class FjReceiver extends FjLoopTask {
 
         logger.debug("read raw data is: " + data);
         if (0 < data.length())
-            mq.offer(new FjMessageWrapper(FjServerToolkit.createMessage(data))
+            mq.offer(new FjMessageWrapper(FjServerToolkit.message(data))
                     .attach("conn", conn)
                     .attach("raw", data));
         else conn.close();
