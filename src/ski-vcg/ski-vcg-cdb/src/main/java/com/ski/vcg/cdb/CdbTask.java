@@ -34,7 +34,7 @@ public class CdbTask implements FjServerTask {
     private static Connection conn = null;
 
     private static final class Instruction {
-        public int          inst    = FjISIS.INST_SYS_UNKNOWN_INST;
+        public int          inst    = FjISIS.INST_UNKNOWN;
         public JSONObject   args    = null;
         public String       mode    = null;
         public int          out     = 0;

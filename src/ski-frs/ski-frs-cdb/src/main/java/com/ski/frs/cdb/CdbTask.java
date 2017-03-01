@@ -1,6 +1,4 @@
-
-
-
+package com.ski.frs.cdb;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -16,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-
-import com.ski.xs.common.CommonDefinition;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
@@ -35,13 +31,13 @@ public class CdbTask implements FjServerTask {
     private static Connection conn = null;
 
     private static final class Instruction {
-        public int          inst    = FjISIS.INST_SYS_UNKNOWN_INST;
+        public int          inst    = FjISIS.INST_UNKNOWN;
         public JSONObject   args    = null;
         public String       mode    = null;
         public int          out     = 0;
         public String       sql_ori = null;
         public String       sql_use = null;
-        public int          code    = CommonDefinition.CODE.CODE_SUCCESS;
+        public int          code    = FjISIS.CODE_SUCCESS;
         public String       desc    = null;
     }
 
@@ -70,7 +66,7 @@ public class CdbTask implements FjServerTask {
             logger.error("db connection terminate");
             
             Instruction inst = new Instruction();
-            inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+            inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = "db connection terminate";
             response(server.name(), req, inst);
             return;
@@ -82,7 +78,7 @@ public class CdbTask implements FjServerTask {
             inst.inst = req.inst();
             queryInstruction(conn, inst);
             
-            if (CommonDefinition.CODE.CODE_SUCCESS != inst.code) {
+            if (FjISIS.CODE_SUCCESS != inst.code) {
                 logger.error("query instruction failed: " + inst.desc);
                 
                 response(server.name(), req, inst);
@@ -144,7 +140,7 @@ public class CdbTask implements FjServerTask {
             instruction = cache_inst.get(inst);
             instruction.args    = null;
             instruction.sql_use = null;
-            instruction.code    = CommonDefinition.CODE.CODE_SUCCESS;
+            instruction.code    = FjISIS.CODE_SUCCESS;
             instruction.desc    = null;
         }
         return instruction;
@@ -156,7 +152,7 @@ public class CdbTask implements FjServerTask {
             st = conn.createStatement();
             ResultSet rs = st.executeQuery("select c_mode, i_out, c_sql from tbl_instruction where i_inst = " + inst.inst);
             if (!rs.next()) {
-                inst.code = CommonDefinition.CODE.CODE_ILLEGAL_INST;
+                inst.code = FjISIS.CODE_ILLEGAL_INST;
                 inst.desc = "instruction is not registered: " + inst.inst;
                 logger.error(inst.desc);
                 return;
@@ -166,13 +162,13 @@ public class CdbTask implements FjServerTask {
             inst.sql_ori = rs.getString(3);
 
             if ("sp".equalsIgnoreCase(inst.mode) && 2 > inst.out) {
-                inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+                inst.code = FjISIS.CODE_INTERNAL_ERROR;
                 inst.desc = String.format("invalid store procedure, out parameter count must be larger than 1: 0x%08X, %s", inst.inst, inst.sql_ori);
                 logger.error(inst.desc);
                 return;
             }
         } catch (SQLException e) {
-            inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+            inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = e.getMessage();
             logger.error(String.format("failed to get instruction info: 0x%08X, %s", inst.inst, inst.desc), e);
         } finally {
@@ -201,7 +197,7 @@ public class CdbTask implements FjServerTask {
         case "sp": executeSp(conn, inst); break;
         case "st": executeSt(conn, inst); break;
         default:
-            inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+            inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = "instruction execute mode is not supported: " + inst.mode;
             logger.error(inst.desc);
             break;
@@ -225,10 +221,10 @@ public class CdbTask implements FjServerTask {
             } else {
                 st.execute(inst.sql_use);
             }
-            inst.code = CommonDefinition.CODE.CODE_SUCCESS;
+            inst.code = FjISIS.CODE_SUCCESS;
             logger.debug("execute st success: " + inst.sql_use);
         } catch (SQLException e) {
-            inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+            inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = e.getMessage();
             logger.error(String.format("failed to execute statement, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
         } finally {
@@ -256,7 +252,7 @@ public class CdbTask implements FjServerTask {
             inst.desc = JSONArray.fromObject(descs).toString();
             logger.debug("execute sp success: " + inst.sql_use);
         } catch (SQLException e) {
-            inst.code = CommonDefinition.CODE.CODE_INTERNAL_ERROR;
+            inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = e.getMessage();
             logger.error(String.format("failed to execute store procedure, inst: %d, mode: %s, out: %d, sql: %s", inst.inst, inst.mode, inst.out, inst.sql_use), e);
         } finally {
