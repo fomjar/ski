@@ -195,60 +195,16 @@ ch.go.Map = function() {
     ch.go.GO.apply(this, arguments);
 
     var map = this;
-    var build_region = function(p) {
-        var sprite = new Laya.Sprite();
-        sprite.region = {
-            name    : p.tagName,
-            attr    : p.attributes,
-            color   : p.attributes.fill.value
-        };
-        sprite.region.points = [];
-        var points = sprite.region.attr.points.value.split(' ');
-        for (var ip in points) {
-            var p = points[ip];
-            if (p.length == 0) continue;
-            var pa = p.split(',');
-            var point = {
-                x   : parseFloat(pa[0]) * ch.d.map.scale,
-                y   : parseFloat(pa[1]) * ch.d.map.scale
-            };
-            sprite.region.points.push(point);
-        }
-        map.body.layaSprite.addChild(sprite);
-
-        var point_array = [];
-        for (var ip in sprite.region.points) {
-            point_array.push(sprite.region.points[ip].x);
-            point_array.push(sprite.region.points[ip].y);
-        }
-        sprite.paint = function() {
-            switch (this.region.name) {
-            case 'polygon':
-                this.graphics.drawPoly(0, 0, point_array, this.region.color);
-                break;
-            }
-        };
-    };
-    this.clear = function() {
-    };
     this.rebuild = function(cb) {
-        this.clear();
-        Laya.loader.load('map.svg', Laya.Handler.create(this, function(string) {
-            var xml = Laya.Utils.parseXMLFromString(string);
-            var svg = xml.getElementsByTagName('svg')[0];
-            var attr = svg.attributes;
-            map.width   = parseInt(attr.width.value.replace('px', '')) * ch.d.map.scale;
-            map.height  = parseInt(attr.height.value.replace('px', '')) * ch.d.map.scale;
-            for (var ig = 0; ig < svg.children.length; ig++) {
-                var g = svg.children[ig];
-                for (var ip = 0; ip < g.children.length; ip++) {
-                    var p = g.children[ip];
-                    build_region(p);
-                }
-            }
+        ch.ui.load_svg_to_sprite('map.svg', {scale : ch.d.map.scale}, function(sprite, attr) {
+            map.body.layaSprite.addChild(sprite);
             map.body.repaint();
-            if (cb) cb();
-        }));
+            if (cb) {
+                var width = parseInt(attr.width.value.replace('px', ''));
+                var height = parseInt(attr.height.value.replace('px', ''));
+                cb(width * ch.d.map.scale, height * ch.d.map.scale);
+            }
+        });
     };
 
     Matter.Body.setStatic(this.body, true);
@@ -300,3 +256,54 @@ ch.debug.open = function(label) {
 }
 
 ch.ui = {};
+
+ch.ui.load_svg_to_sprite = function(path, options, cb) {
+    options = options || {};
+    options.scale = options.scale || 1;
+
+    var build_region = function(r) {
+        var sprite = new Laya.Sprite();
+        sprite.paint = function() {
+            this.graphics.clear();
+            switch (r.tagName) {
+            case 'polygon':
+                var points = [];
+                var color = r.attributes.fill.value;
+                (function() {
+                var points_str = r.attributes.points.value.split(' ');
+                for (var ip in points_str) {
+                    var p = points_str[ip];
+                    if (p.length == 0) continue;
+                    var pa = p.split(',');
+                    points.push(parseFloat(pa[0]) * options.scale);
+                    points.push(parseFloat(pa[1]) * options.scale);
+                }
+                }) ();
+                this.graphics.drawPoly(0, 0, points, color);
+                break;
+            }
+        };
+        return sprite;
+    };
+    Laya.loader.load(path, Laya.Handler.create(this, function(string) {
+        var xml = Laya.Utils.parseXMLFromString(string);
+        var svg = xml.getElementsByTagName('svg')[0];
+
+        var attr = svg.attributes;
+        var sprite = new Laya.Sprite();
+        for (var ig = 0; ig < svg.children.length; ig++) {
+            var g = svg.children[ig];
+            for (var ir = 0; ir < g.children.length; ir++) {
+                var r = g.children[ir];
+                sprite.addChildren(build_region(r));
+            }
+        }
+        sprite.paint = function() {
+            for (var i in sprite._childs) {
+                sprite._childs[i].paint();
+            }
+        };
+
+        if (cb) cb(sprite, attr);
+    }));
+};
