@@ -38,7 +38,7 @@ public class Filter1Authorize extends FjWebFilter {
     private void updateUser() {
         synchronized(user) {
             user.clear();
-            String[] users = FjServerToolkit.getServerConfig("user").split(";", -1);
+            String[] users = FjServerToolkit.getServerConfig("web.user").split(";", -1);
             for (String u : users) {
                 if (0 >= u.length()) continue;
                 String[] kv = u.split(":", -1);
@@ -88,6 +88,7 @@ public class Filter1Authorize extends FjWebFilter {
                 args_rsp.put("code", FjISIS.CODE_UNAUTHORIZED);
                 args_rsp.put("desc", "认证失败");
                 response.code(401);
+                response.setcookie("token", null);
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
                 logger.error(args_rsp);
@@ -111,6 +112,7 @@ public class Filter1Authorize extends FjWebFilter {
                 args_rsp.put("code", FjISIS.CODE_UNAUTHORIZED);
                 args_rsp.put("desc", "认证失败，请重新登陆");
                 response.code(401);
+                response.setcookie("token", null);
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
                 logger.error(args_rsp);

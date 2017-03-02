@@ -3,11 +3,11 @@ alias ..='cd ..'
 alias ...='cd ../..'
 
 fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/fomjar"
-fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-xs/shell/bin"
+fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-frs/shell/bin"
 
-ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-xs"
-ski_rbase="/home/ski/ski"
-ski_host=xs.craftvoid.com
+ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-frs"
+ski_rbase="/home/ski/ski-frs"
+ski_host=frs.craftvoid.com
 ski_user=ski
 ski_pass=ski
 ski_rootpass=ski-1234
@@ -28,7 +28,7 @@ function cdski() {
     mod=$1
     cd "${ski_lbase}"
     if [ "" != "${mod}" ]; then
-        cd ski-xs-${mod}
+        cd ski-frs-${mod}
     fi
 }
 
@@ -39,46 +39,40 @@ function sshski() {
 function scpskiconfall() {
    scpskiconf cdb
    scpskiconf web
-   scpskiconf bcs
-   scpskiconf ura
 }
 
 function scpskiconf() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-xs-${mod}/conf"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-xs-${mod}/conf"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-xs-${mod}/conf/server.conf"  "${ski_rbase}/ski-xs-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-frs-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-frs-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-frs-${mod}/conf/server.conf"  "${ski_rbase}/ski-frs-${mod}/conf"
 }
 
 function scpskibinall() {
    scpskibin cdb
    scpskibin web
-   scpskibin bcs
-   scpskibin ura
 }
 
 function scpskibin() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-xs-${mod}/bin"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-xs-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-frs-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-frs-${mod}/bin"
 }
 
 function scpskitask() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-xs-${mod}/target/ski-xs-${mod}-${ver}.jar" "${ski_rbase}/ski-xs-${mod}/task"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-frs-${mod}/target/ski-frs-${mod}-${ver}.jar" "${ski_rbase}/ski-frs-${mod}/task"
 }
 
 function scpskiliball() {
    scpskilib cdb
    scpskilib web
-   scpskilib bcs
-   scpskilib ura
 }
 
 function scpskilib() {
     mod=$1
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-xs-${mod}/lib"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-xs-${mod}/lib"
-    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-xs-common/target/ski-xs-common-${ver}.jar"    "${ski_rbase}/ski-xs-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-frs-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-frs-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-frs-isis/target/ski-frs-isis-${ver}.jar"    "${ski_rbase}/ski-frs-${mod}/lib"
 }
 
