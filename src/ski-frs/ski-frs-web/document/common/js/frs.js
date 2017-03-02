@@ -19,6 +19,7 @@ fomjar.framework.phase.append('ini', function() {
 
 fomjar.framework.phase.append('ini', function() {
     // authorize
+    // window.location = '/login.html';
 });
 
 })(jQuery)
