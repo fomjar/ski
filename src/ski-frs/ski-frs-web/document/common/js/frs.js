@@ -19,7 +19,9 @@ fomjar.framework.phase.append('ini', function() {
 
 fomjar.framework.phase.append('ini', function() {
     // authorize
-    // window.location = '/login.html';
+    if (!frs.token && '/login.html' != window.location.pathname) {
+        window.location = '/login.html';
+    }
 });
 
 })(jQuery)

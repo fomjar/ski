@@ -126,7 +126,7 @@ public class Filter1Authorize extends FjWebFilter {
     private static String[] document_exclude = new String[] {
             "/",
             "/test",
-            "/index.html",
+            "/login.html",
             "/404.html",
     };
     
@@ -138,11 +138,11 @@ public class Filter1Authorize extends FjWebFilter {
         String key = cookie.get("user");
         String val = cookie.get("token");
         if (null == key || null == val) {
-            redirect(response, "/");
+            redirect(response, "/login.html");
             return false;
         }
         if (!authorizeUser(key, val)) {
-            redirect(response, "/");
+            redirect(response, "/login.html");
             return false;
         }
         
