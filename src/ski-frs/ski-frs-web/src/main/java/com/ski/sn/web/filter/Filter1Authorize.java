@@ -57,9 +57,7 @@ public class Filter1Authorize extends FjWebFilter {
         return false;
     }
     
-    private static int[] instruction_exclude = new int[] {
-            FjISIS.INST_AUTHORIZE,
-    };
+    private static int[] instruction_exclude = new int[] {};
     
     private boolean authorizeInterface(FjHttpResponse response, FjHttpRequest request) {
         JSONObject args = request.argsToJson();
@@ -67,7 +65,7 @@ public class Filter1Authorize extends FjWebFilter {
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", FjISIS.CODE_ILLEGAL_INST);
             args_rsp.put("desc", "未知指令");
-            response.code(400);
+//            response.code(400);
             response.attr().put("Content-Type", "application/json");
             response.content(args_rsp);
             logger.error(args_rsp);
@@ -78,17 +76,16 @@ public class Filter1Authorize extends FjWebFilter {
             if (ie == inst) return true;
         }
         if (FjISIS.INST_AUTHORIZE == inst) {
-            Map<String, String> cookie = request.cookie();
             String key = null;
             String val = null;
-            if (cookie.containsKey("user"))     key = cookie.get("user");
-            if (cookie.containsKey("pass"))     val = cookie.get("pass");
-            if (null == key || val == null || !authorizeUser(key, val)) {
+            if (args.has("user"))   key = args.getString("user");
+            if (args.has("pass"))   val = args.getString("pass");
+            if (null == key || null == val || !authorizeUser(key, val)) {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", FjISIS.CODE_UNAUTHORIZED);
                 args_rsp.put("desc", "认证失败");
-                response.code(401);
-                response.setcookie("token", null);
+//                response.code(401);
+                response.setcookie("token", "");
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
                 logger.error(args_rsp);
@@ -96,6 +93,7 @@ public class Filter1Authorize extends FjWebFilter {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", FjISIS.CODE_SUCCESS);
                 args_rsp.put("desc", "认证成功");
+                response.setcookie("user",  key);
                 response.setcookie("token", token.get(key));
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
@@ -107,11 +105,11 @@ public class Filter1Authorize extends FjWebFilter {
             String val = null;
             if (cookie.containsKey("user"))     key = cookie.get("user");
             if (cookie.containsKey("token"))    val = cookie.get("token");
-            if (null == key || val == null || !authorizeUser(key, val)) {
+            if (null == key || null == val || !authorizeUser(key, val)) {
                 JSONObject args_rsp = new JSONObject();
                 args_rsp.put("code", FjISIS.CODE_UNAUTHORIZED);
                 args_rsp.put("desc", "认证失败，请重新登陆");
-                response.code(401);
+//                response.code(401);
                 response.setcookie("token", null);
                 response.attr().put("Content-Type", "application/json");
                 response.content(args_rsp);
@@ -137,11 +135,7 @@ public class Filter1Authorize extends FjWebFilter {
         Map<String, String> cookie = request.cookie();
         String key = cookie.get("user");
         String val = cookie.get("token");
-        if (null == key || null == val) {
-            redirect(response, "/login.html");
-            return false;
-        }
-        if (!authorizeUser(key, val)) {
+        if (null == key || null == val || !authorizeUser(key, val)) {
             redirect(response, "/login.html");
             return false;
         }

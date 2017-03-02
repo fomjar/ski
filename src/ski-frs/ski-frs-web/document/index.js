@@ -1,13 +1,8 @@
 
 (function($) {
 
-fomjar.framework.phase.append('dom', build_frame);
 fomjar.framework.phase.append('dom', build_filter);
 fomjar.framework.phase.append('dom', build_result);
-
-function build_frame() {
-    frs.ui.build_frame();
-}
 
 function build_filter() {
     var div = $('<div></div>');

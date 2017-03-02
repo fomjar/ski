@@ -83,7 +83,8 @@ frs.ui.Dialog = function() {
         var div = $('<div></div>');
         div.css('padding',  '.2em .5em');
         var input = $('<input>');
-        input.css('width',  '100%');
+        input.css('width',      '100%');
+        input.css('text-align', 'center');
         if (attr) {
             $.each(attr, function(k, v) {
                 input.attr(k, v);
@@ -200,14 +201,17 @@ frs.ui.Button = function(content, action) {
     button.to_normal = function() {
         button.removeClass('button-high');
         button.removeClass('button-dark');
+        return this;
     };
     button.to_high = function() {
         button.removeClass('button-dark');
         button.addClass('button-high');
+        return this;
     };
     button.to_dark = function() {
         button.removeClass('button-high');
         button.addClass('button-dark');
+        return this;
     };
     if (content) button.append(content);
     if (action) button.bind('click', action);
@@ -217,11 +221,7 @@ frs.ui.Button = function(content, action) {
 frs.ui.head = function() {
     if (frs.ui._head) return frs.ui._head;
 
-    var head = $('.frs .head');
-
-    head.reset = function() {
-        head.children().detach();
-    };
+    var head = $('.frs .head');    
     
     frs.ui._head = head;
     return frs.ui._head;
@@ -231,10 +231,6 @@ frs.ui.body = function() {
     if (frs.ui._body) return frs.ui._body;
 
     var body = $('.frs .body');
-
-    body.reset = function() {
-        body.children().detach();
-    };
 
     frs.ui._body = body;
     return frs.ui._body;
@@ -421,29 +417,6 @@ frs.ui.preview = function(src) {
 };
 
 FastClick.attach(document.body);
-
-/* business */
-
-frs.ui.build_frame = function() {
-    var frame = $('<div></div>');
-    frame.addClass('frs');
-
-    var head = $('<div></div>');
-    head.addClass('head disappear');
-    var body = $('<div></div>');
-    body.addClass('body disappear');
-
-    frame.append([head, body]);
-    $('body').append(frame);
-
-    frs.ui.head().reset();
-    frs.ui.body().reset();
-
-    fomjar.util.async(function() {
-        head.removeClass('disappear');
-        body.removeClass('disappear');
-    });
-};
 
 });
 })(jQuery);

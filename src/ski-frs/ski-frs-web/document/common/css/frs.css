@@ -120,12 +120,10 @@ html, body {
 .frs .button-high {
     background  : #333366;
     color       : white;
-    border      : 1px solid lightgray;
 }
 .frs .button-dark {
     background  : #eeeeee;
     color       : gray;
-    border      : 1px solid lightgray;
 }
 .frs .button .shape {
     position    : absolute;
@@ -153,8 +151,7 @@ html, body {
     z-index     : 10;
     display     : inline-block;
     background  : white;
-    border      : 1px solid lightgray;
-    box-shadow  : lightgray 0px 0px 10px;
+    box-shadow  : white 0px 0px .7em;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
 
@@ -233,8 +230,8 @@ html, body {
     text-align  : center;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
-    background  : black;
-    color       : white;
+    background  : white;
+    box-shadow  : white 0px 0px .5em;
     opacity     : .7;
 }
 .frs .hud-minor {
@@ -247,12 +244,12 @@ html, body {
 
     max-width   : 80%;
     word-wrap   : break-word;
-    padding     : .75em;
+    padding     : .5em 1em;
     text-align  : center;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
-    background  : black;
-    color       : white;
+    background  : white;
+    box-shadow  : white 0px 0px .5em;
     opacity     : .7;
 }
 
@@ -282,16 +279,26 @@ html, body {
 }
 
 /* framework */
+.frs .back {
+    position    : absolute;
+    z-index     : -1;
+    width       : 100%;
+    height      : 100%;
+    background  : #000033;
+}
 .frs .head {
     position    : absolute;
+    z-index     : 0;
     width       : 100%;
     height      : 3em;
     top         : 0;
     left        : 0;
-    background  : #000033;
+    background  : white;
+    opacity     : .3;
 }
 .frs .body {
     position    : absolute;
+    z-index     : 0;
     width       : 100%;
     top         : 3em;
     left        : 0;
