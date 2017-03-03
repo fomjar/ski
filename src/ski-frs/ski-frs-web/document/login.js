@@ -46,7 +46,7 @@ function build_dialog() {
                 window.location = '/index.html';
             }
         });
-    }).to_high());
+    }).to_major());
     
     dialog.appear();
 }

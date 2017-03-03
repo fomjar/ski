@@ -118,11 +118,15 @@ html, body {
 .frs .button:active {
     opacity : 1;
 }
-.frs .button-high {
+.frs .button-major {
     background  : #333366;
     color       : white;
 }
-.frs .button-dark {
+.frs .button-minor {
+    background  : #eeeeee;
+    color       : black;
+}
+.frs .button-disable {
     background  : #eeeeee;
     color       : gray;
 }

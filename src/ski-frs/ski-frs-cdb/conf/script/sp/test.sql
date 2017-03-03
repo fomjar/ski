@@ -10,6 +10,5 @@ begin
 	
 	declare    t   float   default 0;
 	
-	
 end //
 delimiter ;

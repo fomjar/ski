@@ -81,7 +81,7 @@ frs.ui.Dialog = function() {
     };
     dialog.append_input = function(attr) {
         var div = $('<div></div>');
-        div.css('padding',  '.2em .5em');
+        div.css('padding',  '.3em .5em');
         var input = $('<input>');
         input.css('width',      '100%');
         input.css('text-align', 'center');
@@ -198,19 +198,25 @@ frs.ui.List = function() {
 frs.ui.Button = function(content, action) {
     var button = $('<div></div>');
     button.addClass('button');
-    button.to_normal = function() {
-        button.removeClass('button-high');
-        button.removeClass('button-dark');
+    button.to_default = function() {
+        button.removeClass('button-major');
+        button.removeClass('button-minor');
+        button.removeClass('button-disable');
         return this;
     };
-    button.to_high = function() {
-        button.removeClass('button-dark');
-        button.addClass('button-high');
+    button.to_major = function() {
+        this.to_default();
+        button.addClass('button-major');
         return this;
     };
-    button.to_dark = function() {
-        button.removeClass('button-high');
-        button.addClass('button-dark');
+    button.to_minor = function() {
+        this.to_default();
+        button.addClass('button-minor');
+        return this;
+    };
+    button.to_disable = function() {
+        this.to_default();
+        button.addClass('button-disable');
         return this;
     };
     if (content) button.append(content);
