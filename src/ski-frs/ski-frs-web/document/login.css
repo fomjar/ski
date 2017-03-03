@@ -1,4 +1,6 @@
-
+.frs .head {
+    opacity : 0;
+}
 .frs .body .logo {
     color       : white;
     font-size   : 2em;

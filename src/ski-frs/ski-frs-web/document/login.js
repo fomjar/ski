@@ -3,9 +3,7 @@
 
 fomjar.framework.phase.append('dom', frsmain);
 
-function frsmain() {
-    frs.ui.head().css('opacity', '0');
-    
+function frsmain() {    
     build_logo();
     build_dialog();
 }
@@ -43,7 +41,7 @@ function build_dialog() {
         }, function(code, desc) {
             if (code) {
                 dialog.shake();
-                new frs.ui.hud.Minor('0x' + code.toString(16) + ':' + desc).appear(2500);
+                new frs.ui.hud.Minor('0x' + code.toString(16) + ': ' + desc).appear(2500);
             } else {
                 window.location = '/index.html';
             }

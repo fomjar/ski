@@ -40,7 +40,7 @@ public class FjWebTask implements FjServer.FjServerTask {
 
     @Override
     public void initialize(FjServer server) {
-        pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 1, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new FjThreadFactory("fjwebtask"));
+        pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 5, TimeUnit.MINUTES, new SynchronousQueue<Runnable>(), new FjThreadFactory("fjwebtask"));
         filters = new LinkedList<FjWebFilter>();
     }
 
