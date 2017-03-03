@@ -24,19 +24,20 @@ div {
     -webkit-user-select : none;
 }
 input, textarea, select {
-    border          : none;
     font-size       : 1em;
     vertical-align  : middle;
     background      : transparent;
-    color           : #000033;
             appearance      : none;
     -webkit-appearance      : none;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
+    
+    border      : 1px solid rgba(0, 0, 0, 0);
+    box-shadow  : rgba(0, 0, 0, 0) 0px 0px .5em;
 }
 input:focus, textarea:focus, select:focus {
     border      : 1px solid #9999ff;
-    box-shadow  : #9999ff 0px 0px .4em;
+    box-shadow  : #9999ff 0px 0px .5em;
 }
 input, select {
     padding     : .75em .5em;
@@ -109,10 +110,10 @@ html, body {
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
     cursor          : pointer;
-    opacity : .9;
+    opacity : .8;
 }
 .frs .button:hover {
-    opacity : .8;
+    opacity : .9;
 }
 .frs .button:active {
     opacity : 1;
