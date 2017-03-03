@@ -110,7 +110,7 @@ public abstract class FjWebFilter {
     }
 
     public static void redirect(FjHttpResponse response, String url) {
-        response.code(301);
+        response.code(302);
         response.attr().put("Location", url);
     }
     
