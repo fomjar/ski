@@ -24,23 +24,29 @@ create table tbl_pic (
     c_path  text,                       -- 图片路径
     i_type  tinyint,                    -- 图片类型：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
     t_time  datetime,                   -- 获取时间
-    c_desc  text,                       -- 描述信息
+    c_desc1 text,
+    c_desc2 text,
+    c_desc3 text,
     primary key(i_pid)
 );
 
 -- 主体
-drop table if exists tbl_sub;
-create table tbl_sub (
-    i_sid   integer     auto_increment, -- 主体编号
-    c_key   varchar(32),                -- 键
-    c_val   text,                       -- 值
+drop table if exists tbl_sub_person;
+create table tbl_sub_person (
+    i_spid      integer     auto_increment, -- 主体编号
+    c_name      varchar(32),                -- 姓名
+    i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
+    i_idcard    varchar(32),                -- 身份证号
+    t_birth     date,                       -- 生日
+    c_province  varchar(16),                -- 省份
+    c_city      varchar(16),                -- 城市
     primary key(i_sid)
 );
 
 -- 主体-图片
-drop table if exists tbl_sub_pic;
-create table tbl_sub_pic (
-    i_sid   integer,    -- 主体编号
+drop table if exists tbl_pic_sub_person;
+create table tbl_pic_sub_person (
+    i_spid  integer,    -- 主体编号
     i_pid   integer     -- 图片编号
 );
 
