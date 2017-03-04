@@ -8,6 +8,15 @@ create table tbl_instruction (
     c_sql   text        -- 格式：先出参，后入参，出参以英文的?代替，入参使用$打头，入参名称必须与消息中的参数名称完全相同
 );
 
+-- 设备
+drop table if exists tbl_dev;
+create table tbl_dev (
+    c_region    varchar(64),
+    c_did       varchar(64),
+    c_ip    varchar(64),
+    c_loc   varchar(64)
+);
+
 -- 图库
 drop table if exists tbl_pic_lib;
 create table tbl_pic_lib (
