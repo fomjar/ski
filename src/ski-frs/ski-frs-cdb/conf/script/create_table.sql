@@ -21,16 +21,18 @@ drop table if exists tbl_pic;
 create table tbl_pic (
     i_pid   integer     auto_increment, -- 图片编号
     i_plid  integer,                    -- 图库编号
-    c_path  text,                       -- 图片路径
-    i_type  tinyint,                    -- 图片类型：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
-    t_time  datetime,                   -- 获取时间
-    c_desc1 text,
-    c_desc2 text,
-    c_desc3 text,
+    c_name  varchar(64),                -- 名称
+    c_path  text,                       -- 路径
+    t_time  datetime,                   -- 生成时间
+    i_size  tinyint,                    -- 尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
+    i_type  tinyint,                    -- 类型：0 - 人物，1 - 汽车
+    c_desc1 text,                       -- 描述1(面部特征向量)
+    c_desc2 text,                       -- 描述2(外部特征，格式：上衣颜色=白色;眼镜;)
+    c_desc3 text,                       -- 描述3
     primary key(i_pid)
 );
 
--- 主体
+-- 主体 - 人
 drop table if exists tbl_sub_person;
 create table tbl_sub_person (
     i_spid      integer     auto_increment, -- 主体编号
@@ -43,11 +45,11 @@ create table tbl_sub_person (
     primary key(i_sid)
 );
 
--- 主体-图片
+-- 图片关联主体 - 人
 drop table if exists tbl_pic_sub_person;
 create table tbl_pic_sub_person (
-    i_spid  integer,    -- 主体编号
-    i_pid   integer     -- 图片编号
+    i_pid   integer,    -- 图片编号
+    i_spid  integer     -- 主体编号
 );
 
 

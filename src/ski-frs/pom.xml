@@ -8,5 +8,6 @@
   	<module>ski-frs-isis</module>
   	<module>ski-frs-web</module>
   	<module>ski-frs-cdb</module>
+  	<module>ski-frs-bcs</module>
   </modules>
 </project>

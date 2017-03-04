@@ -51,7 +51,7 @@ public class FjServerLauncher {
         String           jvm     = collectJvmOptions(args);
         List<String>     sns     = collectServerName(args);
         String           cmd     = "java %s -cp %s fomjar.server.FjServerMain";
-        StringBuilder     cmd0     = new StringBuilder(String.format(cmd, jvm, cp));
+        StringBuilder    cmd0    = new StringBuilder(String.format(cmd, jvm, cp));
 
         for (String sn : sns) cmd0.append(" " + sn);
 

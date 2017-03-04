@@ -52,10 +52,7 @@ public class FjWebTask implements FjServer.FjServerTask {
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
         FjMessage msg = wrapper.message();
-        if (!(msg instanceof FjHttpRequest)) {
-            logger.error("illegal message: " + msg);
-            return;
-        }
+        if (!(msg instanceof FjHttpRequest)) return;
 
         FjHttpRequest   request     = (FjHttpRequest) msg;
         FjHttpResponse  response    = new FjHttpResponse(null, 200, null, null);

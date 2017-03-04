@@ -116,9 +116,8 @@ public class Filter1Authorize extends FjWebFilter {
                 logger.error(args_rsp);
                 return false;
             }
+            return true;
         }
-        
-        return true;
     }
     
     private static String[] document_exclude = new String[] {

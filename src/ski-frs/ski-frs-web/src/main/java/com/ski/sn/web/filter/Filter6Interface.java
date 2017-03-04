@@ -4,6 +4,10 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
+import com.ski.frs.web.CacheResponse;
+
+import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.msg.FjISIS;
@@ -30,11 +34,11 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         int inst = FilterToolkit.getIntFromArgs(args, "inst");
+        args.remove("inst");
         logger.info(String.format("[ INTERFACE ] - %s - 0x%08X", request.url(), inst));
         
-        switch(inst) {
-        
-        }
+        FjDscpMessage req = FjServerToolkit.dscpRequest("bcs", inst, args);
+        CacheResponse.getInstance().cacheWait(req.sid(), response);
         
         return true;
     }

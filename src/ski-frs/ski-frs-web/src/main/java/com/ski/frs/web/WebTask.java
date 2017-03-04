@@ -1,8 +1,6 @@
 package com.ski.frs.web;
 
-
 import com.ski.sn.web.filter.Filter1Authorize;
-import com.ski.sn.web.filter.Filter4Preprocess;
 import com.ski.sn.web.filter.Filter5Document;
 import com.ski.sn.web.filter.Filter6Interface;
 
@@ -15,7 +13,6 @@ public class WebTask extends FjWebTask {
     public void initialize(FjServer server) {
         super.initialize(server);
         registerFilter(new Filter1Authorize());
-        registerFilter(new Filter4Preprocess());
         registerFilter(new Filter5Document());
         registerFilter(new Filter6Interface());
     }

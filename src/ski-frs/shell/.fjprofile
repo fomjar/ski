@@ -38,6 +38,7 @@ function sshski() {
 
 function scpskiconfall() {
    scpskiconf cdb
+   scpskiconf bcs
    scpskiconf web
 }
 
@@ -50,6 +51,7 @@ function scpskiconf() {
 
 function scpskibinall() {
    scpskibin cdb
+   scpskibin bcs
    scpskibin web
 }
 
@@ -66,6 +68,7 @@ function scpskitask() {
 
 function scpskiliball() {
    scpskilib cdb
+   scpskilib bcs
    scpskilib web
 }
 
