@@ -23,7 +23,7 @@ public class CacheResponse {
     public void cacheWait(String sid, FjHttpResponse response) {
         map.put(sid, response);
         synchronized (response) {
-            try {response.wait(1000L * 8);}
+            try {response.wait(1000L * 30);}
             catch (InterruptedException e) {e.printStackTrace();}
         }
     }

@@ -85,7 +85,7 @@ public class Monitor extends FjLoopTask {
             }
             if (!moveToBak(xml)) return;
         }
-        FjServerToolkit.dscpRequest("bcs", ISIS.INST_UPDATE_PIC, args);
+        FjServerToolkit.dscpRequest("web", ISIS.INST_UPDATE_PIC, args);
         moveToBak(file);
     }
     
