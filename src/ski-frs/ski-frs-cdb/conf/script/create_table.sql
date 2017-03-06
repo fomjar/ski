@@ -11,10 +11,9 @@ create table tbl_instruction (
 -- 设备
 drop table if exists tbl_dev;
 create table tbl_dev (
-    c_region    varchar(64),
-    c_did       varchar(64),
-    c_ip    varchar(64),
-    c_loc   varchar(64)
+    c_did   varchar(64),    -- 编号
+    c_path  text,           -- 路径：市／区／卡点
+    c_ip    varchar(20)
 );
 
 -- 图库
@@ -30,6 +29,7 @@ drop table if exists tbl_pic;
 create table tbl_pic (
     i_pid   integer     auto_increment, -- 图片编号
     i_plid  integer,                    -- 图库编号
+    c_did   varchar(64),                -- 设备编号
     c_name  varchar(64),                -- 名称
     c_path  text,                       -- 路径
     t_time  datetime,                   -- 生成时间
