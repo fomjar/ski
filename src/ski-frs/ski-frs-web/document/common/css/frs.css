@@ -298,8 +298,9 @@ html, body {
     height      : 3em;
     top         : 0;
     left        : 0;
-    background  : rgba(255, 255, 255, .3);
     overflow    : initial;
+    padding     : 0 2em;
+    background  : rgba(255, 255, 255, .3);
 }
 .frs .body {
     position    : absolute;
