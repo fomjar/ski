@@ -50,6 +50,7 @@ public class Monitor extends FjLoopTask {
             else if (file.isFile()) scanFile(file);
             else logger.error("unknown file: " + file);
         }
+        if (0 == dir.listFiles().length) dir.delete();
     }
     
     private void scanFile(File file) {
@@ -68,7 +69,8 @@ public class Monitor extends FjLoopTask {
         JSONObject args = new JSONObject();
         args.put("did",  fields[1]);
         args.put("name", file.getName());
-        args.put("time", fields[0].substring(fields[0].indexOf("20")));
+        String time = fields[0].substring(fields[0].indexOf("20"));
+        args.put("time", time.substring(0, time.length() - 3));
         args.put("size", size);
         args.put("type", ISIS.FIELD_PIC_TYPE_MAN);
         try {args.put("data", readFileAsBase64(file));}

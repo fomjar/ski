@@ -52,7 +52,7 @@ create table tbl_sub_person (
     t_birth     date,                       -- 生日
     c_province  varchar(16),                -- 省份
     c_city      varchar(16),                -- 城市
-    primary key(i_sid)
+    primary key(i_spid)
 );
 
 -- 主体关联图片 - 人

@@ -64,7 +64,7 @@ public class DscpTask implements FjServerTask {
         FjServerToolkit.dscpRequest("bcs", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
         
         byte[] data = Base64.getDecoder().decode(data_ori);
-        File file = new File(FjServerToolkit.getServerConfig("web.pic") + "/" + args.getString("name"));
+        File file = new File("./document" + FjServerToolkit.getServerConfig("web.pic") + "/" + args.getString("name"));
         try {writeFile(data, file);}
         catch (IOException e) {
             logger.error("write picture file failed: " + file, e);

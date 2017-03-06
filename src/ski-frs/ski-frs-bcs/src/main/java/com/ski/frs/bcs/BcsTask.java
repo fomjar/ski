@@ -31,6 +31,8 @@ public class BcsTask implements FjServerTask {
         }
         
         FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
+        if (dmsg.fs().startsWith("cdb")) return;
+        
         switch (dmsg.inst()) {
         case ISIS.INST_UPDATE_PIC:
             processUpdatePic(dmsg);
