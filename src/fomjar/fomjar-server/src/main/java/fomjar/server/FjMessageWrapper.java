@@ -55,6 +55,11 @@ public class FjMessageWrapper {
      *     <td>{@link String}</td>
      *     <td>接收到的原始字符串</td>
      *   </tr>
+     *   <tr>
+     *     <td>done</td>
+     *     <td>{@link Runnable}</td>
+     *     <td>发送完成之后的回调</td>
+     *   </tr>
      * <table>
      *
      * @param key

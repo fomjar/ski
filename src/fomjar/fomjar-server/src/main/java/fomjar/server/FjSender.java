@@ -85,6 +85,12 @@ public class FjSender extends FjLoopTask {
                 }
             }
         } else logger.error(String.format("unsupported format message, class: %s, content: %s", msg.getClass().getName(), msg));
+        
+        Runnable done = (Runnable) wrapper.attachment("done");
+        if (null != done) {
+            try {done.run();}
+            catch (Exception e) {logger.error("error occurs when send msg done: " + msg, e);}
+        }
     }
 
     public void send(FjMessage msg) {

@@ -13,25 +13,16 @@ drop table if exists tbl_dev;
 create table tbl_dev (
     c_did   varchar(64),    -- 编号
     c_path  text,           -- 路径：市／区／卡点
-    c_ip    varchar(20)
-);
-
--- 图库
-drop table if exists tbl_pic_lib;
-create table tbl_pic_lib (
-    i_plid  integer     auto_increment, -- 图库编号
-    c_name  varchar(64),                -- 图库名称
-    primary key(i_plid)
+    c_ip    varchar(20),    -- IP
+    primary key(c_did)
 );
 
 -- 图片
 drop table if exists tbl_pic;
 create table tbl_pic (
     i_pid   integer     auto_increment, -- 图片编号
-    i_plid  integer,                    -- 图库编号
     c_did   varchar(64),                -- 设备编号
     c_name  varchar(64),                -- 名称
-    c_path  text,                       -- 路径
     t_time  datetime,                   -- 生成时间
     i_size  tinyint,                    -- 尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
     i_type  tinyint,                    -- 类型：0 - 人物，1 - 汽车
@@ -41,10 +32,20 @@ create table tbl_pic (
     primary key(i_pid)
 );
 
+-- 主体库
+drop table if exists tbl_sub_lib;
+create table tbl_sub_lib (
+    i_slid  integer     auto_increment, -- 主体库编号
+    c_name  varchar(64),                -- 主体库名称
+    i_type  tinyint,                    -- 主体类型：0 - 人，1 - 汽车
+    primary key(i_slid)
+);
+
 -- 主体 - 人
 drop table if exists tbl_sub_person;
 create table tbl_sub_person (
     i_spid      integer     auto_increment, -- 主体编号
+    i_slid      integer,                    -- 主体库编号
     c_name      varchar(32),                -- 姓名
     i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
     i_idcard    varchar(32),                -- 身份证号
@@ -54,11 +55,11 @@ create table tbl_sub_person (
     primary key(i_sid)
 );
 
--- 图片关联主体 - 人
-drop table if exists tbl_pic_sub_person;
-create table tbl_pic_sub_person (
-    i_pid   integer,    -- 图片编号
-    i_spid  integer     -- 主体编号
+-- 主体关联图片 - 人
+drop table if exists tbl_sub_person_pic;
+create table tbl_sub_person_pic (
+    i_spid  integer,    -- 主体编号
+    i_pid   integer     -- 图片编号
 );
 
 
