@@ -227,7 +227,14 @@ frs.ui.Button = function(content, action) {
 frs.ui.head = function() {
     if (frs.ui._head) return frs.ui._head;
 
-    var head = $('.frs .head');    
+    var head = $('.frs .head');
+    head.add_item = function(item, action) {
+        var div = $('<div></div>');
+        div.append(item);
+        if (action) div.bind('click', action);
+        head.append(div);
+        return div;
+    };
     
     frs.ui._head = head;
     return frs.ui._head;

@@ -298,8 +298,8 @@ html, body {
     height      : 3em;
     top         : 0;
     left        : 0;
-    background  : white;
-    opacity     : .3;
+    background  : rgba(255, 255, 255, .3);
+    overflow    : initial;
 }
 .frs .body {
     position    : absolute;
@@ -310,4 +310,30 @@ html, body {
     bottom      : 0;
 }
 
+
+.frs .head >div {
+    display     : inline-block;
+    text-align  : center;
+    line-height : 3em;
+    padding     : 0 2em;
+    color       : white;
+    cursor      : pointer;
+}
+.frs .head >div:hover {
+    background  : white;
+    color       : #000033;
+    height      : 110%;
+    opacity     : .8;
+}
+.frs .head >div:active {
+    background  : white;
+    color       : #000033;
+    opacity     : 1;
+}
+.frs .head .active {
+    background  : white;
+    color       : #000033;
+    box-shadow  : 0 0 1em white;
+    height      : 110%;
+}
 

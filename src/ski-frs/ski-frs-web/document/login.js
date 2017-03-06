@@ -43,7 +43,7 @@ function build_dialog() {
                 dialog.shake();
                 new frs.ui.hud.Minor('0x' + code.toString(16) + ': ' + desc).appear(2500);
             } else {
-                window.location = '/index.html';
+                window.location = 'app.html';
             }
         });
     }).to_major());
