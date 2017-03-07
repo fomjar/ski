@@ -319,6 +319,7 @@ html, body {
     padding     : 0 2em;
     color       : white;
     cursor      : pointer;
+    vertical-align  : top;
 }
 .frs .head >div:hover {
     background  : white;

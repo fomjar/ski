@@ -19,6 +19,7 @@ public class Monitor extends FjLoopTask {
     
     private static final Logger logger = Logger.getLogger(Monitor.class);
     private static final int BUF_LEN = 1024 * 8;
+    private static final String BAK = "/bak";
     
     private byte[] buffer;
     
@@ -44,6 +45,8 @@ public class Monitor extends FjLoopTask {
     }
     
     private void scanDirectory(File dir) {
+        if (BAK.equals("/" + dir.getName())) return;
+        
         logger.error(dir.getPath());
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) scanDirectory(file);
@@ -62,6 +65,8 @@ public class Monitor extends FjLoopTask {
         else if (name.startsWith("F")) updatePic(file, ISIS.FIELD_PIC_SIZE_SMALL);
         else if (name.startsWith("P")) updatePic(file, ISIS.FIELD_PIC_SIZE_MIDDLE);
         else logger.error("unknown picture file: " + file);
+        
+        checkWait();
     }
     
     private void updatePic(File file, int size) {
@@ -112,7 +117,7 @@ public class Monitor extends FjLoopTask {
     
     private static boolean moveToBak(File src) {
         String root = FjServerToolkit.getServerConfig("rp.root");
-        File dst = new File(root + "/bak" + src.getPath().substring(root.length()));
+        File dst = new File(root + BAK + src.getPath().substring(root.length()));
         File dir = dst.getParentFile();
         if (!dir.isDirectory()) {
             if (!dir.mkdirs()) {
@@ -136,6 +141,13 @@ public class Monitor extends FjLoopTask {
         while (-1 < (len = bis.read(buffer))) baos.write(buffer, 0, len);
         bis.close();
         return baos.toByteArray();
+    }
+    
+    private static void checkWait() {
+        while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("rp.mqmax"))) {
+            try {Thread.sleep(1000L);}
+            catch (InterruptedException e) {logger.warn("check and wait mq failed", e);}
+        }
     }
 
 }
