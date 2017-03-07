@@ -1,0 +1,54 @@
+.frs .body .dev {
+    height  : 100%;
+}
+
+.frs .body .dev .l {
+    display : inline-block;
+    width   : 30%;
+    height  : 100%;
+    vertical-align  : top;
+    border-right    : 1px solid rgba(255, 255, 255, .8);
+}
+
+.frs .body .dev .l .oper {
+    height  : 3em;
+    padding : .5em;
+}
+
+.frs .body .dev .l .oper .button {
+    padding : .75em;
+    margin  : .25em;
+}
+
+.frs .body .dev .l .list {
+    height      : 100%;
+    background  : #9999cc;
+}
+
+.frs .body .dev .r {
+    display : inline-block;
+    width   : 70%;
+    height  : 100%;
+    vertical-align  : top;
+}
+
+.frs .body .pic {
+    height  : 100%;
+}
+.frs .body .pic .oper {
+    height  : 2.8em;
+    border-bottom   : 1px solid gray;
+}
+.frs .body .pic .oper .button {
+    margin  : .5em;
+    padding : .5em;
+    font-size   : .8em;
+}
+.frs .body .pic .cont {
+    position    : absolute;
+    top     : 2.8em;
+    left    : 0;
+    width   : 100%;
+    bottom  : 0;
+}
+

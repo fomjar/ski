@@ -12,7 +12,7 @@ create table tbl_instruction (
 drop table if exists tbl_dev;
 create table tbl_dev (
     c_did   varchar(64),    -- 编号
-    c_path  text,           -- 路径：市／区／卡点
+    c_path  text,           -- 路径(包含名称)：市／区／卡点
     c_ip    varchar(20),    -- IP
     primary key(c_did)
 );
