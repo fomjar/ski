@@ -36,8 +36,8 @@ input, textarea, select {
     box-shadow  : rgba(0, 0, 0, 0) 0px 0px .5em;
 }
 input:focus, textarea:focus, select:focus {
-    border      : 1px solid #9999ff;
-    box-shadow  : #9999ff 0px 0px .5em;
+    border      : 1px solid #ccccff;
+    box-shadow  : #ccccff 0px 0px .5em;
 }
 input, select {
     padding     : .75em .5em;
@@ -64,7 +64,6 @@ html, body {
     /* 字体 */
     font-size   : 16px;
     font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
-    color       : #000033;
 }
 
 /* function */
@@ -83,30 +82,13 @@ html, body {
     -webkit-transition  : all .25s cubic-bezier(0.2, 0.2, 0, 0.9);
 }
 
-/* component */
-.frs .cover {
-    display : inline-block;
-    height  : 2em;
-}
-.frs .cover img {
-    width           : 2em;
-    height          : 2em;
-    vertical-align  : bottom;
-            border-radius   : .2em;
-    -webkit-border-radius   : .2em;
-}
-.frs .cover div {
-    display         : inline-block;
-    vertical-align  : top;
-    line-height     : 2em;
-    margin-left     : .5em;
-}
 
+/* component */
 .frs .button {
     display         : inline-block;
     vertical-align  : top;
     text-align      : center;
-    padding         : .75em;
+    padding         : .5em 1em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
     cursor          : pointer;
@@ -196,16 +178,18 @@ html, body {
 }
 .frs .list >div {
     padding         : .75em;
-    border-bottom   : 1px solid lightgray;
+    border-bottom   : 1px solid rgba(0, 0, 0, .2);
 }
 .frs .list >div:last-child {
     border-bottom   : none  !important;
 }
 .frs .list >div:hover {
-    background      : #eeeeee;
+    background      : rgba(0, 0, 0, .1);
+    border-bottom   : 1px solid rgba(0, 0, 0, .1);
 }
 .frs .list >div:active {
-    background      : lightgray;
+    background      : rgba(0, 0, 0, .2);
+    border-bottom   : 1px solid rgba(0, 0, 0, 0);
 }
 .frs .list >div .icon {
     float           : left;
@@ -223,7 +207,47 @@ html, body {
 .frs .list >div .major {}
 .frs .list >div .minor {
     font-size   : .9em;
-    color       : gray;
+    color       : rgba(0, 0, 0, .5);
+}
+
+.frs .list-dark {
+    color       : white;
+}
+.frs .list-dark >div:hover {
+    background  : #ccccff;
+    color       : black;
+    opacity     : .9;
+}
+.frs .list-dark >div:active {
+    background  : #ccccff;
+    color       : black;
+}
+
+.frs .tab {}
+.frs .tab >div:nth-child(1) {}
+.frs .tab >div:nth-child(1) >div {
+    display : inline-block;
+    padding : .5em 1em;
+    border  : 1px solid rgba(0, 0, 0, 0);
+    cursor  : pointer;
+}
+.frs .tab >div:nth-child(1) >div:hover {
+    border  : 1px solid #333344;
+}
+.frs .tab >div:nth-child(1) >div:active {
+    border      : 1px solid #333344;
+    background  : #333344;
+    color       : white;
+    opacity     : .9;
+}
+.frs .tab .active {
+    border      : 1px solid #333344;
+    background  : #333344;
+    color       : white;
+}
+.frs .tab >div:nth-child(2) {
+    overflow-y  : auto;
+    border      : 1px solid #333344;
 }
 
 .frs .hud-major {
@@ -284,13 +308,6 @@ html, body {
 }
 
 /* framework */
-.frs .back {
-    position    : absolute;
-    z-index     : -1;
-    width       : 100%;
-    height      : 100%;
-    background  : #000033;
-}
 .frs .head {
     position    : absolute;
     z-index     : 5;
@@ -300,7 +317,7 @@ html, body {
     left        : 0;
     overflow    : initial;
     padding     : 0 2em;
-    background  : rgba(255, 255, 255, .3);
+    background  : #333333;
 }
 .frs .body {
     position    : absolute;
@@ -310,7 +327,6 @@ html, body {
     left        : 0;
     bottom      : 0;
 }
-
 
 .frs .head >div {
     display     : inline-block;
@@ -322,20 +338,21 @@ html, body {
     vertical-align  : top;
 }
 .frs .head >div:hover {
-    background  : white;
-    color       : #000033;
+    background  : #ccccff;
+    color       : black;
     height      : 110%;
     opacity     : .8;
 }
 .frs .head >div:active {
-    background  : white;
-    color       : #000033;
+    background  : #ccccff;
+    color       : black;
     opacity     : 1;
+    height      : 110%;
 }
 .frs .head .active {
-    background  : white;
-    color       : #000033;
-    box-shadow  : 0 0 1em white;
+    background  : #ccccff;
+    color       : black;
+    box-shadow  : 0 0 1em #ccccff;
     height      : 110%;
 }
 

@@ -4,15 +4,15 @@
 
 .frs .body .dev .l {
     display : inline-block;
-    width   : 30%;
+    width   : 20%;
     height  : 100%;
     vertical-align  : top;
-    border-right    : 1px solid rgba(255, 255, 255, .8);
 }
 
 .frs .body .dev .l .oper {
     height  : 3em;
     padding : .5em;
+    background  : #444455;
 }
 
 .frs .body .dev .l .oper .button {
@@ -22,7 +22,7 @@
 
 .frs .body .dev .l .list {
     height      : 100%;
-    background  : #9999cc;
+    background  : #333344;
 }
 
 .frs .body .dev .r {
@@ -36,8 +36,8 @@
     height  : 100%;
 }
 .frs .body .pic .oper {
-    height  : 2.8em;
-    border-bottom   : 1px solid gray;
+    height      : 2.8em;
+    background  : #444455;
 }
 .frs .body .pic .oper .button {
     margin  : .5em;

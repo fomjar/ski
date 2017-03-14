@@ -24,14 +24,12 @@ function build_frame() {
     var frame = $('<div></div>');
     frame.addClass('frs');
 
-    var back = $('<div></div>');
-    back.addClass('back');
     var head = $('<div></div>');
     head.addClass('head');
     var body = $('<div></div>');
     body.addClass('body');
 
-    frame.append([back, head, body]);
+    frame.append([head, body]);
     $('body').append(frame);
 };
 

@@ -1,10 +1,14 @@
 
 (function($) {
 
-fomjar.framework.phase.append('dom', build_head);
-fomjar.framework.phase.append('dom', build_body);
+fomjar.framework.phase.append('dom', frsmain);
 
 var menu = fomjar.util.args.menu || 'dev';
+
+function frsmain() {
+    build_head();
+    build_body();
+}
 
 function build_head() {
     var menu_dev = frs.ui.head().add_item('设备', function() {window.location = window.location.pathname + '?menu=dev';});
@@ -45,7 +49,7 @@ function build_body_dev_l() {
     oper.addClass('oper');
     oper.append(new frs.ui.Button(new frs.ui.shape.Plus('1px', 'white', '2em', '2em')));
     
-    var list = new frs.ui.List();
+    var list = new frs.ui.List().to_dark();
     list.append_cell({major : '..'});
     list.append_cell({major : 'XXXXXX小区', accessory : true});
     list.append_cell({major : 'SSSSSS街道', accessory : true});
@@ -68,10 +72,35 @@ function build_body_pic() {
     
     oper.append(new frs.ui.Button('批量上传').to_major());
     oper.append(new frs.ui.Button('批量修改').to_major());
+    oper.append(new frs.ui.Button('手工修改').to_minor());
 }
 
 function build_body_sub() {
+    var sub = $('<div></div>');
+    sub.addClass('dev');
     
+    var l = $('<div></div>');
+    l.addClass('l');
+    var r = $('<div></div>');
+    r.addClass('r');
+    
+    sub.append([l, r]);
+    frs.ui.body().append(sub);
+    
+    build_body_sub_l();
+}
+
+function build_body_sub_l() {
+    var oper = $('<div></div>');
+    oper.addClass('oper');
+    oper.append(new frs.ui.Button(new frs.ui.shape.Plus('1px', 'white', '2em', '2em')));
+    
+    var list = new frs.ui.List().to_dark();
+    list.append_cell({major : '黑名单'});
+    list.append_cell({major : '白名单'});
+    list.append_cell({major : '黄名单'});
+    
+    $('.frs .body .dev .l').append([oper, list]);
 }
 
 })(jQuery)

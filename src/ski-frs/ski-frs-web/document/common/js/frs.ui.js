@@ -4,6 +4,35 @@ fomjar.framework.phase.append('ini', function() {
 frs.ui = {};
 frs.ui.DELAY = 500;
 
+frs.ui.Button = function(content, action) {
+    var button = $('<div></div>');
+    button.addClass('button');
+    button.to_default = function() {
+        button.removeClass('button-major');
+        button.removeClass('button-minor');
+        button.removeClass('button-disable');
+        return this;
+    };
+    button.to_major = function() {
+        this.to_default();
+        button.addClass('button-major');
+        return this;
+    };
+    button.to_minor = function() {
+        this.to_default();
+        button.addClass('button-minor');
+        return this;
+    };
+    button.to_disable = function() {
+        this.to_default();
+        button.addClass('button-disable');
+        return this;
+    };
+    if (content) button.append(content);
+    if (action) button.bind('click', action);
+    return button;
+}
+
 frs.ui.Mask = function() {
     var mask = $('<div></div>');
     mask.addClass('mask');
@@ -134,23 +163,14 @@ frs.ui.Dialog = function() {
     return dialog;
 }
 
-frs.ui.Cover = function(src, txt) {
-    var cover = $('<div></div>');
-    cover.addClass('cover');
-    cover.img = $('<img />');
-    cover.div = $('<div></div>');
-    cover.append([cover.img, cover.div]);
-
-    if (src) cover.img.attr('src', src);
-    if (txt) cover.div.text(txt);
-
-    return cover;
-}
-
 frs.ui.List = function() {
     var list = $('<div></div>');
     list.addClass('list');
 
+    list.to_dark = function() {
+        list.addClass('list-dark');
+        return list;
+    };
 
     list.append_cell = function(options) {
         var cell = $('<div></div>');
@@ -181,7 +201,7 @@ frs.ui.List = function() {
             cell.append(div);
         }
         if (options.accessory)  {
-            var div = new frs.ui.shape.ArrowRight('1px', 'lightgray');
+            var div = new frs.ui.shape.ArrowRight('1px', 'rgba(0, 0, 0, .2)');
             div.addClass('accessory');
             cell.append(div);
         }
@@ -195,59 +215,74 @@ frs.ui.List = function() {
     return list;
 }
 
-frs.ui.Button = function(content, action) {
-    var button = $('<div></div>');
-    button.addClass('button');
-    button.to_default = function() {
-        button.removeClass('button-major');
-        button.removeClass('button-minor');
-        button.removeClass('button-disable');
-        return this;
-    };
-    button.to_major = function() {
-        this.to_default();
-        button.addClass('button-major');
-        return this;
-    };
-    button.to_minor = function() {
-        this.to_default();
-        button.addClass('button-minor');
-        return this;
-    };
-    button.to_disable = function() {
-        this.to_default();
-        button.addClass('button-disable');
-        return this;
-    };
-    if (content) button.append(content);
-    if (action) button.bind('click', action);
-    return button;
-}
-
-frs.ui.head = function() {
-    if (frs.ui._head) return frs.ui._head;
-
-    var head = $('.frs .head');
-    head.add_item = function(item, action) {
-        var div = $('<div></div>');
-        div.append(item);
-        if (action) div.bind('click', action);
-        head.append(div);
-        return div;
-    };
+frs.ui.Tab = function() {
+    var div = $('<div></div>');
+    div.addClass('tab');
+    div.append(div.tab = $('<div></div>'));
+    div.append(div.con = $('<div></div>'));
     
-    frs.ui._head = head;
-    return frs.ui._head;
-}
-
-frs.ui.body = function() {
-    if (frs.ui._body) return frs.ui._body;
-
-    var body = $('.frs .body');
-
-    frs.ui._body = body;
-    return frs.ui._body;
-}
+    div.tabs = {};
+    div.cur_con = function() {
+        var children = div.con.children();
+        if (0 == children.length) return null;
+        return $(children[0]);
+    };
+    div.tab_index = function(name) {
+        var i = -1;
+        var j = 0;
+        $.each(div.tabs, function(k, v) {
+            if (k == name) {
+                i = j;
+                return false;
+            }
+            j++;
+        });
+        return i;
+    };
+    div.get_tab = function(name) {
+        var i = div.tab_index(name);
+        if (-1 == i) return null;
+        
+        return div.tab.find('>div:nth-child(' + (i + 1) + ')');
+    }
+    div.add_tab = function(name, content, isDefault) {
+        div.tabs[name] = content;
+        content.addClass('fast');
+        
+        var tab = $('<div></div>');
+        tab.text(name);
+        div.tab.append(tab);
+        tab.bind('click', function() {div.to_tab(name);});
+        
+        if (isDefault) div.to_tab(name);
+        return tab;
+    };
+    div.to_tab = function(name) {
+        var cur = div.tabs[name];
+        if (!cur) return;
+        
+        var old = div.cur_con();
+        if (old) {
+            old.addClass('disappear');
+            cur.addClass('disappear');
+            div.tab.children().removeClass('active');
+            div.get_tab(name).addClass('active');
+            fomjar.util.async(function() {
+                old.detach();
+                div.con.append(cur);
+                cur.removeClass('disappear');
+            }, frs.ui.DELAY / 2);
+        } else {
+            cur.addClass('disappear');
+            div.get_tab(name).addClass('active');
+            fomjar.util.async(function() {
+                div.con.append(cur);
+                cur.removeClass('disappear');
+            });
+        }
+    }
+    return div;
+};
 
 frs.ui.hud = {};
 frs.ui.hud.Major = function(content) {
@@ -405,6 +440,32 @@ frs.ui.shape.Drag = function(line, color, width, height) {
     if (height) div.css('height', height);
     return div;
 };
+
+
+frs.ui.head = function() {
+    if (frs.ui._head) return frs.ui._head;
+
+    var head = $('.frs .head');
+    head.add_item = function(item, action) {
+        var div = $('<div></div>');
+        div.append(item);
+        if (action) div.bind('click', action);
+        head.append(div);
+        return div;
+    };
+    
+    frs.ui._head = head;
+    return frs.ui._head;
+}
+
+frs.ui.body = function() {
+    if (frs.ui._body) return frs.ui._body;
+
+    var body = $('.frs .body');
+
+    frs.ui._body = body;
+    return frs.ui._body;
+}
 
 frs.ui.preview = function(src) {
     var div = $('<div></div>');

@@ -15,9 +15,9 @@ function App(name, color, url) {
 function build_app() {
     var dialog = new frs.ui.Dialog();
     
-    dialog.append(new App('人脸', '#ff9999', '#'));
-    dialog.append(new App('车辆', '#99ff99', '#'));
-    dialog.append(new App('高级', '#9999ff', '#'));
+    dialog.append(new App('人脸', '#ff9999', 'app_face.html'));
+    dialog.append(new App('车辆', '#99ff99', 'app_face.html'));
+    dialog.append(new App('高级', '#9999ff', 'app_face.html'));
     
     var div = $('<div></div>');
     div.addClass('others');

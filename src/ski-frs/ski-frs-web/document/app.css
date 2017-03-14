@@ -1,5 +1,5 @@
-.frs .head {
-    opacity : 0;
+.frs {
+    background  : #333333;
 }
 .frs .dialog {
     width       : 50%;
