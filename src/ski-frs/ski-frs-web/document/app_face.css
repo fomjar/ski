@@ -12,6 +12,7 @@
     position: relative;
     left    : -6em;
     opacity : 0;
+    cursor  : pointer;
 }
 
 
