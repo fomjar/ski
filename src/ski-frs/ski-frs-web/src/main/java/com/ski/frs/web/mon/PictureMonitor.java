@@ -1,11 +1,10 @@
-package com.ski.frs.rp;
+package com.ski.frs.web.mon;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Base64;
 
 import org.apache.log4j.Logger;
 
@@ -15,15 +14,14 @@ import fomjar.server.FjServerToolkit;
 import fomjar.util.FjLoopTask;
 import net.sf.json.JSONObject;
 
-public class Monitor extends FjLoopTask {
+public class PictureMonitor extends FjLoopTask {
     
-    private static final Logger logger = Logger.getLogger(Monitor.class);
+    private static final Logger logger = Logger.getLogger(PictureMonitor.class);
     private static final int BUF_LEN = 1024 * 8;
-    private static final String BAK = "/bak";
     
     private byte[] buffer;
     
-    public Monitor() {
+    public PictureMonitor() {
         setDelay(1000L * 20);
         buffer = new byte[BUF_LEN];
     }
@@ -31,7 +29,7 @@ public class Monitor extends FjLoopTask {
     @Override
     public void perform() {
         logger.debug("monitor begin");
-        scanDirectory(new File(FjServerToolkit.getServerConfig("rp.root")));
+        scanDirectory(new File(FjServerToolkit.getServerConfig("web.pic.src")));
         logger.debug("monitor end");
     }
     
@@ -41,12 +39,10 @@ public class Monitor extends FjLoopTask {
             return;
         }
         
-        new Thread(this, "rp-monitor").start();
+        new Thread(this, "picture-monitor").start();
     }
     
     private void scanDirectory(File dir) {
-        if (BAK.equals("/" + dir.getName())) return;
-        
         logger.error(dir.getPath());
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) scanDirectory(file);
@@ -61,15 +57,15 @@ public class Monitor extends FjLoopTask {
         if (!name.toLowerCase().endsWith(".jpg")) return;
         
         logger.info("scan file: " + file.getPath());
-        if (name.startsWith("20")) updatePic(file, ISIS.FIELD_PIC_SIZE_LARGE);
-        else if (name.startsWith("F")) updatePic(file, ISIS.FIELD_PIC_SIZE_SMALL);
-        else if (name.startsWith("P")) updatePic(file, ISIS.FIELD_PIC_SIZE_MIDDLE);
+        if (name.startsWith("20")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_LARGE);
+        else if (name.startsWith("F")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_SMALL);
+        else if (name.startsWith("P")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_MIDDLE);
         else logger.error("unknown picture file: " + file);
         
         checkWait();
     }
     
-    private void updatePic(File file, int size) {
+    private void updatePicutre(File file, int size) {
         String[] fields = file.getName().split("\\.")[0].split("_");
         JSONObject args = new JSONObject();
         args.put("did",  fields[1]);
@@ -78,11 +74,6 @@ public class Monitor extends FjLoopTask {
         args.put("time", time.substring(0, time.length() - 3));
         args.put("size", size);
         args.put("type", ISIS.FIELD_PIC_TYPE_MAN);
-        try {args.put("data", readFileAsBase64(file));}
-        catch (IOException e) {
-            logger.error("read file failed: " + file, e);
-            return;
-        }
         File xml = new File(file.getPath().replace(".jpg", ".xml"));
         if (xml.isFile()) {
             try {args.put("desc1", readVector(xml));}
@@ -90,14 +81,10 @@ public class Monitor extends FjLoopTask {
                 logger.error("read vector failed: " + xml, e);
                 return;
             }
-            if (!moveToBak(xml)) return;
+            if (!moveToDst(xml)) return;
         }
         FjServerToolkit.dscpRequest("web", ISIS.INST_UPDATE_PIC, args);
-        moveToBak(file);
-    }
-    
-    private String readFileAsBase64(File file) throws IOException {
-        return Base64.getEncoder().encodeToString(readFile(file));
+        moveToDst(file);
     }
     
     private String readFileAsString(File file) throws IOException {
@@ -115,21 +102,16 @@ public class Monitor extends FjLoopTask {
         return vector;
     }
     
-    private static boolean moveToBak(File src) {
-        String root = FjServerToolkit.getServerConfig("rp.root");
-        File dst = new File(root + BAK + src.getPath().substring(root.length()));
-        File dir = dst.getParentFile();
-        if (!dir.isDirectory()) {
-            if (!dir.mkdirs()) {
-                logger.error("create bak dir failed: " + dir);
-                return false;
-            }
-        }
+    private static boolean moveToDst(File src) {
+        File dst = new File("document"
+                + FjServerToolkit.getServerConfig("web.pic.dst")
+                + "/"
+                + src.getName());
         if (!src.renameTo(dst)) {
-            logger.error("move file to bak failed: " + src);
+            logger.error("move file to dst failed: " + src);
             return false;
         } else {
-            logger.info("move file to bak success: " + src);
+            logger.info("move file to dst success: " + src);
             return true;
         }
     }
@@ -144,7 +126,7 @@ public class Monitor extends FjLoopTask {
     }
     
     private static void checkWait() {
-        while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("rp.mqmax"))) {
+        while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
             try {Thread.sleep(1000L);}
             catch (InterruptedException e) {logger.warn("check and wait mq failed", e);}
         }

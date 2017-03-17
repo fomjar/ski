@@ -1,0 +1,17 @@
+.frs .body .tab_upload {
+    padding : 1em;
+}
+.frs .body .tab_upload img {
+    width   : 6em;
+    height  : 6em;
+    border  : 1px solid black;
+}
+.frs .body .tab_upload input {
+    width   : 6em;
+    height  : 6em;
+    position: relative;
+    left    : -6em;
+    opacity : 0;
+}
+
+
