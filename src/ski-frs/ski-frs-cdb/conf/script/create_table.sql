@@ -14,6 +14,7 @@ create table tbl_dev (
     c_did   varchar(64),    -- 编号
     c_path  text,           -- 路径(包含名称)：市／区／卡点
     c_ip    varchar(20),    -- IP
+    t_time  datetime,       -- 创建时间
     primary key(c_did)
 );
 
@@ -38,6 +39,7 @@ create table tbl_sub_lib (
     i_slid  integer     auto_increment, -- 主体库编号
     c_name  varchar(64),                -- 主体库名称
     i_type  tinyint,                    -- 主体类型：0 - 人，1 - 汽车
+    t_time  datetime,                   -- 创建时间
     primary key(i_slid)
 );
 
@@ -46,6 +48,7 @@ drop table if exists tbl_sub_person;
 create table tbl_sub_person (
     i_spid      integer     auto_increment, -- 主体编号
     i_slid      integer,                    -- 主体库编号
+    t_time      datetime,                   -- 创建时间
     c_name      varchar(32),                -- 姓名
     i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
     i_idcard    varchar(32),                -- 身份证号

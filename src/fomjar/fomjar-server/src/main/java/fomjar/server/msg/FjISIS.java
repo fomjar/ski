@@ -32,4 +32,6 @@ public final class FjISIS {
     public static final int CODE_UNAUTHORIZED       = 0x00000010;
     
     public static final int CODE_ILLEGAL_INST       = 0x00000021;
+    
+    public static final int CODE_ILLEGAL_ARGS       = 0x00000022;
 }

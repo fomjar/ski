@@ -1,8 +1,8 @@
 package com.ski.frs.web;
 
-import com.ski.sn.web.filter.Filter1Authorize;
-import com.ski.sn.web.filter.Filter5Document;
-import com.ski.sn.web.filter.Filter6Interface;
+import com.ski.frs.web.filter.Filter1Authorize;
+import com.ski.frs.web.filter.Filter5Document;
+import com.ski.frs.web.filter.Filter6Interface;
 
 import fomjar.server.FjServer;
 import fomjar.server.web.FjWebTask;

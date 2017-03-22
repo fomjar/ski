@@ -8,6 +8,10 @@ function frsmain() {
     tab.add_tab('上传', create_tab_upload(), true);
     tab.add_tab('检索', create_tab_search());
     frs.ui.body().append(tab);
+    
+    var rst = $('<div></div>');
+    rst.addClass('rst');
+    frs.ui.body().append(rst);
 }
 
 function create_tab_upload() {

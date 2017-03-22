@@ -39,7 +39,7 @@ public class PictureMonitor extends FjLoopTask {
             return;
         }
         
-        new Thread(this, "picture-monitor").start();
+        new Thread(this, "monitor-picture").start();
     }
     
     private void scanDirectory(File dir) {
@@ -57,15 +57,15 @@ public class PictureMonitor extends FjLoopTask {
         if (!name.toLowerCase().endsWith(".jpg")) return;
         
         logger.info("scan file: " + file.getPath());
-        if (name.startsWith("20")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_LARGE);
-        else if (name.startsWith("F")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_SMALL);
-        else if (name.startsWith("P")) updatePicutre(file, ISIS.FIELD_PIC_SIZE_MIDDLE);
+        if (name.startsWith("20")) updatePic(file, ISIS.FIELD_PIC_SIZE_LARGE);
+        else if (name.startsWith("F")) updatePic(file, ISIS.FIELD_PIC_SIZE_SMALL);
+        else if (name.startsWith("P")) updatePic(file, ISIS.FIELD_PIC_SIZE_MIDDLE);
         else logger.error("unknown picture file: " + file);
         
         checkWait();
     }
     
-    private void updatePicutre(File file, int size) {
+    private void updatePic(File file, int size) {
         String[] fields = file.getName().split("\\.")[0].split("_");
         JSONObject args = new JSONObject();
         args.put("did",  fields[1]);
@@ -107,6 +107,13 @@ public class PictureMonitor extends FjLoopTask {
                 + FjServerToolkit.getServerConfig("web.pic.dst")
                 + "/"
                 + src.getName());
+        File par = dst.getParentFile();
+        if (!par.isDirectory()) {
+            if (!par.mkdirs()) {
+                logger.error("create dst dir failed: " + par);
+                return false;
+            }
+        }
         if (!src.renameTo(dst)) {
             logger.error("move file to dst failed: " + src);
             return false;
@@ -127,7 +134,7 @@ public class PictureMonitor extends FjLoopTask {
     
     private static void checkWait() {
         while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
-            try {Thread.sleep(1000L);}
+            try {Thread.sleep(100L);}
             catch (InterruptedException e) {logger.warn("check and wait mq failed", e);}
         }
     }

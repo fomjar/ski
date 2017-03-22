@@ -1,16 +1,35 @@
+.frs .body .tab {
+    display : inline-block;
+    width   : 14em;
+    height  : 100%;
+}
+.frs .body .rst {
+    position    : absolute;
+    top         : 0;
+    left        : 14em;
+    bottom      : 0;
+    right       : 0;
+}
+.frs .body .tab >div:nth-child(2) {
+    position    : absolute;
+    left        : 0;
+    width       : 100%;
+    top         : 2.55em;
+    bottom      : 0;
+}
 .frs .body .tab_upload {
-    padding : 1em;
+    padding : 2em;
 }
 .frs .body .tab_upload img {
-    width   : 6em;
-    height  : 6em;
+    width   : 10em;
+    height  : 10em;
     border  : 1px solid black;
 }
 .frs .body .tab_upload input {
-    width   : 6em;
-    height  : 6em;
+    width   : 10em;
+    height  : 10em;
     position: relative;
-    left    : -6em;
+    top     : -10em;
     opacity : 0;
     cursor  : pointer;
 }

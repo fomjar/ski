@@ -1,22 +1,15 @@
 package com.ski.frs.web;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
+import com.ski.frs.web.mon.PictureMonitor;
 
 import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
-import fomjar.server.FjServerToolkit;
 import fomjar.server.FjServer.FjServerTask;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpResponse;
 import net.sf.json.JSONObject;
@@ -25,15 +18,16 @@ public class DscpTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(DscpTask.class);
     
-    private ExecutorService pool = Executors.newCachedThreadPool();
-
+    private PictureMonitor mon_pic = new PictureMonitor();
+    
     @Override
     public void initialize(FjServer server) {
+        mon_pic.open();
     }
 
     @Override
     public void destroy(FjServer server) {
-        pool.shutdown();
+        mon_pic.close();
     }
 
     @Override
@@ -66,28 +60,7 @@ public class DscpTask implements FjServerTask {
     
     private void processUpdatePic(FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        String data_ori = args.remove("data").toString();
-        
         FjServerToolkit.dscpRequest("bcs", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
-        
-        pool.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte[] data = Base64.getDecoder().decode(data_ori);
-                    File file = new File("./document" + FjServerToolkit.getServerConfig("web.pic") + "/" + args.getString("name"));
-                    try {writeFile(data, file);}
-                    catch (IOException e) {logger.error("write picture file failed: " + file, e);}
-                } catch (Exception e) {logger.error("write picture file failed", e);}
-            }
-        });
-    }
-    
-    private static void writeFile(byte[] data, File file) throws IOException {
-        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
-        bos.write(data);
-        bos.flush();
-        bos.close();
     }
 
 }
