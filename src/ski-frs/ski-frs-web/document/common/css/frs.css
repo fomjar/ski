@@ -363,7 +363,7 @@ html, body {
 
 .frs .block-picture {
     display : inline-block;
-    border  : 1px solid rgba(0, 0, 50, .2);
+    border  : 1px solid rgba(0, 0, 50, .4);
     width   : 10em;
     height  : 14em;
     margin  : 3em;
