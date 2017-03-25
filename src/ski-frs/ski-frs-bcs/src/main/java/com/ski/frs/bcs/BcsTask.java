@@ -83,15 +83,15 @@ public class BcsTask implements FjServerTask {
             FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
         } else {
             JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("fv") || !args.has("tv") || !args.has("f") || !args.has("t")) {
-                String err = "illegal arguments, no fv, tv, f, t";
+            if (!args.has("fv") || !args.has("f") || !args.has("t")) {
+                String err = "illegal arguments, no fv, f, t";
                 logger.error(err + ", " + args);
                 FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
                 return;
             }
             
-            int vd = Integer.parseInt(FjServerToolkit.getServerConfig("bcs.vd"));
-            if (!args.has("vd")) args.put("vd", vd);
+            args.put("vd", FjServerToolkit.getServerConfig("bcs.face.vd")); // 向量维数
+            args.put("tv", FjServerToolkit.getServerConfig("bcs.face.tv")); // 内积阈值
             
             FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
             cache.put(dmsg.sid(), dmsg);

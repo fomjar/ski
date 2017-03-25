@@ -270,7 +270,7 @@ frs.ui.Tab = function() {
             fomjar.util.async(function() {
                 old.detach();
                 div.con.append(cur);
-                cur.removeClass('disappear');
+                fomjar.util.async(function() {cur.removeClass('disappear');});
             }, frs.ui.DELAY / 2);
         } else {
             cur.addClass('disappear');
@@ -487,6 +487,25 @@ frs.ui.preview = function(src) {
     $('.frs').append(div);
     fomjar.util.async(function() {div.removeClass('disappear');});
 
+    return div;
+};
+
+frs.ui.BlockPicture = function(options) {
+    options = options || {};
+    var div = $('<div></div>');
+    div.addClass("block-picture");
+    
+    if (options.cover) {
+        var img = $('<img>');
+        img.attr('src', options.cover);
+        div.append(img);
+    }
+    if (options.name) {
+        var name = $('<div></div>');
+        name.html(options.name);
+        div.append(name);
+    }
+    
     return div;
 };
 

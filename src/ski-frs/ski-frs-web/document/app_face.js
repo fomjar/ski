@@ -45,6 +45,8 @@ function func_upload(img) {
     mask.appear();
     fomjar.util.async(function() {mask.disappear();}, 3000);
     new frs.ui.hud.Major('正在搜索...').appear(3000);
+    
+    $('.frs .body .rst').append(new frs.ui.BlockPicture());
 }
 
 function create_tab_search() {

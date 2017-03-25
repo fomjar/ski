@@ -19,12 +19,14 @@ JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_free(JNIEnv * e
 JNIEXPORT jstring JNICALL Java_com_ski_frs_web_filter_FaceInterface_fv(JNIEnv * env, jclass clazz, jstring path) {
 	std::string str_path = jstring2string(env, path);
 	cv::Mat pic = cv::imread(str_path, -1);
-	VEC_FACERECTINFO vec;
+	std::string vec;
 	int mark = LocationFace(pic, vec);
 
 	std::string fv;
 	char fvc[] = {mark};
 	fv = fvc;
+	fv += " ";
+	fv += vec;
 
 	return string2jstring(env, fv.data());
 }
