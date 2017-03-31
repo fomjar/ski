@@ -27,5 +27,12 @@ public class FaceInterface {
     public static native int init(int device);
     public static native int free();
     public static native String fv(String path);
+    
+//    public static void main(String[] args) {
+//        System.out.println("init = " + init(DEVICE_GPU));
+//        System.out.println("fv   = " + fv(args[0]));
+//        System.out.println("fv   = " + fv(args[0]));
+//        System.out.println("free = " + free());
+//    }
 
 }

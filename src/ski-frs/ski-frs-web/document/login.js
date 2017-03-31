@@ -11,7 +11,7 @@ function frsmain() {
 function build_logo() {
     var logo = $('<div></div>');
     logo.addClass('logo');
-    logo.text('XXXXXX系统');
+    logo.text('天眼巨人视频大数据系统');
     frs.ui.body().append(logo);
 }
 

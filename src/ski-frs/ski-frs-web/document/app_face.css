@@ -9,6 +9,8 @@
     left        : 14em;
     bottom      : 0;
     right       : 0;
+    padding     : 1em 3em;
+    overflow-y  : auto;
 }
 .frs .body .tab >div:nth-child(2) {
     position    : absolute;
@@ -23,7 +25,8 @@
 .frs .body .tab_upload img {
     width   : 10em;
     height  : 10em;
-    border  : 1px solid black;
+    border  : 0;
+    background  : #eeeeee;
 }
 .frs .body .tab_upload input {
     width   : 10em;

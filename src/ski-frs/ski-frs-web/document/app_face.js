@@ -41,12 +41,43 @@ function create_tab_upload() {
 }
 
 function func_upload(img) {
+    func_upload_pages(img, 1);
+}
+
+function func_upload_pages(img, page) {
     var mask = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在获取');
     mask.appear();
-    fomjar.util.async(function() {mask.disappear();}, 3000);
-    new frs.ui.hud.Major('正在搜索...').appear(3000);
-    
-    $('.frs .body .rst').append(new frs.ui.BlockPicture());
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV, {
+        pic : img,
+        tv  : 0.3,
+        pf  : (page - 1) * 20,
+        pt  : 20
+    }, function(code, desc) {
+        mask.disappear();
+        hud.disappear();
+        if (code) {
+            new frs.ui.hud.Minor(desc).appear(1500);
+        } else {
+            var rst = $('.frs .body .rst');
+            rst.children().detach();
+            var pager1 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(img, i);});
+            var div_pager1 = $('<div></div>');
+            div_pager1.append(pager1);
+            rst.append(div_pager1);
+            $.each(desc, function(i, pic) {
+                rst.append(new frs.ui.BlockPicture({
+                    cover   : 'pic/' + pic.name,
+                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
+                }));
+            });
+            var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(img, i);});
+            var div_pager2 = $('<div></div>');
+            div_pager2.append(pager2);
+            rst.append(div_pager2);
+        }
+    });
 }
 
 function create_tab_search() {

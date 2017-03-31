@@ -14,6 +14,7 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjISIS;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class BcsTask implements FjServerTask {
@@ -66,8 +67,8 @@ public class BcsTask implements FjServerTask {
             FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
         } else {
             JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("c") || !args.has("f") || !args.has("t")) {
-                String err = "illegal arguments, no c, f, t";
+            if (!args.has("con") || !args.has("pf") || !args.has("pt")) {
+                String err = "illegal arguments, no con, pf, pt";
                 logger.error(err + ", " + args);
                 FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
                 return;
@@ -80,22 +81,42 @@ public class BcsTask implements FjServerTask {
     
     private void processQueryPicByFV(FjDscpMessage dmsg) {
         if (dmsg.fs().startsWith("cdb")) {
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
+            JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg);
+            JSONArray args = new JSONArray();
+            for (int i = 0; i < desc.size(); i++) args.add(json_pic(desc.getJSONArray(i)));
+            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), args);
         } else {
             JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("fv") || !args.has("f") || !args.has("t")) {
-                String err = "illegal arguments, no fv, f, t";
+            if (!args.has("fv") || !args.has("pf") || !args.has("pt")) {
+                String err = "illegal arguments, no fv, pf, pt";
                 logger.error(err + ", " + args);
                 FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
                 return;
             }
             
-            args.put("vd", FjServerToolkit.getServerConfig("bcs.face.vd")); // 向量维数
-            args.put("tv", FjServerToolkit.getServerConfig("bcs.face.tv")); // 内积阈值
+            args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
+            if (!args.has("tv")) {
+                args.put("tv", Float.parseFloat(FjServerToolkit.getServerConfig("bcs.face.tv"))); // 内积阈值
+            }
             
             FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
             cache.put(dmsg.sid(), dmsg);
         }
     }
-
+    
+    private static JSONObject json_pic(JSONArray array) {
+        JSONObject json = new JSONObject();
+        int i = 0;
+        json.put("pid",     array.getInt(i++));
+        json.put("did",     array.getString(i++));
+        json.put("name",    array.getString(i++));
+        json.put("time",    array.getString(i++));
+        json.put("size",    array.getInt(i++));
+        json.put("type",    array.getInt(i++));
+        json.put("desc1",   array.getString(i++));
+        json.put("desc2",   array.getString(i++));
+        json.put("desc3",   array.getString(i++));
+        json.put("tv",      array.getDouble(i++));
+        return json;
+    }
 }

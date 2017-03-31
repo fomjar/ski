@@ -2,9 +2,7 @@
 #include "FaceIns.h"
 
 // util function
-jstring string2jstring(JNIEnv *, const char *);
-std::string jstring2string(JNIEnv *, jstring);
-
+void mat2str(cv::Mat & mat, std::string & str);
 
 JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_init(JNIEnv * env, jclass clazz, jint device) {
 	return InitializeFaceLib(device);
@@ -17,54 +15,73 @@ JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_free(JNIEnv * e
 
 
 JNIEXPORT jstring JNICALL Java_com_ski_frs_web_filter_FaceInterface_fv(JNIEnv * env, jclass clazz, jstring path) {
-	std::string str_path = jstring2string(env, path);
+	std::string str_path = env->GetStringUTFChars(path, false);
 	cv::Mat pic = cv::imread(str_path, -1);
-	std::string vec;
-	int mark = LocationFace(pic, vec);
+	cv::Mat mat;
+	std::string str;
 
-	std::string fv;
-	char fvc[] = {mark};
-	fv = fvc;
+	int mark = LocationFace(pic, mat);
+	mat2str(mat, str);
+	//str = "123456.111";
+	char fvc[5] = {0};
+	_itoa_s(mark, fvc, 10);
+	std::string fv(fvc);
 	fv += " ";
-	fv += vec;
+	fv += str;
 
-	return string2jstring(env, fv.data());
+	return env->NewStringUTF(fv.c_str());
 }
 
-jstring string2jstring(JNIEnv * env, const char * pat)
-{
-	//定义java String类 strClass 
-	jclass classString = (env)->FindClass("Ljava/lang/String;");
-	//获取String(byte[],String)的构造器,用于将本地byte[]数组转换为一个新String 
-	jmethodID ctorID = (env)->GetMethodID(classString, "<init>", "([BLjava/lang/String;)V");
-	//建立byte数组 
-	jbyteArray bytes = (env)->NewByteArray(strlen(pat));
-	//将char* 转换为byte数组 
-	(env)->SetByteArrayRegion(bytes, 0, strlen(pat), (jbyte*)pat);
-	// 设置String, 保存语言类型,用于byte数组转换至String时的参数 
-	jstring encoding = (env)->NewStringUTF("GB2312");
-	//将byte数组转换为java String,并输出 
-	return (jstring)(env)->NewObject(classString, ctorID, bytes, encoding);
-}
+void mat2str(cv::Mat & mat, std::string & str) {
+	int N = mat.cols;
+	//float *array = (float*)malloc(sizeof(float）*N);
+	float *array = new float[N];
+	memcpy(array, mat.data, sizeof(float)* N);
 
-
-std::string jstring2string(JNIEnv* env, jstring jstr)
-{
-	char* rtn = NULL;
-	jclass classString = env->FindClass("java/lang/String");
-	jstring strencode = env->NewStringUTF("GB2312");
-	jmethodID mid = env->GetMethodID(classString, "getBytes", "(Ljava/lang/String;)[B");
-	jbyteArray barr = (jbyteArray)env->CallObjectMethod(jstr, mid, strencode);
-	jsize alen = env->GetArrayLength(barr);
-	jbyte* ba = env->GetByteArrayElements(barr, JNI_FALSE);
-	if (alen > 0)
+	int res = N % 8;
+	int newN = N - res;
+	for (int i = 0; i < newN; i = i + 8)
 	{
-		rtn = (char*)malloc(alen + 1);
-		memcpy(rtn, ba, alen);
-		rtn[alen] = 0;
+		// std::cout << i << std::endl;
+		std::string fltTostr[8];
+		std::stringstream mm[8];
+		mm[0] << array[i];
+		fltTostr[0] = mm[0].str();
+
+		mm[1] << array[i + 1];
+		fltTostr[1] = mm[1].str();
+
+		mm[2] << array[i + 2];
+		fltTostr[2] = mm[2].str();
+
+		mm[3] << array[i + 3];
+		fltTostr[3] = mm[3].str();
+
+		mm[4] << array[i + 4];
+		fltTostr[4] = mm[4].str();
+
+		mm[5] << array[i + 5];
+		fltTostr[5] = mm[5].str();
+
+		mm[6] << array[i + 6];
+		fltTostr[6] = mm[6].str();
+
+		mm[7] << array[i + 7];
+		fltTostr[7] = mm[7].str();
+		std::string relAll = fltTostr[0] + " " + fltTostr[1] + " " + fltTostr[2] + " " + fltTostr[3] + " " + fltTostr[4] + " " + fltTostr[5] + " " + fltTostr[6] + " " + fltTostr[7] + " ";
+		str = str + relAll;
 	}
-	env->ReleaseByteArrayElements(barr, ba, 0);
-	std::string stemp(rtn);
-	free(rtn);
-	return stemp;
+	for (int i = newN; i < N; i++)
+	{
+		std::string fltTostr;
+		std::stringstream mm;
+		mm << array;
+		fltTostr = mm.str();
+		str = str + fltTostr + " ";
+	}
+	delete [] array;
+	//free(array);
+	//array = NULL;
+
+	//return 0;
 }

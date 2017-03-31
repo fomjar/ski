@@ -32,6 +32,7 @@ create table tbl_pic (
     c_desc3 text,                       -- 描述3
     primary key(i_pid)
 );
+alter table tbl_pic add index idx_time(t_time);
 
 -- 主体库
 drop table if exists tbl_sub_lib;

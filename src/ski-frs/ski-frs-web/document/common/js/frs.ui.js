@@ -284,6 +284,30 @@ frs.ui.Tab = function() {
     return div;
 };
 
+frs.ui.Pager = function(cur, len, cb_turn) {
+    var div = $('<div></div>');
+    div.addClass('pager');
+    div.div_pre = new frs.ui.Button('上一页');
+    div.div_suf = new frs.ui.Button('下一页');
+    div.div_cur = $('<div></div>');
+    div.append([div.div_pre, div.div_cur, div.div_suf]);
+    
+    div.len = len;
+    div.cur = cur;
+    div.div_cur.text(cur);
+    div.turn = function(i) {
+        if (i > div.len || i <= 0) return;
+        
+        div.cur = i;
+        div.div_cur.text(div.cur);
+        if (cb_turn) cb_turn(div.cur);
+    };
+    
+    div.div_pre.bind('click', function() {div.turn(div.cur - 1);});
+    div.div_suf.bind('click', function() {div.turn(div.cur + 1);});
+    return div;
+}
+
 frs.ui.hud = {};
 frs.ui.hud.Major = function(content) {
     var div = $('<div></div>');

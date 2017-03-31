@@ -43,7 +43,8 @@ public class PictureMonitor extends FjLoopTask {
     }
     
     private void scanDirectory(File dir) {
-        logger.error(dir.getPath());
+        if (!dir.isDirectory()) return;
+        
         for (File file : dir.listFiles()) {
             if (file.isDirectory()) scanDirectory(file);
             else if (file.isFile()) scanFile(file);
