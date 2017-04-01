@@ -523,6 +523,34 @@ frs.ui.BlockPicture = function(options) {
         var img = $('<img>');
         img.attr('src', options.cover);
         div.append(img);
+        div.bind('click', function() {
+            var mask = new frs.ui.Mask();
+            mask.css('background', 'black');
+            var dialog = new frs.ui.Dialog();
+            dialog.css('width', '80%');
+            dialog.css('height', '80%');
+            var img1 = $('<img>');
+            img1.css('width', '100%');
+            img1.css('height', '100%');
+            if (-1 < options.cover.indexOf('/F00')){
+                img1.attr('src', options.cover.replace('/F00', '/'));
+            } else if (-1 < options.cover.indexOf('/P00')){
+                img1.attr('src', options.cover.replace('/P00', '/'));
+            } else {
+                img1.attr('src', options.cover);
+            }
+            dialog.append(img1);
+            
+            var disappear = function() {
+                mask.disappear();
+                dialog.disappear();
+            };
+            mask.bind('click', disappear);
+            dialog.bind('click', disappear);
+            
+            mask.appear();
+            dialog.appear();
+        });
     }
     if (options.name) {
         var name = $('<div></div>');
