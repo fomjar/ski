@@ -22,19 +22,26 @@
 .frs .body .tab_upload {
     padding : 2em;
 }
-.frs .body .tab_upload img {
+.frs .body .tab_upload >*:nth-child(1) {
     width   : 10em;
     height  : 10em;
     border  : 0;
     background  : #eeeeee;
 }
-.frs .body .tab_upload input {
+.frs .body .tab_upload >*:nth-child(2) {
     width   : 10em;
     height  : 10em;
-    position: relative;
-    top     : -10em;
+    position: absolute;
+    top     : 2em;
+    left    : 2em;
     opacity : 0;
     cursor  : pointer;
 }
-
+.frs .body .tab_upload >*:nth-child(3) {
+    margin-top  : 2em;
+}
+.frs .body .tab_upload >*:nth-child(4) {
+    width       : 100%;
+    background  : #eeeeee;
+}
 

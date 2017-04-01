@@ -20,8 +20,12 @@ function create_tab_upload() {
     
     var image = $('<img>');
     var input = $("<input type='file' accept='image/*'>");
+    var input_tv = $("<input type='number' placeholder='默认60'>");
     
-    div.append([image, input]);
+    div.append([
+        image, input,
+        $('<div>相似度(1~99)</div>'), input_tv
+    ]);
 
     input.bind('change', function(e) {
         var files = e.target.files || e.dataTransfer.files;
@@ -31,17 +35,22 @@ function create_tab_upload() {
         var reader = new FileReader();
         reader.onload = function(e1) {
             image.attr('src', e1.target.result);
-            func_upload(e1.target.result);
+            func_upload_init(e1.target.result);
         };
         reader.readAsDataURL(file);
+    });
+    input_tv[0].max = 99;
+    input_tv[0].min = 1;
+    input_tv.bind('keydown', function(e) {
+        if (e.keyCode == '13') {
+            if (image.attr('src')) {
+                func_upload_pages(1);
+            }
+        }
     });
 
     frs.ui.body().append(div);
     return div;
-}
-
-function func_upload(img) {
-    func_upload_init(img);
 }
 
 function func_upload_init(img) {
@@ -63,12 +72,17 @@ function func_upload_init(img) {
 }
 
 function func_upload_pages(page) {
+    var tv = 0.6;
+    var input = $('.frs .tab_upload input[type=number]');
+    if (input.val()) {
+        tv = parseFloat(input.val()) / 100;
+    }
     var mask = new frs.ui.Mask();
     var hud = new frs.ui.hud.Major('正在匹配');
     mask.appear();
     hud.appear();
     fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV, {
-        tv  : 0.3,
+        tv  : tv,
         pf  : (page - 1) * 20,
         pt  : 20
     }, function(code, desc) {
