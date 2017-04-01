@@ -41,16 +41,33 @@ function create_tab_upload() {
 }
 
 function func_upload(img) {
-    func_upload_pages(img, 1);
+    func_upload_init(img);
 }
 
-function func_upload_pages(img, page) {
+function func_upload_init(img) {
     var mask = new frs.ui.Mask();
-    var hud = new frs.ui.hud.Major('正在获取');
+    var hud = new frs.ui.hud.Major('正在上传');
+    mask.appear();
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV_I, {
+        pic : img,
+    }, function(code, desc) {
+        mask.disappear();
+        hud.disappear();
+        if (code) {
+            new frs.ui.hud.Minor(desc).appear(1500);
+        } else {
+            func_upload_pages(1);
+        }
+    });
+}
+
+function func_upload_pages(page) {
+    var mask = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在匹配');
     mask.appear();
     hud.appear();
     fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV, {
-        pic : img,
         tv  : 0.3,
         pf  : (page - 1) * 20,
         pt  : 20
@@ -62,17 +79,17 @@ function func_upload_pages(img, page) {
         } else {
             var rst = $('.frs .body .rst');
             rst.children().detach();
-            var pager1 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(img, i);});
+            var pager1 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
             var div_pager1 = $('<div></div>');
             div_pager1.append(pager1);
             rst.append(div_pager1);
             $.each(desc, function(i, pic) {
                 rst.append(new frs.ui.BlockPicture({
                     cover   : 'pic/' + pic.name,
-                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
+                    name    : '相似度：' + (100 * pic.tv0).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
                 }));
             });
-            var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(img, i);});
+            var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
             var div_pager2 = $('<div></div>');
             div_pager2.append(pager2);
             rst.append(div_pager2);

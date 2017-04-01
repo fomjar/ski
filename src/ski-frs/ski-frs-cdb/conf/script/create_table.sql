@@ -27,12 +27,31 @@ create table tbl_pic (
     t_time  datetime,                   -- 生成时间
     i_size  tinyint,                    -- 尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
     i_type  tinyint,                    -- 类型：0 - 人物，1 - 汽车
-    c_desc1 text,                       -- 描述1(面部特征向量)
-    c_desc2 text,                       -- 描述2(外部特征，格式：上衣颜色=白色;眼镜;)
-    c_desc3 text,                       -- 描述3
+    c_fv0   varchar(1600),              -- 特征向量
+    c_fv1   varchar(100),               -- 特征向量
+    c_fv2   varchar(100),               -- 特征向量
     primary key(i_pid)
 );
 alter table tbl_pic add index idx_time(t_time);
+alter table tbl_pic add index idx_fv0(c_fv0);
+
+-- 图片特征向量
+drop table if exists tbl_pic_fv;
+create table tbl_pic_fv (
+    i_pid   integer,
+    i_fvsn  integer,
+    i_fv    double,
+    key (i_pid),
+    key (i_fvsn),
+    key (i_fv)
+);
+
+-- 图片特征向量临时用
+drop table if exists tbl_pic_fv_tmp;
+create table tbl_pic_fv_tmp (
+    i_fvsn  integer,
+    i_fv    double
+);
 
 -- 主体库
 drop table if exists tbl_sub_lib;

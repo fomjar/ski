@@ -8,7 +8,8 @@ ski.isis = {
     INST_UPDATE_PIC         : 0x00001001,
     
     INST_QUERY_PIC          : 0x00002001,
-    INST_QUERY_PIC_BY_FV    : 0x00002002,
+    INST_QUERY_PIC_BY_FV_I  : 0x00002002,
+    INST_QUERY_PIC_BY_FV    : 0x00002003,
 };
 
 })(jQuery);

@@ -47,8 +47,8 @@ public class Filter6Interface extends FjWebFilter {
         
         boolean result = true;
         switch (inst) {
-        case ISIS.INST_QUERY_PIC_BY_FV:
-            result = processQueryPicByFV(args);
+        case ISIS.INST_QUERY_PIC_BY_FV_I:
+            result = processQueryPicByFVI(args);
             break;
         }
         
@@ -65,11 +65,11 @@ public class Filter6Interface extends FjWebFilter {
     
     private static boolean init_face_interface = false;
     
-    private static boolean processQueryPicByFV(JSONObject args) {
+    private static boolean processQueryPicByFVI(JSONObject args) {
         int code = FjISIS.CODE_SUCCESS;
         
-        if (!args.has("pic") && !args.has("fv")) {
-            String desc = "illegal arguments, no pic or fv";
+        if (!args.has("pic")) {
+            String desc = "illegal arguments, no pic";
             args.clear();
             args.put("code", code = FjISIS.CODE_ILLEGAL_ARGS);
             args.put("desc", desc);
@@ -77,52 +77,38 @@ public class Filter6Interface extends FjWebFilter {
             return false;
         }
         
-        if (args.has("pic")) {
-            String pic = args.getString("pic");
-            args.remove("pic");
-            if (!pic.startsWith("data:image")) {
-                String desc = "illegal arguments, illegal pic";
-                args.clear();
-                args.put("code", code = FjISIS.CODE_ILLEGAL_ARGS);
-                args.put("desc", desc);
-                logger.error(desc + ", " + args);
-                return false;
-            }
-            
-            pic = pic.substring(pic.indexOf("base64,") + 7);
-            byte[] pic_data = Base64.getDecoder().decode(pic);
-            File file = new File("pic_" + System.currentTimeMillis());
-            try {
-                BufferedImage img = ImageIO.read(new ByteArrayInputStream(pic_data));
-                ImageIO.write(img, "jpg", file);
-            } catch (IOException e) {
-                String desc = "illegal arguments, illegal pic, " + e.getMessage();
-                args.clear();
-                args.put("code", code = FjISIS.CODE_ILLEGAL_ARGS);
-                args.put("desc", desc);
-                logger.error(desc, e);
-                file.delete();
-                return false;
-            }
-            
-            if (!init_face_interface) {
-                int rst = FaceInterface.init(FaceInterface.DEVICE_GPU);
-                if (FaceInterface.SUCCESS == rst) init_face_interface = true;
-                else {
-                    String desc = "init face interface failed, code: " + rst;
-                    args.clear();
-                    args.put("code", code = FjISIS.CODE_INTERNAL_ERROR);
-                    args.put("desc", desc);
-                    logger.error(desc);
-                    file.delete();
-                    return false;
-                }
-            }
-            String fv = FaceInterface.fv(file.getPath()).trim();
-            int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
-            fv = fv.substring(fv.indexOf(" ") + 1);
-            if (FaceInterface.SUCCESS != err) {
-                String desc = "convert pic to fv failed, code: " + err;
+        String pic = args.getString("pic");
+        args.remove("pic");
+        if (!pic.startsWith("data:image")) {
+            String desc = "illegal arguments, illegal pic";
+            args.clear();
+            args.put("code", code = FjISIS.CODE_ILLEGAL_ARGS);
+            args.put("desc", desc);
+            logger.error(desc + ", " + args);
+            return false;
+        }
+        
+        pic = pic.substring(pic.indexOf("base64,") + 7);
+        byte[] pic_data = Base64.getDecoder().decode(pic);
+        File file = new File("pic_" + System.currentTimeMillis());
+        try {
+            BufferedImage img = ImageIO.read(new ByteArrayInputStream(pic_data));
+            ImageIO.write(img, "jpg", file);
+        } catch (IOException e) {
+            String desc = "illegal arguments, illegal pic, " + e.getMessage();
+            args.clear();
+            args.put("code", code = FjISIS.CODE_ILLEGAL_ARGS);
+            args.put("desc", desc);
+            logger.error(desc, e);
+            file.delete();
+            return false;
+        }
+        
+        if (!init_face_interface) {
+            int rst = FaceInterface.init(FaceInterface.DEVICE_GPU);
+            if (FaceInterface.SUCCESS == rst) init_face_interface = true;
+            else {
+                String desc = "init face interface failed, code: " + rst;
                 args.clear();
                 args.put("code", code = FjISIS.CODE_INTERNAL_ERROR);
                 args.put("desc", desc);
@@ -130,10 +116,22 @@ public class Filter6Interface extends FjWebFilter {
                 file.delete();
                 return false;
             }
-            
-            file.delete();
-            args.put("fv", fv); // 特征向量
         }
+        String fv = FaceInterface.fv(file.getPath()).trim();
+        int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
+        fv = fv.substring(fv.indexOf(" ") + 1);
+        if (FaceInterface.SUCCESS != err) {
+            String desc = "convert pic to fv failed, code: " + err;
+            args.clear();
+            args.put("code", code = FjISIS.CODE_INTERNAL_ERROR);
+            args.put("desc", desc);
+            logger.error(desc);
+            file.delete();
+            return false;
+        }
+        
+        file.delete();
+        args.put("fv", fv); // 特征向量
         
         return code == FjISIS.CODE_SUCCESS;
     }

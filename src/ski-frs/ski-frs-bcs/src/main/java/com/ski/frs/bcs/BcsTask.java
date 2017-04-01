@@ -49,6 +49,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_QUERY_PIC:
             processQueryPic(dmsg);
             break;
+        case ISIS.INST_QUERY_PIC_BY_FV_I:
+            processQueryPicByFVI(dmsg);
+            break;
         case ISIS.INST_QUERY_PIC_BY_FV:
             processQueryPicByFV(dmsg);
             break;
@@ -79,6 +82,23 @@ public class BcsTask implements FjServerTask {
         }
     }
     
+    private void processQueryPicByFVI(FjDscpMessage dmsg) {
+        if (dmsg.fs().startsWith("cdb")) {
+            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
+        } else {
+            JSONObject args = dmsg.argsToJsonObject();
+            if (!args.has("fv")) {
+                String err = "illegal arguments, no fv";
+                logger.error(err + ", " + args);
+                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+                return;
+            }
+            
+            args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
+            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+            cache.put(dmsg.sid(), dmsg);
+        }
+    }
     private void processQueryPicByFV(FjDscpMessage dmsg) {
         if (dmsg.fs().startsWith("cdb")) {
             JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg);
@@ -87,14 +107,13 @@ public class BcsTask implements FjServerTask {
             FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), args);
         } else {
             JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("fv") || !args.has("pf") || !args.has("pt")) {
-                String err = "illegal arguments, no fv, pf, pt";
+            if (!args.has("pf") || !args.has("pt")) {
+                String err = "illegal arguments, no pf, pt";
                 logger.error(err + ", " + args);
                 FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
                 return;
             }
             
-            args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
             if (!args.has("tv")) {
                 args.put("tv", Float.parseFloat(FjServerToolkit.getServerConfig("bcs.face.tv"))); // 内积阈值
             }
@@ -113,10 +132,7 @@ public class BcsTask implements FjServerTask {
         json.put("time",    array.getString(i++));
         json.put("size",    array.getInt(i++));
         json.put("type",    array.getInt(i++));
-        json.put("desc1",   array.getString(i++));
-        json.put("desc2",   array.getString(i++));
-        json.put("desc3",   array.getString(i++));
-        json.put("tv",      array.getDouble(i++));
+        json.put("tv0",     array.getString(i++));
         return json;
     }
 }
