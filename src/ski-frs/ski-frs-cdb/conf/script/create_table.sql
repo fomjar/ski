@@ -30,10 +30,9 @@ create table tbl_pic (
     c_fv0   varchar(1600),              -- 特征向量
     c_fv1   varchar(100),               -- 特征向量
     c_fv2   varchar(100),               -- 特征向量
-    primary key(i_pid)
+    primary key(i_pid),
+    key (t_time)
 );
-alter table tbl_pic add index idx_time(t_time);
-alter table tbl_pic add index idx_fv0(c_fv0);
 
 -- 图片特征向量
 drop table if exists tbl_pic_fv;
@@ -50,8 +49,10 @@ create table tbl_pic_fv (
 drop table if exists tbl_pic_fv_tmp;
 create table tbl_pic_fv_tmp (
     i_fvsn  integer,
-    i_fv    double
-);
+    i_fv    double,
+    key (i_fvsn),
+    key (i_fv)
+) engine = memory;
 
 -- 主体库
 drop table if exists tbl_sub_lib;

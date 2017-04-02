@@ -76,6 +76,6 @@ insert into tbl_instruction (
     (conv('00002003', 16, 10) + 0),
     'st',
     7,
-    "select pic.i_pid, pic.c_did, pic.c_name, pic.t_time, pic.i_size, pic.i_type, sum(fv.i_fv * tmp.i_fv) as tv0 from tbl_pic pic, tbl_pic_fv fv, tbl_pic_fv_tmp tmp where pic.c_fv0 is not null and pic.i_pid = fv.i_pid and fv.i_fvsn = tmp.i_fvsn group by pic.i_pid having tv0 > $tv limit $pf, $pt;"
+    "select pic.i_pid, pic.c_did, pic.c_name, pic.t_time, pic.i_size, pic.i_type, sum(fv.i_fv * tmp.i_fv) as tv0 from tbl_pic pic left join tbl_pic_fv fv on pic.i_pid = fv.i_pid left join tbl_pic_fv_tmp tmp on fv.i_fvsn = tmp.i_fvsn group by pic.i_pid having tv0 > $tv limit $pf, $pt;"
 );
 
