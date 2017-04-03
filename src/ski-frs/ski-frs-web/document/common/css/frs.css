@@ -363,22 +363,35 @@ html, body {
     vertical-align  : top;
 }
 .frs .head >div:hover {
-    background  : #ccccff;
-    color       : black;
-    height      : 110%;
-    opacity     : .8;
+    background  : #666699;
+    opacity     : .9;
 }
 .frs .head >div:active {
-    background  : #ccccff;
-    color       : black;
+    background  : #666699;
     opacity     : 1;
-    height      : 110%;
 }
 .frs .head .active {
-    background  : #ccccff;
-    color       : black;
-    box-shadow  : 0 0 1em #ccccff;
-    height      : 110%;
+    background  : #666699;
+    box-shadow  : 0 0 1.5em #666699;
+}
+
+.frs .body .l {
+    position    : absolute;
+    width       : 14em;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    background  : #333344;
+    color       : #eeeeee;
+    overflow-y  : auto;
+}
+.frs .body .r {
+    position    : absolute;
+    height      : 100%;
+    top         : 0;
+    left        : 14em;
+    right       : 0;
+    overflow-y  : auto;
 }
 
 .frs .block-picture {
@@ -386,7 +399,6 @@ html, body {
     border  : 1px solid rgba(0, 0, 50, .4);
     width   : 10em;
     height  : 14em;
-    margin  : 1em;
     text-align      : center;
     vertical-align  : top;
     cursor  : pointer;

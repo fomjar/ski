@@ -4,19 +4,26 @@
 fomjar.framework.phase.append('dom', frsmain);
 
 function frsmain() {
-    var tab = new frs.ui.Tab();
-    tab.add_tab('上传', create_tab_upload(), true);
-    tab.add_tab('检索', create_tab_search());
-    frs.ui.body().append(tab);
-    
-    var rst = $('<div></div>');
-    rst.addClass('rst');
-    frs.ui.body().append(rst);
+    build_head();
+    build_body();
 }
 
-function create_tab_upload() {
+function build_head() {
+    frs.ui.head().add_item('特征搜索');
+    frs.ui.head().add_item('身份确认');
+    frs.ui.head().add_item('实时布控');
+    frs.ui.head().add_item('轨迹管理').addClass('active');
+    frs.ui.head().add_item('人员库管理');
+    frs.ui.head().add_item('分析统计');
+}
+
+function build_body() {
+    frs.ui.body().style_lr();
+    frs.ui.body().find('.l').append(build_body_l());
+}
+
+function build_body_l() {
     var div = $('<div></div>');
-    div.addClass('tab_upload');
     
     var image = $('<img>');
     var input = $("<input type='file' accept='image/*'>");
@@ -49,7 +56,7 @@ function create_tab_upload() {
         }
     });
 
-    frs.ui.body().append(div);
+    frs.ui.body().find('.l').append(div);
     return div;
 }
 
@@ -73,7 +80,7 @@ function func_upload_init(img) {
 
 function func_upload_pages(page) {
     var tv = 0.6;
-    var input = $('.frs .tab_upload input[type=number]');
+    var input = frs.ui.body().find('.l input[type=number]');
     if (input.val()) {
         tv = parseFloat(input.val()) / 100;
     }
@@ -91,14 +98,14 @@ function func_upload_pages(page) {
         if (code) {
             new frs.ui.hud.Minor(desc).appear(1500);
         } else {
-            var rst = $('.frs .body .rst');
-            rst.children().detach();
+            var r = frs.ui.body().find('.r');
+            r.children().detach();
             var pager1 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
             var div_pager1 = $('<div></div>');
             div_pager1.append(pager1);
-            rst.append(div_pager1);
+            r.append(div_pager1);
             $.each(desc, function(i, pic) {
-                rst.append(new frs.ui.BlockPicture({
+                r.append(new frs.ui.BlockPicture({
                     cover   : 'pic/' + pic.name,
                     name    : '相似度：' + (100 * pic.tv0).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
                 }));
@@ -106,13 +113,9 @@ function func_upload_pages(page) {
             var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
             var div_pager2 = $('<div></div>');
             div_pager2.append(pager2);
-            rst.append(div_pager2);
+            r.append(div_pager2);
         }
     });
-}
-
-function create_tab_search() {
-    return $('<div>zxcv</div>');
 }
 
 })(jQuery)

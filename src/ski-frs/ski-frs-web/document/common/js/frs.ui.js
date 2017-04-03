@@ -486,6 +486,15 @@ frs.ui.body = function() {
     if (frs.ui._body) return frs.ui._body;
 
     var body = $('.frs .body');
+    body.style_lr = function() {
+        body.children().detach();
+        
+        var div_l = $('<div></div>');
+        div_l.addClass('l');
+        var div_r = $('<div></div>');
+        div_r.addClass('r');
+        body.append([div_l, div_r]);
+    };
 
     frs.ui._body = body;
     return frs.ui._body;

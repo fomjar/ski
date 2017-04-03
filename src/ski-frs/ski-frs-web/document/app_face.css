@@ -1,47 +1,29 @@
-.frs .body .tab {
-    display : inline-block;
-    width   : 14em;
-    height  : 100%;
-}
-.frs .body .rst {
-    position    : absolute;
-    top         : 0;
-    left        : 14em;
-    bottom      : 0;
-    right       : 0;
-    padding     : 1em 3em;
-    overflow-y  : auto;
-}
-.frs .body .tab >div:nth-child(2) {
-    position    : absolute;
-    left        : 0;
-    width       : 100%;
-    top         : 2.55em;
-    bottom      : 0;
-}
-.frs .body .tab_upload {
+.frs .body .l {
     padding : 2em;
 }
-.frs .body .tab_upload >*:nth-child(1) {
+.frs .body .l >div >*:nth-child(1) {
     width   : 10em;
     height  : 10em;
     border  : 0;
     background  : #eeeeee;
 }
-.frs .body .tab_upload >*:nth-child(2) {
+.frs .body .l >div >*:nth-child(2) {
     width   : 10em;
     height  : 10em;
     position: absolute;
-    top     : 2em;
-    left    : 2em;
+    top     : 0;
+    left    : 0;
     opacity : 0;
     cursor  : pointer;
 }
-.frs .body .tab_upload >*:nth-child(3) {
+.frs .body .l >div >*:nth-child(3) {
     margin-top  : 2em;
 }
-.frs .body .tab_upload >*:nth-child(4) {
+.frs .body .l >div >*:nth-child(4) {
     width       : 100%;
     background  : #eeeeee;
+}
+.frs .body .r >div {
+    margin  : 1em;
 }
 
