@@ -78,6 +78,8 @@ function func_upload_init(img) {
     });
 }
 
+var page_len = 30;
+
 function func_upload_pages(page) {
     var tv = 0.6;
     var input = frs.ui.body().find('.l input[type=number]');
@@ -90,8 +92,8 @@ function func_upload_pages(page) {
     hud.appear();
     fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV, {
         tv  : tv,
-        pf  : (page - 1) * 20,
-        pt  : 20
+        pf  : (page - 1) * page_len,
+        pt  : page_len
     }, function(code, desc) {
         mask.disappear();
         hud.disappear();
