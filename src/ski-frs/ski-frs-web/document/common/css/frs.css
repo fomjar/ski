@@ -340,6 +340,7 @@ html, body {
     height      : 3em;
     top         : 0;
     left        : 0;
+    white-space : nowrap;
     overflow    : initial;
     padding     : 0 2em;
     background  : #333333;
