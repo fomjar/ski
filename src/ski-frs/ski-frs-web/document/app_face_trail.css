@@ -1,0 +1,24 @@
+.frs .body .l >*:nth-child(1) {
+    margin-top  : 0;
+}
+
+.frs .body .l img {
+    width   : 10em;
+    height  : 10em;
+    border  : 0;
+    background  : #eeeeee;
+}
+.frs .body .l input[type=file] {
+    width   : 10em;
+    height  : 10em;
+    position: absolute;
+    top     : 0;
+    left    : 0;
+    opacity : 0;
+    cursor  : pointer;
+}
+
+.frs .body .r >div {
+    margin  : 1em;
+}
+

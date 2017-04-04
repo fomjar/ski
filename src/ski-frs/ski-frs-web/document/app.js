@@ -17,9 +17,9 @@ function build_app() {
     
     dialog.append_text_h1('应用');
     
-    dialog.append(new App('人脸', '#ff9999', 'app_face.html'));
-    dialog.append(new App('车辆', '#99ff99', 'app_face.html'));
-    dialog.append(new App('高级', '#9999ff', 'app_face.html'));
+    dialog.append(new App('人脸', '#ff9999', 'app_face_trail.html'));
+    dialog.append(new App('车辆', '#99ff99'));
+    dialog.append(new App('高级', '#9999ff'));
     
     var other = $('<div></div>');
     other.addClass('others');

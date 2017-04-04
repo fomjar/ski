@@ -29,8 +29,8 @@ input, textarea, select {
     background      : transparent;
             appearance      : none;
     -webkit-appearance      : none;
-            border-radius   : .5em;
-    -webkit-border-radius   : .5em;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
     
     border      : 1px solid rgba(0, 0, 0, 0);
     box-shadow  : 0px 0px .5em rgba(0, 0, 0, 0);
@@ -39,11 +39,8 @@ input:focus, textarea:focus, select:focus {
     border      : 1px solid #333366;
     box-shadow  : 0px 0px .5em #333366;
 }
-input, select {
-    padding     : .75em .5em;
-}
-textarea {
-    padding : 0 .25em;
+input, select, textarea {
+    padding     : .5em 1em;
 }
 img {
     vertical-align  : middle;
@@ -382,9 +379,22 @@ html, body {
     height      : 100%;
     top         : 0;
     left        : 0;
+    padding     : 2em;
     background  : #333344;
     color       : #eeeeee;
     overflow-y  : auto;
+}
+.frs .body .l label {
+    display     : inline-block;
+    margin-top  : 2em;
+}
+.frs .body .l .button {
+    width       : 100%;
+}
+.frs .body .l input, .frs .body .l select {
+    width       : 100%;
+    background  : #eeeeee;
+    text-align  : center;
 }
 .frs .body .r {
     position    : absolute;

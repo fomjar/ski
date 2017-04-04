@@ -489,11 +489,11 @@ frs.ui.body = function() {
     body.style_lr = function() {
         body.children().detach();
         
-        var div_l = $('<div></div>');
-        div_l.addClass('l');
-        var div_r = $('<div></div>');
-        div_r.addClass('r');
-        body.append([div_l, div_r]);
+        body.l = $('<div></div>');
+        body.l.addClass('l');
+        body.r = $('<div></div>');
+        body.r.addClass('r');
+        body.append([body.l, body.r]);
     };
 
     frs.ui._body = body;

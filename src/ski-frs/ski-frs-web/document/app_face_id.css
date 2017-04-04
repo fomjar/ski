@@ -1,13 +1,14 @@
-.frs .body .l {
-    padding : 2em;
+.frs .body .l >*:nth-child(1) {
+    margin-top  : 0;
 }
-.frs .body .l >div >*:nth-child(1) {
+
+.frs .body .l img {
     width   : 10em;
     height  : 10em;
     border  : 0;
     background  : #eeeeee;
 }
-.frs .body .l >div >*:nth-child(2) {
+.frs .body .l input[type=file] {
     width   : 10em;
     height  : 10em;
     position: absolute;
@@ -16,13 +17,7 @@
     opacity : 0;
     cursor  : pointer;
 }
-.frs .body .l >div >*:nth-child(3) {
-    margin-top  : 2em;
-}
-.frs .body .l >div >*:nth-child(4) {
-    width       : 100%;
-    background  : #eeeeee;
-}
+
 .frs .body .r >div {
     margin  : 1em;
 }
