@@ -127,7 +127,7 @@ html, body {
     height      : 100%;
     top         : 0;
     left        : 0;
-    background  : white;
+    background  : black;
     opacity     : .5;
 }
 .frs .dialog {

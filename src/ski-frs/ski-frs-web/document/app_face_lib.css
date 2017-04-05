@@ -1,0 +1,60 @@
+.frs .body {
+    background  : #333344;
+}
+.frs .body >div:nth-child(1) {
+    margin : 2em;
+}
+.frs .body >div:nth-child(2) {
+    position    : absolute;
+    width       : 100%;
+    top         : 4em;
+    left        : 0;
+    bottom      : 0;
+    padding     : 2em;
+}
+.frs .body >div >.cell {
+    background  : lightgray;
+            border-radius   : .5em .5em 0 0;
+    -webkit-border-radius   : .5em .5em 0 0;
+    font-weight : 700;
+}
+.frs .body .list {
+    position    : absolute;
+    left        : 2em;
+    right       : 2em;
+    top         : 5.5em;
+    bottom      : 2em;
+    
+    background  : white;
+            border-radius   : 0 0 .5em .5em;
+    -webkit-border-radius   : 0 0 .5em .5em;
+}
+.frs .body .cell {
+    padding : 1em;
+}
+.frs .body .cell >div {
+    display         : inline-block;
+    text-align      : center;
+    vertical-align  : middle;
+}
+.frs .body .cell >div:nth-child(1) {
+    width       : 30%;
+    font-weight : 700;
+}
+.frs .body .cell >div:nth-child(2) {
+    width   : 20%;
+}
+.frs .body .cell >div:nth-child(3) {
+    width   : 25%;
+}
+.frs .body .cell >div:nth-child(4) {
+    width   : 25%;
+}
+.frs .body .cell .button {
+    padding     : .25em .5em;
+    margin      : 0 .5em;
+    font-size   : .8em;
+}
+.frs .body .cell .button:last-child {
+    background  : #443333;
+}

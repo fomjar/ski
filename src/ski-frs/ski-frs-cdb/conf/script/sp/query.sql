@@ -79,3 +79,16 @@ insert into tbl_instruction (
     "select pic.i_pid, pic.c_did, pic.c_name, pic.t_time, pic.i_size, pic.i_type, sum(fv.i_fv * tmp.i_fv) as tv0 from tbl_pic pic left join tbl_pic_fv fv on pic.i_pid = fv.i_pid left join tbl_pic_fv_tmp tmp on fv.i_fvsn = tmp.i_fvsn group by pic.i_pid having tv0 > $tv limit $pf, $pt;"
 );
 
+
+delete from tbl_instruction where i_inst = (conv('00002010', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002010', 16, 10) + 0),
+    'st',
+    5,
+    "select l.i_slid, l.c_name, l.i_type, l.t_time, count(p.i_spid) from tbl_sub_lib l left join tbl_sub_person p on l.i_slid = p.i_slid group by l.i_slid"
+);

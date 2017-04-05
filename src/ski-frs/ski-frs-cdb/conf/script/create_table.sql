@@ -72,18 +72,21 @@ create table tbl_sub_person (
     t_time      datetime,                   -- 创建时间
     c_name      varchar(32),                -- 姓名
     i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
-    i_idcard    varchar(32),                -- 身份证号
+    c_idcard    varchar(32),                -- 身份证号
     t_birth     date,                       -- 生日
     c_province  varchar(16),                -- 省份
     c_city      varchar(16),                -- 城市
-    primary key(i_spid)
+    primary key(i_spid),
+    key (i_slid)
 );
 
 -- 主体关联图片 - 人
 drop table if exists tbl_sub_person_pic;
 create table tbl_sub_person_pic (
     i_spid  integer,    -- 主体编号
-    i_pid   integer     -- 图片编号
+    i_pid   integer,    -- 图片编号
+    key (i_spid),
+    key (i_pid)
 );
 
 
