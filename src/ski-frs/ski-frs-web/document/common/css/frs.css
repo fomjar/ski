@@ -20,12 +20,11 @@ div {
     position    : relative;
     cursor      : default;
     overflow    : hidden;
-            user-select : none;
-    -webkit-user-select : none;
 }
 input, textarea, select {
     font-size       : 1em;
     vertical-align  : middle;
+    padding         : .5em 1em;
     background      : transparent;
             appearance      : none;
     -webkit-appearance      : none;
@@ -39,8 +38,11 @@ input:focus, textarea:focus, select:focus {
     border      : 1px solid #333366;
     box-shadow  : 0px 0px .5em #333366;
 }
-input, select, textarea {
-    padding     : .5em 1em;
+input, select {
+    height  : 2.5em;
+}
+input[type=checkbox] {
+    height  : 1em;
 }
 img {
     vertical-align  : middle;
@@ -60,7 +62,9 @@ html, body {
     height      : 100%;
     /* 字体 */
     font-size   : 16px;
-    font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif';
+}
+.frs * {
+    font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif', '微软雅黑';
 }
 
 /* function */
@@ -88,6 +92,8 @@ html, body {
     padding         : .5em 1em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
+            user-select : none;
+    -webkit-user-select : none;
     cursor          : pointer;
     opacity : .8;
 }
@@ -103,11 +109,11 @@ html, body {
 }
 .frs .button-minor {
     background  : #eeeeee;
-    color       : black;
 }
 .frs .button-disable {
     background  : #eeeeee;
     color       : gray;
+    cursor      : default;
 }
 .frs .button .shape {
     position    : absolute;

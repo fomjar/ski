@@ -128,12 +128,26 @@ frs.ui.Dialog = function() {
         div.append(button);
 
         div.css('padding', '.5em');
-        button.css('width',         '100%');
-        button.css('text-align',    'center');
+        button.css('width', '100%');
 
         dialog.append(div);
         return button;
-    }
+    };
+    dialog.append_buttons = function(buttons) {
+        var table = $('<table><tr></tr></table>');
+        table.css('width', '100%');
+        $.each(buttons, function(i, button) {
+            button.css('width', '100%');
+            
+            var td = $('<td></td>');
+            td.css('padding', '.5em');
+            td.append(button);
+            table.find('tr').append(td);
+        });
+        
+        dialog.append(table);
+        return buttons;
+    };
     dialog.style_popupmenu = function(options) {
         dialog.children().detach();
 

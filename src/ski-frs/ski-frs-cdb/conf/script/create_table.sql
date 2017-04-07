@@ -74,8 +74,6 @@ create table tbl_sub_person (
     i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
     c_idcard    varchar(32),                -- 身份证号
     t_birth     date,                       -- 生日
-    c_province  varchar(16),                -- 省份
-    c_city      varchar(16),                -- 城市
     primary key(i_spid),
     key (i_slid)
 );

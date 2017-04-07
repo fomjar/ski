@@ -2,7 +2,20 @@
     background  : #333344;
 }
 .frs .body >div:nth-child(1) {
-    margin : 2em;
+    margin  : 1em;
+}
+.frs .body >div:nth-child(1) * {
+    margin  : 1em;
+}
+.frs .body >div:nth-child(1) input {
+    float       : right;
+    background  : #eeeeee;
+    width       : 20em;
+    margin-left : 0;
+}
+.frs .body >div:nth-child(1) select {
+    float       : right;
+    background  : #eeeeee;
 }
 .frs .body >div:nth-child(2) {
     position    : absolute;
@@ -12,13 +25,13 @@
     bottom      : 0;
     padding     : 2em;
 }
-.frs .body >div >.cell {
+.frs .body >div:nth-child(2) >.cell {
     background  : lightgray;
             border-radius   : .5em .5em 0 0;
     -webkit-border-radius   : .5em .5em 0 0;
     font-weight : 700;
 }
-.frs .body .list {
+.frs .body >div:nth-child(2) .list {
     position    : absolute;
     left        : 2em;
     right       : 2em;
@@ -56,5 +69,5 @@
     font-size   : .8em;
 }
 .frs .body .cell .button:last-child {
-    background  : #443333;
+    background  : #663333;
 }

@@ -13,7 +13,7 @@ function build_head() {
     frs.ui.head().add_item('身份确认', function() {window.location = 'app_face_id.html';}).addClass('active');
     frs.ui.head().add_item('实时布控');
     frs.ui.head().add_item('轨迹管理', function() {window.location = 'app_face_trail.html';});
-    frs.ui.head().add_item('人员库管理', function() {window.location = 'app_face_lib.html';});
+    frs.ui.head().add_item('人像库管理', function() {window.location = 'app_face_lib.html';});
     frs.ui.head().add_item('分析统计');
 }
 
