@@ -4,6 +4,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.web.FjWebFilter;
@@ -15,7 +16,7 @@ public class Filter5Document extends FjWebFilter {
     public Filter5Document() {documentRoot("document/");}
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if ("/ski-web".equals(request.path())) return true;
         
         logger.info(String.format("[ DOCUMENT  ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));

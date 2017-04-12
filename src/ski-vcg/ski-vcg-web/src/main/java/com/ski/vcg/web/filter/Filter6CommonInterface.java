@@ -43,6 +43,7 @@ import com.ski.vcg.web.baidu.BaiduMapInterface;
 import com.ski.vcg.web.wechat.WechatBusiness;
 import com.ski.vcg.web.wechat.WechatInterface;
 
+import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
@@ -65,7 +66,7 @@ public class Filter6CommonInterface extends FjWebFilter {
     }
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (!request.path().startsWith(URL_KEY)) return true;
 
         logger.info(String.format("user common command: %s - %s", request.url(), request.contentToString().replace("\n", "")));

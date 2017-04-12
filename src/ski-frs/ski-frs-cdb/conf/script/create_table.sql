@@ -27,9 +27,6 @@ create table tbl_pic (
     t_time  datetime,                   -- 生成时间
     i_size  tinyint,                    -- 尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
     i_type  tinyint,                    -- 类型：0 - 人物，1 - 汽车
-    c_fv0   varchar(1600),              -- 特征向量
-    c_fv1   varchar(100),               -- 特征向量
-    c_fv2   varchar(100),               -- 特征向量
     primary key(i_pid),
     key (t_time)
 );

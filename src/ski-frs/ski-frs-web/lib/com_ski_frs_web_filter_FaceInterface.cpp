@@ -4,25 +4,33 @@
 // util function
 void mat2str(cv::Mat & mat, std::string & str);
 
-JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_init(JNIEnv * env, jclass clazz, jint device) {
-	return InitializeFaceLib(device);
+JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_initInstance
+(JNIEnv * env, jclass clazz, jint device) {
+	CFaceRecogniton * p_faceRecog = new CFaceRecogniton();
+	int ret = p_faceRecog->InitializeFaceLib(device);
+	if (ERR_TYPE_SUCC == ret) return (jint) p_faceRecog;
+	else return ret;
 }
 
 
-JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_free(JNIEnv * env, jclass clazz) {
-	return ReleaseFaceLib();
+JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_freeInstance
+(JNIEnv * env, jclass clazz, jint instance) {
+	CFaceRecogniton * p_faceRecog = (CFaceRecogniton *) instance;
+	int ret = p_faceRecog->ReleaseFaceLib();
+	free(p_faceRecog);
+	return (jint) ret;
 }
 
 
-JNIEXPORT jstring JNICALL Java_com_ski_frs_web_filter_FaceInterface_fv(JNIEnv * env, jclass clazz, jstring path) {
+JNIEXPORT jstring JNICALL Java_com_ski_frs_web_filter_FaceInterface_fv
+(JNIEnv * env, jclass clazz, jint instance, jstring path) {
+	CFaceRecogniton * p_faceRecog = (CFaceRecogniton *)instance;
 	std::string str_path = env->GetStringUTFChars(path, false);
 	cv::Mat pic = cv::imread(str_path, -1);
 	cv::Mat mat;
 	std::string str;
 
-	int mark = LocationFace(pic, mat);
-	mat2str(mat, str);
-	//str = "123456.111";
+	int mark = p_faceRecog->LocationFace(pic, str);
 	char fvc[5] = {0};
 	_itoa_s(mark, fvc, 10);
 	std::string fv(fvc);
@@ -80,8 +88,4 @@ void mat2str(cv::Mat & mat, std::string & str) {
 		str = str + fltTostr + " ";
 	}
 	delete [] array;
-	//free(array);
-	//array = NULL;
-
-	//return 0;
 }

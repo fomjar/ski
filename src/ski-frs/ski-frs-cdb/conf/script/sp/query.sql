@@ -8,8 +8,8 @@ insert into tbl_instruction (
 ) values (
     (conv('00002001', 16, 10) + 0),
     'st',
-    9,
-    "select i_pid, c_did, c_name, t_time, i_size, i_type, c_desc1, c_desc2, c_desc3 from tbl_pic where $con limit $pf, $pt"
+    6,
+    "select i_pid, c_did, c_name, t_time, i_size, i_type from tbl_pic where $con limit $pf, $pt"
 );
 
 

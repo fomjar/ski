@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.ski.xs.common.CommonDefinition;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 import fomjar.server.web.FjWebFilter;
@@ -16,7 +17,7 @@ public class Filter1Authorize extends FjWebFilter {
     private static final Logger logger = Logger.getLogger(Filter1Authorize.class);
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if ("/ski-web".equals(request.path()))  return authorizeInterface(response, request);
         if (request.path().endsWith(".html"))   return authorizeDocument(response, request);
         return true;

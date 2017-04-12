@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 import com.ski.vcg.web.wechat.WechatBusiness;
 import com.ski.vcg.web.wechat.WechatInterface;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
@@ -23,7 +24,7 @@ public class Filter2WechatCommand extends FjWebFilter {
     }
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (request.url().startsWith("/ski-wechat")) {
             logger.info("wechat user command: " + request.url());
             // 第一时间给微信响应

@@ -2,11 +2,13 @@ package fomjar.server;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.msg.FjDscpMessage;
 import fomjar.util.FjLoopTask;
 
 public class FjServer extends FjLoopTask {
@@ -15,11 +17,13 @@ public class FjServer extends FjLoopTask {
     private String name;
     private FjMessageQueue mq;
     private Map<String, FjServerTask> tasks;
+    private Map<String, FjServerTask> dscps;
 
     public FjServer(String name, FjMessageQueue mq) {
         this.name = name;
         this.mq = mq;
         tasks = new LinkedHashMap<String, FjServerTask>();
+        dscps = new HashMap<String, FjServerTask>();
     }
 
     public String name() {return name;}
@@ -41,16 +45,42 @@ public class FjServer extends FjLoopTask {
             return old;
         }
     }
+    
+    public void onDscpSession(String sid, FjServerTask task) {
+        if (null == sid || null == task) throw new NullPointerException();
+        dscps.put(sid, task);
+        
+        try {task.initialize(this);}
+        catch (Exception e) {logger.error("initialize task failed", e);}
+    }
 
     @Override
     public void perform() {
         FjMessageWrapper wrapper = null;
         while (null == (wrapper = mq.poll()));
-
-        synchronized (tasks) {
-            for (FjServerTask task : tasks.values()) {
+        
+        boolean is_dscp_session = false;
+        
+        if (wrapper.message() instanceof FjDscpMessage) {
+            FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
+            if (dscps.containsKey(dmsg.sid())) {
+                is_dscp_session = true;
+                FjServerTask task = dscps.remove(dmsg.sid());
+                
                 try {task.onMessage(this, wrapper);}
-                catch (Exception e) {logger.error("error occurs on message: " + wrapper.message(), e);}
+                catch (Exception e) {logger.error("error occurs on session message: " + wrapper.message(), e);}
+                
+                try {task.destroy(this);}
+                catch (Exception e) {logger.error("destroy task failed", e);}
+            }
+        }
+
+        if (!is_dscp_session) {
+            synchronized (tasks) {
+                for (FjServerTask task : tasks.values()) {
+                    try {task.onMessage(this, wrapper);}
+                    catch (Exception e) {logger.error("error occurs on message: " + wrapper.message(), e);}
+                }
             }
         }
 

@@ -24,15 +24,15 @@ public class FaceInterface {
     /** 没有人脸 */
     public static final int ERROR_NO_FACE       = 6;
     
-    public static native int init(int device);
-    public static native int free();
-    public static native String fv(String path);
+    public static native int initInstance(int device);
+    public static native String fv(int instance, String path);
+    public static native int freeInstance(int instance);
     
 //    public static void main(String[] args) {
-//        System.out.println("init = " + init(DEVICE_GPU));
-//        System.out.println("fv   = " + fv(args[0]));
-//        System.out.println("fv   = " + fv(args[0]));
-//        System.out.println("free = " + free());
+//        int instance = initInstance(DEVICE_GPU);
+//        System.out.println(String.format("init = 0x%X", instance));
+//        System.out.println("fv = " + fv(instance, args[0]));
+//        System.out.println("free = " + freeInstance(instance));
 //    }
 
 }

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import com.ski.vcg.common.CommonDefinition;
 import com.ski.vcg.common.CommonService;
 
+import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
@@ -21,7 +22,7 @@ public class Filter4CommonPreprocess extends FjWebFilter {
     private static final Logger logger = Logger.getLogger(Filter4CommonPreprocess.class);
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         // 首页重定向
         if (request.path().equals("/vcg") || request.path().equals("/vcg/")) {
             redirect(response, "/vcg/index.html");

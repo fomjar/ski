@@ -4,6 +4,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
@@ -14,7 +15,7 @@ public class Filter5CommonDocument extends FjWebFilter {
     private static final Logger logger = Logger.getLogger(Filter5CommonDocument.class);
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (!request.path().equals(Filter6CommonInterface.URL_KEY)) {
             logger.info("user access document: " + request.url());
             FjWebFilter.documentRoot(FjServerToolkit.getServerConfig("web.document.root"));

@@ -9,7 +9,5 @@
   	<module>ski-xs-common</module>
   	<module>ski-xs-ura</module>
   	<module>ski-xs-cdb</module>
-  	<module>ski-xs-bcs</module>
-  	<module>ski-xs-wca</module>
   </modules>
 </project>

@@ -9,6 +9,7 @@ import com.ski.vcg.common.CommonService;
 import com.ski.vcg.common.bean.BeanChannelAccount;
 import com.ski.vcg.web.wechat.WechatInterface;
 
+import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
@@ -23,7 +24,7 @@ public class Filter3WechatAuthorize extends FjWebFilter {
     private static final int ANONYMOUS = -1;
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (request.url().contains("code=")) {
             JSONObject args = request.argsToJson();
             int user = ANONYMOUS;

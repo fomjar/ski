@@ -61,6 +61,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_QUERY_SUB_LIB:
             processQuerySubLib(dmsg);
             break;
+        case ISIS.INST_APPLY_SUB_LIB_IMPORT:
+            processApplySubLibImport(dmsg);
+            break;
         default: {
             String err = String.format("illegal inst: 0x%08X", dmsg.inst());
             logger.error(err);
@@ -71,10 +74,13 @@ public class BcsTask implements FjServerTask {
     }
     
     private void processUpdatePic(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) return;
-        
-        JSONObject args = dmsg.argsToJsonObject();
-        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
+        if (dmsg.fs().startsWith("cdb")) {
+            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
+        } else {
+            JSONObject args = dmsg.argsToJsonObject();
+            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
+            cache.put(dmsg.sid(), dmsg);
+        }
     }
     
     private void processUpdateSubLib(FjDscpMessage dmsg) {
@@ -162,6 +168,9 @@ public class BcsTask implements FjServerTask {
             FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
             cache.put(dmsg.sid(), dmsg);
         }
+    }
+    
+    private void processApplySubLibImport(FjDscpMessage dmsg) {
     }
     
     private static JSONObject json_pic(JSONArray array) {

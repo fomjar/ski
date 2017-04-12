@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.Logger;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
 
@@ -23,7 +24,7 @@ public abstract class FjWebFilter {
      * @param request
      * @return if continue filter next
      */
-    public abstract boolean filter (FjHttpResponse response, FjHttpRequest request, SocketChannel conn);
+    public abstract boolean filter (FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server);
 
     private static String document_root = "./";
     private static final Map<String, Long>   cache_file_modify  = new ConcurrentHashMap<String, Long>();

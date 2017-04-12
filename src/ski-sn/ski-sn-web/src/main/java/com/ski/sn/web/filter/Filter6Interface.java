@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import com.ski.sn.common.CommonDefinition;
 import com.ski.sn.common.CommonService;
 
+import fomjar.server.FjServer;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjHttpRequest;
 import fomjar.server.msg.FjHttpResponse;
@@ -26,7 +27,7 @@ public class Filter6Interface extends FjWebFilter {
     private static final Logger logger = Logger.getLogger(Filter6Interface.class);
 
     @Override
-    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn) {
+    public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (!"/ski-web".equals(request.path())) return true;
         
         JSONObject args = request.argsToJson();

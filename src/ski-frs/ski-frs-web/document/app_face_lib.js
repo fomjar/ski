@@ -151,7 +151,7 @@ function op_import(sublib) {
     dialog.append_text_h1c('导入人像');
     dialog.append_space('.5em');
     dialog.append_text_p1('<b>注意：</b><br/>'
-                        + '1. 必须是服务端目录，而非当前打开浏览器的本机（有可能是同一机器）;<br/>'
+                        + '1. 必须是服务端目录，而非当前打开浏览器的本机;<br/>'
                         + '2. 请将人像库提前拷贝至服务端，并解压。');
     input_path = dialog.append_input({placeholder : '请输入人像库所在目录'});
     dialog.append_text_p1('选项：');
@@ -176,11 +176,14 @@ function op_import(sublib) {
     var oId = dialog.append_check_input('提取身份证号', '身份证号正则表达式');
     oId.check.trigger('click');
     oId.check.attr('disabled', 'disabled');
-    oId.input.val('[1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}([0-9]|X)');
+    oId.input.val('_(([1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}([0-9]|x|X))|([1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}))_');
     var oName = dialog.append_check_input('提取姓名', '姓名正则表达式');
+    oName.input.val('_(\\W{2,5})_');
     var oAddr = dialog.append_check_input('提取住址', '住址正则表达式');
+    oAddr.input.val('_(\\W{4})_');
     var check_result = dialog.append_text_p1();
     check_result.css('font-size', '50%');
+    check_result.css('color', '#3333ff');
     dialog.append_buttons([
         button_check  = new frs.ui.Button('测试').to_major(),
         button_submit = new frs.ui.Button('提交').to_disable(),
