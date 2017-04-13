@@ -68,7 +68,7 @@ public class CdbTask implements FjServerTask {
             Instruction inst = new Instruction();
             inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = "db connection terminate";
-            response(server.name(), req, inst);
+            response(req, inst);
             return;
         }
 
@@ -81,7 +81,7 @@ public class CdbTask implements FjServerTask {
             if (FjISIS.CODE_SUCCESS != inst.code) {
                 logger.error("query instruction failed: " + inst.desc);
                 
-                response(server.name(), req, inst);
+                response(req, inst);
                 return;
             }
             
@@ -92,21 +92,11 @@ public class CdbTask implements FjServerTask {
 
         generateSql(inst);
         executeSql(conn, inst);
-        response(server.name(), req, inst);
+        response(req, inst);
     }
 
-    private static void response(String server, FjDscpMessage req, Instruction inst) {
-        FjDscpMessage rsp = new FjDscpMessage();
-        rsp.json().put("fs",   server);
-        rsp.json().put("ts",   req.fs());
-        rsp.json().put("sid",  req.sid());
-        rsp.json().put("inst", req.inst());
-        JSONObject args = new JSONObject();
-        args.put("code", inst.code);
-        args.put("desc", inst.desc);
-        rsp.json().put("args", args);
-        FjServerToolkit.getAnySender().send(rsp);
-        logger.debug("response message: " + rsp);
+    private static void response(FjDscpMessage req, Instruction inst) {
+        FjServerToolkit.dscpResponse(req, inst.code, inst.desc);
     }
 
     private static boolean checkConnection() {

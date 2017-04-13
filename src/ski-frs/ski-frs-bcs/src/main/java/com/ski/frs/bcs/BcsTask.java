@@ -1,8 +1,5 @@
 package com.ski.frs.bcs;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
@@ -21,15 +18,11 @@ public class BcsTask implements FjServerTask {
     
     private static final Logger logger = Logger.getLogger(BcsTask.class);
     
-    private Map<String, FjDscpMessage> cache = new HashMap<String, FjDscpMessage>();
-
     @Override
     public void initialize(FjServer server) {}
 
     @Override
-    public void destroy(FjServer server) {
-        cache.clear();
-    }
+    public void destroy(FjServer server) {}
 
     @Override
     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -44,25 +37,25 @@ public class BcsTask implements FjServerTask {
         logger.info(String.format("0x%08X - %s", dmsg.inst(), dmsg.sid()));
         switch (dmsg.inst()) {
         case ISIS.INST_UPDATE_PIC:
-            processUpdatePic(dmsg);
+            processUpdatePic(server, dmsg);
             break;
         case ISIS.INST_UPDATE_SUB_LIB:
-            processUpdateSubLib(dmsg);
+            processUpdateSubLib(server, dmsg);
             break;
         case ISIS.INST_QUERY_PIC:
-            processQueryPic(dmsg);
+            processQueryPic(server, dmsg);
             break;
         case ISIS.INST_QUERY_PIC_BY_FV_I:
-            processQueryPicByFVI(dmsg);
+            processQueryPicByFVI(server, dmsg);
             break;
         case ISIS.INST_QUERY_PIC_BY_FV:
-            processQueryPicByFV(dmsg);
+            processQueryPicByFV(server, dmsg);
             break;
         case ISIS.INST_QUERY_SUB_LIB:
-            processQuerySubLib(dmsg);
+            processQuerySubLib(server, dmsg);
             break;
         case ISIS.INST_APPLY_SUB_LIB_IMPORT:
-            processApplySubLibImport(dmsg);
+            processApplySubLibImport(server, dmsg);
             break;
         default: {
             String err = String.format("illegal inst: 0x%08X", dmsg.inst());
@@ -73,104 +66,143 @@ public class BcsTask implements FjServerTask {
         }
     }
     
-    private void processUpdatePic(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
-            cache.put(dmsg.sid(), dmsg);
-        }
+    private static void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
     
-    private void processUpdateSubLib(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("name") || !args.has("type")) {
-                String err = "illegal arguments, no name, type";
-                logger.error(err + ", " + args);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
-                return;
-            }
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_LIB, args);
-            cache.put(dmsg.sid(), dmsg);
+    private static void processUpdateSubLib(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("name") || !args.has("type")) {
+            String err = "illegal arguments, no name, type";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
         }
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_LIB, args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
     
-    private void processQueryPic(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("con") || !args.has("pf") || !args.has("pt")) {
-                String err = "illegal arguments, no con, pf, pt";
-                logger.error(err + ", " + args);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
-                return;
-            }
-            
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-            cache.put(dmsg.sid(), dmsg);
+    private static void processQueryPic(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("con") || !args.has("pf") || !args.has("pt")) {
+            String err = "illegal arguments, no con, pf, pt";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
         }
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
     
-    private void processQueryPicByFVI(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("fv")) {
-                String err = "illegal arguments, no fv";
-                logger.error(err + ", " + args);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
-                return;
-            }
-            
-            args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-            cache.put(dmsg.sid(), dmsg);
+    private static void processQueryPicByFVI(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("fv")) {
+            String err = "illegal arguments, no fv";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
         }
+        args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
-    private void processQueryPicByFV(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg);
-            JSONArray args = new JSONArray();
-            for (int i = 0; i < desc.size(); i++) args.add(json_pic(desc.getJSONArray(i)));
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), args);
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            if (!args.has("pf") || !args.has("pt")) {
-                String err = "illegal arguments, no pf, pt";
-                logger.error(err + ", " + args);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
-                return;
-            }
-            
-            if (!args.has("tv")) {
-                args.put("tv", Float.parseFloat(FjServerToolkit.getServerConfig("bcs.face.tv"))); // 内积阈值
-            }
-            
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-            cache.put(dmsg.sid(), dmsg);
+    private static void processQueryPicByFV(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("pf") || !args.has("pt")) {
+            String err = "illegal arguments, no pf, pt";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
         }
+        
+        if (!args.has("tv")) {
+            args.put("tv", Float.parseFloat(FjServerToolkit.getServerConfig("bcs.face.tv"))); // 内积阈值
+        }
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg1);
+                JSONArray args = new JSONArray();
+                for (int i = 0; i < desc.size(); i++) args.add(json_pic(desc.getJSONArray(i)));
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), args);
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
     
-    private void processQuerySubLib(FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("cdb")) {
-            JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg);
-            JSONArray args = new JSONArray();
-            for (int i = 0; i < desc.size(); i++) args.add(json_sub_lib(desc.getJSONArray(i)));
-            FjServerToolkit.dscpResponse(cache.remove(dmsg.sid()), FjServerToolkit.dscpResponseCode(dmsg), args);
-        } else {
-            JSONObject args = dmsg.argsToJsonObject();
-            FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-            cache.put(dmsg.sid(), dmsg);
-        }
+    private static void processQuerySubLib(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg1);
+                JSONArray args = new JSONArray();
+                for (int i = 0; i < desc.size(); i++) args.add(json_sub_lib(desc.getJSONArray(i)));
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), args);
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
     }
     
-    private void processApplySubLibImport(FjDscpMessage dmsg) {
+    private static void processApplySubLibImport(FjServer server, FjDscpMessage dmsg) {
     }
     
     private static JSONObject json_pic(JSONArray array) {

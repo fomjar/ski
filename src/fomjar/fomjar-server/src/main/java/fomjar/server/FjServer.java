@@ -64,6 +64,7 @@ public class FjServer extends FjLoopTask {
         if (wrapper.message() instanceof FjDscpMessage) {
             FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
             if (dscps.containsKey(dmsg.sid())) {
+                logger.info(String.format("dscp session: %s - 0x%08X", dmsg.sid(), dmsg.inst()));
                 is_dscp_session = true;
                 FjServerTask task = dscps.remove(dmsg.sid());
                 

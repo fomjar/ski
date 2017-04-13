@@ -94,6 +94,8 @@ public class FjServerContainer extends FjLoopTask {
                                     URLClassLoader loader = new URLClassLoader(new URL[] {file.toURI().toURL()});
                                     for (String classname : classes) {
                                         Class<?> clazz = loader.loadClass(classname);
+                                        
+                                        if (classname.contains("$")) continue;
                                         if (!FjServer.FjServerTask.class.isAssignableFrom(clazz)) continue;
 
                                         FjServer.FjServerTask task = (FjServer.FjServerTask) clazz.newInstance();
