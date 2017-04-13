@@ -62,23 +62,27 @@ public class Filter6Interface extends FjWebFilter {
             break;
         default: {
             FjDscpMessage req_bcs = FjServerToolkit.dscpRequest("bcs", inst, args);
-            server.onDscpSession(req_bcs.sid(), new FjServer.FjServerTask() {
-                @Override
-                public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                    FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
-                    response(response, FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-                }
-                @Override
-                public void initialize(FjServer server) {}
-                @Override
-                public void destroy(FjServer server) {}
-            });
-            responseWait(response);
+            waitSessionForResponse(server, response, req_bcs.sid());
             break;
         }
         }
         
         return true;
+    }
+    
+    private static void waitSessionForResponse(FjServer server, FjHttpResponse response, String sid) {
+        server.onDscpSession(sid, new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
+                response(response, FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
+        responseWait(response);
     }
     
     private static void responseWait(FjHttpResponse response) {
@@ -148,18 +152,7 @@ public class Filter6Interface extends FjWebFilter {
         args.put("fv", fv); // 特征向量
         
         FjDscpMessage req_bcs = FjServerToolkit.dscpRequest("bcs", ISIS.INST_QUERY_PIC_BY_FV_I, args);
-        server.onDscpSession(req_bcs.sid(), new FjServer.FjServerTask() {
-            @Override
-            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
-                response(response, FjServerToolkit.dscpResponseCode(dmsg), FjServerToolkit.dscpResponseDesc(dmsg));
-            }
-            @Override
-            public void initialize(FjServer server) {}
-            @Override
-            public void destroy(FjServer server) {}
-        });
-        responseWait(response);
+        waitSessionForResponse(server, response, req_bcs.sid());
     }
     
     private static void processApplySubLibCheck(FjHttpResponse response, JSONObject args, FjServer server) {
@@ -171,7 +164,9 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         switch (args.getInt("type")) {
-        case ISIS.FIELD_PIC_TYPE_MAN: processApplySubLibCheckMan(response, args, server); break;
+        case ISIS.FIELD_PIC_TYPE_MAN:
+            processApplySubLibCheckMan(response, args, server);
+            break;
         }
     }
     
