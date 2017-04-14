@@ -27,6 +27,7 @@ create table tbl_pic (
     t_time  datetime,                   -- 生成时间
     i_size  tinyint,                    -- 尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)
     i_type  tinyint,                    -- 类型：0 - 人物，1 - 汽车
+    c_path  varchar(512),               -- 路径
     primary key(i_pid),
     key (t_time)
 );
@@ -62,25 +63,27 @@ create table tbl_sub_lib (
 );
 
 -- 主体 - 人
-drop table if exists tbl_sub_person;
-create table tbl_sub_person (
-    i_spid      integer     auto_increment, -- 主体编号
+drop table if exists tbl_sub_man;
+create table tbl_sub_man (
+    i_smid      integer     auto_increment, -- 主体编号
     i_slid      integer,                    -- 主体库编号
     t_time      datetime,                   -- 创建时间
     c_name      varchar(32),                -- 姓名
     i_gender    tinyint,                    -- 性别：0 - 女，1 - 男
-    c_idcard    varchar(32),                -- 身份证号
     t_birth     date,                       -- 生日
-    primary key(i_spid),
+    c_idno      varchar(32),                -- 身份证号
+    c_phone     varchar(32),                -- 电话
+    c_addr      varchar(256),               -- 地址
+    primary key(i_smid),
     key (i_slid)
 );
 
 -- 主体关联图片 - 人
-drop table if exists tbl_sub_person_pic;
-create table tbl_sub_person_pic (
-    i_spid  integer,    -- 主体编号
+drop table if exists tbl_sub_man_pic;
+create table tbl_sub_man_pic (
+    i_smid  integer,    -- 主体编号
     i_pid   integer,    -- 图片编号
-    key (i_spid),
+    key (i_smid),
     key (i_pid)
 );
 

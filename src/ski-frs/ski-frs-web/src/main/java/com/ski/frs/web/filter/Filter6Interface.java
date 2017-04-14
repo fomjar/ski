@@ -102,7 +102,7 @@ public class Filter6Interface extends FjWebFilter {
         synchronized (response) {response.notifyAll();}
     }
     
-    private static int fi = 0;
+    private static long fi = 0;
     
     private static void processQueryPicByFVI(FjHttpResponse response, JSONObject args, FjServer server) {
         if (!args.has("pic")) {
@@ -156,8 +156,8 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     private static void processApplySubLibCheck(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("type") || !args.has("path") || !args.has("reg_id")) {
-            String desc = "illegal arguments, no type, path, reg_id";
+        if (!args.has("type") || !args.has("path") || !args.has("reg_idno")) {
+            String desc = "illegal arguments, no type, path, reg_idno";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
@@ -172,8 +172,9 @@ public class Filter6Interface extends FjWebFilter {
     
     private static void processApplySubLibCheckMan(FjHttpResponse response, JSONObject args, FjServer server) {
         String path = args.getString("path");
-        String reg_id = args.getString("reg_id");
+        String reg_idno = args.getString("reg_idno");
         String reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
+        String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         int count = args.has("count") ? args.getInt("count") : 3;
         
@@ -183,8 +184,9 @@ public class Filter6Interface extends FjWebFilter {
         list.forEach(file->{
             JSONObject check = new JSONObject();
             check.put("file", file.getName());
-            if (null != reg_id)     check.put("id",     SubLibImporter.getRegexField(file.getName(), reg_id));
+            if (null != reg_idno)   check.put("idno",   SubLibImporter.getRegexField(file.getName(), reg_idno));
             if (null != reg_name)   check.put("name",   SubLibImporter.getRegexField(file.getName(), reg_name));
+            if (null != reg_phone)  check.put("phone",  SubLibImporter.getRegexField(file.getName(), reg_phone));
             if (null != reg_addr)   check.put("addr",   SubLibImporter.getRegexField(file.getName(), reg_addr));
             
             desc.add(check);
@@ -196,25 +198,26 @@ public class Filter6Interface extends FjWebFilter {
     
     
     private static void processApplySubLibImport(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("slid") || !args.has("path") || !args.has("reg_id")) {
-            String desc = "illegal arguments, no slid, path, reg_id";
+        if (!args.has("slid") || !args.has("type") || !args.has("path") || !args.has("reg_idno")) {
+            String desc = "illegal arguments, no slid, type, path, reg_idno";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
         int slid = args.getInt("slid");
+        int type = args.getInt("type");
         String path = args.getString("path");
-        String reg_id = args.getString("reg_id");
+        String reg_idno = args.getString("reg_idno");
         String reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
+        String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         
         List<File> list_all = SubLibImporter.collectFile(new File(path));
-        Map<Thread, Integer> cache_fi = new HashMap<Thread, Integer>();
+        Map<Thread, Long> cache_fi = new HashMap<Thread, Long>();
         JSONObject desc = new JSONObject();
         JSONArray desc_fail = new JSONArray();
         list_all.parallelStream().forEach(file->{
             File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid + "/" + file.getName());
-            logger.info("importing file: " + file.getPath());
             if (!SubLibImporter.moveFile(file, dst)) {
                 logger.error("importing file failed: " + file.getPath());
                 desc_fail.add(file.getPath());
@@ -223,22 +226,27 @@ public class Filter6Interface extends FjWebFilter {
             
             if (!cache_fi.containsKey(Thread.currentThread())) {
                 cache_fi.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
-                logger.info(String.format("init face interface instance: 0x%X", cache_fi.get(Thread.currentThread())));
+                logger.info(String.format("init face interface instance: 0x%016X", cache_fi.get(Thread.currentThread())));
             }
-            String fv = FaceInterface.fv(cache_fi.get(Thread.currentThread()), dst.getPath());
+            String fv = FaceInterface.fv(cache_fi.get(Thread.currentThread()), dst.getPath()).trim();
 //            int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
-            fv = fv.substring(fv.indexOf(" ") + 1);
+            fv = fv.substring(fv.indexOf(" ") + 1).trim();
+            logger.info("fv = " + fv);
             
             JSONObject args_bcs = new JSONObject();
-            args_bcs.put("slid", slid);
-            args_bcs.put("file", dst.getPath());
-            args_bcs.put("fv", fv);
-            if (null != reg_id)     args_bcs.put("id",     SubLibImporter.getRegexField(file.getName(), reg_id));
-            if (null != reg_name)   args_bcs.put("name",   SubLibImporter.getRegexField(file.getName(), reg_name));
-            if (null != reg_addr)   args_bcs.put("addr",   SubLibImporter.getRegexField(file.getName(), reg_addr));
+            args_bcs.put("pic_type", type);
+            args_bcs.put("pic_path", dst.getPath().substring("document/".length())); 
+            args_bcs.put("pic_fv",   fv);
+            args_bcs.put("slm_slid", slid);
+            if (null != reg_idno)   args_bcs.put("slm_idno",   SubLibImporter.getRegexField(file.getName(), reg_idno));
+            if (null != reg_name)   args_bcs.put("slm_name",   SubLibImporter.getRegexField(file.getName(), reg_name));
+            if (null != reg_phone)  args_bcs.put("slm_phone",  SubLibImporter.getRegexField(file.getName(), reg_phone));
+            if (null != reg_addr)   args_bcs.put("slm_addr",   SubLibImporter.getRegexField(file.getName(), reg_addr));
             
             FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_LIB_IMPORT, args_bcs);
-            if (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
+            logger.info("importing file success: " + file.getPath());
+            
+            while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
                 try {Thread.sleep(100L);}
                 catch (InterruptedException e) {e.printStackTrace();}
             }
@@ -286,6 +294,7 @@ public class Filter6Interface extends FjWebFilter {
             else return null;
         }
         
+        private static Object lock_move = new Object();
         private static boolean moveFile(File src, File dst) {
             if (!src.isFile()) {
                 logger.error("move file failed, no such file, from: " + src.getPath() + ", to: " + dst.getPath());
@@ -293,9 +302,13 @@ public class Filter6Interface extends FjWebFilter {
             }
             File dir = dst.getParentFile();
             if (!dir.isDirectory()) {
-                if (!dir.mkdirs()) {
-                    logger.error("move file failed, create dir failed, from: " + src.getPath() + ", to: " + dst.getPath());
-                    return false;
+                synchronized(lock_move) {
+                    if (!dir.isDirectory()) {
+                        if (!dir.mkdirs()) {
+                            logger.error("move file failed, create dir failed, from: " + src.getPath() + ", to: " + dst.getPath());
+                            return false;
+                        }
+                    }
                 }
             }
             if (!src.renameTo(dst)) {

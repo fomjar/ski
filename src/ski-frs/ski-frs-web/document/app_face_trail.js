@@ -105,7 +105,7 @@ function func_upload_pages(page) {
             r.append(div_pager1);
             $.each(desc, function(i, pic) {
                 r.append(new frs.ui.BlockPicture({
-                    cover   : 'pic/' + pic.name,
+                    cover   : pic.path,
                     name    : '相似度：' + (100 * pic.tv0).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
                 }));
             });

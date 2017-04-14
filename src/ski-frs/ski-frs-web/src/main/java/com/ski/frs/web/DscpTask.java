@@ -21,6 +21,8 @@ public class DscpTask implements FjServerTask {
         if (!(msg instanceof FjDscpMessage)) return;
         
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), dmsg.argsToJsonObject());
+        if (!dmsg.fs().startsWith("bcs")) {
+            FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), dmsg.argsToJsonObject());
+        }
     }
 }

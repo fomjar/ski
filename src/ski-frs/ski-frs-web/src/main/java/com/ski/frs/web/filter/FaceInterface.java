@@ -24,15 +24,19 @@ public class FaceInterface {
     /** 没有人脸 */
     public static final int ERROR_NO_FACE       = 6;
     
-    public static native int initInstance(int device);
-    public static native String fv(int instance, String path);
-    public static native int freeInstance(int instance);
+    public static native long initInstance(int device);
+    public static native String fv(long instance, String path);
+    public static native int freeInstance(long instance);
     
 //    public static void main(String[] args) {
-//        int instance = initInstance(DEVICE_GPU);
-//        System.out.println(String.format("init = 0x%X", instance));
-//        System.out.println("fv = " + fv(instance, args[0]));
-//        System.out.println("free = " + freeInstance(instance));
+//        long instance1 = initInstance(DEVICE_GPU);
+//        long instance2 = initInstance(DEVICE_GPU);
+//        System.out.println(String.format("init1 = 0x%016X", instance1));
+//        System.out.println(String.format("init2 = 0x%016X", instance2));
+//        System.out.println("fv1 = " + fv(instance1, args[0]));
+//        System.out.println("fv2 = " + fv(instance2, args[0]));
+//        System.out.println("free1 = " + freeInstance(instance1));
+//        System.out.println("free2 = " + freeInstance(instance2));
 //    }
 
 }

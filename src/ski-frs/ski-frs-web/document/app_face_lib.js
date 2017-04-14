@@ -142,7 +142,7 @@ function op_import(sublib) {
         dialog.disappear();
     });
     
-    dialog.css('width', '50%');
+    dialog.css('width', '80%');
     
     var input_path;
     var button_check;
@@ -173,14 +173,16 @@ function op_import(sublib) {
         dialog.append(c);
         return c;
     }
-    var oId = dialog.append_check_input('提取身份证号', '身份证号正则表达式');
-    oId.check.trigger('click');
-    oId.check.attr('disabled', 'disabled');
-    oId.input.val('_(([1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}([0-9]|x|X))|([1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}))_');
+    var oIdno = dialog.append_check_input('提取身份证号', '身份证号正则表达式');
+    oIdno.check.trigger('click');
+    oIdno.check.attr('disabled', 'disabled');
+    oIdno.input.val('_(([1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}([0-9]|x|X))|([1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}))_');
     var oName = dialog.append_check_input('提取姓名', '姓名正则表达式');
     oName.input.val('_(\\W{2,5})_');
+    var oPhone = dialog.append_check_input('提取电话', '电话正则表达式');
+    oPhone.input.val('_(1[358]\\d{9})_');
     var oAddr = dialog.append_check_input('提取住址', '住址正则表达式');
-    oAddr.input.val('_(\\W{4})_');
+    oAddr.input.val('_((\\W|\\w|\\d){6,})_');
     var check_result = dialog.append_text_p1();
     check_result.css('font-size', '50%');
     check_result.css('color', '#3333ff');
@@ -190,7 +192,10 @@ function op_import(sublib) {
     ]);
     
     var check_collect = function () {
-        var data = {type : 0};  // man
+        var data = {
+            slid : sublib.slid,
+            type : 0,   // man
+        };
         var path = input_path.val().trim();
         if (!path) {
             new frs.ui.hud.Minor('目录不能为空').appear(1500);
@@ -198,14 +203,14 @@ function op_import(sublib) {
             return null;
         }
         data.path = path;
-        if (oId.check[0].checked) {
-            var reg_id = oId.input.val().trim();
-            if (!reg_id) {
+        if (oIdno.check[0].checked) {
+            var reg_idno = oIdno.input.val().trim();
+            if (!reg_idno) {
                 new frs.ui.hud.Minor('身份证号正则表达式不能为空').appear(1500);
                 dialog.shake();
                 return null;
             }
-            data.reg_id = reg_id;
+            data.reg_idno = reg_idno;
         }
         if (oName.check[0].checked) {
             var reg_name = oName.input.val().trim();
@@ -215,6 +220,15 @@ function op_import(sublib) {
                 return null;
             }
             data.reg_name = reg_name;
+        }
+        if (oPhone.check[0].checked) {
+            var reg_phone = oPhone.input.val().trim();
+            if (!reg_phone) {
+                new frs.ui.hud.Minor('电话正则表达式不能为空').appear(1500);
+                dialog.shake();
+                return null;
+            }
+            data.reg_phone = reg_phone;
         }
         if (oAddr.check[0].checked) {
             var reg_addr = oAddr.input.val().trim();
@@ -242,8 +256,9 @@ function op_import(sublib) {
             var result = '测试结果：';
             $.each(desc, function(i, r) {
                 result += '<br/>文件名：' + r.file;
-                if (r.id)   result += '　　身份证：' + r.id;
+                if (r.idno) result += '　　身份证：' + r.idno;
                 if (r.name) result += '　　姓名：' + r.name;
+                if (r.phone) result += '　　电话：' + r.phone;
                 if (r.addr) result += '　　住址：' + r.addr;
             });
             check_result.html(result);
@@ -251,10 +266,25 @@ function op_import(sublib) {
             button_submit.to_major();
         });
     });
+    var is_importing = false;
     button_submit.bind('click', function() {
         if (!test_pass) return;
+        if (is_importing) return;
+        
+        is_importing = true;
+        button_submit.to_disable();
         
         var data = check_collect();
+        fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
+            if (code) {
+                new frs.ui.hud.Minor(desc).appear(3000);
+                dialog.shake();
+                return;
+            }
+            mask.disappear();
+            dialog.disappear();
+            update();
+        });
     });
    
     mask.appear();

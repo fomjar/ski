@@ -34,7 +34,7 @@ public class BcsTask implements FjServerTask {
         
         FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
         
-        logger.info(String.format("0x%08X - %s", dmsg.inst(), dmsg.sid()));
+        logger.info(String.format("%s - 0x%08X", dmsg.sid(), dmsg.inst()));
         switch (dmsg.inst()) {
         case ISIS.INST_UPDATE_PIC:
             processUpdatePic(server, dmsg);
@@ -203,6 +203,132 @@ public class BcsTask implements FjServerTask {
     }
     
     private static void processApplySubLibImport(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("pic_type")) {
+            String err = "illegal arguments, no pic_type";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        switch (args.getInt("pic_type")) {
+        case ISIS.FIELD_PIC_TYPE_MAN:
+            processApplySubLibImportMan(server, dmsg);
+            break;
+        default:
+            break;
+        }
+    }
+    
+    private static void processApplySubLibImportMan(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("pic_type") || !args.has("pic_path") || !args.has("slm_slid") || !args.has("slm_idno")) {
+            String err = "illegal arguments, no pic_type, pic_path, slm_slid, slm_idno";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        
+        // pic
+        JSONObject args_cdb = new JSONObject();
+        String pic_name = args.getString("pic_path").substring(args.getString("pic_path").lastIndexOf("/") + 1);
+        if (args.has("slm_name")) pic_name = args.getString("slm_name");
+        args_cdb.put("name", pic_name);
+        args_cdb.put("size", ISIS.FIELD_PIC_SIZE_SMALL);
+        args_cdb.put("type", args.getInt("pic_type"));
+        args_cdb.put("path", args.getString("pic_path").replace("\\", "/"));
+        args_cdb.put("fv",   args.getString("pic_fv"));
+        args_cdb.put("vd",   args.getString("pic_fv").split(" ").length);
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args_cdb);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage rsp_cdb = (FjDscpMessage) wrapper.message();
+                if (FjISIS.CODE_SUCCESS != FjServerToolkit.dscpResponseCode(rsp_cdb)) {
+                    logger.error("import failed by updating pic: " + rsp_cdb);
+                    FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(rsp_cdb), FjServerToolkit.dscpResponseDesc(rsp_cdb));
+                    return;
+                }
+                int pid = Integer.parseInt(((JSONArray)FjServerToolkit.dscpResponseDesc(rsp_cdb)).getString(0), 16);
+                
+                // sub man
+                JSONObject args_cdb = new JSONObject();
+                args_cdb.put("slid", args.getInt("slm_slid"));
+                if (args.has("slm_name")) args_cdb.put("name", args.getString("slm_name"));
+                String idno = args.getString("slm_idno");
+                args_cdb.put("gender", getIdnoGender(idno));
+                args_cdb.put("birth",  getIdnoBirth(idno));
+                args_cdb.put("idno",   idno);
+                if (args.has("slm_phone")) args_cdb.put("phone", args.getString("slm_phone"));
+                if (args.has("slm_addr"))  args_cdb.put("addr", args.getString("slm_addr"));
+                FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_MAN, args_cdb);
+                server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+                    @Override
+                    public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                        FjDscpMessage rsp_cdb = (FjDscpMessage) wrapper.message();
+                        if (FjISIS.CODE_SUCCESS != FjServerToolkit.dscpResponseCode(rsp_cdb)) {
+                            logger.error("import failed by updating sub man: " + rsp_cdb);
+                            FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(rsp_cdb), FjServerToolkit.dscpResponseDesc(rsp_cdb));
+                            return;
+                        }
+                        int smid = Integer.parseInt(((JSONArray)FjServerToolkit.dscpResponseDesc(rsp_cdb)).getString(0), 16);
+                        
+                        // sub man pic
+                        JSONObject args_cdb = new JSONObject();
+                        args_cdb.put("smid", smid);
+                        args_cdb.put("pid", pid);
+                        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_MAN_PIC, args_cdb);
+                        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+                            @Override
+                            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                                FjDscpMessage rsp_cdb = (FjDscpMessage) wrapper.message();
+                                if (FjISIS.CODE_SUCCESS != FjServerToolkit.dscpResponseCode(rsp_cdb)) {
+                                    logger.error("import failed by updating sub man pic: " + rsp_cdb);
+                                    FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(rsp_cdb), FjServerToolkit.dscpResponseDesc(rsp_cdb));
+                                    return;
+                                }
+                                // success
+                                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(rsp_cdb), FjServerToolkit.dscpResponseDesc(rsp_cdb));
+                                logger.info("import sub success");
+                            }
+                            @Override
+                            public void initialize(FjServer server) {}
+                            @Override
+                            public void destroy(FjServer server) {}
+                        });
+                    }
+                    @Override
+                    public void initialize(FjServer server) {}
+                    @Override
+                    public void destroy(FjServer server) {}
+                });
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
+    }
+    
+    private static int getIdnoGender(String idno) {
+        switch (idno.length()) {
+        case 15:    // 15位身份证号码: 第15位代表性别，奇数为男，偶数为女。
+            return Integer.parseInt(idno.substring(14, 15)) % 2;
+        case 18:    // 18位身份证号码: 第17位代表性别，奇数为男，偶数为女。
+            return Integer.parseInt(idno.substring(16, 17)) % 2;
+        default:
+            return -1;
+        }
+    }
+    
+    private static String getIdnoBirth(String idno) {
+        switch (idno.length()) {
+        case 15:    // 15位身份证号码: 第7、8位为出生年份(两位数)，第9、10位为出生月份，第11、12位代表出生日期。
+            return "19" + idno.substring(6, 12);
+        case 18:    // 18位身份证号码: 第7、8、9、10位为出生年份(四位数)，第11、第12位为出生月份，第13、14位代表出生日期。
+            return idno.substring(6, 14);
+        default:
+            return "20000101";
+        }
     }
     
     private static JSONObject json_pic(JSONArray array) {
@@ -214,6 +340,7 @@ public class BcsTask implements FjServerTask {
         json.put("time",    array.getString(i++));
         json.put("size",    array.getInt(i++));
         json.put("type",    array.getInt(i++));
+        json.put("path",    array.getString(i++));
         json.put("tv0",     array.getString(i++));
         return json;
     }
