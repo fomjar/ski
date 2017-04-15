@@ -22,11 +22,11 @@ function build_body() {
     var tool = $('<div></div>').append([
         new frs.ui.Button('创建人像库', tool_create).to_minor(),
         $("<input placeholder='搜索'>"),
-        $("<select><option value='库名'>库名</option><option value='人名'>人名</option><option value='地址'>地址</option><option value='身份证'>身份证</option></select>"),
+        $("<select><option value='库名'>库名</option><option value='人名'>人名</option><option value='电话'>电话</option><option value='地址'>地址</option><option value='身份证'>身份证</option></select>"),
     ]);
     var head = new Cell([
         $('<div>名称</div>'),
-        $('<div>人数</div>'),
+        $('<div>主体数量</div>'),
         $('<div>创建时间</div>'),
         $('<div>操作</div>'),
     ]);
@@ -90,7 +90,6 @@ function tool_create() {
         dialog.disappear();
     });
     
-    dialog.css('width', '50%');
     dialog.append_text_h1c('创建人像库');
     dialog.append_space('.5em');
     dialog.append_input({placeholder : '库名称'});
@@ -278,6 +277,7 @@ function op_import(sublib) {
         fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
             mask1.disappear();
             hud.disappear();
+            
             if (code) {
                 new frs.ui.hud.Major(desc).appear(1500);
                 dialog.shake();
@@ -302,9 +302,10 @@ function op_delete(sublib) {
         dialog.disappear();
     });
     
-    dialog.css('width', '50%');
-    dialog.append_text_h1c('删除');
+    dialog.append_text_h1c('删除人像库');
+    dialog.append_space('.5em');
     dialog.append_text_p1('确定删除人像库: "' + sublib.name + '" ?');
+    dialog.append_text_h1('其下所有信息和照片都将删除，无法恢复。');
     dialog.append_button(new frs.ui.Button('确定').to_major()).bind('click', function() {
         var mask1 = new frs.ui.Mask();
         var hud = new frs.ui.hud.Major('正在删除');

@@ -147,6 +147,7 @@ html, body {
 
     max-width   : 90%;
     max-height  : 90%;
+    min-width   : 50%;
     padding     : .5em 0;
 }
 .frs .dialog-disappear {
