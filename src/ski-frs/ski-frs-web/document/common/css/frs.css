@@ -138,7 +138,7 @@ html, body {
 }
 .frs .dialog {
     position    : absolute;
-    z-index     : 20;
+    z-index     : 10;
     display     : inline-block;
     background  : white;
     box-shadow  : white 0px 0px .7em;

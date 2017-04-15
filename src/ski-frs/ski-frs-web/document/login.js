@@ -18,6 +18,8 @@ function build_logo() {
 function build_dialog() {
     var dialog = new frs.ui.Dialog();
     
+    dialog.css('min-width', '0');
+    dialog.css('width', '20em');
     dialog.append_text_h1c('登陆');
     dialog.append_space('1em');
     dialog.append_input({placeholder : '用户名'});

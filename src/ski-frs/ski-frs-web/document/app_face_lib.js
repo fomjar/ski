@@ -279,13 +279,13 @@ function op_import(sublib) {
             hud.disappear();
             
             if (code) {
-                new frs.ui.hud.Major(desc).appear(1500);
+                new frs.ui.hud.Minor(desc).appear(1500);
                 dialog.shake();
                 return;
             }
-            new frs.ui.hud.Major('导入成功').appear(1500);
             mask.disappear();
             dialog.disappear();
+            new frs.ui.hud.Minor('导入成功').appear(1500);
             update();
         });
     });
@@ -319,14 +319,14 @@ function op_delete(sublib) {
             hud.disappear();
             
             if (code) {
-                new frs.ui.hud.Major(desc).appear(1500);
+                new frs.ui.hud.Minor(desc).appear(1500);
                 dialog.shake();
                 return;
             }
-            new frs.ui.hud.Major("删除成功").appear(1500);
-            update();
             mask.disappear();
             dialog.disappear();
+            new frs.ui.hud.Minor("删除成功").appear(1500);
+            update();
         });
     });
     
