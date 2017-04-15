@@ -266,21 +266,24 @@ function op_import(sublib) {
             button_submit.to_major();
         });
     });
-    var is_importing = false;
     button_submit.bind('click', function() {
         if (!test_pass) return;
-        if (is_importing) return;
         
-        is_importing = true;
-        button_submit.to_disable();
+        var mask1 = new frs.ui.Mask();
+        var hud = new frs.ui.hud.Major('正在导入');
+        mask1.appear();
+        hud.appear();
         
         var data = check_collect();
         fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
+            mask1.disappear();
+            hud.disappear();
             if (code) {
-                new frs.ui.hud.Minor(desc).appear(3000);
+                new frs.ui.hud.Major(desc).appear(1500);
                 dialog.shake();
                 return;
             }
+            new frs.ui.hud.Major('导入成功').appear(1500);
             mask.disappear();
             dialog.disappear();
             update();
@@ -292,7 +295,42 @@ function op_import(sublib) {
 }
 
 function op_delete(sublib) {
-    new frs.ui.hud.Minor('删除:' + sublib.name).appear(1500);
+    var mask = new frs.ui.Mask();
+    var dialog = new frs.ui.Dialog();
+    mask.bind('click', function() {
+        mask.disappear();
+        dialog.disappear();
+    });
+    
+    dialog.css('width', '50%');
+    dialog.append_text_h1c('删除');
+    dialog.append_text_p1('确定删除人像库: "' + sublib.name + '" ?');
+    dialog.append_button(new frs.ui.Button('确定').to_major()).bind('click', function() {
+        var mask1 = new frs.ui.Mask();
+        var hud = new frs.ui.hud.Major('正在删除');
+        mask1.appear();
+        hud.appear();
+        
+        fomjar.net.send(ski.isis.INST_UPDATE_SUB_LIB_DEL, {
+            slid    : sublib.slid
+        }, function(code, desc) {
+            mask1.disappear();
+            hud.disappear();
+            
+            if (code) {
+                new frs.ui.hud.Major(desc).appear(1500);
+                dialog.shake();
+                return;
+            }
+            new frs.ui.hud.Major("删除成功").appear(1500);
+            update();
+            mask.disappear();
+            dialog.disappear();
+        });
+    });
+    
+    mask.appear();
+    dialog.appear();
 }
 
 })(jQuery)

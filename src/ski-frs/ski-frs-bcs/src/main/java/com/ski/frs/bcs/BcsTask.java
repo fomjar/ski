@@ -211,7 +211,7 @@ public class BcsTask implements FjServerTask {
             return;
         }
         switch (args.getInt("pic_type")) {
-        case ISIS.FIELD_PIC_TYPE_MAN:
+        case ISIS.FIELD_TYPE_MAN:
             processApplySubLibImportMan(server, dmsg);
             break;
         default:

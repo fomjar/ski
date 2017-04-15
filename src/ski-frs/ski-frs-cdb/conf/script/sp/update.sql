@@ -1,17 +1,16 @@
 
-delete from tbl_instruction where i_inst = (conv('00001001', 16, 10) + 0);
+delete from tbl_instruction where i_inst = (conv('00001000', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00001001', 16, 10) + 0),
+    (conv('00001000', 16, 10) + 0),
     'sp',
     2,
     "sp_update_pic(?, ?, $pid, \"$did\", \"$name\", \"$time\", $size, $type, \"$path\", \"$fv\", $vd)"
 );
-
 delimiter //
 drop procedure if exists sp_update_pic //
 create procedure sp_update_pic (
@@ -83,34 +82,150 @@ end //
 delimiter ;
 
 
-delete from tbl_instruction where i_inst = (conv('00001002', 16, 10) + 0);
+
+
+
+delete from tbl_instruction where i_inst = (conv('00001001', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00001002', 16, 10) + 0),
+    (conv('00001001', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_pic_del(?, ?, $pid)"
+);
+delimiter //
+drop procedure if exists sp_update_pic_del //
+create procedure sp_update_pic_del (
+    out i_code  integer,
+    out c_desc  text,
+    in  _pid    integer
+)
+begin
+	
+	declare di_count   integer default 0;
+	
+	select count(1)
+	  into di_count
+	  from tbl_pic
+	 where i_pid = _pid;
+	
+	delete from tbl_pic
+	 where i_pid = _pid;
+	
+	delete from tbl_pic_fv
+	 where i_pid = _pid;
+	 
+	set i_code = 0;
+	set c_desc = concat(di_count, '');
+	
+end //
+delimiter ;
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00001010', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001010', 16, 10) + 0),
     'st',
     0,
     "replace into tbl_sub_lib (i_slid, c_name, i_type, t_time) values ($slid, \"$name\", $type, now())"
 );
 
 
-delete from tbl_instruction where i_inst = (conv('00001004', 16, 10) + 0);
+
+
+delete from tbl_instruction where i_inst = (conv('00001011', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00001004', 16, 10) + 0),
+    (conv('00001011', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_sub_lib_del(?, ?, $slid)"
+);
+delimiter //
+drop procedure if exists sp_update_sub_lib_del //
+create procedure sp_update_sub_lib_del (
+    out i_code  integer,
+    out c_desc  text,
+    in  _slid   integer
+)
+begin
+	
+	declare di_type    tinyint default 0;
+	declare di_count   integer default 0;
+	
+	select count(1)
+	  into di_count
+	  from tbl_sub_lib
+	 where i_slid = _slid;
+	
+	select i_type
+	  into di_type
+	  from tbl_sub_lib
+	 where i_slid = _slid;
+	
+	if di_type = 0 then    -- man
+       delete pic
+         from tbl_pic pic, tbl_sub_man_pic smp, tbl_sub_man sm
+        where pic.i_pid = smp.i_pid
+          and smp.i_smid = sm.i_smid
+          and sm.i_slid = _slid;
+          
+       delete fv
+         from tbl_pic_fv fv, tbl_sub_man_pic smp, tbl_sub_man sm
+        where fv.i_pid = smp.i_pid
+          and smp.i_smid = sm.i_smid
+          and sm.i_slid = _slid;
+          
+       delete smp
+         from tbl_sub_man_pic smp, tbl_sub_man sm
+        where smp.i_smid = sm.i_smid
+          and sm.i_slid = _slid;
+          
+	   delete from tbl_sub_man
+	    where i_slid = _slid;
+       
+	   delete from tbl_sub_lib
+	    where i_slid = _slid;
+	
+	-- elseif di_type = 1 then    -- car
+	end if;
+	
+	set i_code = 0;
+	set c_desc = concat(di_count, '');
+	
+end //
+delimiter ;
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00001020', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001020', 16, 10) + 0),
     'sp',
     2,
     "sp_update_sub_man(?, ?, $smid, $slid, \"$time\", \"$name\", $gender, \"$birth\", \"$idno\", \"$phone\", \"$addr\")"
 );
-
-
 delimiter //
 drop procedure if exists sp_update_sub_man //
 create procedure sp_update_sub_man (
@@ -167,14 +282,72 @@ end //
 delimiter ;
 
 
-delete from tbl_instruction where i_inst = (conv('00001005', 16, 10) + 0);
+
+
+delete from tbl_instruction where i_inst = (conv('00001021', 16, 10) + 0);
 insert into tbl_instruction (
     i_inst,
     c_mode,
     i_out,
     c_sql
 ) values (
-    (conv('00001005', 16, 10) + 0),
+    (conv('00001021', 16, 10) + 0),
+    'sp',
+    2,
+    "sp_update_sub_man_del(?, ?, $smid)"
+);
+delimiter //
+drop procedure if exists sp_update_sub_man_del //
+create procedure sp_update_sub_man_del (
+    out i_code  integer,
+    out c_desc  text,
+    in  _smid   integer
+)
+begin
+	
+	declare di_count   integer default 0;
+	
+	select count(1)
+	  into di_count
+	  from tbl_sub_man
+	 where i_smid = _smid;
+	 
+    delete pic
+      from tbl_pic pic, tbl_sub_man sm, tbl_sub_man_pic smp
+     where pic.i_pid = smp.i_pid
+       and sm.i_smid = smp.i_smid
+       and sm.i_smid = _smid;
+    
+    delete fv
+      from tbl_pic_fv fv, tbl_sub_man sm, tbl_sub_man_pic smp
+     where fv.i_pid = smp.i_pid
+       and sm.i_smid = smp.i_smid
+       and sm.i_smid = _smid;
+    
+    delete from tbl_sub_man
+     where i_smid = _smid;
+     
+	delete from tbl_sub_man_pic
+	 where i_smid = _smid;
+	
+	set i_code = 0;
+	set c_desc = concat(di_count, '');
+	
+end //
+delimiter ;
+
+
+
+
+
+delete from tbl_instruction where i_inst = (conv('00001022', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001022', 16, 10) + 0),
     'st',
     0,
     "insert into tbl_sub_man_pic (i_smid, i_pid) values ($smid, $pid)"

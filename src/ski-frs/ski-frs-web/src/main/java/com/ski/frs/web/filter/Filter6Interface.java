@@ -54,6 +54,9 @@ public class Filter6Interface extends FjWebFilter {
         case ISIS.INST_QUERY_PIC_BY_FV_I:
             processQueryPicByFVI(response, args, server);
             break;
+        case ISIS.INST_UPDATE_SUB_LIB_DEL:
+            processApplySubLibDel(response, args, server);
+            break;
         case ISIS.INST_APPLY_SUB_LIB_CHECK:
             processApplySubLibCheck(response, args, server);
             break;
@@ -155,6 +158,25 @@ public class Filter6Interface extends FjWebFilter {
         waitSessionForResponse(server, response, req_bcs.sid());
     }
     
+    private static void processApplySubLibDel(FjHttpResponse response, JSONObject args, FjServer server) {
+        if (!args.has("slid")) {
+            String desc = "illegal arguments, no slid";
+            logger.error(desc + ", " + args);
+            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
+            return;
+        }
+        int slid = args.getInt("slid");
+        File dir = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid);
+        if (!SubLibHelper.deleteDir(dir)) {
+            String desc = "delete dir failed: " + dir.getPath();
+            logger.error(desc);
+            response(response, FjISIS.CODE_INTERNAL_ERROR, desc);
+            return;
+        }
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", ISIS.INST_UPDATE_SUB_LIB_DEL, args);
+        waitSessionForResponse(server, response, req_cdb.sid());
+    }
+    
     private static void processApplySubLibCheck(FjHttpResponse response, JSONObject args, FjServer server) {
         if (!args.has("type") || !args.has("path") || !args.has("reg_idno")) {
             String desc = "illegal arguments, no type, path, reg_idno";
@@ -164,7 +186,7 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         switch (args.getInt("type")) {
-        case ISIS.FIELD_PIC_TYPE_MAN:
+        case ISIS.FIELD_TYPE_MAN:
             processApplySubLibCheckMan(response, args, server);
             break;
         }
@@ -180,14 +202,14 @@ public class Filter6Interface extends FjWebFilter {
         
         JSONArray desc = new JSONArray();
         List<File> list = new LinkedList<File>();
-        SubLibImporter.collectSomeFile(list, new File(path), count);
+        SubLibHelper.collectSomeFile(list, new File(path), count);
         list.forEach(file->{
             JSONObject check = new JSONObject();
             check.put("file", file.getName());
-            if (null != reg_idno)   check.put("idno",   SubLibImporter.getRegexField(file.getName(), reg_idno));
-            if (null != reg_name)   check.put("name",   SubLibImporter.getRegexField(file.getName(), reg_name));
-            if (null != reg_phone)  check.put("phone",  SubLibImporter.getRegexField(file.getName(), reg_phone));
-            if (null != reg_addr)   check.put("addr",   SubLibImporter.getRegexField(file.getName(), reg_addr));
+            if (null != reg_idno)   check.put("idno",   SubLibHelper.getRegexField(file.getName(), reg_idno));
+            if (null != reg_name)   check.put("name",   SubLibHelper.getRegexField(file.getName(), reg_name));
+            if (null != reg_phone)  check.put("phone",  SubLibHelper.getRegexField(file.getName(), reg_phone));
+            if (null != reg_addr)   check.put("addr",   SubLibHelper.getRegexField(file.getName(), reg_addr));
             
             desc.add(check);
         });
@@ -212,13 +234,13 @@ public class Filter6Interface extends FjWebFilter {
         String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         
-        List<File> list_all = SubLibImporter.collectFile(new File(path));
+        List<File> list_all = SubLibHelper.collectFile(new File(path));
         Map<Thread, Long> cache_fi = new HashMap<Thread, Long>();
         JSONObject desc = new JSONObject();
         JSONArray desc_fail = new JSONArray();
         list_all.parallelStream().forEach(file->{
             File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid + "/" + file.getName());
-            if (!SubLibImporter.moveFile(file, dst)) {
+            if (!SubLibHelper.moveFile(file, dst)) {
                 logger.error("importing file failed: " + file.getPath());
                 desc_fail.add(file.getPath());
                 return;
@@ -238,10 +260,10 @@ public class Filter6Interface extends FjWebFilter {
             args_bcs.put("pic_path", dst.getPath().substring("document/".length())); 
             args_bcs.put("pic_fv",   fv);
             args_bcs.put("slm_slid", slid);
-            if (null != reg_idno)   args_bcs.put("slm_idno",   SubLibImporter.getRegexField(file.getName(), reg_idno));
-            if (null != reg_name)   args_bcs.put("slm_name",   SubLibImporter.getRegexField(file.getName(), reg_name));
-            if (null != reg_phone)  args_bcs.put("slm_phone",  SubLibImporter.getRegexField(file.getName(), reg_phone));
-            if (null != reg_addr)   args_bcs.put("slm_addr",   SubLibImporter.getRegexField(file.getName(), reg_addr));
+            if (null != reg_idno)   args_bcs.put("slm_idno",   SubLibHelper.getRegexField(file.getName(), reg_idno));
+            if (null != reg_name)   args_bcs.put("slm_name",   SubLibHelper.getRegexField(file.getName(), reg_name));
+            if (null != reg_phone)  args_bcs.put("slm_phone",  SubLibHelper.getRegexField(file.getName(), reg_phone));
+            if (null != reg_addr)   args_bcs.put("slm_addr",   SubLibHelper.getRegexField(file.getName(), reg_addr));
             
             FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_LIB_IMPORT, args_bcs);
             logger.info("importing file success: " + file.getPath());
@@ -259,7 +281,7 @@ public class Filter6Interface extends FjWebFilter {
         response(response, FjISIS.CODE_SUCCESS, desc);
     }
     
-    private static class SubLibImporter {
+    private static class SubLibHelper {
         
         private static List<File> collectFile(File dir) {
             List<File> list = new LinkedList<File>();
@@ -316,6 +338,20 @@ public class Filter6Interface extends FjWebFilter {
                 return false;
             }
             return true;
+        }
+        
+        private static boolean deleteDir(File dir) {
+            if (!dir.exists()) return true;
+            if (!dir.isDirectory()) return false;
+            
+            for (File file : dir.listFiles()) {
+                if (file.isFile()) {
+                    if (!file.delete()) return false;
+                } else if (file.isDirectory()) {
+                    if (!deleteDir(file)) return false;
+                }
+            }
+            return dir.delete();
         }
     }
 }
