@@ -1,5 +1,7 @@
 package com.ski.frs.web.filter;
 
+import java.io.UnsupportedEncodingException;
+
 public class FaceInterface {
     
     static {
@@ -25,18 +27,18 @@ public class FaceInterface {
     public static final int ERROR_NO_FACE       = 6;
     
     public static native long initInstance(int device);
-    public static native String fv(long instance, String path);
+    public static native byte[] fv(long instance, byte[] path);
     public static native int freeInstance(long instance);
     
-//    public static void main(String[] args) {
-//        long instance1 = initInstance(DEVICE_GPU);
-//        long instance2 = initInstance(DEVICE_GPU);
-//        System.out.println(String.format("init1 = 0x%016X", instance1));
-//        System.out.println(String.format("init2 = 0x%016X", instance2));
-//        System.out.println("fv1 = " + fv(instance1, args[0]));
-//        System.out.println("fv2 = " + fv(instance2, args[0]));
-//        System.out.println("free1 = " + freeInstance(instance1));
-//        System.out.println("free2 = " + freeInstance(instance2));
-//    }
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        long instance1 = initInstance(DEVICE_GPU);
+        long instance2 = initInstance(DEVICE_GPU);
+        System.out.println(String.format("init1 = 0x%016X", instance1));
+        System.out.println(String.format("init2 = 0x%016X", instance2));
+        System.out.println("fv1 = " + new String(fv(instance1, args[0].getBytes("gb2312"))));
+        System.out.println("fv2 = " + new String(fv(instance2, args[0].getBytes("gb2312"))));
+        System.out.println("free1 = " + freeInstance(instance1));
+        System.out.println("free2 = " + freeInstance(instance2));
+    }
 
 }

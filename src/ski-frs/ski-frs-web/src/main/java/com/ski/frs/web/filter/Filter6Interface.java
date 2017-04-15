@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
 import java.util.Base64;
 import java.util.HashMap;
@@ -140,7 +141,10 @@ public class Filter6Interface extends FjWebFilter {
         
         if (0 == fi) fi = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
         
-        String fv = FaceInterface.fv(fi, file.getPath()).trim();
+        String fv = null;
+        try {fv = new String(FaceInterface.fv(fi,
+                file.getPath().getBytes(FjServerToolkit.getServerConfig("web.pic.enc")))).trim();}
+        catch (UnsupportedEncodingException e) {e.printStackTrace();}
         int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
         fv = fv.substring(fv.indexOf(" ") + 1);
         if (FaceInterface.SUCCESS != err) {
@@ -250,10 +254,12 @@ public class Filter6Interface extends FjWebFilter {
                 cache_fi.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
                 logger.info(String.format("init face interface instance: 0x%016X", cache_fi.get(Thread.currentThread())));
             }
-            String fv = FaceInterface.fv(cache_fi.get(Thread.currentThread()), dst.getPath()).trim();
+            String fv = null;
+            try {fv = new String(FaceInterface.fv(cache_fi.get(Thread.currentThread()),
+                    dst.getPath().getBytes(FjServerToolkit.getServerConfig("web.pic.enc")))).trim();}
+            catch (UnsupportedEncodingException e1) {e1.printStackTrace();}
 //            int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
             fv = fv.substring(fv.indexOf(" ") + 1).trim();
-            logger.info("fv = " + fv);
             
             JSONObject args_bcs = new JSONObject();
             args_bcs.put("pic_type", type);
