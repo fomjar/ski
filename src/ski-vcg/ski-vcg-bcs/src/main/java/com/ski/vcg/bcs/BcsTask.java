@@ -106,8 +106,8 @@ public class BcsTask implements FjServerTask {
         // choose account
         int gaid = -1;
         {
-            List<Integer> gaid_all = new LinkedList<Integer>();  // 全空闲
-            List<Integer> gaid_sin = new LinkedList<Integer>();  // 单类别空闲
+            List<Integer> gaid_all = new LinkedList<>();  // 全空闲
+            List<Integer> gaid_sin = new LinkedList<>();  // 单类别空闲
             for (BeanGameAccount account : CommonService.getGameAccountByGid(gid)) {
                 int rent_a = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_A);
                 int rent_b = CommonService.getGameAccountRentStateByGaid(account.i_gaid, CommonService.RENT_TYPE_B);

@@ -49,7 +49,7 @@ public class FjList<E> extends JComponent {
 
     @SuppressWarnings("unchecked")
     public List<FjListCell<E>> getCells() {
-        if (0 == getCellCount()) return new LinkedList<FjListCell<E>>();
+        if (0 == getCellCount()) return new LinkedList<>();
 
         List<FjListCell<E>> list = new ArrayList<FjListCell<E>>(getCellCount() - 1);
         for (Component c : cells.getComponents()) {list.add((FjListCell<E>) c);}

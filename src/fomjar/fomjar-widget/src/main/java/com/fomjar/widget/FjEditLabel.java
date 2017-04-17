@@ -40,7 +40,7 @@ public class FjEditLabel extends JComponent {
 
     public FjEditLabel(String text, boolean isEditable) {
         this.isEditable = isEditable;
-        listeners = new LinkedList<EditListener>();
+        listeners = new LinkedList<>();
         label = new JLabel();
         field = new JTextField();
 

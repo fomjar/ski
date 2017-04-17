@@ -23,8 +23,8 @@ public class Filter1Authorize extends FjWebFilter {
     private Map<String, String> token;
     
     public Filter1Authorize() {
-        user = new HashMap<String, String>();
-        token = new HashMap<String, String>();
+        user = new HashMap<>();
+        token = new HashMap<>();
     }
 
     @Override

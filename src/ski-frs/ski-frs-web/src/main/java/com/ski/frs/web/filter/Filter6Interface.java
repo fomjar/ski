@@ -35,6 +35,12 @@ public class Filter6Interface extends FjWebFilter {
     
     private static final Logger logger = Logger.getLogger(Filter6Interface.class);
     
+    private Map<String, SubLibImportState> cache_sublib_import_state;
+    
+    public Filter6Interface() {
+        cache_sublib_import_state = new HashMap<>();
+    }
+    
     @Override
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if (!"/ski-web".equals(request.path())) return true;
@@ -205,7 +211,7 @@ public class Filter6Interface extends FjWebFilter {
         int count = args.has("count") ? args.getInt("count") : 3;
         
         JSONArray desc = new JSONArray();
-        List<File> list = new LinkedList<File>();
+        List<File> list = new LinkedList<>();
         SubLibHelper.collectSomeFile(list, new File(path), count);
         list.forEach(file->{
             JSONObject check = new JSONObject();
@@ -223,7 +229,7 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     
-    private static void processApplySubLibImport(FjHttpResponse response, JSONObject args, FjServer server) {
+    private void processApplySubLibImport(FjHttpResponse response, JSONObject args, FjServer server) {
         if (!args.has("slid") || !args.has("type") || !args.has("path") || !args.has("reg_idno")) {
             String desc = "illegal arguments, no slid, type, path, reg_idno";
             logger.error(desc + ", " + args);
@@ -239,7 +245,7 @@ public class Filter6Interface extends FjWebFilter {
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         
         List<File> list_all = SubLibHelper.collectFile(new File(path));
-        Map<Thread, Long> cache_fi = new HashMap<Thread, Long>();
+        Map<Thread, Long> cache_fi = new HashMap<>();
         JSONObject desc = new JSONObject();
         JSONArray desc_fail = new JSONArray();
         list_all.parallelStream().forEach(file->{
@@ -290,7 +296,7 @@ public class Filter6Interface extends FjWebFilter {
     private static class SubLibHelper {
         
         private static List<File> collectFile(File dir) {
-            List<File> list = new LinkedList<File>();
+            List<File> list = new LinkedList<>();
             if (dir.isDirectory()) {
                 for (File file : dir.listFiles()) {
                     if (file.isDirectory()) list.addAll(collectFile(file));
@@ -359,5 +365,11 @@ public class Filter6Interface extends FjWebFilter {
             }
             return dir.delete();
         }
+    }
+    
+    private static class SubLibImportState {
+        public int total = 0;
+        public int success = 0;
+        public List<File> fails = new LinkedList<>();
     }
 }

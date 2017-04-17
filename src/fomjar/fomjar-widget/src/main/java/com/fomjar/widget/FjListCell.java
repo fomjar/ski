@@ -48,7 +48,7 @@ public class FjListCell<E> extends JComponent implements Accessible {
         c_over      = color_over;
         c_press     = color_press;
 
-        listeners   = new LinkedList<ActionListener>();
+        listeners   = new LinkedList<>();
         is_over     = false;
         is_press    = false;
         is_selected   = false;

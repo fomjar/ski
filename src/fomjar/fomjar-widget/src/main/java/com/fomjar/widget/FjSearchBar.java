@@ -32,7 +32,7 @@ public class FjSearchBar extends JComponent {
         setSearchTypes(types);
         this.field = new FjTextField();
         setSearchTips(tipText);
-        this.listeners = new LinkedList<FjSearchListener>();
+        this.listeners = new LinkedList<>();
 
         this.types.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, INSETS));
         this.types.setPreferredSize(new Dimension(120, field.getHeight()));

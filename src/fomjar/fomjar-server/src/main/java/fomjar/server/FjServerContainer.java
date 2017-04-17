@@ -83,7 +83,7 @@ public class FjServerContainer extends FjLoopTask {
                                 try {
                                     ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
                                     ZipEntry ze = null;
-                                    List<String> classes = new LinkedList<String>();
+                                    List<String> classes = new LinkedList<>();
                                     while (null != (ze = zis.getNextEntry())) {
                                         if (ze.isDirectory()) continue;
 

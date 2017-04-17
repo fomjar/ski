@@ -10,7 +10,7 @@ public class FjMessageQueue {
     private static final Logger logger = Logger.getLogger(FjMessageQueue.class);
     private Queue<FjMessageWrapper> wrappers;
 
-    public FjMessageQueue() {wrappers = new LinkedList<FjMessageWrapper>();}
+    public FjMessageQueue() {wrappers = new LinkedList<>();}
 
     public void offer(FjMessageWrapper wrapper) {
         if (null == wrapper) throw new NullPointerException();

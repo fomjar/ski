@@ -127,7 +127,7 @@ public class FjExpression<T> implements FjCondition<T> {
     private List<Entry<T>> entries;
 
     public FjExpression() {
-        entries = new LinkedList<Entry<T>>();
+        entries = new LinkedList<>();
     }
 
     private FjExpression<T> addEntry(String oper, FjCondition<T> cond) {

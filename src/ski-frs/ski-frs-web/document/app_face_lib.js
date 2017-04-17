@@ -72,7 +72,7 @@ function update() {
                 $('<div></div>').append(l.count),
                 $('<div></div>').append(l.time.replace('.0', '')),
                 $('<div></div>').append([
-                    new frs.ui.Button('编辑', function() {op_edit(l);}).to_major(),
+                    new frs.ui.Button('修改', function() {op_modify(l);}).to_major(),
                     new frs.ui.Button('浏览', function() {op_browse(l);}).to_major(),
                     new frs.ui.Button('导入', function() {op_import(l);}).to_major(),
                     new frs.ui.Button('删除', function() {op_delete(l);}).to_major(),
@@ -125,12 +125,51 @@ function tool_search(type, text) {
     new frs.ui.hud.Minor(type+':'+text).appear(1500);
 }
 
-function op_edit(sublib) {
-    new frs.ui.hud.Minor('编辑:' + sublib.name).appear(1500);
+function op_modify(sublib) {
+    var mask = new frs.ui.Mask();
+    var dialog = new frs.ui.Dialog();
+    mask.bind('click', function() {
+        mask.disappear();
+        dialog.disappear();
+    });
+    
+    dialog.append_text_h1c('修改人像库');
+    dialog.append_space('.5em');
+    dialog.append_input({placeholder : '库名称'});
+    dialog.find('input').val(sublib.name);
+    dialog.append_button(new frs.ui.Button('提交', function() {
+        var name = dialog.find('input').val().trim();
+        if (!name) {
+            new frs.ui.hud.Minor('库名称不能为空').appear(1500);
+            dialog.shake();
+            return;
+        }
+        
+        fomjar.net.send(ski.isis.INST_UPDATE_SUB_LIB, {
+            slid : sublib.slid,
+            name : name,
+            type : sublib.type,
+            time : sublib.time
+        }, function(code, desc) {
+            if (code) {
+                new frs.ui.hud.Minor(desc).appear(1500);
+                dialog.shake();
+                return;
+            }
+            new frs.ui.hud.Minor('修改成功').appear(1500);
+            mask.disappear();
+            dialog.disappear();
+            update();
+        });
+    }).to_major());
+    
+    mask.appear();
+    dialog.appear();
+    dialog.find('input');
 }
 
 function op_browse(sublib) {
-    new frs.ui.hud.Minor('浏览:' + sublib.name).appear(1500);
+    window.location = 'app_face_lib_browse.html?slid=' + sublib.slid.toString(16);
 }
 
 function op_import(sublib) {

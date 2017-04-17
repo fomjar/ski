@@ -95,7 +95,7 @@ public class FjServerToolkit {
 
         public List<FjAddress> getAddresses(String server) {
             if (null == address || null == server) return null;
-            List<FjAddress> items = new LinkedList<FjAddress>();
+            List<FjAddress> items = new LinkedList<>();
             address.forEach((k, v)->{
                 if (k.toString().toLowerCase().startsWith(server.toLowerCase())) {
                     FjAddress item = new FjAddress();

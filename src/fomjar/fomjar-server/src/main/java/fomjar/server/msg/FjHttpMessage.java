@@ -30,8 +30,8 @@ public abstract class FjHttpMessage implements FjMessage {
         this.contentType    = null == contentType ? "text/plain" : contentType;
         try {this.content   = null == content ? new byte[] {} : content instanceof byte[] ? (byte[])content : content.toString().getBytes("utf-8");}
         catch (UnsupportedEncodingException e) {e.printStackTrace();}
-        this.attr           = new HashMap<String, String>();
-        this.setcookie      = new HashMap<String, Map<String, String>>();
+        this.attr           = new HashMap<>();
+        this.setcookie      = new HashMap<>();
     }
     
     public void contentCatch(SocketChannel conn, ByteBuffer buf, long timeout) throws IOException {
@@ -90,7 +90,7 @@ public abstract class FjHttpMessage implements FjMessage {
     }
 
     public Map<String, String> cookie() {
-        Map<String, String> cookie = new HashMap<String, String>();
+        Map<String, String> cookie = new HashMap<>();
 
         if (attr().containsKey("Cookie")) {
             String cookie_string = attr().get("Cookie");
@@ -114,7 +114,7 @@ public abstract class FjHttpMessage implements FjMessage {
     public void setcookie(String key, String val, String domain, String path, String expires) {
         if (setcookie.containsKey(key)) setcookie.remove(key);
 
-        Map<String, String> cookie = new LinkedHashMap<String, String>();
+        Map<String, String> cookie = new LinkedHashMap<>();
         try {val = URLEncoder.encode(val, "utf-8");}
         catch (UnsupportedEncodingException e) {e.printStackTrace();}
 

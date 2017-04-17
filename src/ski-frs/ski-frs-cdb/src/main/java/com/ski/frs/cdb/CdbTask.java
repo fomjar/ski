@@ -122,7 +122,7 @@ public class CdbTask implements FjServerTask {
         return false;
     }
 
-    private static Map<Integer, Instruction> cache_inst = new HashMap<Integer, Instruction>();
+    private static Map<Integer, Instruction> cache_inst = new HashMap<>();
 
     private static Instruction getInstruction(Connection conn, int inst) {
         Instruction instruction = null;
@@ -201,9 +201,9 @@ public class CdbTask implements FjServerTask {
             if (0 < inst.out) {
                 ResultSet rs = st.executeQuery(inst.sql_use);
 
-                List<JSONArray> descs = new LinkedList<JSONArray>();
+                List<JSONArray> descs = new LinkedList<>();
                 while (rs.next()) {
-                    List<String> desc = new LinkedList<String>();
+                    List<String> desc = new LinkedList<>();
                     for (int i = 1; i <= inst.out; i++) desc.add(rs.getString(i));
                     descs.add(JSONArray.fromObject(desc));
                 }
@@ -233,7 +233,7 @@ public class CdbTask implements FjServerTask {
             st.execute();
 
             inst.code = st.getInt(1);
-            List<String> descs = new LinkedList<String>();
+            List<String> descs = new LinkedList<>();
             for (int i = 2; i <= inst.out; i++) {
                 String desc = st.getString(i);
                 if (null == desc) descs.add(null);
