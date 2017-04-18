@@ -9,6 +9,7 @@ function frsmain() {
 }
 
 function build_head() {
+    frs.ui.head().add_item('卡口管理', function() {window.location = 'app_face_outpost.html';});
     frs.ui.head().add_item('特征搜索', function() {window.location = 'app_face_property.html';});
     frs.ui.head().add_item('身份确认', function() {window.location = 'app_face_id.html';}).addClass('active');
     frs.ui.head().add_item('实时布控');

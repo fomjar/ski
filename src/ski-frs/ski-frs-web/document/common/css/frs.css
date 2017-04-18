@@ -256,6 +256,11 @@ html, body {
     color       : #eeeeee;
 }
 .frs .tab >div:nth-child(2) {
+    position    : absolute;
+    width       : 100%;
+    top         : 2.6em;
+    bottom      : 0;
+    left        : 0;
     overflow-y  : auto;
     background  : #333344;
     color       : #eeeeee;
@@ -365,12 +370,13 @@ html, body {
     overflow    : initial;
     padding     : 0 2em;
     background  : #333333;
+    font-size   : 1.1em;
 }
 .frs .body {
     position    : absolute;
     z-index     : 0;
     width       : 100%;
-    top         : 3em;
+    top         : 3.3em;
     left        : 0;
     bottom      : 0;
 }
