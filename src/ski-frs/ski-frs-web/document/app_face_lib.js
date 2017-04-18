@@ -194,7 +194,7 @@ function op_import(sublib) {
     input_path = dialog.append_input({placeholder : '请输入人像库所在目录'});
     dialog.append_text_p1('选项：');
     dialog.append_check_input = function(label, placeholder) {
-        var c = $("<div style='width : 100%; padding : .5em'><label><input type='checkbox' style='-webkit-appearance : checkbox; appearance : checkbox'>" + label + "</label><input type='text' disabled='disabled' placeholder='" + placeholder + "' style='display : none; width : 100%; text-align : center'></div>");
+        var c = $("<div><label><input type='checkbox' style='-webkit-appearance : checkbox; appearance : checkbox'>" + label + "</label><input type='text' disabled='disabled' placeholder='" + placeholder + "' style='display : none; width : 100%; text-align : center'></div>");
         var check = c.find('input[type=checkbox]');
         var input = c.find('input[type=text]');
         check.bind('click', function() {
@@ -231,6 +231,7 @@ function op_import(sublib) {
     
     var check_collect = function () {
         var data = {
+            key  : new Date().getTime().toString(16),
             slid : sublib.slid,
             type : 0,   // man
         };
@@ -304,29 +305,62 @@ function op_import(sublib) {
             button_submit.to_major();
         });
     });
+    var query_loop = function(progress, key) {
+        fomjar.util.async(function() {
+            fomjar.net.send(ski.isis.INST_QUERY_SUB_LIB_IMPORT, {
+                key : key
+            }, function(code, desc) {
+                if (code) {
+                    new frs.ui.hud.Minor(desc).appear(1500);
+                    return;
+                }
+                
+                var cur = desc.success + desc.fails.length;
+                var all = desc.total
+                progress.val(cur / all * 100, cur + ' / ' + all);
+                
+                if (cur < all) {
+                    query_loop(progress, key);
+                }
+            });
+        }, 500);
+    };
     button_submit.bind('click', function() {
         if (!test_pass) return;
         
-        var mask1 = new frs.ui.Mask();
-        var hud = new frs.ui.hud.Major('正在导入');
-        mask1.appear();
-        hud.appear();
-        
         var data = check_collect();
+        var key = data.key;
+        
+        var dialog_old = dialog;
+        dialog_old.disappear();
+        mask.unbind('click');
+        
+        dialog = new frs.ui.Dialog();
+        var progress = new frs.ui.Progress();
+        dialog.append_text_h1c('正在导入');
+        dialog.append_space('.5em');
+        dialog.append($('<div></div>').append(progress));
+        dialog.appear();
+        
         fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
-            mask1.disappear();
-            hud.disappear();
-            
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);
-                dialog.shake();
+                dialog.disappear();
+                dialog_old.appear();
+                mask.bind('click', function() {
+                    mask.disappear();
+                    dialog_old.disappear();
+                });
                 return;
             }
-            mask.disappear();
-            dialog.disappear();
-            new frs.ui.hud.Minor('导入成功').appear(1500);
-            update();
+            dialog.append_button(new frs.ui.Button('确定', function() {
+                mask.disappear();
+                dialog.disappear();
+                update();
+            }).to_major());
         });
+        
+        query_loop(progress, key);
     });
    
     mask.appear();

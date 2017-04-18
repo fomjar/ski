@@ -141,7 +141,7 @@ html, body {
     z-index     : 10;
     display     : inline-block;
     background  : white;
-    box-shadow  : white 0px 0px .7em;
+    box-shadow  : 0px 0px .7em white;
             border-radius   : .5em;
     -webkit-border-radius   : .5em;
 
@@ -175,6 +175,9 @@ html, body {
      60% {left : 53%;}
      80% {left : 49%;}
     100% {left : 50%;}
+}
+.frs .dialog >* {
+    padding : .5em;
 }
 
 .frs .list {
@@ -277,6 +280,31 @@ html, body {
     color       : #eeeeee;
 }
 
+
+.frs .progress {
+    height  : 2em;
+    border  : 1px solid #333333;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
+}
+.frs .progress >div:nth-child(1) {
+    width       : 0;
+    height      : 100%;
+    background  : #333366;
+    box-shadow  : 0px 0px 1em black;
+}
+.frs .progress >div:nth-child(2) {
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    line-height : 2em;
+    top         : 0;
+    left        : 0;
+    text-align  : center;
+    color       : #eeeeee;
+    text-shadow : 0 1px 0 #333333, 1px 0 0 #333333, 0 -1px 0 #333333, -1px 0 0 #333333;
+}
+
 .frs .hud-major {
     z-index     : 50;
     max-width   : 80%;
@@ -288,7 +316,7 @@ html, body {
     -webkit-border-radius   : .5em;
     background  : black;
     color       : white;
-    box-shadow  : black 0px 0px .5em;
+    box-shadow  : 0px 0px .5em black;
     opacity     : .7;
 }
 .frs .hud-minor {
@@ -307,7 +335,7 @@ html, body {
     -webkit-border-radius   : .5em;
     background  : black;
     color       : white;
-    box-shadow  : black 0px 0px .5em;
+    box-shadow  : 0px 0px .5em black;
     opacity     : .7;
 }
 
@@ -323,17 +351,6 @@ html, body {
     left        : 50%;
             transform   : translate(-50%, -50%);
     -webkit-transform   : translate(-50%, -50%);
-}
-
-.frs .preview {
-    position    : absolute;
-    z-index     : 40;
-    width       : 100%;
-    height      : 100%;
-    top         : 0;
-    left        : 0;
-    overflow    : auto;
-    text-align  : center;
 }
 
 /* framework */

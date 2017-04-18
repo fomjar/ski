@@ -78,7 +78,6 @@ frs.ui.Dialog = function() {
     };
     dialog.append_text_h1 = function(text) {
         var div = $('<div></div>');
-        div.css('padding',      '.5em');
         div.css('font-weight',  '700');
         div.append(text);
         dialog.append(div);
@@ -86,7 +85,6 @@ frs.ui.Dialog = function() {
     };
     dialog.append_text_h1c = function(text) {
         var div = $('<div></div>');
-        div.css('padding',      '.5em');
         div.css('font-weight',  '700');
         div.css('text-align',   'center');
         div.append(text);
@@ -102,7 +100,6 @@ frs.ui.Dialog = function() {
     };
     dialog.append_text_p1c = function(text) {
         var div = $('<div></div>');
-        div.css('padding',      '.5em');
         div.css('text-align',   'center');
         div.append(text);
         dialog.append(div);
@@ -110,7 +107,6 @@ frs.ui.Dialog = function() {
     };
     dialog.append_input = function(attr) {
         var div = $('<div></div>');
-        div.css('padding',  '.3em .5em');
         var input = $('<input>');
         input.css('width',      '100%');
         input.css('text-align', 'center');
@@ -126,8 +122,6 @@ frs.ui.Dialog = function() {
     dialog.append_button = function(button) {
         var div = $('<div></div>');
         div.append(button);
-
-        div.css('padding', '.5em');
         button.css('width', '100%');
 
         dialog.append(div);
@@ -319,6 +313,20 @@ frs.ui.Pager = function(cur, len, cb_turn) {
     
     div.div_pre.bind('click', function() {div.turn(div.cur - 1);});
     div.div_suf.bind('click', function() {div.turn(div.cur + 1);});
+    return div;
+};
+
+frs.ui.Progress = function() {
+    var div = $('<div></div>');
+    div.addClass('progress');
+    var div_perc = $('<div></div>');
+    var div_text = $('<div></div>');
+    div.append([div_perc, div_text]);
+    
+    div.val = function(percent, text) {
+        if (percent) div_perc.css('width', percent + '%');
+        if (text)    div_text.text(text);
+    };
     return div;
 }
 
@@ -512,29 +520,6 @@ frs.ui.body = function() {
 
     frs.ui._body = body;
     return frs.ui._body;
-}
-
-frs.ui.preview = function(src) {
-    var div = $('<div></div>');
-    div.addClass('preview disappear');
-    var img = $('<img>');
-    img.attr('src',     src);
-    div.append(img);
-
-    div.disappear = function() {
-        mask.disappear();
-        div.addClass('disappear');
-        fomjar.util.async(function() {div.detach();}, frs.ui.DELAY);
-    };
-    var mask = new frs.ui.Mask();
-    mask.bind('click', div.disappear);
-    div.bind('click', div.disappear);
-
-    mask.appear();
-    $('.frs').append(div);
-    fomjar.util.async(function() {div.removeClass('disappear');});
-
-    return div;
 };
 
 frs.ui.BlockPicture = function(options) {
