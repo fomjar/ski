@@ -86,8 +86,8 @@ public class BcsTask implements FjServerTask {
     private static void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        waitSessionForResponse(server, req_cdb);
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processUpdateSubLib(FjServer server, FjDscpMessage dmsg) {
@@ -99,8 +99,8 @@ public class BcsTask implements FjServerTask {
             return;
         }
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        waitSessionForResponse(server, req_cdb);
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processUpdateDev(FjServer server, FjDscpMessage dmsg) {
@@ -112,8 +112,8 @@ public class BcsTask implements FjServerTask {
             return;
         }
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        waitSessionForResponse(server, req_cdb);
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processQueryPic(FjServer server, FjDscpMessage dmsg) {
@@ -125,8 +125,8 @@ public class BcsTask implements FjServerTask {
             return;
         }
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        waitSessionForResponse(server, req_cdb);
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processQueryPicByFVI(FjServer server, FjDscpMessage dmsg) {
@@ -139,8 +139,8 @@ public class BcsTask implements FjServerTask {
         }
         args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        waitSessionForResponse(server, req_cdb);
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processQueryPicByFV(FjServer server, FjDscpMessage dmsg) {
