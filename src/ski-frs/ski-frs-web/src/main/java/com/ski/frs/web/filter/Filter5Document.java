@@ -19,7 +19,7 @@ public class Filter5Document extends FjWebFilter {
     public boolean filter(FjHttpResponse response, FjHttpRequest request, SocketChannel conn, FjServer server) {
         if ("/ski-web".equals(request.path())) return true;
         
-        logger.info(String.format("[ DOCUMENT  ] - %s - %s", request.url(), request.contentToString().replace("\n", "")));
+        logger.info(String.format("[ DOCUMENT  ] %s - %s", request.url(), request.contentToString().replace("\n", "")));
         
         response.attr().put("Content-Encoding", "gzip");
         if ("/".equals(request.path())) {

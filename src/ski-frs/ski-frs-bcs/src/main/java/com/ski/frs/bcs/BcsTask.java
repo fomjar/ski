@@ -33,14 +33,17 @@ public class BcsTask implements FjServerTask {
         }
         
         FjDscpMessage dmsg = (FjDscpMessage) wrapper.message();
-        
         logger.info(String.format("%s - 0x%08X", dmsg.sid(), dmsg.inst()));
+        
         switch (dmsg.inst()) {
         case ISIS.INST_UPDATE_PIC:
             processUpdatePic(server, dmsg);
             break;
         case ISIS.INST_UPDATE_SUB_LIB:
             processUpdateSubLib(server, dmsg);
+            break;
+        case ISIS.INST_UPDATE_DEV:
+            processUpdateDev(server, dmsg);
             break;
         case ISIS.INST_QUERY_PIC:
             processQueryPic(server, dmsg);
@@ -66,21 +69,25 @@ public class BcsTask implements FjServerTask {
         }
     }
     
-    private static void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
-        JSONObject args = dmsg.argsToJsonObject();
-        
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args);
-        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+    private static void waitSessionForResponse(FjServer server, FjDscpMessage req) {
+        server.onDscpSession(req.sid(), new FjServer.FjServerTask() {
             @Override
             public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
-                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
+                FjDscpMessage rsp = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(req, FjServerToolkit.dscpResponseCode(rsp), FjServerToolkit.dscpResponseDesc(rsp));
             }
             @Override
             public void initialize(FjServer server) {}
             @Override
             public void destroy(FjServer server) {}
         });
+    }
+    
+    private static void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, req_cdb);
     }
     
     private static void processUpdateSubLib(FjServer server, FjDscpMessage dmsg) {
@@ -92,18 +99,21 @@ public class BcsTask implements FjServerTask {
             return;
         }
         
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_LIB, args);
-        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
-            @Override
-            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
-                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
-            }
-            @Override
-            public void initialize(FjServer server) {}
-            @Override
-            public void destroy(FjServer server) {}
-        });
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, req_cdb);
+    }
+    
+    private static void processUpdateDev(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("did") || !args.has("path")) {
+            String err = "illegal arguments, no did, path";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, req_cdb);
     }
     
     private static void processQueryPic(FjServer server, FjDscpMessage dmsg) {
@@ -116,17 +126,7 @@ public class BcsTask implements FjServerTask {
         }
         
         FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
-            @Override
-            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
-                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
-            }
-            @Override
-            public void initialize(FjServer server) {}
-            @Override
-            public void destroy(FjServer server) {}
-        });
+        waitSessionForResponse(server, req_cdb);
     }
     
     private static void processQueryPicByFVI(FjServer server, FjDscpMessage dmsg) {
@@ -140,18 +140,9 @@ public class BcsTask implements FjServerTask {
         args.put("vd", Integer.parseInt(FjServerToolkit.getServerConfig("bcs.face.vd"))); // 向量维数
         
         FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
-        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
-            @Override
-            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
-                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
-                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), FjServerToolkit.dscpResponseDesc(dmsg1));
-            }
-            @Override
-            public void initialize(FjServer server) {}
-            @Override
-            public void destroy(FjServer server) {}
-        });
+        waitSessionForResponse(server, req_cdb);
     }
+    
     private static void processQueryPicByFV(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
         if (!args.has("pf") || !args.has("pt")) {

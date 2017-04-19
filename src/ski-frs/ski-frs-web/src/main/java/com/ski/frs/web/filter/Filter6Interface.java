@@ -55,7 +55,7 @@ public class Filter6Interface extends FjWebFilter {
         
         int inst = FilterToolkit.getIntFromArgs(args, "inst");
         args.remove("inst");
-        logger.info(String.format("[ INTERFACE ] - %s - 0x%08X", request.url(), inst));
+        logger.info(String.format("[ INTERFACE ] %s - 0x%08X", request.url(), inst));
         
         switch (inst) {
         case ISIS.INST_QUERY_PIC_BY_FV_I:

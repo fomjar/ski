@@ -42,8 +42,7 @@ public class CdbTask implements FjServerTask {
     }
 
     @Override
-    public void initialize(FjServer server) {
-    }
+    public void initialize(FjServer server) {}
 
     @Override
     public void destroy(FjServer server) {
@@ -59,8 +58,8 @@ public class CdbTask implements FjServerTask {
             return;
         }
 
-        FjDscpMessage req = (FjDscpMessage) msg;
-        logger.info(String.format("INSTRUCTION - %s:%s:0x%08X", req.fs(), req.sid(), req.inst()));
+        FjDscpMessage dmsg = (FjDscpMessage) msg;
+        logger.info(String.format("%s - 0x%08X", dmsg.sid(), dmsg.inst()));
 
         if (!checkConnection()) {
             logger.error("db connection terminate");
@@ -68,31 +67,31 @@ public class CdbTask implements FjServerTask {
             Instruction inst = new Instruction();
             inst.code = FjISIS.CODE_INTERNAL_ERROR;
             inst.desc = "db connection terminate";
-            response(req, inst);
+            response(dmsg, inst);
             return;
         }
 
-        Instruction inst = getInstruction(conn, req.inst());
+        Instruction inst = getInstruction(conn, dmsg.inst());
         if (null == inst) {
             inst = new Instruction();
-            inst.inst = req.inst();
+            inst.inst = dmsg.inst();
             queryInstruction(conn, inst);
             
             if (FjISIS.CODE_SUCCESS != inst.code) {
                 logger.error("query instruction failed: " + inst.desc);
                 
-                response(req, inst);
+                response(dmsg, inst);
                 return;
             }
             
             cache_inst.put(inst.inst, inst);
         }
 
-        inst.args = req.argsToJsonObject();
+        inst.args = dmsg.argsToJsonObject();
 
         generateSql(inst);
         executeSql(conn, inst);
-        response(req, inst);
+        response(dmsg, inst);
     }
 
     private static void response(FjDscpMessage req, Instruction inst) {

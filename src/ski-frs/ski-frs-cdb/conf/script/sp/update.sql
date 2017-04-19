@@ -138,7 +138,7 @@ insert into tbl_instruction (
     (conv('00001010', 16, 10) + 0),
     'st',
     0,
-    "replace into tbl_sub_lib (i_slid, c_name, i_type, t_time) values ($slid, \"$name\", $type, now())"
+    "replace into tbl_sub_lib (i_slid, c_name, i_type, t_time) values ($slid, \"$name\", $type, ifnull(\"$time\", now()))"
 );
 
 
@@ -352,4 +352,21 @@ insert into tbl_instruction (
     0,
     "insert into tbl_sub_man_pic (i_smid, i_pid) values ($smid, $pid)"
 );
+
+
+
+delete from tbl_instruction where i_inst = (conv('00001030', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001030', 16, 10) + 0),
+    'st',
+    0,
+    "replace into tbl_dev (c_did, c_path, c_ip, t_time) values (\"$did\", \"$path\", \"$ip\", ifnull(\"$time\", now()))"
+);
+
+
 

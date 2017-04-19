@@ -9,5 +9,6 @@
   	<module>ski-frs-web</module>
   	<module>ski-frs-cdb</module>
   	<module>ski-frs-bcs</module>
+  	<module>ski-frs-opp</module>
   </modules>
 </project>

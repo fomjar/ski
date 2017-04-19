@@ -517,6 +517,17 @@ frs.ui.body = function() {
         body.r.addClass('r');
         body.append([body.l, body.r]);
     };
+    body.style_lrb = function() {
+        body.children().detach();
+        
+        body.l = $('<div></div>');
+        body.l.addClass('l');
+        body.r = $('<div></div>');
+        body.r.addClass('r');
+        body.b = $('<div></div>');
+        body.b.addClass('b');
+        body.append([$('<div></div>').append([body.l, body.r]), body.b]);
+    };
 
     frs.ui._body = body;
     return frs.ui._body;

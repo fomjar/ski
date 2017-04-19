@@ -19,7 +19,7 @@ import net.sf.json.JSONObject;
  * DSCP协议的五个关键字段：
  * <li>FS   -- 来源服务器</li>
  * <li>TS   -- 到达服务器</li>
- * <li>SID  -- 会话ID，整型</li>
+ * <li>SID  -- 会话ID，字符串</li>
  * <li>INST -- 消息指令，整型</li>
  * <li>ARGS -- 指令参数，字符串、JSON对象、JSON数组</li>
  * </p>
