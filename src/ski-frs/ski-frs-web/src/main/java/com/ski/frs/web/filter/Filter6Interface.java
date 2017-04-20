@@ -1,24 +1,18 @@
 package com.ski.frs.web.filter;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.SocketChannel;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
+import com.ski.frs.web.FaceInterface;
+import com.ski.frs.web.WebToolkit;
 
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
@@ -53,7 +47,7 @@ public class Filter6Interface extends FjWebFilter {
             return false;
         }
         
-        int inst = FilterToolkit.getIntFromArgs(args, "inst");
+        int inst = WebToolkit.getIntFromArgs(args, "inst");
         args.remove("inst");
         logger.info(String.format("[ INTERFACE ] %s - 0x%08X", request.url(), inst));
         
@@ -115,57 +109,27 @@ public class Filter6Interface extends FjWebFilter {
         synchronized (response) {response.notifyAll();}
     }
     
-    private static long fi = 0;
-    
     private static void processQueryPicByFVI(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("pic")) {
-            String desc = "illegal arguments, no pic";
+        if (!args.has("data")) {
+            String desc = "illegal arguments, no data";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
         
-        String pic = args.getString("pic");
-        args.remove("pic");
-        if (!pic.startsWith("data:image")) {
-            String desc = "illegal arguments, illegal pic";
-            logger.error(desc + ", " + args);
-            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
-            return;
-        }
-        
-        pic = pic.substring(pic.indexOf("base64,") + 7);
-        byte[] pic_data = Base64.getDecoder().decode(pic);
-        File file = new File("pic_" + System.currentTimeMillis());
-        try {
-            BufferedImage img = ImageIO.read(new ByteArrayInputStream(pic_data));
-            ImageIO.write(img, "jpg", file);
-        } catch (IOException e) {
-            String desc = "illegal arguments, illegal pic, " + e.getMessage();
-            logger.error(desc, e);
-            file.delete();
-            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
-            return;
-        }
-        
-        if (0 == fi) fi = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
+        String data = args.getString("data");
+        args.remove("data");
         
         String fv = null;
-        try {fv = new String(FaceInterface.fv(fi,
-                file.getPath().getBytes(FjServerToolkit.getServerConfig("web.pic.enc")))).trim();}
-        catch (UnsupportedEncodingException e) {e.printStackTrace();}
-        int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
-        fv = fv.substring(fv.indexOf(" ") + 1);
-        if (FaceInterface.SUCCESS != err) {
-            String desc = "convert pic to fv failed, code: " + err;
-            logger.error(desc);
-            file.delete();
-            response(response, FjISIS.CODE_INTERNAL_ERROR, desc);
+        try {
+            fv = WebToolkit.fvBase64Image(data);
+            args.put("fv", fv); // 特征向量
+        } catch (IOException e) {
+            String desc = "illegal arguments, invalid base64 image data";
+            logger.error(desc, e);
+            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
-        
-        file.delete();
-        args.put("fv", fv); // 特征向量
         
         FjDscpMessage req_bcs = FjServerToolkit.dscpRequest("bcs", ISIS.INST_QUERY_PIC_BY_FV_I, args);
         waitSessionForResponse(server, response, req_bcs.sid());
@@ -205,7 +169,7 @@ public class Filter6Interface extends FjWebFilter {
         }
         int slid = args.getInt("slid");
         File dir = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid);
-        if (!SubLibHelper.deleteDir(dir)) {
+        if (!WebToolkit.deleteFile(dir)) {
             String desc = "delete dir failed: " + dir.getPath();
             logger.error(desc);
             response(response, FjISIS.CODE_INTERNAL_ERROR, desc);
@@ -216,8 +180,8 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     private static void processApplySubLibCheck(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("type") || !args.has("path") || !args.has("reg_idno")) {
-            String desc = "illegal arguments, no type, path, reg_idno";
+        if (!args.has("type") || !args.has("path")) {
+            String desc = "illegal arguments, no type, path";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
@@ -231,6 +195,13 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     private static void processApplySubLibCheckMan(FjHttpResponse response, JSONObject args, FjServer server) {
+        if (!args.has("type") || !args.has("path") || !args.has("reg_idno")) {
+            String desc = "illegal arguments, no type, path, reg_idno";
+            logger.error(desc + ", " + args);
+            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
+            return;
+        }
+        
         String path = args.getString("path");
         String reg_idno = args.getString("reg_idno");
         String reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
@@ -240,14 +211,14 @@ public class Filter6Interface extends FjWebFilter {
         
         JSONArray desc = new JSONArray();
         List<File> list = new LinkedList<>();
-        SubLibHelper.collectSomeFile(list, new File(path), count);
+        WebToolkit.collectSomeFile(list, new File(path), count);
         list.forEach(file->{
             JSONObject check = new JSONObject();
             check.put("file", file.getName());
-            if (null != reg_idno)   check.put("idno",   SubLibHelper.getRegexField(file.getName(), reg_idno));
-            if (null != reg_name)   check.put("name",   SubLibHelper.getRegexField(file.getName(), reg_name));
-            if (null != reg_phone)  check.put("phone",  SubLibHelper.getRegexField(file.getName(), reg_phone));
-            if (null != reg_addr)   check.put("addr",   SubLibHelper.getRegexField(file.getName(), reg_addr));
+            check.put("idno", WebToolkit.regexField(file.getName(), reg_idno));
+            if (null != reg_name)   check.put("name",   WebToolkit.regexField(file.getName(), reg_name));
+            if (null != reg_phone)  check.put("phone",  WebToolkit.regexField(file.getName(), reg_phone));
+            if (null != reg_addr)   check.put("addr",   WebToolkit.regexField(file.getName(), reg_addr));
             
             desc.add(check);
         });
@@ -256,14 +227,29 @@ public class Filter6Interface extends FjWebFilter {
         response(response, FjISIS.CODE_SUCCESS, desc);
     }
     
-    
     private void processApplySubLibImport(FjHttpResponse response, JSONObject args, FjServer server) {
+        if (!args.has("key") || !args.has("slid") || !args.has("type") || !args.has("path")) {
+            String desc = "illegal arguments, no key, slid, type, path";
+            logger.error(desc + ", " + args);
+            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
+            return;
+        }
+        
+        switch (args.getInt("type")) {
+        case ISIS.FIELD_TYPE_MAN:
+            processApplySubLibImportMan(response, args, server);
+            break;
+        }
+    }
+    
+    private void processApplySubLibImportMan(FjHttpResponse response, JSONObject args, FjServer server) {
         if (!args.has("key") || !args.has("slid") || !args.has("type") || !args.has("path") || !args.has("reg_idno")) {
             String desc = "illegal arguments, no key, slid, type, path, reg_idno";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
+        
         String key_state = args.getString("key");
         int slid = args.getInt("slid");
         int type = args.getInt("type");
@@ -273,39 +259,34 @@ public class Filter6Interface extends FjWebFilter {
         String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         
-        List<File> list_all = SubLibHelper.collectFile(new File(path));
-        Map<Thread, Long> cache_interface = new HashMap<>();
+        List<File> list_all = WebToolkit.collectFile(new File(path));
+        Map<Thread, Long> cache_fvi = new HashMap<>();
         SubLibImportState state = new SubLibImportState();
         cache_sublib_import_state.put(key_state, state);
         state.total = list_all.size();
         list_all.parallelStream().forEach(file->{
             File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid + "/" + file.getName());
-            if (!SubLibHelper.moveFile(file, dst)) {
+            if (!WebToolkit.moveFile(file, dst)) {
                 logger.error("importing file failed: " + file.getPath());
                 synchronized(state.fails) {state.fails.add(file.getPath());}
                 return;
             }
             
-            if (!cache_interface.containsKey(Thread.currentThread())) {
-                cache_interface.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
-                logger.info(String.format("init face interface instance: 0x%016X", cache_interface.get(Thread.currentThread())));
+            if (!cache_fvi.containsKey(Thread.currentThread())) {
+                cache_fvi.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
+                logger.info(String.format("init face interface instance: 0x%016X", cache_fvi.get(Thread.currentThread())));
             }
-            String fv = null;
-            try {fv = new String(FaceInterface.fv(cache_interface.get(Thread.currentThread()),
-                    dst.getPath().getBytes(FjServerToolkit.getServerConfig("web.pic.enc")))).trim();}
-            catch (UnsupportedEncodingException e1) {e1.printStackTrace();}
-//            int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
-            fv = fv.substring(fv.indexOf(" ") + 1).trim();
+            String fv = WebToolkit.fvLocalImage(cache_fvi.get(Thread.currentThread()), dst.getPath());
             
             JSONObject args_bcs = new JSONObject();
             args_bcs.put("pic_type", type);
             args_bcs.put("pic_path", dst.getPath().substring("document/".length())); 
             args_bcs.put("pic_fv",   fv);
             args_bcs.put("slm_slid", slid);
-            if (null != reg_idno)   args_bcs.put("slm_idno",   SubLibHelper.getRegexField(file.getName(), reg_idno));
-            if (null != reg_name)   args_bcs.put("slm_name",   SubLibHelper.getRegexField(file.getName(), reg_name));
-            if (null != reg_phone)  args_bcs.put("slm_phone",  SubLibHelper.getRegexField(file.getName(), reg_phone));
-            if (null != reg_addr)   args_bcs.put("slm_addr",   SubLibHelper.getRegexField(file.getName(), reg_addr));
+            if (null != reg_idno)   args_bcs.put("slm_idno",   WebToolkit.regexField(file.getName(), reg_idno));
+            if (null != reg_name)   args_bcs.put("slm_name",   WebToolkit.regexField(file.getName(), reg_name));
+            if (null != reg_phone)  args_bcs.put("slm_phone",  WebToolkit.regexField(file.getName(), reg_phone));
+            if (null != reg_addr)   args_bcs.put("slm_addr",   WebToolkit.regexField(file.getName(), reg_addr));
             
             FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_LIB_IMPORT, args_bcs);
             state.success++;
@@ -316,9 +297,9 @@ public class Filter6Interface extends FjWebFilter {
                 catch (InterruptedException e) {e.printStackTrace();}
             }
         }); // blocked
-        logger.info("free face interface count: " + cache_interface.size());
-        cache_interface.forEach((t, i)->{FaceInterface.freeInstance(i);});
-        cache_interface.clear();
+        logger.info("free face interface count: " + cache_fvi.size());
+        cache_fvi.forEach((t, i)->{FaceInterface.freeInstance(i);});
+        cache_fvi.clear();
         
         if (0 < state.fails.size()) {
             logger.error("import failes: " + state.fails.stream().map(p->"\r\n" + p).reduce((p1, p2)->p1 + p2).get());
@@ -330,80 +311,6 @@ public class Filter6Interface extends FjWebFilter {
         desc.put("fails",   state.fails);
         
         response(response, FjISIS.CODE_SUCCESS, desc);
-    }
-    
-    private static class SubLibHelper {
-        
-        private static List<File> collectFile(File dir) {
-            List<File> list = new LinkedList<>();
-            if (dir.isDirectory()) {
-                for (File file : dir.listFiles()) {
-                    if (file.isDirectory()) list.addAll(collectFile(file));
-                    else if (file.isFile()) list.add(file);
-                    else logger.error("unknown file: " + file);
-                }
-            }
-            return list;
-        }
-        
-        private static void collectSomeFile(List<File> list, File dir, int count) {
-            if (list.size() >= count) return;
-            
-            if (dir.isDirectory()) {
-                for (File file : dir.listFiles()) {
-                    if (file.isDirectory()) list.addAll(collectFile(file));
-                    else if (file.isFile()) list.add(file);
-                    else logger.error("unknown file: " + file);
-                    
-                    if (list.size() >= count) break;
-                }
-            }
-        }
-        
-        private static String getRegexField(String string, String regex) {
-            Pattern pattern = Pattern.compile(regex);
-            Matcher matcher = pattern.matcher(string);
-            if (matcher.find()) return matcher.group(1);
-            else return null;
-        }
-        
-        private static Object lock_move = new Object();
-        private static boolean moveFile(File src, File dst) {
-            if (!src.isFile()) {
-                logger.error("move file failed, no such file, from: " + src.getPath() + ", to: " + dst.getPath());
-                return false;
-            }
-            File dir = dst.getParentFile();
-            if (!dir.isDirectory()) {
-                synchronized(lock_move) {
-                    if (!dir.isDirectory()) {
-                        if (!dir.mkdirs()) {
-                            logger.error("move file failed, create dir failed, from: " + src.getPath() + ", to: " + dst.getPath());
-                            return false;
-                        }
-                    }
-                }
-            }
-            if (!src.renameTo(dst)) {
-                logger.error("move file failed, from: " + src.getPath() + ", to: " + dst.getPath());
-                return false;
-            }
-            return true;
-        }
-        
-        private static boolean deleteDir(File dir) {
-            if (!dir.exists()) return true;
-            if (!dir.isDirectory()) return false;
-            
-            for (File file : dir.listFiles()) {
-                if (file.isFile()) {
-                    if (!file.delete()) return false;
-                } else if (file.isDirectory()) {
-                    if (!deleteDir(file)) return false;
-                }
-            }
-            return dir.delete();
-        }
     }
     
     private static class SubLibImportState {

@@ -57,6 +57,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_QUERY_SUB_LIB:
             processQuerySubLib(server, dmsg);
             break;
+        case ISIS.INST_QUERY_DEV:
+            processQueryDev(server, dmsg);
+            break;
         case ISIS.INST_APPLY_SUB_LIB_IMPORT:
             processApplySubLibImport(server, dmsg);
             break;
@@ -85,6 +88,12 @@ public class BcsTask implements FjServerTask {
     
     private static void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("did") || !args.has("name") || !args.has("size") || !args.has("type") || !args.has("path")) {
+            String err = "illegal arguments, no did, name, size, type, path";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
         
         FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
         waitSessionForResponse(server, dmsg);
@@ -184,6 +193,26 @@ public class BcsTask implements FjServerTask {
                 JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg1);
                 JSONArray args = new JSONArray();
                 for (int i = 0; i < desc.size(); i++) args.add(json_sub_lib(desc.getJSONArray(i)));
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), args);
+            }
+            @Override
+            public void initialize(FjServer server) {}
+            @Override
+            public void destroy(FjServer server) {}
+        });
+    }
+    
+    private static void processQueryDev(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage dmsg1 = (FjDscpMessage) wrapper.message();
+                JSONArray desc = (JSONArray) FjServerToolkit.dscpResponseDesc(dmsg1);
+                JSONArray args = new JSONArray();
+                for (int i = 0; i < desc.size(); i++) args.add(json_dev(desc.getJSONArray(i)));
                 FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(dmsg1), args);
             }
             @Override
@@ -344,6 +373,16 @@ public class BcsTask implements FjServerTask {
         json.put("type",    array.getInt(i++));
         json.put("time",    array.getString(i++));
         json.put("count",   array.getInt(i++));
+        return json;
+    }
+    
+    private static JSONObject json_dev(JSONArray array) {
+        JSONObject json = new JSONObject();
+        int i = 0;
+        json.put("did",     array.getString(i++));
+        json.put("path",    array.getString(i++));
+        json.put("ip",      array.getString(i++));
+        json.put("time",    array.getString(i++));
         return json;
     }
 }

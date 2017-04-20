@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
+import com.ski.frs.web.WebToolkit;
+
 import fomjar.server.FjServer;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjHttpRequest;
@@ -72,7 +74,7 @@ public class Filter1Authorize extends FjWebFilter {
             logger.error(args_rsp);
             return false;
         }
-        int inst = FilterToolkit.getIntFromArgs(args, "inst");
+        int inst = WebToolkit.getIntFromArgs(args, "inst");
         for (int ie : instruction_exclude) {
             if (ie == inst) return true;
         }

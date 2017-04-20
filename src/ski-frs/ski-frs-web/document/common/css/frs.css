@@ -89,7 +89,7 @@ html, body {
     display         : inline-block;
     vertical-align  : top;
     text-align      : center;
-    padding         : .5em 1em;
+    padding         : .75em 1em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
             user-select : none;
@@ -232,6 +232,7 @@ html, body {
 
 .frs .tab {}
 .frs .tab >div:nth-child(1) {
+    width       : 100%;
     overflow-x  : auto;
 }
 .frs .tab >div:nth-child(1) >div {
@@ -242,7 +243,8 @@ html, body {
     cursor          : pointer;
 }
 .frs .tab >div:nth-child(1) >div:hover {
-    border  : 1px solid #333344;
+    border      : 1px solid #333344;
+    background  : #eeeeee;
 }
 .frs .tab >div:nth-child(1) >div:active {
     border      : 1px solid #333344;
@@ -251,9 +253,9 @@ html, body {
     opacity     : .9;
 }
 .frs .tab .active {
-    border      : 1px solid #333344;
-    background  : #333344;
-    color       : #eeeeee;
+    border      : 1px solid #333344 !important;
+    background  : #333344 !important;
+    color       : #eeeeee !important;
 }
 .frs .tab >div:nth-child(2) {
     position    : absolute;
@@ -263,6 +265,7 @@ html, body {
     left        : 0;
     overflow-y  : auto;
     background  : #333344;
+    border      : 1px solid #333344;
     color       : #eeeeee;
 }
 
@@ -399,40 +402,58 @@ html, body {
     opacity     : 1;
 }
 .frs .head .active {
-    background  : #666699;
-    box-shadow  : 0 0 1.5em #666699;
+    background  : #666699 !important;
+    box-shadow  : 0 0 1.5em #666699 !important;
 }
 
-.frs .body .l {
+.frs .l {
     position    : absolute;
     width       : 14em;
     height      : 100%;
     top         : 0;
     left        : 0;
     padding     : 2em;
+    overflow    : auto;
     background  : #333344;
     color       : #eeeeee;
-    overflow-y  : auto;
 }
-.frs .body .l label {
+.frs .l >label {
     display     : inline-block;
     margin-top  : 2em;
 }
-.frs .body .l .button {
+.frs .l >.button {
     width       : 100%;
 }
-.frs .body .l input, .frs .body .l select {
+.frs .l >input, .frs .l >select {
     width       : 100%;
     background  : #eeeeee;
     text-align  : center;
 }
-.frs .body .r {
+.frs .r {
     position    : absolute;
     height      : 100%;
     top         : 0;
     left        : 14em;
     right       : 0;
     overflow-y  : auto;
+    background  : #eeeeee;
+}
+.frs .t {
+    position    : absolute;
+    width       : 100%;
+    top         : 0;
+    left        : 0;
+    bottom      : 15em;
+}
+.frs .b {
+    position    : absolute;
+    width       : 100%;
+    height      : 15em;
+    bottom      : 0;
+    left        : 0;
+    overflow    : auto;
+    background  : #333333;
+    color       : #eeeeee;
 }
 
 .frs .block-picture {

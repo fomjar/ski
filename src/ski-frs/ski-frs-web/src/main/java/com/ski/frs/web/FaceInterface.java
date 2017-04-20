@@ -1,4 +1,4 @@
-package com.ski.frs.web.filter;
+package com.ski.frs.web;
 
 import java.io.UnsupportedEncodingException;
 

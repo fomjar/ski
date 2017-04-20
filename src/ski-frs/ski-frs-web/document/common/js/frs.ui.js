@@ -60,6 +60,12 @@ frs.ui.Dialog = function() {
         dialog.addClass('dialog-disappear');
         $('.frs').append(dialog);
         fomjar.util.async(function() {dialog.removeClass('dialog-disappear');});
+        fomjar.util.async(function() {
+            var inputs = dialog.find('input');
+            if (inputs.length > 0) {
+                $(inputs[0]).focus();
+            }
+        }, frs.ui.DELAY);
     };
     dialog.disappear = function() {
         dialog.addClass('dialog-disappear');
@@ -508,29 +514,33 @@ frs.ui.body = function() {
     if (frs.ui._body) return frs.ui._body;
 
     var body = $('.frs .body');
-    body.style_lr = function() {
-        body.children().detach();
-        
-        body.l = $('<div></div>');
-        body.l.addClass('l');
-        body.r = $('<div></div>');
-        body.r.addClass('r');
-        body.append([body.l, body.r]);
-    };
-    body.style_lrb = function() {
-        body.children().detach();
-        
-        body.l = $('<div></div>');
-        body.l.addClass('l');
-        body.r = $('<div></div>');
-        body.r.addClass('r');
-        body.b = $('<div></div>');
-        body.b.addClass('b');
-        body.append([$('<div></div>').append([body.l, body.r]), body.b]);
-    };
 
     frs.ui._body = body;
     return frs.ui._body;
+};
+
+frs.ui.layout = {};
+
+frs.ui.layout.lr = function(c) {
+    c.l = $('<div></div>');
+    c.l.addClass('l');
+    c.r = $('<div></div>');
+    c.r.addClass('r');
+    c.append([c.l, c.r]);
+    return c;
+};
+
+frs.ui.layout.lrb = function(c) {
+    c.t = $('<div></div>');
+    c.t.addClass('t');
+    c.l = $('<div></div>');
+    c.l.addClass('l');
+    c.r = $('<div></div>');
+    c.r.addClass('r');
+    c.b = $('<div></div>');
+    c.b.addClass('b');
+    c.append([c.t.append([c.l, c.r]), c.b]);
+    return c;
 };
 
 frs.ui.BlockPicture = function(options) {

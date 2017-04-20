@@ -19,8 +19,7 @@ function build_head() {
 }
 
 function build_body() {
-    frs.ui.body().style_lr();
-    
+    frs.ui.layout.lr(frs.ui.body());
     build_body_l();
 }
 
@@ -64,7 +63,7 @@ function func_upload_init(img) {
     mask.appear();
     hud.appear();
     fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV_I, {
-        pic : img,
+        data : img,
     }, function(code, desc) {
         mask.disappear();
         hud.disappear();

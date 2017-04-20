@@ -19,10 +19,38 @@ function build_head() {
 }
 
 function build_body() {
+    $.jstree.defaults.core.themes.icons = false;
+    $.jstree.defaults.core.themes.ellipsis = false;
+    
     var tab = new frs.ui.Tab();
-    tab.add_tab('在线卡口', $('<div></div>'));
-    tab.add_tab('离线卡口', $('<div></div>'), true);
+    tab.add_tab('在线卡口', build_tab_online());
+    tab.add_tab('离线卡口', build_tab_offline(), true);
     frs.ui.body().append(tab);
+}
+
+function build_tab_online() {
+    var tab = frs.ui.layout.lrb($('<div></div>'));
+    return tab;
+}
+
+function build_tab_offline() {
+    var tab = frs.ui.layout.lrb($('<div></div>'));
+    var tree = $('<div></div>');
+    tree.jstree({core : {
+        data : [
+            {text : 'test1test1test1'},
+            {text : 'test2test2test2'},
+            {text : 'test3test3test3'},
+            {text : 'test4test4test4',
+                children : [
+                    {text : 'asdfasdfasdf'},
+                    {text : 'zxcvzxcvzxcv'}
+                ]
+            }
+        ]
+    }});
+    tab.l.append(tree);
+    return tab;
 }
 
 })(jQuery)

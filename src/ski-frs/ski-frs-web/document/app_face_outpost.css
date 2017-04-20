@@ -1,9 +1,27 @@
 .frs .body .tab {
     height  : 100%;
 }
-.frs .body .tab >div:nth-child(1) {
-    text-align  : center;
-}
 .frs .body .tab >div:nth-child(1) >div {
     padding : .5em 4em;
+}
+.frs .body .tab >div:nth-child(2) >div {
+    width   : 100%;
+    height  : 100%;
+}
+
+
+.frs .body .tab .jstree-icon {
+    width       : 0;
+    height      : 0;
+    line-height : 0;
+}
+.frs .body .tab .jstree-clicked {
+    color   : #333333;
+}
+.frs .body .tab .jstree-hovered {
+    color   : #333333;
+}
+.frs .body .tab .jstree-anchor {
+    height  : 2em;
+    padding : .25em .5em;
 }

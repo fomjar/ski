@@ -19,8 +19,7 @@ function build_head() {
 }
 
 function build_body() {
-    frs.ui.body().style_lr();
-    
+    frs.ui.layout.lr(frs.ui.body());
     build_body_l();
 }
 

@@ -7,8 +7,10 @@ public class ISIS {
     public static final int FIELD_PIC_SIZE_SMALL    = 2;
     public static final int FIELD_TYPE_MAN          = 0;
     public static final int FIELD_TYPE_CAR          = 1;
-    public static final int FIELD_DEV_IMPORT_ONLINE = 0;
-    public static final int FIELD_DEV_IMPORT_OFFLINE= 1;
+    public static final int FIELD_DEV_ONLINE        = 0;
+    public static final int FIELD_DEV_OFFLINE       = 1;
+    
+    
     
     public static final int INST_UPDATE_PIC             = 0x00001000;
     public static final int INST_UPDATE_PIC_DEL         = 0x00001001;
@@ -26,6 +28,7 @@ public class ISIS {
     public static final int INST_QUERY_SUB_LIB_IMPORT   = 0x00002011;
     public static final int INST_QUERY_SUB_MAN          = 0x00002020;
     public static final int INST_QUERY_SUB_MAN_PIC      = 0x00002021;
+    public static final int INST_QUERY_DEV              = 0x00002030;
     
     public static final int INST_APPLY_SUB_LIB_CHECK    = 0x00003000;
     public static final int INST_APPLY_SUB_LIB_IMPORT   = 0x00003001;

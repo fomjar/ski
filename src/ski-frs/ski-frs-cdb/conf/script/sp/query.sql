@@ -95,3 +95,19 @@ insert into tbl_instruction (
     5,
     "select l.i_slid, l.c_name, l.i_type, l.t_time, count(p.i_smid) from tbl_sub_lib l left join tbl_sub_man p on l.i_slid = p.i_slid group by l.i_slid"
 );
+
+
+
+delete from tbl_instruction where i_inst = (conv('00002030', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00002030', 16, 10) + 0),
+    'st',
+    4,
+    "select c_did, c_path, c_ip, t_time from tbl_dev"
+);
+
