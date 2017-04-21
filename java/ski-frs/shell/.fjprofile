@@ -1,11 +1,8 @@
-alias ll='ls -l'
-alias ..='cd ..'
-alias ...='cd ../..'
 
-fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/fomjar"
-fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-frs/shell/bin"
+fjbase="/Users/fomjar/Documents/My Project/project/00.fomjar/java/fomjar"
+fjbin="/Users/fomjar/Documents/My Project/project/00.fomjar/java/ski-frs/shell/bin"
 
-ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-frs"
+ski_lbase="/Users/fomjar/Documents/My Project/project/00.fomjar/java/ski-frs"
 ski_rbase="/home/ski/ski-frs"
 ski_host=frs.craftvoid.com
 ski_user=ski
