@@ -115,7 +115,6 @@ frs.ui.Dialog = function() {
         var div = $('<div></div>');
         var input = $('<input>');
         input.css('width',      '100%');
-        input.css('text-align', 'center');
         if (attr) {
             $.each(attr, function(k, v) {
                 input.attr(k, v);
@@ -282,9 +281,12 @@ frs.ui.Tab = function() {
             div.tab.children().removeClass('active');
             div.get_tab(name).addClass('active');
             fomjar.util.async(function() {
+                if (old.on_disappear) old.on_disappear();
                 old.detach();
                 div.con.append(cur);
                 fomjar.util.async(function() {cur.removeClass('disappear');});
+                if (cur.on_appear) cur.on_appear();
+                
             }, frs.ui.DELAY / 2);
         } else {
             cur.addClass('disappear');
@@ -292,6 +294,7 @@ frs.ui.Tab = function() {
             fomjar.util.async(function() {
                 div.con.append(cur);
                 cur.removeClass('disappear');
+                if (cur.on_appear) cur.on_appear();
             });
         }
     }

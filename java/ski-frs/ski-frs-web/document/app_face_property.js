@@ -25,8 +25,8 @@ function build_body() {
 
 function build_body_l() {
     frs.ui.body().l.append([
-        $('<label>地点</label>'), new frs.ui.Button('选择地点').to_minor(),
-        $('<label>日期</label>'), new frs.ui.Button('选择日期').to_minor(),
+        $('<label>地点</label>'), new frs.ui.Button('选择地点').to_major(),
+        $('<label>日期</label>'), new frs.ui.Button('选择日期').to_major(),
         $('<label>性别</label>'), $("<select><option>全部</option><option>男</option><option>女</option></select>"),
         $('<label>年龄</label>'), $("<select><option>全部</option><option>0～50</option><option>51～100</option></select>"),
         $('<label>纹理</label>'), $("<select><option>全部</option><option>横条纹</option><option>竖条纹</option></select>"),

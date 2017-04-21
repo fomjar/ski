@@ -1,46 +1,39 @@
 .frs .body {
-    background  : #333344;
-}
-.frs .body >div:nth-child(1) {
-    margin  : 1em;
+    background  : #eeeeee;
 }
 .frs .body >div:nth-child(1) * {
     margin  : 1em;
 }
 .frs .body >div:nth-child(1) input {
     float       : right;
-    background  : #eeeeee;
     width       : 20em;
     margin-left : 0;
 }
 .frs .body >div:nth-child(1) select {
     float       : right;
-    background  : #eeeeee;
 }
 .frs .body >div:nth-child(2) {
     position    : absolute;
-    width       : 100%;
-    top         : 4em;
-    left        : 0;
-    bottom      : 0;
-    padding     : 2em;
+    top         : 4.5em;
+    left        : 1em;
+    right       : 1em;
+    bottom      : 1em;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+    box-shadow  : 0 0 .5em;
 }
 .frs .body >div:nth-child(2) >.cell {
     background  : lightgray;
-            border-radius   : .5em .5em 0 0;
-    -webkit-border-radius   : .5em .5em 0 0;
     font-weight : 700;
 }
 .frs .body >div:nth-child(2) .list {
     position    : absolute;
-    left        : 2em;
-    right       : 2em;
-    top         : 5.5em;
-    bottom      : 2em;
+    left        : 0;
+    right       : 0;
+    top         : 3.5em;
+    bottom      : 0;
     
     background  : white;
-            border-radius   : 0 0 .5em .5em;
-    -webkit-border-radius   : 0 0 .5em .5em;
 }
 .frs .body .cell {
     padding : 1em;

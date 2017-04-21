@@ -23,17 +23,13 @@ function build_body() {
     $.jstree.defaults.core.themes.ellipsis = false;
     
     var tab = new frs.ui.Tab();
+    tab.addClass('tab-shadow');
     tab.add_tab('在线卡口', build_tab_online());
     tab.add_tab('离线卡口', build_tab_offline(), true);
     frs.ui.body().append(tab);
 }
 
 function build_tab_online() {
-    var tab = frs.ui.layout.lrb($('<div></div>'));
-    return tab;
-}
-
-function build_tab_offline() {
     var tab = frs.ui.layout.lrb($('<div></div>'));
     var tree = $('<div></div>');
     tree.jstree({core : {
@@ -51,6 +47,25 @@ function build_tab_offline() {
     }});
     tab.l.append(tree);
     return tab;
+}
+
+function build_tab_offline() {
+    var div = $('<div></div>');
+    div.addClass('tab-of');
+    div.append([
+        $('<div></div>').append([
+            $("<select><option>OPP-1</option><option>OPP-2</option><option>OPP-3</option></select>"),
+            $("<input type='text' placeholder='输入服务器中视频文件的本地路径'>"),
+            new frs.ui.Button('开始分析', function() {
+                div.find('>div').css('top', '0');
+                fomjar.util.async(function() {div.find('>div').css('top', '');}, 1000);
+            }).to_major()
+        ]),
+    ]);
+    div.on_appear = function() {
+        fomjar.util.async(function() {div.find('input').focus();}, frs.ui.DELAY / 2);
+    };
+    return div;
 }
 
 })(jQuery)

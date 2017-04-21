@@ -21,7 +21,7 @@ function build_head() {
 
 function build_body() {
     var tool = $('<div></div>').append([
-        new frs.ui.Button('创建人像库', tool_create).to_minor(),
+        new frs.ui.Button('创建人像库', tool_create).to_major(),
         $("<input placeholder='搜索'>"),
         $("<select><option value='库名'>库名</option><option value='人名'>人名</option><option value='电话'>电话</option><option value='地址'>地址</option><option value='身份证'>身份证</option></select>"),
     ]);
