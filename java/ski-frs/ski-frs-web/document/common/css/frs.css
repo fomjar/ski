@@ -220,19 +220,6 @@ html, body {
     color       : rgba(0, 0, 0, .5);
 }
 
-.frs .list-dark {
-    color       : #eeeeee;
-}
-.frs .list-dark >div:hover {
-    background  : #ccccff;
-    color       : black;
-    opacity     : .9;
-}
-.frs .list-dark >div:active {
-    background  : #ccccff;
-    color       : black;
-}
-
 .frs .tab {}
 .frs .tab >div:nth-child(1) {
     width       : 100%;
@@ -405,11 +392,13 @@ html, body {
 .frs .head >div {
     display     : inline-block;
     text-align  : center;
-    line-height : 3em;
+    line-height : 3.3em;
     padding     : 0 2em;
+    vertical-align  : top;
     color       : #eeeeee;
     cursor      : pointer;
-    vertical-align  : top;
+            user-select : none;
+    -webkit-user-select : none;
 }
 .frs .head >div:hover {
     background  : #666699;
@@ -423,6 +412,26 @@ html, body {
     background  : #666699 !important;
     box-shadow  : 0 0 1.5em .5em #666699 !important;
 }
+.frs .head .home {
+    width       : 2.8em;
+    height      : 2.8em;
+    line-height : 2.8em;
+    padding     : 0;
+    margin      : .25em 0;
+    font-weight : 700;
+            border-radius   : .6em;
+    -webkit-border-radius   : .6em;
+    
+    background  : #996666;
+}
+.frs .head .home:hover {
+    opacity     : .9;
+    background  : #996666;
+}
+.frs .head .home:active {
+    opacity     : 1;
+    background  : #996666;
+}
 
 .frs .l {
     position    : absolute;
@@ -431,7 +440,6 @@ html, body {
     height      : 100%;
     top         : 0;
     left        : 0;
-    padding     : 2em;
     overflow    : auto;
     background  : #eeeeee;
     box-shadow  : 0 0 .5em;
@@ -441,7 +449,7 @@ html, body {
     margin-top  : 2em;
 }
 .frs .l >.button {
-    width       : 100%;
+    width   : 100%;
 }
 .frs .l img {
     background  : white;

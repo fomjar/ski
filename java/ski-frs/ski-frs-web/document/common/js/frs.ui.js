@@ -180,11 +180,6 @@ frs.ui.List = function() {
     var list = $('<div></div>');
     list.addClass('list');
 
-    list.to_dark = function() {
-        list.addClass('list-dark');
-        return list;
-    };
-
     list.append_cell = function(options) {
         var cell = $('<div></div>');
 
@@ -463,8 +458,8 @@ frs.ui.shape.Option = function(point, color, width, height) {
         p.css('-webkit-border-radius', point);
         div.append(p);
     }
-    div.find('>div:nth-child(1)').css('left',   '25%');
-    div.find('>div:nth-child(3)').css('left',   '75%');
+    div.find('>div:nth-child(1)').css('left',   '10%');
+    div.find('>div:nth-child(3)').css('left',   '90%');
 
     if (width)  div.css('width',  width);
     if (height) div.css('height', height);
@@ -488,8 +483,8 @@ frs.ui.shape.Drag = function(line, color, width, height) {
         div.append(l);
     }
 
-    div.find('>div:nth-child(1)').css('top',    '25%');
-    div.find('>div:nth-child(3)').css('top',    '75%');
+    div.find('>div:nth-child(1)').css('top',    '10%');
+    div.find('>div:nth-child(3)').css('top',    '90%');
 
     if (width)  div.css('width',  width);
     if (height) div.css('height', height);
@@ -501,12 +496,29 @@ frs.ui.head = function() {
     if (frs.ui._head) return frs.ui._head;
 
     var head = $('.frs .head');
-    head.add_item = function(item, action) {
+    head.append_item = function(item, action) {
         var div = $('<div></div>');
         div.append(item);
         if (action) div.bind('click', action);
         head.append(div);
         return div;
+    };
+    head.append_space = function(width) {
+        var space = $('<div></div>');
+        space.css('padding', '0');
+        space.css('width',   width);
+        head.append(space);
+        return space;
+    };
+    head.style_default = function() {
+        head.children().detach();
+        
+        var home = $('<div>APP</div>');
+        home.addClass('home');
+        home.bind('click', function() {window.location = 'app.html'});
+        
+        head.append(home);
+        head.append_space('2em');
     };
     
     frs.ui._head = head;

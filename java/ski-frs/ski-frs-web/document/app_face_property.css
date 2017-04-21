@@ -1,3 +1,4 @@
-.frs .body .l >*:nth-child(1) {
-    margin-top  : 0;
+.frs .body .l {
+    padding     : 2em;
+    padding-top : 0;
 }

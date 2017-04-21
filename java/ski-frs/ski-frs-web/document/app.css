@@ -1,6 +1,9 @@
 .frs {
     background  : #333333;
 }
+.frs .head {
+    display : none;
+}
 .frs .dialog {
     width       : 50%;
     max-height  : 80%;

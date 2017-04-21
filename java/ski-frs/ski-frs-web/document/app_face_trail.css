@@ -1,11 +1,11 @@
-.frs .body .l >*:nth-child(1) {
-    margin-top  : 0;
+.frs .body .l {
+    padding     : 2em;
+    padding-top : 0;
 }
 
 .frs .body .l img {
     width   : 10em;
     height  : 10em;
-    border  : 0;
 }
 .frs .body .l input[type=file] {
     width   : 10em;
