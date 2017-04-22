@@ -6,7 +6,16 @@ fomjar.framework.phase.append('ini', init);
 fomjar.framework.phase.append('dom', build_frame);
 
 function init() {
-    // initialize
+    if (FastClick) {
+        FastClick.attach(document.body);
+    }
+    
+    if ($.jstree) {
+        $.jstree.defaults.core.themes.icons = false;
+        $.jstree.defaults.core.themes.ellipsis = false;
+    }
+    
+    // config
     frs.config = function(key, val) {
         if (val) {
             return fomjar.util.cookie(key, val);

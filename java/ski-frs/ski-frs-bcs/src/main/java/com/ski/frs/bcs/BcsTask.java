@@ -45,6 +45,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_UPDATE_DEV:
             processUpdateDev(server, dmsg);
             break;
+        case ISIS.INST_UPDATE_DEV_DEL:
+            processUpdateDevDel(server, dmsg);
+            break;
         case ISIS.INST_QUERY_PIC:
             processQueryPic(server, dmsg);
             break;
@@ -116,6 +119,19 @@ public class BcsTask implements FjServerTask {
         JSONObject args = dmsg.argsToJsonObject();
         if (!args.has("did") || !args.has("path")) {
             String err = "illegal arguments, no did, path";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        
+        FjServerToolkit.dscpRequest("cdb", dmsg.sid(), dmsg.inst(), args);
+        waitSessionForResponse(server, dmsg);
+    }
+    
+    private static void processUpdateDevDel(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("did")) {
+            String err = "illegal arguments, no did";
             logger.error(err + ", " + args);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
             return;

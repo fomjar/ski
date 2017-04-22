@@ -89,7 +89,7 @@ html, body {
     display         : inline-block;
     vertical-align  : top;
     text-align      : center;
-    padding         : .75em 1em;
+    padding         : .5em 1em;
             border-radius   : .2em;
     -webkit-border-radius   : .2em;
             user-select : none;
@@ -231,6 +231,8 @@ html, body {
     padding         : .5em 1em;
     vertical-align  : middle;
     cursor          : pointer;
+            user-select : none;
+    -webkit-user-select : none;
             border-radius : .5em .5em 0 0;
     -webkit-border-radius : .5em .5em 0 0;
 }
@@ -374,7 +376,7 @@ html, body {
     top         : 0;
     left        : 0;
     white-space : nowrap;
-    overflow    : initial;
+    overflow-x  : auto;
     padding     : 0 2em;
     background  : #333333;
     box-shadow  : 0 0 .5em;
@@ -427,10 +429,12 @@ html, body {
 .frs .head .home:hover {
     opacity     : .9;
     background  : #996666;
+    box-shadow  : 0 0 .5em #996666;
 }
 .frs .head .home:active {
     opacity     : 1;
     background  : #996666;
+    box-shadow  : none;
 }
 
 .frs .l {
@@ -513,3 +517,11 @@ html, body {
     max-width   : 100%;
     height      : 8em;
 }
+
+
+/* component */
+.jstree-icon {
+            transition  : none;
+    -webkit-transition  : none;
+}
+

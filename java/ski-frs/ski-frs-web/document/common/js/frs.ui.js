@@ -610,7 +610,5 @@ frs.ui.BlockPicture = function(options) {
     return div;
 };
 
-FastClick.attach(document.body);
-
 });
 })(jQuery);

@@ -53,6 +53,8 @@ public class FjServer extends FjLoopTask {
         try {task.initialize(this);}
         catch (Exception e) {logger.error("initialize task failed", e);}
     }
+    
+    public void clearDscpSession() {dscps.clear();}
 
     @Override
     public void perform() {

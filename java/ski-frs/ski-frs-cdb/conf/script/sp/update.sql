@@ -370,3 +370,18 @@ insert into tbl_instruction (
 
 
 
+delete from tbl_instruction where i_inst = (conv('00001031', 16, 10) + 0);
+insert into tbl_instruction (
+    i_inst,
+    c_mode,
+    i_out,
+    c_sql
+) values (
+    (conv('00001031', 16, 10) + 0),
+    'st',
+    0,
+    "delete from tbl_dev where c_did = \"$did\""
+);
+
+
+

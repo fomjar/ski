@@ -20,6 +20,7 @@ public class ISIS {
     public static final int INST_UPDATE_SUB_MAN_DEL     = 0x00001021;
     public static final int INST_UPDATE_SUB_MAN_PIC     = 0x00001022;
     public static final int INST_UPDATE_DEV             = 0x00001030;
+    public static final int INST_UPDATE_DEV_DEL         = 0x00001031;
     
     public static final int INST_QUERY_PIC              = 0x00002000;
     public static final int INST_QUERY_PIC_BY_FV_I      = 0x00002001;

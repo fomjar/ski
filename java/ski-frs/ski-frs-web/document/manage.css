@@ -1,11 +1,22 @@
-.frs .body .oper {
-    background      : #eeeeee;
+.frs .body .bar-s {
     border-bottom   : 1px solid lightgray;
 }
-.frs .body .oper .button {
+.frs .body .bar-s .button {
     padding     : .25em;
     margin      : .5em;
     min-width   : 1.5em;
     height      : 1.5em;
+}
+.frs .body .bar-l {
+    background      : #eeeeee;
+    border-bottom   : 1px solid lightgray;
+}
+.frs .body .bar-l .button {
+    padding     : .25em .5em;
+    margin      : .5em;
+}
+
+.frs .body .jstree {
+    padding : 1em;
 }
 

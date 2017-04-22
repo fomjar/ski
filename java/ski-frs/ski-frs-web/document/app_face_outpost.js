@@ -20,9 +20,6 @@ function build_head() {
 }
 
 function build_body() {
-    $.jstree.defaults.core.themes.icons = false;
-    $.jstree.defaults.core.themes.ellipsis = false;
-    
     var tab = new frs.ui.Tab();
     tab.addClass('tab-shadow');
     tab.add_tab('在线卡口', build_tab_online());
@@ -32,8 +29,7 @@ function build_body() {
 
 function build_tab_online() {
     var tab = frs.ui.layout.lrb($('<div></div>'));
-    var tree = $('<div></div>');
-    tree.jstree({core : {
+    var tree = $('<div></div>').jstree({core : {
         data : [
             {text : 'test1test1test1'},
             {text : 'test2test2test2'},
