@@ -1,11 +1,3 @@
-.frs .body .tab {
-    height  : 100%;
-}
-
-.frs .body .tab >div:nth-child(1) >div {
-    padding     : .5em 4em;
-}
-
 .frs .body .tab .tab-of {
     height      : 100%;
     width       : 100%;

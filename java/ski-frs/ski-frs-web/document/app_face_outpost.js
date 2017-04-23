@@ -21,7 +21,8 @@ function build_head() {
 
 function build_body() {
     var tab = new frs.ui.Tab();
-    tab.addClass('tab-shadow');
+    tab.addClass('tab-shadow tab-fix');
+    tab.css('height', '100%');
     tab.add_tab('在线卡口', build_tab_online());
     tab.add_tab('离线卡口', build_tab_offline(), true);
     frs.ui.body().append(tab);

@@ -228,7 +228,7 @@ html, body {
 }
 .frs .tab >div:nth-child(1) >div {
     display         : inline-block;
-    padding         : .5em 1em;
+    padding         : .5em 2em;
     vertical-align  : middle;
     cursor          : pointer;
             user-select : none;
@@ -264,15 +264,18 @@ html, body {
     z-index : 1;
 }
 .frs .tab-shadow >div:nth-child(2) {
+    box-shadow  : 0 0 .5em;
+}
+.frs .tab-shadow .active {
+    box-shadow  : 0 0 .5em;
+}
+.frs .tab-fix {}
+.frs .tab-fix >div:nth-child(2) {
     position    : absolute;
     top         : 3.5em;
     left        : 1em;
     right       : 1em;
     bottom      : 1em;
-    box-shadow  : 0 0 .5em;
-}
-.frs .tab-shadow .active {
-    box-shadow  : 0 0 .5em;
 }
 
 .frs .pager {

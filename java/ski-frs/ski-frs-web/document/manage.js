@@ -29,22 +29,30 @@ function build_body() {
 }
 
 function build_body_dev() {
-    frs.ui.layout.lr(frs.ui.body());
+    var tab = new frs.ui.Tab();
+    tab.addClass('tab-shadow tab-fix');
+    tab.css('height', '100%');
+    tab.add_tab('预览视图', tab.tab_tree = frs.ui.layout.lr($('<div></div>')), true);
+    tab.add_tab('清单视图', tab.tab_list = $('<div></div>'));
+    tab.tab_tree.css('height', '100%');
+    tab.tab_list.css('height', '100%');
+
+    frs.ui.body().append(frs.ui.body().tab = tab);
     
-    build_body_dev_l();
+    build_body_dev_tree();
 }
 
-function build_body_dev_l() {
+function build_body_dev_tree() {
     var bar = $('<div></div>');
     bar.addClass('bar-s');
     bar.append(new frs.ui.Button(new frs.ui.shape.Plus('1px', '#333344', '1.5em', '1.5em'), create_dev));
     
-    frs.ui.body().l.append(bar);
+    frs.ui.body().tab.tab_tree.l.append(bar);
 }
 
 function build_body_pic() {
     var bar = $('<div></div>');
-    bar.addClass('bar-s');
+    bar.addClass('bar-l');
     
     bar.append([
         new frs.ui.Button('批量导入'),
@@ -62,7 +70,9 @@ function update() {
 }
 
 function update_dev() {
-    frs.ui.body().l.find('.jstree').detach();
+    var tab_tree = frs.ui.body().tab.tab_tree;
+    
+    tab_tree.l.find('.jstree').detach();
     select_dev();
     
     var mask = new frs.ui.Mask();
@@ -79,7 +89,7 @@ function update_dev() {
         }
         
         var tree = $('<div></div>').jstree({core : {data : tree_dev(desc)}});
-        frs.ui.body().l.append(tree);
+        frs.ui.body().tab.tab_tree.l.append(tree);
         tree.on('select_node.jstree', function(e, data) {if (data.node.original.leaf) select_dev(data.node.original.dev);});
     });
 }
@@ -185,7 +195,9 @@ function create_dev() {
 }
 
 function select_dev(dev) {
-    frs.ui.body().r.children().detach();
+    var tab_tree = frs.ui.body().tab.tab_tree;
+    
+    tab_tree.r.children().detach();
     
     if (!dev) return;
     
@@ -222,7 +234,7 @@ function select_dev(dev) {
             dialog.appear();
         }).to_major(),
     ]);
-    frs.ui.body().r.append(bar);
+    tab_tree.r.append(bar);
     
     btn_del.css('float', 'right');
     btn_del.css('background', '#996666');
