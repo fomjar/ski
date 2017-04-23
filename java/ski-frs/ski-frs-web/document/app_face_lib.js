@@ -21,35 +21,22 @@ function build_head() {
 }
 
 function build_body() {
-    var tool = $('<div></div>').append([
+    var bar = $('<div></div>').append([
         new frs.ui.Button('创建人像库', tool_create).to_major(),
         $("<input placeholder='搜索'>"),
         $("<select><option value='库名'>库名</option><option value='人名'>人名</option><option value='电话'>电话</option><option value='地址'>地址</option><option value='身份证'>身份证</option></select>"),
     ]);
-    var head = new Cell([
-        $('<div>名称</div>'),
-        $('<div>主体数量</div>'),
-        $('<div>创建时间</div>'),
-        $('<div>操作</div>'),
-    ]);
+    var head = new frs.ui.ListCellTable(['名称', '主体数量', '创建时间', '操作']);
     var list = new frs.ui.List();
+    frs.ui.body().append([bar, $('<div></div>').append([head, list])]);
     
-    frs.ui.body().append([tool, $('<div></div>').append([head, list])]);
-    
-    tool.find('input').bind('keydown', function(e) {
+    bar.find('input').bind('keydown', function(e) {
         if (13 == e.keyCode) {
-            var type = tool.find('select').val();
-            var text = tool.find('input').val().trim();
+            var type = bar.find('select').val();
+            var text = bar.find('input').val().trim();
             tool_search(type, text);
         }
     })
-}
-
-function Cell(array) {
-    var cell = $('<div></div>');
-    cell.addClass('cell');
-    cell.append(array);
-    return cell;
 }
 
 function update() {
@@ -69,7 +56,8 @@ function update() {
             return;
         }
         $.each(desc, function(i, l) {
-            list.append(new Cell([
+            var btn_del;
+            list.append(new frs.ui.ListCellTable([
                 $('<div></div>').append(l.name),
                 $('<div></div>').append(l.count),
                 $('<div></div>').append(l.time.replace('.0', '')),
@@ -77,9 +65,10 @@ function update() {
                     new frs.ui.Button('修改', function() {op_modify(l);}).to_major(),
                     new frs.ui.Button('浏览', function() {op_browse(l);}).to_major(),
                     new frs.ui.Button('导入', function() {op_import(l);}).to_major(),
-                    new frs.ui.Button('删除', function() {op_delete(l);}).to_major(),
+                    btn_del = new frs.ui.Button('删除', function() {op_delete(l);}).to_major(),
                 ]),
             ]));
+            btn_del.css('background', '#663333');
         });
     });
 }

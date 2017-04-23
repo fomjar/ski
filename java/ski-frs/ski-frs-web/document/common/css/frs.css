@@ -220,6 +220,18 @@ html, body {
     color       : rgba(0, 0, 0, .5);
 }
 
+.frs .list-cell-table {}
+.frs .list-cell-table >div {
+    display         : inline-block;
+    text-align      : center;
+    vertical-align  : middle;
+}
+.frs .list-cell-table .button {
+    padding     : .25em .5em;
+    margin      : 0 .25em;
+    font-size   : .8em;
+}
+
 .frs .tab {}
 .frs .tab >div:nth-child(1) {
     width       : 100%;

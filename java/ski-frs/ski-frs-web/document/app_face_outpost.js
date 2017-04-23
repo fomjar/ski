@@ -23,13 +23,13 @@ function build_body() {
     var tab = new frs.ui.Tab();
     tab.addClass('tab-shadow tab-fix');
     tab.css('height', '100%');
-    tab.add_tab('在线卡口', build_tab_online());
-    tab.add_tab('离线卡口', build_tab_offline(), true);
-    frs.ui.body().append(tab);
+    tab.add_tab('在线卡口', tab.tab_on = create_tab_online());
+    tab.add_tab('离线卡口', tab.tab_of = create_tab_offline(), true);
+    frs.ui.body().append(frs.ui.body().tab = tab);
 }
 
-function build_tab_online() {
-    var tab = frs.ui.layout.lrb($('<div></div>'));
+function create_tab_online() {
+    var div = frs.ui.layout.lrb($('<div></div>'));
     var tree = $('<div></div>').jstree({core : {
         data : [
             {text : 'test1test1test1'},
@@ -43,11 +43,11 @@ function build_tab_online() {
             }
         ]
     }});
-    tab.l.append(tree);
-    return tab;
+    div.l.append(tree);
+    return div;
 }
 
-function build_tab_offline() {
+function create_tab_offline() {
     var div = $('<div></div>');
     div.addClass('tab-of');
     div.append([

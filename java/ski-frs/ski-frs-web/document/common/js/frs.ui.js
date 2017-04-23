@@ -219,9 +219,23 @@ frs.ui.List = function() {
         list.append(cell);
         return cell;
     };
-
+    
     return list;
 }
+frs.ui.ListCellTable = function(columns) {
+    var cell = $('<div></div>');
+    cell.addClass('list-cell-table');
+    
+    var width = 100 / columns.length;
+    $.each(columns, function(i, c) {
+        var dc = $('<div></div>');
+        dc.css('width', width + '%');
+        dc.append(c);
+        cell.append(dc);
+    });
+    
+    return cell;
+};
 
 frs.ui.Tab = function() {
     var div = $('<div></div>');
