@@ -365,7 +365,7 @@ insert into tbl_instruction (
     (conv('00001030', 16, 10) + 0),
     'st',
     0,
-    "replace into tbl_dev (c_did, c_path, c_ip, t_time) values (\"$did\", \"$path\", \"$ip\", ifnull(\"$time\", now()))"
+    "replace into tbl_dev (c_did, c_path, t_time, c_ip, i_port, c_user, c_pass) values (\"$did\", \"$path\", ifnull(\"$time\", now()), \"$ip\", $port, \"$user\", \"$pass\")"
 );
 
 

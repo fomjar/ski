@@ -16,6 +16,14 @@
     margin      : .5em;
 }
 
+.frs .body .player {
+    position    : absolute;
+    top         : 2.5em;
+    left        : 0;
+    width       : 100%;
+    bottom      : 0;
+}
+
 .frs .body .jstree {
     padding : 1em;
 }

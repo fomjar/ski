@@ -57,7 +57,7 @@ function build_body_dev_list() {
     bar.append([
         new frs.ui.Button('创建设备', op_create_dev),
     ]);
-    var head = new frs.ui.ListCellTable(['编号', '路径', 'IP地址', '创建时间', '操作']);
+    var head = new frs.ui.ListCellTable(['编号', '路径', '创建时间', 'IP地址', '端口', '操作']);
     head.css('font-weight', '700');
     head.css('padding', '1em');
     head.css('background', 'white');
@@ -123,8 +123,9 @@ function update_dev_list(devs) {
         list.append(new frs.ui.ListCellTable([
             dev.did,
             dev.path,
-            dev.ip,
             dev.time.replace('.0', ''),
+            dev.ip,
+            dev.port,
             [btn_del = new frs.ui.Button('删除', function() {op_delete_dev(dev);}).to_major()]
         ]));
         btn_del.css('background', '#663333');
@@ -138,16 +139,29 @@ function select_dev_prev(dev) {
     
     if (!dev) return;
     
+    var btn_del;
     var bar = $('<div></div>');
     bar.addClass('bar-l');
-    var btn_del;
     bar.append([
         btn_del = new frs.ui.Button('删除此设备', function() {op_delete_dev(dev);}).to_major(),
     ]);
-    tab_prev.r.append(bar);
-    
     btn_del.css('float', 'right');
     btn_del.css('background', '#663333');
+    
+    var player = $('<div></div>');
+    player.addClass('player');
+    player.attr('id', 'player_' + dev.did);
+    
+    tab_prev.r.append([bar, player]);
+    
+    if (frs.video.check()) {
+        player = new frs.video.Player(dev, 'player_' + dev.did);
+        player.init();
+        player.login(function() {
+            alert('登陆成功');
+            player.play();
+        }, function() {alert('登陆失败');});
+    }
 }
 
 function update_pic() {
@@ -166,6 +180,9 @@ function op_create_dev() {
     var did  = dialog.append_input({placeholder : '编号'});
     var path = dialog.append_input({placeholder : '显示路径，以英文“/”号分割'});
     var ip   = dialog.append_input({placeholder : 'IP地址'});
+    var port = dialog.append_input({placeholder : '端口号'});
+    var user = dialog.append_input({placeholder : '用户名'});
+    var pass = dialog.append_input({placeholder : '密码', type : 'password'});
     dialog.append_button(new frs.ui.Button('提交', function() {
         if (!did.val()) {
             new frs.ui.hud.Minor('编号不能为空').appear(1500);
@@ -177,10 +194,33 @@ function op_create_dev() {
             dialog.shake();
             return;
         }
+        if (!ip.val()) {
+            new frs.ui.hud.Minor('IP地址不能为空').appear(1500);
+            dialog.shake();
+            return;
+        }
+        if (!port.val()) {
+            new frs.ui.hud.Minor('端口号不能为空').appear(1500);
+            dialog.shake();
+            return;
+        }
+        if (!user.val()) {
+            new frs.ui.hud.Minor('用户名不能为空').appear(1500);
+            dialog.shake();
+            return;
+        }
+        if (!pass.val()) {
+            new frs.ui.hud.Minor('密码不能为空').appear(1500);
+            dialog.shake();
+            return;
+        }
         fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
             did     : did.val(),
             path    : path.val(),
-            ip      : ip.val()
+            ip      : ip.val(),
+            port    : parseInt(port.val()),
+            user    : user.val(),
+            pass    : pass.val()
         }, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);

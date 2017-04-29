@@ -12,9 +12,12 @@ create table tbl_instruction (
 drop table if exists tbl_dev;
 create table tbl_dev (
     c_did   varchar(64),    -- 编号
-    c_path  text,           -- 路径(包含名称)：市／区／卡点
-    c_ip    varchar(20),    -- IP
+    c_path  varchar(512),   -- 路径(包含名称)：市／区／卡点
     t_time  datetime,       -- 创建时间
+    c_ip    varchar(20),    -- IP
+    i_port  integer,        -- 端口
+    c_user  varchar(24),    -- 用户名
+    c_pass  varchar(24),    -- 密码
     primary key(c_did)
 );
 
