@@ -32,8 +32,8 @@ function build_body_dev() {
     var tab = new frs.ui.Tab();
     tab.addClass('tab-shadow tab-fix');
     tab.css('height', '100%');
-    tab.add_tab('预览视图', tab.tab_prev = frs.ui.layout.lr($('<div></div>')), true);
-    tab.add_tab('清单视图', tab.tab_list = $('<div></div>'));
+    tab.add_tab('清单视图', tab.tab_list = $('<div></div>'), true);
+    tab.add_tab('预览视图', tab.tab_prev = frs.ui.layout.lr($('<div></div>')));
     tab.tab_prev.css('height', '100%');
     tab.tab_list.css('height', '100%');
 
@@ -57,7 +57,7 @@ function build_body_dev_list() {
     bar.append([
         new frs.ui.Button('创建设备', op_create_dev),
     ]);
-    var head = new frs.ui.ListCellTable(['编号', '路径', '创建时间', 'IP地址', '端口', '操作']);
+    var head = new frs.ui.ListCellTable(['编号', '路径', '创建时间', 'IP地址', '设备状态', '操作']);
     head.css('font-weight', '700');
     head.css('padding', '1em');
     head.css('background', 'white');
@@ -106,11 +106,18 @@ function update_dev() {
 function update_dev_prev(devs) {
     var tab_prev = frs.ui.body().tab.tab_prev;
     tab_prev.l.find('.jstree').detach();
-    select_dev_prev();
+    select_devs_prev();
     
-    var tree = $('<div></div>').jstree({core : {data : tree_dev(devs)}});
+    var data = tree_dev(devs);
+    var tree = $('<div></div>').jstree({core : {data : data.children}});
+    tree.data = data;
     frs.ui.body().tab.tab_prev.l.append(tree);
-    tree.on('select_node.jstree', function(e, data) {if (data.node.original.leaf) select_dev_prev(data.node.original.dev);});
+    
+    tree.on('select_node.jstree', function(e, data) {
+        var node = tree.data.find_child_deep(data.node.text);
+        var devs = $.map(node.leaves(), function(n) {return n.dev;});
+        select_devs_prev(devs);
+    });
 }
 
 function update_dev_list(devs) {
@@ -120,47 +127,73 @@ function update_dev_list(devs) {
     
     $.each(devs, function(i, dev) {
         var btn_del;
+        dev.div = $('<div></div>');
+        dev.div.text('正在检测');
         list.append(new frs.ui.ListCellTable([
             dev.did,
             dev.path,
             dev.time.replace('.0', ''),
             dev.ip,
-            dev.port,
+            dev.div,
             [btn_del = new frs.ui.Button('删除', function() {op_delete_dev(dev);}).to_major()]
         ]));
+        
         btn_del.css('background', '#663333');
     });
+    
+    if (devs && devs.length) {
+        fomjar.util.async(function() {
+            var player = new frs.video.Player(devs);
+            player.login();
+            $.each(devs, function(i, dev) {
+                player.info(i, function(dev, xml) {
+                    dev.div.text('在线');
+                    dev.div.css('color', 'green');
+                }, function(dev) {
+                    dev.div.text('离线');
+                    dev.div.css('color', 'red');
+                });
+            });
+            player.destory();
+        });
+    }
 }
 
-function select_dev_prev(dev) {
+function select_devs_prev(devs) {
     var tab_prev = frs.ui.body().tab.tab_prev;
-    
+    if (tab_prev.r.player) tab_prev.r.player.destory();
     tab_prev.r.children().detach();
     
-    if (!dev) return;
+    if (!devs || !devs.length) return;
     
-    var btn_del;
     var bar = $('<div></div>');
     bar.addClass('bar-l');
-    bar.append([
-        btn_del = new frs.ui.Button('删除此设备', function() {op_delete_dev(dev);}).to_major(),
-    ]);
-    btn_del.css('float', 'right');
-    btn_del.css('background', '#663333');
+    if (1 == devs.length) {
+        var btn_del;
+        bar.append([
+            btn_del = new frs.ui.Button('删除此设备', function() {op_delete_dev(devs[0]);}).to_major(),
+        ]);
+        btn_del.css('float', 'right');
+        btn_del.css('background', '#663333');
+    }
     
-    var player = $('<div></div>');
-    player.addClass('player');
-    player.attr('id', 'player_' + dev.did);
+    var div_player = $('<div></div>');
+    div_player.addClass('player');
+    var id = 'player_' + new Date().getTime().toString();
+    div_player.attr('id', id);
     
-    tab_prev.r.append([bar, player]);
+    tab_prev.r.append([bar, div_player]);
     
-    if (frs.video.check()) {
-        player = new frs.video.Player(dev, 'player_' + dev.did);
-        player.init();
-        player.login(function() {
-            alert('登陆成功');
+    if (frs.video.available()) {
+        var player = new frs.video.Player(devs, id);
+        tab_prev.r.player = player;
+        fomjar.util.async(function() {
+            player.login(
+                function() {},
+                function() {alert('登陆失败');}
+            );
             player.play();
-        }, function() {alert('登陆失败');});
+        });
     }
 }
 
@@ -180,59 +213,73 @@ function op_create_dev() {
     var did  = dialog.append_input({placeholder : '编号'});
     var path = dialog.append_input({placeholder : '显示路径，以英文“/”号分割'});
     var ip   = dialog.append_input({placeholder : 'IP地址'});
-    var port = dialog.append_input({placeholder : '端口号'});
     var user = dialog.append_input({placeholder : '用户名'});
     var pass = dialog.append_input({placeholder : '密码', type : 'password'});
-    dialog.append_button(new frs.ui.Button('提交', function() {
-        if (!did.val()) {
-            new frs.ui.hud.Minor('编号不能为空').appear(1500);
-            dialog.shake();
-            return;
-        }
+    var checkNoDid = function() {
         if (!path.val()) {
             new frs.ui.hud.Minor('显示路径不能为空').appear(1500);
             dialog.shake();
-            return;
+            return false;
         }
         if (!ip.val()) {
             new frs.ui.hud.Minor('IP地址不能为空').appear(1500);
             dialog.shake();
-            return;
-        }
-        if (!port.val()) {
-            new frs.ui.hud.Minor('端口号不能为空').appear(1500);
-            dialog.shake();
-            return;
+            return false;
         }
         if (!user.val()) {
             new frs.ui.hud.Minor('用户名不能为空').appear(1500);
             dialog.shake();
-            return;
+            return false;
         }
         if (!pass.val()) {
             new frs.ui.hud.Minor('密码不能为空').appear(1500);
             dialog.shake();
-            return;
+            return false;
         }
-        fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
-            did     : did.val(),
-            path    : path.val(),
-            ip      : ip.val(),
-            port    : parseInt(port.val()),
-            user    : user.val(),
-            pass    : pass.val()
-        }, function(code, desc) {
-            if (code) {
-                new frs.ui.hud.Minor(desc).appear(1500);
+        return true;
+    };
+    dialog.append_buttons([
+        new frs.ui.Button('自动获取编号', function() {
+            if (!checkNoDid()) return;
+            
+            fomjar.util.async(function() {
+                var player = new frs.video.Player([{ip : ip.val(), user : user.val(), pass : pass.val()}]);
+                player.login(function(dev, xml) {
+                    player.info(0, function(dev, xml) {did.val(xml.childNodes[0].childNodes[3].textContent);});
+                }, function() {
+                    new frs.ui.hud.Minor('登陆设备失败').appear(1500);
+                    dialog.shake();
+                });
+                player.destory();
+            });
+        }).to_major(),
+        new frs.ui.Button('提交', function() {
+            if (!did.val()) {
+                new frs.ui.hud.Minor('编号不能为空').appear(1500);
                 dialog.shake();
-                return;
+                return false;
             }
-            new frs.ui.hud.Minor('创建成功').appear(1500);
-            mask.disappear();
-            dialog.disappear();
-            update();
-        });
-    }).to_major());
+            if (!checkNoDid()) return;
+            
+            fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
+                did     : did.val(),
+                path    : path.val(),
+                ip      : ip.val(),
+                user    : user.val(),
+                pass    : pass.val()
+            }, function(code, desc) {
+                if (code) {
+                    new frs.ui.hud.Minor(desc).appear(1500);
+                    dialog.shake();
+                    return;
+                }
+                new frs.ui.hud.Minor('创建成功').appear(1500);
+                mask.disappear();
+                dialog.disappear();
+                update();
+            });
+        }).to_major()
+    ]);
     
     mask.appear();
     dialog.appear();
@@ -278,24 +325,23 @@ function tree_dev(devs) {
         while (-1 < (j = path.indexOf('/', i))) {
             var t = path.substring(i, j);
             var c;
-            if (!cur.find(t)) {
+            if (!cur.find_child(t)) {
                 c = tree_node(t);
                 cur.children.push(c);
-            } else c = cur.find(t);
+            } else c = cur.find_child(t);
             
             cur = c;
             i = j + 1;
         }
         
         var t = path.substring(i);
-        if (!cur.find(t)) {
-            var c = tree_node(t);
-            c.leaf = true;
+        if (!cur.find_child(t)) {
+            var c = tree_node(t + '(' + dev.did + ')');
             c.dev = dev;
             cur.children.push(c);
         }
     });
-    return tree.children;
+    return tree;
 }
 
 function tree_node(text) {
@@ -305,14 +351,33 @@ function tree_node(text) {
         state       : {
             opened  : true,
         },
-        find        : function(text) {
-            var r;
+        find_child  : function(text) {
+            var r = null;
             $.each(node.children, function(i, c) {
                 if (c.text == text) {
                     r = c;
                     return false;
                 }
             });
+            return r;
+        },
+        find_child_deep : function(text) {
+            if (node.text == text) return node;
+            
+            var r = null;
+            $.each(node.children, function(i, c) {
+                if (r = c.find_child_deep(text)) return false;
+            });
+            return r;
+        },
+        leaves  : function() {
+            var r = [];
+            if (!node.children.length) r.push(node);
+            else {
+                $.each(node.children, function(i, c) {
+                    r = r.concat(c.leaves());
+                });
+            }
             return r;
         }
     };

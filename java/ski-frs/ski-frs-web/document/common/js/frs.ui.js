@@ -57,6 +57,8 @@ frs.ui.Dialog = function() {
     dialog.addClass('dialog center');
 
     dialog.appear = function() {
+        frs.ui.body().find('object').hide();
+        
         dialog.addClass('dialog-disappear');
         $('.frs').append(dialog);
         fomjar.util.async(function() {dialog.removeClass('dialog-disappear');});
@@ -69,7 +71,12 @@ frs.ui.Dialog = function() {
     };
     dialog.disappear = function() {
         dialog.addClass('dialog-disappear');
-        fomjar.util.async(function() {dialog.detach();}, frs.ui.DELAY);
+        fomjar.util.async(function() {
+            dialog.detach();
+            
+            frs.ui.body().find('object').show();
+        }, frs.ui.DELAY);
+        
     };
     dialog.shake = function() {
         dialog.addClass('dialog-shake');

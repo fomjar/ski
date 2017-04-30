@@ -399,7 +399,6 @@ public class BcsTask implements FjServerTask {
         json.put("path",    array.getString(i++));
         json.put("time",    array.getString(i++));
         json.put("ip",      array.getString(i++));
-        json.put("port",    array.getInt(i++));
         json.put("user",    array.getString(i++));
         json.put("pass",    array.getString(i++));
         return json;

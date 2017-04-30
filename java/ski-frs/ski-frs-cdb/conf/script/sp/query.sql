@@ -107,7 +107,7 @@ insert into tbl_instruction (
 ) values (
     (conv('00002030', 16, 10) + 0),
     'st',
-    7,
-    "select c_did, c_path, t_time, c_ip, i_port, c_user, c_pass from tbl_dev"
+    6,
+    "select c_did, c_path, t_time, c_ip, c_user, c_pass from tbl_dev"
 );
 
