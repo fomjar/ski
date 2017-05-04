@@ -108,7 +108,7 @@ function update_dev_prev(devs) {
     tab_prev.l.find('.jstree').detach();
     select_devs_prev();
     
-    var data = tree_dev(devs);
+    var data = frs.tree.dev(devs);
     var tree = $('<div></div>').jstree({core : {data : data.children}});
     tree.data = data;
     frs.ui.body().tab.tab_prev.l.append(tree);
@@ -312,76 +312,6 @@ function op_delete_dev(dev) {
     
     mask.appear();
     dialog.appear();
-}
-
-
-function tree_dev(devs) {
-    var tree = tree_node('root');
-    $.each(devs, function(i, dev) {
-        var i = 0;
-        var j = 0;
-        var path = dev.path;
-        var cur = tree;
-        while (-1 < (j = path.indexOf('/', i))) {
-            var t = path.substring(i, j);
-            var c;
-            if (!cur.find_child(t)) {
-                c = tree_node(t);
-                cur.children.push(c);
-            } else c = cur.find_child(t);
-            
-            cur = c;
-            i = j + 1;
-        }
-        
-        var t = path.substring(i);
-        if (!cur.find_child(t)) {
-            var c = tree_node(t + '(' + dev.did + ')');
-            c.dev = dev;
-            cur.children.push(c);
-        }
-    });
-    return tree;
-}
-
-function tree_node(text) {
-    var node = {
-        text        : text,
-        children    : [],
-        state       : {
-            opened  : true,
-        },
-        find_child  : function(text) {
-            var r = null;
-            $.each(node.children, function(i, c) {
-                if (c.text == text) {
-                    r = c;
-                    return false;
-                }
-            });
-            return r;
-        },
-        find_child_deep : function(text) {
-            if (node.text == text) return node;
-            
-            var r = null;
-            $.each(node.children, function(i, c) {
-                if (r = c.find_child_deep(text)) return false;
-            });
-            return r;
-        },
-        leaves  : function() {
-            var r = [];
-            if (!node.children.length) r.push(node);
-            else {
-                $.each(node.children, function(i, c) {
-                    r = r.concat(c.leaves());
-                });
-            }
-            return r;
-        }
-    };
-    return node;
 }
 
 })(jQuery)

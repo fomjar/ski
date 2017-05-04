@@ -1,5 +1,7 @@
 package com.ski.frs.bcs;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
@@ -9,6 +11,7 @@ import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
+import fomjar.server.FjServerToolkit.FjAddress;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjISIS;
 import net.sf.json.JSONArray;
@@ -62,6 +65,9 @@ public class BcsTask implements FjServerTask {
             break;
         case ISIS.INST_QUERY_DEV:
             processQueryDev(server, dmsg);
+            break;
+        case ISIS.INST_QUERY_OPP:
+            processQueryOpp(server, dmsg);
             break;
         case ISIS.INST_APPLY_SUB_LIB_IMPORT:
             processApplySubLibImport(server, dmsg);
@@ -236,6 +242,19 @@ public class BcsTask implements FjServerTask {
             @Override
             public void destroy(FjServer server) {}
         });
+    }
+    
+    private static void processQueryOpp(FjServer server, FjDscpMessage dmsg) {
+        List<FjAddress> addr = FjServerToolkit.getSlb().getAddresses("opp");
+        JSONArray desc = new JSONArray();
+        addr.forEach(a->{
+            JSONObject o = new JSONObject();
+            o.put("server", a.server);
+            o.put("host", a.host);
+            o.put("port", a.port);
+            desc.add(o);
+        });
+        FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_SUCCESS, desc);
     }
     
     private static void processApplySubLibImport(FjServer server, FjDscpMessage dmsg) {

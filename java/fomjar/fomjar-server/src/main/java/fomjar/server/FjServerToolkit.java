@@ -56,7 +56,7 @@ public class FjServerToolkit {
         if (null == server || null == key) return null;
         return server.getProperty(key);
     }
-
+    
     public static FjSlb getSlb() {return slb;}
 
     public static FjConfigMonitor getConfigMonitor() {return config_monitor;}
@@ -99,7 +99,7 @@ public class FjServerToolkit {
             address.forEach((k, v)->{
                 if (k.toString().toLowerCase().startsWith(server.toLowerCase())) {
                     FjAddress item = new FjAddress();
-                    item.server = server;
+                    item.server = k.toString();
                     item.host = v.toString().split(":")[0].trim();
                     item.port = Integer.parseInt(v.toString().split(":")[1].trim());
                     items.add(item);

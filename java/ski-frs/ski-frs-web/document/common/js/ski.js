@@ -24,6 +24,7 @@ ski.isis = {
     INST_QUERY_SUB_MAN          : 0x00002020,
     INST_QUERY_SUB_MAN_PIC      : 0x00002021,
     INST_QUERY_DEV              : 0x00002030,
+    INST_QUERY_OPP              : 0x00002040,
     
     INST_APPLY_SUB_LIB_CHECK    : 0x00003000,
     INST_APPLY_SUB_LIB_IMPORT   : 0x00003001,

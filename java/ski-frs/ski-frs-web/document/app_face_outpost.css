@@ -1,3 +1,7 @@
+.frs .body .tab .tab-on {
+    height      : 100%;
+    width       : 100%;
+}
 .frs .body .tab .tab-of {
     height      : 100%;
     width       : 100%;
@@ -16,5 +20,10 @@
 }
 .frs .body .tab .tab-of >div:nth-child(1) input {
     text-align  : center;
-    width       : 50%;
+    width       : 30%;
+}
+
+
+.frs .body .jstree {
+    padding : 1em;
 }

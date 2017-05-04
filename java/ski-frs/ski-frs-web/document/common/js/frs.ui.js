@@ -579,6 +579,77 @@ frs.ui.layout.lrb = function(c) {
     return c;
 };
 
+frs.tree = {};
+
+frs.tree.Node = function(text) {
+    var node = {
+        text        : text,
+        children    : [],
+        state       : {
+            opened  : true,
+        },
+        find_child  : function(text) {
+            var r = null;
+            $.each(node.children, function(i, c) {
+                if (c.text == text) {
+                    r = c;
+                    return false;
+                }
+            });
+            return r;
+        },
+        find_child_deep : function(text) {
+            if (node.text == text) return node;
+            
+            var r = null;
+            $.each(node.children, function(i, c) {
+                if (r = c.find_child_deep(text)) return false;
+            });
+            return r;
+        },
+        leaves  : function() {
+            var r = [];
+            if (!node.children.length) r.push(node);
+            else {
+                $.each(node.children, function(i, c) {
+                    r = r.concat(c.leaves());
+                });
+            }
+            return r;
+        }
+    };
+    return node;
+};
+
+frs.tree.dev = function(devs) {
+    var tree = new frs.tree.Node('root');
+    $.each(devs, function(i, dev) {
+        var i = 0;
+        var j = 0;
+        var path = dev.path;
+        var cur = tree;
+        while (-1 < (j = path.indexOf('/', i))) {
+            var t = path.substring(i, j);
+            var c;
+            if (!cur.find_child(t)) {
+                c = new frs.tree.Node(t);
+                cur.children.push(c);
+            } else c = cur.find_child(t);
+            
+            cur = c;
+            i = j + 1;
+        }
+        
+        var t = path.substring(i);
+        if (!cur.find_child(t)) {
+            var c = new frs.tree.Node(t + '(' + dev.did + ')');
+            c.dev = dev;
+            cur.children.push(c);
+        }
+    });
+    return tree;
+};
+
 frs.ui.BlockPicture = function(options) {
     options = options || {};
     var div = $('<div></div>');
