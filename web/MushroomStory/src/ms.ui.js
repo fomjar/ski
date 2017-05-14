@@ -61,10 +61,10 @@ ms.ui.Button = function() {
     c.paint = function() {
         var p = this.padding; // u,r,d,l
         this.width  = c.labelSize * c.label.length + p[3] + p[1];
-        this.height = c.labelSize * (0 < c.label.length ? 1 : 0) + p[0] + p[2];
+        this.height = c.labelSize * (0 < c.label.length ? 1 : 0) + p[0] + p[2] + g.d.color.ui_lw;
         this.graphics.clear();
-        if (!c.disabled) this.graphics.drawRoundRect(0, 0, this.width, this.height, g.d.color.ui_rr, g.d.color.ui_bd, g.d.color.ui_bd, g.d.color.ui_lw);
-        else this.graphics.drawRoundRect(0, 0, this.width, this.height, g.d.color.ui_rr, g.d.color.ui_da, g.d.color.ui_da, g.d.color.ui_lw);
+        if (!c.disabled) this.graphics.drawRoundRect(0, 0, this.width, this.height, this.height / 2, g.d.color.ui_bd, g.d.color.ui_bd, g.d.color.ui_lw);
+        else this.graphics.drawRoundRect(0, 0, this.width, this.height, this.height / 2, g.d.color.ui_da, g.d.color.ui_da, g.d.color.ui_lw);
     };
     ms.ui.auto_pivot(c);
     ms.ui.auto_alpha(c);

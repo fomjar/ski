@@ -20,7 +20,7 @@ g.d.color = {
     ui_da   : '#999999',
     ui_fg   : '#eeeeee',
     ui_lw   : 2,
-    ui_rr   : g.d.font.ui_major / 1.6,
+    ui_rr   : g.d.font.ui_major / 2,
 };
 // component
 g.d.stage.background = g.d.color.stage;
