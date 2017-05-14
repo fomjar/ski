@@ -260,8 +260,6 @@ ch.ui.load_xml = function(path, handler) {
         var svg = xml.getElementsByTagName('svg')[0];
         if (!xml.hasChildNodes()) return;
 
-        var 
-
         var attr = svg.attributes;
     }));
 }
