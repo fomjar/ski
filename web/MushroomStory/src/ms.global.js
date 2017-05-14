@@ -19,7 +19,7 @@ g.d.color = {
     ui_bd   : '#333355',
     ui_da   : '#999999',
     ui_fg   : '#eeeeee',
-    ui_er   : '#996666',
+    ui_er   : '#553333',
     ui_lw   : 2,
     ui_rr   : g.d.font.ui_major / 3,
 };

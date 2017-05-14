@@ -27,6 +27,7 @@ ms.bc.scene.SceneLauncher = function() {
         var logo = new ms.ui.Text();
         logo.text       = '蘑菇物语\nMushroom Story';
         logo.color      = g.d.color.ui_bd;
+        logo.bold       = true;
         logo.fontSize   = g.d.font.logo;
         logo.width      = g.d.stage.width;
         logo.pos(0, logo.fontSize);
@@ -44,6 +45,7 @@ ms.bc.scene.SceneLauncher = function() {
 
         var error = new ms.ui.Text();
         error.color = g.d.color.ui_er;
+        error.bold = true;
         error.pos(name.x + name.width / 2, name.y - name.height / 2);
 
         logo.show();
