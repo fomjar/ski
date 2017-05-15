@@ -18,25 +18,33 @@ Laya.Graphics.prototype.drawRoundRect = function(x, y, w, h, c, fill_color, line
 };
 
 Laya.Sprite.prototype.paint = function() {};
-Laya.Sprite.prototype.tween_from = function(kvs) {
-    Laya.Tween.from(this, kvs, ms.ui.DELAY_ANIMATE);
+Laya.Sprite.prototype.tween_from = function(kvs, time) {
+    if (!time) time = ms.ui.DELAY_ANIMATE;
+    return Laya.Tween.from(this, kvs, time);
 };
-Laya.Sprite.prototype.tween_to = function(kvs) {
-    Laya.Tween.to(this, kvs, ms.ui.DELAY_ANIMATE);
+Laya.Sprite.prototype.tween_to = function(kvs, time) {
+    if (!time) time = ms.ui.DELAY_ANIMATE;
+    return Laya.Tween.to(this, kvs, time);
 };
 Laya.Sprite.prototype.show = function(options) {
     if (!options) options = {};
     if (!options.parent) options.parent = Laya.stage;
     options.parent.addChild(this);
+    this.paint();
     this.tween_from({alpha : 0});
     if (options.done) Laya.timer.once(ms.ui.DELAY_ANIMATE, this, options.done);
+    if (options.time) Laya.timer.once(options.time, this, Laya.Sprite.prototype.hide);
 };
 Laya.Sprite.prototype.hide = function(options) {
     if (!options) options = {};
     if (undefined == options.remove) options.remove = true;
+    var a = this.alpha;
     this.tween_to({alpha : 0});
     Laya.timer.once(ms.ui.DELAY_ANIMATE, this, function() {
-        if (options.remove) this.removeSelf();
+        if (options.remove) {
+            this.removeSelf();
+            this.alpha = a;
+        }
         if (options.done) options.done.call(this);
     });
 };
@@ -60,6 +68,7 @@ Laya.Sprite.prototype.auto_pivot = function() {
 ms.ui = {};
 
 ms.ui.DELAY_ANIMATE = 400;
+ms.ui.FONT = new Laya.BitmapFont();
 
 ms.ui.Text = function() {
     var c = new Laya.Text();
@@ -103,14 +112,34 @@ ms.ui.Button = function() {
     c.auto_alpha();
     return c;
 };
+ms.ui.ProgressBar = function() {
+    var c = new Laya.ProgressBar();
+    c.height = g.d.font.ui_major;
+    c.value = 0;
+    c.paint = function() {
+        this.graphics.clear();
+        this.graphics.drawRoundRect(0, 0, this.width, this.height, this.height / 2, g.d.color.ui_bg, g.d.color.ui_bd, g.d.color.ui_lw);
+        if (this.width * this.value >= this.height)
+            this.graphics.drawRoundRect(0, 0, this.width * this.value, this.height, this.height / 2, g.d.color.ui_bd, g.d.color.ui_bd, g.d.color.ui_lw);
+    }
+    c.watch('value', function(p, o, n) {
+        if (n >= 1) return 1;
+        if (n <= 0) return 0;
+        return n;
+    }, function(p, o, n) {this.paint();});
+    c.auto_pivot();
+    return c;
+};
 ms.ui.Dialog = function() {
     var c = new Laya.Dialog();
-    c.pos(g.d.stage.width / 2, g.d.stage.height / 2);
+    c.alpha = 0.9;
+    c.pos(Laya.stage.width / 2, Laya.stage.height / 2);
     var show = Laya.Sprite.prototype.show;
     c.show = function() {
 		this.dragArea = "0,0," + this.width + "," + this.height;
 
-        // this.graphics;
+        this.graphics.clear();
+        this.graphics.drawRoundRect(0, 0, this.width, this.height, g.d.color.ui_rr, g.d.color.ui_bg, g.d.color.ui_bd, g.d.color.ui_lw);
 
         show.call(this);
     };
@@ -120,7 +149,7 @@ ms.ui.Dialog = function() {
 ms.ui.Toast = function(text) {
     var c = new Laya.Sprite();
     c.alpha = 0.9;
-    c.pos(g.d.stage.width / 2, g.d.stage.height * 2 / 3);
+    c.pos(Laya.stage.width / 2, Laya.stage.height * 2 / 3);
     c.text = function(text) {
         this.removeChildren();
         var t = new ms.ui.Text();

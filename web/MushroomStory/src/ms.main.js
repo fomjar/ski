@@ -1,5 +1,5 @@
 (function() {
 
-ms.bc.scene.switch(new ms.bc.scene.SceneLauncher());
+ms.bc.scene.switch(ms.bc.scene.sceneLoad());
 
 })();

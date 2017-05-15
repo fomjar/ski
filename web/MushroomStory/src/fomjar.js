@@ -11,7 +11,10 @@ if (!Object.prototype.watch) {
             return val_new;
         };
         var setter = function(val) {
-            if (handler_before) handler_before.call(this, property_name, val_new, val);
+            if (handler_before) {
+                var v = null;
+                if (v = handler_before.call(this, property_name, val_new, val)) val = v;
+            }
             val_old = val_new;
             val_new = val;
             if (handler_after) handler_after.call(this, property_name, val_old, val_new);

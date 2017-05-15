@@ -97,11 +97,13 @@ public abstract class FjWebFilter {
             mime.put("txt",     "text/plain");
             mime.put("html",    "text/html");
             mime.put("htm",     "text/html");
-            mime.put("js",      "application/x-javascript");
             mime.put("css",     "text/css");
             mime.put("less",    "text/css");
             mime.put("xml",     "text/xml");
             mime.put("json",    "application/json");
+            mime.put("js",      "application/x-javascript");
+            mime.put("otf",     "application/x-font-otf");
+            mime.put("ttf",     "application/x-font-ttf");
             mime.put("jpg",     "image/jpg");
             mime.put("jpeg",    "image/jpg");
             mime.put("bmp",     "image/bmp");
