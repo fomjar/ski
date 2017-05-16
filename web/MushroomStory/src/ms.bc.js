@@ -20,8 +20,8 @@ ms.bc.scene.Scene = function() {
     return sc;
 };
 
-ms.bc.scene.sceneLoad = function() {
-    if (!ms.bc.scene._sceneLoad) {
+ms.bc.scene.scene_load = function() {
+    if (!ms.bc.scene._scene_load) {
         var progress = new ms.ui.ProgressBar();
         progress.width = Laya.stage.width / 2;
         progress.pos(Laya.stage.width / 2, Laya.stage.height / 2);
@@ -30,22 +30,23 @@ ms.bc.scene.sceneLoad = function() {
             progress.value = 0;
             progress.tween_to({value : 1});
             Laya.timer.once(1000, this, function() {
-                ms.bc.scene.switch(ms.bc.scene.sceneLaunch());
+                ms.bc.scene.switch(ms.bc.scene.scene_launch());
             });
         };
         
-        ms.bc.scene._sceneLoad = new ms.bc.scene.Scene();
-        ms.bc.scene._sceneLoad.setup = function() {
+        var sc = new ms.bc.scene.Scene();
+        sc.setup = function() {
             progress.show();
 
             load(progress);
         };
+        ms.bc.scene._scene_load = sc;
     }
-    return ms.bc.scene._sceneLoad;
+    return ms.bc.scene._scene_load;
 };
 
-ms.bc.scene.sceneLaunch = function() {
-    if (!ms.bc.scene._sceneLaunch) {
+ms.bc.scene.scene_launch = function() {
+    if (!ms.bc.scene._scene_launch) {
         var logo = new ms.ui.Text();
         logo.text       = '蘑菇物语\nMushroom Story';
         logo.color      = g.d.color.ui_bd;
@@ -74,28 +75,31 @@ ms.bc.scene.sceneLaunch = function() {
                 error.show({time : 2000});
                 return;
             }
-            ms.bc.scene.switch(ms.bc.scene.scenePlay());
+            ms.bc.scene.switch(ms.bc.scene.scene_play());
         });
 
-        ms.bc.scene._sceneLaunch = new ms.bc.scene.Scene();
-        ms.bc.scene._sceneLaunch.setup = function() {
+        var sc = new ms.bc.scene.Scene();
+        sc.setup = function() {
             logo.show();
             name.show();
             submit.show();
         };
+        ms.bc.scene._scene_launch = sc;
     }
-    return ms.bc.scene._sceneLaunch;
+    return ms.bc.scene._scene_launch;
 };
 
-ms.bc.scene.scenePlay = function() {
-    if (!ms.bc.scene._scenePlay) {
-        ms.bc.scene._scenePlay = new ms.bc.scene.Scene();
-        ms.bc.scene._scenePlay.setup = function() {
+ms.bc.scene.scene_play = function() {
+    if (!ms.bc.scene._scene_play) {
+        var sc = new ms.bc.scene.Scene();
+        sc.setup = function() {
             ms.bc.o.map().show();
             ms.bc.o.hero().show({parent : ms.bc.o.map()});
+            ms.bc.o.icon_chytridiomycota().show({parent : ms.bc.o.map()});
         };
+        ms.bc.scene._scene_play = sc;
     }
-    return ms.bc.scene._scenePlay;
+    return ms.bc.scene._scene_play;
 };
 
 
@@ -170,6 +174,44 @@ ms.bc.o.hero = function() {
         });
     }
     return ms.bc.o._hero;
+};
+
+ms.bc.o.Icon = function() {
+    var o = new ms.bc.o.Object();
+    o.size_l = function() {
+        o.size(g.d.size.icon_l, g.d.size.icon_l);
+        o.paint();
+    };
+    o.size_m = function() {
+        o.size(g.d.size.icon_m, g.d.size.icon_m);
+        o.paint();
+    };
+    o.size_s = function() {
+        o.size(g.d.size.icon_s, g.d.size.icon_s);
+        o.paint();
+    };
+    o.auto_alpha();
+    return o;
+};
+ms.bc.o.icon_chytridiomycota = function() {
+    var o = new ms.bc.o.Icon();
+    o.paint = function() {
+        this.graphics.clear();
+        var s = this.width;
+        this.graphics.drawRoundRect(0, 0, s, s, g.d.color.ui_rr, '#333333', '#333333', 0);
+        this.graphics.drawPath(0, 0, [
+                ["moveTo", s * 2 / 5,   s * 1 / 6],
+                ["lineTo", s * 3 / 5,   s * 1 / 6],
+                ["lineTo", s * 4 / 5,   s * 2 / 6],
+                ["lineTo", s * 1 / 5,   s * 2 / 6],
+                ["closePath"]
+            ],
+            {fillStyle : '#666699'},
+            {strokeStyle : '#666699', lineWidth : 0});
+    };
+    o.size_m();
+    o.pos(0, Laya.stage.height - o.height);
+    return o;
 };
 
 })();

@@ -4,13 +4,16 @@ var ms = {};
 (function() {
 
 g.d = {};
-g.d.stage = {
-    width   : 1280,
-    height  : 800,
-};
 // basic
+g.d.size = {
+    stage_w : 1280,
+    stage_h : 800,
+    icon_l  : 40,
+    icon_m  : 30,
+    icon_s  : 20,
+};
 g.d.font = {
-    logo        : g.d.stage.height / 10,
+    logo        : g.d.size.stage_h / 10,
     ui_major    : 14,
 };
 g.d.color = {
@@ -28,9 +31,8 @@ g.d.color = {
     sp_lw   : 1,
 };
 // component
-g.d.stage.background = g.d.color.stage;
 g.d.spore = {
     speed   : 0.6,
-}
+};
 
 })();

@@ -50,13 +50,14 @@ Laya.Sprite.prototype.hide = function(options) {
 };
 
 Laya.Sprite.prototype.auto_alpha = function() {
+    var time = ms.ui.DELAY_ANIMATE / 2;
     var is_down = false;
     var is_over = false;
     this.alpha = 0.9;
-    this.on(Laya.Event.MOUSE_OVER, this, function() {is_over = true;  if (!is_down) this.tween_to({alpha : 0.8});});
-    this.on(Laya.Event.MOUSE_OUT,  this, function() {is_over = false; if (!is_down) this.tween_to({alpha : 0.9});});
-    this.on(Laya.Event.MOUSE_DOWN, this, function() {this.tween_to({alpha : 1});});
-    this.on(Laya.Event.MOUSE_UP,   this, function() {if (is_over) this.tween_to({alpha : 0.8}); else this.tween_to({alpha : 0.9});});
+    this.on(Laya.Event.MOUSE_OVER, this, function() {is_over = true;  if (!is_down) this.tween_to({alpha : 0.8}, time);});
+    this.on(Laya.Event.MOUSE_OUT,  this, function() {is_over = false; if (!is_down) this.tween_to({alpha : 0.9}, time);});
+    this.on(Laya.Event.MOUSE_DOWN, this, function() {this.tween_to({alpha : 1}, time);});
+    this.on(Laya.Event.MOUSE_UP,   this, function() {if (is_over) this.tween_to({alpha : 0.8}, time); else this.tween_to({alpha : 0.9}, time);});
     return this;
 };
 Laya.Sprite.prototype.auto_pivot = function() {

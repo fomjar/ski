@@ -9,7 +9,7 @@ function setup() {
 
 function setup_laya() {
     Laya.Config.isAntialias = true;
-    Laya.init(g.d.stage.width, g.d.stage.height, Laya.WebGL);
+    Laya.init(g.d.size.stage_w, g.d.size.stage_h, Laya.WebGL);
     Laya.Stat.show(Laya.Browser.clientWidth - 130, 0);
 }
 
@@ -18,7 +18,7 @@ function setup_stage() {
     Laya.stage.alignH = Laya.Stage.ALIGN_CENTER;
 
     Laya.stage.scaleMode = 'showall';
-    Laya.stage.bgColor = g.d.stage.background;
+    Laya.stage.bgColor = g.d.color.stage;
 }
 
 })();
