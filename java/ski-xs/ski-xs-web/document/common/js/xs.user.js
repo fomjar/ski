@@ -34,9 +34,9 @@ xs.user.art_new = function(art) {
 xs.user.dir_new('/', {});
 
 xs.user.dir_cur = '/';
-// xs.user.dir_new('日记', {});
-// xs.user.dir_new('家庭', {});
-// xs.user.dir_new('活动', {});
+xs.user.dir_new('日记', {});
+xs.user.dir_new('家庭', {});
+xs.user.dir_new('活动', {});
 // 
 // xs.user.dir_cur = '/日记/';
 // xs.user.dir_new('美食', {});

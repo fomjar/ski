@@ -72,6 +72,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_APPLY_SUB_LIB_IMPORT:
             processApplySubLibImport(server, dmsg);
             break;
+        case ISIS.INST_APPLY_DEV_IMPORT:
+            processApplyDevImport(server, dmsg);
+            break;
         default: {
             String err = String.format("illegal inst: 0x%08X", dmsg.inst());
             logger.error(err);
@@ -272,6 +275,20 @@ public class BcsTask implements FjServerTask {
         default:
             break;
         }
+    }
+    
+    private static void processApplyDevImport(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("opp") || !args.has("did") || !args.has("path")) {
+            String err = "illegal arguments, no opp, did, path";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        String opp = args.getString("opp");
+        args.remove("opp");
+        FjServerToolkit.dscpRequest(opp, dmsg.sid(), ISIS.INST_APPLY_DEV_IMPORT, args);
+        waitSessionForResponse(server, dmsg);
     }
     
     private static void processApplySubLibImportMan(FjServer server, FjDscpMessage dmsg) {

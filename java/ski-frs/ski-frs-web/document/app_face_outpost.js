@@ -54,6 +54,7 @@ function create_tab_offline() {
                 mask.appear();
                 var hud = frs.ui.hud.Major('正在创建离线设备');
                 hud.appear();
+                var opp = select.val();
                 var did = 'offline-' + new Date().getTime().toString(16);
                 fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
                     did     : did,
@@ -68,6 +69,7 @@ function create_tab_offline() {
                     hud.text('正在提交分析');
                     hud.appear();
                     fomjar.net.send(ski.isis.INST_APPLY_DEV_IMPORT, {
+                        opp     : opp,
                         did     : did,
                         path    : path_local.val()
                     }, function(code, desc) {

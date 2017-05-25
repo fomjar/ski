@@ -1,7 +1,6 @@
 package com.ski.frs.web.filter;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -119,17 +118,16 @@ public class Filter6Interface extends FjWebFilter {
         
         String data = args.getString("data");
         args.remove("data");
+        if (data.startsWith("data:image")) data = data.substring(data.indexOf("base64,") + 7);
         
         String fv = null;
-        try {
-            fv = WebToolkit.fvBase64Image(data);
-            args.put("fv", fv); // 特征向量
-        } catch (IOException e) {
+        if (null == (fv = WebToolkit.fvBase64Image(data))) {
             String desc = "illegal arguments, invalid base64 image data";
-            logger.error(desc, e);
+            logger.error(desc);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
+        args.put("fv", fv); // 特征向量
         
         FjDscpMessage req_bcs = FjServerToolkit.dscpRequest("bcs", ISIS.INST_QUERY_PIC_BY_FV_I, args);
         waitSessionForResponse(server, response, req_bcs.sid());

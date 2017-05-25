@@ -1,6 +1,6 @@
 package com.ski.frs.web;
 
-import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
 public class FaceInterface {
     
@@ -27,18 +27,9 @@ public class FaceInterface {
     public static final int ERROR_NO_FACE       = 6;
     
     public static native long initInstance(int device);
-    public static native byte[] fv(long instance, byte[] path);
+    public static        int fv         (long instance, byte[] data, byte[] fv) {return fv_base64(instance, Base64.getEncoder().encode(data), fv);}
+    public static native int fv_base64  (long instance, byte[] data, byte[] fv);
+    public static native int fv_path    (long instance, byte[] path, byte[] fv);
     public static native int freeInstance(long instance);
-    
-    public static void main(String[] args) throws UnsupportedEncodingException {
-        long instance1 = initInstance(DEVICE_GPU);
-        long instance2 = initInstance(DEVICE_GPU);
-        System.out.println(String.format("init1 = 0x%016X", instance1));
-        System.out.println(String.format("init2 = 0x%016X", instance2));
-        System.out.println("fv1 = " + new String(fv(instance1, args[0].getBytes("gb2312"))));
-        System.out.println("fv2 = " + new String(fv(instance2, args[0].getBytes("gb2312"))));
-        System.out.println("free1 = " + freeInstance(instance1));
-        System.out.println("free2 = " + freeInstance(instance2));
-    }
 
 }

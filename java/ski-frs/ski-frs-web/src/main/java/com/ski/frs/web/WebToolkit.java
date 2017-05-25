@@ -113,6 +113,7 @@ public class WebToolkit {
         return file;
     }
     
+    private static final int FV_BUF = 4096;
     private static long fvi = -1;
     public static long defaultFV() {
         if (-1 == fvi) {
@@ -121,15 +122,19 @@ public class WebToolkit {
         return fvi;
     }
     
-    public static String fvBase64Image(String data) throws IOException {
+    public static String fvBase64Image(String data) {
         return fvBase64Image(defaultFV(), data);
     }
     
-    public static String fvBase64Image(long fvi, String data) throws IOException {
-        File file = writeFileBase64Image(data, "data_" + System.currentTimeMillis());
-        String fv = fvLocalImage(fvi, file.getPath());
-        file.delete();
-        return fv;
+    public static String fvBase64Image(long fvi, String data) {
+        byte[] fv = new byte[FV_BUF];
+        int mark = -1;
+        if (FaceInterface.SUCCESS == (mark = FaceInterface.fv_base64(fvi, data.getBytes(), fv))) {
+            return new String(fv).trim();
+        } else {
+            logger.error("fv base64 image failed, mark = " + mark);
+            return null;
+        }
     }
     
     public static String fvLocalImage(String path) {
@@ -137,13 +142,18 @@ public class WebToolkit {
     }
     
     public static String fvLocalImage(long fvi, String path) {
-        String fv = null;
-        try {fv = new String(FaceInterface.fv(fvi,
-                path.getBytes(FjServerToolkit.getServerConfig("web.pic.enc")))).trim();}
-        catch (UnsupportedEncodingException e1) {e1.printStackTrace();}
-//        int err = Integer.parseInt(fv.substring(0, fv.indexOf(" ")));
-        fv = fv.substring(fv.indexOf(" ") + 1).trim();
-        return fv;
+        try {
+            byte[] fv = new byte[FV_BUF];
+            int mark = -1;
+            if (FaceInterface.SUCCESS == (mark = FaceInterface.fv_path(fvi, path.getBytes(FjServerToolkit.getServerConfig("web.pic.enc")), fv))) {
+                return new String(fv).trim();
+            } else {
+                logger.error("fv local image failed, mark = " + mark);
+                return null;
+            }
+        } catch (UnsupportedEncodingException e1) {e1.printStackTrace();}
+        logger.error("decode path failed");
+        return null;
     }
     
 }

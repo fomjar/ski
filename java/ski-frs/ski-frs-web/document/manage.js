@@ -145,14 +145,20 @@ function update_dev_list(devs) {
         fomjar.util.async(function() {
             var player = new frs.video.Player(devs);
             player.login();
+            
             $.each(devs, function(i, dev) {
-                player.info(i, function(dev, xml) {
-                    dev.div.text('在线');
-                    dev.div.css('color', 'green');
-                }, function(dev) {
+                if (dev.did.start_with('offline-')) {
                     dev.div.text('离线');
-                    dev.div.css('color', 'red');
-                });
+                    dev.div.css('color', 'black');
+                } else {
+                    player.info(i, function(dev, xml) {
+                        dev.div.text('在线');
+                        dev.div.css('color', 'green');
+                    }, function(dev) {
+                        dev.div.text('离线');
+                        dev.div.css('color', 'red');
+                    });
+                }
             });
             player.destory();
         });

@@ -1,4 +1,4 @@
-﻿#include "com_ski_frs_web_filter_FaceInterface.h"
+﻿#include "com_ski_frs_web_FaceInterface.h"
 #include "FaceIns.h"
 
 
@@ -9,7 +9,7 @@ jbyteArray newJbyteArrayFromJbytes(JNIEnv * env, jbyte * bytes);
 
 
 // interface
-JNIEXPORT jlong JNICALL Java_com_ski_frs_web_filter_FaceInterface_initInstance
+JNIEXPORT jlong JNICALL Java_com_ski_frs_web_FaceInterface_initInstance
 (JNIEnv * env, jclass clazz, jint device) {
 	CFaceRecogniton * p_faceRecog = new CFaceRecogniton();
 	int ret = p_faceRecog->InitializeFaceLib(0);
@@ -18,7 +18,7 @@ JNIEXPORT jlong JNICALL Java_com_ski_frs_web_filter_FaceInterface_initInstance
 }
 
 
-JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_freeInstance
+JNIEXPORT jint JNICALL Java_com_ski_frs_web_FaceInterface_freeInstance
 (JNIEnv * env, jclass clazz, jlong instance) {
 	CFaceRecogniton * p_faceRecog = (CFaceRecogniton *) instance;
 	int ret = p_faceRecog->ReleaseFaceLib();
@@ -29,27 +29,44 @@ JNIEXPORT jint JNICALL Java_com_ski_frs_web_filter_FaceInterface_freeInstance
 
 
 
-JNIEXPORT jbyteArray JNICALL Java_com_ski_frs_web_filter_FaceInterface_fv
-(JNIEnv * env, jclass clazz, jlong instance, jbyteArray path) {
+
+JNIEXPORT jint JNICALL Java_com_ski_frs_web_FaceInterface_fv_1path
+(JNIEnv * env, jclass clazz, jlong instance, jbyteArray path, jbyteArray fv) {
 	CFaceRecogniton * p_faceRecog = (CFaceRecogniton *)instance;
 
 	char * bytes = (char *)newJbytesFromJbyteArray(env, path);
 	std::string str_path = bytes;
-	cv::Mat pic = cv::imread(str_path, -1);
+	cv::Mat img = cv::imread(str_path, -1);
 	free(bytes);
 
 	std::string str;
-	int mark = p_faceRecog->LocationFace(pic, str);
+	int mark = p_faceRecog->LocationFace(img, str);
 
-	char fvc[5] = {0};
-	_itoa_s(mark, fvc, 10);
-	std::string fv(fvc);
-	fv += " ";
-	fv += str;
+	jbyte * buf = (jbyte *)str.c_str();
+	env->SetByteArrayRegion(fv, 0, str.length(), buf);
 
-	return newJbyteArrayFromJbytes(env, (jbyte *) fv.c_str());
+	return mark;
 }
 
+
+
+
+JNIEXPORT jint JNICALL Java_com_ski_frs_web_FaceInterface_fv_1base64
+(JNIEnv * env, jclass clazz, jlong instance, jbyteArray data, jbyteArray fv) {
+	CFaceRecogniton * p_faceRecog = (CFaceRecogniton *)instance;
+
+	char * bytes = (char *)newJbytesFromJbyteArray(env, data);
+
+	std::string str;
+	int mark = p_faceRecog->LocationFace((unsigned char *) bytes, str);
+
+	free(bytes);
+
+	jbyte * buf = (jbyte *)str.c_str();
+	env->SetByteArrayRegion(fv, 0, str.length(), buf);
+
+	return mark;
+}
 
 
 
@@ -61,11 +78,4 @@ jbyte * newJbytesFromJbyteArray(JNIEnv * env, jbyteArray ba) {
 	memset(buf, 0, len * sizeof(jsize));
 	env->GetByteArrayRegion(ba, 0, len, buf);
 	return buf;
-}
-
-jbyteArray newJbyteArrayFromJbytes(JNIEnv * env, jbyte * bytes) {
-	int len = strlen((const char *) bytes);
-	jbyteArray ba = env->NewByteArray(len);
-	env->SetByteArrayRegion(ba, 0, len, bytes);
-	return ba;
 }

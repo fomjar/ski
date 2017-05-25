@@ -35,5 +35,7 @@ public class ISIS {
     public static final int INST_APPLY_SUB_LIB_CHECK    = 0x00003000;
     public static final int INST_APPLY_SUB_LIB_IMPORT   = 0x00003001;
     public static final int INST_APPLY_DEV_IMPORT       = 0x00003002;
+    public static final int INST_APPLY_DEV_IMPORT_STOP  = 0x00003003;
+    public static final int INST_APPLY_DEV_IMPORT_STATE = 0x00003004;
 
 }

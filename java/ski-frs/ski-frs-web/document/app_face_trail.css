@@ -4,12 +4,12 @@
 }
 
 .frs .body .l img {
-    width   : 10em;
-    height  : 10em;
+    width       : 100%;
+    min-height  : 10em;
 }
 .frs .body .l input[type=file] {
-    width   : 10em;
-    height  : 10em;
+    width   : 100%;
+    height  : 100%;
     position: absolute;
     top     : 0;
     left    : 0;
