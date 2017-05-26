@@ -1,28 +1,18 @@
-.frs .body .tab .tab-on {
+.frs .body .tab .tab-browse {
     height      : 100%;
     width       : 100%;
 }
-.frs .body .tab .tab-of {
+.frs .body .tab .tab-import {
     height      : 100%;
     width       : 100%;
 }
-.frs .body .tab .tab-of >div {
-    position    : absolute;
-    top         : 30%;
-    width       : 100%;
+.frs .body .tab .tab-import .l {
+    padding     : 2em;
+    padding-top : 0;
 }
-.frs .body .tab .tab-of >div:nth-child(1) {
-    text-align      : center;
-    vertical-align  : bottom;
+.frs .body .tab .tab-import .l .button:last-child {
+    margin-top  : 2em;
 }
-.frs .body .tab .tab-of >div:nth-child(1) >* {
-    margin  : .5em;
-}
-.frs .body .tab .tab-of >div:nth-child(1) input {
-    text-align  : center;
-    width       : 30%;
-}
-
 
 .frs .body .jstree {
     padding : 1em;

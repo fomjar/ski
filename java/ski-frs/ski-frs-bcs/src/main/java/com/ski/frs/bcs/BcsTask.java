@@ -310,7 +310,7 @@ public class BcsTask implements FjServerTask {
         args_cdb.put("path", args.getString("pic_path").replace("\\", "/"));
         args_cdb.put("fv",   args.getString("pic_fv"));
         args_cdb.put("vd",   args.getString("pic_fv").split(" ").length);
-        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_PIC, args_cdb);
+        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", ISIS.INST_UPDATE_PIC, args_cdb);
         server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
             @Override
             public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -332,7 +332,7 @@ public class BcsTask implements FjServerTask {
                 args_cdb.put("idno",   idno);
                 if (args.has("slm_phone")) args_cdb.put("phone", args.getString("slm_phone"));
                 if (args.has("slm_addr"))  args_cdb.put("addr", args.getString("slm_addr"));
-                FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_MAN, args_cdb);
+                FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", ISIS.INST_UPDATE_SUB_MAN, args_cdb);
                 server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
                     @Override
                     public void onMessage(FjServer server, FjMessageWrapper wrapper) {
@@ -348,7 +348,7 @@ public class BcsTask implements FjServerTask {
                         JSONObject args_cdb = new JSONObject();
                         args_cdb.put("smid", smid);
                         args_cdb.put("pid", pid);
-                        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", dmsg.sid(), ISIS.INST_UPDATE_SUB_MAN_PIC, args_cdb);
+                        FjDscpMessage req_cdb = FjServerToolkit.dscpRequest("cdb", ISIS.INST_UPDATE_SUB_MAN_PIC, args_cdb);
                         server.onDscpSession(req_cdb.sid(), new FjServer.FjServerTask() {
                             @Override
                             public void onMessage(FjServer server, FjMessageWrapper wrapper) {

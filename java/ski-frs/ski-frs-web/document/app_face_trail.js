@@ -27,12 +27,14 @@ function build_body() {
 function build_body_l() {
     var image = $('<img>');
     var input = $("<input type='file' accept='image/*'>");
-    var input_tv = $("<input type='number' placeholder='默认60'>");
+    var input_tv = $("<input type='number' placeholder='默认20'>");
     
     frs.ui.body().l.append([
         $('<label>上传</label>'),
         $('<div></div>').append([image, input]),
         $('<label>相似度(1~99)</label>'), input_tv,
+        $('<label>设备</label>'), new frs.ui.Button('选择设备').to_major(),
+        new frs.ui.Button('开始搜索', func_upload_init).to_major()
     ]);
 
     input.bind('change', function(e) {
@@ -41,24 +43,15 @@ function build_body_l() {
 
         var file = files[0];
         var reader = new FileReader();
-        reader.onload = function(e1) {
-            image.attr('src', e1.target.result);
-            func_upload_init(e1.target.result);
-        };
+        reader.onload = function(e1) {image.attr('src', e1.target.result);};
         reader.readAsDataURL(file);
     });
     input_tv[0].max = 99;
     input_tv[0].min = 1;
-    input_tv.bind('keydown', function(e) {
-        if (e.keyCode == '13') {
-            if (image.attr('src')) {
-                func_upload_pages(1);
-            }
-        }
-    });
 }
 
-function func_upload_init(img) {
+function func_upload_init() {
+    var img = frs.ui.body().l.find('img').attr('src');
     var mask = new frs.ui.Mask();
     var hud = new frs.ui.hud.Major('正在上传');
     mask.appear();
@@ -79,7 +72,7 @@ function func_upload_init(img) {
 var page_len = 30;
 
 function func_upload_pages(page) {
-    var tv = 0.6;
+    var tv = 0.2;
     var input = frs.ui.body().l.find('input[type=number]');
     if (input.val()) {
         tv = parseFloat(input.val()) / 100;

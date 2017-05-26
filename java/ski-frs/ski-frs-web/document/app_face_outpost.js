@@ -2,7 +2,6 @@
 (function($) {
 
 fomjar.framework.phase.append('dom', frsmain);
-fomjar.framework.phase.append('ren', update_dev);
 
 function frsmain() {
     build_head();
@@ -24,41 +23,52 @@ function build_body() {
     var tab = new frs.ui.Tab();
     tab.addClass('tab-shadow tab-fix');
     tab.css('height', '100%');
-    tab.add_tab('在线卡口', tab.tab_on = create_tab_online(), true);
-    tab.add_tab('离线卡口', tab.tab_of = create_tab_offline());
+    tab.add_tab('卡口预览', tab.tab_browse = create_tab_browse(), true);
+    tab.add_tab('文件导入', tab.tab_import = create_tab_import());
     frs.ui.body().append(frs.ui.body().tab = tab);
 }
 
-function create_tab_online() {
+function create_tab_browse() {
     var div = frs.ui.layout.lrb($('<div></div>'));
-    div.addClass('tab-on');
+    div.addClass('tab-browse');
+    div.on_appear = function() {
+        fomjar.util.async(update_dev, frs.ui.DELAY / 2);
+    }
     return div;
 }
 
-function create_tab_offline() {
-    var div = $('<div></div>');
-    div.addClass('tab-of');
-    var select;
-    var path_local;
-    var path_view;
-    var submit;
-    div.append([
-        $('<div></div>').append([
-            select = $("<select></select>"),
-            path_local = $("<input type='text' placeholder='视频文件的本地路径'>"),
-            path_view = $("<input type='text' placeholder='设备虚拟显示路径'>"),
-            submit = new frs.ui.Button('开始分析', function() {
-                div.find('>div').css('top', '0');
+function create_tab_import() {
+    var div = frs.ui.layout.lr($('<div></div>'));
+    div.addClass('tab-import');
+    div.l.append([
+        $('<label>选择服务器</label>'), $('<select></select>'),
+        $('<label>文件真实路径</label>'), $("<input type='text' placeholder='视频文件的本地路径'>"),
+        $('<label>文件虚拟路径</label>'), $("<input type='text' placeholder='设备虚拟显示路径'>"),
+        new frs.ui.Button('开始分析', function() {
+            var mask = new frs.ui.Mask();
+            mask.appear();
+            var hud = frs.ui.hud.Major('正在创建离线设备');
+            hud.appear();
+            var opp = div.l.find('select').val();
+            var did = 'offline-' + new Date().getTime().toString(16);
+            var path_view = div.l.find('input:nth-child(2)').val();
+            var path_real = div.l.find('input:nth-child(3)').val();
+            fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
+                did     : did,
+                path    : path_view
+            }, function(code, desc) {
+                hud.disappear();
+                if (code) {
+                    new frs.ui.hud.Minor(desc).appear(1500);
+                    return;
+                }
                 
-                var mask = new frs.ui.Mask();
-                mask.appear();
-                var hud = frs.ui.hud.Major('正在创建离线设备');
+                hud.text('正在提交分析');
                 hud.appear();
-                var opp = select.val();
-                var did = 'offline-' + new Date().getTime().toString(16);
-                fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
+                fomjar.net.send(ski.isis.INST_APPLY_DEV_IMPORT, {
+                    opp     : opp,
                     did     : did,
-                    path    : path_view.val()
+                    path    : path_real
                 }, function(code, desc) {
                     hud.disappear();
                     if (code) {
@@ -66,29 +76,13 @@ function create_tab_offline() {
                         return;
                     }
                     
-                    hud.text('正在提交分析');
-                    hud.appear();
-                    fomjar.net.send(ski.isis.INST_APPLY_DEV_IMPORT, {
-                        opp     : opp,
-                        did     : did,
-                        path    : path_local.val()
-                    }, function(code, desc) {
-                        hud.disappear();
-                        if (code) {
-                            new frs.ui.hud.Minor(desc).appear(1500);
-                            return;
-                        }
-                        
-                        new frs.ui.hud.Minor('已经在分析了').appear(1500);
-                    });
+                    new frs.ui.hud.Minor('已经在分析了').appear(1500);
                 });
-            }).to_major()
-        ]),
+            });
+        }).to_major(),  // submit
     ]);
     div.on_appear = function() {
         fomjar.util.async(function() {
-            select.children().detach()
-            
             var mask = new frs.ui.Mask();
             var hud = frs.ui.hud.Major('正在获取');
             mask.appear();
@@ -100,6 +94,8 @@ function create_tab_offline() {
                     new frs.ui.hud.Minor(desc).appear(1500);
                     return;
                 }
+                var select = div.l.find('select');
+                select.children().detach();
                 $.each(desc, function(i, a) {select.append("<option value='" + a.server + "'>" + a.server + '(' + a.host + ':' + a.port + ')' + "</option>");});
             });
         }, frs.ui.DELAY / 2);
@@ -121,14 +117,14 @@ function update_dev() {
             return;
         }
     
-        update_dev_online(desc);
+        update_dev_browse(desc);
     });
 }
 
-function update_dev_online(devs) {
-    var tab = frs.ui.body().tab.tab_on;
+function update_dev_browse(devs) {
+    var tab = frs.ui.body().tab.tab_browse;
     tab.l.find('.jstree').detach();
-    select_devs_online();
+    select_devs_browse();
     
     var data = frs.tree.dev(devs);
     var tree = $('<div></div>').jstree({core : {data : data.children}});
@@ -138,12 +134,12 @@ function update_dev_online(devs) {
     tree.on('select_node.jstree', function(e, data) {
         var node = tree.data.find_child_deep(data.node.text);
         var devs = $.map(node.leaves(), function(n) {return n.dev;});
-        select_devs_online(devs);
+        select_devs_browse(devs);
     });
 }
 
-function select_devs_online(devs) {
-    var tab = frs.ui.body().tab.tab_on;
+function select_devs_browse(devs) {
+    var tab = frs.ui.body().tab.tab_browse;
     if (tab.r.player) tab.r.player.destory();
     tab.r.children().detach();
     

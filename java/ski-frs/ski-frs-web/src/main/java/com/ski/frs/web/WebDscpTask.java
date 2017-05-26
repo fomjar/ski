@@ -69,18 +69,21 @@ public class WebDscpTask implements FjServerTask {
     
     private void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("data") || !args.has("name")) {
-            String desc = "illegal arguments, no data, name";
+        if (!args.has("did") || !args.has("data") || !args.has("name")) {
+            String desc = "illegal arguments, no did, data, name";
             logger.error(desc);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
         
         pool_file.submit(()->{
+            String did = args.getString("did");
             String name = args.getString("name");
             String data = args.getString("data");
             args.remove("data");
-            String path = "document" + FjServerToolkit.getServerConfig("web.pic") + "/" + name + ".jpg";
+            String path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
+                    + "/" + did.replace("/", "_").replace("\\", "_")
+                    + "/" + name + ".jpg";
             try {
                 WebToolkit.writeFileBase64Image(data, path);
             } catch (IOException e) {

@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
-import com.ski.frs.web.FaceInterface;
 import com.ski.frs.web.WebToolkit;
 
 import fomjar.server.FjMessageWrapper;
@@ -58,7 +57,7 @@ public class Filter6Interface extends FjWebFilter {
             processQuerySubLibImport(response, args, server);
             break;
         case ISIS.INST_UPDATE_SUB_LIB_DEL:
-            processApplySubLibDel(response, args, server);
+            processUpdateSubLibDel(response, args, server);
             break;
         case ISIS.INST_APPLY_SUB_LIB_CHECK:
             processApplySubLibCheck(response, args, server);
@@ -158,7 +157,7 @@ public class Filter6Interface extends FjWebFilter {
         response(response, FjISIS.CODE_SUCCESS, desc);
     }
     
-    private static void processApplySubLibDel(FjHttpResponse response, JSONObject args, FjServer server) {
+    private static void processUpdateSubLibDel(FjHttpResponse response, JSONObject args, FjServer server) {
         if (!args.has("slid")) {
             String desc = "illegal arguments, no slid";
             logger.error(desc + ", " + args);
@@ -258,57 +257,58 @@ public class Filter6Interface extends FjWebFilter {
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
         
         List<File> list_all = WebToolkit.collectFile(new File(path));
-        Map<Thread, Long> cache_fvi = new HashMap<>();
+
         SubLibImportState state = new SubLibImportState();
         cache_sublib_import_state.put(key_state, state);
         state.total = list_all.size();
-        list_all.parallelStream().forEach(file->{
-            File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid + "/" + file.getName());
-            if (!WebToolkit.moveFile(file, dst)) {
-                logger.error("importing file failed: " + file.getPath());
-                synchronized(state.fails) {state.fails.add(file.getPath());}
-                return;
-            }
-            
-            if (!cache_fvi.containsKey(Thread.currentThread())) {
-                cache_fvi.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
-                logger.info(String.format("init face interface instance: 0x%016X", cache_fvi.get(Thread.currentThread())));
-            }
-            String fv = WebToolkit.fvLocalImage(cache_fvi.get(Thread.currentThread()), dst.getPath());
-            
-            JSONObject args_bcs = new JSONObject();
-            args_bcs.put("pic_type", type);
-            args_bcs.put("pic_path", dst.getPath().substring("document/".length())); 
-            args_bcs.put("pic_fv",   fv);
-            args_bcs.put("slm_slid", slid);
-            if (null != reg_idno)   args_bcs.put("slm_idno",   WebToolkit.regexField(file.getName(), reg_idno));
-            if (null != reg_name)   args_bcs.put("slm_name",   WebToolkit.regexField(file.getName(), reg_name));
-            if (null != reg_phone)  args_bcs.put("slm_phone",  WebToolkit.regexField(file.getName(), reg_phone));
-            if (null != reg_addr)   args_bcs.put("slm_addr",   WebToolkit.regexField(file.getName(), reg_addr));
-            
-            FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_LIB_IMPORT, args_bcs);
-            state.success++;
-            logger.info("importing file success: " + file.getPath());
-            
-            while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
-                try {Thread.sleep(100L);}
-                catch (InterruptedException e) {e.printStackTrace();}
-            }
-        }); // blocked
-        logger.info("free face interface count: " + cache_fvi.size());
-        cache_fvi.forEach((t, i)->{FaceInterface.freeInstance(i);});
-        cache_fvi.clear();
-        
-        if (0 < state.fails.size()) {
-            logger.error("import failes: " + state.fails.stream().map(p->"\r\n" + p).reduce((p1, p2)->p1 + p2).get());
-        }
         
         JSONObject desc = new JSONObject();
         desc.put("total",   state.total);
-        desc.put("success", state.success);
-        desc.put("fails",   state.fails);
-        
         response(response, FjISIS.CODE_SUCCESS, desc);
+        new Thread(()->{
+//          Map<Thread, Long> cache_fvi = new HashMap<>();
+            list_all.stream().forEach(file->{
+                File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + slid + "/" + file.getName());
+                if (!WebToolkit.moveFile(file, dst)) {
+                    logger.error("importing file failed: " + file.getPath());
+                    synchronized(state.fails) {state.fails.add(file.getPath());}
+                    return;
+                }
+                
+//                if (!cache_fvi.containsKey(Thread.currentThread())) {
+//                    cache_fvi.put(Thread.currentThread(), FaceInterface.initInstance(FaceInterface.DEVICE_GPU));
+//                    logger.info(String.format("init face interface instance: 0x%016X", cache_fvi.get(Thread.currentThread())));
+//                }
+//                String fv = WebToolkit.fvLocalImage(cache_fvi.get(Thread.currentThread()), dst.getPath());
+                String fv = WebToolkit.fvLocalImage(dst.getPath());
+                
+                JSONObject args_bcs = new JSONObject();
+                args_bcs.put("pic_type", type);
+                args_bcs.put("pic_path", dst.getPath().substring("document/".length())); 
+                args_bcs.put("pic_fv",   fv);
+                args_bcs.put("slm_slid", slid);
+                if (null != reg_idno)   args_bcs.put("slm_idno",   WebToolkit.regexField(file.getName(), reg_idno));
+                if (null != reg_name)   args_bcs.put("slm_name",   WebToolkit.regexField(file.getName(), reg_name));
+                if (null != reg_phone)  args_bcs.put("slm_phone",  WebToolkit.regexField(file.getName(), reg_phone));
+                if (null != reg_addr)   args_bcs.put("slm_addr",   WebToolkit.regexField(file.getName(), reg_addr));
+                
+                FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_LIB_IMPORT, args_bcs);
+                state.success++;
+                logger.info("importing file success: " + file.getPath());
+                
+                while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
+                    try {Thread.sleep(100L);}
+                    catch (InterruptedException e) {e.printStackTrace();}
+                }
+            }); // blocked
+//            logger.info("free face interface count: " + cache_fvi.size());
+//            cache_fvi.forEach((t, i)->{FaceInterface.freeInstance(i);});
+//            cache_fvi.clear();
+            
+            if (0 < state.fails.size()) {
+                logger.error("import failes: " + state.fails.stream().map(p->"\r\n" + p).reduce((p1, p2)->p1 + p2).get());
+            }
+        }).start();
     }
     
     private static class SubLibImportState {

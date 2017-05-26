@@ -312,6 +312,10 @@ function op_import(sublib) {
                 
                 if (cur < all) {
                     query_loop(progress, key);
+                } else {
+                    mask.disappear();
+                    dialog.disappear();
+                    update();
                 }
             });
         }, 500);
@@ -322,36 +326,24 @@ function op_import(sublib) {
         var data = check_collect();
         var key = data.key;
         
-        var dialog_old = dialog;
-        dialog_old.disappear();
-        mask.unbind('click');
-        
-        dialog = new frs.ui.Dialog();
-        var progress = new frs.ui.Progress();
-        dialog.append_text_h1c('正在导入');
-        dialog.append_space('.5em');
-        dialog.append($('<div></div>').append(progress));
-        dialog.appear();
-        
         fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);
-                dialog.disappear();
-                dialog_old.appear();
-                mask.bind('click', function() {
-                    mask.disappear();
-                    dialog_old.disappear();
-                });
                 return;
             }
-            dialog.append_button(new frs.ui.Button('确定', function() {
-                mask.disappear();
-                dialog.disappear();
-                update();
-            }).to_major());
-        });
         
-        query_loop(progress, key);
+            dialog.disappear();
+            mask.unbind('click');
+            
+            dialog = new frs.ui.Dialog();
+            var progress = new frs.ui.Progress();
+            dialog.append_text_h1c('正在导入');
+            dialog.append_space('.5em');
+            dialog.append($('<div></div>').append(progress));
+            dialog.appear();
+            
+            query_loop(progress, key);
+        });
     });
    
     mask.appear();
