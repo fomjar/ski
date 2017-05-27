@@ -51,18 +51,20 @@ function create_tab_import() {
             hud.appear();
             var opp = div.l.find('select').val();
             var did = 'offline-' + new Date().getTime().toString(16);
-            var path_view = div.l.find('input:nth-child(2)').val();
-            var path_real = div.l.find('input:nth-child(3)').val();
+            var path_view = div.l.find('input:nth-child(4)').val();
+            var path_real = div.l.find('input:nth-child(6)').val();
             fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
                 did     : did,
                 path    : path_view
             }, function(code, desc) {
+                mask.disappear();
                 hud.disappear();
                 if (code) {
                     new frs.ui.hud.Minor(desc).appear(1500);
                     return;
                 }
                 
+                mask.appear();
                 hud.text('正在提交分析');
                 hud.appear();
                 fomjar.net.send(ski.isis.INST_APPLY_DEV_IMPORT, {
@@ -70,6 +72,7 @@ function create_tab_import() {
                     did     : did,
                     path    : path_real
                 }, function(code, desc) {
+                    mask.disappear();
                     hud.disappear();
                     if (code) {
                         new frs.ui.hud.Minor(desc).appear(1500);
