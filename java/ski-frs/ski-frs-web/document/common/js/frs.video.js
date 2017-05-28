@@ -15,7 +15,7 @@ frs.video.Player = function(devs, id) {
     if (!devs || !devs.length) return null;
     
     var player = {devs : devs};
-    $.each(devs, function(i, dev) {dev.type = (dev.ip && dev.user && dev.pass) ? 'online' : 'offline';});
+    $.each(devs, function(i, dev) {dev.type = (dev.host && dev.user && dev.pass) ? 'online' : 'offline';});
     
     // Web 插件初始化(包含插件事件注册)
     WebVideoCtrl.I_InitPlugin('100%', '100%', {
@@ -41,7 +41,7 @@ frs.video.Player = function(devs, id) {
     player.login = function(cb_s, cb_f) {
         $.each(player.devs, function(i, dev) {
             if ('online' == dev.type) {
-                var r = WebVideoCtrl.I_Login(dev.ip, 1, 80, dev.user, dev.pass, {
+                var r = WebVideoCtrl.I_Login(dev.host, 1, 80, dev.user, dev.pass, {
                     async : false,
                     success: function (xml) {if (cb_s) cb_s(dev, xml);},
                     error: function () {if (cb_f) cb_f(dev);}
@@ -53,7 +53,7 @@ frs.video.Player = function(devs, id) {
     // 登出设备
     player.logout = function() {
         var r = 0;
-        $.each(player.devs, function(i, dev) {if ('online' == dev.type) r |= WebVideoCtrl.I_Logout(dev.ip);});
+        $.each(player.devs, function(i, dev) {if ('online' == dev.type) r |= WebVideoCtrl.I_Logout(dev.host);});
         return 0 == r;
     };
     // 获取设备基本信息
@@ -64,7 +64,7 @@ frs.video.Player = function(devs, id) {
             return;
         }
         
-        WebVideoCtrl.I_GetDeviceInfo(dev.ip, {
+        WebVideoCtrl.I_GetDeviceInfo(dev.host, {
             async : false,
             success: function (xml) {if (cb_s) cb_s(dev, xml);},
             error: function () {if (cb_f) cb_f(dev);}
@@ -75,7 +75,7 @@ frs.video.Player = function(devs, id) {
         if ('number' == typeof(i) && 'online' == player.devs[i].type) return 0 == WebVideoCtrl.I_StartRealPlay(player.devs[i].ip, {iWndIndex : i});
         else {
             var r = 0;
-            $.each(player.devs, function(i, dev) {if ('online' == dev.type) r |= WebVideoCtrl.I_StartRealPlay(dev.ip, {iWndIndex : i});});
+            $.each(player.devs, function(i, dev) {if ('online' == dev.type) r |= WebVideoCtrl.I_StartRealPlay(dev.host, {iWndIndex : i});});
             return 0 == r;
         }
     };

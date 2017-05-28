@@ -89,7 +89,7 @@ function update_dev() {
     var hud = frs.ui.hud.Major('正在获取');
     mask.appear();
     hud.appear();
-    fomjar.net.send(ski.isis.INST_QUERY_DEV, function(code, desc) {
+    fomjar.net.send(ski.isis.INST_GET_DEV, function(code, desc) {
         mask.disappear();
         hud.disappear();
         
@@ -133,7 +133,7 @@ function update_dev_list(devs) {
             dev.did,
             dev.path,
             dev.time.replace('.0', ''),
-            dev.ip,
+            dev.host,
             dev.div,
             [btn_del = new frs.ui.Button('删除', function() {op_delete_dev(dev);}).to_major()]
         ]));
@@ -218,7 +218,7 @@ function op_create_dev() {
     dialog.append_space('.5em');
     var did  = dialog.append_input({placeholder : '编号'});
     var path = dialog.append_input({placeholder : '显示路径，以英文“/”号分割'});
-    var ip   = dialog.append_input({placeholder : 'IP地址'});
+    var host = dialog.append_input({placeholder : 'IP地址'});
     var user = dialog.append_input({placeholder : '用户名'});
     var pass = dialog.append_input({placeholder : '密码', type : 'password'});
     var checkNoDid = function() {
@@ -227,7 +227,7 @@ function op_create_dev() {
             dialog.shake();
             return false;
         }
-        if (!ip.val()) {
+        if (!host.val()) {
             new frs.ui.hud.Minor('IP地址不能为空').appear(1500);
             dialog.shake();
             return false;
@@ -249,7 +249,7 @@ function op_create_dev() {
             if (!checkNoDid()) return;
             
             fomjar.util.async(function() {
-                var player = new frs.video.Player([{ip : ip.val(), user : user.val(), pass : pass.val()}]);
+                var player = new frs.video.Player([{host : host.val(), user : user.val(), pass : pass.val()}]);
                 player.login(function(dev, xml) {
                     player.info(0, function(dev, xml) {did.val(xml.childNodes[0].childNodes[3].textContent);});
                 }, function() {
@@ -267,10 +267,10 @@ function op_create_dev() {
             }
             if (!checkNoDid()) return;
             
-            fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
+            fomjar.net.send(ski.isis.INST_SET_DEV, {
                 did     : did.val(),
                 path    : path.val(),
-                ip      : ip.val(),
+                host    : host.val(),
                 user    : user.val(),
                 pass    : pass.val()
             }, function(code, desc) {
@@ -303,7 +303,7 @@ function op_delete_dev(dev) {
     dialog.append_space('.5em');
     dialog.append_text_p1('确定要删除设备：' + dev.did + ':' + dev.path + '吗？');
     dialog.append_button(new frs.ui.Button('确认', function() {
-        fomjar.net.send(ski.isis.INST_UPDATE_DEV_DEL, {did : dev.did}, function(code, desc) {
+        fomjar.net.send(ski.isis.INST_DEL_DEV, {did : dev.did}, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);
                 dialog.shake();

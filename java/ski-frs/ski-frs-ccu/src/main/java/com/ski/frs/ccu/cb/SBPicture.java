@@ -18,12 +18,10 @@ import java.util.stream.Collectors;
  * <table>
  * <tr><th>键</th><th>描述</th></tr>
  * <tr><td>pid  </td><td>图片编号（一个图片，要么来自于设备、要么来自于主体项）</td></tr>
- * <tr><td>did  </td><td>设备编号</td></tr>
- * <tr><td>siid </td><td>主体项编号</td></tr>
  * <tr><td>name </td><td>名称</td></tr>
  * <tr><td>time </td><td>创建时间</td></tr>
- * <tr><td>size </td><td>尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)</td></tr>
  * <tr><td>type </td><td>类型：0 - 人物，1 - 汽车</td></tr>
+ * <tr><td>size </td><td>尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)</td></tr>
  * <tr><td>path </td><td>真实路径</td></tr>
  * </table>
  */
@@ -37,12 +35,12 @@ public class SBPicture extends StoreBlock {
     
     public Map<String, Object> setPicture(Map<String, Object> pic) {
         String pid = null;
-        if (!pic.containsKey("pid"))    pic.put("pid", pid = UUID.randomUUID().toString().replace("-", ""));
+        if (!pic.containsKey("pid"))    pic.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
         else pid = pic.get("pid").toString();
         if (!pic.containsKey("time"))   pic.put("time", System.currentTimeMillis());
         return data.put(pid, pic);
     }
-    public List<Map<String, Object>> getPictures(String... pid) {
+    public List<Map<String, Object>> getPicture(String... pid) {
         return data.entrySet().parallelStream()
                 .filter(e->{for (String p : pid) if (e.getKey().equals(p)) return true; return false;})
                 .map(e->e.getValue())

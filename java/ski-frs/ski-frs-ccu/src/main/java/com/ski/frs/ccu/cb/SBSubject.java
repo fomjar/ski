@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
  * <tr><td>addr     </td><td>地址</td></tr>
  * </table>
  */
+@SuppressWarnings("unchecked")
 public class SBSubject extends StoreBlock {
 
     private static final long serialVersionUID = 1L;
@@ -49,31 +50,25 @@ public class SBSubject extends StoreBlock {
     
     public Map<String, Object> setSubject(Map<String, Object> sub) {
         String sid = null;
-        if (!sub.containsKey("sid")) sub.put("sid", sid = UUID.randomUUID().toString().replace("-", ""));
+        if (!sub.containsKey("sid")) sub.put("sid", sid = "subject-" + UUID.randomUUID().toString().replace("-", ""));
         else sid = sub.get("sid").toString();
-        if (!sub.containsKey("items")) sub.put("items", new HashMap<>());
+        if (!sub.containsKey("items")) sub.put("items", new HashMap<String, Map<String, Object>>());
         return data.put(sid, sub);
     }
     
-    @SuppressWarnings("unchecked")
-    public void addSubjectItem(String sid, Map<String, Object> item) {
+    public void setSubjectItem(String sid, Map<String, Object> item) {
         if (!data.containsKey(sid)) return;
         Map<String, Object> sub = data.get(sid);
         
         String siid = null;
-        if (!item.containsKey("siid")) item.put("siid", siid = UUID.randomUUID().toString().replace("-", ""));
+        if (!item.containsKey("siid")) item.put("siid", siid = "subject-item-" + UUID.randomUUID().toString().replace("-", ""));
         else siid = item.get("siid").toString();
         if (!item.containsKey("time")) item.put("time", System.currentTimeMillis());
+        if (!item.containsKey("pids")) item.put("pids", new LinkedList<String>());
         Map<String, Object> items = (Map<String, Object>) sub.get("items");
         items.put(siid, item);
     }
     
-    public List<Map<String, Object>> getSubject(String... sid) {
-        return data.entrySet().parallelStream()
-                .filter(e->{for (String s : sid) if (e.getKey().equals(s)) return true; return false;})
-                .map(e->e.getValue())
-                .collect(Collectors.toList());
-    }
     public List<Map<String, Object>> delSubject(String... sid) {
         List<Map<String, Object>> list = new LinkedList<>();
         for (String s : sid) {
@@ -81,6 +76,54 @@ public class SBSubject extends StoreBlock {
             if (null != sub) list.add(sub);
         }
         return list;
+    }
+    
+    public List<Map<String, Object>> delSubjectItem(String sid, String... siid) {
+        if (!data.containsKey(sid)) return null;
+        Map<String, Object> sub = data.get(sid);
+        List<Map<String, Object>> list = new LinkedList<>();
+        Map<String, Map<String, Object>> items = (Map<String, Map<String, Object>>) sub.get("items");
+        for (String s : siid) {
+            Map<String, Object> item = items.remove(s);
+            if (null != item) list.add(item);
+        }
+        return list;
+    }
+    
+    public Map<String, Object> modSubject(Map<String, Object> sub) {
+        if (!sub.containsKey("sid")) return null;
+        String sid = (String) sub.get("sid");
+        if (!data.containsKey(sid)) return null;
+        Map<String, Object> sub_old = data.get(sid);
+        sub_old.putAll(sub);
+        sub.putAll(sub_old);
+        return data.put(sid, sub);
+    }
+    
+    public List<Map<String, Object>> getSubject(String... sid) {
+        if (null != sid && 0 < sid.length) {
+            return data.entrySet().parallelStream()
+                    .filter(e->{for (String s : sid) if (e.getKey().equals(s)) return true; return false;})
+                    .map(e->{
+                        Map<String, Object> map = new HashMap<>(e.getValue());
+                        map.put("items", ((Map<String, Object>) map.get("items")).size());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            return data.entrySet().parallelStream()
+                    .map(e->{
+                        Map<String, Object> map = new HashMap<>(e.getValue());
+                        map.put("items", ((Map<String, Object>) map.get("items")).size());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+        }
+    }
+    
+    public List<Map<String, Object>> getSubjectItem(String sid) {
+        if (!data.containsKey(sid)) return null;
+        return new LinkedList<Map<String, Object>>(((Map<String, Map<String, Object>>) ((Map<String, Object>) data.get(sid)).get("items")).values());
     }
 
 }

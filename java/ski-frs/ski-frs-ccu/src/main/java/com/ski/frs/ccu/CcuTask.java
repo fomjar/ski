@@ -6,7 +6,9 @@ import fomjar.server.FjMessage;
 import fomjar.server.FjMessageWrapper;
 import fomjar.server.FjServer;
 import fomjar.server.FjServer.FjServerTask;
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
+import net.sf.json.JSONObject;
 
 public class CcuTask implements FjServerTask {
     
@@ -35,8 +37,9 @@ public class CcuTask implements FjServerTask {
         FjDscpMessage dmsg = (FjDscpMessage) msg;
         logger.info(String.format("%s - 0x%08X", dmsg.sid(), dmsg.inst()));
         
-        switch (dmsg.inst()) {
+        JSONObject json = StoreBlockService.getInstance().dispatch(dmsg.inst(), dmsg.argsToJsonObject());
         
-        }
+        logger.info("dispatch: " + json);
+        FjServerToolkit.dscpResponse(dmsg, json.getInt("code"), json.get("desc"));
     }
 }

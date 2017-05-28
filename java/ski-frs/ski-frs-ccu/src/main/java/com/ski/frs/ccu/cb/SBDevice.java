@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
  * <tr><td>host </td><td>主机地址</td></tr>
  * <tr><td>user </td><td>用户名</td></tr>
  * <tr><td>pass </td><td>密码</td></tr>
+ * <tr><td>pids </td><td>图片</td></tr>
  * </table>
  */
+@SuppressWarnings("unchecked")
 public class SBDevice extends StoreBlock {
 
     private static final long serialVersionUID = 1L;
@@ -38,21 +40,39 @@ public class SBDevice extends StoreBlock {
         if (!dev.containsKey("did"))    dev.put("did", did = "device-" + UUID.randomUUID().toString().replace("-", ""));
         else did = dev.get("did").toString();
         if (!dev.containsKey("time"))   dev.put("time", System.currentTimeMillis());
+        if (!dev.containsKey("pids"))   dev.put("pids", new LinkedList<String>());
         return data.put(did, dev);
     }
     
     public List<Map<String, Object>> getDevice(String... did) {
-        return data.entrySet().parallelStream()
-                .filter(e->{for (String d : did) if (e.getKey().equals(d)) return true; return false;})
-                .map(e->e.getValue())
-                .collect(Collectors.toList());
+        if (null != did && 0 < did.length) {
+            return data.entrySet().parallelStream()
+                    .filter(e->{for (String d : did) if (e.getKey().equals(d)) return true; return false;})
+                    .map(e->{
+                        Map<String, Object> map = new HashMap<>(e.getValue());
+                        map.put("pids", ((List<String>) map.remove("pids")).size());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            return data.entrySet().parallelStream()
+                    .map(e->{
+                        Map<String, Object> map = new HashMap<>(e.getValue());
+                        map.put("pids", ((List<String>) map.remove("pids")).size());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+        }
     }
     
     public List<Map<String, Object>> delDevice(String... did) {
         List<Map<String, Object>> list = new LinkedList<>();
         for (String d : did) {
             Map<String, Object> dev = data.remove(d);
-            if (null != dev) list.add(dev);
+            if (null != dev) {
+                dev.put("pids", ((List<String>) dev.get("pids")).size());
+                list.add(dev);
+            }
         }
         return list;
     }

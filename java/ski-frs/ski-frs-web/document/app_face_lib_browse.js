@@ -4,7 +4,7 @@
 fomjar.framework.phase.append('dom', frsmain);
 // fomjar.framework.phase.append('ren', update);
 
-var slid = parseInt(fomjar.util.args.slid, 16);
+var sid = parseInt(fomjar.util.args.sid, 16);
 
 function frsmain() {
     build_head();
@@ -62,7 +62,7 @@ function update() {
     
     var list = frs.ui.body().find('.list');
     list.children().detach();
-    fomjar.net.send(ski.isis.INST_QUERY_SUB_LIB, function(code, desc) {
+    fomjar.net.send(ski.isis.INST_GET_SUB, function(code, desc) {
         mask.disappear();
         hud.disappear();
         
@@ -114,20 +114,20 @@ function tool_search(type, text) {
     new frs.ui.hud.Minor(type+':'+text).appear(1500);
 }
 
-function op_edit(sublib) {
-    new frs.ui.hud.Minor('编辑:' + sublib.name).appear(1500);
+function op_edit(sub) {
+    new frs.ui.hud.Minor('编辑:' + sub.name).appear(1500);
 }
 
-function op_browse(sublib) {
-    new frs.ui.hud.Minor('浏览:' + sublib.name).appear(1500);
+function op_browse(sub) {
+    new frs.ui.hud.Minor('浏览:' + sub.name).appear(1500);
 }
 
-function op_import(sublib) {
-    new frs.ui.hud.Minor('导入:' + sublib.name).appear(1500);
+function op_import(sub) {
+    new frs.ui.hud.Minor('导入:' + sub.name).appear(1500);
 }
 
-function op_delete(sublib) {
-    new frs.ui.hud.Minor('删除:' + sublib.name).appear(1500);
+function op_delete(sub) {
+    new frs.ui.hud.Minor('删除:' + sub.name).appear(1500);
 }
 
 })(jQuery)

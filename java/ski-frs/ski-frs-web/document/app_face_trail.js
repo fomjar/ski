@@ -27,7 +27,7 @@ function build_body() {
 function build_body_l() {
     var image = $('<img>');
     var input = $("<input type='file' accept='image/*'>");
-    var input_tv = $("<input type='number' placeholder='默认20'>");
+    var input_tv = $("<input type='number' placeholder='默认70'>");
     
     frs.ui.body().l.append([
         $('<label>上传</label>'),
@@ -50,13 +50,15 @@ function build_body_l() {
     input_tv[0].min = 1;
 }
 
+var fv;
+
 function func_upload_init() {
     var img = frs.ui.body().l.find('img').attr('src');
     var mask = new frs.ui.Mask();
     var hud = new frs.ui.hud.Major('正在上传');
     mask.appear();
     hud.appear();
-    fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV_I, {
+    fomjar.net.send(ski.isis.INST_GET_PIC_FV, {
         data : img,
     }, function(code, desc) {
         mask.disappear();
@@ -64,15 +66,14 @@ function func_upload_init() {
         if (code) {
             new frs.ui.hud.Minor(desc).appear(1500);
         } else {
+            fv = desc;
             func_upload_pages(1);
         }
     });
 }
 
-var page_len = 30;
-
 function func_upload_pages(page) {
-    var tv = 0.2;
+    var min = 0.7;
     var input = frs.ui.body().l.find('input[type=number]');
     if (input.val()) {
         tv = parseFloat(input.val()) / 100;
@@ -81,10 +82,10 @@ function func_upload_pages(page) {
     var hud = new frs.ui.hud.Major('正在匹配');
     mask.appear();
     hud.appear();
-    fomjar.net.send(ski.isis.INST_QUERY_PIC_BY_FV, {
-        tv  : tv,
-        pf  : (page - 1) * page_len,
-        pt  : page_len
+    fomjar.net.send(ski.isis.INST_GET_PIC, {
+        fv  : fv,
+        min : min,
+        max : 1.0,
     }, function(code, desc) {
         mask.disappear();
         hud.disappear();
@@ -100,7 +101,7 @@ function func_upload_pages(page) {
             $.each(desc, function(i, pic) {
                 r.append(new frs.ui.BlockPicture({
                     cover   : pic.path,
-                    name    : '相似度：' + (100 * pic.tv0).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
+                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
                 }));
             });
             var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});

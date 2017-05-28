@@ -16,17 +16,25 @@ public abstract class StoreBlock implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    private boolean ready = true;
+    
+    public boolean ready() {return ready;}
+    
     public String path() {
         return FjServerToolkit.getServerConfig("ccu.sb") + getClass().getName().toLowerCase() + ".sb";
     }
 
     public StoreBlock load() throws IOException, ClassNotFoundException {
+        ready = false;
         FileInputStream fis = new FileInputStream(path());
         BufferedInputStream bis = new BufferedInputStream(fis);
         ObjectInputStream ois = new ObjectInputStream(bis);
         Object o = ois.readObject();
         ois.close();
-        return (StoreBlock) o;
+        ready = true;
+        StoreBlock sb = (StoreBlock) o;
+        sb.ready = true;
+        return sb;
     }
     
     public boolean save() throws IOException {

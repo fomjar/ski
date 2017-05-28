@@ -41,8 +41,8 @@ public class WebDscpTask implements FjServerTask {
         
         FjDscpMessage dmsg = (FjDscpMessage) msg;
         switch (dmsg.inst()) {
-        case ISIS.INST_UPDATE_PIC:
-            processUpdatePic(server, dmsg);
+        case ISIS.INST_SET_PIC:
+            processSetPic(server, dmsg);
             break;
         default:
             if (!dmsg.fs().startsWith("bcs")) {
@@ -67,23 +67,38 @@ public class WebDscpTask implements FjServerTask {
         });
     }
     
-    private void processUpdatePic(FjServer server, FjDscpMessage dmsg) {
+    private void processSetPic(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("did") || !args.has("data") || !args.has("name")) {
-            String desc = "illegal arguments, no did, data, name";
+        if (!args.has("data") || !args.has("name") || !args.has("type") || !args.has("size")) {
+            String desc = "illegal arguments, no data, name, type, size";
             logger.error(desc);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
         
         pool_file.submit(()->{
-            String did = args.getString("did");
             String name = args.getString("name");
             String data = args.getString("data");
+            int    type = args.getInt("type");
+            int    size = args.getInt("size");
             args.remove("data");
-            String path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
-                    + "/" + did.replace("/", "_").replace("\\", "_")
-                    + "/" + name + ".jpg";
+            String path = null;
+            if (args.has("did")) {
+                path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
+                        + "/" + args.getString("did").replace("/", "_").replace("\\", "_")
+                        + "/" + name + ".jpg";
+            } else if (args.has("sid") && args.has("siid")) {
+                path = "document" + FjServerToolkit.getServerConfig("web.pic.sub")
+                        + "/" + args.getString("sid")
+                        + "/" + args.getString("siid")
+                        + "/" + name + ".jpg";
+            } else {
+                String desc = "illegal arguments, no did or sid, siid";
+                logger.error(desc);
+                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
+                return;
+            }
+            args.put("path", path.substring("document".length()));
             try {
                 WebToolkit.writeFileBase64Image(data, path);
             } catch (IOException e) {
@@ -93,8 +108,15 @@ public class WebDscpTask implements FjServerTask {
                 return;
             }
             
-            String fv = WebToolkit.fvLocalImage(path);
-            args.put("fv", fv);
+            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
+                float[] fv = WebToolkit.fvLocalImage(path);
+                if (null == fv) {
+                    String desc = "internal error, calculate local image file fv failed: " + path;
+                    logger.error(desc);
+                    FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_INTERNAL_ERROR, desc);
+                }
+                args.put("fv", fv);
+            }
             
             FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), args);
             waitSessionForResponse(server, dmsg);

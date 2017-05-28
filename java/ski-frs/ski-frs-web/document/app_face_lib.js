@@ -47,7 +47,7 @@ function update() {
     
     var list = frs.ui.body().find('.list');
     list.children().detach();
-    fomjar.net.send(ski.isis.INST_QUERY_SUB_LIB, function(code, desc) {
+    fomjar.net.send(ski.isis.INST_GET_SUB, function(code, desc) {
         mask.disappear();
         hud.disappear();
         
@@ -55,17 +55,17 @@ function update() {
             new frs.ui.hud.Minor('获取清单失败: ' + desc).appear(1500);
             return;
         }
-        $.each(desc, function(i, l) {
+        $.each(desc, function(i, sub) {
             var btn_del;
             list.append(new frs.ui.ListCellTable([
-                $('<div></div>').append(l.name),
-                $('<div></div>').append(l.count),
-                $('<div></div>').append(l.time.replace('.0', '')),
+                $('<div></div>').append(sub.name),
+                $('<div></div>').append(sub.count),
+                $('<div></div>').append(sub.time.replace('.0', '')),
                 $('<div></div>').append([
-                    new frs.ui.Button('修改', function() {op_modify(l);}).to_major(),
-                    new frs.ui.Button('浏览', function() {op_browse(l);}).to_major(),
-                    new frs.ui.Button('导入', function() {op_import(l);}).to_major(),
-                    btn_del = new frs.ui.Button('删除', function() {op_delete(l);}).to_major(),
+                    new frs.ui.Button('修改', function() {op_modify(sub);}).to_major(),
+                    new frs.ui.Button('浏览', function() {op_browse(sub);}).to_major(),
+                    new frs.ui.Button('导入', function() {op_import(sub);}).to_major(),
+                    btn_del = new frs.ui.Button('删除', function() {op_delete(sub);}).to_major(),
                 ]),
             ]));
             btn_del.css('background', '#663333');
@@ -92,7 +92,7 @@ function tool_create() {
             return;
         }
         
-        fomjar.net.send(ski.isis.INST_UPDATE_SUB_LIB, {
+        fomjar.net.send(ski.isis.INST_SET_SUB, {
             name : name,
             type : 0
         }, function(code, desc) {
@@ -116,7 +116,7 @@ function tool_search(type, text) {
     new frs.ui.hud.Minor(type+':'+text).appear(1500);
 }
 
-function op_modify(sublib) {
+function op_modify(sub) {
     var mask = new frs.ui.Mask();
     var dialog = new frs.ui.Dialog();
     mask.bind('click', function() {
@@ -127,7 +127,7 @@ function op_modify(sublib) {
     dialog.append_text_h1c('修改人像库');
     dialog.append_space('.5em');
     dialog.append_input({placeholder : '库名称'});
-    dialog.find('input').val(sublib.name);
+    dialog.find('input').val(sub.name);
     dialog.append_button(new frs.ui.Button('提交', function() {
         var name = dialog.find('input').val().trim();
         if (!name) {
@@ -136,11 +136,9 @@ function op_modify(sublib) {
             return;
         }
         
-        fomjar.net.send(ski.isis.INST_UPDATE_SUB_LIB, {
-            slid : sublib.slid,
-            name : name,
-            type : sublib.type,
-            time : sublib.time
+        fomjar.net.send(ski.isis.INST_MOD_SUB, {
+            sid  : sub.sid,
+            name : name
         }, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);
@@ -159,11 +157,11 @@ function op_modify(sublib) {
     dialog.find('input');
 }
 
-function op_browse(sublib) {
-    window.location = 'app_face_lib_browse.html?slid=' + sublib.slid.toString(16);
+function op_browse(sub) {
+    window.location = 'app_face_lib_browse.html?sid=' + sub.sid.toString(16);
 }
 
-function op_import(sublib) {
+function op_import(sub) {
     var mask = new frs.ui.Mask();
     var dialog = new frs.ui.Dialog();
     mask.bind('click', function() {
@@ -223,7 +221,7 @@ function op_import(sublib) {
     var check_collect = function () {
         var data = {
             key  : new Date().getTime().toString(16),
-            slid : sublib.slid,
+            sid : sub.sid,
             type : 0,   // man
         };
         var path = input_path.val().trim();
@@ -277,7 +275,7 @@ function op_import(sublib) {
         if (!data) return;
         
         data.count = 3;
-        fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_CHECK, data, function(code, desc) {
+        fomjar.net.send(ski.isis.INST_APPLY_SUB_IMPORT_CHECK, data, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor('一些错误：' + desc).appear(3000);
                 dialog.shake();
@@ -298,7 +296,7 @@ function op_import(sublib) {
     });
     var query_loop = function(progress, key) {
         fomjar.util.async(function() {
-            fomjar.net.send(ski.isis.INST_QUERY_SUB_LIB_IMPORT, {
+            fomjar.net.send(ski.isis.INST_APPLY_SUB_IMPORT_STATE, {
                 key : key
             }, function(code, desc) {
                 if (code) {
@@ -326,7 +324,7 @@ function op_import(sublib) {
         var data = check_collect();
         var key = data.key;
         
-        fomjar.net.send(ski.isis.INST_APPLY_SUB_LIB_IMPORT, data, function(code, desc) {
+        fomjar.net.send(ski.isis.INST_APPLY_SUB_IMPORT, data, function(code, desc) {
             if (code) {
                 new frs.ui.hud.Minor(desc).appear(1500);
                 return;
@@ -350,7 +348,7 @@ function op_import(sublib) {
     dialog.appear();
 }
 
-function op_delete(sublib) {
+function op_delete(sub) {
     var mask = new frs.ui.Mask();
     var dialog = new frs.ui.Dialog();
     mask.bind('click', function() {
@@ -360,16 +358,16 @@ function op_delete(sublib) {
     
     dialog.append_text_h1c('删除人像库');
     dialog.append_space('.5em');
-    dialog.append_text_p1('确定删除人像库: "' + sublib.name + '" ?');
-    dialog.append_text_h1('其下所有信息和照片都将删除，无法恢复。');
+    dialog.append_text_p1('确定删除人像库: "' + sub.name + '" ?');
+    dialog.append_text_h1('其下所有信息都将删除，无法恢复。(图片文件不会删除)');
     dialog.append_button(new frs.ui.Button('确定').to_major()).bind('click', function() {
         var mask1 = new frs.ui.Mask();
         var hud = new frs.ui.hud.Major('正在删除');
         mask1.appear();
         hud.appear();
         
-        fomjar.net.send(ski.isis.INST_UPDATE_SUB_LIB_DEL, {
-            slid    : sublib.slid
+        fomjar.net.send(ski.isis.INST_DEL_SUB, {
+            sid : sub.sid
         }, function(code, desc) {
             mask1.disappear();
             hud.disappear();

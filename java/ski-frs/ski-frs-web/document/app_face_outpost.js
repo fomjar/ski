@@ -50,12 +50,10 @@ function create_tab_import() {
             var hud = frs.ui.hud.Major('正在创建离线设备');
             hud.appear();
             var opp = div.l.find('select').val();
-            var did = 'offline-' + new Date().getTime().toString(16);
-            var path_view = div.l.find('input:nth-child(4)').val();
-            var path_real = div.l.find('input:nth-child(6)').val();
-            fomjar.net.send(ski.isis.INST_UPDATE_DEV, {
-                did     : did,
-                path    : path_view
+            var path_real = div.l.find('input:nth-child(4)').val();
+            var path_view = div.l.find('input:nth-child(6)').val();
+            fomjar.net.send(ski.isis.INST_SET_DEV, {
+                path : path_view
             }, function(code, desc) {
                 mask.disappear();
                 hud.disappear();
@@ -64,6 +62,7 @@ function create_tab_import() {
                     return;
                 }
                 
+                var did = desc.did;
                 mask.appear();
                 hud.text('正在提交分析');
                 hud.appear();
@@ -90,7 +89,7 @@ function create_tab_import() {
             var hud = frs.ui.hud.Major('正在获取');
             mask.appear();
             hud.appear();
-            fomjar.net.send(ski.isis.INST_QUERY_OPP, function(code, desc) {
+            fomjar.net.send(ski.isis.INST_GET_OPP, function(code, desc) {
                 mask.disappear();
                 hud.disappear();
                 if (code) {
@@ -111,7 +110,7 @@ function update_dev() {
     var hud = frs.ui.hud.Major('正在获取');
     mask.appear();
     hud.appear();
-    fomjar.net.send(ski.isis.INST_QUERY_DEV, function(code, desc) {
+    fomjar.net.send(ski.isis.INST_GET_DEV, function(code, desc) {
         mask.disappear();
         hud.disappear();
         
