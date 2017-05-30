@@ -20,7 +20,6 @@ public class WebTask extends FjWebTask {
     @Override
     public void destroy(FjServer server) {
         super.destroy(server);
-        WebToolkit.freeFV();
     }
 
 }

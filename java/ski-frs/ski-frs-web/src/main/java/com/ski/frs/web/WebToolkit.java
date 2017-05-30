@@ -4,20 +4,16 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
-import fomjar.server.FjServerToolkit;
 import net.sf.json.JSONObject;
 
 public class WebToolkit {
@@ -116,60 +112,4 @@ public class WebToolkit {
         ImageIO.write(img, "jpg", file);
         return file;
     }
-    
-    private static final int FV_BUF = 4096;
-    private static long fv = -1;
-    public static long defaultFV() {
-        if (-1 == fv) {
-            fv = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
-        }
-        return fv;
-    }
-    
-    public static void freeFV() {
-        if (-1 != fv) FaceInterface.freeInstance(fv);
-    }
-    
-    public static float[] fvBase64Image(String data) {
-        return fvBase64Image(defaultFV(), data);
-    }
-    
-    public static float[] fvBase64Image(long fvi, String data) {
-        byte[] fv = new byte[FV_BUF];
-        int mark = -1;
-        if (FaceInterface.SUCCESS == (mark = FaceInterface.fv_base64(fvi, data.getBytes(), fv))) {
-            List<Float> list = Arrays.asList(new String(fv).trim().split(" ")).stream().map(s->Float.valueOf(s)).collect(Collectors.toList());
-            float[] array = new float[list.size()];
-            int i = 0;
-            for (float f : list) array[i++] = f;
-            return array;
-        } else {
-            logger.error("fv base64 image failed, mark = " + mark);
-            return null;
-        }
-    }
-    
-    public static float[] fvLocalImage(String path) {
-        return fvLocalImage(defaultFV(), path);
-    }
-    
-    public static float[] fvLocalImage(long fvi, String path) {
-        try {
-            byte[] fv = new byte[FV_BUF];
-            int mark = -1;
-            if (FaceInterface.SUCCESS == (mark = FaceInterface.fv_path(fvi, path.getBytes(FjServerToolkit.getServerConfig("web.pic.enc")), fv))) {
-                List<Float> list = Arrays.asList(new String(fv).trim().split(" ")).stream().map(s->Float.valueOf(s)).collect(Collectors.toList());
-                float[] array = new float[list.size()];
-                int i = 0;
-                for (float f : list) array[i++] = f;
-                return array;
-            } else {
-                logger.error("fv local image failed, mark = " + mark);
-                return null;
-            }
-        } catch (UnsupportedEncodingException e) {e.printStackTrace();}
-        logger.error("decode path failed");
-        return null;
-    }
-    
 }

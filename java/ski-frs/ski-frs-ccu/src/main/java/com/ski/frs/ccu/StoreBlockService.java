@@ -233,10 +233,10 @@ public class StoreBlockService {
             return json;
         } else if (args.has("fv") && args.has("min") && args.has("max")) {
             JSONArray array = args.getJSONArray("fv");
-            float[] fv = new float[array.size()];
-            for (int i = 0; i < array.size(); i++) fv[i] = (float) array.getDouble(i);
+            double[] fv = new double[array.size()];
+            for (int i = 0; i < array.size(); i++) fv[i] = array.getDouble(i);
             
-            List<Map<String, Object>> pics = sb_pic.getPicture(fv, (float) args.getDouble("min"), (float) args.getDouble("max"));
+            List<Map<String, Object>> pics = sb_pic.getPicture(fv, args.getDouble("min"), args.getDouble("max"));
             JSONObject json = new JSONObject();
             json.put("code", FjISIS.CODE_SUCCESS);
             json.put("desc", pics);

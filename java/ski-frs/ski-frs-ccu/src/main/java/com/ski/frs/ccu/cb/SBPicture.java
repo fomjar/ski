@@ -42,19 +42,19 @@ public class SBPicture extends StoreBlock {
                 .map(e->(Map<String, Object>) e.getValue())
                 .collect(Collectors.toList());
     }
-    public List<Map<String, Object>> getPicture(float[] fv, float min, float max) {
+    public List<Map<String, Object>> getPicture(double[] fv, double min, double max) {
         return data().values().parallelStream()
                 .map(p->(Map<String, Object>) p)
                 .filter(p->{
                     if (!p.containsKey("fv")) return false;
-                    float tv = transvection(fv, (float[]) p.get("fv"));
+                    double tv = transvection(fv, (double[]) p.get("fv"));
                     p.put("tv", tv);
                     if (min <= tv && tv >= max) return true;
                     return false;})
                 .collect(Collectors.toList());
     }
-    private static float transvection(float[] v1, float[] v2) {
-        float tv = 0;
+    private static double transvection(double[] v1, double[] v2) {
+        double tv = 0;
         for (int i = 0; i < Math.min(v1.length, v2.length); i++) tv += v1[i] * v2[i];
         return tv;
     }

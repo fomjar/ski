@@ -15,6 +15,7 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjISIS;
+import fomjar.util.FjReference;
 import fomjar.util.FjThreadFactory;
 import net.sf.json.JSONObject;
 
@@ -109,13 +110,12 @@ public class WebDscpTask implements FjServerTask {
             }
             
             if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
-                float[] fv = WebToolkit.fvLocalImage(path);
-                if (null == fv) {
-                    String desc = "internal error, calculate local image file fv failed: " + path;
-                    logger.error(desc);
-                    FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_INTERNAL_ERROR, desc);
-                }
-                args.put("fv", fv);
+                FjReference<double[]> fv0 = new FjReference<>(null);
+                FeatureService.getDefault().fv_path(new FeatureService.FV() {
+                    @Override
+                    public void fv(double[] fv) {fv0.t = fv;}
+                }, path);
+                args.put("fv", fv0.t);
             }
             
             FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), args);

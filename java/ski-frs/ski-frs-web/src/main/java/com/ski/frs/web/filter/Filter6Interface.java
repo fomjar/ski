@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
-import com.ski.frs.web.FaceInterface;
+import com.ski.frs.web.FeatureService;
 import com.ski.frs.web.WebToolkit;
 
 import fomjar.server.FjMessageWrapper;
@@ -120,18 +120,15 @@ public class Filter6Interface extends FjWebFilter {
         
         String data = args.getString("data");
         args.remove("data");
-        if (data.startsWith("data:image")) data = data.substring(data.indexOf("base64,") + 7);
         
-        float[] fv = null;
-        if (null == (fv = WebToolkit.fvBase64Image(data))) {
-            String desc = "illegal arguments, invalid base64 image data";
-            logger.error(desc);
-            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
-            return;
-        }
-        JSONArray desc = JSONArray.fromObject(fv);
+        FjReference<double[]> fv0 = new FjReference<>(null);
+        FeatureService.getDefault().fv_base64(new FeatureService.FV() {
+            @Override
+            public void fv(double[] fv) {fv0.t = fv;}
+        }, data);
+        JSONArray desc = JSONArray.fromObject(fv0.t);
         response(response, FjISIS.CODE_SUCCESS, desc);
-        logger.info("fv: " + desc);
+        logger.debug("get pic fv: " + desc);
     }
     
     private void processApplySubImport(FjHttpResponse response, JSONObject args, FjServer server) {
@@ -177,14 +174,15 @@ public class Filter6Interface extends FjWebFilter {
         new Thread(()->{
             FjReference<Long> time_ts = new FjReference<>(0l);
             
-            int cache_size = Integer.parseInt(FjServerToolkit.getServerConfig("web.sub.import-pool"));
-            long[] cache_fv = new long[cache_size];
-            for (int j = 0; j < cache_size; j++) cache_fv[j] = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
+            int cache_size = Integer.parseInt(FjServerToolkit.getServerConfig("web.sub.import"));
+            FeatureService[] cache_fv = new FeatureService[cache_size];
+            for (int i = 0; i < cache_size; i++) cache_fv[i] = new FeatureService();
             
             ExecutorService pool = Executors.newFixedThreadPool(cache_size, new FjThreadFactory("sub-import"));
-            FjReference<Integer> file_index = new FjReference<>(0);
             
+            FjReference<Integer> file_index = new FjReference<>(0);
             for (File file : list_all) {
+                final int index = file_index.t;
                 pool.submit(()->{
                     try {
                         state.file_current = file.getPath();
@@ -201,8 +199,12 @@ public class Filter6Interface extends FjWebFilter {
                         state.time_move += System.currentTimeMillis() - time_ts.t;
                         
                         time_ts.t = System.currentTimeMillis();
-                        float[] fv = WebToolkit.fvLocalImage(cache_fv[file_index.t % cache_size], dst.getPath());
-                        if (null == fv) {
+                        FjReference<double[]> fv0 = new FjReference<>(null);
+                        cache_fv[index % cache_size].fv_path(new FeatureService.FV() {
+                            @Override
+                            public void fv(double[] fv) {fv0.t = fv;}
+                        }, dst.getPath());
+                        if (null == fv0.t) {
                             logger.error("file fv failed: " + file.getPath());
                             state.file_fails.add(file.getPath());
                             return;
@@ -216,7 +218,7 @@ public class Filter6Interface extends FjWebFilter {
                         args_bcs.put("p_size",  ISIS.FIELD_PIC_SIZE_SMALL);
                         args_bcs.put("p_name",  dst.getName());
                         args_bcs.put("p_path",  dst.getPath().substring("document".length()).replace("\\", "/")); 
-                        args_bcs.put("p_fv",    fv);
+                        args_bcs.put("p_fv",    fv0.t);
                         if (null != reg_idno)   args_bcs.put("s_idno",   WebToolkit.regexField(file.getName(), reg_idno));
                         if (null != reg_name)   args_bcs.put("s_name",   WebToolkit.regexField(file.getName(), reg_name));
                         if (null != reg_phone)  args_bcs.put("s_phone",  WebToolkit.regexField(file.getName(), reg_phone));
@@ -238,8 +240,7 @@ public class Filter6Interface extends FjWebFilter {
                 file_index.t++;
             }
             pool.shutdownNow();
-            for (int i = 0; i < cache_size; i++) FaceInterface.freeInstance(cache_fv[i]);
-            System.gc();
+            for (int i = 0; i < cache_size; i++) cache_fv[i].close();
             
             state.time_end = System.currentTimeMillis();
             
