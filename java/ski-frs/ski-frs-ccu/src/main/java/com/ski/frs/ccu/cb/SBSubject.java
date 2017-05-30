@@ -101,19 +101,11 @@ public class SBSubject extends StoreBlock {
         if (null != sid && 0 < sid.length) {
             return data().entrySet().parallelStream()
                     .filter(e->{for (String s : sid) if (e.getKey().equals(s)) return true; return false;})
-                    .map(e->{
-                        Map<String, Object> map = new HashMap<>((Map<String, Object>) e.getValue());
-                        map.put("items", ((Map<String, Object>) map.get("items")).size());
-                        return map;
-                    })
+                    .map(e->(Map<String, Object>) e.getValue())
                     .collect(Collectors.toList());
         } else {
             return data().entrySet().parallelStream()
-                    .map(e->{
-                        Map<String, Object> map = new HashMap<>((Map<String, Object>) e.getValue());
-                        map.put("items", ((Map<String, Object>) map.get("items")).size());
-                        return map;
-                    })
+                    .map(e->(Map<String, Object>) e.getValue())
                     .collect(Collectors.toList());
         }
     }

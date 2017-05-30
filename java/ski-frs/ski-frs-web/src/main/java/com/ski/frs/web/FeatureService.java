@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import org.apache.log4j.Logger;
+
 public class FeatureService {
+    
+    private static final Logger logger = Logger.getLogger(FeatureService.class);
     
     public static final int DEVICE_GPU = 0;
     public static final int DEVICE_CPU = 1;
@@ -46,16 +50,16 @@ public class FeatureService {
         
         try {
             process = Runtime.getRuntime().exec("feature_extract.exe");
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
             
-            while(!"ready".startsWith(read()));
-        } catch (IOException e) {e.printStackTrace();}
+            while (!read().startsWith("ready"));
+        } catch (IOException e) {logger.error("respawn process failed", e);}
     }
     
     private String read() {
         try {return reader.readLine();}
-        catch (IOException e) {e.printStackTrace();}
+        catch (IOException e) {logger.error("read line failed", e);}
         return null;
     }
     
@@ -63,7 +67,7 @@ public class FeatureService {
         try {
             writer.write(s + "\r\n");
             writer.flush();
-        } catch (IOException e) {e.printStackTrace();}
+        } catch (IOException e) {logger.error("write line failed", e);}
     }
     
     public void close() {
@@ -72,11 +76,13 @@ public class FeatureService {
             reader.close();
             writer.close();
         } catch (IOException e) {e.printStackTrace();}
-        process.destroyForcibly();
+        process.destroy();
     }
 
     private void do_fv() {
         String line = read();
+        if (line.startsWith("W0531")) line = read();
+        
         if (null == fv) return;
         if (!line.contains("mark") || !line.contains("fv")) return;
         

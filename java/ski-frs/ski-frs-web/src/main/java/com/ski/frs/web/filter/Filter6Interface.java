@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
@@ -154,103 +155,54 @@ public class Filter6Interface extends FjWebFilter {
             return;
         }
         
-        String key_state = args.getString("key");
-        String sid = args.getString("sid");
-        int type = args.getInt("type");
-        String path = args.getString("path");
-        String reg_idno = args.getString("reg_idno");
-        String reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
-        String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
-        String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
-        
-        List<File> list_all = WebToolkit.collectFile(new File(path));
+        List<File> list_all = WebToolkit.collectFile(new File(args.getString("path")));
 
         SubImportState state = new SubImportState();
-        cache_sub_import_state.put(key_state, state);
-        state.file_total = list_all.size();
-        state.time_begin = System.currentTimeMillis();
+        state.key = args.getString("key");
+        state.sid = args.getString("sid");
+        state.type = args.getInt("type");
+        state.path = args.getString("path");
+        state.reg_idno = args.getString("reg_idno");
+        state.reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
+        state.reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
+        state.reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
+        cache_sub_import_state.put(state.key, state);
         
         response(response, FjISIS.CODE_SUCCESS, null);
+
         new Thread(()->{
-            FjReference<Long> time_ts = new FjReference<>(0l);
-            
-            int cache_size = Integer.parseInt(FjServerToolkit.getServerConfig("web.sub.import"));
-            FeatureService[] cache_fv = new FeatureService[cache_size];
-            for (int i = 0; i < cache_size; i++) cache_fv[i] = new FeatureService();
-            
-            ExecutorService pool = Executors.newFixedThreadPool(cache_size, new FjThreadFactory("sub-import"));
-            
-            FjReference<Integer> file_index = new FjReference<>(0);
-            for (File file : list_all) {
-                final int index = file_index.t;
-                pool.submit(()->{
-                    try {
-                        state.file_current = file.getPath();
-                        
-                        String siid = "suject-item-" + UUID.randomUUID().toString().replace("-", "");
-                        File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + sid + "/" + siid + "/" + file.getName());
-                        
-                        time_ts.t = System.currentTimeMillis();
-                        if (!WebToolkit.moveFile(file, dst)) {
-                            logger.error("file move failed: " + file.getPath());
-                            state.file_fails.add(file.getPath());
-                            return;
-                        } 
-                        state.time_move += System.currentTimeMillis() - time_ts.t;
-                        
-                        time_ts.t = System.currentTimeMillis();
-                        FjReference<double[]> fv0 = new FjReference<>(null);
-                        cache_fv[index % cache_size].fv_path(new FeatureService.FV() {
-                            @Override
-                            public void fv(double[] fv) {fv0.t = fv;}
-                        }, dst.getPath());
-                        if (null == fv0.t) {
-                            logger.error("file fv failed: " + file.getPath());
-                            state.file_fails.add(file.getPath());
-                            return;
-                        }
-                        state.time_fv += System.currentTimeMillis() - time_ts.t;
-                        
-                        JSONObject args_bcs = new JSONObject();
-                        args_bcs.put("sid",     sid);
-                        args_bcs.put("siid",    siid);
-                        args_bcs.put("p_type",  type);
-                        args_bcs.put("p_size",  ISIS.FIELD_PIC_SIZE_SMALL);
-                        args_bcs.put("p_name",  dst.getName());
-                        args_bcs.put("p_path",  dst.getPath().substring("document".length()).replace("\\", "/")); 
-                        args_bcs.put("p_fv",    fv0.t);
-                        if (null != reg_idno)   args_bcs.put("s_idno",   WebToolkit.regexField(file.getName(), reg_idno));
-                        if (null != reg_name)   args_bcs.put("s_name",   WebToolkit.regexField(file.getName(), reg_name));
-                        if (null != reg_phone)  args_bcs.put("s_phone",  WebToolkit.regexField(file.getName(), reg_phone));
-                        if (null != reg_addr)   args_bcs.put("s_addr",   WebToolkit.regexField(file.getName(), reg_addr));
-                        
-                        FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_IMPORT, args_bcs);
-                        state.file_success++;
-                        logger.info("importing file success: " + file.getPath());
-                        
-                        while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
-                            try {Thread.sleep(100L);}
-                            catch (InterruptedException e) {e.printStackTrace();}
-                        }
-                    } catch (Exception e) {
-                        logger.error("file import failed: " + file.getPath(), e);
-                        state.file_fails.add(file.getPath());
-                    }
-                }); // pool.submit
-                file_index.t++;
-            }
-            pool.shutdownNow();
-            for (int i = 0; i < cache_size; i++) cache_fv[i].close();
-            
-            state.time_end = System.currentTimeMillis();
-            
-            if (0 < state.file_fails.size()) {
-                logger.error("import failes: " + state.file_fails.stream().map(p->"\r\n" + p).reduce((p1, p2)->p1 + p2).get());
+            try {
+                int size = Integer.parseInt(FjServerToolkit.getServerConfig("web.sub.import"));
+                
+                FeatureService[] service = new FeatureService[size];
+                for (int i = 0; i < size; i++) service[i] = new FeatureService();
+                ExecutorService pool = Executors.newFixedThreadPool(size, new FjThreadFactory("sub-import"));
+                FjReference<Integer> refi = new FjReference<>(0);
+                list_all.forEach(file->{
+                    final int i = refi.t;
+                    pool.submit(new SubImportTask(state, file, service[i]));
+                    refi.t++;
+                });
+                pool.shutdown();
+                try {pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);}
+                catch (InterruptedException e) {logger.error("wait for sub import done failed", e);}
+                for (int i = 0; i < size; i++) service[i].close();
+                state.time_end = System.currentTimeMillis();
+            } catch (Exception e) {
+                logger.error("submit sub import task failed", e);
             }
         }).start();
     }
     
     private static class SubImportState {
+        public String key;
+        public String sid;
+        public int type;
+        public String path;
+        public String reg_idno;
+        public String reg_name;
+        public String reg_phone;
+        public String reg_addr;
         public int file_total = 0;
         public volatile int file_success = 0;
         public List<String> file_fails = new LinkedList<>();
@@ -262,6 +214,14 @@ public class Filter6Interface extends FjWebFilter {
         
         public JSONObject toJson() {
             JSONObject json = new JSONObject();
+            json.put("key",             key);
+            json.put("sid",             sid);
+            json.put("type",            type);
+            json.put("path",            path);
+            json.put("reg_idno",        reg_idno);
+            json.put("reg_name",        reg_name);
+            json.put("reg_phone",       reg_phone);
+            json.put("reg_addr",        reg_addr);
             json.put("file_total",      file_total);
             json.put("file_success",    file_success);
             json.put("file_fails",      file_fails);
@@ -271,6 +231,74 @@ public class Filter6Interface extends FjWebFilter {
             json.put("time_move",       time_move);
             json.put("time_fv",         time_fv);
             return json;
+        }
+    }
+    
+    private static class SubImportTask implements Runnable {
+        
+        private SubImportState  state;
+        private File            file;
+        private FeatureService  service;
+        
+        public SubImportTask(SubImportState state, File file, FeatureService service) {
+            this.state = state;
+            this.file = file;
+            this.service = service;
+        }
+        @Override
+        public void run() {
+            try {
+                state.file_current = file.getPath();
+                
+                String siid = "suject-item-" + UUID.randomUUID().toString().replace("-", "");
+                File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + state.sid + "/" + siid + "/" + file.getName());
+                
+                long begin = System.currentTimeMillis();
+                if (!WebToolkit.moveFile(file, dst)) {
+                    logger.error("file move failed: " + file.getPath());
+                    state.file_fails.add(file.getPath());
+                    return;
+                } 
+                state.time_move += System.currentTimeMillis() - begin;
+                
+                begin = System.currentTimeMillis();
+                FjReference<double[]> fv0 = new FjReference<>(null);
+                service.fv_path(new FeatureService.FV() {
+                    @Override
+                    public void fv(double[] fv) {fv0.t = fv;}
+                }, dst.getPath());
+                if (null == fv0.t) {
+                    logger.error("file fv failed: " + file.getPath());
+                    state.file_fails.add(file.getPath());
+                    return;
+                }
+                state.time_fv += System.currentTimeMillis() - begin;
+                
+                JSONObject args_bcs = new JSONObject();
+                args_bcs.put("sid",     state.sid);
+                args_bcs.put("siid",    siid);
+                args_bcs.put("p_type",  state.type);
+                args_bcs.put("p_size",  ISIS.FIELD_PIC_SIZE_SMALL);
+                args_bcs.put("p_name",  dst.getName());
+                args_bcs.put("p_path",  dst.getPath().substring("document".length()).replace("\\", "/")); 
+                args_bcs.put("p_fv",    fv0.t);
+                if (null != state.reg_idno)   args_bcs.put("s_idno",   WebToolkit.regexField(file.getName(), state.reg_idno));
+                if (null != state.reg_name)   args_bcs.put("s_name",   WebToolkit.regexField(file.getName(), state.reg_name));
+                if (null != state.reg_phone)  args_bcs.put("s_phone",  WebToolkit.regexField(file.getName(), state.reg_phone));
+                if (null != state.reg_addr)   args_bcs.put("s_addr",   WebToolkit.regexField(file.getName(), state.reg_addr));
+                
+                FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_IMPORT, args_bcs);
+                state.file_success++;
+                logger.info("importing file success: " + file.getPath());
+                
+                while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
+                    try {Thread.sleep(100L);}
+                    catch (InterruptedException e) {e.printStackTrace();}
+                }
+            } catch (Exception e) {
+                logger.error("file import failed: " + file.getPath(), e);
+                state.file_fails.add(file.getPath());
+            }
         }
     }
     

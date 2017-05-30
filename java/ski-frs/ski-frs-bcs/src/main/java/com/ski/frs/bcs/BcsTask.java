@@ -60,6 +60,9 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_APPLY_SUB_IMPORT:
             processApplySubImport(server, dmsg);
             break;
+        case ISIS.INST_APPLY_DEV_IMPORT:
+            processApplyDevImport(server, dmsg);
+            break;
         default: {
             String err = String.format("illegal inst: 0x%08X", dmsg.inst());
             logger.error(err);
@@ -84,6 +87,8 @@ public class BcsTask implements FjServerTask {
     }
     
     private static void processStoreBlock(FjServer server, FjDscpMessage dmsg) {
+        if (dmsg.fs().startsWith("ccu")) return;
+        
         FjServerToolkit.dscpRequest("ccu", dmsg.sid(), dmsg.inst(), dmsg.argsToJsonObject());
         waitSessionForResponse(server, dmsg);
     }
@@ -200,5 +205,29 @@ public class BcsTask implements FjServerTask {
         default:
             return "20000101";
         }
+    }
+    
+    private static void processApplyDevImport(FjServer server, FjDscpMessage dmsg) {
+        JSONObject args = dmsg.argsToJsonObject();
+        if (!args.has("opp") || !args.has("did") || !args.has("path")) {
+            String err = "illegal arguments, no opp, did, path";
+            logger.error(err + ", " + args);
+            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
+            return;
+        }
+        FjDscpMessage req_opp = FjServerToolkit.dscpRequest(args.getString("opp"), dmsg.inst(), args);
+        server.onDscpSession(req_opp.sid(), new FjServer.FjServerTask() {
+            @Override
+            public void onMessage(FjServer server, FjMessageWrapper wrapper) {
+                FjDscpMessage rsp_opp = (FjDscpMessage) wrapper.message();
+                FjServerToolkit.dscpResponse(dmsg, FjServerToolkit.dscpResponseCode(rsp_opp), FjServerToolkit.dscpResponseDesc(rsp_opp));
+            }
+            @Override
+            public void initialize(FjServer server) {
+            }
+            @Override
+            public void destroy(FjServer server) {
+            }
+        });
     }
 }

@@ -59,7 +59,7 @@ function update() {
             var btn_del;
             list.append(new frs.ui.ListCellTable([
                 $('<div></div>').append(sub.name),
-                $('<div></div>').append(sub.items),
+                $('<div></div>').append(sub.items.length),
                 $('<div></div>').append(new Date(sub.time).format('yyyy/MM/dd HH:mm:ss')),
                 $('<div></div>').append([
                     new frs.ui.Button('修改', function() {op_modify(sub);}).to_major(),

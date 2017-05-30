@@ -194,8 +194,8 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            List<Map<String, Object>> items = sb_sub.getSubjectItem(sid, siid);
-            if (items.isEmpty()) {
+            Map<String, Object> item = (Map<String, Object>) ((Map<String, Object>) subs.get(0).get("items")).get(siid);
+            if (null == item) {
                 String desc = "illegal arguments, invalid siid: " + siid;
                 logger.error(desc + ", " + args);
                 JSONObject json = new JSONObject();
@@ -203,7 +203,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<String>) items.get(0).get("pids")).add(pid);
+            ((List<String>) item.get("pids")).add(pid);
         } else {    // 不存在单独图片
             String desc = "illegal arguments, no did or sid, siid";
             logger.error(desc + ", " + args);
