@@ -16,8 +16,10 @@ import org.apache.log4j.Logger;
 import com.ski.frs.ccu.cb.SBDevice;
 import com.ski.frs.ccu.cb.SBPicture;
 import com.ski.frs.ccu.cb.SBSubject;
+import com.ski.frs.ccu.cb.StoreBlock;
 import com.ski.frs.isis.ISIS;
 
+import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjISIS;
 import fomjar.util.FjLoopTask;
 import fomjar.util.FjThreadFactory;
@@ -29,22 +31,22 @@ public class StoreBlockService {
     
     private static final Logger logger = Logger.getLogger(StoreBlockService.class);
     
-    private static ExecutorService pool = null;
     private static StoreBlockService instance = null;
     public static synchronized StoreBlockService getInstance() {
         if (null == instance) {
-            pool = Executors.newCachedThreadPool(new FjThreadFactory("sbs"));
             instance = new StoreBlockService();
         }
         return instance;
     }
     
+    private ExecutorService pool;
     private FjLoopTask  monitor;
     private SBDevice    sb_dev;
     private SBPicture   sb_pic;
     private SBSubject   sb_sub;
     
     private StoreBlockService() {
+        pool = Executors.newCachedThreadPool(new FjThreadFactory("sbs"));
         monitor = new Monitor();
         sb_dev = new SBDevice();
         sb_pic = new SBPicture();
@@ -56,36 +58,15 @@ public class StoreBlockService {
     public void open() {
         if (monitor.isRun()) return;
         new Thread(monitor, "sbs-monitor").start();
-        if (sb_dev.file().isFile()) {
-            pool.submit(()->{
-                try {
-                    logger.info("load sb dev begin");
-                    sb_dev = (SBDevice) sb_dev.load();
-                    logger.info("load sb dev success");
-                } catch (ClassNotFoundException | IOException e) {logger.error("load sb dev failed", e);}
-            });
-        }
-        if (sb_pic.file().isFile()) {
-            pool.submit(()->{
-                try {
-                    logger.info("load sb pic begin");
-                    sb_pic = (SBPicture) sb_pic.load();
-                    logger.info("load sb pic success");
-                } catch (ClassNotFoundException | IOException e) {logger.error("load sb pic failed", e);}
-            });
-        }
-        if (sb_sub.file().isFile()) {
-            pool.submit(()->{
-                try {
-                    logger.info("load sb sub begin");
-                    sb_sub = (SBSubject) sb_sub.load();
-                    logger.info("load sb sub success");
-                } catch (ClassNotFoundException | IOException e) {logger.error("load sb sub failed", e);}
-            });
-        }
+        if (sb_dev.file().isFile()) pool.submit(new TaskLoad(sb_dev));
+        if (sb_pic.file().isFile()) pool.submit(new TaskLoad(sb_pic));
+        if (sb_sub.file().isFile()) pool.submit(new TaskLoad(sb_sub));
     }
     
-    public void close() {monitor.close();}
+    public void close() {
+        pool.shutdownNow();
+        monitor.close();
+    }
     
     private class Monitor extends FjLoopTask {
         
@@ -97,40 +78,63 @@ public class StoreBlockService {
         }
         @Override
         public void perform() {
-            pool.submit(()->{
-                try {
-                    logger.info("save sb dev begin");
-                    sb_dev.save();
-                    logger.info("save sb dev success, file size: " + sb_dev.file().length());
-                } catch (IOException e) {logger.error("save sb dev failed", e);}
-            });
-            pool.submit(()->{
-                try {
-                    logger.info("save sb pic begin");
-                    sb_pic.save();
-                    logger.info("save sb pic success, file size: " + sb_pic.file().length());
-                } catch (IOException e) {logger.error("save sb pic failed", e);}
-            });
-            pool.submit(()->{
-                try {
-                    logger.info("save sb sub begin");
-                    sb_sub.save();
-                    logger.info("save sb sub success, file size: " + sb_sub.file().length());
-                } catch (IOException e) {logger.error("save sb sub failed", e);}
-            });
+            pool.submit(new TaskSave(sb_dev));
+            pool.submit(new TaskSave(sb_pic));
+            pool.submit(new TaskSave(sb_sub));
+            
+            int minute = Integer.parseInt(FjServerToolkit.getServerConfig("ccu.save"));
+            setInterval(1000L * 60 * minute);
         }
         
     }
     
+    private static class TaskSave implements Runnable {
+        
+        private StoreBlock sb;
+        
+        public TaskSave(StoreBlock sb) {
+            this.sb = sb;
+        }
+        @Override
+        public void run() {
+            try {
+                long begin = System.currentTimeMillis();
+                logger.error(String.format("save begin, file: %s", sb.file()));
+                sb.save();
+                logger.error(String.format("save success, file: %s, file size: %d, time consumed: %f s", sb.file(), sb.file().length(), (System.currentTimeMillis() - begin) / 1000.0f));
+            } catch (IOException e) {logger.error(String.format("save failed, file: %s", sb.file()), e);}
+        }
+    }
+    
+    private static class TaskLoad implements Runnable {
+        
+        private StoreBlock sb;
+        
+        public TaskLoad(StoreBlock sb) {
+            this.sb = sb;
+        }
+        @Override
+        public void run() {
+            try {
+                long begin = System.currentTimeMillis();
+                logger.error(String.format("load begin, file: %s, file size: %d", sb.file(), sb.file().length()));
+                sb.load();
+                logger.error(String.format("load success, file: %s, time consumed: %f s", sb.file(), (System.currentTimeMillis() - begin) / 1000.0f));
+            } catch (IOException | ClassNotFoundException e) {logger.error(String.format("load failed, file: %s", sb.file()), e);}
+        }
+    }
+    
     public JSONObject dispatch(int inst, JSONObject args) {
         if (!ready()) {
+            String desc = "system not ready";
+            logger.error(desc);
             JSONObject json = new JSONObject();
             json.put("code", FjISIS.CODE_INTERNAL_ERROR);
-            json.put("desc", "system not ready");
+            json.put("desc", desc);
             return json;
         }
         for (Field field : ISIS.class.getFields()) {
-            if (Integer.class != field.getType()) continue;
+            if (Integer.class.isAssignableFrom(field.getType())) continue;
             try {
                 if (field.getInt(ISIS.class) == inst) {
                     Method method = StoreBlockService.class.getMethod(field.getName(), JSONObject.class);
@@ -138,13 +142,14 @@ public class StoreBlockService {
                 }
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
                 String desc = String.format("dispatch message failed, inst = 0x%08X(%s), args = %s", inst, field.getName(), args);
-                logger.error(desc);
+                logger.error(desc, e);
                 JSONObject json = new JSONObject();
                 json.put("code", FjISIS.CODE_INTERNAL_ERROR);
                 json.put("desc", desc);
                 return json;
             }
         }
+        logger.error(String.format("illegal inst: 0x%08X, args: %s", inst, args));
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_ILLEGAL_INST);
         json.put("desc", "illegal inst: " + inst);
@@ -189,8 +194,8 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            Map<String, Object> items = (Map<String, Object>) subs.get(0).get("items");
-            if (!items.containsKey(siid)) {
+            List<Map<String, Object>> items = sb_sub.getSubjectItem(sid, siid);
+            if (items.isEmpty()) {
                 String desc = "illegal arguments, invalid siid: " + siid;
                 logger.error(desc + ", " + args);
                 JSONObject json = new JSONObject();
@@ -198,7 +203,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<String>) ((Map<String, Object>) items.get(siid)).get("pids")).add(pid);
+            ((List<String>) items.get(0).get("pids")).add(pid);
         } else {    // 不存在单独图片
             String desc = "illegal arguments, no did or sid, siid";
             logger.error(desc + ", " + args);
@@ -277,6 +282,13 @@ public class StoreBlockService {
         else if (obj instanceof JSONArray) did.addAll((JSONArray) obj);
         
         List<Map<String, Object>> devs = sb_dev.delDevice(did.toArray(new String[did.size()]));
+        
+        devs.parallelStream().forEach(dev->{
+            List<String> pids = (List<String>) dev.get("pids");
+            sb_pic.delPicture(pids.toArray(new String[pids.size()]));
+            dev.put("pids", pids.size());
+        });
+        
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", devs);
@@ -329,10 +341,23 @@ public class StoreBlockService {
         if (obj instanceof String) sid.add((String) obj);
         else if (obj instanceof JSONArray) sid.addAll((JSONArray) obj);
         
-        List<Map<String, Object>> sids = sb_sub.delSubject(sid.toArray(new String[sid.size()]));
+        List<Map<String, Object>> subs = sb_sub.delSubject(sid.toArray(new String[sid.size()]));
+        
+        subs.parallelStream().forEach(sub->{
+            Map<String, Object> items = (Map<String, Object>) sub.get("items");
+            if (items.isEmpty()) return;
+            
+            items.values().parallelStream()
+                    .map(item->(Map<String, Object>) item) 
+                    .forEach(item->{
+                        List<String> pids = (List<String>) item.get("pids");
+                        sb_pic.delPicture(pids.toArray(new String[pids.size()]));
+                        item.put("pids", pids.size());
+                    });
+        });
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
-        json.put("desc", sids);
+        json.put("desc", subs);
         return json;
     }
     

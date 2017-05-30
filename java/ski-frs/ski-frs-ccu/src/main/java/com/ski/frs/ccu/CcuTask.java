@@ -35,11 +35,11 @@ public class CcuTask implements FjServerTask {
         }
 
         FjDscpMessage dmsg = (FjDscpMessage) msg;
-        logger.info(String.format("%s - 0x%08X", dmsg.sid(), dmsg.inst()));
         
+        logger.info ("dispatch request:  " + dmsg);
         JSONObject json = StoreBlockService.getInstance().dispatch(dmsg.inst(), dmsg.argsToJsonObject());
+        logger.debug("dispatch response: " + json);
         
-        logger.info("dispatch: " + json);
         FjServerToolkit.dscpResponse(dmsg, json.getInt("code"), json.get("desc"));
     }
 }

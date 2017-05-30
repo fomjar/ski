@@ -1,6 +1,5 @@
 package com.ski.frs.ccu.cb;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,29 +24,27 @@ import java.util.stream.Collectors;
  * <tr><td>path </td><td>真实路径</td></tr>
  * </table>
  */
+@SuppressWarnings("unchecked")
 public class SBPicture extends StoreBlock {
     
     private static final long serialVersionUID = 1L;
-    
-    private Map<String, Map<String, Object>> data;
-    
-    public SBPicture() {data = new HashMap<>();}
     
     public Map<String, Object> setPicture(Map<String, Object> pic) {
         String pid = null;
         if (!pic.containsKey("pid"))    pic.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
         else pid = pic.get("pid").toString();
         if (!pic.containsKey("time"))   pic.put("time", System.currentTimeMillis());
-        return data.put(pid, pic);
+        return (Map<String, Object>) data().put(pid, pic);
     }
     public List<Map<String, Object>> getPicture(String... pid) {
-        return data.entrySet().parallelStream()
+        return data().entrySet().parallelStream()
                 .filter(e->{for (String p : pid) if (e.getKey().equals(p)) return true; return false;})
-                .map(e->e.getValue())
+                .map(e->(Map<String, Object>) e.getValue())
                 .collect(Collectors.toList());
     }
     public List<Map<String, Object>> getPicture(float[] fv, float min, float max) {
-        return data.values().parallelStream()
+        return data().values().parallelStream()
+                .map(p->(Map<String, Object>) p)
                 .filter(p->{
                     if (!p.containsKey("fv")) return false;
                     float tv = transvection(fv, (float[]) p.get("fv"));
@@ -64,7 +61,7 @@ public class SBPicture extends StoreBlock {
     public List<Map<String, Object>> delPicture(String... pid) {
         List<Map<String, Object>> list = new LinkedList<>();
         for (String p : pid) {
-            Map<String, Object> pic = data.remove(p);
+            Map<String, Object> pic = (Map<String, Object>) data().remove(p);
             if (null != pic) list.add(pic);
         }
         return list;

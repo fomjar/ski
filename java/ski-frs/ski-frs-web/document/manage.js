@@ -132,7 +132,7 @@ function update_dev_list(devs) {
         list.append(new frs.ui.ListCellTable([
             dev.did,
             dev.path,
-            dev.time.replace('.0', ''),
+            new Date(dev.time).format('yyyy/MM/dd HH:mm:ss'),
             dev.host,
             dev.div,
             [btn_del = new frs.ui.Button('删除', function() {op_delete_dev(dev);}).to_major()]

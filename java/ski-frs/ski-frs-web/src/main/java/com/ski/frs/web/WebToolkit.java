@@ -106,22 +106,28 @@ public class WebToolkit {
     }
     
     public static File writeFileBase64Image(String data, String path) throws IOException {
-        if (data.startsWith("data:image")) data = data.substring(data.indexOf("base64,") + 7);
-        
-        byte[] data_bytes = Base64.getDecoder().decode(data);
         File file = new File(path);
+        File dir = file.getParentFile();
+        if (!dir.isDirectory()) if (!dir.mkdirs()) throw new IOException("create directory failed: " + dir.getPath());
+        
+        if (data.startsWith("data:image")) data = data.substring(data.indexOf("base64,") + 7);
+        byte[] data_bytes = Base64.getDecoder().decode(data);
         BufferedImage img = ImageIO.read(new ByteArrayInputStream(data_bytes));
         ImageIO.write(img, "jpg", file);
         return file;
     }
     
     private static final int FV_BUF = 4096;
-    private static long fvi = -1;
+    private static long fv = -1;
     public static long defaultFV() {
-        if (-1 == fvi) {
-            fvi = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
+        if (-1 == fv) {
+            fv = FaceInterface.initInstance(FaceInterface.DEVICE_GPU);
         }
-        return fvi;
+        return fv;
+    }
+    
+    public static void freeFV() {
+        if (-1 != fv) FaceInterface.freeInstance(fv);
     }
     
     public static float[] fvBase64Image(String data) {

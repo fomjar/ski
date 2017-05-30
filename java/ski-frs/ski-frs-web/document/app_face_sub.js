@@ -16,7 +16,7 @@ function build_head() {
     frs.ui.head().append_item('身份确认', function() {window.location = 'app_face_id.html';});
     frs.ui.head().append_item('实时布控');
     frs.ui.head().append_item('轨迹管理', function() {window.location = 'app_face_trail.html';});
-    frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_lib.html';}).addClass('active');
+    frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_sub.html';}).addClass('active');
     frs.ui.head().append_item('分析统计');
 }
 
@@ -59,8 +59,8 @@ function update() {
             var btn_del;
             list.append(new frs.ui.ListCellTable([
                 $('<div></div>').append(sub.name),
-                $('<div></div>').append(sub.count),
-                $('<div></div>').append(sub.time.replace('.0', '')),
+                $('<div></div>').append(sub.items),
+                $('<div></div>').append(new Date(sub.time).format('yyyy/MM/dd HH:mm:ss')),
                 $('<div></div>').append([
                     new frs.ui.Button('修改', function() {op_modify(sub);}).to_major(),
                     new frs.ui.Button('浏览', function() {op_browse(sub);}).to_major(),
@@ -158,7 +158,7 @@ function op_modify(sub) {
 }
 
 function op_browse(sub) {
-    window.location = 'app_face_lib_browse.html?sid=' + sub.sid.toString(16);
+    window.location = 'app_face_sub_items.html?sid=' + sub.sid.toString(16);
 }
 
 function op_import(sub) {
@@ -294,7 +294,7 @@ function op_import(sub) {
             button_submit.to_major();
         });
     });
-    var query_loop = function(progress, key) {
+    var query_loop = function(progress, div_cur, key) {
         fomjar.util.async(function() {
             fomjar.net.send(ski.isis.INST_APPLY_SUB_IMPORT_STATE, {
                 key : key
@@ -304,16 +304,37 @@ function op_import(sub) {
                     return;
                 }
                 
-                var cur = desc.success + desc.fails.length;
-                var all = desc.total
+                div_cur.text(desc.file_current);
+                var cur = desc.file_success + desc.file_fails.length;
+                var all = desc.file_total
                 progress.val(cur / all * 100, cur + ' / ' + all);
                 
-                if (cur < all) {
-                    query_loop(progress, key);
+                if (0 == desc.time_end) {
+                    query_loop(progress, div_cur, key);
                 } else {
-                    mask.disappear();
                     dialog.disappear();
-                    update();
+                    
+                    dialog = new frs.ui.Dialog();
+                    dialog.append_text_h1c('导入结束 - 报告如下');
+                    var report = '';
+                    report += '<br/>开始时间: ' + new Date(desc.time_begin).format('yyyy/MM/dd HH:mm:ss') + '，结束时间: ' + new Date(desc.time_end).format('yyyy/MM/dd HH:mm:ss') + '。';
+                    report += '<br/>文件总数: ' + desc.file_total + ' 个，成功: ' + desc.file_success + ' 个，失败: ' + desc.file_fails.length + ' 个。';
+                    report += '<br/>移动文件耗时: ' + (desc.time_move / 1000) + ' 秒，分析图片耗时: ' + (desc.time_fv / 1000) + ' 秒。';
+                    if (0 < desc.file_fails.length) {
+                        report += '<br/>失败文件清单如下:<br/>';
+                        report += '<ul>';
+                        $.each(desc.file_fails, function(i, file) {
+                            report += '<li>' + file + '</li>'
+                        });
+                        report += '</ul>';
+                    }
+                    dialog.append_text_p1(report);
+                    dialog.append_button(new frs.ui.Button('完成', function() {
+                        mask.disappear();
+                        dialog.disappear();
+                        update();
+                    }).to_major());
+                    dialog.appear();
                 }
             });
         }, 500);
@@ -335,12 +356,13 @@ function op_import(sub) {
             
             dialog = new frs.ui.Dialog();
             var progress = new frs.ui.Progress();
-            dialog.append_text_h1c('正在导入');
+            dialog.append_text_h1c('正在导入（请不要刷新页面）');
             dialog.append_space('.5em');
             dialog.append($('<div></div>').append(progress));
+            var div_cur = dialog.append_text_p1('');
             dialog.appear();
             
-            query_loop(progress, key);
+            query_loop(progress, div_cur, key);
         });
     });
    

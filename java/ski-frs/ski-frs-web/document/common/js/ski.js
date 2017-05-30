@@ -1,9 +1,9 @@
 
-var ski : {};
+var ski = {};
 
 (function($) {
 
-ski.isis : {
+ski.isis = {
     INST_AUTHORIZE      : 0x00000010,
     
     INST_SET_PIC        : 0x00001000,

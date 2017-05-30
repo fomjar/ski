@@ -44,6 +44,7 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_GET_PIC:
         case ISIS.INST_SET_SUB:
         case ISIS.INST_DEL_SUB:
+        case ISIS.INST_MOD_SUB:
         case ISIS.INST_GET_SUB:
         case ISIS.INST_SET_SUB_ITEM:
         case ISIS.INST_DEL_SUB_ITEM:
@@ -102,13 +103,13 @@ public class BcsTask implements FjServerTask {
     
     private static void processApplySubImport(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("pic_type")) {
-            String err = "illegal arguments, no pic_type";
+        if (!args.has("p_type")) {
+            String err = "illegal arguments, no p_type";
             logger.error(err + ", " + args);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
             return;
         }
-        switch (args.getInt("pic_type")) {
+        switch (args.getInt("p_type")) {
         case ISIS.FIELD_TYPE_MAN:
             processApplySubLibImportMan(server, dmsg);
             break;
@@ -120,7 +121,7 @@ public class BcsTask implements FjServerTask {
     private static void processApplySubLibImportMan(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
         if (!args.has("sid") || !args.has("siid") || !args.has("p_type") || !args.has("p_size") || !args.has("p_path") || !args.has("p_fv") || !args.has("s_idno")) {
-            String err = "illegal arguments, no sid, siid, p_type, p_path, p_fv, s_idno";
+            String err = "illegal arguments, no sid, siid, p_type, p_size, p_path, p_fv, s_idno";
             logger.error(err + ", " + args);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
             return;
