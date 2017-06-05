@@ -59,7 +59,7 @@ function update() {
             var btn_del;
             list.append(new frs.ui.ListCellTable([
                 $('<div></div>').append(sub.name),
-                $('<div></div>').append(sub.items.length),
+                $('<div></div>').append(sub.items),
                 $('<div></div>').append(new Date(sub.time).format('yyyy/MM/dd HH:mm:ss')),
                 $('<div></div>').append([
                     new frs.ui.Button('修改', function() {op_modify(sub);}).to_major(),
@@ -304,10 +304,11 @@ function op_import(sub) {
                     return;
                 }
                 
-                div_cur.text(desc.file_current);
                 var cur = desc.file_success + desc.file_fails.length;
-                var all = desc.file_total
+                var all = desc.file_total;
+                
                 progress.val(cur / all * 100, cur + ' / ' + all);
+                div_cur.text(((new Date().getTime() - desc.time_begin) / cur).toFixed(1) + "(mspf) | " +  desc.file_current);
                 
                 if (0 == desc.time_end) {
                     query_loop(progress, div_cur, key);
@@ -319,7 +320,7 @@ function op_import(sub) {
                     var report = '';
                     report += '<br/>开始时间: ' + new Date(desc.time_begin).format('yyyy/MM/dd HH:mm:ss') + '，结束时间: ' + new Date(desc.time_end).format('yyyy/MM/dd HH:mm:ss') + '。';
                     report += '<br/>文件总数: ' + desc.file_total + ' 个，成功: ' + desc.file_success + ' 个，失败: ' + desc.file_fails.length + ' 个。';
-                    report += '<br/>移动文件耗时: ' + (desc.time_move / 1000) + ' 秒，分析图片耗时: ' + (desc.time_fv / 1000) + ' 秒。';
+                    report += '<br/>平均速度: ' + ((desc.time_end - desc.time_begin) / all).toFixed(1) + ' （毫秒/个）。';
                     if (0 < desc.file_fails.length) {
                         report += '<br/>失败文件清单如下:<br/>';
                         report += '<ul>';
@@ -337,7 +338,7 @@ function op_import(sub) {
                     dialog.appear();
                 }
             });
-        }, 500);
+        }, 1000);
     };
     button_submit.bind('click', function() {
         if (!test_pass) return;

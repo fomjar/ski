@@ -20,6 +20,7 @@ import net.sf.json.JSONObject;
  * <li>FS   -- 来源服务器</li>
  * <li>TS   -- 到达服务器</li>
  * <li>SID  -- 会话ID，字符串</li>
+ * <li>TTL  -- 会话生存时间，默认初始64</li>
  * <li>INST -- 消息指令，整型</li>
  * <li>ARGS -- 指令参数，字符串、JSON对象、JSON数组</li>
  * </p>
@@ -42,9 +43,10 @@ public class FjDscpMessage extends FjJsonMessage {
      */
     public FjDscpMessage(Object json) {
         super(json);
-        if (!json().containsKey("fs"))   json().put("fs",  null);
-        if (!json().containsKey("ts"))   json().put("ts",  null);
-        if (!json().containsKey("sid"))  json().put("sid", newSid());
+        if (!json().containsKey("fs"))   json().put("fs",   null);
+        if (!json().containsKey("ts"))   json().put("ts",   null);
+        if (!json().containsKey("sid"))  json().put("sid",  newSid());
+        if (!json().containsKey("ttl"))  json().put("ttl",  64);
         if (!json().containsKey("inst")) json().put("inst", -1);
         if (!json().containsKey("args")) json().put("args", null);
     }
@@ -55,16 +57,18 @@ public class FjDscpMessage extends FjJsonMessage {
     public String       ts()                {return json().getString("ts");}
     /** @return DSCP下的SID字段 */
     public String       sid()               {return json().getString("sid");}
+    /** @return DSCP下的TTL字段 */
+    public int          ttl()               {return json().getInt("ttl");}
     /** @return DSCP下的INST字段 */
-    public int          inst()               {return json().getInt("inst");}
+    public int          inst()              {return json().getInt("inst");}
     /** @return DSCP下的ARGS字段 */
-    public Object       args()               {return json().get("args");}
+    public Object       args()              {return json().get("args");}
     /** @return ARGS字段转JSON格式 */
-    public JSON         argsToJson()         {return (JSON) json().get("args");}
+    public JSON         argsToJson()        {return (JSON) json().get("args");}
     /** @return ARGS字段转JSON对象格式 */
-    public JSONObject   argsToJsonObject()   {return json().getJSONObject("args");}
+    public JSONObject   argsToJsonObject()  {return json().getJSONObject("args");}
     /** @return ARGS字段转JSON数组格式 */
-    public JSONArray    argsToJsonArray()    {return json().getJSONArray("args");}
+    public JSONArray    argsToJsonArray()   {return json().getJSONArray("args");}
 
     /** @return 随机生成SID字段 */
     private static String newSid() {

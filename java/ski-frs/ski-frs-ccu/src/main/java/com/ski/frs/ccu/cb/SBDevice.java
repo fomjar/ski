@@ -1,5 +1,6 @@
 package com.ski.frs.ccu.cb;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,11 @@ public class SBDevice extends StoreBlock {
                     .collect(Collectors.toList());
         } else {
             return data().entrySet().parallelStream()
-                    .map(e->(Map<String, Object>) e.getValue())
+                    .map(e->{
+                        Map<String, Object> dev = new HashMap<>((Map<String, Object>) e.getValue());
+                        dev.put("pids", ((List<String>) dev.get("pids")).size());
+                        return dev;
+                    })
                     .collect(Collectors.toList());
         }
     }

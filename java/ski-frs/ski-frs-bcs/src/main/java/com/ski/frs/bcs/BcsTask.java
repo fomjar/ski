@@ -87,9 +87,7 @@ public class BcsTask implements FjServerTask {
     }
     
     private static void processStoreBlock(FjServer server, FjDscpMessage dmsg) {
-        if (dmsg.fs().startsWith("ccu")) return;
-        
-        FjServerToolkit.dscpRequest("ccu", dmsg.sid(), dmsg.inst(), dmsg.argsToJsonObject());
+        FjServerToolkit.dscpRequest("ccu", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), dmsg.argsToJsonObject());
         waitSessionForResponse(server, dmsg);
     }
     

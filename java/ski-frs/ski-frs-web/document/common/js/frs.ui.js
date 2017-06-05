@@ -327,12 +327,12 @@ frs.ui.Pager = function(cur, len, cb_turn) {
     
     div.len = len;
     div.cur = cur;
-    div.div_cur.text(cur);
+    div.div_cur.text(cur + ' / ' + len);
     div.turn = function(i) {
         if (i > div.len || i <= 0) return;
         
         div.cur = i;
-        div.div_cur.text(div.cur);
+        div.div_cur.text(div.cur + ' / ' + div.len);
         if (cb_turn) cb_turn(div.cur);
     };
     

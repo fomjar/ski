@@ -236,6 +236,7 @@ public class FjServerToolkit {
             if (jmsg.json().has("fs")
                     && jmsg.json().has("ts")
                     && jmsg.json().has("sid")
+                    && jmsg.json().has("ttl")
                     && jmsg.json().has("inst")
                     && jmsg.json().has("args"))
                  return new FjDscpMessage(data);
@@ -256,11 +257,12 @@ public class FjServerToolkit {
         return request;
     }
     
-    public static FjDscpMessage dscpRequest(String ts, String sid, int inst, JSONObject args) {
+    public static FjDscpMessage dscpRequest(String ts, String sid, int ttl, int inst, JSONObject args) {
         FjDscpMessage request = new FjDscpMessage();
         request.json().put("fs",   FjServerToolkit.getAnyServer().name());
         request.json().put("ts",   ts);
         request.json().put("sid",  sid);
+        request.json().put("ttl",  ttl);
         request.json().put("inst", inst);
         request.json().put("args", args);
         FjServerToolkit.getAnySender().send(request);
@@ -275,6 +277,7 @@ public class FjServerToolkit {
         response.json().put("fs",   FjServerToolkit.getAnyServer().name());
         response.json().put("ts",   request.fs());
         response.json().put("sid",  request.sid());
+        response.json().put("ttl",  request.ttl() - 1);
         response.json().put("inst", request.inst());
         response.json().put("args", args);
         FjServerToolkit.getAnySender().send(response);

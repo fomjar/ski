@@ -50,6 +50,8 @@ function build_body_l() {
     input_tv[0].min = 1;
 }
 
+var pl = 30;
+var pk;
 var fv;
 
 function func_upload_init() {
@@ -67,6 +69,7 @@ function func_upload_init() {
             new frs.ui.hud.Minor(desc).appear(1500);
         } else {
             fv = desc;
+            pk = new Date().getTime();
             func_upload_pages(1);
         }
     });
@@ -76,8 +79,11 @@ function func_upload_pages(page) {
     var min = 0.7;
     var input = frs.ui.body().l.find('input[type=number]');
     if (input.val()) {
-        tv = parseFloat(input.val()) / 100;
+        min = parseFloat(input.val()) / 100;
     }
+    var pf = (page - 1) * pl;
+    var pt = page * pl - 1;
+    
     var mask = new frs.ui.Mask();
     var hud = new frs.ui.hud.Major('正在匹配');
     mask.appear();
@@ -86,25 +92,31 @@ function func_upload_pages(page) {
         fv  : fv,
         min : min,
         max : 1.0,
+        pk  : pk,
+        pf  : pf,
+        pt  : pt,
     }, function(code, desc) {
         mask.disappear();
         hud.disappear();
         if (code) {
             new frs.ui.hud.Minor(desc).appear(1500);
         } else {
+            var p = desc[0];
             var r = frs.ui.body().r;
             r.children().detach();
-            var pager1 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
+            var pager1 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
             var div_pager1 = $('<div></div>');
             div_pager1.append(pager1);
             r.append(div_pager1);
             $.each(desc, function(i, pic) {
+                if (0 == i) return;
+                
                 r.append(new frs.ui.BlockPicture({
                     cover   : pic.path,
-                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + pic.time.split('.')[0]
+                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + new Date(pic.time).format('yyyy/MM/dd HH:mm:ss')
                 }));
             });
-            var pager2 = new frs.ui.Pager(page, 9999, function(i) {func_upload_pages(i);});
+            var pager2 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
             var div_pager2 = $('<div></div>');
             div_pager2.append(pager2);
             r.append(div_pager2);

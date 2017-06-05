@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.sf.json.JSONArray;
+
 /**
  * <style>
  * table, th, td {
@@ -47,10 +49,14 @@ public class SBPicture extends StoreBlock {
                 .map(p->(Map<String, Object>) p)
                 .filter(p->{
                     if (!p.containsKey("fv")) return false;
-                    double tv = transvection(fv, (double[]) p.get("fv"));
+                    JSONArray fvj = (JSONArray) p.get("fv");
+                    double[] fvn = new double[fvj.size()];
+                    for (int i = 0; i < fvj.size(); i++) fvn[i] = fvj.getDouble(i);
+                    double tv = transvection(fv, fvn);
                     p.put("tv", tv);
-                    if (min <= tv && tv >= max) return true;
+                    if (min <= tv && tv <= max) return true;
                     return false;})
+                .sorted((p1, p2)->{return (int) ((double) p2.get("tv") * 100000 - (double) p1.get("tv") * 100000);})
                 .collect(Collectors.toList());
     }
     private static double transvection(double[] v1, double[] v2) {

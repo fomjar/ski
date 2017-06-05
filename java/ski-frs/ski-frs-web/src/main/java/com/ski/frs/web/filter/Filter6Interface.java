@@ -166,6 +166,8 @@ public class Filter6Interface extends FjWebFilter {
         state.reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
         state.reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         state.reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
+        
+        state.file_total = list_all.size();
         cache_sub_import_state.put(state.key, state);
         
         response(response, FjISIS.CODE_SUCCESS, null);
@@ -180,7 +182,7 @@ public class Filter6Interface extends FjWebFilter {
                 FjReference<Integer> refi = new FjReference<>(0);
                 list_all.forEach(file->{
                     final int i = refi.t;
-                    pool.submit(new SubImportTask(state, file, service[i]));
+                    pool.submit(new SubImportTask(state, file, service[i % size]));
                     refi.t++;
                 });
                 pool.shutdown();
@@ -188,9 +190,7 @@ public class Filter6Interface extends FjWebFilter {
                 catch (InterruptedException e) {logger.error("wait for sub import done failed", e);}
                 for (int i = 0; i < size; i++) service[i].close();
                 state.time_end = System.currentTimeMillis();
-            } catch (Exception e) {
-                logger.error("submit sub import task failed", e);
-            }
+            } catch (Exception e) {logger.error("submit sub import task failed", e);}
         }).start();
     }
     
@@ -209,8 +209,6 @@ public class Filter6Interface extends FjWebFilter {
         public volatile String file_current = null;
         public long time_begin = System.currentTimeMillis();
         public long time_end = 0;
-        public volatile long time_move = 0;
-        public volatile long time_fv = 0;
         
         public JSONObject toJson() {
             JSONObject json = new JSONObject();
@@ -228,8 +226,6 @@ public class Filter6Interface extends FjWebFilter {
             json.put("file_current",    file_current);
             json.put("time_begin",      time_begin);
             json.put("time_end",        time_end);
-            json.put("time_move",       time_move);
-            json.put("time_fv",         time_fv);
             return json;
         }
     }
@@ -249,30 +245,31 @@ public class Filter6Interface extends FjWebFilter {
         public void run() {
             try {
                 state.file_current = file.getPath();
+                if (!file.isFile()) {
+                    logger.error("illegal file, file not found: " + file.getPath());
+                    state.file_fails.add(file.getPath());
+                    return;
+                }
                 
                 String siid = "suject-item-" + UUID.randomUUID().toString().replace("-", "");
                 File dst = new File("document" + FjServerToolkit.getServerConfig("web.pic.sub") + "/" + state.sid + "/" + siid + "/" + file.getName());
                 
-                long begin = System.currentTimeMillis();
                 if (!WebToolkit.moveFile(file, dst)) {
                     logger.error("file move failed: " + file.getPath());
                     state.file_fails.add(file.getPath());
                     return;
-                } 
-                state.time_move += System.currentTimeMillis() - begin;
+                }
                 
-                begin = System.currentTimeMillis();
                 FjReference<double[]> fv0 = new FjReference<>(null);
                 service.fv_path(new FeatureService.FV() {
                     @Override
                     public void fv(double[] fv) {fv0.t = fv;}
                 }, dst.getPath());
                 if (null == fv0.t) {
-                    logger.error("file fv failed: " + file.getPath());
+                    logger.error("file fv failed: " + dst.getPath());
                     state.file_fails.add(file.getPath());
                     return;
                 }
-                state.time_fv += System.currentTimeMillis() - begin;
                 
                 JSONObject args_bcs = new JSONObject();
                 args_bcs.put("sid",     state.sid);
@@ -290,11 +287,6 @@ public class Filter6Interface extends FjWebFilter {
                 FjServerToolkit.dscpRequest("bcs", ISIS.INST_APPLY_SUB_IMPORT, args_bcs);
                 state.file_success++;
                 logger.info("importing file success: " + file.getPath());
-                
-                while (FjServerToolkit.getAnySender().mq().size() >= Integer.parseInt(FjServerToolkit.getServerConfig("web.pic.que"))) {
-                    try {Thread.sleep(100L);}
-                    catch (InterruptedException e) {e.printStackTrace();}
-                }
             } catch (Exception e) {
                 logger.error("file import failed: " + file.getPath(), e);
                 state.file_fails.add(file.getPath());

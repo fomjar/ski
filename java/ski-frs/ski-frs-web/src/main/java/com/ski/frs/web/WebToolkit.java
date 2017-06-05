@@ -67,6 +67,12 @@ public class WebToolkit {
             logger.error("move file failed, no such file, from: " + src.getPath() + ", to: " + dst.getPath());
             return false;
         }
+        if (dst.isFile()) {
+            if (!dst.delete()) {
+                logger.error("move file failed, can not overwrite file: " + dst.getPath());
+                return false;
+            }
+        }
         File dir = dst.getParentFile();
         if (!dir.isDirectory()) {
             synchronized(lock_move) {
@@ -82,7 +88,7 @@ public class WebToolkit {
             logger.error("move file failed, from: " + src.getPath() + ", to: " + dst.getPath());
             return false;
         }
-        return true;
+        return dst.isFile();
     }
     
     public static boolean deleteFile(File file) {

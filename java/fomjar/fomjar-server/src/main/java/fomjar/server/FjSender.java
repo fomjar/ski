@@ -61,7 +61,8 @@ public class FjSender extends FjLoopTask {
         } else if (msg instanceof FjDscpMessage) {
             FjDscpMessage dmsg = (FjDscpMessage) msg;
             FjServerToolkit.FjAddress addr0 = FjServerToolkit.getSlb().getAddress(dmsg.ts());
-            if (null == addr0) logger.error("can not find an address with server name: " + dmsg.ts());
+            if (dmsg.ttl() <= 0) logger.error("ttl limit message: " + dmsg);
+            else if (null == addr0) logger.error("can not find an address with server name: " + dmsg.ts());
             else {
                 try {
                     conn = SocketChannel.open();

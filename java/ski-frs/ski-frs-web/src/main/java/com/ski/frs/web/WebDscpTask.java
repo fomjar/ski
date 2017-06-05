@@ -47,7 +47,7 @@ public class WebDscpTask implements FjServerTask {
             break;
         default:
             if (!dmsg.fs().startsWith("bcs")) {
-                FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), dmsg.argsToJsonObject());
+                FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), dmsg.argsToJsonObject());
                 waitSessionForResponse(server, dmsg);
             }
             break;
@@ -118,7 +118,7 @@ public class WebDscpTask implements FjServerTask {
                 args.put("fv", fv0.t);
             }
             
-            FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.inst(), args);
+            FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), args);
             waitSessionForResponse(server, dmsg);
         });
     }

@@ -105,7 +105,11 @@ public class SBSubject extends StoreBlock {
                     .collect(Collectors.toList());
         } else {
             return data().entrySet().parallelStream()
-                    .map(e->(Map<String, Object>) e.getValue())
+                    .map(e->{
+                        Map<String, Object> sub = new HashMap<>((Map<String, Object>) e.getValue());
+                        sub.put("items", ((Map<String, Object>) sub.get("items")).size());
+                        return sub;
+                    })
                     .collect(Collectors.toList());
         }
     }

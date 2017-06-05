@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,47 +41,64 @@ public class StoreBlockService {
     }
     
     private ExecutorService pool;
-    private FjLoopTask  monitor;
     private SBDevice    sb_dev;
     private SBPicture   sb_pic;
     private SBSubject   sb_sub;
+    private FjLoopTask  monitor;
+    private Object      lock;
+    
+    private Map<String, CacheData> cache;
     
     private StoreBlockService() {
-        pool = Executors.newCachedThreadPool(new FjThreadFactory("sbs"));
-        monitor = new Monitor();
+        pool = Executors.newFixedThreadPool(3, new FjThreadFactory("sbs"));
         sb_dev = new SBDevice();
         sb_pic = new SBPicture();
         sb_sub = new SBSubject();
+        lock = new Object();
+        
+        monitor = new Monitor();
+        
+        cache = new HashMap<>();
     }
     
-    public boolean ready() {return sb_dev.ready() && sb_pic.ready() && sb_sub.ready();}
-    
     public void open() {
-        if (monitor.isRun()) return;
+        // load
+        if (sb_dev.file().isFile()) pool.submit(new TaskLoad(lock, sb_dev));
+        if (sb_pic.file().isFile()) pool.submit(new TaskLoad(lock, sb_pic));
+        if (sb_sub.file().isFile()) pool.submit(new TaskLoad(lock, sb_sub));
+        // save
         new Thread(monitor, "sbs-monitor").start();
-        if (sb_dev.file().isFile()) pool.submit(new TaskLoad(sb_dev));
-        if (sb_pic.file().isFile()) pool.submit(new TaskLoad(sb_pic));
-        if (sb_sub.file().isFile()) pool.submit(new TaskLoad(sb_sub));
     }
     
     public void close() {
-        pool.shutdownNow();
-        monitor.close();
+        synchronized(lock) {
+            // load
+            pool.shutdownNow();
+            // save
+            monitor.close();
+        }
     }
     
     private class Monitor extends FjLoopTask {
         
-        private static final long TIMEOUT = 1000L * 60 * 5;
+        private static final long TIMEOUT = 1000L * 60 * 2;
+        
+        private TaskSave t_dev;
+        private TaskSave t_pic;
+        private TaskSave t_sub;
         
         public Monitor() {
             setDelay(TIMEOUT);
             setInterval(TIMEOUT);
+            t_dev = new TaskSave(lock, sb_dev);
+            t_pic = new TaskSave(lock, sb_pic);
+            t_sub = new TaskSave(lock, sb_sub);
         }
         @Override
         public void perform() {
-            pool.submit(new TaskSave(sb_dev));
-            pool.submit(new TaskSave(sb_pic));
-            pool.submit(new TaskSave(sb_sub));
+            pool.submit(t_dev);
+            pool.submit(t_pic);
+            pool.submit(t_sub);
             
             int minute = Integer.parseInt(FjServerToolkit.getServerConfig("ccu.save"));
             setInterval(1000L * 60 * minute);
@@ -90,55 +108,71 @@ public class StoreBlockService {
     
     private static class TaskSave implements Runnable {
         
+        private Object lock;
         private StoreBlock sb;
         
-        public TaskSave(StoreBlock sb) {
+        public TaskSave(Object lock, StoreBlock sb) {
+            this.lock = lock;
             this.sb = sb;
         }
         @Override
         public void run() {
-            try {
-                long begin = System.currentTimeMillis();
-                logger.error(String.format("save begin, file: %s", sb.file()));
-                sb.save();
-                logger.error(String.format("save success, file: %s, file size: %d, time consumed: %f s", sb.file(), sb.file().length(), (System.currentTimeMillis() - begin) / 1000.0f));
-            } catch (IOException e) {logger.error(String.format("save failed, file: %s", sb.file()), e);}
+            synchronized (lock) {
+                try {
+                    long begin = System.currentTimeMillis();
+                    logger.error(String.format("save begin, file: %s", sb.file()));
+                    sb.save();
+                    logger.error(String.format("save success, file: %s, file size: %d, time consumed: %f s", sb.file(), sb.file().length(), (System.currentTimeMillis() - begin) / 1000.0f));
+                } catch (IOException e) {logger.error(String.format("save failed, file: %s", sb.file()), e);}
+            }
         }
     }
     
     private static class TaskLoad implements Runnable {
         
+        private Object lock;
         private StoreBlock sb;
         
-        public TaskLoad(StoreBlock sb) {
+        public TaskLoad(Object lock, StoreBlock sb) {
+            this.lock = lock;
             this.sb = sb;
         }
         @Override
         public void run() {
-            try {
-                long begin = System.currentTimeMillis();
-                logger.error(String.format("load begin, file: %s, file size: %d", sb.file(), sb.file().length()));
-                sb.load();
-                logger.error(String.format("load success, file: %s, time consumed: %f s", sb.file(), (System.currentTimeMillis() - begin) / 1000.0f));
-            } catch (IOException | ClassNotFoundException e) {logger.error(String.format("load failed, file: %s", sb.file()), e);}
+            synchronized (lock) {
+                try {
+                    long begin = System.currentTimeMillis();
+                    logger.error(String.format("load begin, file: %s, file size: %d", sb.file(), sb.file().length()));
+                    sb.load();
+                    logger.error(String.format("load success, file: %s, time consumed: %f s", sb.file(), (System.currentTimeMillis() - begin) / 1000.0f));
+                } catch (IOException | ClassNotFoundException e) {logger.error(String.format("load failed, file: %s", sb.file()), e);}
+            }
         }
     }
     
+    private static class CacheData {
+        public long         time = System.currentTimeMillis();
+        public JSONArray    data;
+        public CacheData(JSONArray data) {this.data = data;}
+    }
+    
     public JSONObject dispatch(int inst, JSONObject args) {
-        if (!ready()) {
-            String desc = "system not ready";
-            logger.error(desc);
-            JSONObject json = new JSONObject();
-            json.put("code", FjISIS.CODE_INTERNAL_ERROR);
-            json.put("desc", desc);
-            return json;
-        }
+        cache_clear();
+        if (cache_ever(args)) return cache_page(args);
+        
         for (Field field : ISIS.class.getFields()) {
             if (Integer.class.isAssignableFrom(field.getType())) continue;
             try {
                 if (field.getInt(ISIS.class) == inst) {
                     Method method = StoreBlockService.class.getMethod(field.getName(), JSONObject.class);
-                    return (JSONObject) method.invoke(this, args);
+                    synchronized (lock) {
+                        JSONObject args_rsp = (JSONObject) method.invoke(this, args);
+                        if (cache_need(inst, args)) {
+                            cache(args, args_rsp);
+                            args_rsp = cache_page(args);
+                        }
+                        return args_rsp;
+                    }
                 }
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchMethodException | SecurityException | InvocationTargetException e) {
                 String desc = String.format("dispatch message failed, inst = 0x%08X(%s), args = %s", inst, field.getName(), args);
@@ -154,6 +188,88 @@ public class StoreBlockService {
         json.put("code", FjISIS.CODE_ILLEGAL_INST);
         json.put("desc", "illegal inst: " + inst);
         return json;
+    }
+    
+    private void cache_clear() {
+        long timeout = 1000L * 60 * Integer.parseInt(FjServerToolkit.getServerConfig("ccu.cache.time"));
+        List<String> pks = new LinkedList<>();
+        cache.entrySet().forEach(e->{
+            if (System.currentTimeMillis() - e.getValue().time >= timeout) {
+                pks.add(e.getKey());
+            }
+        });
+        pks.forEach(pk->cache.remove(pk));
+    }
+    
+    private boolean cache_ever(JSONObject args) {
+        if (!args.containsKey("pk"))    return false;
+        String pk = args.getString("pk");
+        if (!cache.containsKey(pk))     return false;
+        return true;
+    }
+    
+    private boolean cache_need(int inst, JSONObject args) {
+        if (!args.containsKey("pk"))    return false;
+        if (!args.containsKey("pf"))    return false;
+        if (!args.containsKey("pt"))    return false;
+        switch (inst) {
+        case ISIS.INST_GET_PIC:
+            return true;
+        default:
+            return false;
+        }
+    }
+    
+    private JSONObject cache_page(JSONObject args) {
+        String  pk = args.getString("pk");
+        int     pf = args.getInt("pf");
+        int     pt = args.getInt("pt");
+        
+        CacheData cd = cache.get(pk);
+        
+        if (0 == cd.data.size()) {
+            JSONObject page = new JSONObject();
+            page.put("pa",  0);
+            page.put("pc",  0);
+            page.put("sum", 0);
+            JSONArray desc = new JSONArray();
+            desc.add(page);
+            desc.addAll(cd.data);
+            JSONObject args_rsp = new JSONObject();
+            args_rsp.put("code", FjISIS.CODE_SUCCESS);
+            args_rsp.put("desc", desc);
+            return args_rsp;
+        }
+        
+        JSONObject page = new JSONObject();
+        int sum = cd.data.size();
+        int pa  = (int) Math.ceil(1.0d * sum / (pt - pf + 1));
+        int pc  = pf / pa + 1;
+        page.put("pa",  pa);
+        page.put("pc",  pc);
+        page.put("sum", sum);
+        
+        JSONArray desc = new JSONArray();
+        desc.add(page);
+        for (int i = pf; i <= pt; i++) {
+            if (0 <= i && i < cd.data.size()) {
+                desc.add(cd.data.get(i));
+            }
+        }
+        
+        JSONObject args_rsp = new JSONObject();
+        args_rsp.put("code", FjISIS.CODE_SUCCESS);
+        args_rsp.put("desc", desc);
+        return args_rsp;
+    }
+    
+    private void cache(JSONObject args, JSONObject args_rsp) {
+        if (FjISIS.CODE_SUCCESS != args_rsp.getInt("code")) return;
+        if (!(args_rsp.get("desc") instanceof JSONArray)) return;
+        
+        String      pk      = args.getString("pk");
+        JSONArray   desc    = args_rsp.getJSONArray("desc");
+        cache.put(pk, new CacheData(desc));
     }
     
     public JSONObject INST_SET_PIC(JSONObject args) {

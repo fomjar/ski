@@ -67,7 +67,7 @@ public class FeatureService {
         try {
             writer.write(s + "\r\n");
             writer.flush();
-        } catch (IOException e) {logger.error("write line failed", e);}
+        } catch (IOException e) {logger.error("write line failed: " + s, e);}
     }
     
     public void close() {
@@ -76,18 +76,24 @@ public class FeatureService {
             reader.close();
             writer.close();
         } catch (IOException e) {e.printStackTrace();}
-        process.destroy();
     }
 
     private void do_fv() {
-        String line = read();
-        if (line.startsWith("W0531")) line = read();
+        String line = null;
+        while (!(line = read()).startsWith("mark=")) logger.warn("illegal interface output: " + line);
         
-        if (null == fv) return;
-        if (!line.contains("mark") || !line.contains("fv")) return;
+        if (null == fv) {
+            logger.error("null fv acceptor");
+            return;
+        }
         
         String[] parts = line.split(",");
-//        int mark = Integer.parseInt(parts[0].split("=")[1]);
+        int mark = Integer.parseInt(parts[0].split("=")[1]);
+        if (SUCCESS != mark) {
+            logger.error("illegal picture: " + line);
+            return;
+        }
+        
         String[] fvs = parts[1].split("=")[1].split(" ");
         double[] fvd = new double[fvs.length];
         for (int i = 0; i < fvs.length; i++) fvd[i] = Double.parseDouble(fvs[i]);
@@ -95,25 +101,29 @@ public class FeatureService {
     }
     
     public void fv_path(FV fv, String... paths) {
-        checkRespawn();
-        
-        this.fv = fv;
-        for (String path : paths) {
-            write("path");
-            write(path);
-            do_fv();
+        synchronized(process) {
+            checkRespawn();
+            
+            this.fv = fv;
+            for (String path : paths) {
+                write("path");
+                write(path);
+                do_fv();
+            }
         }
     }
     
     public void fv_base64(FV fv, String... base64s) {
-        checkRespawn();
-        
-        this.fv = fv;
-        for (String base64 : base64s) {
-            if (base64.startsWith("data:image")) base64 = base64.substring(base64.indexOf("base64,") + 7);
-            write("base64");
-            write(base64);
-            do_fv();
+        synchronized(process) {
+            checkRespawn();
+            
+            this.fv = fv;
+            for (String base64 : base64s) {
+                if (base64.startsWith("data:image")) base64 = base64.substring(base64.indexOf("base64,") + 7);
+                write("base64");
+                write(base64);
+                do_fv();
+            }
         }
     }
     
