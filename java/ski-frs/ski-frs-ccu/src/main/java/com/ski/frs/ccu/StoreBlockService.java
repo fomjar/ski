@@ -282,9 +282,7 @@ public class StoreBlockService {
             return json;
         }
         
-        String pid = null;
-        if (!args.has("pid")) args.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
-        else pid = args.getString("pid");
+        if (!args.has("pid")) args.put("pid", "picture-" + UUID.randomUUID().toString().replace("-", ""));
         
         if (args.has("did")) {
             String did = args.getString("did"); // 设备下图片
@@ -297,7 +295,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<String>) devs.get(0).get("pids")).add(pid);
+            ((List<Map<String, Object>>) devs.get(0).get("pids")).add(args);
         } else if (args.has("sid") && args.has("siid")) {   // 主体库下图片
             String sid = args.getString("sid");
             String siid = args.getString("siid");
@@ -319,7 +317,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<String>) item.get("pids")).add(pid);
+            ((List<Map<String, Object>>) item.get("pids")).add(args);
         } else {    // 不存在单独图片
             String desc = "illegal arguments, no did or sid, siid";
             logger.error(desc + ", " + args);
@@ -532,6 +530,14 @@ public class StoreBlockService {
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", args);
+        return json;
+    }
+    
+    public JSONObject INST_GET_SUB_ITEM(JSONObject args) {
+        List<Map<String, Object>> items = sb_sub.getSubjectItem(args);
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", items);
         return json;
     }
 

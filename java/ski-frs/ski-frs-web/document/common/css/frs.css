@@ -148,7 +148,6 @@ html, body {
 
     max-width   : 90%;
     max-height  : 90%;
-    min-width   : 50%;
     overflow-y  : auto;
     padding     : .5em 0;
 }
@@ -181,11 +180,15 @@ html, body {
 .frs .dialog >* {
     padding : .5em;
 }
+.frs .dialog >.list {
+    padding : 0;
+}
 .frs .dialog input, .frs .dialog select {
     text-align  : center;
 }
 
 .frs .list {
+    width       : 100%;
     overflow-y  : auto;
 }
 .frs .list >div {

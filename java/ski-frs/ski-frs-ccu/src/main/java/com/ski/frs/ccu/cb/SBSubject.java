@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import net.sf.json.JSONArray;
+
 /**
  * <style>
  * table, th, td {
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
  * 人像库：
  * <table>
  * <tr><th>键</th><th>描述</th></tr>
+ * <tr><td>sid      </td><td>主体库编号</td></tr>
  * <tr><td>siid     </td><td>主体项编号</td></tr>
  * <tr><td>time     </td><td>创建时间</td></tr>
  * <tr><td>name     </td><td>姓名</td></tr>
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
  * <tr><td>idno     </td><td>身份证号</td></tr>
  * <tr><td>phone    </td><td>电话</td></tr>
  * <tr><td>addr     </td><td>地址</td></tr>
+ * <tr><td>pids     </td><td>图片</td></tr>
  * </table>
  */
 @SuppressWarnings("unchecked")
@@ -57,11 +61,12 @@ public class SBSubject extends StoreBlock {
         if (!data().containsKey(sid)) return;
         Map<String, Object> sub = (Map<String, Object>) data().get(sid);
         
+        item.put("sid", sid);
         String siid = null;
         if (!item.containsKey("siid")) item.put("siid", siid = "subject-item-" + UUID.randomUUID().toString().replace("-", ""));
         else siid = item.get("siid").toString();
         if (!item.containsKey("time")) item.put("time", System.currentTimeMillis());
-        if (!item.containsKey("pids")) item.put("pids", new LinkedList<String>());
+        if (!item.containsKey("pids")) item.put("pids", new LinkedList<Map<String, Object>>());
         Map<String, Object> items = (Map<String, Object>) sub.get("items");
         items.put(siid, item);
     }
@@ -114,15 +119,68 @@ public class SBSubject extends StoreBlock {
         }
     }
     
-    public Map<String, Object> getSubjectItem(String sid) {
-        if (!data().containsKey(sid)) return null;
-        return (Map<String, Object>) ((Map<String, Object>) data().get(sid)).get("items");
-    }
-    
-    public List<Map<String, Object>> getSubjectItem(String sid, String... siid) {
-        return getSubjectItem(sid).entrySet().parallelStream()
-                .filter(e->{for (String s : siid) if (e.getKey().equals(s)) return true; return false;})
-                .map(e->(Map<String, Object>) e.getValue())
+    public List<Map<String, Object>> getSubjectItem(Map<String, Object> args) {
+        return data().values().parallelStream()
+                .map(sub->(Map<String, Object>) sub)
+                .filter(sub->{
+                    if (!args.containsKey("sid")) return true;
+                    
+                    Object obj = args.get("sid");
+                    List<String> sids = new LinkedList<>();
+                    if (obj instanceof JSONArray) {
+                        JSONArray array = (JSONArray) obj;
+                        for (int i = 0; i < array.size(); i++) sids.add(array.getString(i));
+                    } else sids.add(obj.toString());
+                    for (String sid : sids) {
+                        if (sid.equals(sub.get("sid"))) return true;
+                    }
+                    return false;
+                })
+                .map(sub->(Map<String, Object>) sub.get("items"))
+                .flatMap(items->items.values().stream())
+                .map(item->(Map<String, Object>) item)
+                .filter(item->{
+                    if (!args.containsKey("name")) return true;
+                    
+                    String name = args.get("name").toString();
+                    if (item.get("name").toString().contains(name)) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.containsKey("gender")) return true;
+                    
+                    int gender = Integer.parseInt(args.get("gender").toString());
+                    if (Integer.parseInt(item.get("gender").toString()) == gender) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.containsKey("birth")) return true;
+                    
+                    String birth = args.get("birth").toString();
+                    if (item.get("birth").toString().contains(birth)) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.containsKey("idno")) return true;
+                    
+                    String idno = args.get("idno").toString();
+                    if (item.get("idno").toString().contains(idno)) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.containsKey("phone")) return true;
+                    
+                    String phone = args.get("phone").toString();
+                    if (item.get("phone").toString().contains(phone)) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.containsKey("addr")) return true;
+                    
+                    String addr = args.get("addr").toString();
+                    if (item.get("addr").toString().contains(addr)) return true;
+                    return false;
+                })
                 .collect(Collectors.toList());
     }
 

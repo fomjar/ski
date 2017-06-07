@@ -36,7 +36,7 @@ public class SBDevice extends StoreBlock {
         if (!dev.containsKey("did"))    dev.put("did", did = "device-" + UUID.randomUUID().toString().replace("-", ""));
         else did = dev.get("did").toString();
         if (!dev.containsKey("time"))   dev.put("time", System.currentTimeMillis());
-        if (!dev.containsKey("pids"))   dev.put("pids", new LinkedList<String>());
+        if (!dev.containsKey("pids"))   dev.put("pids", new LinkedList<Map<String, Object>>());
         return (Map<String, Object>) data().put(did, dev);
     }
     
@@ -50,7 +50,7 @@ public class SBDevice extends StoreBlock {
             return data().entrySet().parallelStream()
                     .map(e->{
                         Map<String, Object> dev = new HashMap<>((Map<String, Object>) e.getValue());
-                        dev.put("pids", ((List<String>) dev.get("pids")).size());
+                        dev.put("pids", ((List<?>) dev.get("pids")).size());
                         return dev;
                     })
                     .collect(Collectors.toList());

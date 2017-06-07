@@ -702,5 +702,89 @@ frs.ui.BlockPicture = function(options) {
     return div;
 };
 
+frs.ui.choose_dev = function(cb) {
+    var mask = new frs.ui.Mask();
+    var dialog = new frs.ui.Dialog();
+    mask.bind('click', function() {
+        mask.disappear();
+        dialog.disappear();
+    });
+    
+    dialog.css('width', '25em');
+    dialog.append_text_h1c('选择设备');
+    dialog.append_space('.5em');
+    var list = new frs.ui.List();
+    dialog.append(list);
+    
+    mask.appear();
+    dialog.appear();
+    
+    var mask1 = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在获取');
+    mask1.appear();
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_GET_DEV, function(code, desc) {
+        mask1.disappear();
+        hud.disappear();
+        if (code) {
+            new frs.ui.hud.Minor(desc).appear(1500);
+            return;
+        }
+        list.children().detach();
+        $.each(desc, function(i, dev) {
+            list.append_cell({
+                major : dev.path,
+                minor : dev.did,
+            }).bind('click', function() {
+                mask.disappear();
+                dialog.disappear();
+                if (cb) cb(dev);
+            });
+        });
+    });
+};
+
+frs.ui.choose_sub = function(cb) {
+    var mask = new frs.ui.Mask();
+    var dialog = new frs.ui.Dialog();
+    mask.bind('click', function() {
+        mask.disappear();
+        dialog.disappear();
+    });
+    
+    dialog.css('width', '20em');
+    dialog.append_text_h1c('选择主体库');
+    dialog.append_space('.5em');
+    var list = new frs.ui.List();
+    dialog.append(list);
+    
+    mask.appear();
+    dialog.appear();
+    
+    var mask1 = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在获取');
+    mask1.appear();
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_GET_SUB, function(code, desc) {
+        mask1.disappear();
+        hud.disappear();
+        if (code) {
+            new frs.ui.hud.Minor(desc).appear(1500);
+            return;
+        }
+        list.children().detach();
+        $.each(desc, function(i, sub) {
+            list.append_cell({
+                major : sub.name,
+                minor : '共 ' + sub.items + ' 个项'
+            }).bind('click', function() {
+                mask.disappear();
+                dialog.disappear();
+                if (cb) cb(sub);
+            });
+        });
+    });
+};
+
 });
 })(jQuery);

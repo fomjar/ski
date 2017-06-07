@@ -24,16 +24,50 @@ function build_body() {
     build_body_l();
 }
 
+var sub = null;
 function build_body_l() {
     frs.ui.body().l.append([
-        $('<label>地点</label>'), new frs.ui.Button('选择地点').to_major(),
-        $('<label>日期</label>'), new frs.ui.Button('选择日期').to_major(),
-        $('<label>性别</label>'), $("<select><option>全部</option><option>男</option><option>女</option></select>"),
-        $('<label>年龄</label>'), $("<select><option>全部</option><option>0～50</option><option>51～100</option></select>"),
-        $('<label>纹理</label>'), $("<select><option>全部</option><option>横条纹</option><option>竖条纹</option></select>"),
-        $('<label>配饰</label>'), $("<select><option>全部</option><option>口罩</option><option>墨镜</option></select>"),
+        $('<label>主体</label>'), new frs.ui.Button('选择人像库', function() {
+            frs.ui.choose_sub(function(s) {sub = s;});
+        }).to_major(),
+        $('<label>姓名</label>'), $("<input placeholder='不限' type='text' >"),
+        $('<label>性别</label>'), $("<select><option>不限</option><option value='0'>女</option><option value='1'>男</option></select>"),
+        $('<label>生日（YYYYMMDD）</label>'), $("<input placeholder='不限' type='text' >"),
+        $('<label>身份证号</label>'), $("<input placeholder='不限' type='text' >"),
+        $('<label>电话</label>'), $("<input placeholder='不限' type='number' >"),
+        $('<label>地址</label>'), $("<input placeholder='不限' type='text' >"),
+        new frs.ui.Button('开始搜索', search).to_major()
     ]);
+}
+
+function collect() {
+    var name    = $($('input')[0]).val();
+    var gender  = $('select').val() + 0;
+    var birth   = $($('input')[1]).val();
+    var idno    = $($('input')[2]).val();
+    var phone   = $($('input')[3]).val();
+    var addr    = $($('input')[4]).val();
     
+    var data = {};
+    if (sub)    data.sid    = sub.sid;
+    if (name)   data.name   = name;
+    if (gender) data.gender = gender;
+    if (birth)  data.birth  = birth;
+    if (idno)   data.idno   = idno;
+    if (phone)  data.phone  = phone;
+    if (addr)   data.addr   = addr;
+    return data;
+}
+
+function search() {
+    var data = collect();
+    var mask = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在获取');
+    mask.appear();
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_SET_SUB_ITEM, data, function(code, desc) {
+        
+    });
 }
 
 })(jQuery)
