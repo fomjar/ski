@@ -140,42 +140,42 @@ public class SBSubject extends StoreBlock {
                 .flatMap(items->items.values().stream())
                 .map(item->(Map<String, Object>) item)
                 .filter(item->{
-                    if (!args.containsKey("name")) return true;
+                    if (!args.containsKey("name") || !item.containsKey("name")) return true;
                     
                     String name = args.get("name").toString();
                     if (item.get("name").toString().contains(name)) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("gender")) return true;
+                    if (!args.containsKey("gender") || !item.containsKey("gender")) return true;
                     
                     int gender = Integer.parseInt(args.get("gender").toString());
                     if (Integer.parseInt(item.get("gender").toString()) == gender) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("birth")) return true;
+                    if (!args.containsKey("birth") || !item.containsKey("birth")) return true;
                     
                     String birth = args.get("birth").toString();
                     if (item.get("birth").toString().contains(birth)) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("idno")) return true;
+                    if (!args.containsKey("idno") || !item.containsKey("idno")) return true;
                     
                     String idno = args.get("idno").toString();
                     if (item.get("idno").toString().contains(idno)) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("phone")) return true;
+                    if (!args.containsKey("phone") || !item.containsKey("phone")) return true;
                     
                     String phone = args.get("phone").toString();
                     if (item.get("phone").toString().contains(phone)) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("addr")) return true;
+                    if (!args.containsKey("addr") || !item.containsKey("addr")) return true;
                     
                     String addr = args.get("addr").toString();
                     if (item.get("addr").toString().contains(addr)) return true;
