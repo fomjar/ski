@@ -6,3 +6,7 @@
 .frs .body .l .button:last-child {
     margin-top  : 2em;
 }
+
+.frs .body .r >div {
+    margin  : 1em;
+}

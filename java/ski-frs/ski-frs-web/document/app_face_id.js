@@ -27,14 +27,22 @@ function build_body() {
 function build_body_l() {
     var image = $('<img>');
     var input = $("<input type='file' accept='image/*'>");
-    var input_tv = $("<input type='number' placeholder='默认60'>");
+    var input_tv = $("<input type='number' placeholder='默认70'>");
     
     frs.ui.body().l.append([
-        $('<label>信息库</label>'), $('<select><option>全部</option><option>杀人犯</option><option>放火犯</option></select>'),
         $('<label>上传</label>'), $('<div></div>').append([image, input]),
+        $('<label>人像库</label>'), new frs.ui.Button('选择人像库', function() {
+            frs.ui.choose_sub(function(sub) {
+                
+            });
+        }).to_major(),
         $('<label>相似度(1~99)</label>'), input_tv,
+        new frs.ui.Button('开始确认', verify).to_major()
     ]);
+}
 
+function verify() {
+    
 }
 
 })(jQuery)

@@ -214,6 +214,7 @@ public class StoreBlockService {
         if (!args.containsKey("pt"))    return false;
         switch (inst) {
         case ISIS.INST_GET_PIC:
+        case ISIS.INST_GET_SUB_ITEM:
             return true;
         default:
             return false;

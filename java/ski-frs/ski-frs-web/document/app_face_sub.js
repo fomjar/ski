@@ -316,6 +316,7 @@ function op_import(sub) {
                     dialog.disappear();
                     
                     dialog = new frs.ui.Dialog();
+                    dialog.css('width', '50%');
                     dialog.append_text_h1c('导入结束 - 报告如下');
                     var report = '';
                     report += '<br/>开始时间: ' + new Date(desc.time_begin).format('yyyy/MM/dd HH:mm:ss') + '，结束时间: ' + new Date(desc.time_end).format('yyyy/MM/dd HH:mm:ss') + '。';
@@ -356,9 +357,10 @@ function op_import(sub) {
             mask.unbind('click');
             
             dialog = new frs.ui.Dialog();
-            var progress = new frs.ui.Progress();
+            dialog.css('width', '60%');
             dialog.append_text_h1c('正在导入（请不要刷新页面）');
             dialog.append_space('.5em');
+            var progress = new frs.ui.Progress();
             dialog.append($('<div></div>').append(progress));
             var div_cur = dialog.append_text_p1('');
             dialog.appear();

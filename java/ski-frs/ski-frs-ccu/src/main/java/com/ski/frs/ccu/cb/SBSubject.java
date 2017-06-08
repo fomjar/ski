@@ -181,6 +181,10 @@ public class SBSubject extends StoreBlock {
                     if (item.get("addr").toString().contains(addr)) return true;
                     return false;
                 })
+                .map(item->{
+                    item.put("sname", ((Map<String, Object>) data().get(item.get("sid"))).get("name"));
+                    return item;
+                })
                 .collect(Collectors.toList());
     }
 

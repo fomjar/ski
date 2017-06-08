@@ -516,13 +516,6 @@ html, body {
     vertical-align  : top;
     cursor  : pointer;
 }
-.frs .block-picture * {
-    cursor  : pointer;
-}
-.frs .block-picture >div {
-    text-align  : left;
-    font-size   : .8em;
-}
 .frs .block-picture:hover {
     border      : 1px solid rgba(0, 0, 50, 1);
     box-shadow  : 0 0 2px rgba(0, 0, 50, 1);
@@ -532,10 +525,17 @@ html, body {
     box-shadow  : 0 0 0;
     background  : rgba(0, 0, 0, .1);
 }
+.frs .block-picture * {
+    cursor  : pointer;
+}
 .frs .block-picture img {
     width   : 100%;
 }
-
+.frs .block-picture >div {
+    word-wrap   : break-word;
+    text-align  : left;
+    font-size   : .8em;
+}
 
 /* component */
 .jstree-icon {
