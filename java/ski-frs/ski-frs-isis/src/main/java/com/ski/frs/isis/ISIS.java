@@ -5,10 +5,46 @@ public class ISIS {
     public static final int FIELD_PIC_SIZE_LARGE    = 0;
     public static final int FIELD_PIC_SIZE_MIDDLE   = 1;
     public static final int FIELD_PIC_SIZE_SMALL    = 2;
+    
     public static final int FIELD_TYPE_MAN          = 0;
     public static final int FIELD_TYPE_CAR          = 1;
+    
     public static final int FIELD_DEV_ONLINE        = 0;
     public static final int FIELD_DEV_OFFLINE       = 1;
+    
+    public static final int FIELD_GENDER_FEMALE     = 0;
+    public static final int FIELD_GENDER_MALE       = 1;
+    public static final int FIELD_GENDER_UNKNOWN    = -2;
+    
+    public static final int FIELD_HAT_NO            = 0;
+    public static final int FIELD_HAT_YES           = 1;
+    public static final int FIELD_HAT_HELMET        = 2;
+    public static final int FIELD_HAT_UNKNOWN       = -2;
+    
+    public static final int FIELD_GLASS_NO          = 0;
+    public static final int FIELD_GLASS_YES         = 1;
+    public static final int FIELD_GLASS_UNKNOWN     = -2;
+    
+    public static final int FIELD_MASK_NO           = 0;
+    public static final int FIELD_MASK_YES          = 1;
+    public static final int FIELD_MASK_UNKNOWN      = -2;
+    
+    public static final int FIELD_COLOR_BLACK       = 1 << 0;
+    public static final int FIELD_COLOR_GRAY        = 1 << 1;
+    public static final int FIELD_COLOR_WHITE       = 1 << 2;
+    public static final int FIELD_COLOR_RED         = 1 << 3;
+    public static final int FIELD_COLOR_BROWN       = 1 << 4;
+    public static final int FIELD_COLOR_ORANGE      = 1 << 5;
+    public static final int FIELD_COLOR_YELLOW      = 1 << 6;
+    public static final int FIELD_COLOR_GREEN       = 1 << 7;
+    public static final int FIELD_COLOR_BLUE        = 1 << 8;
+    public static final int FIELD_COLOR_PURPLE      = 1 << 9;
+    public static final int FIELD_COLOR_PINK        = 1 << 10;
+    public static final int FIELD_COLOR_UNKNOWN     = -2;
+    
+    public static final int FIELD_NATION_HAN        = 0;
+    public static final int FIELD_NATION_UYGER      = 1;
+    public static final int FIELD_NATION_UNKNOWN    = -2;
     
     
     

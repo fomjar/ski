@@ -206,6 +206,10 @@ html, body {
     background      : rgba(0, 0, 0, .2);
     border-bottom   : 1px solid rgba(0, 0, 0, 0);
 }
+.frs .list .active {
+    background      : rgba(0, 0, 0, .2);
+    border-bottom   : 1px solid rgba(0, 0, 0, 0);
+}
 .frs .list >div .icon {
     float           : left;
     margin-right    : .75em;

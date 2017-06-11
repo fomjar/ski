@@ -122,12 +122,18 @@ public class Filter6Interface extends FjWebFilter {
         String data = args.getString("data");
         args.remove("data");
         
-        FjReference<double[]> fv0 = new FjReference<>(null);
+        JSONObject desc = new JSONObject();
         FeatureService.getDefault().fv_base64(new FeatureService.FV() {
             @Override
-            public void fv(double[] fv) {fv0.t = fv;}
+            public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                desc.put("fv",      fv);
+                desc.put("glass",   glass);
+                desc.put("mask",    mask);
+                desc.put("hat",     hat);
+                desc.put("gender",  gender);
+                desc.put("nation",  nation);
+            }
         }, data);
-        JSONArray desc = JSONArray.fromObject(fv0.t);
         response(response, FjISIS.CODE_SUCCESS, desc);
         logger.debug("get pic fv: " + desc);
     }
@@ -260,12 +266,24 @@ public class Filter6Interface extends FjWebFilter {
                     return;
                 }
                 
-                FjReference<double[]> fv0 = new FjReference<>(null);
+                FjReference<double[]> rfv       = new FjReference<>(null);
+                FjReference<Integer> rglass     = new FjReference<>(ISIS.FIELD_GLASS_UNKNOWN);
+                FjReference<Integer> rmask      = new FjReference<>(ISIS.FIELD_MASK_UNKNOWN);
+                FjReference<Integer> rhat       = new FjReference<>(ISIS.FIELD_HAT_UNKNOWN);
+                FjReference<Integer> rgender    = new FjReference<>(ISIS.FIELD_GENDER_UNKNOWN);
+                FjReference<Integer> rnation    = new FjReference<>(ISIS.FIELD_NATION_UNKNOWN);
                 service.fv_path(new FeatureService.FV() {
                     @Override
-                    public void fv(double[] fv) {fv0.t = fv;}
+                    public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                        rfv.t = fv;
+                        rglass.t = glass;
+                        rmask.t = mask;
+                        rhat.t = hat;
+                        rgender.t = gender;
+                        rnation.t = nation;
+                    }
                 }, dst.getPath());
-                if (null == fv0.t) {
+                if (null == rfv.t) {
                     logger.error("file fv failed: " + dst.getPath());
                     state.file_fails.add(file.getPath());
                     return;
@@ -278,7 +296,12 @@ public class Filter6Interface extends FjWebFilter {
                 args_bcs.put("p_size",  ISIS.FIELD_PIC_SIZE_SMALL);
                 args_bcs.put("p_name",  dst.getName());
                 args_bcs.put("p_path",  dst.getPath().substring("document".length()).replace("\\", "/")); 
-                args_bcs.put("p_fv",    fv0.t);
+                args_bcs.put("p_fv",    rfv.t);
+                args_bcs.put("p_glass", rglass.t);
+                args_bcs.put("p_mask",  rmask.t);
+                args_bcs.put("p_hat",   rhat.t);
+                args_bcs.put("p_gender",rgender.t);
+                args_bcs.put("p_nation",rnation.t);
                 if (null != state.reg_idno)   args_bcs.put("s_idno",   WebToolkit.regexField(file.getName(), state.reg_idno));
                 if (null != state.reg_name)   args_bcs.put("s_name",   WebToolkit.regexField(file.getName(), state.reg_name));
                 if (null != state.reg_phone)  args_bcs.put("s_phone",  WebToolkit.regexField(file.getName(), state.reg_phone));

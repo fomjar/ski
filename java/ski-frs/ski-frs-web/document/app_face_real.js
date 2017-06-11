@@ -2,9 +2,6 @@
 (function($) {
 
 fomjar.framework.phase.append('dom', frsmain);
-fomjar.framework.phase.append('ren', search);
-
-var sid = parseInt(fomjar.util.args.sid, 16);
 
 function frsmain() {
     build_head();
@@ -16,9 +13,9 @@ function build_head() {
     frs.ui.head().append_item('卡口管理', function() {window.location = 'app_face_outpost.html';});
     frs.ui.head().append_item('特征搜索', function() {window.location = 'app_face_property.html';});
     frs.ui.head().append_item('身份确认', function() {window.location = 'app_face_id.html';});
-    frs.ui.head().append_item('实时布控', function() {window.location = 'app_face_real.html';});
+    frs.ui.head().append_item('实时布控', function() {window.location = 'app_face_real.html';}).addClass('active');
     frs.ui.head().append_item('轨迹管理', function() {window.location = 'app_face_trail.html';});
-    frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_sub.html';}).addClass('active');
+    frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_sub.html';});
     frs.ui.head().append_item('分析统计');
 }
 
@@ -27,9 +24,16 @@ function build_body() {
     build_body_l();
 }
 
+var devs = null;
 function build_body_l() {
     var choose;
     frs.ui.body().l.append([
+        $('<label>主体</label>'), choose = new frs.ui.Button('选择人像库', function() {
+            frs.ui.choose_sub(function(s) {
+                sub = s;
+                choose.text('已选择：' + s.name);
+            });
+        }).to_major(),
         $('<label>姓名</label>'), $("<input placeholder='不限' type='text' >"),
         $('<label>性别</label>'), $("<select><option value='-1'>不限</option><option value='0'>女</option><option value='1'>男</option></select>"),
         $('<label>生日（YYYYMMDD）</label>'), $("<input placeholder='不限' type='text' >"),
@@ -49,7 +53,7 @@ function collect() {
     var addr    = $($('input')[4]).val();
     
     var data = {};
-    data.sid    = sid;
+    if (sub)    data.sid    = sub.sid;
     if (name)   data.name   = name;
     if (-1 != gender) data.gender = gender;
     if (birth)  data.birth  = birth;
@@ -96,7 +100,7 @@ function search_page(page) {
             if (0 == i) return;
             
             r.append(new frs.ui.BlockPicture({
-                cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
+                cover   : (item.pids.length > 0 ? item.pids[0].path : ''),
                 name    : item.sname + '<br/>' + item.idno
             }));
         });

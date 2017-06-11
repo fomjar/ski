@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
@@ -87,17 +89,45 @@ public class FeatureService {
             return;
         }
         
-        String[] parts = line.split(",");
-        int mark = Integer.parseInt(parts[0].split("=")[1]);
-        if (SUCCESS != mark) {
-            logger.error("illegal picture: " + line);
-            return;
+        String[] kvs = line.split(",");
+        Map<String, Object> data = new HashMap<>();
+        for (String kv : kvs) {
+            String k = kv.split("=")[0].trim();
+            String v = kv.substring(kv.indexOf("=") + 1).trim();
+            switch (k) {
+            case "mark":
+                int mark = Integer.parseInt(v);
+                if (SUCCESS != mark) {
+                    logger.error("illegal picture: " + line);
+                    return;
+                }
+                data.put(k, mark);
+                break;
+            case "fv":
+                String[] fvs = kvs[1].split("=")[1].split(" ");
+                double[] fvd = new double[fvs.length];
+                for (int i = 0; i < fvs.length; i++) fvd[i] = Double.parseDouble(fvs[i]);
+                data.put(k, fvd);
+                break;
+            case "glass":
+            case "mask":
+            case "hat":
+            case "gender":
+            case "nation":
+                data.put(k, Integer.parseInt(v));
+                break;
+            default:
+                logger.error("illegal key: " + k);
+                break;
+            }
         }
         
-        String[] fvs = parts[1].split("=")[1].split(" ");
-        double[] fvd = new double[fvs.length];
-        for (int i = 0; i < fvs.length; i++) fvd[i] = Double.parseDouble(fvs[i]);
-        fv.fv(fvd);
+        fv.fv((double[]) data.get("fv"),
+                (int) data.get("glass"),
+                (int) data.get("mask"),
+                (int) data.get("hat"),
+                (int) data.get("gender"),
+                (int) data.get("nation"));
     }
     
     public void fv_path(FV fv, String... paths) {
@@ -127,6 +157,6 @@ public class FeatureService {
         }
     }
     
-    public static interface FV {void fv(double[] fv);}
+    public static interface FV {void fv(double[] fv, int glass, int mask, int hat, int gender, int nation);}
 
 }

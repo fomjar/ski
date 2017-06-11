@@ -15,7 +15,6 @@ import fomjar.server.FjServer.FjServerTask;
 import fomjar.server.FjServerToolkit;
 import fomjar.server.msg.FjDscpMessage;
 import fomjar.server.msg.FjISIS;
-import fomjar.util.FjReference;
 import fomjar.util.FjThreadFactory;
 import net.sf.json.JSONObject;
 
@@ -110,12 +109,17 @@ public class WebDscpTask implements FjServerTask {
             }
             
             if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
-                FjReference<double[]> fv0 = new FjReference<>(null);
                 FeatureService.getDefault().fv_path(new FeatureService.FV() {
                     @Override
-                    public void fv(double[] fv) {fv0.t = fv;}
+                    public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                        args.put("fv",      fv);
+                        args.put("glass",   glass);
+                        args.put("mask",    mask);
+                        args.put("hat",     hat);
+                        args.put("gender",  gender);
+                        args.put("nation",  nation);
+                    }
                 }, path);
-                args.put("fv", fv0.t);
             }
             
             FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), args);

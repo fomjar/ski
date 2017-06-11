@@ -786,5 +786,63 @@ frs.ui.choose_sub = function(cb) {
     });
 };
 
+frs.ui.choose_devs = function(cb) {
+    var mask = new frs.ui.Mask();
+    var dialog = new frs.ui.Dialog();
+    mask.bind('click', function() {
+        mask.disappear();
+        dialog.disappear();
+    });
+    
+    dialog.css('width', '25em');
+    dialog.append_text_h1c('选择设备');
+    dialog.append_space('.5em');
+    var list = new frs.ui.List();
+    dialog.append(list);
+    var cells = [];
+    var devs = [];
+    var confirm = new frs.ui.Button('确定', function() {
+        devs = [];
+        $.each(cells, function(i, cell) {
+            if (cell.is_select) devs.push(cell.dev);
+        });
+        mask.disappear();
+        dialog.disappear();
+        if (cb) cb(devs);
+    }).to_major();
+    dialog.append_button(confirm)
+    
+    mask.appear();
+    dialog.appear();
+    
+    var mask1 = new frs.ui.Mask();
+    var hud = new frs.ui.hud.Major('正在获取');
+    mask1.appear();
+    hud.appear();
+    fomjar.net.send(ski.isis.INST_GET_DEV, function(code, desc) {
+        mask1.disappear();
+        hud.disappear();
+        if (code) {
+            new frs.ui.hud.Minor(desc).appear(1500);
+            return;
+        }
+        list.children().detach();
+        $.each(desc, function(i, dev) {
+            var cell = list.append_cell({
+                major : dev.path,
+                minor : dev.did,
+            });
+            cells.push(cell);
+            cell.dev = dev;
+            cell.is_select = false;
+            cell.bind('click', function() {
+                cell.is_select = !cell.is_select;
+                if (cell.is_select) cell.addClass('active');
+                else cell.removeClass('active');
+            });
+        });
+    });
+};
+
 });
 })(jQuery);

@@ -2,7 +2,6 @@
     padding     : 2em;
     padding-top : 0;
 }
-
 .frs .body .l img {
     width       : 100%;
     min-height  : 10em;
@@ -17,10 +16,9 @@
     cursor  : pointer;
 }
 .frs .body .l .button:last-child {
-    margin-top : 2em;
+    margin-top  : 2em;
 }
 
 .frs .body .r >div {
     margin  : 1em;
 }
-

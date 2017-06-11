@@ -2,11 +2,13 @@ package com.ski.frs.ccu.cb;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import com.ski.frs.isis.ISIS;
+
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * <style>
@@ -26,37 +28,100 @@ import net.sf.json.JSONArray;
  * <tr><td>path </td><td>真实路径</td></tr>
  * </table>
  */
-@SuppressWarnings("unchecked")
 public class SBPicture extends StoreBlock {
     
     private static final long serialVersionUID = 1L;
     
-    public Map<String, Object> setPicture(Map<String, Object> pic) {
+    public JSONObject setPicture(JSONObject pic) {
         String pid = null;
-        if (!pic.containsKey("pid"))    pic.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
-        else pid = pic.get("pid").toString();
-        if (!pic.containsKey("time"))   pic.put("time", System.currentTimeMillis());
-        return (Map<String, Object>) data().put(pid, pic);
+        if (!pic.has("pid"))    pic.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
+        else pid = pic.getString("pid");
+        if (!pic.has("time"))   pic.put("time", System.currentTimeMillis());
+        return (JSONObject) data().put(pid, pic);
     }
-    public List<Map<String, Object>> getPicture(String... pid) {
+    
+    public List<JSONObject> getPicture(JSONObject args) {
         return data().entrySet().parallelStream()
-                .filter(e->{for (String p : pid) if (e.getKey().equals(p)) return true; return false;})
-                .map(e->(Map<String, Object>) e.getValue())
-                .collect(Collectors.toList());
-    }
-    public List<Map<String, Object>> getPicture(double[] fv, double min, double max) {
-        return data().values().parallelStream()
-                .map(p->(Map<String, Object>) p)
+                .map(e->(JSONObject) e.getValue())
+                .filter(p->p.getInt("size") == ISIS.FIELD_PIC_SIZE_SMALL)
                 .filter(p->{
+                    if (!args.has("dids") || !p.has("did")) return true;
+                    
+                    JSONArray array = args.getJSONArray("dids");
+                    List<String> dids = new LinkedList<>();
+                    for (int i = 0; i < array.size(); i++) dids.add(array.getString(i));
+                    String did = p.getString("did");
+                    for (String d : dids) if (d.equals(did)) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("gender") || !p.has("gender")) return true;
+                    if (p.getInt("gender") == args.getInt("gender")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("age") || !p.has("age")) return true;
+                    if (p.getInt("age") == args.getInt("age")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("hat") || !p.has("hat")) return true;
+                    if (p.getInt("hat") == args.getInt("hat")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("glass") || !p.has("glass")) return true;
+                    if (p.getInt("glass") == args.getInt("glass")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("mask") || !p.has("mask")) return true;
+                    if (p.getInt("mask") == args.getInt("mask")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.containsKey("color") || !p.containsKey("color")) return true;
+                    
+                    int colora = args.getInt("color");
+                    int colorp = p.getInt("color");
+                    if (0 == colorp) return false;
+                    
+                    for (int i = 0; i < 32; i++) {
+                        int c = colora & (1 << i);
+                        if (0 == c) continue;
+                        if (0 == (colorp & c)) return false;
+                    }
+                    return true;
+                })
+                .filter(p->{
+                    if (!args.containsKey("nation") || !p.has("nation")) return true;
+                    if (p.getInt("nation") == args.getInt("nation")) return true;
+                    return false;
+                })
+                .filter(p->{
+                    if (!args.has("fv") || !args.has("min") || !args.has("max")) return true;
                     if (!p.containsKey("fv")) return false;
-                    JSONArray fvj = (JSONArray) p.get("fv");
-                    double[] fvn = new double[fvj.size()];
-                    for (int i = 0; i < fvj.size(); i++) fvn[i] = fvj.getDouble(i);
-                    double tv = transvection(fv, fvn);
+                    
+                    JSONArray array = args.getJSONArray("fv");
+                    double[] fva = new double[array.size()];
+                    for (int i = 0; i < array.size(); i++) fva[i] = array.getDouble(i);
+                    double min = args.getDouble("min");
+                    double max = args.getDouble("max");
+                    
+                    array = p.getJSONArray("fv");
+                    double[] fvp = new double[array.size()];
+                    for (int i = 0; i < array.size(); i++) fvp[i] = array.getDouble(i);
+                    double tv = transvection(fva, fvp);
                     p.put("tv", tv);
                     if (min <= tv && tv <= max) return true;
-                    return false;})
-                .sorted((p1, p2)->{return (int) ((double) p2.get("tv") * 100000 - (double) p1.get("tv") * 100000);})
+                    return false;
+                })
+                .sorted((p1, p2)->{
+                    if (!p2.has("tv") && !p1.has("tv")) return 0;
+                    if (!p2.has("tv")) return 1;
+                    if (!p1.has("tv")) return -1;
+                    return (int) (p2.getDouble("tv") * 100000 - p1.getDouble("tv") * 100000);
+                })
                 .collect(Collectors.toList());
     }
     private static double transvection(double[] v1, double[] v2) {
@@ -64,10 +129,10 @@ public class SBPicture extends StoreBlock {
         for (int i = 0; i < Math.min(v1.length, v2.length); i++) tv += v1[i] * v2[i];
         return tv;
     }
-    public List<Map<String, Object>> delPicture(String... pid) {
-        List<Map<String, Object>> list = new LinkedList<>();
+    public List<JSONObject> delPicture(String... pid) {
+        List<JSONObject> list = new LinkedList<>();
         for (String p : pid) {
-            Map<String, Object> pic = (Map<String, Object>) data().remove(p);
+            JSONObject pic = (JSONObject) data().remove(p);
             if (null != pic) list.add(pic);
         }
         return list;

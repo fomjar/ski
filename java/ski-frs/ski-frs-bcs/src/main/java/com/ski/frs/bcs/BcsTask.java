@@ -157,7 +157,12 @@ public class BcsTask implements FjServerTask {
                 args_ccu.put("type", args.get("p_type"));
                 args_ccu.put("size", args.get("p_size"));
                 args_ccu.put("path", args.get("p_path"));
-                if (args.has("p_fv")) args_ccu.put("fv", args.get("p_fv"));
+                if (args.has("p_fv"))       args_ccu.put("fv",      args.get("p_fv"));
+                if (args.has("p_glass"))    args_ccu.put("glass",   args.get("p_glass"));
+                if (args.has("p_mask"))     args_ccu.put("mask",    args.get("p_mask"));
+                if (args.has("p_hat"))      args_ccu.put("hat",     args.get("p_hat"));
+                if (args.has("p_gender"))   args_ccu.put("gender",  args.get("p_gender"));
+                if (args.has("p_nation"))   args_ccu.put("nation",  args.get("p_nation"));
                 FjDscpMessage req_ccu = FjServerToolkit.dscpRequest("ccu", ISIS.INST_SET_PIC, args_ccu);
                 server.onDscpSession(req_ccu.sid(), new FjServer.FjServerTask() {
                     @Override

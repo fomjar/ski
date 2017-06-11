@@ -317,6 +317,29 @@ fomjar.geo = {
         };
     }
 };
+fomjar.graphics = {};
+fomjar.graphics.image_base64_local = function(url, cb) {
+    var reader = new FileReader();
+    reader.onload = function(e) {if (cb) cb(e.target.result);};
+    reader.readAsDataURL(url);
+};
+fomjar.graphics.image_base64_remote = function(url, cb) {
+    //新建图片
+    var img = new Image();
+    //解决canvas无法读取画布问题 
+    img.setAttribute('crossOrigin', 'anonymous');
+    //通加载图片完毕保证快速读取
+    img.onload = function() {
+        var canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        var ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, img.width, img.height);
+        var base64 = canvas.toDataURL("image/jpeg");
+        if (cb) cb(base64);
+    };
+    img.src = url;
+};
 
 fomjar.framework = {};
 fomjar.framework.phase = {

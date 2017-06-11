@@ -1,13 +1,12 @@
 package com.ski.frs.ccu.cb;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * <style>
@@ -40,90 +39,92 @@ import net.sf.json.JSONArray;
  * <tr><td>idno     </td><td>身份证号</td></tr>
  * <tr><td>phone    </td><td>电话</td></tr>
  * <tr><td>addr     </td><td>地址</td></tr>
- * <tr><td>pids     </td><td>图片</td></tr>
+ * <tr><td>pics     </td><td>图片</td></tr>
  * </table>
  */
-@SuppressWarnings("unchecked")
 public class SBSubject extends StoreBlock {
 
     private static final long serialVersionUID = 1L;
     
-    public Map<String, Object> setSubject(Map<String, Object> sub) {
+    public JSONObject setSubject(JSONObject sub) {
         String sid = null;
         if (!sub.containsKey("sid")) sub.put("sid", sid = "subject-" + UUID.randomUUID().toString().replace("-", ""));
         else sid = sub.get("sid").toString();
         if (!sub.containsKey("time")) sub.put("time", System.currentTimeMillis());
-        if (!sub.containsKey("items")) sub.put("items", new HashMap<String, Map<String, Object>>());
-        return (Map<String, Object>) data().put(sid, sub);
+        if (!sub.containsKey("items")) sub.put("items", new JSONObject());
+        return (JSONObject) data().put(sid, sub);
     }
     
-    public void setSubjectItem(String sid, Map<String, Object> item) {
+    public void setSubjectItem(String sid, JSONObject item) {
         if (!data().containsKey(sid)) return;
-        Map<String, Object> sub = (Map<String, Object>) data().get(sid);
+        JSONObject sub = (JSONObject) data().get(sid);
         
         item.put("sid", sid);
         String siid = null;
-        if (!item.containsKey("siid")) item.put("siid", siid = "subject-item-" + UUID.randomUUID().toString().replace("-", ""));
-        else siid = item.get("siid").toString();
-        if (!item.containsKey("time")) item.put("time", System.currentTimeMillis());
-        if (!item.containsKey("pids")) item.put("pids", new LinkedList<Map<String, Object>>());
-        Map<String, Object> items = (Map<String, Object>) sub.get("items");
+        if (!item.has("siid")) item.put("siid", siid = "subject-item-" + UUID.randomUUID().toString().replace("-", ""));
+        else siid = item.getString("siid");
+        if (!item.has("time")) item.put("time", System.currentTimeMillis());
+        if (!item.has("pics")) item.put("pics", new JSONArray());
+        JSONObject items = sub.getJSONObject("items");
         items.put(siid, item);
     }
     
-    public List<Map<String, Object>> delSubject(String... sid) {
-        List<Map<String, Object>> list = new LinkedList<>();
+    public List<JSONObject> delSubject(String... sid) {
+        List<JSONObject> list = new LinkedList<>();
         for (String s : sid) {
-            Map<String, Object> sub = (Map<String, Object>) data().remove(s);
+            JSONObject sub = (JSONObject) data().remove(s);
             if (null != sub) list.add(sub);
         }
         return list;
     }
     
-    public List<Map<String, Object>> delSubjectItem(String sid, String... siid) {
+    public List<JSONObject> delSubjectItem(String sid, String... siid) {
         if (!data().containsKey(sid)) return null;
-        Map<String, Object> sub = (Map<String, Object>) data().get(sid);
-        List<Map<String, Object>> list = new LinkedList<>();
-        Map<String, Map<String, Object>> items = (Map<String, Map<String, Object>>) sub.get("items");
+        
+        JSONObject sub = (JSONObject) data().get(sid);
+        List<JSONObject> list = new LinkedList<>();
+        JSONObject items = sub.getJSONObject("items");
         for (String s : siid) {
-            Map<String, Object> item = items.remove(s);
+            JSONObject item = (JSONObject) items.remove(s);
             if (null != item) list.add(item);
         }
         return list;
     }
     
-    public Map<String, Object> modSubject(Map<String, Object> sub) {
+    public JSONObject modSubject(JSONObject sub) {
         if (!sub.containsKey("sid")) return null;
-        String sid = (String) sub.get("sid");
+        
+        String sid = sub.getString("sid");
         if (!data().containsKey(sid)) return null;
-        Map<String, Object> sub_old = (Map<String, Object>) data().get(sid);
+        JSONObject sub_old = (JSONObject) data().get(sid);
         sub_old.putAll(sub);
         sub.putAll(sub_old);
-        return (Map<String, Object>) data().put(sid, sub);
+        return (JSONObject) data().put(sid, sub);
     }
     
-    public List<Map<String, Object>> getSubject(String... sid) {
+    public List<JSONObject> getSubject(String... sid) {
         if (null != sid && 0 < sid.length) {
             return data().entrySet().parallelStream()
                     .filter(e->{for (String s : sid) if (e.getKey().equals(s)) return true; return false;})
-                    .map(e->(Map<String, Object>) e.getValue())
+                    .map(e->(JSONObject) e.getValue())
                     .collect(Collectors.toList());
         } else {
             return data().entrySet().parallelStream()
                     .map(e->{
-                        Map<String, Object> sub = new HashMap<>((Map<String, Object>) e.getValue());
-                        sub.put("items", ((Map<String, Object>) sub.get("items")).size());
+                        JSONObject sub = JSONObject.fromObject((JSONObject) e.getValue());
+                        sub.put("items", sub.getJSONObject("items").size());
                         return sub;
                     })
                     .collect(Collectors.toList());
         }
     }
     
-    public List<Map<String, Object>> getSubjectItem(Map<String, Object> args) {
-        return data().values().parallelStream()
-                .map(sub->(Map<String, Object>) sub)
+    @SuppressWarnings("unchecked")
+    public List<JSONObject> getSubjectItem(JSONObject args) {
+        return data().entrySet().parallelStream()
+                .map(e->(JSONObject) e.getValue())
                 .filter(sub->{
-                    if (!args.containsKey("sid")) return true;
+                    if (!args.has("sid")) return true;
                     
                     Object obj = args.get("sid");
                     List<String> sids = new LinkedList<>();
@@ -136,56 +137,96 @@ public class SBSubject extends StoreBlock {
                     }
                     return false;
                 })
-                .map(sub->(Map<String, Object>) sub.get("items"))
-                .flatMap(items->items.values().stream())
-                .map(item->(Map<String, Object>) item)
+                .flatMap(sub->new LinkedList<Object>(sub.getJSONObject("items").values()).stream())
+                .map(item->(JSONObject) item)
                 .filter(item->{
-                    if (!args.containsKey("name") || !item.containsKey("name")) return true;
-                    
-                    String name = args.get("name").toString();
-                    if (item.get("name").toString().contains(name)) return true;
+                    if (!args.has("name") || !item.has("name")) return true;
+                    if (item.getString("name").contains(args.getString("name"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("gender") || !item.containsKey("gender")) return true;
-                    
-                    int gender = Integer.parseInt(args.get("gender").toString());
-                    if (Integer.parseInt(item.get("gender").toString()) == gender) return true;
+                    if (!args.has("gender") || !item.has("gender")) return true;
+                    if (item.getInt("gender") == args.getInt("gender")) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("birth") || !item.containsKey("birth")) return true;
-                    
-                    String birth = args.get("birth").toString();
-                    if (item.get("birth").toString().contains(birth)) return true;
+                    if (!args.has("birth") || !item.has("birth")) return true;
+                    if (item.getString("birth").contains(args.getString("birth"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("idno") || !item.containsKey("idno")) return true;
-                    
-                    String idno = args.get("idno").toString();
-                    if (item.get("idno").toString().contains(idno)) return true;
+                    if (!args.has("idno") || !item.has("idno")) return true;
+                    if (item.getString("idno").contains(args.getString("idno"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("phone") || !item.containsKey("phone")) return true;
-                    
-                    String phone = args.get("phone").toString();
-                    if (item.get("phone").toString().contains(phone)) return true;
+                    if (!args.has("phone") || !item.has("phone")) return true;
+                    if (item.getString("phone").contains(args.getString("phone"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.containsKey("addr") || !item.containsKey("addr")) return true;
-                    
-                    String addr = args.get("addr").toString();
-                    if (item.get("addr").toString().contains(addr)) return true;
+                    if (!args.has("addr") || !item.has("addr")) return true;
+                    if (item.getString("addr").contains(args.getString("addr"))) return true;
                     return false;
+                })
+                .filter(item->{
+                    if (!args.has("birth_min") || !item.has("birth")) return true;
+                    
+                    String birth = item.getString("birth");
+                    int year = Integer.parseInt(birth.substring(0, 4));
+                    if (args.getInt("birth_min") <= year) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.has("birth_max") || !item.has("birth")) return true;
+                    
+                    String birth = item.getString("birth");
+                    int year = Integer.parseInt(birth.substring(0, 4));
+                    if (args.getInt("birth_max") >= year) return true;
+                    return false;
+                })
+                .filter(item->{
+                    if (!args.has("fv") || !args.has("min") || !args.has("max")) return true;
+                    
+                    JSONArray array = args.getJSONArray("fv");
+                    double[] fva = new double[array.size()];
+                    for (int i = 0; i < array.size(); i++) fva[i] = array.getDouble(i);
+                    double min = args.getDouble("min");
+                    double max = args.getDouble("max");
+                    
+                    JSONArray pics = item.getJSONArray("pics");
+                    double tv_max = 0;
+                    for (int i = 0; i < pics.size(); i++) {
+                        JSONObject pic = pics.getJSONObject(i);
+                        if (!pic.containsKey("fv")) continue;
+                        
+                        array = pic.getJSONArray("fv");
+                        double[] fvp = new double[array.size()];
+                        for (int j = 0; j < array.size(); j++) fvp[j] = array.getDouble(j);
+                        
+                        double tv = transvection(fva, fvp);
+                        if (tv > tv_max) tv_max = tv;
+                        item.put("tv", tv_max);
+                        if (min <= tv && tv <= max) return true;
+                    }
+                    return false;
+                })
+                .sorted((item1, item2)->{
+                    if (!item2.has("tv") && !item1.has("tv")) return 0;
+                    if (!item2.has("tv")) return 1;
+                    if (!item1.has("tv")) return -1;
+                    return (int) (item2.getDouble("tv") * 100000 - item1.getDouble("tv") * 100000);
                 })
                 .map(item->{
-                    item.put("sname", ((Map<String, Object>) data().get(item.get("sid"))).get("name"));
+                    item.put("sname", ((JSONObject) data().get(item.getString("sid"))).getString("name"));
                     return item;
                 })
                 .collect(Collectors.toList());
+    }
+    private static double transvection(double[] v1, double[] v2) {
+        double tv = 0;
+        for (int i = 0; i < Math.min(v1.length, v2.length); i++) tv += v1[i] * v2[i];
+        return tv;
     }
 
 }

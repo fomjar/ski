@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 
@@ -228,14 +229,13 @@ public class StoreBlockService {
         
         CacheData cd = cache.get(pk);
         
-        if (0 == cd.data.size()) {
+        if (null == cd || 0 == cd.data.size()) {
             JSONObject page = new JSONObject();
             page.put("pa",  0);
             page.put("pc",  0);
             page.put("sum", 0);
             JSONArray desc = new JSONArray();
             desc.add(page);
-            desc.addAll(cd.data);
             JSONObject args_rsp = new JSONObject();
             args_rsp.put("code", FjISIS.CODE_SUCCESS);
             args_rsp.put("desc", desc);
@@ -287,7 +287,7 @@ public class StoreBlockService {
         
         if (args.has("did")) {
             String did = args.getString("did"); // 设备下图片
-            List<Map<String, Object>> devs = sb_dev.getDevice(did);
+            List<JSONObject> devs = sb_dev.getDevice(did);
             if (devs.isEmpty()) {
                 String desc = "illegal arguments, invalid did: " + did;
                 logger.error(desc + ", " + args);
@@ -296,11 +296,11 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<Map<String, Object>>) devs.get(0).get("pids")).add(args);
+            devs.get(0).getJSONArray("pics").add(args);
         } else if (args.has("sid") && args.has("siid")) {   // 主体库下图片
             String sid = args.getString("sid");
             String siid = args.getString("siid");
-            List<Map<String, Object>> subs = sb_sub.getSubject(sid);
+            List<JSONObject> subs = sb_sub.getSubject(sid);
             if (subs.isEmpty()) {
                 String desc = "illegal arguments, invalid sid: " + sid;
                 logger.error(desc + ", " + args);
@@ -309,7 +309,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            Map<String, Object> item = (Map<String, Object>) ((Map<String, Object>) subs.get(0).get("items")).get(siid);
+            JSONObject item = subs.get(0).getJSONObject("items").getJSONObject(siid);
             if (null == item) {
                 String desc = "illegal arguments, invalid siid: " + siid;
                 logger.error(desc + ", " + args);
@@ -318,7 +318,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            ((List<Map<String, Object>>) item.get("pids")).add(args);
+            item.getJSONArray("pics").add(args);
         } else {    // 不存在单独图片
             String desc = "illegal arguments, no did or sid, siid";
             logger.error(desc + ", " + args);
@@ -335,35 +335,11 @@ public class StoreBlockService {
     }
     
     public JSONObject INST_GET_PIC(JSONObject args) {
-        if (args.has("pid")) {
-            List<String> pid = new LinkedList<>();
-            Object obj = args.get("pid");
-            if (obj instanceof String) pid.add((String) obj);
-            else if (obj instanceof JSONArray) pid.addAll((JSONArray) obj);
-            
-            List<Map<String, Object>> pics = sb_pic.getPicture(pid.toArray(new String[pid.size()]));
-            JSONObject json = new JSONObject();
-            json.put("code", FjISIS.CODE_SUCCESS);
-            json.put("desc", pics);
-            return json;
-        } else if (args.has("fv") && args.has("min") && args.has("max")) {
-            JSONArray array = args.getJSONArray("fv");
-            double[] fv = new double[array.size()];
-            for (int i = 0; i < array.size(); i++) fv[i] = array.getDouble(i);
-            
-            List<Map<String, Object>> pics = sb_pic.getPicture(fv, args.getDouble("min"), args.getDouble("max"));
-            JSONObject json = new JSONObject();
-            json.put("code", FjISIS.CODE_SUCCESS);
-            json.put("desc", pics);
-            return json;
-        } else {
-            String desc = "illegal arguments, no pid or fv, min, max";
-            logger.error(desc + ", " + args);
-            JSONObject json = new JSONObject();
-            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
-            json.put("desc", desc);
-            return json;
-        }
+        List<JSONObject> pics = sb_pic.getPicture(args);
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", pics);
+        return json;
     }
     
     public JSONObject INST_SET_DEV(JSONObject args) {
@@ -396,12 +372,16 @@ public class StoreBlockService {
         if (obj instanceof String) did.add((String) obj);
         else if (obj instanceof JSONArray) did.addAll((JSONArray) obj);
         
-        List<Map<String, Object>> devs = sb_dev.delDevice(did.toArray(new String[did.size()]));
+        List<JSONObject> devs = sb_dev.delDevice(did.toArray(new String[did.size()]));
         
         devs.parallelStream().forEach(dev->{
-            List<String> pids = (List<String>) dev.get("pids");
+            JSONArray pics = dev.getJSONArray("pics");
+            List<String> pids = new LinkedList<Object>(pics).parallelStream()
+                    .map(pic->(JSONObject) pic)
+                    .map(pic->pic.getString("pid"))
+                    .collect(Collectors.toList());
             sb_pic.delPicture(pids.toArray(new String[pids.size()]));
-            dev.put("pids", pids.size());
+            dev.put("pics", pics.size());
         });
         
         JSONObject json = new JSONObject();
@@ -419,7 +399,7 @@ public class StoreBlockService {
             else if (obj instanceof JSONArray) list.addAll((JSONArray) obj);
             did = list.toArray(new String[list.size()]);
         }
-        List<Map<String, Object>> devs = sb_dev.getDevice(did);
+        List<JSONObject> devs = sb_dev.getDevice(did);
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", devs);
@@ -456,18 +436,23 @@ public class StoreBlockService {
         if (obj instanceof String) sid.add((String) obj);
         else if (obj instanceof JSONArray) sid.addAll((JSONArray) obj);
         
-        List<Map<String, Object>> subs = sb_sub.delSubject(sid.toArray(new String[sid.size()]));
+        List<JSONObject> subs = sb_sub.delSubject(sid.toArray(new String[sid.size()]));
         
         subs.parallelStream().forEach(sub->{
-            Map<String, Object> items = (Map<String, Object>) sub.get("items");
+            JSONObject items = sub.getJSONObject("items");
             if (items.isEmpty()) return;
             
-            items.values().parallelStream()
-                    .map(item->(Map<String, Object>) item) 
+            new LinkedList<Object>(items.values()).parallelStream()
+                    .map(item->(JSONObject) item) 
                     .forEach(item->{
-                        List<String> pids = (List<String>) item.get("pids");
+                        JSONArray pics = item.getJSONArray("pics");
+                        List<String> pids = new LinkedList<Object>(pics)
+                                .stream()
+                                .map(pic->(JSONObject) pic)
+                                .map(pic->pic.getString("pid"))
+                                .collect(Collectors.toList());
                         sb_pic.delPicture(pids.toArray(new String[pids.size()]));
-                        item.put("pids", pids.size());
+                        item.put("pics", pics.size());
                     });
         });
         JSONObject json = new JSONObject();
@@ -501,7 +486,7 @@ public class StoreBlockService {
             else if (obj instanceof JSONArray) list.addAll((JSONArray) obj);
             sid = list.toArray(new String[list.size()]);
         }
-        List<Map<String, Object>> subs = sb_sub.getSubject(sid);
+        List<JSONObject> subs = sb_sub.getSubject(sid);
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", subs);
@@ -518,7 +503,7 @@ public class StoreBlockService {
             return json;
         }
         String sid = args.getString("sid");
-        List<Map<String, Object>> subs = sb_sub.getSubject(sid);
+        List<JSONObject> subs = sb_sub.getSubject(sid);
         if (subs.isEmpty()) {
             String desc = "illegal arguments, subject not exist: " + sid;
             logger.error(desc + ", " + args);
@@ -535,7 +520,7 @@ public class StoreBlockService {
     }
     
     public JSONObject INST_GET_SUB_ITEM(JSONObject args) {
-        List<Map<String, Object>> items = sb_sub.getSubjectItem(args);
+        List<JSONObject> items = sb_sub.getSubjectItem(args);
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", items);
@@ -543,3 +528,5 @@ public class StoreBlockService {
     }
 
 }
+
+

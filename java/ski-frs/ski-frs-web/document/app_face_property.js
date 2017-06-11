@@ -13,7 +13,7 @@ function build_head() {
     frs.ui.head().append_item('卡口管理', function() {window.location = 'app_face_outpost.html';});
     frs.ui.head().append_item('特征搜索', function() {window.location = 'app_face_property.html';}).addClass('active');
     frs.ui.head().append_item('身份确认', function() {window.location = 'app_face_id.html';});
-    frs.ui.head().append_item('实时布控');
+    frs.ui.head().append_item('实时布控', function() {window.location = 'app_face_real.html';});
     frs.ui.head().append_item('轨迹管理', function() {window.location = 'app_face_trail.html';});
     frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_sub.html';});
     frs.ui.head().append_item('分析统计');
@@ -24,42 +24,46 @@ function build_body() {
     build_body_l();
 }
 
-var sub = null;
+var dids;
 function build_body_l() {
     var choose;
     frs.ui.body().l.append([
-        $('<label>主体</label>'), choose = new frs.ui.Button('选择人像库', function() {
-            frs.ui.choose_sub(function(s) {
-                sub = s;
-                choose.text('已选择：' + s.name);
+        $('<label>设备</label>'), choose = new frs.ui.Button('选择设备', function() {
+            dids = [];
+            frs.ui.choose_devs(function(devs) {
+                $.each(devs, function(i, dev) {dids.push(dev.did);});
+                choose.text('已选择：' + devs.length + ' 项');
             });
         }).to_major(),
-        $('<label>姓名</label>'), $("<input placeholder='不限' type='text' >"),
-        $('<label>性别</label>'), $("<select><option value='-1'>不限</option><option value='0'>女</option><option value='1'>男</option></select>"),
-        $('<label>生日（YYYYMMDD）</label>'), $("<input placeholder='不限' type='text' >"),
-        $('<label>身份证号</label>'), $("<input placeholder='不限' type='text' >"),
-        $('<label>电话</label>'), $("<input placeholder='不限' type='number' >"),
-        $('<label>地址</label>'), $("<input placeholder='不限' type='text' >"),
+        $('<label>性别</label>'), $("<select><option value='-1'>不限</option><option value='0'>女</option><option value='1'>男</option><option value='-2'>未识别</option></select>"),
+        $('<label>年龄</label>'), $("<select><option value='-1'>不限</option><option value='0'>0～9</option><option value='1'>9～18</option><option value='2'>18～35</option><option value='3'>35~60</option><option value='4'>60~100</option><option value='-2'>未识别</option></select>"),
+        $('<label>帽子</label>'), $("<select><option value='-1'>不限</option><option value='0'>不戴帽子</option><option value='1'>戴帽子</option><option value='2'>戴头盔</option><option value='-2'>未识别</option></select>"),
+        $('<label>眼镜</label>'), $("<select><option value='-1'>不限</option><option value='0'>不戴眼镜</option><option value='1'>戴普通眼镜</option><option value='2'>戴墨镜</option><option value='-2'>未识别</option></select>"),
+        $('<label>口罩</label>'), $("<select><option value='-1'>不限</option><option value='0'>不戴口罩</option><option value='1'>戴口罩</option><option value='2'>未识别</option></select>"),
+        $('<label>颜色</label>'), $("<select><option value='-1'>不限</option><option value='1'>黑</option><option value='2'>灰</option><option value='4'>白</option><option value='8'>红</option><option value='16'>褐</option><option value='32'>橙</option><option value='64'>黄</option><option value='128'>绿</option><option value='256'>蓝</option><option value='512'>紫</option><option value='1024'>粉</option><option value='-2'>未识别</option></select>"),
+        $('<label>民族</label>'), $("<select><option value='-1'>不限</option><option value='0'>汉族</option><option value='1'>维吾尔族</option><option value='-2'>未识别</option></select>"),
         new frs.ui.Button('开始搜索', search).to_major()
     ]);
 }
 
 function collect() {
-    var name    = $($('input')[0]).val();
-    var gender  = parseInt($('select').val());
-    var birth   = $($('input')[1]).val();
-    var idno    = $($('input')[2]).val();
-    var phone   = $($('input')[3]).val();
-    var addr    = $($('input')[4]).val();
+    var gender  = parseInt($($('select')[0]).val());
+    var age     = parseInt($($('select')[1]).val());
+    var hat     = parseInt($($('select')[2]).val());
+    var glass   = parseInt($($('select')[3]).val());
+    var mask    = parseInt($($('select')[4]).val());
+    var color   = parseInt($($('select')[5]).val());
+    var nation  = parseInt($($('select')[6]).val());
     
     var data = {};
-    if (sub)    data.sid    = sub.sid;
-    if (name)   data.name   = name;
-    if (-1 != gender) data.gender = gender;
-    if (birth)  data.birth  = birth;
-    if (idno)   data.idno   = idno;
-    if (phone)  data.phone  = phone;
-    if (addr)   data.addr   = addr;
+    if (dids) data.dids = dids;
+    if (-1 != gender)   data.gender = gender;
+    if (-1 != age)      data.age = age;
+    if (-1 != hat)      data.hat = hat;
+    if (-1 != glass)    data.glass = glass;
+    if (-1 != mask)     data.mask = mask;
+    if (-1 != color)    data.color = color;
+    if (-1 != nation)   data.nation = nation;
     return data;
 }
 
@@ -67,6 +71,10 @@ var pl = 30;
 var pk;
 
 function search() {
+    if (!devs) {
+        new frs.ui.hud.Minor('一定要选择设备').appear(1500);
+        return;
+    }
     pk = new Date().getTime();
     search_page(1);
 }
@@ -78,10 +86,10 @@ function search_page(page) {
     data.pt = page * pl - 1;
     
     var mask = new frs.ui.Mask();
-    var hud = new frs.ui.hud.Major('正在获取');
+    var hud = new frs.ui.hud.Major('正在搜索');
     mask.appear();
     hud.appear();
-    fomjar.net.send(ski.isis.INST_GET_SUB_ITEM, data, function(code, desc) {
+    fomjar.net.send(ski.isis.INST_GET_PIC, data, function(code, desc) {
         mask.disappear();
         hud.disappear();
         if (code) {
@@ -100,7 +108,7 @@ function search_page(page) {
             if (0 == i) return;
             
             r.append(new frs.ui.BlockPicture({
-                cover   : (item.pids.length > 0 ? item.pids[0].path : ''),
+                cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
                 name    : item.sname + '<br/>' + item.idno
             }));
         });
