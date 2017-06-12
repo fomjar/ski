@@ -71,7 +71,7 @@ var pl = 30;
 var pk;
 
 function search() {
-    if (!devs) {
+    if (!dids) {
         new frs.ui.hud.Minor('一定要选择设备').appear(1500);
         return;
     }
@@ -104,12 +104,17 @@ function search_page(page) {
         var div_pager1 = $('<div></div>');
         div_pager1.append(pager1);
         r.append(div_pager1);
-        $.each(desc, function(i, item) {
+        $.each(desc, function(i, pic) {
             if (0 == i) return;
             
-            r.append(new frs.ui.BlockPicture({
-                cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
-                name    : item.sname + '<br/>' + item.idno
+            r.append(new frs.ui.Block({
+                cover   : pic.path,
+                name    : pic.name,
+                buttons : [
+                    new frs.ui.Button('确认', function() {window.location = 'app_face_id.html?urlr=' + pic.path;}).to_major(),
+                    new frs.ui.Button('轨迹', function() {window.location = 'app_face_trail.html?urlr=' + pic.path;}).to_major(),
+                    new frs.ui.Button('布控').to_major(),
+                ]
             }));
         });
         var pager2 = new frs.ui.Pager(page, p.pa, function(i) {search_page(i);});

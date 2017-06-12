@@ -123,20 +123,22 @@ public class BcsTask implements FjServerTask {
     
     private static void processApplySubLibImportMan(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("sid") || !args.has("siid") || !args.has("p_type") || !args.has("p_size") || !args.has("p_path") || !args.has("p_fv") || !args.has("s_idno")) {
-            String err = "illegal arguments, no sid, siid, p_type, p_size, p_path, p_fv, s_idno";
+        if (!args.has("sid") || !args.has("siid") || !args.has("p_type") || !args.has("p_size") || !args.has("p_path") || !args.has("p_fv")) {
+            String err = "illegal arguments, no sid, siid, p_type, p_size, p_path, p_fv";
             logger.error(err + ", " + args);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
             return;
         }
         // subject item
-        String idno = args.getString("s_idno");
         JSONObject args_ccu = new JSONObject();
         args_ccu.put("sid",     args.get("sid"));
         args_ccu.put("siid",    args.get("siid"));
-        args_ccu.put("idno",    idno);
-        args_ccu.put("gender",  getIdnoGender(idno));
-        args_ccu.put("birth",   getIdnoBirth(idno));
+        if (args.has("s_idno")) {
+            String idno = args.getString("s_idno");
+            args_ccu.put("idno",    idno);
+            args_ccu.put("gender",  getIdnoGender(idno));
+            args_ccu.put("birth",   getIdnoBirth(idno));
+        }
         if (args.has("s_name"))     args_ccu.put("name", args.get("s_name"));
         if (args.has("s_phone"))    args_ccu.put("phone", args.get("s_phone"));
         if (args.has("s_addr"))     args_ccu.put("addr", args.get("s_addr"));

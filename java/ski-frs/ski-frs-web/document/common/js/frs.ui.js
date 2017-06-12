@@ -650,10 +650,10 @@ frs.tree.dev = function(devs) {
     return tree;
 };
 
-frs.ui.BlockPicture = function(options) {
+frs.ui.Block = function(options) {
     options = options || {};
     var div = $('<div></div>');
-    div.addClass("block-picture");
+    div.addClass("block");
     
     if (options.cover) {
         var img = $('<img>');
@@ -697,6 +697,17 @@ frs.ui.BlockPicture = function(options) {
         var name = $('<div></div>');
         name.html(options.name);
         div.append(name);
+    }
+    if (options.buttons) {
+        var table = $('<table></table');
+        var tr = $('<tr></tr>');
+        $.each(options.buttons, function(i, b) {
+            var td = $('<td></td>');
+            td.append(b);
+            tr.append(td);
+        });
+        table.append(tr);
+        div.append(table);
     }
     
     return div;

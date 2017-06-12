@@ -4,7 +4,7 @@
 fomjar.framework.phase.append('dom', frsmain);
 fomjar.framework.phase.append('ren', search);
 
-var sid = parseInt(fomjar.util.args.sid, 16);
+var sid = fomjar.util.args.sid;
 
 function frsmain() {
     build_head();
@@ -95,7 +95,7 @@ function search_page(page) {
         $.each(desc, function(i, item) {
             if (0 == i) return;
             
-            r.append(new frs.ui.BlockPicture({
+            r.append(new frs.ui.Block({
                 cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
                 name    : item.sname + '<br/>' + item.idno
             }));

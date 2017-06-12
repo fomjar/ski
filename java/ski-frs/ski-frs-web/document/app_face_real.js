@@ -99,7 +99,7 @@ function search_page(page) {
         $.each(desc, function(i, item) {
             if (0 == i) return;
             
-            r.append(new frs.ui.BlockPicture({
+            r.append(new frs.ui.Block({
                 cover   : (item.pids.length > 0 ? item.pids[0].path : ''),
                 name    : item.sname + '<br/>' + item.idno
             }));

@@ -512,7 +512,7 @@ html, body {
     background  : #eeeeee;
 }
 
-.frs .block-picture {
+.frs .block {
     display : inline-block;
     border  : 1px solid rgba(0, 0, 50, .4);
     width   : 8em;
@@ -520,24 +520,28 @@ html, body {
     vertical-align  : top;
     cursor  : pointer;
 }
-.frs .block-picture:hover {
+.frs .block:hover {
     border      : 1px solid rgba(0, 0, 50, 1);
     box-shadow  : 0 0 2px rgba(0, 0, 50, 1);
 }
-.frs .block-picture:active {
+.frs .block:active {
     border      : 1px solid rgba(0, 0, 50, 1);
     box-shadow  : 0 0 0;
     background  : rgba(0, 0, 0, .1);
 }
-.frs .block-picture * {
+.frs .block * {
     cursor  : pointer;
 }
-.frs .block-picture img {
+.frs .block img {
     width   : 100%;
 }
-.frs .block-picture >div {
+.frs .block >div {
     word-wrap   : break-word;
     text-align  : left;
+    font-size   : .8em;
+}
+.frs .block .button {
+    padding     : .25em .5em;
     font-size   : .8em;
 }
 

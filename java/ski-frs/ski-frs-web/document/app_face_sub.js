@@ -201,8 +201,8 @@ function op_import(sub) {
         return c;
     }
     var oIdno = dialog.append_check_input('提取身份证号', '身份证号正则表达式');
-    oIdno.check.trigger('click');
-    oIdno.check.attr('disabled', 'disabled');
+//    oIdno.check.trigger('click');
+//    oIdno.check.attr('disabled', 'disabled');
     oIdno.input.val('_(([1-9]\\d{5}[1-9]\\d{3}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}([0-9]|x|X))|([1-9]\\d{7}((0\\d)|(1[0-2]))(([0|1|2]\\d)|3[0-1])\\d{3}))_');
     var oName = dialog.append_check_input('提取姓名', '姓名正则表达式');
     oName.input.val('_(\\W{2,5})_');

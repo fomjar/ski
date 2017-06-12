@@ -45,7 +45,8 @@ public class SBPicture extends StoreBlock {
                 .map(e->(JSONObject) e.getValue())
                 .filter(p->p.getInt("size") == ISIS.FIELD_PIC_SIZE_SMALL)
                 .filter(p->{
-                    if (!args.has("dids") || !p.has("did")) return true;
+                    if (!args.has("dids")) return true;
+                    if (args.has("dids") && !p.has("did")) return false;
                     
                     JSONArray array = args.getJSONArray("dids");
                     List<String> dids = new LinkedList<>();

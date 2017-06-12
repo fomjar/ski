@@ -51,7 +51,7 @@ function build_body_l() {
         if (!files || !files[0]) return;
 
         var file = files[0];
-        fomjar.graphics.image_base64_local(file, function(base64) {image.attr('src', e1.target.result);});
+        fomjar.graphics.image_base64_local(file, function(base64) {image.attr('src', base64);});
     });
     input_tv[0].max = 99;
     input_tv[0].min = 1;
@@ -139,9 +139,9 @@ function search_page(page) {
         $.each(desc, function(i, item) {
             if (0 == i) return;
             
-            r.append(new frs.ui.BlockPicture({
+            r.append(new frs.ui.Block({
                 cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
-                name    : item.sname + '<br/>' + item.idno
+                name    : '相似度：' + (100 * item.tv).toFixed(1) + '%<br/>人像库：' + item.sname
             }));
         });
         var pager2 = new frs.ui.Pager(page, p.pa, function(i) {search_page(i);});

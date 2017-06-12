@@ -154,8 +154,8 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     private void processApplySubImportMan(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("key") || !args.has("sid") || !args.has("type") || !args.has("path") || !args.has("reg_idno")) {
-            String desc = "illegal arguments, no key, sid, type, path, reg_idno";
+        if (!args.has("key") || !args.has("sid") || !args.has("type") || !args.has("path")) {
+            String desc = "illegal arguments, no key, sid, type, path";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
@@ -168,7 +168,7 @@ public class Filter6Interface extends FjWebFilter {
         state.sid = args.getString("sid");
         state.type = args.getInt("type");
         state.path = args.getString("path");
-        state.reg_idno = args.getString("reg_idno");
+        state.reg_idno = args.has("reg_idno") ? args.getString("reg_idno") : null;
         state.reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
         state.reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         state.reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
@@ -333,15 +333,15 @@ public class Filter6Interface extends FjWebFilter {
     }
     
     private static void processApplySubImportCheckMan(FjHttpResponse response, JSONObject args, FjServer server) {
-        if (!args.has("type") || !args.has("path") || !args.has("reg_idno")) {
-            String desc = "illegal arguments, no type, path, reg_idno";
+        if (!args.has("type") || !args.has("path")) {
+            String desc = "illegal arguments, no type, path";
             logger.error(desc + ", " + args);
             response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
             return;
         }
         
         String path = args.getString("path");
-        String reg_idno = args.getString("reg_idno");
+        String reg_idno = args.has("reg_idno") ? args.getString("reg_idno") : null;
         String reg_name = args.has("reg_name") ? args.getString("reg_name") : null;
         String reg_phone = args.has("reg_phone") ? args.getString("reg_phone") : null;
         String reg_addr = args.has("reg_addr") ? args.getString("reg_addr") : null;
@@ -353,7 +353,7 @@ public class Filter6Interface extends FjWebFilter {
         list.forEach(file->{
             JSONObject check = new JSONObject();
             check.put("file", file.getName());
-            check.put("idno", WebToolkit.regexField(file.getName(), reg_idno));
+            if (null != reg_idno)   check.put("idno",   WebToolkit.regexField(file.getName(), reg_idno));
             if (null != reg_name)   check.put("name",   WebToolkit.regexField(file.getName(), reg_name));
             if (null != reg_phone)  check.put("phone",  WebToolkit.regexField(file.getName(), reg_phone));
             if (null != reg_addr)   check.put("addr",   WebToolkit.regexField(file.getName(), reg_addr));
