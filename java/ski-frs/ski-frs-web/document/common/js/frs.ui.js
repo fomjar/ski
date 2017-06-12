@@ -669,14 +669,8 @@ frs.ui.Block = function(options) {
             var img1 = $('<img>');
             img1.css('width', '100%');
             img1.css('height', '100%');
-            if (-1 < options.cover.indexOf('/F00')){
-                img1.attr('src', options.cover.replace('/F00', '/'));
-            } else if (-1 < options.cover.indexOf('/F01')){
-                img1.attr('src', options.cover.replace('/F01', '/'));
-            } else if (-1 < options.cover.indexOf('/F02')){
-                img1.attr('src', options.cover.replace('/F02', '/'));
-            } else if (-1 < options.cover.indexOf('/F20')){
-                img1.attr('src', options.cover.replace('/F20', '/20'));
+            if (-1 < options.cover.indexOf('_F')){
+                img1.attr('src', options.cover.substring(0, options.cover.indexOf('_F')) + '.jpg');
             } else {
                 img1.attr('src', options.cover);
             }

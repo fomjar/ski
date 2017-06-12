@@ -102,12 +102,12 @@ function search() {
         mask.disappear();
         hud.disappear();
         if (code) {
-            new frs.ui.hud.Minor(desc).appear(1500);
-        } else {
-            fv = desc.fv;
-            pk = new Date().getTime();
-            search_page(1);
+            new frs.ui.hud.Minor('识别异常！code=' + code).appear(1500);
+            return;
         }
+        fv = desc.fv;
+        pk = new Date().getTime();
+        search_page(1);
     });
 }
 

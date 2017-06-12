@@ -88,12 +88,12 @@ function func_upload_init() {
         mask.disappear();
         hud.disappear();
         if (code) {
-            new frs.ui.hud.Minor(desc).appear(1500);
-        } else {
-            fv = desc.fv;
-            pk = new Date().getTime();
-            func_upload_pages(1);
+            new frs.ui.hud.Minor('识别异常！code=' + code).appear(1500);
+            return;
         }
+        fv = desc.fv;
+        pk = new Date().getTime();
+        func_upload_pages(1);
     });
 }
 
@@ -123,27 +123,27 @@ function func_upload_pages(page) {
         hud.disappear();
         if (code) {
             new frs.ui.hud.Minor(desc).appear(1500);
-        } else {
-            var p = desc[0];
-            var r = frs.ui.body().r;
-            r.children().detach();
-            var pager1 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
-            var div_pager1 = $('<div></div>');
-            div_pager1.append(pager1);
-            r.append(div_pager1);
-            $.each(desc, function(i, pic) {
-                if (0 == i) return;
-                
-                r.append(new frs.ui.Block({
-                    cover   : pic.path,
-                    name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + new Date(pic.time).format('yyyy/MM/dd HH:mm:ss')
-                }));
-            });
-            var pager2 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
-            var div_pager2 = $('<div></div>');
-            div_pager2.append(pager2);
-            r.append(div_pager2);
+            return;
         }
+        var p = desc[0];
+        var r = frs.ui.body().r;
+        r.children().detach();
+        var pager1 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
+        var div_pager1 = $('<div></div>');
+        div_pager1.append(pager1);
+        r.append(div_pager1);
+        $.each(desc, function(i, pic) {
+            if (0 == i) return;
+            
+            r.append(new frs.ui.Block({
+                cover   : pic.path,
+                name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + new Date(pic.time).format('yyyy/MM/dd HH:mm:ss')
+            }));
+        });
+        var pager2 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
+        var div_pager2 = $('<div></div>');
+        div_pager2.append(pager2);
+        r.append(div_pager2);
     });
 }
 

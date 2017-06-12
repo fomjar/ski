@@ -125,7 +125,8 @@ public class Filter6Interface extends FjWebFilter {
         JSONObject desc = new JSONObject();
         FeatureService.getDefault().fv_base64(new FeatureService.FV() {
             @Override
-            public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
+            public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                desc.put("mark",    mark);
                 desc.put("fv",      fv);
                 desc.put("glass",   glass);
                 desc.put("mask",    mask);
@@ -134,7 +135,11 @@ public class Filter6Interface extends FjWebFilter {
                 desc.put("nation",  nation);
             }
         }, data);
-        response(response, FjISIS.CODE_SUCCESS, desc);
+        if (FeatureService.SUCCESS == desc.getInt("mark")) response(response, FjISIS.CODE_SUCCESS, desc);
+        else {
+            logger.error("illegal picture, desc=" + desc);
+            response(response, FjISIS.CODE_ILLEGAL_ARGS, desc);
+        }
         logger.debug("get pic fv: " + desc);
     }
     
@@ -266,6 +271,7 @@ public class Filter6Interface extends FjWebFilter {
                     return;
                 }
                 
+                FjReference<Integer> rmark      = new FjReference<>(-1);
                 FjReference<double[]> rfv       = new FjReference<>(null);
                 FjReference<Integer> rglass     = new FjReference<>(ISIS.FIELD_GLASS_UNKNOWN);
                 FjReference<Integer> rmask      = new FjReference<>(ISIS.FIELD_MASK_UNKNOWN);
@@ -274,7 +280,8 @@ public class Filter6Interface extends FjWebFilter {
                 FjReference<Integer> rnation    = new FjReference<>(ISIS.FIELD_NATION_UNKNOWN);
                 service.fv_path(new FeatureService.FV() {
                     @Override
-                    public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                    public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                        rmark.t = mark;
                         rfv.t = fv;
                         rglass.t = glass;
                         rmask.t = mask;
@@ -283,7 +290,7 @@ public class Filter6Interface extends FjWebFilter {
                         rnation.t = nation;
                     }
                 }, dst.getPath());
-                if (null == rfv.t) {
+                if (FeatureService.SUCCESS != rmark.t) {
                     logger.error("file fv failed: " + dst.getPath());
                     state.file_fails.add(file.getPath());
                     return;

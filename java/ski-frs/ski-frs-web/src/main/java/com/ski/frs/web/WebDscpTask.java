@@ -82,6 +82,28 @@ public class WebDscpTask implements FjServerTask {
             int    type = args.getInt("type");
             int    size = args.getInt("size");
             args.remove("data");
+            
+            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
+                FeatureService.getDefault().fv_base64(new FeatureService.FV() {
+                    @Override
+                    public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                        args.put("mark",    mark);
+                        args.put("fv",      fv);
+                        args.put("glass",   glass);
+                        args.put("mask",    mask);
+                        args.put("hat",     hat);
+                        args.put("gender",  gender);
+                        args.put("nation",  nation);
+                    }
+                }, data);
+                if (FeatureService.SUCCESS != args.getInt("mark")) {
+                    String desc = "illegal picture, mark=" + args.getInt("mark");
+                    logger.error(desc);
+                    FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
+                    return;
+                }
+            }
+            
             String path = null;
             if (args.has("did")) {
                 path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
@@ -106,20 +128,6 @@ public class WebDscpTask implements FjServerTask {
                 logger.error(desc);
                 FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_INTERNAL_ERROR, desc);
                 return;
-            }
-            
-            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
-                FeatureService.getDefault().fv_path(new FeatureService.FV() {
-                    @Override
-                    public void fv(double[] fv, int glass, int mask, int hat, int gender, int nation) {
-                        args.put("fv",      fv);
-                        args.put("glass",   glass);
-                        args.put("mask",    mask);
-                        args.put("hat",     hat);
-                        args.put("gender",  gender);
-                        args.put("nation",  nation);
-                    }
-                }, path);
             }
             
             FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), args);

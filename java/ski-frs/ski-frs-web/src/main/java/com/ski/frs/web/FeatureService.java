@@ -89,18 +89,18 @@ public class FeatureService {
             return;
         }
         
+        int mark = SUCCESS;
         String[] kvs = line.split(",");
         Map<String, Object> data = new HashMap<>();
         for (String kv : kvs) {
+            if (SUCCESS != mark) break;
+            
             String k = kv.split("=")[0].trim();
             String v = kv.substring(kv.indexOf("=") + 1).trim();
             switch (k) {
             case "mark":
-                int mark = Integer.parseInt(v);
-                if (SUCCESS != mark) {
-                    logger.error("illegal picture: " + line);
-                    return;
-                }
+                mark = Integer.parseInt(v);
+                if (SUCCESS != mark) logger.error("illegal picture: " + line);
                 data.put(k, mark);
                 break;
             case "fv":
@@ -122,12 +122,13 @@ public class FeatureService {
             }
         }
         
-        fv.fv((double[]) data.get("fv"),
-                (int) data.get("glass"),
-                (int) data.get("mask"),
-                (int) data.get("hat"),
-                (int) data.get("gender"),
-                (int) data.get("nation"));
+        fv.fv(data.containsKey("mark")      ? (int) data.get("mark")    : -1,
+                data.containsKey("fv")      ? (double[]) data.get("fv") : null,
+                data.containsKey("glass")   ? (int) data.get("glass")   : -1,
+                data.containsKey("mask")    ? (int) data.get("mask")    : -1,
+                data.containsKey("hat")     ? (int) data.get("hat")     : -1,
+                data.containsKey("gender")  ? (int) data.get("gender")  : -1,
+                data.containsKey("nation")  ? (int) data.get("nation")  : -1);
     }
     
     public void fv_path(FV fv, String... paths) {
@@ -157,6 +158,6 @@ public class FeatureService {
         }
     }
     
-    public static interface FV {void fv(double[] fv, int glass, int mask, int hat, int gender, int nation);}
+    public static interface FV {void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation);}
 
 }
