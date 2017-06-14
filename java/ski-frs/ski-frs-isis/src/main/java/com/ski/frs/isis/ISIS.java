@@ -50,19 +50,26 @@ public class ISIS {
     
     public static final int INST_SET_PIC        = 0x00001000;
     public static final int INST_DEL_PIC        = 0x00001001;
-    public static final int INST_GET_PIC        = 0x00001002;
-    public static final int INST_GET_PIC_FV     = 0x00001003;
+    public static final int INST_MOD_PIC        = 0x00001002;
+    public static final int INST_GET_PIC        = 0x00001003;
+    public static final int INST_GET_PIC_FV     = 0x00001004;
     public static final int INST_SET_SUB        = 0x00001010;
     public static final int INST_DEL_SUB        = 0x00001011;
     public static final int INST_MOD_SUB        = 0x00001012;
     public static final int INST_GET_SUB        = 0x00001013;
     public static final int INST_SET_SUB_ITEM   = 0x00001014;
     public static final int INST_DEL_SUB_ITEM   = 0x00001015;
-    public static final int INST_GET_SUB_ITEM   = 0x00001016;
+    public static final int INST_MOD_SUB_ITEM   = 0x00001016;
+    public static final int INST_GET_SUB_ITEM   = 0x00001017;
     public static final int INST_SET_DEV        = 0x00001020;
     public static final int INST_DEL_DEV        = 0x00001021;
-    public static final int INST_GET_DEV        = 0x00001022;
+    public static final int INST_MOD_DEV        = 0x00001022;
+    public static final int INST_GET_DEV        = 0x00001023;
     public static final int INST_GET_OPP        = 0x00001030;
+    public static final int INST_SET_MON        = 0x00001040;
+    public static final int INST_DEL_MON        = 0x00001041;
+    public static final int INST_MOD_MON        = 0x00001042;
+    public static final int INST_GET_MON        = 0x00001043;
     
     
     public static final int INST_APPLY_SUB_IMPORT       = 0x00003000;

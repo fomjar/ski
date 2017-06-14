@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 import com.ski.frs.ccu.cb.SBDevice;
+import com.ski.frs.ccu.cb.SBMonitor;
 import com.ski.frs.ccu.cb.SBPicture;
 import com.ski.frs.ccu.cb.SBSubject;
 import com.ski.frs.ccu.cb.StoreBlock;
@@ -45,16 +46,18 @@ public class StoreBlockService {
     private SBDevice    sb_dev;
     private SBPicture   sb_pic;
     private SBSubject   sb_sub;
+    private SBMonitor   sb_mon;
     private FjLoopTask  monitor;
     private Object      lock;
     
     private Map<String, CacheData> cache;
     
     private StoreBlockService() {
-        pool = Executors.newFixedThreadPool(3, new FjThreadFactory("sbs"));
+        pool = Executors.newFixedThreadPool(4, new FjThreadFactory("sbs"));
         sb_dev = new SBDevice();
         sb_pic = new SBPicture();
         sb_sub = new SBSubject();
+        sb_mon = new SBMonitor();
         lock = new Object();
         
         monitor = new Monitor();
@@ -67,6 +70,7 @@ public class StoreBlockService {
         if (sb_dev.file().isFile()) pool.submit(new TaskLoad(lock, sb_dev));
         if (sb_pic.file().isFile()) pool.submit(new TaskLoad(lock, sb_pic));
         if (sb_sub.file().isFile()) pool.submit(new TaskLoad(lock, sb_sub));
+        if (sb_mon.file().isFile()) pool.submit(new TaskLoad(lock, sb_mon));
         // save
         new Thread(monitor, "sbs-monitor").start();
     }
@@ -87,6 +91,7 @@ public class StoreBlockService {
         private TaskSave t_dev;
         private TaskSave t_pic;
         private TaskSave t_sub;
+        private TaskSave t_mon;
         
         public Monitor() {
             setDelay(TIMEOUT);
@@ -94,12 +99,14 @@ public class StoreBlockService {
             t_dev = new TaskSave(lock, sb_dev);
             t_pic = new TaskSave(lock, sb_pic);
             t_sub = new TaskSave(lock, sb_sub);
+            t_mon = new TaskSave(lock, sb_mon);
         }
         @Override
         public void perform() {
             pool.submit(t_dev);
             pool.submit(t_pic);
             pool.submit(t_sub);
+            pool.submit(t_mon);
             
             int minute = Integer.parseInt(FjServerToolkit.getServerConfig("ccu.save"));
             setInterval(1000L * 60 * minute);
@@ -296,6 +303,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
+            args.put("dpath", devs.get(0).getString("path"));
             devs.get(0).getJSONArray("pics").add(args);
         } else if (args.has("sid") && args.has("siid")) {   // 主体库下图片
             String sid = args.getString("sid");
@@ -318,6 +326,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
+            args.put("sname", subs.get(0).getString("name"));
             item.getJSONArray("pics").add(args);
         } else {    // 不存在单独图片
             String desc = "illegal arguments, no did or sid, siid";
@@ -512,7 +521,24 @@ public class StoreBlockService {
             json.put("desc", desc);
             return json;
         }
+        args.put("sname", subs.get(0).getString("name"));
         sb_sub.setSubjectItem(sid, args);
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", args);
+        return json;
+    }
+    
+    public JSONObject INST_MOD_SUB_ITEM(JSONObject args) {
+        if (!args.has("sid") || !args.has("siid")) {
+            String desc = "illegal arguments, no sid, siid";
+            logger.error(desc + ", " + args);
+            JSONObject json = new JSONObject();
+            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+            json.put("desc", desc);
+            return json;
+        }
+        sb_sub.modSubjectItem(args);
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", args);
@@ -524,6 +550,67 @@ public class StoreBlockService {
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
         json.put("desc", items);
+        return json;
+    }
+    
+    public JSONObject INST_SET_MON(JSONObject args) {
+        if (!args.has("devs") || !args.has("subs") || !args.has("tv")) {
+            String desc = "illegal arguments, no devs, subs, tv";
+            logger.error(desc + ", " + args);
+            JSONObject json = new JSONObject();
+            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+            json.put("desc", desc);
+            return json;
+        }
+        args.put("devs", new LinkedList<Object>(args.getJSONArray("devs")).stream()
+                .map(did->(String) did)
+                .map(did->sb_dev.data().get(did))
+                .collect(Collectors.toList()));
+        args.put("subs", new LinkedList<Object>(args.getJSONArray("subs")).stream()
+                .map(sid->(String) sid)
+                .map(sid->sb_sub.data().get(sid))
+                .collect(Collectors.toList()));
+        sb_mon.setMonitor(args);
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", args);
+        return json;
+    }
+    
+    public JSONObject INST_DEL_MON(JSONObject args) {
+        if (!args.has("mid")) {
+            String desc = "illegal arguments, no mid";
+            logger.error(desc + ", " + args);
+            JSONObject json = new JSONObject();
+            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+            json.put("desc", desc);
+            return json;
+        }
+        List<String> mid = new LinkedList<>();
+        Object obj = args.get("mid");
+        if (obj instanceof String) mid.add((String) obj);
+        else if (obj instanceof JSONArray) mid.addAll((JSONArray) obj);
+        
+        List<JSONObject> mids = sb_mon.delMonitor(mid.toArray(new String[mid.size()]));
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", mids);
+        return json;
+    }
+    
+    public JSONObject INST_GET_MON(JSONObject args) {
+        String[] mid = null;
+        if (args.has("mid")) {
+            List<String> list = new LinkedList<>();
+            Object obj = args.get("mid");
+            if (obj instanceof String) list.add((String) obj);
+            else if (obj instanceof JSONArray) list.addAll((JSONArray) obj);
+            mid = list.toArray(new String[list.size()]);
+        }
+        List<JSONObject> mids = sb_mon.getMonitor(mid);
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", mids);
         return json;
     }
 

@@ -102,6 +102,20 @@ public class SBSubject extends StoreBlock {
         return (JSONObject) data().put(sid, sub);
     }
     
+    public JSONObject modSubjectItem(JSONObject item) {
+        if (!item.containsKey("sid") || !item.containsKey("siid")) return null;
+        
+        String sid = item.getString("sid");
+        String siid = item.getString("siid");
+        if (!data().containsKey(sid)) return null;
+        JSONObject sub = (JSONObject) data().get(sid);
+        if (!sub.containsKey(siid)) return null;
+        JSONObject item_old = sub.getJSONObject(siid);
+        item_old.putAll(item);
+        item.putAll(item_old);
+        return (JSONObject) sub.put(siid, item);
+    }
+    
     public List<JSONObject> getSubject(String... sid) {
         if (null != sid && 0 < sid.length) {
             return data().entrySet().parallelStream()
@@ -216,10 +230,6 @@ public class SBSubject extends StoreBlock {
                     if (!item2.has("tv")) return 1;
                     if (!item1.has("tv")) return -1;
                     return (int) (item2.getDouble("tv") * 100000 - item1.getDouble("tv") * 100000);
-                })
-                .map(item->{
-                    item.put("sname", ((JSONObject) data().get(item.getString("sid"))).getString("name"));
-                    return item;
                 })
                 .collect(Collectors.toList());
     }

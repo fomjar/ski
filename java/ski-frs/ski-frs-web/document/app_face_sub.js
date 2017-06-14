@@ -14,7 +14,7 @@ function build_head() {
     frs.ui.head().append_item('卡口管理', function() {window.location = 'app_face_outpost.html';});
     frs.ui.head().append_item('特征搜索', function() {window.location = 'app_face_property.html';});
     frs.ui.head().append_item('身份确认', function() {window.location = 'app_face_id.html';});
-    frs.ui.head().append_item('实时布控', function() {window.location = 'app_face_real.html';});
+    frs.ui.head().append_item('实时布控', function() {window.location = 'app_face_monitor.html';});
     frs.ui.head().append_item('轨迹管理', function() {window.location = 'app_face_trail.html';});
     frs.ui.head().append_item('人像库管理', function() {window.location = 'app_face_sub.html';}).addClass('active');
     frs.ui.head().append_item('分析统计');
@@ -63,7 +63,7 @@ function update() {
                 $('<div></div>').append(new Date(sub.time).format('yyyy/MM/dd HH:mm:ss')),
                 $('<div></div>').append([
                     new frs.ui.Button('修改', function() {op_modify(sub);}).to_major(),
-                    new frs.ui.Button('浏览', function() {op_browse(sub);}).to_major(),
+                    new frs.ui.Button('进入', function() {op_browse(sub);}).to_major(),
                     new frs.ui.Button('导入', function() {op_import(sub);}).to_major(),
                     btn_del = new frs.ui.Button('删除', function() {op_delete(sub);}).to_major(),
                 ]),

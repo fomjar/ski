@@ -41,6 +41,7 @@ public class BcsTask implements FjServerTask {
         switch (dmsg.inst()) {
         case ISIS.INST_SET_PIC:
         case ISIS.INST_DEL_PIC:
+        case ISIS.INST_MOD_PIC:
         case ISIS.INST_GET_PIC:
         case ISIS.INST_SET_SUB:
         case ISIS.INST_DEL_SUB:
@@ -48,10 +49,16 @@ public class BcsTask implements FjServerTask {
         case ISIS.INST_GET_SUB:
         case ISIS.INST_SET_SUB_ITEM:
         case ISIS.INST_DEL_SUB_ITEM:
+        case ISIS.INST_MOD_SUB_ITEM:
         case ISIS.INST_GET_SUB_ITEM:
         case ISIS.INST_SET_DEV:
         case ISIS.INST_DEL_DEV:
+        case ISIS.INST_MOD_DEV:
         case ISIS.INST_GET_DEV:
+        case ISIS.INST_SET_MON:
+        case ISIS.INST_DEL_MON:
+        case ISIS.INST_MOD_MON:
+        case ISIS.INST_GET_MON:
             processStoreBlock(server, dmsg);
             break;
         case ISIS.INST_GET_OPP:
