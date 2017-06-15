@@ -37,7 +37,8 @@ public class SBDevice extends StoreBlock {
         else did = dev.get("did").toString();
         if (!dev.has("time"))   dev.put("time", System.currentTimeMillis());
         if (!dev.has("pics"))   dev.put("pics", new JSONArray());
-        return (JSONObject) data().put(did, dev);
+        data().put(did, dev);
+        return dev;
     }
     
     public List<JSONObject> getDevice(String... did) {
@@ -61,6 +62,7 @@ public class SBDevice extends StoreBlock {
         List<JSONObject> list = new LinkedList<>();
         for (String d : did) {
             JSONObject dev = (JSONObject) data().remove(d);
+            dev.put("pics", dev.getJSONArray("pics").size());
             if (null != dev) list.add(dev);
         }
         return list;

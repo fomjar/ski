@@ -554,26 +554,26 @@ public class StoreBlockService {
     }
     
     public JSONObject INST_SET_MON(JSONObject args) {
-        if (!args.has("devs") || !args.has("subs") || !args.has("tv")) {
-            String desc = "illegal arguments, no devs, subs, tv";
+        if (!args.has("name") || !args.has("dids") || !args.has("sids") || !args.has("tv")) {
+            String desc = "illegal arguments, no name, dids, sids, tv";
             logger.error(desc + ", " + args);
             JSONObject json = new JSONObject();
             json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
             json.put("desc", desc);
             return json;
         }
-        args.put("devs", new LinkedList<Object>(args.getJSONArray("devs")).stream()
+        args.put("devs", new LinkedList<Object>(args.getJSONArray("dids")).stream()
                 .map(did->(String) did)
                 .map(did->sb_dev.data().get(did))
                 .collect(Collectors.toList()));
-        args.put("subs", new LinkedList<Object>(args.getJSONArray("subs")).stream()
+        args.put("subs", new LinkedList<Object>(args.getJSONArray("sids")).stream()
                 .map(sid->(String) sid)
                 .map(sid->sb_sub.data().get(sid))
                 .collect(Collectors.toList()));
-        sb_mon.setMonitor(args);
+        JSONObject desc = sb_mon.setMonitor(args);
         JSONObject json = new JSONObject();
         json.put("code", FjISIS.CODE_SUCCESS);
-        json.put("desc", args);
+        json.put("desc", desc);
         return json;
     }
     

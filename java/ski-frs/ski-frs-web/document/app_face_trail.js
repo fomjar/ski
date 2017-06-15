@@ -97,6 +97,8 @@ function func_upload_init() {
     });
 }
 
+var sel_pics = {};
+
 function func_upload_pages(page) {
     var min = 0.7;
     var input = frs.ui.body().l.find('input[type=number]');
@@ -128,6 +130,39 @@ function func_upload_pages(page) {
         var p = desc[0];
         var r = frs.ui.body().r;
         r.children().detach();
+        
+        var show_trail = new frs.ui.Button('显示轨迹', function() {
+            var mask = new frs.ui.Mask();
+            var dialog = new frs.ui.Dialog();
+            mask.bind('click', function() {
+                mask.disappear();
+                dialog.disappear();
+            });
+            var list = new frs.ui.List();
+            dialog.css('width', '50%');
+            dialog.append_text_h1c('轨迹');
+            dialog.append_space('.5em');
+            dialog.append(list);
+            
+            var pics = new Array();
+            
+            for (var i in sel_pics) pics.push(sel_pics[i]);
+            pics = pics.sort(function(p1, p2) {return p1.time - p2.time;});
+            $.each(pics, function(i, pic) {
+                list.append_cell({
+                    major   : pic.dpath,
+                    minor   : new Date(pic.time).format('yyyy/MM/dd HH:mm:ss'),
+                });
+            });
+            
+            mask.appear();
+            dialog.appear();
+        }).to_major();
+        show_trail.css('position', 'absolute');
+        show_trail.css('top', '0');
+        show_trail.css('right', '0');
+        r.append(show_trail);
+        
         var pager1 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
         var div_pager1 = $('<div></div>');
         div_pager1.append(pager1);
@@ -135,10 +170,29 @@ function func_upload_pages(page) {
         $.each(desc, function(i, pic) {
             if (0 == i) return;
             
-            r.append(new frs.ui.Block({
+            var block;
+            r.append(block = new frs.ui.Block({
                 cover   : pic.path,
-                name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%<br/>时间：' + new Date(pic.time).format('yyyy/MM/dd HH:mm:ss')
+                name    : '相似度：' + (100 * pic.tv).toFixed(1) + '%'
+                        + '<br/>时间：' + new Date(pic.time).format('yyyy/MM/dd HH:mm:ss')
             }));
+            
+            if (sel_pics[pic.pid]) {
+                block.is_select = true;
+                block.addClass('block-active');
+            } else block.is_select = false;
+            
+            block.unbind('click');
+            block.bind('click', function() {
+                block.is_select = !block.is_select;
+                if (block.is_select) {
+                    block.addClass('block-active');
+                    sel_pics[pic.pid] = pic;
+                } else {
+                    block.removeClass('block-active');
+                    delete sel_pics[pic.pid];
+                }
+            });
         });
         var pager2 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
         var div_pager2 = $('<div></div>');

@@ -97,7 +97,7 @@ function search_page(page) {
             
             var block = new frs.ui.Block({
                 cover   : (item.pics.length > 0 ? item.pics[0].path : ''),
-                name    : '所属库名：' + item.sname + '<br/>添加时间：' + item.time
+                name    : '所属库名：' + item.sname + '<br/>添加时间：' + new Date(item.time).format('yyyy/MM/dd HH:mm:ss')
             });
             r.append(block);
             block.unbind('click');

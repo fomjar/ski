@@ -523,11 +523,17 @@ html, body {
 .frs .block:hover {
     border      : 1px solid rgba(0, 0, 50, 1);
     box-shadow  : 0 0 2px rgba(0, 0, 50, 1);
+    background  : rgba(0, 0, 0, .1);
 }
 .frs .block:active {
     border      : 1px solid rgba(0, 0, 50, 1);
     box-shadow  : 0 0 0;
-    background  : rgba(0, 0, 0, .1);
+    background  : rgba(0, 0, 0, .2);
+}
+.frs .block-active {
+    border      : 1px solid rgba(0, 0, 50, 1);
+    box-shadow  : 0 0 0;
+    background  : rgba(0, 0, 0, .2);
 }
 .frs .block * {
     cursor  : pointer;

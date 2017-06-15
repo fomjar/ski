@@ -739,7 +739,7 @@ frs.ui.choose_dev = function(cb) {
         $.each(desc, function(i, dev) {
             list.append_cell({
                 major : dev.path,
-                minor : dev.did,
+                minor : dev.pics + ' 张图片',
             }).bind('click', function() {
                 mask.disappear();
                 dialog.disappear();
@@ -835,7 +835,7 @@ frs.ui.choose_devs = function(cb) {
         $.each(desc, function(i, dev) {
             var cell = list.append_cell({
                 major : dev.path,
-                minor : dev.did,
+                minor : dev.pics + ' 张图片',
             });
             cells.push(cell);
             cell.dev = dev;

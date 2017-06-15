@@ -45,7 +45,8 @@ public class SBPicture extends StoreBlock {
         if (!pic.has("pid"))    pic.put("pid", pid = "picture-" + UUID.randomUUID().toString().replace("-", ""));
         else pid = pic.getString("pid");
         if (!pic.has("time"))   pic.put("time", System.currentTimeMillis());
-        return (JSONObject) data().put(pid, pic);
+        data().put(pid, pic);
+        return pic;
     }
     
     public List<JSONObject> getPicture(JSONObject args) {

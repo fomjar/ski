@@ -49,7 +49,11 @@ public class SBMonitor extends StoreBlock {
         else mid = mon.getString("mid");
         if (!mon.has("time"))   mon.put("time", System.currentTimeMillis());
         if (!mon.has("logs"))   mon.put("logs", new JSONArray());
-        return (JSONObject) data().put(mid, mon);
+        data().put(mid, mon);
+        JSONObject mon_ret = JSONObject.fromObject(mon);
+        mon_ret.put("devs", mon_ret.getJSONArray("devs").size());
+        mon_ret.put("subs", mon_ret.getJSONArray("subs").size());
+        return mon_ret;
     }
     
     public List<JSONObject> getMonitor(String... mids) {
@@ -91,6 +95,8 @@ public class SBMonitor extends StoreBlock {
         List<JSONObject> list = new LinkedList<>();
         for (String m : mid) {
             JSONObject mon = (JSONObject) data().remove(m);
+            mon.put("devs", mon.getJSONArray("devs").size());
+            mon.put("subs", mon.getJSONArray("subs").size());
             if (null != mon) list.add(mon);
         }
         return list;

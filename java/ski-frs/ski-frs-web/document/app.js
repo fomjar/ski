@@ -18,8 +18,8 @@ function build_app() {
     dialog.append_text_h1('应用');
     
     dialog.append(new App('人脸', '#ff9999', 'app_face_outpost.html'));
-    dialog.append(new App('车辆', '#99ff99'));
-    dialog.append(new App('行人', '#9999ff'));
+    dialog.append(new App('车辆', '#99ff99', 'app_car.html'));
+    dialog.append(new App('行人', '#9999ff', 'app_walker.html'));
     
     var other = $('<div></div>');
     other.addClass('others');

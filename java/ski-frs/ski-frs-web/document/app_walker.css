@@ -1,0 +1,12 @@
+.frs .body .l {
+    padding     : 2em;
+    padding-top : 0;
+}
+
+.frs .body .l .button:last-child {
+    margin-top  : 2em;
+}
+
+.frs .body .r >div {
+    margin  : 1em;
+}

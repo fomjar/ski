@@ -52,11 +52,12 @@ public class SBSubject extends StoreBlock {
         else sid = sub.get("sid").toString();
         if (!sub.containsKey("time")) sub.put("time", System.currentTimeMillis());
         if (!sub.containsKey("items")) sub.put("items", new JSONObject());
-        return (JSONObject) data().put(sid, sub);
+        data().put(sid, sub);
+        return sub;
     }
     
-    public void setSubjectItem(String sid, JSONObject item) {
-        if (!data().containsKey(sid)) return;
+    public JSONObject setSubjectItem(String sid, JSONObject item) {
+        if (!data().containsKey(sid)) return null;
         JSONObject sub = (JSONObject) data().get(sid);
         
         item.put("sid", sid);
@@ -67,12 +68,14 @@ public class SBSubject extends StoreBlock {
         if (!item.has("pics")) item.put("pics", new JSONArray());
         JSONObject items = sub.getJSONObject("items");
         items.put(siid, item);
+        return item;
     }
     
     public List<JSONObject> delSubject(String... sid) {
         List<JSONObject> list = new LinkedList<>();
         for (String s : sid) {
             JSONObject sub = (JSONObject) data().remove(s);
+            sub.put("items", sub.getJSONObject("items").size());
             if (null != sub) list.add(sub);
         }
         return list;
@@ -99,7 +102,8 @@ public class SBSubject extends StoreBlock {
         JSONObject sub_old = (JSONObject) data().get(sid);
         sub_old.putAll(sub);
         sub.putAll(sub_old);
-        return (JSONObject) data().put(sid, sub);
+        data().put(sid, sub);
+        return sub;
     }
     
     public JSONObject modSubjectItem(JSONObject item) {
@@ -113,7 +117,9 @@ public class SBSubject extends StoreBlock {
         JSONObject item_old = sub.getJSONObject(siid);
         item_old.putAll(item);
         item.putAll(item_old);
-        return (JSONObject) sub.put(siid, item);
+        sub.put(siid, item);
+        data().put(sid, sub);
+        return item;
     }
     
     public List<JSONObject> getSubject(String... sid) {
