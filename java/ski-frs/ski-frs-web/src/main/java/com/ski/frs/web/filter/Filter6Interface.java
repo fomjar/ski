@@ -57,6 +57,9 @@ public class Filter6Interface extends FjWebFilter {
         logger.info(String.format("[ INTERFACE ] %s - 0x%08X", request.url(), inst));
         
         switch (inst) {
+        case ISIS.INST_SET_PIC:
+            processSetPic(response, args, server);
+            break;
         case ISIS.INST_GET_PIC_FV:
             processGetPicFV(response, args, server);
             break;
@@ -109,6 +112,17 @@ public class Filter6Interface extends FjWebFilter {
         response.attr().put("Content-Type", "application/json");
         response.attr().put("Content-Encoding", "gzip");
         synchronized (response) {response.notifyAll();}
+    }
+    
+    private static void processSetPic(FjHttpResponse response, JSONObject args, FjServer server) {
+        JSONObject json = WebToolkit.processSetPic(args);
+        if (FjISIS.CODE_SUCCESS != json.getInt("code")) {
+            response(response, json.getInt("code"), json.get("desc"));
+            return;
+        }
+        
+        FjDscpMessage req_bcs = FjServerToolkit.dscpRequest("bcs", ISIS.INST_SET_PIC, json.getJSONObject("desc"));
+        waitSessionForResponse(server, response, req_bcs.sid());
     }
     
     private static void processGetPicFV(FjHttpResponse response, JSONObject args, FjServer server) {

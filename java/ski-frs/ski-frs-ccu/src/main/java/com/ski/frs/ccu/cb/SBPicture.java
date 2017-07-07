@@ -55,7 +55,7 @@ public class SBPicture extends StoreBlock {
                 .filter(p->p.getInt("size") == ISIS.FIELD_PIC_SIZE_SMALL)
                 .filter(p->{
                     if (!args.has("dids")) return true;
-                    if (args.has("dids") && !p.has("did")) return false;
+                    if (!p.has("did")) return false;
                     
                     JSONArray array = args.getJSONArray("dids");
                     List<String> dids = new LinkedList<>();
@@ -65,32 +65,38 @@ public class SBPicture extends StoreBlock {
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("gender") || !p.has("gender")) return true;
+                    if (!args.containsKey("gender")) return true;
+                    if (!p.has("gender")) return false;
                     if (p.getInt("gender") == args.getInt("gender")) return true;
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("age") || !p.has("age")) return true;
+                    if (!args.containsKey("age")) return true;
+                    if (!p.has("age")) return false;
                     if (p.getInt("age") == args.getInt("age")) return true;
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("hat") || !p.has("hat")) return true;
+                    if (!args.containsKey("hat")) return true;
+                    if (!p.has("hat")) return false;
                     if (p.getInt("hat") == args.getInt("hat")) return true;
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("glass") || !p.has("glass")) return true;
+                    if (!args.containsKey("glass")) return true;
+                    if (!p.has("glass")) return false;
                     if (p.getInt("glass") == args.getInt("glass")) return true;
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("mask") || !p.has("mask")) return true;
+                    if (!args.containsKey("mask")) return true;
+                    if (!p.has("mask")) return false;
                     if (p.getInt("mask") == args.getInt("mask")) return true;
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("color") || !p.containsKey("color")) return true;
+                    if (!args.containsKey("color")) return true;
+                    if (!p.containsKey("color")) return false;
                     
                     int colora = args.getInt("color");
                     int colorp = p.getInt("color");
@@ -104,7 +110,8 @@ public class SBPicture extends StoreBlock {
                     return true;
                 })
                 .filter(p->{
-                    if (!args.containsKey("nation") || !p.has("nation")) return true;
+                    if (!args.containsKey("nation")) return true;
+                    if (!p.has("nation")) return false;
                     if (p.getInt("nation") == args.getInt("nation")) return true;
                     return false;
                 })

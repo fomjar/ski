@@ -1,10 +1,7 @@
 package com.ski.frs.web;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
 
@@ -19,8 +16,6 @@ import fomjar.util.FjThreadFactory;
 import net.sf.json.JSONObject;
 
 public class WebDscpTask implements FjServerTask {
-    
-    private static final Logger logger = Logger.getLogger(WebDscpTask.class);
     
     private ExecutorService pool_file;
     
@@ -69,68 +64,15 @@ public class WebDscpTask implements FjServerTask {
     
     private void processSetPic(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("data") || !args.has("name") || !args.has("type") || !args.has("size")) {
-            String desc = "illegal arguments, no data, name, type, size";
-            logger.error(desc);
-            FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
-            return;
-        }
         
         pool_file.submit(()->{
-            String name = args.getString("name");
-            String data = args.getString("data");
-            int    type = args.getInt("type");
-            int    size = args.getInt("size");
-            args.remove("data");
-            
-            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
-                FeatureService.getDefault().fv_base64(new FeatureService.FV() {
-                    @Override
-                    public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
-                        args.put("mark",    mark);
-                        args.put("fv",      fv);
-                        args.put("glass",   glass);
-                        args.put("mask",    mask);
-                        args.put("hat",     hat);
-                        args.put("gender",  gender);
-                        args.put("nation",  nation);
-                    }
-                }, data);
-                if (FeatureService.SUCCESS != args.getInt("mark")) {
-                    String desc = "illegal picture, mark=" + args.getInt("mark");
-                    logger.error(desc);
-                    FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
-                    return;
-                }
-            }
-            
-            String path = null;
-            if (args.has("did")) {
-                path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
-                        + "/" + args.getString("did").replace("/", "_").replace("\\", "_")
-                        + "/" + name + ".jpg";
-            } else if (args.has("sid") && args.has("siid")) {
-                path = "document" + FjServerToolkit.getServerConfig("web.pic.sub")
-                        + "/" + args.getString("sid")
-                        + "/" + args.getString("siid")
-                        + "/" + name + ".jpg";
-            } else {
-                String desc = "illegal arguments, no did or sid, siid";
-                logger.error(desc);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, desc);
-                return;
-            }
-            args.put("path", path.substring("document".length()));
-            try {
-                WebToolkit.writeFileBase64Image(data, path);
-            } catch (IOException e) {
-                String desc = "internal error, write base64 image file failed: " + path;
-                logger.error(desc);
-                FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_INTERNAL_ERROR, desc);
+            JSONObject json = WebToolkit.processSetPic(args);
+            if (FjISIS.CODE_SUCCESS != json.getInt("code")) {
+                FjServerToolkit.dscpResponse(dmsg, json.getInt("code"), json.get("desc"));
                 return;
             }
             
-            FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), args);
+            FjServerToolkit.dscpRequest("bcs", dmsg.sid(), dmsg.ttl() - 1, dmsg.inst(), json.getJSONObject("desc"));
             waitSessionForResponse(server, dmsg);
         });
     }

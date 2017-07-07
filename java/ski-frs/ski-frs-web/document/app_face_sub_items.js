@@ -41,12 +41,12 @@ function build_body_l() {
 }
 
 function collect() {
-    var name    = $($('input')[0]).val();
-    var gender  = parseInt($('select').val());
-    var birth   = $($('input')[1]).val();
-    var idno    = $($('input')[2]).val();
-    var phone   = $($('input')[3]).val();
-    var addr    = $($('input')[4]).val();
+    var name    = $(frs.ui.body().l.find('input')[0]).val();
+    var gender  = parseInt(frs.ui.body().l.find('select').val());
+    var birth   = $(frs.ui.body().l.find('input')[1]).val();
+    var idno    = $(frs.ui.body().l.find('input')[2]).val();
+    var phone   = $(frs.ui.body().l.find('input')[3]).val();
+    var addr    = $(frs.ui.body().l.find('input')[4]).val();
     
     var data = {};
     data.sid    = sid;
@@ -114,7 +114,10 @@ function search_page(page) {
                 dialog.append_text_h1c('编辑人像');
                 dialog.append_space('.5em');
                 dialog.append_input({'placeholder' : '姓名'}).val(item.name);
-                dialog.append_input({'placeholder' : '性别：0 - 女；1 - 男'}).val(item.gender);
+                var sel_gender;
+                dialog.append(sel_gender = $("<select><option value='-1'>未知</option><option value='0'>女</option><option value='1'>男</option></select>"));
+                sel_gender.css('width', '100%');
+                sel_gender.val(item.gender);
                 dialog.append_input({'placeholder' : '生日'}).val(item.birth);
                 dialog.append_input({'placeholder' : '身份证号'}).val(item.idno);
                 dialog.append_input({'placeholder' : '电话'}).val(item.phone);
@@ -124,31 +127,70 @@ function search_page(page) {
                     img.css('width', '20%');
                     dialog.append(img);
                 });
+                var choose = $("<input type='file' accept='image/*'>");
+                choose.css('position', 'absolute');
+                choose.css('top', '0');
+                choose.css('left', '0');
+                choose.css('width', '100%');
+                choose.css('opacity', '0');
+                choose.bind('change', function(e) {
+                    var files = e.target.files || e.dataTransfer.files;
+                    if (!files || !files[0]) return;
+            
+                    var file = files[0];
+                    fomjar.graphics.image_base64_local(file, function(base64) {
+                        var mask1 = new frs.ui.Mask();
+                        var hud1 = new frs.ui.hud.Minor('正在上传');
+                        mask1.appear();
+                        hud1.appear();
+                        fomjar.net.send(ski.isis.INST_SET_PIC, {
+                            sid     : item.sid,
+                            siid    : item.siid,
+                            data    : base64,
+                            name    : file.name,
+                            type    : 0,    // man
+                            size    : 2,    // small
+                        }, function(code, desc) {
+                            mask1.disappear();
+                            hud1.disappear();
+                            if (code) {
+                                new frs.ui.hud.Minor(desc).appear(1500);
+                                return;
+                            }
+                            new frs.ui.hud.Minor('添加成功，请刷新页面查看').appear(1500);
+                        });
+                    });
+                });
+                var choose_btn = new frs.ui.Button('添加照片').to_major();
+                choose_btn.css('width', '100%');
                 dialog.append_buttons([
-                    new frs.ui.Button('添加照片').to_major(),
+                    $('<div></div>').append([
+                        choose_btn,
+                        choose,
+                    ]),
                     new frs.ui.Button('更新', function() {
                         var data = {
                             sid     : item.sid,
                             siid    : item.siid
                         };
                         if ($(dialog.find('input')[0]).val()) data.name     = $(dialog.find('input')[0]).val();
-                        if ($(dialog.find('input')[1]).val()) data.gender   = parseInt($(dialog.find('input')[1]).val());
-                        if ($(dialog.find('input')[2]).val()) data.birth    = $(dialog.find('input')[2]).val();
-                        if ($(dialog.find('input')[3]).val()) data.idno     = $(dialog.find('input')[3]).val();
-                        if ($(dialog.find('input')[4]).val()) data.phone    = $(dialog.find('input')[4]).val();
-                        if ($(dialog.find('input')[5]).val()) data.addr     = $(dialog.find('input')[5]).val();
+                        data.gender = parseInt(dialog.find('select').val());
+                        if ($(dialog.find('input')[1]).val()) data.birth    = $(dialog.find('input')[1]).val();
+                        if ($(dialog.find('input')[2]).val()) data.idno     = $(dialog.find('input')[2]).val();
+                        if ($(dialog.find('input')[3]).val()) data.phone    = $(dialog.find('input')[3]).val();
+                        if ($(dialog.find('input')[4]).val()) data.addr     = $(dialog.find('input')[4]).val();
                         var mask1 = new frs.ui.Mask();
-                        var hud = new frs.ui.hud.Major('正在更新');
+                        var hud1 = new frs.ui.hud.Major('正在更新');
                         mask1.appear();
-                        hud.appear();
+                        hud1.appear();
                         fomjar.net.send(ski.isis.INST_MOD_SUB_ITEM, data, function(code, desc) {
                             mask1.disappear();
-                            hud.disappear();
+                            hud1.disappear();
                             if (code) {
                                 new frs.ui.hud.Minor(desc).appear(1500);
                                 return;
                             }
-                            new frs.ui.hud.Minor('更新成功').appear(1500);
+                            new frs.ui.hud.Minor('更新成功，请刷新页面查看').appear(1500);
                         });
                     }).to_major()
                 ]);

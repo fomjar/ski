@@ -14,6 +14,10 @@ import javax.imageio.ImageIO;
 
 import org.apache.log4j.Logger;
 
+import com.ski.frs.isis.ISIS;
+
+import fomjar.server.FjServerToolkit;
+import fomjar.server.msg.FjISIS;
 import net.sf.json.JSONObject;
 
 public class WebToolkit {
@@ -117,5 +121,83 @@ public class WebToolkit {
         BufferedImage img = ImageIO.read(new ByteArrayInputStream(data_bytes));
         ImageIO.write(img, "jpg", file);
         return file;
+    }
+    
+    public static JSONObject processSetPic(JSONObject args) {
+        if (!args.has("name") || !args.has("type") || !args.has("size")) {
+            String desc = "illegal arguments, no name, type, size";
+            logger.error(desc);
+            JSONObject json = new JSONObject();
+            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+            json.put("desc", desc);
+            return json;
+        }
+        
+        String name = args.getString("name");
+        int    type = args.getInt("type");
+        int    size = args.getInt("size");
+        
+        if (args.has("data")) {
+            String data = args.getString("data");
+            args.remove("data");
+            
+            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
+                FeatureService.getDefault().fv_base64(new FeatureService.FV() {
+                    @Override
+                    public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
+                        args.put("mark",    mark);
+                        args.put("fv",      fv);
+                        args.put("glass",   glass);
+                        args.put("mask",    mask);
+                        args.put("hat",     hat);
+                        args.put("gender",  gender);
+                        args.put("nation",  nation);
+                    }
+                }, data);
+                if (FeatureService.SUCCESS != args.getInt("mark")) {
+                    String desc = "illegal picture, mark=" + args.getInt("mark");
+                    logger.error(desc);
+                    JSONObject json = new JSONObject();
+                    json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+                    json.put("desc", desc);
+                    return json;
+                }
+            }
+
+            String path = null;
+            if (args.has("did")) {
+                path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
+                        + "/" + args.getString("did").replace("/", "_").replace("\\", "_")
+                        + "/" + name + ".jpg";
+            } else if (args.has("sid") && args.has("siid")) {
+                path = "document" + FjServerToolkit.getServerConfig("web.pic.sub")
+                        + "/" + args.getString("sid")
+                        + "/" + args.getString("siid")
+                        + "/" + name + ".jpg";
+            } else {
+                String desc = "illegal arguments, no did or sid, siid";
+                logger.error(desc);
+                JSONObject json = new JSONObject();
+                json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
+                json.put("desc", desc);
+                return json;
+            }
+            args.put("path", path.substring("document".length()));
+            try {
+                WebToolkit.writeFileBase64Image(data, path);
+            } catch (IOException e) {
+                String desc = "internal error, write base64 image file failed: " + path;
+                logger.error(desc);
+                JSONObject json = new JSONObject();
+                json.put("code", FjISIS.CODE_INTERNAL_ERROR);
+                json.put("desc", desc);
+                return json;
+            }
+        }
+        
+        JSONObject json = new JSONObject();
+        json.put("code", FjISIS.CODE_SUCCESS);
+        json.put("desc", args);
+        return json;
     }
 }

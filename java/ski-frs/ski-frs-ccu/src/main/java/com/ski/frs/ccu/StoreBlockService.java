@@ -305,7 +305,8 @@ public class StoreBlockService {
             }
             args.put("dpath", devs.get(0).getString("path"));
             devs.get(0).getJSONArray("pics").add(args);
-        } else if (args.has("sid") && args.has("siid")) {   // 主体库下图片
+        }
+        if (args.has("sid") && args.has("siid")) {   // 主体库下图片
             String sid = args.getString("sid");
             String siid = args.getString("siid");
             List<JSONObject> subs = sb_sub.getSubject(sid);
@@ -328,13 +329,6 @@ public class StoreBlockService {
             }
             args.put("sname", subs.get(0).getString("name"));
             item.getJSONArray("pics").add(args);
-        } else {    // 不存在单独图片
-            String desc = "illegal arguments, no did or sid, siid";
-            logger.error(desc + ", " + args);
-            JSONObject json = new JSONObject();
-            json.put("code", FjISIS.CODE_ILLEGAL_ARGS);
-            json.put("desc", desc);
-            return json;
         }
         sb_pic.setPicture(args);
         JSONObject json = new JSONObject();

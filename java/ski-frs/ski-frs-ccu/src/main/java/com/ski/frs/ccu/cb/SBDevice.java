@@ -62,8 +62,10 @@ public class SBDevice extends StoreBlock {
         List<JSONObject> list = new LinkedList<>();
         for (String d : did) {
             JSONObject dev = (JSONObject) data().remove(d);
-            dev.put("pics", dev.getJSONArray("pics").size());
-            if (null != dev) list.add(dev);
+            if (null != dev) {
+                dev.put("pics", dev.getJSONArray("pics").size());
+                list.add(dev);
+            }
         }
         return list;
     }

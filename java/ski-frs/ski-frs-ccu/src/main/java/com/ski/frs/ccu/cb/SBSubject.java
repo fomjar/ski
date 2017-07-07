@@ -113,12 +113,8 @@ public class SBSubject extends StoreBlock {
         String siid = item.getString("siid");
         if (!data().containsKey(sid)) return null;
         JSONObject sub = (JSONObject) data().get(sid);
-        if (!sub.containsKey(siid)) return null;
-        JSONObject item_old = sub.getJSONObject(siid);
-        item_old.putAll(item);
-        item.putAll(item_old);
-        sub.put(siid, item);
-        data().put(sid, sub);
+        if (!sub.getJSONObject("items").containsKey(siid)) return null;
+        sub.getJSONObject("items").getJSONObject(siid).putAll(item);
         return item;
     }
     
@@ -160,37 +156,44 @@ public class SBSubject extends StoreBlock {
                 .flatMap(sub->new LinkedList<Object>(sub.getJSONObject("items").values()).stream())
                 .map(item->(JSONObject) item)
                 .filter(item->{
-                    if (!args.has("name") || !item.has("name")) return true;
+                    if (!args.has("name")) return true;
+                    if (!item.has("name")) return false;
                     if (item.getString("name").contains(args.getString("name"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("gender") || !item.has("gender")) return true;
+                    if (!args.has("gender")) return true;
+                    if (!item.has("gender")) return false;
                     if (item.getInt("gender") == args.getInt("gender")) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("birth") || !item.has("birth")) return true;
+                    if (!args.has("birth")) return true;
+                    if (!item.has("birth")) return false;
                     if (item.getString("birth").contains(args.getString("birth"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("idno") || !item.has("idno")) return true;
+                    if (!args.has("idno")) return true;
+                    if (!item.has("idno")) return false;
                     if (item.getString("idno").contains(args.getString("idno"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("phone") || !item.has("phone")) return true;
+                    if (!args.has("phone")) return true;
+                    if (!item.has("phone")) return false;
                     if (item.getString("phone").contains(args.getString("phone"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("addr") || !item.has("addr")) return true;
+                    if (!args.has("addr")) return true;
+                    if (!item.has("addr")) return false;
                     if (item.getString("addr").contains(args.getString("addr"))) return true;
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("birth_min") || !item.has("birth")) return true;
+                    if (!args.has("birth_min")) return true;
+                    if (!item.has("birth")) return false;
                     
                     String birth = item.getString("birth");
                     int year = Integer.parseInt(birth.substring(0, 4));
@@ -198,7 +201,8 @@ public class SBSubject extends StoreBlock {
                     return false;
                 })
                 .filter(item->{
-                    if (!args.has("birth_max") || !item.has("birth")) return true;
+                    if (!args.has("birth_max")) return true;
+                    if (!item.has("birth")) return false;
                     
                     String birth = item.getString("birth");
                     int year = Integer.parseInt(birth.substring(0, 4));

@@ -113,7 +113,46 @@ function search_page(page) {
                 buttons : [
                     new frs.ui.Button('确认', function() {window.location = 'app_face_id.html?urlr=' + pic.path;}).to_major(),
                     new frs.ui.Button('轨迹', function() {window.location = 'app_face_trail.html?urlr=' + pic.path;}).to_major(),
-                    new frs.ui.Button('布控').to_major(),
+                    new frs.ui.Button('布控', function() {
+                        var mask1 = new frs.ui.Mask();
+                        var hud1 = new frs.ui.hud.Major('正在添加');
+                        mask1.appear();
+                        hud1.appear();
+                        fomjar.net.send(ski.isis.INST_SET_SUB, {
+                            name    : pic.name,
+                            type    : pic.type
+                        }, function(code, desc) {
+                            if (code) {
+                                mask1.disappear();
+                                hud1.disappear();
+                                new frs.ui.hud.Minor(desc).appear(1500);
+                                return;
+                            }
+                            var sub = desc;
+                            fomjar.net.send(ski.isis.INST_SET_SUB_ITEM, {
+                                sid : sub.sid
+                            }, function(code, desc) {
+                                if (code) {
+                                    mask1.disappear();
+                                    hud1.disappear();
+                                    new frs.ui.hud.Minor(desc).appear(1500);
+                                    return;
+                                }
+                                var item = desc;
+                                pic.sid = sub.sid;
+                                pic.siid = item.siid;
+                                fomjar.net.send(ski.isis.INST_SET_PIC, pic, function(code, desc) {
+                                    if (code) {
+                                        mask1.disappear();
+                                        hud1.disappear();
+                                        new frs.ui.hud.Minor(desc).appear(1500);
+                                        return;
+                                    }
+                                    window.location = 'app_face_monitor.html?sids=' + sub.sid;
+                                });
+                            });
+                        });
+                    }).to_major(),
                 ]
             }));
         });

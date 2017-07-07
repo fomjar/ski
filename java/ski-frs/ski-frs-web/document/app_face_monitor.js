@@ -3,6 +3,9 @@
 
 fomjar.framework.phase.append('dom', frsmain);
 
+var pre_dids = fomjar.util.args.dids;
+var pre_sids = fomjar.util.args.sids;
+
 function frsmain() {
     build_head();
     build_body();
@@ -209,7 +212,8 @@ function update_create_mon() {
                 major   : dev.path,
                 minor   : dev.pics + ' 张图片'
             });
-            cell.is_select = false;
+            if (pre_dids && -1 < pre_dids.indexOf(dev.did)) cell.is_select = true;
+            else cell.is_select = false;
             cell.bind('click', function() {
                 cell.is_select = !cell.is_select;
                 if (cell.is_select) {
@@ -237,7 +241,8 @@ function update_create_mon() {
                 major   : sub.name,
                 minor   : sub.items + ' 个人像'
             });
-            cell.is_select = false;
+            if (pre_sids && -1 < pre_sids.indexOf(sub.sid)) cell.is_select = true;
+            else cell.is_select = false;
             cell.bind('click', function() {
                 cell.is_select = !cell.is_select;
                 if (cell.is_select) {

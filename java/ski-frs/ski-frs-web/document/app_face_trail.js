@@ -150,7 +150,7 @@ function func_upload_pages(page) {
             pics = pics.sort(function(p1, p2) {return p1.time - p2.time;});
             $.each(pics, function(i, pic) {
                 list.append_cell({
-                    major   : pic.dpath,
+                    major   : (i + 1) + '. ' + pic.dpath,
                     minor   : new Date(pic.time).format('yyyy/MM/dd HH:mm:ss'),
                 });
             });
@@ -161,6 +161,7 @@ function func_upload_pages(page) {
         show_trail.css('position', 'absolute');
         show_trail.css('top', '0');
         show_trail.css('right', '0');
+        show_trail.css('z-index', '10');
         r.append(show_trail);
         
         var pager1 = new frs.ui.Pager(page, p.pa, function(i) {func_upload_pages(i);});
