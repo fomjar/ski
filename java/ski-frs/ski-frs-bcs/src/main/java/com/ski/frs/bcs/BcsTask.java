@@ -221,8 +221,8 @@ public class BcsTask implements FjServerTask {
     
     private static void processApplyDevImport(FjServer server, FjDscpMessage dmsg) {
         JSONObject args = dmsg.argsToJsonObject();
-        if (!args.has("opp") || !args.has("did") || !args.has("path")) {
-            String err = "illegal arguments, no opp, did, path";
+        if (!args.has("opp") || !args.has("did")) {
+            String err = "illegal arguments, no opp, did";
             logger.error(err + ", " + args);
             FjServerToolkit.dscpResponse(dmsg, FjISIS.CODE_ILLEGAL_ARGS, err);
             return;

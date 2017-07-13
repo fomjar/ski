@@ -26,7 +26,8 @@ import net.sf.json.JSONObject;
  * <tr><td>type </td><td>类型：0 - 人物，1 - 汽车</td></tr>
  * <tr><td>size </td><td>尺寸：0 - 大图(全图)，1 - 中图(半身)，2 - 小图(头像)</td></tr>
  * <tr><td>path </td><td>真实路径</td></tr>
- * <tr><td>dname</td><td>设备名（如果从属于设备）</td></tr>
+ * <tr><td>fv   </td><td>特征向量</td></tr>
+ * <tr><td>dpath</td><td>设备虚拟路径（如果从属于设备）</td></tr>
  * <tr><td>gender</td><td>性别：0 - 女，1 - 男，2 - 未识别</td></tr>
  * <tr><td>age  </td><td>年龄</td></tr>
  * <tr><td>hat  </td><td>帽子</td></tr>

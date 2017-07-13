@@ -10,5 +10,6 @@
   	<module>ski-frs-cdb</module>
   	<module>ski-frs-bcs</module>
   	<module>ski-frs-ccu</module>
+  	<module>ski-frs-ccu-tools</module>
   </modules>
 </project>

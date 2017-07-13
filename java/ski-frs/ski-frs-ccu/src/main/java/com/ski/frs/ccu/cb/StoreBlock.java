@@ -33,9 +33,12 @@ public abstract class StoreBlock implements Serializable {
     public Map<String, Object> data() {return data;}
     
     public String path() {
-        File dir = new File(FjServerToolkit.getServerConfig("ccu.sb"));
+        String base = FjServerToolkit.getServerConfig("ccu.sb");
+        if (null == base || 0 == base.length()) base = "./";
+        
+        File dir = new File(base);
         if (!dir.isDirectory()) dir.mkdirs();
-        return FjServerToolkit.getServerConfig("ccu.sb") + getClass().getName().toLowerCase() + ".sb";
+        return base + getClass().getName().toLowerCase() + ".sb";
     }
 
     public void load() throws IOException, ClassNotFoundException {

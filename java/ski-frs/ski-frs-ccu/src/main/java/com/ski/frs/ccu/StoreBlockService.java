@@ -43,10 +43,10 @@ public class StoreBlockService {
     }
     
     private ExecutorService pool;
-    private SBDevice    sb_dev;
-    private SBPicture   sb_pic;
-    private SBSubject   sb_sub;
-    private SBMonitor   sb_mon;
+    public  SBDevice    sb_dev;
+    public  SBPicture   sb_pic;
+    public  SBSubject   sb_sub;
+    public  SBMonitor   sb_mon;
     private FjLoopTask  monitor;
     private Object      lock;
     
@@ -108,7 +108,9 @@ public class StoreBlockService {
             pool.submit(t_sub);
             pool.submit(t_mon);
             
-            int minute = Integer.parseInt(FjServerToolkit.getServerConfig("ccu.save"));
+            String save = FjServerToolkit.getServerConfig("ccu.save");
+            save = (null == save ? "3" : save);
+            int minute = Integer.parseInt(save);
             setInterval(1000L * 60 * minute);
         }
         
@@ -199,7 +201,9 @@ public class StoreBlockService {
     }
     
     private void cache_clear() {
-        long timeout = 1000L * 60 * Integer.parseInt(FjServerToolkit.getServerConfig("ccu.cache.time"));
+        String time = FjServerToolkit.getServerConfig("ccu.cache.time");
+        time = (null == time ? "2" : time);
+        long timeout = 1000L * 60 * Integer.parseInt(time);
         List<String> pks = new LinkedList<>();
         cache.entrySet().forEach(e->{
             if (System.currentTimeMillis() - e.getValue().time >= timeout) {
