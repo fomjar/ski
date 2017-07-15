@@ -6,8 +6,9 @@ public class ISIS {
     public static final int FIELD_PIC_SIZE_MIDDLE   = 1;
     public static final int FIELD_PIC_SIZE_SMALL    = 2;
     
-    public static final int FIELD_TYPE_MAN          = 0;
-    public static final int FIELD_TYPE_CAR          = 1;
+    public static final int FIELD_TYPE_MAN_FACE     = 0;
+    public static final int FIELD_TYPE_MAN_SHAPE    = 1;
+    public static final int FIELD_TYPE_CAR          = 2;
     
     public static final int FIELD_DEV_ONLINE        = 0;
     public static final int FIELD_DEV_OFFLINE       = 1;

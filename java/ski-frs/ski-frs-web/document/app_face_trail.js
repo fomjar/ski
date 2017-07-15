@@ -65,7 +65,7 @@ function build_body_l() {
     }
 }
 
-var pl = 30;
+var pl = 30;	// page length
 var pk;
 var fv;
 
@@ -113,13 +113,13 @@ function func_upload_pages(page) {
     mask.appear();
     hud.appear();
     fomjar.net.send(ski.isis.INST_GET_PIC, {
-        fv      : fv,
-        min     : min,
-        max     : 1.0,
-        dids    : dids,
-        pk      : pk,
-        pf      : pf,
-        pt      : pt,
+        fv      : fv,	// feature vector
+        min     : min,	// min fv
+        max     : 1.0,	// max fv
+        dids    : dids,	// in which devices
+        pk      : pk,	// page key
+        pf      : pf,	// page from
+        pt      : pt,	// page to
     }, function(code, desc) {
         mask.disappear();
         hud.disappear();

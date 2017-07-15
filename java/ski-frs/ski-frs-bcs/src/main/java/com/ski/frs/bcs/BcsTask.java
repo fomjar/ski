@@ -120,7 +120,7 @@ public class BcsTask implements FjServerTask {
             return;
         }
         switch (args.getInt("p_type")) {
-        case ISIS.FIELD_TYPE_MAN:
+        case ISIS.FIELD_TYPE_MAN_FACE:
             processApplySubLibImportMan(server, dmsg);
             break;
         default:

@@ -55,6 +55,12 @@ public class SBPicture extends StoreBlock {
                 .map(e->(JSONObject) e.getValue())
                 .filter(p->p.getInt("size") == ISIS.FIELD_PIC_SIZE_SMALL)
                 .filter(p->{
+                    if (!args.containsKey("type")) return true;
+                    if (!p.has("type")) return false;
+                    if (p.getInt("type") == args.getInt("type")) return true;
+                    return false;
+                })
+                .filter(p->{
                     if (!args.has("dids")) return true;
                     if (!p.has("did")) return false;
                     
@@ -96,11 +102,11 @@ public class SBPicture extends StoreBlock {
                     return false;
                 })
                 .filter(p->{
-                    if (!args.containsKey("color")) return true;
-                    if (!p.containsKey("color")) return false;
+                    if (!args.containsKey("color-up")) return true;
+                    if (!p.containsKey("color-up")) return false;
                     
-                    int colora = args.getInt("color");
-                    int colorp = p.getInt("color");
+                    int colora = args.getInt("color-up");
+                    int colorp = p.getInt("color-up");
                     if (0 == colorp) return false;
                     
                     for (int i = 0; i < 32; i++) {
@@ -109,6 +115,27 @@ public class SBPicture extends StoreBlock {
                         if (0 == (colorp & c)) return false;
                     }
                     return true;
+                })
+                .filter(p->{
+                    if (!args.containsKey("color-down")) return true;
+                    if (!p.containsKey("color-down")) return false;
+                    
+                    int colora = args.getInt("color-down");
+                    int colorp = p.getInt("color-down");
+                    if (0 == colorp) return false;
+                    
+                    for (int i = 0; i < 32; i++) {
+                        int c = colora & (1 << i);
+                        if (0 == c) continue;
+                        if (0 == (colorp & c)) return false;
+                    }
+                    return true;
+                })
+                .filter(p->{
+                    if (!args.containsKey("transport")) return true;
+                    if (!p.has("transport")) return false;
+                    if (p.getInt("transport") == args.getInt("transport")) return true;
+                    return false;
                 })
                 .filter(p->{
                     if (!args.containsKey("nation")) return true;

@@ -4,7 +4,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Base64;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -123,6 +125,8 @@ public class WebToolkit {
         return file;
     }
     
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+    
     public static JSONObject processSetPic(JSONObject args) {
         if (!args.has("name") || !args.has("type") || !args.has("size")) {
             String desc = "illegal arguments, no name, type, size";
@@ -141,7 +145,7 @@ public class WebToolkit {
             String data = args.getString("data");
             args.remove("data");
             
-            if (ISIS.FIELD_TYPE_MAN == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
+            if (ISIS.FIELD_TYPE_MAN_FACE == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
                 FeatureService.getDefault().fv_base64(new FeatureService.FV() {
                     @Override
                     public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
@@ -167,6 +171,7 @@ public class WebToolkit {
             String path = null;
             if (args.has("did")) {
                 path = "document" + FjServerToolkit.getServerConfig("web.pic.dev")
+                        + "/" + sdf.format(new Date())
                         + "/" + args.getString("did").replace("/", "_").replace("\\", "_")
                         + "/" + name + ".jpg";
             } else if (args.has("sid") && args.has("siid")) {
@@ -183,9 +188,8 @@ public class WebToolkit {
                 return json;
             }
             args.put("path", path.substring("document".length()));
-            try {
-                WebToolkit.writeFileBase64Image(data, path);
-            } catch (IOException e) {
+            try {WebToolkit.writeFileBase64Image(data, path);}
+            catch (IOException e) {
                 String desc = "internal error, write base64 image file failed: " + path;
                 logger.error(desc);
                 JSONObject json = new JSONObject();

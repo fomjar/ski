@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.ski.frs.ccu.StoreBlockService;
 import com.ski.frs.isis.ISIS;
@@ -50,34 +53,43 @@ public class SBMaker {
             sbs.sb_dev.setDevice(dev);
         }
         
-        for (int i = 0; i < this.count; i++) {
-            JSONObject args = new JSONObject();
-            args.put("did",     did);
-            args.put("name",    "name-" + randomString());
-            args.put("type",    ISIS.FIELD_TYPE_MAN);
-            args.put("size",    ISIS.FIELD_PIC_SIZE_SMALL);
-            args.put("path",    "path-" + randomString());
-            args.put("name",    "name-" + randomString());
-            args.put("dpath",   "dpath-" + randomString());
-            args.put("gender",  r.nextInt() % 3);
-            args.put("age",     r.nextInt() % 9);
-            args.put("hat",     r.nextInt() % 9);
-            args.put("glass",   r.nextInt() % 9);
-            args.put("mask",    r.nextInt() % 9);
-            args.put("cloth",   r.nextInt() % 9);
-            args.put("nation",  r.nextInt() % 9);
-            double[] fvs = new double[fv];
-            for (int j = 0; j < fvs.length; j++) {
-                fvs[j] = r.nextDouble();
-                fvs[j] = fvs[j] - Math.floor(fvs[j]);
-            }
-            args.put("fv",      fvs);
-            
-            sbs.dispatch(ISIS.INST_SET_PIC, args);
-            if (i % (this.count / 10) == 0) {
-                print("progress: " + i);
-            }
+        int g = 20;
+        ExecutorService pool = Executors.newCachedThreadPool();
+        for (int i = 0; i < g; i++) {
+        		pool.submit(()->{
+	        		for (int j = 0; j < this.count / g; j++) {
+                    JSONObject args = new JSONObject();
+                    args.put("did",     did);
+                    args.put("name",    "name-" + randomString());
+                    args.put("type",    ISIS.FIELD_TYPE_MAN_FACE);
+                    args.put("size",    ISIS.FIELD_PIC_SIZE_SMALL);
+                    args.put("path",    "path-" + randomString());
+                    args.put("name",    "name-" + randomString());
+                    args.put("dpath",   "dpath-" + randomString());
+                    args.put("gender",  r.nextInt() % 3);
+                    args.put("age",     r.nextInt() % 9);
+                    args.put("hat",     r.nextInt() % 9);
+                    args.put("glass",   r.nextInt() % 9);
+                    args.put("mask",    r.nextInt() % 9);
+                    args.put("cloth",   r.nextInt() % 9);
+                    args.put("nation",  r.nextInt() % 9);
+                    double[] fvs = new double[fv];
+                    for (int k = 0; k < fvs.length; k++) {
+                        fvs[k] = r.nextDouble();
+                        fvs[k] = fvs[k] - Math.floor(fvs[k]);
+                    }
+                    args.put("fv",      fvs);
+                    
+                    sbs.dispatch(ISIS.INST_SET_PIC, args);
+                    if (j % (this.count / g / g) == 0) {
+                        print("progress: " + j * g);
+                    }
+	        		}
+        		});
         }
+        pool.shutdown();
+        try {pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);}
+        catch (InterruptedException e) {e.printStackTrace();}
         print("==========make end==========");
         print("==========save begin==========");
         try {

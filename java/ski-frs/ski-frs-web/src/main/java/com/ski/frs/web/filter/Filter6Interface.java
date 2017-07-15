@@ -166,7 +166,7 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         switch (args.getInt("type")) {
-        case ISIS.FIELD_TYPE_MAN:
+        case ISIS.FIELD_TYPE_MAN_FACE:
             processApplySubImportMan(response, args, server);
             break;
         }
@@ -347,7 +347,7 @@ public class Filter6Interface extends FjWebFilter {
         }
         
         switch (args.getInt("type")) {
-        case ISIS.FIELD_TYPE_MAN:
+        case ISIS.FIELD_TYPE_MAN_FACE:
             processApplySubImportCheckMan(response, args, server);
             break;
         }
