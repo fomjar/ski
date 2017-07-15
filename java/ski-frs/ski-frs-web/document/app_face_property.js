@@ -52,7 +52,7 @@ function collect() {
     var hat     = parseInt($($('select')[2]).val());
     var glass   = parseInt($($('select')[3]).val());
     var mask    = parseInt($($('select')[4]).val());
-    var color   = parseInt($($('select')[5]).val());
+    var color_up= parseInt($($('select')[5]).val());
     var nation  = parseInt($($('select')[6]).val());
     
     var data = {};
@@ -62,7 +62,7 @@ function collect() {
     if (-1 != hat)      data.hat = hat;
     if (-1 != glass)    data.glass = glass;
     if (-1 != mask)     data.mask = mask;
-    if (-1 != color)    data.color = color;
+    if (-1 != color_up) data['color-up'] = color_up;
     if (-1 != nation)   data.nation = nation;
     return data;
 }

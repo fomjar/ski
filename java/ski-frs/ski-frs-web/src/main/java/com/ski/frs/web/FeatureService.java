@@ -34,7 +34,13 @@ public class FeatureService {
     
     private static FeatureService instance = null;
     public static FeatureService getDefault() {
-        if (null == instance) instance = new FeatureService();
+        if (null == instance) {
+        	    instance = new FeatureService();
+        	    Runtime.getRuntime().addShutdownHook(new Thread() {
+        	    	    @Override
+        	    	    public void run() {instance.close();};
+        	    });
+        }
         return instance;
     }
     
