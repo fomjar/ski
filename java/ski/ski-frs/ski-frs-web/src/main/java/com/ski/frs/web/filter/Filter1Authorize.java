@@ -125,15 +125,17 @@ public class Filter1Authorize extends FjWebFilter {
     
     private static String[] document_exclude = new String[] {
             "/",
-            "/test",
             "/login.html",
             "/404.html",
     };
     
     private boolean authorizeDocument(FjHttpResponse response, FjHttpRequest request) {
+		if (request.path().startsWith("/test")) return true;
+		if (request.path().startsWith("/page")) return true;
         for (String de : document_exclude) {
             if (de.equals(request.path())) return true;
         }
+        
         Map<String, String> cookie = request.cookie();
         String key = cookie.get("user");
         String val = cookie.get("token");
