@@ -1,0 +1,15 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ski-frs</groupId>
+  <artifactId>ski-frs</artifactId>
+  <version>0.0.1</version>
+  <packaging>pom</packaging>
+  <modules>
+  	<module>ski-frs-isis</module>
+  	<module>ski-frs-web</module>
+  	<module>ski-frs-cdb</module>
+  	<module>ski-frs-bcs</module>
+  	<module>ski-frs-ccu</module>
+  	<module>ski-frs-ccu-tools</module>
+  </modules>
+</project>

@@ -1,0 +1,10 @@
+<!--index.wxml-->
+
+<import src="/ui/wxt.wxml" />
+
+<view>
+    <template is="wxt_btn" data="{{...button_test}}" />
+    <view wx:for="{{response}}">
+        <text>{{item}}</text>
+    </view>
+</view>

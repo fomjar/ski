@@ -1,0 +1,87 @@
+alias ll='ls -l'
+alias ..='cd ..'
+alias ...='cd ../..'
+
+fjbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/fomjar"
+fjbin="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-sn/shell/bin"
+
+ski_lbase="/Users/fomjar/Library/Mobile Documents/com~apple~CloudDocs/02.project/fomjar/src/ski-sn"
+ski_rbase="/home/ski/ski"
+ski_host=sn.craftvoid.com
+ski_user=ski
+ski_pass=ski
+ski_rootpass=ski-1234
+
+ver=0.0.1
+
+PATH=${fjbin}:${PATH}
+
+function cdfj() {
+    mod=$1
+    cd "${fjbase}"
+    if [ "" != "${mod}" ]; then
+        cd fomjar-${mod}
+    fi
+}
+
+function cdski() {
+    mod=$1
+    cd "${ski_lbase}"
+    if [ "" != "${mod}" ]; then
+        cd ski-sn-${mod}
+    fi
+}
+
+function sshski() {
+    expect "${fjbin}/fjssh" ${ski_host} root ${ski_rootpass}
+}
+
+function scpskiconfall() {
+   scpskiconf cdb
+   scpskiconf wsi
+   scpskiconf web
+   scpskiconf bcs
+   scpskiconf ura
+}
+
+function scpskiconf() {
+    mod=$1
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/address.conf" "${ski_rbase}/ski-sn-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/conf/log4j.conf" "${ski_rbase}/ski-sn-${mod}/conf"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-sn-${mod}/conf/server.conf"  "${ski_rbase}/ski-sn-${mod}/conf"
+}
+
+function scpskibinall() {
+   scpskibin cdb
+   scpskibin wsi
+   scpskibin web
+   scpskibin bcs
+   scpskibin ura
+}
+
+function scpskibin() {
+    mod=$1
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup"       "${ski_rbase}/ski-sn-${mod}/bin"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/bin/startup.bat"   "${ski_rbase}/ski-sn-${mod}/bin"
+}
+
+function scpskitask() {
+    mod=$1
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-sn-${mod}/target/ski-sn-${mod}-${ver}.jar" "${ski_rbase}/ski-sn-${mod}/task"
+}
+
+function scpskiliball() {
+   scpskilib cdb
+   scpskilib wsi
+   scpskilib web
+   scpskilib bcs
+   scpskilib ura
+}
+
+function scpskilib() {
+    mod=$1
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-server/target/fomjar-server-${ver}.jar" "${ski_rbase}/ski-sn-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${fjbase}/fomjar-util/target/fomjar-util-${ver}.jar"     "${ski_rbase}/ski-sn-${mod}/lib"
+    expect "${fjbin}/fjscp" ${ski_host} ${ski_user} ${ski_pass} "${ski_lbase}/ski-sn-common/target/ski-sn-common-${ver}.jar"    "${ski_rbase}/ski-sn-${mod}/lib"
+}
+

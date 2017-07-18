@@ -1,0 +1,19 @@
+.frs .body .tab .tab-browse {
+    height      : 100%;
+    width       : 100%;
+}
+.frs .body .tab .tab-import {
+    height      : 100%;
+    width       : 100%;
+}
+.frs .body .tab .tab-import .l {
+    padding     : 2em;
+    padding-top : 0;
+}
+.frs .body .tab .tab-import .l .button:last-child {
+    margin-top  : 2em;
+}
+
+.frs .body .jstree {
+    padding : 1em;
+}

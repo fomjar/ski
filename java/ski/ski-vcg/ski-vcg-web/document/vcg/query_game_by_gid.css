@@ -1,0 +1,183 @@
+
+.game-head {
+    position    : relative;
+    z-index     : -1;
+    top         : 0;
+    width       : 100%;
+    height      : 0;
+            transition  : height 1s;
+    -webkit-transition  : height 1s;
+}
+
+.game-head >div {
+    position        : absolute;
+    left            : 10em;
+    right           : 2em;
+    padding-right   : .2em; /* 防止阴影被裁 */
+    color           : white;
+    text-shadow     : black 1px 1px 2px;
+    text-align      : right;
+    white-space     : nowrap;
+    overflow        : hidden;
+    text-overflow   : ellipsis;
+}
+
+/* game background */
+.game-head .background {
+    position    : absolute;
+    top         : 50%;
+    left        : 50%;
+    width       : 100%;
+    height      : 120%;
+    background-size : cover;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+            filter  : blur(45px);
+    -webkit-filter  : blur(45px);
+}
+
+/* game cover */
+.game-head .cover {
+    position    : absolute;
+    top         : 2em;
+    left        : 2em;
+    width       : 6em;
+    height      : 6em;
+}
+
+/* game name zh */
+.game-head .name_zh {
+    top         : 2em;
+    font-weight : 800;
+}
+
+/* game name en */
+.game-head .name_en {
+    top         : 3.5em;
+    font-weight : 500;
+}
+
+/* game category */
+.game-head .category {
+    top         : 5em;
+    font-weight : 200;
+}
+
+/* game language */
+.game-head .language {
+    top         : 6.2em;
+    font-weight : 200;
+}
+
+/* game sale */
+.game-head .sale {
+    top         : 7.4em;
+    font-weight : 200;
+}
+
+.game-body {
+    position    : relative;
+    top         : 0;
+    overflow    : auto;
+    padding     : 2em;
+    background  : white;
+}
+
+.game-body .category {
+    color           : #04be02;
+    font-size       : 110%;
+    border-bottom   : 1px solid #04be02;
+}
+
+.game-body .tips {
+    margin      : .2em 0;
+    font-size   : 90%;
+    color       : gray;
+}
+
+/* 海报 */
+.game-body .poster {
+    height          : 12em;
+    margin-bottom   : 2em;
+    background      : black;
+}
+
+/* 简介 */
+.game-body .intr {
+    text-indent : 2em;
+}
+
+.game-body .intr p {
+    line-height : 1.5em;
+}
+
+/* 渠道商品 */
+.game-body .ccs {
+    margin-top  : 2em;
+}
+
+.game-body .ccs .box {
+    height      : 12em;
+    overflow    : auto;
+    border      : 1px solid #04be02;
+}
+
+.game-body .ccs .box table td {
+    padding : .4em .5em;
+}
+
+.game-body .cc {
+    width       : 8em;
+    height      : 11em;
+    border      : 1px solid transparent;
+            transition  : border .2s;
+    -webkit-transition  : border .2s;
+}
+
+.game-body .cc:hover {
+    border  : 1px solid #04be02;
+}
+
+.game-body .cc:active {
+    border  : 1px solid #038f02;
+}
+
+.game-body .cc >img {
+    width   : 8em;
+    height  : 8em;
+    padding-right : 2px;
+}
+
+.game-body .cc >div {
+    text-align  : center;
+    cursor      : default;
+    line-height : 1.2em;
+}
+
+.game-body .cc >div:nth-child(3) {
+    color   : red;
+}
+
+.game-body .cc-detail {
+    display     : none;
+    opacity     : 0;
+    border      : 1px solid #04be02;
+    border-top  : none;
+            transition  : opacity .5s;
+    -webkit-transition  : opacity .5s;
+}
+
+.game-body .rent {
+    margin-top  : 2em;
+    border  : 1px solid #04be02;
+}
+
+.game-body .rent .category {
+    padding-top     : .5em;
+    padding-left    : .5em;
+}
+
+.game-body .rent .list {
+    border-top  : none;
+}
+

@@ -1,0 +1,90 @@
+
+.index-search {
+    position    : absolute;
+    top         : 0;
+    left        : 0;
+    width       : 25%;
+    height      : 2em;
+    border-bottom   : 1px solid black;
+    border-right    : 1px solid black;
+}
+
+.index-search select {
+    position    : absolute;
+    top         : 0;
+    left        : 0;
+    height      : 100%;
+    width       : 30%;
+    background  : lightgray;
+            appearance  : none;
+    -webkit-appearance  : none;
+}
+
+.index-search input {
+    position    : absolute;
+    top         : 0;
+    right       : 0;
+    height      : 100%;
+    width       : 70%;
+    margin      : 0;
+}
+
+.index-list-user {
+    position    : absolute;
+    top         : 2em;
+    left        : 0;
+    width       : 25%;
+    bottom      : 0;
+    border-right    : 1px solid black;
+}
+
+.detail {
+    position    : absolute;
+    top         : 0;
+    right       : 0;
+    width       : 75%;
+    height      : 100%;
+    overflow    : auto;
+}
+
+
+/* cell user */
+.cell-user { height : 4em; }
+.cell-user >div { position : absolute; line-height : 1.5em; }
+/* cell cover */
+.cell-user >div:nth-child(1) {
+    top         : .5em;
+    left        : .5em;
+    width       : 3em;
+    height      : 3em;
+}
+.cell-user >div:nth-child(1) img {
+    width   : 3em;
+    height  : 3em;
+    border  : 1px solid lightgray;
+}
+/* cell channel */
+.cell-user >div:nth-child(2) {
+    top         : .5em;
+    left        : 4em;
+    font-style  : italic;
+}
+/* cell name */
+.cell-user >div:nth-child(3) {
+    top         : .5em;
+    left        : 8em;
+    right       : 0;
+    white-space : nowrap;
+    overflow    : hidden;
+    text-overflow   : ellipsis;
+}
+/* cell phone */
+.cell-user >div:nth-child(4) {
+    top         : 2em;
+    left        : 4em;
+    right       : 0;
+    white-space : nowrap;
+    overflow    : hidden;
+    text-overflow   : ellipsis;
+}
+

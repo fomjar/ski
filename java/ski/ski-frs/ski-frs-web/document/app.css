@@ -1,0 +1,44 @@
+.frs {
+    background  : #333333;
+}
+.frs .head {
+    display : none;
+}
+.frs .dialog {
+    width       : 50%;
+    max-height  : 80%;
+    overflow-y  : auto;
+    text-align  : center;
+}
+.frs .dialog .app {
+    display     : inline-block;
+    width       : 6em;
+    height      : 6em;
+    line-height : 6em;
+    margin      : 1em 2em;
+    padding     : 0;
+            border-radius   : 3em;
+    -webkit-border-radius   : 3em;
+    cursor      : pointer;
+    box-shadow  : 0 0 .5em gray;
+    color       : #eeeeee;
+    text-shadow : 1px 1px 1px black;
+}
+.frs .dialog .app:hover {
+            transform   : scale(1.2, 1.2);
+    -webkit-transform   : scale(1.2, 1.2);
+    box-shadow  : 0 0 1em gray;
+}
+.frs .dialog .app:active {
+            transform   : scale(1.1, 1.1);
+    -webkit-transform   : scale(1.1, 1.1);
+    box-shadow  : none;
+}
+.frs .dialog .others {
+    text-align  : right;
+}
+.frs .dialog .others .button {
+    padding     : 0;
+    margin      : 0 1em;
+    font-size   : .8em;
+}

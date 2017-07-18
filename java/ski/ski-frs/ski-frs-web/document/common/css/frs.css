@@ -1,0 +1,559 @@
+/* system */
+* {
+    /* 边框体积 */
+            box-sizing          : border-box;
+    -webkit-box-sizing          : border-box;
+    /* 硬件加速 */
+            overflow-scrolling  : touch;
+    -webkit-overflow-scrolling  : touch;
+    /* 长按菜单 */
+            touch-callout       : none;
+    -webkit-touch-callout       : none;
+    /* 点击遮罩 */
+            tap-highlight-color : rgba(0,0,0,0);
+    -webkit-tap-highlight-color : rgba(0,0,0,0);
+    /* 动画效果 */
+            transition          : all .5s cubic-bezier(0.2, 0.2, 0, 0.9);
+    -webkit-transition          : all .5s cubic-bezier(0.2, 0.2, 0, 0.9);
+}
+div {
+    position    : relative;
+    cursor      : default;
+    overflow    : hidden;
+}
+input, textarea, select {
+    font-size       : 1em;
+    vertical-align  : middle;
+    padding         : .5em 1em;
+    background      : white;
+            appearance      : none;
+    -webkit-appearance      : none;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
+    
+    border      : 1px solid rgba(0, 0, 0, 0);
+    box-shadow  : 0px 0px .5em rgba(0, 0, 0, 0);
+}
+input:focus, textarea:focus, select:focus {
+    border      : 1px solid #333366;
+    box-shadow  : 0px 0px .5em #333366;
+}
+input, select {
+    height  : 2.5em;
+}
+input[type=checkbox] {
+    height  : 1em;
+    padding : 0;
+}
+img {
+    vertical-align  : middle;
+}
+table {
+    border-collapse : collapse;
+}
+html, body {
+    margin  : 0;
+    width   : 100%;
+    height  : 100%;
+}
+
+/* basic */
+.frs {
+    width       : 100%;
+    height      : 100%;
+}
+.frs * {
+    /* 字体 */
+    font-size   : 16px;
+    font-family : 'Lucida Grande', 'Lucida Sans Unicode', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'Verdana', 'Aril', 'sans-serif', '微软雅黑';
+}
+
+/* function */
+.frs .disappear {
+    opacity : 0 !important;
+}
+.frs .center {
+    position    : absolute  !important;
+    top         : 50%       !important;
+    left        : 50%       !important;
+            transform   : translate(-50%, -50%) !important;
+    -webkit-transform   : translate(-50%, -50%) !important;
+}
+.frs .fast {
+            transition  : all .25s cubic-bezier(0.2, 0.2, 0, 0.9);
+    -webkit-transition  : all .25s cubic-bezier(0.2, 0.2, 0, 0.9);
+}
+
+
+/* component */
+.frs .button {
+    display         : inline-block;
+    vertical-align  : top;
+    text-align      : center;
+    padding         : .5em 1em;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
+            user-select : none;
+    -webkit-user-select : none;
+    cursor          : pointer;
+    opacity : .8;
+}
+.frs .button:hover {
+    opacity : .9;
+}
+.frs .button:active {
+    opacity : 1;
+}
+.frs .button-major {
+    background  : #333366;
+    color       : #eeeeee;
+}
+.frs .button-minor {
+    background  : #eeeeee;
+}
+.frs .button-disable {
+    background  : #eeeeee;
+    color       : gray;
+    cursor      : default;
+}
+.frs .button .shape {
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    top         : 50%;
+    left        : 50%;
+    cursor      : pointer;
+}
+.frs .button .shape * {
+    cursor      : pointer;
+}
+.frs .mask {
+    position    : absolute;
+    z-index     : 10;
+    width       : 100%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    background  : black;
+    opacity     : .5;
+}
+.frs .dialog {
+    position    : absolute;
+    z-index     : 10;
+    display     : inline-block;
+    background  : #eeeeee;
+    box-shadow  : 0px 0px .5em white;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+
+    max-width   : 90%;
+    max-height  : 90%;
+    overflow-y  : auto;
+    padding     : .5em 0;
+}
+.frs .dialog-disappear {
+    opacity : 0     !important;
+    top     : 55%   !important;
+}
+.frs .dialog-shake {
+            animation   : dialog-shake .5s;
+    -webkit-animation   : dialog-shake .5s;
+}
+@keyframes dialog-shake {
+      0% {left : 50%;}
+     10% {left : 45%;}
+     20% {left : 55%;}
+     40% {left : 47%;}
+     60% {left : 53%;}
+     80% {left : 49%;}
+    100% {left : 50%;}
+}
+@-webkit-keyframes dialog-shake {
+      0% {left : 50%;}
+     10% {left : 45%;}
+     20% {left : 55%;}
+     40% {left : 47%;}
+     60% {left : 53%;}
+     80% {left : 49%;}
+    100% {left : 50%;}
+}
+.frs .dialog >* {
+    padding : .5em;
+}
+.frs .dialog >.list {
+    padding : 0;
+}
+.frs .dialog input, .frs .dialog select {
+    text-align  : center;
+}
+
+.frs .list {
+    width       : 100%;
+    overflow-y  : auto;
+}
+.frs .list >div {
+    padding         : .75em;
+    border-bottom   : 1px solid rgba(0, 0, 0, .2);
+}
+.frs .list >div:last-child {
+    border-bottom   : none  !important;
+}
+.frs .list >div:hover {
+    background      : rgba(0, 0, 0, .1);
+    border-bottom   : 1px solid rgba(0, 0, 0, .1);
+}
+.frs .list >div:active {
+    background      : rgba(0, 0, 0, .2);
+    border-bottom   : 1px solid rgba(0, 0, 0, 0);
+}
+.frs .list .active {
+    background      : rgba(0, 0, 0, .2);
+    border-bottom   : 1px solid rgba(0, 0, 0, 0);
+}
+.frs .list >div .icon {
+    float           : left;
+    margin-right    : .75em;
+}
+.frs .list >div .accessory {
+    position    : absolute;
+    height      : 1.5em;
+    width       : 1.5em;
+    top         : 50%;
+    right       : .5em;
+            transform   : translateY(-50%);
+    -webkit-transform   : translateY(-50%);
+}
+.frs .list >div .major {}
+.frs .list >div .minor {
+    font-size   : .9em;
+    color       : rgba(0, 0, 0, .5);
+}
+
+.frs .list-cell-table {}
+.frs .list-cell-table >div {
+    display         : inline-block;
+    text-align      : center;
+    vertical-align  : middle;
+}
+.frs .list-cell-table .button {
+    padding     : .25em .5em;
+    margin      : 0 .25em;
+    font-size   : .8em;
+}
+
+.frs .tab {}
+.frs .tab >div:nth-child(1) {
+    width       : 100%;
+    overflow-x  : auto;
+    padding     : 0 1em;
+}
+.frs .tab >div:nth-child(1) >div {
+    display         : inline-block;
+    padding         : .5em 2em;
+    vertical-align  : middle;
+    cursor          : pointer;
+            user-select : none;
+    -webkit-user-select : none;
+            border-radius : .5em .5em 0 0;
+    -webkit-border-radius : .5em .5em 0 0;
+}
+.frs .tab >div:nth-child(1) >div:hover {
+    background  : #eeeeee;
+    opacity     : .9;
+}
+.frs .tab >div:nth-child(1) >div:active {
+    background  : #eeeeee;
+}
+.frs .tab >div:nth-child(1) .active {
+    background  : #eeeeee !important;
+}
+.frs .tab >div:nth-child(2) {
+    overflow-y  : auto;
+    background  : #eeeeee;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+}
+
+.frs .tab-shadow {
+    padding     : 1em;
+    padding-top : 0;
+}
+.frs .tab-shadow >div:nth-child(1) {
+    padding-top : 1em;
+}
+.frs .tab-shadow >div:nth-child(1) >div {
+    z-index : 1;
+}
+.frs .tab-shadow >div:nth-child(2) {
+    box-shadow  : 0 0 .5em;
+}
+.frs .tab-shadow .active {
+    box-shadow  : 0 0 .5em;
+}
+.frs .tab-fix {}
+.frs .tab-fix >div:nth-child(2) {
+    position    : absolute;
+    top         : 3.5em;
+    left        : 1em;
+    right       : 1em;
+    bottom      : 1em;
+}
+
+.frs .pager {
+    display : inline-block;
+    color   : #333344;
+}
+.frs .pager >div {
+    display         : inline-block;
+    vertical-align  : middle;
+}
+.frs .pager >div:nth-child(2) {
+    margin  : 0 1em;
+}
+.frs .pager .button {
+    border  : 1px solid #333344;
+}
+.frs .pager .button:hover {
+    background  : #333344;
+    color       : #eeeeee;
+}
+
+
+.frs .progress {
+    height  : 2em;
+    border  : 1px solid #333333;
+            border-radius   : .2em;
+    -webkit-border-radius   : .2em;
+}
+.frs .progress >div:nth-child(1) {
+    width       : 0;
+    height      : 100%;
+    background  : #333366;
+    box-shadow  : 0px 0px .5em;
+}
+.frs .progress >div:nth-child(2) {
+    position    : absolute;
+    width       : 100%;
+    height      : 100%;
+    line-height : 2em;
+    top         : 0;
+    left        : 0;
+    text-align  : center;
+    color       : #eeeeee;
+    text-shadow : 0 1px 0 #333333, 1px 0 0 #333333, 0 -1px 0 #333333, -1px 0 0 #333333;
+}
+
+.frs .hud-major {
+    z-index     : 50;
+    max-width   : 80%;
+
+    word-wrap   : break-word;
+    padding     : .5em 1em;
+    text-align  : center;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+    background  : black;
+    color       : white;
+    box-shadow  : 0px 0px .5em black;
+    opacity     : .7;
+}
+.frs .hud-minor {
+    position    : absolute;
+    z-index     : 50;
+    top         : 70%;
+    left        : 50%;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+
+    max-width   : 80%;
+    word-wrap   : break-word;
+    padding     : .5em 1em;
+    text-align  : center;
+            border-radius   : .5em;
+    -webkit-border-radius   : .5em;
+    background  : black;
+    color       : white;
+    box-shadow  : 0px 0px .5em black;
+    opacity     : .7;
+}
+
+.frs .shape {
+    display : inline-block;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+}
+.frs .shape * {
+    display     : inline-block;
+    position    : absolute;
+    top         : 50%;
+    left        : 50%;
+            transform   : translate(-50%, -50%);
+    -webkit-transform   : translate(-50%, -50%);
+}
+
+/* framework */
+.frs .head {
+    position    : absolute;
+    z-index     : 5;
+    width       : 100%;
+    height      : 3em;
+    top         : 0;
+    left        : 0;
+    white-space : nowrap;
+    overflow-x  : auto;
+    padding     : 0 2em;
+    background  : #333333;
+    box-shadow  : 0 0 .5em;
+    font-size   : 1.1em;
+}
+.frs .body {
+    position    : absolute;
+    z-index     : 0;
+    width       : 100%;
+    top         : 3.3em;
+    left        : 0;
+    bottom      : 0;
+}
+
+.frs .head >div {
+    display     : inline-block;
+    text-align  : center;
+    line-height : 3.3em;
+    padding     : 0 2em;
+    vertical-align  : top;
+    color       : #eeeeee;
+    cursor      : pointer;
+            user-select : none;
+    -webkit-user-select : none;
+}
+.frs .head >div:hover {
+    background  : #666699;
+    opacity     : .9;
+}
+.frs .head >div:active {
+    background  : #666699;
+    opacity     : 1;
+}
+.frs .head .active {
+    background  : #666699 !important;
+    box-shadow  : 0 0 1.5em .5em #666699 !important;
+}
+.frs .head .home {
+    width       : 2.8em;
+    height      : 2.8em;
+    line-height : 2.8em;
+    padding     : 0;
+    margin      : .25em 0;
+    font-weight : 700;
+            border-radius   : .6em;
+    -webkit-border-radius   : .6em;
+    
+    background  : #996666;
+}
+.frs .head .home:hover {
+    opacity     : .9;
+    background  : #996666;
+    box-shadow  : 0 0 .5em #996666;
+}
+.frs .head .home:active {
+    opacity     : 1;
+    background  : #996666;
+    box-shadow  : none;
+}
+
+.frs .l {
+    position    : absolute;
+    z-index     : 1;
+    width       : 25%;
+    height      : 100%;
+    top         : 0;
+    left        : 0;
+    overflow    : auto;
+    background  : #eeeeee;
+    box-shadow  : 0 0 .5em;
+}
+.frs .l >label {
+    display     : inline-block;
+    margin-top  : 2em;
+}
+.frs .l >.button {
+    width   : 100%;
+}
+.frs .l img {
+    background  : white;
+}
+.frs .l >input, .frs .l >select {
+    width       : 100%;
+    text-align  : center;
+}
+.frs .r {
+    position    : absolute;
+    height      : 100%;
+    top         : 0;
+    left        : 25%;
+    right       : 0;
+    overflow-y  : auto;
+    background  : white;
+}
+.frs .t {
+    position    : absolute;
+    width       : 100%;
+    top         : 0;
+    left        : 0;
+    bottom      : 25%;
+}
+.frs .b {
+    position    : absolute;
+    width       : 100%;
+    height      : 25%;
+    bottom      : 0;
+    left        : 0;
+    overflow    : auto;
+    background  : #eeeeee;
+}
+
+.frs .block {
+    display : inline-block;
+    border  : 1px solid rgba(0, 0, 50, .4);
+    width   : 8em;
+    text-align      : center;
+    vertical-align  : top;
+    cursor  : pointer;
+}
+.frs .block:hover {
+    border      : 1px solid rgba(0, 0, 50, 1);
+    box-shadow  : 0 0 2px rgba(0, 0, 50, 1);
+    background  : rgba(0, 0, 0, .1);
+}
+.frs .block:active {
+    border      : 1px solid rgba(0, 0, 50, 1);
+    box-shadow  : 0 0 0;
+    background  : rgba(0, 0, 0, .2);
+}
+.frs .block-active {
+    border      : 1px solid rgba(0, 0, 50, 1);
+    box-shadow  : 0 0 0;
+    background  : rgba(0, 0, 0, .2);
+}
+.frs .block * {
+    cursor  : pointer;
+}
+.frs .block img {
+    width   : 100%;
+}
+.frs .block >div {
+    word-wrap   : break-word;
+    text-align  : left;
+    font-size   : .8em;
+}
+.frs .block .button {
+    padding     : .25em .5em;
+    font-size   : .8em;
+}
+
+/* component */
+.jstree-icon {
+            transition  : none;
+    -webkit-transition  : none;
+}
+

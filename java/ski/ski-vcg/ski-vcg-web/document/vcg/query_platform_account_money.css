@@ -1,0 +1,38 @@
+
+.money-icon {
+    text-align  : center;
+    padding     : 5% 0;
+}
+
+.money-icon img {
+    width   : 30%;
+    height  : 30%;
+}
+
+.money-value {
+    text-align  : center;
+    color       : red;
+    font-size   : 300%;
+    font-weight : 500;
+}
+
+.vcg .tips {
+    position    : fixed;
+    bottom      : 3.5em;
+}
+
+.vcg table {
+    position    : fixed;
+    left        : 0;
+    bottom      : 1em;
+    width       : 100%;
+}
+
+.vcg .button-major {
+    margin-right    : .75em;
+}
+
+.vcg .button-minor {
+    margin-left     : .75em;
+}
+

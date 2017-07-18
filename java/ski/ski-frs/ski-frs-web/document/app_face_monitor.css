@@ -1,0 +1,23 @@
+.frs .body .bar {
+    height          : 3em;
+    border-bottom   : 1px solid lightgray;
+}
+.frs .body .bar .button {
+    padding     : .25em .5em;
+    margin      : .5em;
+}
+.frs .body .l, .frs .body .r {
+    top : 3em;
+}
+.frs .body .tab-browse {
+    height  : 100%;
+}
+.frs .body .tab-create {
+    height  : 100%;
+}
+.frs .body .tab-create .l {
+    width   : 50%;
+}
+.frs .body .tab-create .r {
+    left    : 50%;
+}
