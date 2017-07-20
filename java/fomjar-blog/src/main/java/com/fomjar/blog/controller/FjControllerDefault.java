@@ -6,11 +6,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class FjControllerRoot {
+public class FjControllerDefault {
 
 	@RequestMapping(path = {"/", "/index"}, method = RequestMethod.GET)
-	public ModelAndView do_get() {
-	    return new ModelAndView("index");
+	public ModelAndView get_root() {
+	    return new ModelAndView("/index");
 	}
+	
+//	@RequestMapping(path = "/**", method = RequestMethod.GET)
+//	public ModelAndView get_default(HttpServletRequest request) {
+//        return new ModelAndView(request.getRequestURI());
+//	}
 	
 }
