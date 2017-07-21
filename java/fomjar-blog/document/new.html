@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8" />
+        <title>Simple example - Editor.md examples</title>
+        <link rel="stylesheet" href="resources/editormd/examples/css/style.css" />
+        <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
+        <link rel="shortcut icon" href="https://pandao.github.io/editor.md/favicon.ico" type="image/x-icon" />
+    </head>
+    <body>
+        <div id="editormd"><textarea style="display:none;"></textarea></div>
+        <script src="resources/editormd/examples/js/jquery.min.js"></script>
+        <script src="resources/editormd/editormd.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $('#editormd').css('margin-bottom', 0);
+                $('#editormd').css('position',  'absolute');
+                $('#editormd').css('top',       0);
+                $('#editormd').css('bottom',    0);
+                $('#editormd').css('left',      '10%');
+                testEditor = editormd({
+                    id      : "editormd",
+                    width   : "80%",
+                    path    : "resources/editormd/lib/",
+                    toolbarIcons    : function() {
+                        return [
+                            'undo', 'redo', '|',
+                            'bold', 'del', 'italic', 'quote', '|',
+                            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', '|',
+                            'list-ul', 'list-ol', 'hr', '|',
+                            'link', 'reference-link', 'image', 'code'
+                        ];
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
