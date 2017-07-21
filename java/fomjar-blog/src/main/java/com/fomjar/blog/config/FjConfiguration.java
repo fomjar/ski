@@ -19,6 +19,7 @@ public class FjConfiguration implements WebMvcConfigurer {
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // resolve static resouce
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:./document/")
                 .resourceChain(true);
@@ -26,6 +27,7 @@ public class FjConfiguration implements WebMvcConfigurer {
 
     @Override
     public void configureViewResolvers(ViewResolverRegistry registry) {
+        // resolve ModelAndView
         registry.viewResolver(new InternalResourceViewResolver());
     }
 
