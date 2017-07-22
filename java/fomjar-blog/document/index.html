@@ -4,22 +4,25 @@
         <meta charset="utf-8" />
         <title>首页</title>
         <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
+        <link rel="stylesheet" href="resources/blog/blog.css" />
     </head>
     <body>
         <h1>目录</h1>
         <ul></ul>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script type="text/javascript">
-            $.post(
-                '/article/list',
-                null,
-                function(rsp) {
-                    var ul = $('ul');
-                    $.each(rsp, function(i, article) {
-                        ul.append("<li><a href='article-view.html?aid=" + article.aid + "'>" + article.name + "</a></li>");
-                    });
-                }
-            );
+            $(function() {
+                $.post(
+                    '/article/list',
+                    null,
+                    function(rsp) {
+                        var ul = $('ul');
+                        $.each(rsp, function(i, article) {
+                            ul.append("<li><a href='article-view.html?aid=" + article.aid + "'>" + article.name + "</a></li>");
+                        });
+                    }
+                );
+            });
         </script>
     </body>
 </html
