@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="utf-8" />
+        <title>编辑文章</title>
+        <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
+    </head>
+    <body>
+        <div id="editormd"><textarea style="display:none;"></textarea></div>
+        <script src="resources/editormd/examples/js/jquery.min.js"></script>
+        <script src="resources/editormd/lib/marked.min.js"></script>
+        <script src="resources/editormd/lib/prettify.min.js"></script>
+        <script src="resources/editormd/lib/raphael.min.js"></script>
+        <script src="resources/editormd/lib/underscore.min.js"></script>
+        <script src="resources/editormd/lib/sequence-diagram.min.js"></script>
+        <script src="resources/editormd/lib/flowchart.min.js"></script>
+        <script src="resources/editormd/lib/jquery.flowchart.min.js"></script>
+        <script src="resources/editormd/editormd.min.js"></script>
+        <script type="text/javascript">
+            function path_var(key) { 
+                var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"); 
+                var r = window.location.search.substr(1).match(reg); 
+                if (r != null) return unescape(r[2]); 
+                return null; 
+            } 
+
+            $(function() {
+                $('body').css('margin', 0);
+                $('#editormd').css('margin-bottom', 0);
+
+                var aid = path_var('aid');
+                if (aid) {
+                    $.post(
+                        '/article/view',
+                        {
+                            aid : aid,
+                        },
+                        function(rsp) {
+                            if (rsp.code) {
+                                aid = null;
+                                return;
+                            }
+
+                            var article = rsp.desc;
+                            $('#editormd textarea').val(article.data);
+                        }
+                    );
+                }
+                var editor = editormd({
+                    id                  : "editormd",
+                    width               : "80%",
+                    autoHeight          : true,
+                    path                : "resources/editormd/lib/",
+                    saveHTMLToTextarea  : true,
+                    toolbarIcons        : function() {
+                        return [
+                            'undo', 'redo', '|',
+                            'bold', 'del', 'italic', 'quote', '|',
+                            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', '|',
+                            'list-ul', 'list-ol', 'hr', '|',
+                            'link', 'reference-link', 'image', 'code', '|',
+                            'submit'
+                        ];
+                    },
+                    toolbarIconTexts    : {
+                        submit  : '提交',
+                    },
+                    toolbarHandlers     : {
+                        /**
+                         * @param {Object}      cm         CodeMirror对象
+                         * @param {Object}      icon       图标按钮jQuery元素对象
+                         * @param {Object}      cursor     CodeMirror的光标对象，可获取光标所在行和位置
+                         * @param {String}      selection  编辑器选中的文本
+                         */
+                        submit  : function(cm, icon, cursor, selection) {
+                            $.post(
+                                '/article/edit',
+                                {
+                                    'article.aid'       : aid,
+                                    'article.author'	: 'fomjar',
+                                    'article.data'  	: editor.getMarkdown(),
+                                },
+                                function(rsp) {
+                                    window.alert(rsp.desc);
+                                }
+                            );
+                        },
+                    },
+                });
+            });
+        </script>
+    </body>
+</html>

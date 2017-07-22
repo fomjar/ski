@@ -10,7 +10,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
 @EnableWebMvc
-public class FjConfiguration implements WebMvcConfigurer {
+public class ConfigWebMvc implements WebMvcConfigurer {
 
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -19,7 +19,7 @@ public class FjConfiguration implements WebMvcConfigurer {
     
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // resolve static resouce
+        // resolve static resource
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:./document/")
                 .resourceChain(true);
