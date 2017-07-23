@@ -2,12 +2,28 @@
 <html lang="zh">
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>查看文章</title>
         <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
+        <style type='text/css'>
+            body {
+                padding         : 1em;
+                margin          : 0;
+                max-width       : 60em;
+                margin-left     : auto;
+                margin-right    : auto;
+            }
+            #editormd {
+                padding : 0;
+            }
+        </style>
     </head>
     <body>
         <div id="editormd"><textarea style="display:none;"></textarea></div>
+        <hr>
+        <a href='index.html'>返回首页</a>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/editormd/lib/marked.min.js"></script>
         <script src="resources/editormd/lib/prettify.min.js"></script>
@@ -17,6 +33,7 @@
         <script src="resources/editormd/lib/flowchart.min.js"></script>
         <script src="resources/editormd/lib/jquery.flowchart.min.js"></script>
         <script src="resources/editormd/editormd.min.js"></script>
+        <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
             function path_var(key) { 
                 var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"); 
@@ -26,10 +43,6 @@
             } 
 
             $(function() {
-                $('body').css('padding',    '1em 15%');
-                $('body').css('margin',     0);
-                $('#editormd').css('padding', 0);
-
                 var aid = path_var('aid');
                 if (!aid) {
                     alert('未知文章');

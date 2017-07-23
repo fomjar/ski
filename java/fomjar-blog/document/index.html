@@ -2,14 +2,24 @@
 <html lang="zh">
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>首页</title>
-        <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
+        <style type='text/css'>
+            body {
+                padding         : 0 1em;
+                max-width       : 40em;
+                margin-left     : auto;
+                margin-right    : auto;
+            }
+        </style>
     </head>
     <body>
         <h1>目录</h1>
         <ul></ul>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
+        <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
             $(function() {
                 $.post(
@@ -18,7 +28,11 @@
                     function(rsp) {
                         var ul = $('ul');
                         $.each(rsp, function(i, article) {
-                            ul.append("<li><a href='article-view.html?aid=" + article.aid + "'>" + article.name + "</a></li>");
+                            ul.append("<li>"
+                                + "<a href='article-view.html?aid=" + article.aid + "'>" + article.name + "</a>"
+                                + "<br><small>作者：" + article.author + "</small>"
+                                + "<br><small>创建：" + new Date(article['time.create']).format('yyyy/MM/dd HH:mm:ss') + "</small>"
+                            + "</li>");
                         });
                     }
                 );
