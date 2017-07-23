@@ -1,4 +1,4 @@
-package com.fomjar.blog.controller;
+package com.fomjar.blog.article;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,17 +11,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fomjar.blog.service.ServiceArticle;
-
 @RestController
 @RequestMapping(path = "/article",
                 method = RequestMethod.POST)
-public class ControllerArticle {
+public class ArticleController {
     
-    private static final Log logger = LogFactory.getLog(ControllerArticle.class);
+    private static final Log logger = LogFactory.getLog(ArticleController.class);
     
     @Autowired
-    private ServiceArticle service;
+    private ArticleService service;
     
     @RequestMapping("/edit")
     public Map<String, Object> post_edit(

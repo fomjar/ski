@@ -16,20 +16,22 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
-public class ServiceConfig {
+public class ConfigService {
     
-    private static final Log logger = LogFactory.getLog(ServiceConfig.class);
+    private static final Log logger = LogFactory.getLog(ConfigService.class);
     
     public static final String PATH_CONFIG  = "./config";
     public static final String PATH_DATA    = "./data";
     public static final String PATH_ARTICLE = PATH_DATA + "/article";
     
     public Monitor mon_comm;
+    public Monitor mon_auth;
     public Monitor mon_article_list;
     
-    public ServiceConfig() {
+    public ConfigService() {
         try {
             new Thread(mon_comm         = new MonitorLoad(PATH_CONFIG  + "/comm.json"),  "monitor-load-comm").start();
+            new Thread(mon_auth         = new MonitorSave(PATH_CONFIG  + "/auth.json"),  "monitor-load-auth").start();
             new Thread(mon_article_list = new MonitorSave(PATH_ARTICLE + "/list.json"),  "monitor-save-article-list").start();
         } catch (IOException e) {logger.error("start monitor thread failed", e);}
     }

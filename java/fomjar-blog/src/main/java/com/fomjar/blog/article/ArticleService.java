@@ -1,4 +1,4 @@
-package com.fomjar.blog.service;
+package com.fomjar.blog.article;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,23 +13,23 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fomjar.blog.config.ServiceConfig;
+import com.fomjar.blog.config.ConfigService;
 
 @Service
 @SuppressWarnings("unchecked")
-public class ServiceArticle {
+public class ArticleService {
     
     @Autowired
-    private ServiceConfig config;
+    private ConfigService config;
     
-    public ServiceArticle() {}
+    public ArticleService() {}
     
     private static String new_aid() {
         return "article-" + UUID.randomUUID().toString().replace("-", "");
     }
     
     private static String get_path(String aid) {
-        return ServiceConfig.PATH_ARTICLE + "/" + aid + ".md";
+        return ConfigService.PATH_ARTICLE + "/" + aid + ".md";
     }
     
     private static String get_name(String data) {

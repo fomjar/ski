@@ -72,6 +72,17 @@ public class SBPicture extends StoreBlock {
                     return false;
                 })
                 .filter(p->{
+                    if (!args.has("time-from")) return true;
+                    
+                    if (args.getLong("time-from") <= p.getLong("time")) return true;
+                    return false;
+                })
+                .sorted((p1, p2)->{
+                    if (!args.has("time-from")) return 0;
+                    
+                    return (int) (p1.getLong("time") - p2.getLong("time"));
+                })
+                .filter(p->{
                     if (!args.containsKey("gender")) return true;
                     if (!p.has("gender")) return false;
                     if (p.getInt("gender") == args.getInt("gender")) return true;

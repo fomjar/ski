@@ -68,11 +68,12 @@
                             'h1', 'h2', 'h3', 'h4', 'h5', 'h6', '|',
                             'list-ul', 'list-ol', 'hr', '|',
                             'link', 'reference-link', 'image', 'code', '|',
-                            'submit'
+                            'submit', 'index'
                         ];
                     },
                     toolbarIconTexts    : {
                         submit  : '提交',
+                        index   : '返回首页'
                     },
                     toolbarHandlers     : {
                         /**
@@ -95,6 +96,9 @@
                                 }
                             );
                         },
+                        index   : function(cm, icon, cursor, selection) {
+                            window.location = 'index.html';
+                        }
                     },
                 });
             });
