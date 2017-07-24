@@ -8,28 +8,50 @@
         <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
         <style type='text/css'>
+            body {
+                min-height  : 200%;
+            }
             .jumbotron {
-                padding-left    : 8em;
-                height          : 100%;
                 padding-top     : 15%;
+                height          : 50%;
                 background-image: url(resources/blog/jumbotron.jpg);
                 background-size : 100% 100%;
                 color           : white;
                 text-shadow     : .2em .2em .5em black;
             }
-            .jumbotron p {
+            .jumbotron .container {
+                max-width   : 80em;
+                padding     : 2em;
+            }
+            .jumbotron .container p:nth-child(3) {
                 margin-top  : 3em;
             }
-            .container {
+            .jumbotron ul {
+                position    : absolute;
+                right       : 2em;
+                bottom      : 1em;
+                color       : white;
+            }
+            .jumbotron ul li {
+                display : inline;
+                margin  : 0 .5em;
+            }
+            .jumbotron ul li a {
+                color   : lightgray;
+            }
+            #articles {
                 max-width   : 50em;
             }
-            .container a {
+            #articles a {
                 text-decoration : none;
             }
-            .container small:nth-child(4) {
+            #articles a .panel:hover {
+                background-color    : #eee;
+            }
+            #articles small:nth-child(4) {
                 float   : right;
             }
-            .container small:nth-child(5) {
+            #articles small:nth-child(5) {
                 float           : right;
                 margin-right    : 2em;
             }
@@ -37,11 +59,19 @@
     </head>
     <body>
         <div class='jumbotron'>
-            <h2>欢迎光临逢佳的个人博客</h2>
-            <h2>Welcome to fomjar's personal blog</h2>
-            <p><small>如切如磋 如琢如磨</small></p>
+            <div class='container'>
+                <h2>欢迎光临逢佳的个人博客</h2>
+                <p>Welcome to fomjar's personal blog</p>
+                <p class='small'>如切如磋 如琢如磨</p>
+            </div>
+            <ul class='small'>
+                <li><a href='http://projects.spring.io/spring-boot/'>spring-boot</a></li>
+                <li><a href='http://jquery.com'>jquery</a></li>
+                <li><a href='http://pandao.github.io/editor.md/'>editor.md</a></li>
+                <li><a href='http://getbootstrap.com'>bootstrap</a></li>
+            </ul>
         </div>
-        <div class='container'>
+        <div class='container' id='articles'>
         </div>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/blog/blog.js"></script>
@@ -51,7 +81,7 @@
                     '/article/list',
                     null,
                     function(rsp) {
-                        var container = $('.container');
+                        var container = $('#articles');
                         $.each(rsp, function(i, article) {
                             container.append("<a href=\"javascript: window.open('article-view.html?aid=" + article.aid + "');\" ><div class='panel panel-default'><div class='panel-body'>"
                                 + "<strong>" + article.name + "</strong>"
@@ -59,7 +89,7 @@
                                 + "<small>作者：" + article.author + "</small>"
                                 + "<small>更新：" + new Date(article['time.update']).format('yyyy/MM/dd') + "</small>"
                                 + "<small>创建：" + new Date(article['time.create']).format('yyyy/MM/dd') + "</small>"
-                            );
+                            + "</div></div>");
                         });
                     }
                 );
