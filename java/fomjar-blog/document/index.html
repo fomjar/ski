@@ -4,20 +4,45 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>首页</title>
+        <title>逢佳的个人博客</title>
+        <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
         <style type='text/css'>
-            body {
-                padding         : 0 1em;
-                max-width       : 40em;
-                margin-left     : auto;
-                margin-right    : auto;
+            .jumbotron {
+                padding-left    : 8em;
+                height          : 100%;
+                padding-top     : 15%;
+                background-image: url(resources/blog/jumbotron.jpg);
+                background-size : 100% 100%;
+                color           : white;
+                text-shadow     : .2em .2em .5em black;
+            }
+            .jumbotron p {
+                margin-top  : 3em;
+            }
+            .container {
+                max-width   : 50em;
+            }
+            .container a {
+                text-decoration : none;
+            }
+            .container small:nth-child(4) {
+                float   : right;
+            }
+            .container small:nth-child(5) {
+                float           : right;
+                margin-right    : 2em;
             }
         </style>
     </head>
     <body>
-        <h1>目录</h1>
-        <ul></ul>
+        <div class='jumbotron'>
+            <h2>欢迎光临逢佳的个人博客</h2>
+            <h2>Welcome to fomjar's personal blog</h2>
+            <p><small>如切如磋 如琢如磨</small></p>
+        </div>
+        <div class='container'>
+        </div>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
@@ -26,13 +51,15 @@
                     '/article/list',
                     null,
                     function(rsp) {
-                        var ul = $('ul');
+                        var container = $('.container');
                         $.each(rsp, function(i, article) {
-                            ul.append("<li>"
-                                + "<a href='article-view.html?aid=" + article.aid + "'>" + article.name + "</a>"
-                                + "<br><small>作者：" + article.author + "</small>"
-                                + "<br><small>创建：" + new Date(article['time.create']).format('yyyy/MM/dd HH:mm:ss') + "</small>"
-                            + "</li>");
+                            container.append("<a href=\"javascript: window.open('article-view.html?aid=" + article.aid + "');\" ><div class='panel panel-default'><div class='panel-body'>"
+                                + "<strong>" + article.name + "</strong>"
+                                + "<br>"
+                                + "<small>作者：" + article.author + "</small>"
+                                + "<small>更新：" + new Date(article['time.update']).format('yyyy/MM/dd') + "</small>"
+                                + "<small>创建：" + new Date(article['time.create']).format('yyyy/MM/dd') + "</small>"
+                            );
                         });
                     }
                 );
