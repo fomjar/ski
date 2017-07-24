@@ -32,5 +32,29 @@ Date.prototype.format = function(format) {
     return format;  
 }
 
+function path_var(key) { 
+    var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"); 
+    var r = window.location.search.substr(1).match(reg); 
+    if (r != null) return unescape(r[2]); 
+    return null; 
+} 
 
+function cookie_set(name,value) {
+	var days = 30;
+	var exp = new Date();
+	exp.setTime(exp.getTime() + days*24*60*60*1000);
+	document.cookie = name + "="+ escape (value) + ";expires=" + exp.toGMTString();
+}
 
+function cookie_get(name) {
+	var arr, reg = new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+	if (arr = document.cookie.match(reg)) return unescape(arr[2]);
+	return null;
+}
+
+function cookie_del(name) {
+	var exp = new Date();
+	exp.setTime(exp.getTime() - 1);
+	var cval = getCookie(name);
+	if (cval != null) document.cookie = name + "="+cval+";expires="+exp.toGMTString();
+}

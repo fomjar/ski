@@ -33,10 +33,13 @@ public class ArticleService {
     }
     
     private static String get_name(String data) {
-        String name = data.split("\n")[0];
-        while (name.startsWith("#")) name = name.substring(1);
-        name = name.trim();
-        return name;
+        String[] lines = data.split("\n");
+        for (String name : lines) {
+            while (name.startsWith("#")) name = name.substring(1);
+            name = name.trim();
+            if (0 < name.length()) return name;
+        }
+        return "untitled";
     }
     
     public void article_edit(String author, String data) throws UnsupportedEncodingException, IOException {

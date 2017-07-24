@@ -29,13 +29,6 @@
         <script src="resources/editormd/editormd.min.js"></script>
         <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
-            function path_var(key) { 
-                var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"); 
-                var r = window.location.search.substr(1).match(reg); 
-                if (r != null) return unescape(r[2]); 
-                return null; 
-            } 
-
             $(function() {
                 var aid = path_var('aid');
                 if (aid) {

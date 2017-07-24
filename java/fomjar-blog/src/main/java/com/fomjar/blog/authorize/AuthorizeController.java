@@ -1,5 +1,7 @@
 package com.fomjar.blog.authorize;
 
+import java.io.IOException;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,7 +22,7 @@ public class AuthorizeController {
     private AuthorizeService service;
     
     @RequestMapping(path = "/authorize", method = RequestMethod.POST)
-    public String post_auth(
+    public void post_auth(
             @RequestParam   String user,
             @RequestParam   String pass,
             HttpServletResponse response
@@ -32,10 +34,12 @@ public class AuthorizeController {
             response.addCookie(new Cookie("user",  user));
             response.addCookie(new Cookie("token", token));
             logger.info("authorize success: " + user);
-            return "redirect:index.html";
+            try {response.sendRedirect("/");}
+            catch (IOException e) {logger.error("send redirect failed", e);}
         } else {
             logger.error("authorize failed:" + user);
-            return "redirect:login.html";
+            try {response.sendRedirect("login.html");}
+            catch (IOException e) {logger.error("send redirect failed", e);}
         }
     }
 

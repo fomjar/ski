@@ -23,7 +23,7 @@
     <body>
         <div id="editormd"><textarea style="display:none;"></textarea></div>
         <hr>
-        <a href='index.html'>返回首页</a>
+        <a href="javascript: window.location='article-edit.html?aid=' + path_var('aid'); ">编辑</a><a href='index.html' style='float : right'>返回首页</a>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/editormd/lib/marked.min.js"></script>
         <script src="resources/editormd/lib/prettify.min.js"></script>
@@ -35,13 +35,6 @@
         <script src="resources/editormd/editormd.min.js"></script>
         <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
-            function path_var(key) { 
-                var reg = new RegExp("(^|&)" + key + "=([^&]*)(&|$)", "i"); 
-                var r = window.location.search.substr(1).match(reg); 
-                if (r != null) return unescape(r[2]); 
-                return null; 
-            } 
-
             $(function() {
                 var aid = path_var('aid');
                 if (!aid) {
