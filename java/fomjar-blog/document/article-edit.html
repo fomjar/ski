@@ -76,12 +76,13 @@
                          * @param {String}      selection  编辑器选中的文本
                          */
                         submit  : function(cm, icon, cursor, selection) {
-                            var author = window.prompt('作者：', 'fomjar');
+                            var path = window.prompt('目录', '/');
                             $.post(
                                 '/article/edit',
                                 {
                                     'article.aid'       : aid,
-                                    'article.author'	: author,
+                                    'article.author'	: cookie_get('user'),
+                                    'article.path'		: path,
                                     'article.data'  	: editor.getMarkdown(),
                                 },
                                 function(rsp) {

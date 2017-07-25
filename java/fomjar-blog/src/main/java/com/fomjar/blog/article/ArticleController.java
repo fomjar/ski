@@ -25,13 +25,14 @@ public class ArticleController {
     public Map<String, Object> post_edit(
             @RequestParam(name = "article.aid",     required = false)   String aid,
             @RequestParam(name = "article.author",  required = true)    String author,
+            @RequestParam(name = "article.path",    required = true)    String path,
             @RequestParam(name = "article.data",    required = true)    String data
     ) {
         logger.info("[ARTICLE POST EDIT]");
         
         Map<String, Object> rsp = new HashMap<>();
         try {
-            service.article_edit(aid, author, data);
+            service.article_edit(aid, author, path, data);
             rsp.put("code", 0);
             rsp.put("desc", "SUCCESS");
             logger.info("edit file success");

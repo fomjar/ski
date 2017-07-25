@@ -17,13 +17,11 @@ public class AuthorizeFilter extends OncePerRequestFilter  {
     
     @Autowired
     private AuthorizeService service;
-    private String[] list_white;
+    private String[] list_black;
     
     public AuthorizeFilter() {
-        list_white = new String[] {
-                "login.html",   // must add
-                "index.html",
-                "article-view.html"
+        list_black = new String[] {
+                "article-edit.html"
         };
     }
 
@@ -33,11 +31,16 @@ public class AuthorizeFilter extends OncePerRequestFilter  {
         
         String uri = request.getRequestURI();
         
-        for (String path : list_white) {
+        boolean need = false;
+        for (String path : list_black) {
             if (uri.endsWith(path)) {
-                chain.doFilter(request, response);
-                return;
+                need = true;
+                break;
             }
+        }
+        if (!need) {
+            chain.doFilter(request, response);
+            return;
         }
         
         // need to authorize

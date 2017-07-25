@@ -42,26 +42,27 @@ public class ArticleService {
         return "untitled";
     }
     
-    public void article_edit(String author, String data) throws UnsupportedEncodingException, IOException {
-        article_edit(new_aid(), author, data);
+    public void article_edit(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
+        article_edit(new_aid(), author, path_view, data);
     }
     
-    public void article_edit(String aid, String author, String data) throws UnsupportedEncodingException, IOException {
+    public void article_edit(String aid, String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
         if (null == aid || 0 == aid.length()) aid = new_aid();
         
         String name = get_name(data);
-        String path = get_path(aid);
+        String path_data = get_path(aid);
         
-        Files.write(new File(path).toPath(), data.getBytes("utf-8"),
+        Files.write(new File(path_data).toPath(), data.getBytes("utf-8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE);
         
         Map<String, Object> article = new HashMap<>();
-        article.put("aid",      aid);
-        article.put("name",     name);
-        article.put("author",   author);
-        article.put("path",     path);
+        article.put("aid",          aid);
+        article.put("name",         name);
+        article.put("author",       author);
+        article.put("path.view",    path_view);
+        article.put("path.data",    path_data);
         article.put("time.update", System.currentTimeMillis());
         if (config.mon_article_list.config().containsKey(aid)) {
             Map<String, Object> article_old = (Map<String, Object>) config.mon_article_list.config().get(aid);
@@ -75,14 +76,14 @@ public class ArticleService {
     public Map<String, Object> article_view(String aid) throws IOException {
         if (null == aid || 0 == aid.length()) throw new IllegalArgumentException("null aid");
         
-        String path = get_path(aid);
-        File file = new File(path);
+        String path_data = ((Map<String, Object>) config.mon_article_list.config().get(aid)).get("path.data").toString();
+        File file = new File(path_data);
         if (!file.isFile()) throw new FileNotFoundException("article not found for aid: " + aid);
         
         Map<String, Object> article = (Map<String, Object>) config.mon_article_list.config().get(aid);
         if (null == article) throw new FileNotFoundException("article not found for aid: " + aid);
         
-        byte[] buf = Files.readAllBytes(new File(path).toPath());
+        byte[] buf = Files.readAllBytes(new File(path_data).toPath());
         String data = new String(buf, "utf-8");
         article = new HashMap<>(article);
         article.put("data", data);
