@@ -1,7 +1,6 @@
 package com.fomjar.blog.article;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
@@ -62,7 +61,7 @@ public class ArticleService {
         article.put("name",         name);
         article.put("author",       author);
         article.put("path.view",    path_view);
-        article.put("path.data",    path_data);
+        article.put("path.data",    path_data.substring(ConfigService.PATH_ROOT.length() + 1));
         article.put("time.update", System.currentTimeMillis());
         if (config.mon_article_list.config().containsKey(aid)) {
             Map<String, Object> article_old = (Map<String, Object>) config.mon_article_list.config().get(aid);
@@ -72,26 +71,4 @@ public class ArticleService {
             config.mon_article_list.config().put(aid, article);
         }
     }
-    
-    public Map<String, Object> article_view(String aid) throws IOException {
-        if (null == aid || 0 == aid.length()) throw new IllegalArgumentException("null aid");
-        
-        String path_data = ((Map<String, Object>) config.mon_article_list.config().get(aid)).get("path.data").toString();
-        File file = new File(path_data);
-        if (!file.isFile()) throw new FileNotFoundException("article not found for aid: " + aid);
-        
-        Map<String, Object> article = (Map<String, Object>) config.mon_article_list.config().get(aid);
-        if (null == article) throw new FileNotFoundException("article not found for aid: " + aid);
-        
-        byte[] buf = Files.readAllBytes(new File(path_data).toPath());
-        String data = new String(buf, "utf-8");
-        article = new HashMap<>(article);
-        article.put("data", data);
-        return article;
-    }
-    
-    public Map<String, Object> article_list() {
-        return config.mon_article_list.config();
-    }
-
 }

@@ -5,25 +5,20 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>查看文章</title>
+        <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.css" />
         <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
         <style type='text/css'>
-            body {
-                padding         : 1em;
-                margin          : 0;
-                max-width       : 60em;
-                margin-left     : auto;
-                margin-right    : auto;
-            }
-            #editormd {
-                padding : 0;
-            }
         </style>
     </head>
     <body>
-        <div id="editormd"><textarea style="display:none;"></textarea></div>
-        <hr>
-        <a href="javascript: window.location='article-edit.html?aid=' + path_var('aid'); ">编辑</a><a href='index.html' style='float : right'>返回首页</a>
+        <div class='container'>
+            <div id="editormd"><textarea style="display:none;"></textarea></div>
+            <hr>
+            <p>
+                <a href="javascript: window.location='article-edit.html?aid=' + path_var('aid'); ">编辑</a><a href='index.html' style='float : right'>返回首页</a>
+            </p>
+        </div>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/editormd/lib/marked.min.js"></script>
         <script src="resources/editormd/lib/prettify.min.js"></script>
@@ -41,19 +36,15 @@
                     alert('未知文章');
                     return;
                 }
-                $.post(                                            
-                    '/article/view',                               
-                    {                                              
-                        aid : aid             
-                    },                                             
-                    function(rsp) {                                
-                        if (rsp.code) {
-                            window.alert(rsp.desc);                    
+                $.get(
+                    'article/' + aid + '.md',
+                    function(rsp) {
+                        if (!rsp) {
+                            window.alert('文章不存在！');
                             return;
                         }
-                        var article = rsp.desc;
                         var viewer = editormd.markdownToHTML('editormd', {
-                            markdown        : article.data ,//+ "\r\n" + $("#append-test").text(),
+                            markdown        : rsp ,//+ "\r\n" + $("#append-test").text(),
                             //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
                             htmlDecode      : "style,script,iframe",  // you can filter tags decode
                             //toc             : false,
@@ -68,8 +59,8 @@
                             flowChart       : true,  // 默认不解析
                             sequenceDiagram : true,  // 默认不解析
                         });
-                    }                                              
-                );                                                 
+                    }
+                );
             });
         </script>
     </body>

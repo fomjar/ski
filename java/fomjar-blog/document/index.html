@@ -9,66 +9,60 @@
         <link rel="stylesheet" href="resources/blog/blog.css" />
         <style type='text/css'>
             body {
-                min-height  : 200%;
+                height  : 200%;
             }
             .jumbotron {
-                padding-top     : 15%;
-                height          : 50%;
-                background-image: url(resources/blog/jumbotron.jpg);
-                background-size : 100% 100%;
-                color           : white;
-                text-shadow     : .2em .2em .5em black;
+                height              : 50%;
+                background-image    : url(resources/blog/jumbotron.jpg);
+                background-size     : 100% 100%;
+                color               : white;
+            }
+            .jumbotron > * {
+                position    : absolute;
+            }
+            .jumbotron .mask {
+                top                 : 0;
+                left                : 0;
+                width               : 100%;
+                height              : 100%;
+                background-color    : rgba(0, 0, 0, .3);
             }
             .jumbotron .container {
-                max-width   : 80em;
-                padding     : 2em;
+                top         : 30%;
+                left        : 10%;
+                width       : 80%;
+                height      : 40%;
             }
-            .jumbotron .container p:nth-child(3) {
-                margin-top  : 3em;
+            .jumbotron .container h2 small {
+                color   : lightgray;
             }
             .jumbotron ul {
                 position    : absolute;
                 right       : 2em;
                 bottom      : 1em;
-                color       : white;
             }
             .jumbotron ul li {
                 display : inline;
                 margin  : 0 .5em;
             }
-            .jumbotron ul li a {
-                color   : lightgray;
-            }
-            #articles {
-                max-width   : 50em;
-            }
-            #articles a {
-                text-decoration : none;
-            }
-            #articles a .panel:hover {
-                background-color    : #eee;
-            }
-            #articles small:nth-child(4) {
-                float   : right;
-            }
-            #articles small:nth-child(5) {
-                float           : right;
-                margin-right    : 2em;
-            }
         </style>
     </head>
     <body>
         <div class='jumbotron'>
+            <div class='mask'></div>
             <div class='container'>
-                <h2>欢迎光临逢佳的个人博客</h2>
-                <p>Welcome to fomjar's personal blog</p>
-                <p class='small'>如切如磋 如琢如磨</p>
+                <h2>欢迎光临逢佳的个人博客
+                    <br>
+                    <small>Welcome to fomjar's personal blog</small>
+                    <br><br>
+                    <p>如切如磋 如琢如磨</p>
+                </h2>
             </div>
-            <ul class='small'>
-                <li><a href='http://projects.spring.io/spring-boot/'>spring-boot</a></li>
-                <li><a href='http://jquery.com'>jquery</a></li>
-                <li><a href='http://pandao.github.io/editor.md/'>editor.md</a></li>
-                <li><a href='http://getbootstrap.com'>bootstrap</a></li>
+            <ul>
+                <li><a href='http://projects.spring.io/spring-boot/'><span class='label label-primary'>spring-boot</span></a></li>
+                <li><a href='http://jquery.com'><span class='label label-success'>jquery</span></a></li>
+                <li><a href='http://pandao.github.io/editor.md/'><span class='label label-info'>editor.md</span></a></li>
+                <li><a href='http://getbootstrap.com'><span class='label label-danger'>bootstrap</span></a></li>
             </ul>
         </div>
         <div class='container' id='articles'>
@@ -77,23 +71,16 @@
         <script src="resources/blog/blog.js"></script>
         <script type="text/javascript">
             $(function() {
-                $.post(
-                    '/article/list',
-                    null,
+                $.get(
+                    'article/list.json',
                     function(rsp) {
                         var container = $('#articles');
                         $.each(rsp, function(i, article) {
-                            container.append("<a href=\"javascript: window.open('article-view.html?aid=" + article.aid + "');\" ><div class='panel panel-default'><div class='panel-body'>"
-                                + "<strong>" + article.name + "</strong>"
-                                + "<br>"
-                                + "<small>作者：" + article.author + "</small>"
-                                + "<small>更新：" + new Date(article['time.update']).format('yyyy/MM/dd') + "</small>"
-                                + "<small>创建：" + new Date(article['time.create']).format('yyyy/MM/dd') + "</small>"
-                            + "</div></div>");
+                            container.append(article_panel(article));
                         });
                     }
                 );
             });
         </script>
     </body>
-</html
+</html>

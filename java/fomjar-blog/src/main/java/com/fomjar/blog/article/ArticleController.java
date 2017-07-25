@@ -44,34 +44,5 @@ public class ArticleController {
             
         return rsp;
     }
-    
-    @RequestMapping("/view")
-    public Map<String, Object> post_view(
-            @RequestParam(name = "aid", required = true)    String aid
-    ) {
-        logger.info("[ARTICLE POST VIEW]");
-        
-        Map<String, Object> rsp = new HashMap<>();
-        try {
-            rsp.put("code", 0);
-            rsp.put("desc", service.article_view(aid));
-            logger.info("view file success: " + aid);
-        } catch (Exception e) {
-            rsp.put("code", -1);
-            rsp.put("desc", e.getMessage());
-            logger.error("view file failed: " + aid, e);
-        }
-            
-        return rsp;
-    }
-    
-    @RequestMapping("/list")
-    public Object[] post_list() {
-        logger.info("[ARTICLE POST VIEW]");
-        return service.article_list().entrySet()
-                .stream()
-                .map(e->e.getValue())
-                .toArray();
-    }
 
 }

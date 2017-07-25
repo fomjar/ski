@@ -5,19 +5,16 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>编辑文章</title>
+        <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.css" />
         <link rel="stylesheet" href="resources/editormd/css/editormd.css" />
         <link rel="stylesheet" href="resources/blog/blog.css" />
         <style tyle='text/css'>
-            body {
-                margin  : 0;
-            }
-            #editormd {
-                marign-bottom   : 0;
-            }
         </style>
     </head>
     <body>
-        <div id="editormd"><textarea style="display:none;"></textarea></div>
+        <div class='container'>
+            <div id="editormd"><textarea style="display:none;"></textarea></div>
+        </div>
         <script src="resources/editormd/examples/js/jquery.min.js"></script>
         <script src="resources/editormd/lib/marked.min.js"></script>
         <script src="resources/editormd/lib/prettify.min.js"></script>
@@ -32,25 +29,20 @@
             $(function() {
                 var aid = path_var('aid');
                 if (aid) {
-                    $.post(
-                        '/article/view',
-                        {
-                            aid : aid,
-                        },
+                    $.get(
+                        '/article/' + aid + '.md',
                         function(rsp) {
-                            if (rsp.code) {
-                                aid = null;
+                            if (!rsp) {
+                                window.alert('文章不存在！');
                                 return;
                             }
-
-                            var article = rsp.desc;
-                            $('#editormd textarea').val(article.data);
+                            $('#editormd textarea').val(rsp);
                         }
                     );
                 }
                 var editor = editormd({
                     id                  : "editormd",
-                    width               : "80%",
+                    width               : "100%",
                     autoHeight          : true,
                     path                : "resources/editormd/lib/",
                     saveHTMLToTextarea  : true,
@@ -76,7 +68,9 @@
                          * @param {String}      selection  编辑器选中的文本
                          */
                         submit  : function(cm, icon, cursor, selection) {
-                            var path = window.prompt('目录', '/');
+                            var path = window.prompt('文章分类', '/');
+                            if (!path) return;
+
                             $.post(
                                 '/article/edit',
                                 {

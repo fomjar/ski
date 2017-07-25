@@ -29,7 +29,7 @@ public class ConfigWebMvc implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // resolve static resource
         registry.addResourceHandler("/**")
-                .addResourceLocations("file:./document/");
+                .addResourceLocations("file:" + ConfigService.PATH_ROOT + "/");
     }
 
     @Override

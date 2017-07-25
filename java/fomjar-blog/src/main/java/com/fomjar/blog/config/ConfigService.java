@@ -20,9 +20,10 @@ public class ConfigService {
     
     private static final Log logger = LogFactory.getLog(ConfigService.class);
     
+    public static final String PATH_ROOT = "./document";
+    
     public static final String PATH_CONFIG  = "./config";
-    public static final String PATH_DATA    = "./data";
-    public static final String PATH_ARTICLE = PATH_DATA + "/article";
+    public static final String PATH_ARTICLE = PATH_ROOT + "/article";
     
     public Monitor mon_comm;
     public Monitor mon_auth;
