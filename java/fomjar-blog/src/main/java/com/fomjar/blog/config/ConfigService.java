@@ -20,20 +20,19 @@ public class ConfigService {
     
     private static final Log logger = LogFactory.getLog(ConfigService.class);
     
-    public static final String PATH_ROOT = "./document";
+    public static final String PATH_DATA = "./data";
     
-    public static final String PATH_CONFIG  = "./config";
-    public static final String PATH_ARTICLE = PATH_ROOT + "/article";
+    public static final String PATH_USERS       = PATH_DATA + "/users";
+    public static final String PATH_ARTICLES    = PATH_DATA + "/articles";
     
     public Monitor mon_comm;
-    public Monitor mon_auth;
-    public Monitor mon_article_list;
+    public Monitor mon_users;
+    public Monitor mon_articles;
     
     public ConfigService() {
         try {
-            new Thread(mon_comm         = new MonitorLoad(PATH_CONFIG  + "/comm.json"),  "monitor-load-comm").start();
-            new Thread(mon_auth         = new MonitorSave(PATH_CONFIG  + "/auth.json"),  "monitor-load-auth").start();
-            new Thread(mon_article_list = new MonitorSave(PATH_ARTICLE + "/list.json"),  "monitor-save-article-list").start();
+            new Thread(mon_users    = new MonitorSave(PATH_USERS  + "/list.json"),  "monitor-users").start();
+            new Thread(mon_articles = new MonitorSave(PATH_ARTICLES + "/list.json"),  "monitor-articles").start();
         } catch (IOException e) {logger.error("start monitor thread failed", e);}
     }
     
@@ -114,6 +113,7 @@ public class ConfigService {
         public void close() {isRun = false;}
     }
     
+    @SuppressWarnings("unused")
     private static class MonitorLoad extends Monitor {
         
         public MonitorLoad(String path) throws IOException {

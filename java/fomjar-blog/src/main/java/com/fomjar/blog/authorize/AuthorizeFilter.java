@@ -8,12 +8,16 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class AuthorizeFilter extends OncePerRequestFilter  {
+    
+    private static final Log logger = LogFactory.getLog(AuthorizeFilter.class);
     
     @Autowired
     private AuthorizeService service;
@@ -27,6 +31,8 @@ public class AuthorizeFilter extends OncePerRequestFilter  {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        logger.info("[AUTHORIZE FILTER] " + request.getRequestURI());
+        
         // no need to authorize
         
         String uri = request.getRequestURI();

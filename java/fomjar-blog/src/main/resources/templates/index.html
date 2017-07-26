@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>逢佳的个人博客</title>
-        <link rel="stylesheet" href="resources/bootstrap/css/bootstrap.css" />
-        <link rel="stylesheet" href="resources/blog/blog.css" />
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="blog/blog.css" />
         <style type='text/css'>
             body {
                 height  : 200%;
             }
             .jumbotron {
                 height              : 50%;
-                background-image    : url(resources/blog/jumbotron.jpg);
+                background-image    : url(blog/jumbotron.jpg);
                 background-size     : 100% 100%;
                 color               : white;
             }
@@ -67,8 +67,8 @@
         </div>
         <div class='container' id='articles'>
         </div>
-        <script src="resources/editormd/examples/js/jquery.min.js"></script>
-        <script src="resources/blog/blog.js"></script>
+        <script src="editormd/examples/js/jquery.min.js"></script>
+        <script src="blog/blog.js"></script>
         <script type="text/javascript">
             $(function() {
                 $.get(

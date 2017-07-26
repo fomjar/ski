@@ -28,7 +28,7 @@ public class ArticleService {
     }
     
     private static String get_path(String aid) {
-        return ConfigService.PATH_ARTICLE + "/" + aid + ".md";
+        return ConfigService.PATH_ARTICLES + "/" + aid + ".md";
     }
     
     private static String get_name(String data) {
@@ -61,14 +61,14 @@ public class ArticleService {
         article.put("name",         name);
         article.put("author",       author);
         article.put("path.view",    path_view);
-        article.put("path.data",    path_data.substring(ConfigService.PATH_ROOT.length() + 1));
+        article.put("path.data",    path_data.substring(ConfigService.PATH_DATA.length() + 1));
         article.put("time.update", System.currentTimeMillis());
-        if (config.mon_article_list.config().containsKey(aid)) {
-            Map<String, Object> article_old = (Map<String, Object>) config.mon_article_list.config().get(aid);
+        if (config.mon_articles.config().containsKey(aid)) {
+            Map<String, Object> article_old = (Map<String, Object>) config.mon_articles.config().get(aid);
             article_old.putAll(article);
         } else {
             article.put("time.create", System.currentTimeMillis());
-            config.mon_article_list.config().put(aid, article);
+            config.mon_articles.config().put(aid, article);
         }
     }
 }
