@@ -42,8 +42,8 @@ public class ArticleService {
         return "untitled";
     }
     
-    public Object get(String aid) {
-        return config.mon_articles.config().get(aid);
+    public Map<String, Object> get(String aid) {
+        return (Map<String, Object>) config.mon_articles.config().get(aid);
     }
     
     public Collection<Object> list() {
@@ -51,17 +51,19 @@ public class ArticleService {
     }
     
     public String get_data(String aid) throws IOException {
-        Map<String, Object> article = (Map<String, Object>) get(aid);
+        Map<String, Object> article = get(aid);
+        if (null == article) return null;
+        
         String path = (String) article.get("path_data");
         byte[] buff = Files.readAllBytes(new File(path).toPath());
         return new String(buff, "utf-8");
     }
     
-    public void update(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
-        update(new_aid(), author, path_view, data);
+    public String update(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
+        return update(new_aid(), author, path_view, data);
     }
     
-    public void update(String aid, String author, String path_view, String markdown) throws UnsupportedEncodingException, IOException {
+    public String update(String aid, String author, String path_view, String markdown) throws UnsupportedEncodingException, IOException {
         if (null == aid || 0 == aid.length()) aid = new_aid();
         
         String name = get_name(markdown);
@@ -87,5 +89,7 @@ public class ArticleService {
             config.mon_articles.config().put(aid, article);
         }
         config.mon_articles.mod_mem();
+        
+        return aid;
     }
 }

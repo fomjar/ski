@@ -8,9 +8,19 @@
         <style th:include="~{/fragments/common :: style}"></style>
     </head>
     <body>
-    	<div th:include="~{/fragments/jumbotron :: index}"></div>
+    		<div th:include="~{/fragments/jumbotron :: index}"></div>
         <div class="container" th:each="article : ${articles}">
-        	<div th:include="~{/fragments/article :: panel(${article})}"></div>
+        		<div th:include="~{/fragments/article :: panel(${article})}"></div>
         </div>
+        <p class="container">
+            <button class="btn btn-primary"
+                onclick="javascript: window.location = '/article/edit';"
+                th:text="发布"
+                th:if="null != ${#session} and null != ${#session.getAttribute('user')}"></button>
+            <button class="btn btn-success"
+                onclick="javascript: window.location = '/user/login';"
+                th:text="登陆"
+                th:if="null == ${#session} or null == ${#session.getAttribute('user')}"></button>
+        </p>
     </body>
 </html>

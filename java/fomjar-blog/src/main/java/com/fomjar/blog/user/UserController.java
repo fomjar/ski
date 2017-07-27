@@ -1,6 +1,7 @@
 package com.fomjar.blog.user;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,21 +26,23 @@ public class UserController {
     
     @RequestMapping("/login")
     public ModelAndView login(HttpServletRequest request) {
-        return new ModelAndView()
-                .addObject("user", service.get((String) request.getAttribute("user")));
+        return new ModelAndView();
     }
     
     @RequestMapping(path = "/authorize", method = RequestMethod.POST)
     public void authorize(
-            @RequestParam   String user,
-            @RequestParam   String pass,
+            @RequestParam(required = true)  String user,
+            @RequestParam(required = true)  String pass,
+            @RequestParam(required = false) String redirect,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         if (null != service.auth_pass(user, pass, request, response)) {
             logger.info("[USER AUTHORIZE] success: " + user);
-            try {response.sendRedirect("/");}
-            catch (IOException e) {logger.error("send redirect failed", e);}
+            try {
+                if (null != redirect && 0 < redirect.length()) response.sendRedirect(URLDecoder.decode(redirect, "utf-8"));
+                else response.sendRedirect("/");
+            } catch (IOException e) {logger.error("send redirect failed", e);}
         } else {
             logger.error("[USER AUTHORIZE] failed:" + user);
             try {response.sendRedirect("/user/login");}

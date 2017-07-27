@@ -30,8 +30,8 @@
 	            }
 	            .jumbotron ul {
 	                position    : absolute;
-	                right       : 2em;
-	                bottom      : 1em;
+	                right       : 1em;
+	                bottom      : .5em;
 	            }
 	            .jumbotron ul li {
 	                display : inline;
@@ -51,17 +51,22 @@
 	                    <p>如切如磋 如琢如磨</p>
 	                </h2>
 	            </div>
-	            <ul>
+	            <ul class="small">
 	                <li><a th:href="@{http://projects.spring.io/spring-boot/}"><span class="label label-primary">spring-boot</span></a></li>
-	                <li><a th:href="@{http://jquery.com}"><span class="label label-success">jquery</span></a></li>
-	                <li><a th:href="@{http://pandao.github.io/editor.md/}"><span class="label label-info">editor.md</span></a></li>
+	                <li><a th:href="@{http://http://www.thymeleaf.org}"><span class="label label-success">thymeleaf</span></a></li>
 	                <li><a th:href="@{http://getbootstrap.com}"><span class="label label-danger">bootstrap</span></a></li>
+	                <li><a th:href="@{http://pandao.github.io/editor.md/}"><span class="label label-info">editor.md</span></a></li>
+	                <li><a th:href="@{http://jquery.com}"><span class="label label-success">jquery</span></a></li>
 	            </ul>
 	        </div>
 	        <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
 	       	<script type="text/javascript">
        			$('body').css('height', window.innerHeight * 2);
 	       		$('.jumbotron').css('height', window.innerHeight);
+	       		window.onresize = function() {
+	       			$('body').css('height', window.innerHeight * 2);
+		       		$('.jumbotron').css('height', window.innerHeight);
+	       		};
 	       	</script>
 		</div>
 	</body>

@@ -1,7 +1,9 @@
 package com.fomjar.blog.article;
 
 import java.io.IOException;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -25,30 +27,49 @@ public class ArticleController {
     @RequestMapping("/view")
     public ModelAndView view(
             @RequestParam String aid
-            ) {
+    ) {
         try {
             return new ModelAndView("/article/view")
                     .addObject("article", service.get(aid))
                     .addObject("markdown", service.get_data(aid));
         } catch (IOException e) {
             logger.error("article not found: " + aid, e);
-            return new ModelAndView("/article/view")
-                    .addObject("article", service.get(aid))
-                    .addObject("markdown", "# article not found");
+            return new ModelAndView("/error")
+                    .addObject("code", -1)
+                    .addObject("desc", "article read failed: " + e.getMessage());
         }
     }
     
     @RequestMapping("/edit")
-    public ModelAndView edit(@RequestParam(required = false) String aid) {
+    public ModelAndView edit(
+            @RequestParam(required = false) String aid,
+            HttpServletRequest request
+    ) {
+        if (null != aid && 0 < aid.length()) {
+            Map<String, Object> article = service.get(aid);
+            if (null == article) {
+                logger.error("article not found: " + aid);
+                return new ModelAndView("/error")
+                        .addObject("code", -1)
+                        .addObject("desc", "article not found");
+            }
+            if (!article.get("author").equals(request.getSession().getAttribute("user"))) {
+                logger.error("illegal access! user=" + article.get("author") + ", aid=" + aid);
+                return new ModelAndView("/error")
+                        .addObject("code", -1)
+                        .addObject("desc", "illegal access");
+            }
+        }
+        
         try {
             return new ModelAndView("/article/edit")
-                    .addObject("article", null == aid ? null : service.get(aid))
-                    .addObject("markdown", null == aid ? null : service.get_data(aid));
+                    .addObject("article", service.get(aid))
+                    .addObject("markdown", service.get_data(aid));
         } catch (IOException e) {
-            logger.error("article not found: " + aid);
-            return new ModelAndView("/article/edit")
-                    .addObject("article", null == aid ? null : service.get(aid))
-                    .addObject("markdown", "# article not found");
+            logger.error("article read failed: " + aid, e);
+            return new ModelAndView("/error")
+                    .addObject("code", -1)
+                    .addObject("desc", "article read failed: " + e.getMessage());
         }
     }
     
@@ -58,10 +79,22 @@ public class ArticleController {
             @RequestParam(name = "author",      required = true)    String author,
             @RequestParam(name = "path_view",   required = true)    String path_view,
             @RequestParam(name = "markdown",    required = true)    String markdown,
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
+        if (null != aid && 0 < aid.length()) {
+            Map<String, Object> article = service.get(aid);
+            if (null != article) {
+                if (!article.get("author").equals(request.getSession().getAttribute("user"))) {
+                    logger.error("[ARTICLE UPDATE] illegal access! user=" + article.get("author") + ", aid=" + aid);
+                    return new ModelAndView("/error")
+                            .addObject("code", -1)
+                            .addObject("desc", "illegal access");
+                }
+            }
+        }
         try {
-            service.update(aid, author, path_view, markdown);
+            aid = service.update(aid, author, path_view, markdown);
             logger.info("[ARTICLE UPDATE] success: " + aid);
             response.sendRedirect("/article/view?aid=" + aid);
             return null;
