@@ -28,12 +28,21 @@ public class ArticleController {
     public ModelAndView view(
             @RequestParam String aid
     ) {
+        if (null != aid && 0 < aid.length()) {
+            Map<String, Object> article = service.get(aid);
+            if (null == article) {
+                logger.error("article not found: " + aid);
+                return new ModelAndView("/error")
+                        .addObject("code", -1)
+                        .addObject("desc", "article not found");
+            }
+        }
         try {
             return new ModelAndView("/article/view")
                     .addObject("article", service.get(aid))
                     .addObject("markdown", service.get_data(aid));
         } catch (IOException e) {
-            logger.error("article not found: " + aid, e);
+            logger.error("article read failed: " + aid, e);
             return new ModelAndView("/error")
                     .addObject("code", -1)
                     .addObject("desc", "article read failed: " + e.getMessage());
