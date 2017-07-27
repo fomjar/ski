@@ -8,9 +8,9 @@
         <style th:include="~{/fragments/common :: style}"></style>
     </head>
     <body>
-    		<div th:include="~{/fragments/jumbotron :: index}"></div>
+        <div th:include="~{/fragments/jumbotron :: index}"></div>
         <div class="container" th:each="article : ${articles}">
-        		<div th:include="~{/fragments/article :: panel(${article})}"></div>
+            <div th:include="~{/fragments/article :: panel(${article})}"></div>
         </div>
         <p class="container">
             <button class="btn btn-primary"
