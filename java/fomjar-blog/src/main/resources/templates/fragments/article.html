@@ -1,10 +1,149 @@
-<div th:fragment="panel(article)"
-     th:with="day=${article.time_update / 1000 / 60 / 24}">
-	    var day = (new Date().getTime() - new Date(article['time.update']).getTime()) / 1000 / 60 / 60 / 24;
-    return $("<a class='article-panel' href=\"javascript: window.open('article-view.html?aid=" + article.aid + "');\" ><div class='panel panel-default'><div class='panel-body'>"
-        + "<h4>" + article.name
-            + (day < new_day ? "<span class='label label-danger'>new</span>" : "")
-            + "<small>" + new Date(article['time.create']).format('yyyy/MM/dd HH:mm:ss') + "</small>"
-        + "</h4>"
-    + "</div></div></a>"
-</div>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div th:fragment="panel(article)"
+		    th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
+		    <style>
+			    a {
+				    text-decoration : none;
+				}
+				a:hover {
+				    text-decoration : none;
+				}
+				.article-panel .panel:hover {
+				    background-color    : #eee;
+				}
+				.article-panel .panel .panel-body h4 {
+				    margin  : 0;
+				}
+				.article-panel .panel .panel-body h4 span {
+				    position    : relative;
+				    top         : -.2em;
+				    margin-left : 2em;
+				    font-size   : 60%;
+				}
+				.article-panel .panel .panel-body h4 small {
+				    float       : right;
+				    line-height : 1.5em;
+				}
+		    </style>
+		    <a class="article-panel" th:href="@{article/view(aid=${article.aid})}">
+		    	<div class="panel">
+			    	<div class="panel-body">
+			    		<h4>
+			    			<label th:text="${article.name}"></label>
+			    			<span class="label label-danger" th:if="${day <= 30}">new</span>
+			    			<small th:text="${#dates.format(article.time_create, 'yyyy/MM/dd HH:mm:ss')}"></small>
+			    		</h4>
+			    	</div>
+		    	</div>
+		    </a>
+		</div>
+		
+		
+		<div th:fragment="view(article, markdown)">
+	        <link rel="stylesheet" th:href="@{/editormd/css/editormd.css}" />
+			<style>
+				ol, ul {
+				    padding-left : 3em !important;
+				}
+			</style>
+            <div id="editormd">
+            	<textarea style="display:none;" th:text="${markdown}"></textarea>
+           	</div>
+	        <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
+	        <script th:src="@{/editormd/lib/marked.min.js}"></script>
+	        <script th:src="@{/editormd/lib/prettify.min.js}"></script>
+	        <script th:src="@{/editormd/lib/raphael.min.js}"></script>
+	        <script th:src="@{/editormd/lib/underscore.min.js}"></script>
+	        <script th:src="@{/editormd/lib/sequence-diagram.min.js}"></script>
+	        <script th:src="@{/editormd/lib/flowchart.min.js}"></script>
+	        <script th:src="@{/editormd/lib/jquery.flowchart.min.js}"></script>
+	        <script th:src="@{/editormd/editormd.min.js}"></script>
+	        <script type="text/javascript">
+        		editormd.markdownToHTML('editormd', {
+                       //markdown        : markdown ,//+ "\r\n" + $("#append-test").text(),
+                       //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+                       htmlDecode      : "style,script,iframe",  // you can filter tags decode
+                       //toc             : false,
+                       tocm            : true,    // Using [TOCM]
+                       //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                       //gfm             : false,
+                       //tocDropdown     : true,
+                       //markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                       emoji           : true,
+                       taskList        : true,
+                       tex             : true,  // 默认不解析
+                       flowChart       : true,  // 默认不解析
+                       sequenceDiagram : true,  // 默认不解析
+                   });
+	        </script>
+		</div>
+		
+		
+		
+		<div th:fragment="edit(article, markdown)">
+	        <link rel="stylesheet" th:href="@{/editormd/css/editormd.css}" />
+	        <form th:action="@{/article/update}" method="post">
+	           	<input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
+				<div class="form-group col-lg-6">
+					<label for="user">分类</label>
+					<input type="text" class="form-control" name="path_view" required placeholder="分类"	th:value="null != ${article} ? ${article.path_view} : '/'">
+				</div>
+				<div class="form-group col-lg-6">
+					<label for="user">作者</label>
+					<input type="text" class="form-control" name="author" required placeholder="作者" th:value="null != ${article} ? ${article.author} : 'anonymous'">
+				</div>
+	            <div id="editormd">
+	            	<textarea style="display:none;" name="markdown" th:text="${markdown}"></textarea>
+	           	</div>
+           	</form>
+	        <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
+	        <script th:src="@{/editormd/lib/marked.min.js}"></script>
+	        <script th:src="@{/editormd/lib/prettify.min.js}"></script>
+	        <script th:src="@{/editormd/lib/raphael.min.js}"></script>
+	        <script th:src="@{/editormd/lib/underscore.min.js}"></script>
+	        <script th:src="@{/editormd/lib/sequence-diagram.min.js}"></script>
+	        <script th:src="@{/editormd/lib/flowchart.min.js}"></script>
+	        <script th:src="@{/editormd/lib/jquery.flowchart.min.js}"></script>
+	        <script th:src="@{/editormd/editormd.min.js}"></script>
+	        <script>
+		        editormd({
+	                id                  : "editormd",
+	                width               : "100%",
+	                autoHeight          : true,
+	                path                : "/editormd/lib/",
+	                saveHTMLToTextarea  : true,
+	                toolbarIcons        : function() {
+	                    return [
+	                        'undo', 'redo', '|',
+	                        'bold', 'del', 'italic', 'quote', '|',
+	                        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', '|',
+	                        'list-ul', 'list-ol', 'hr', '|',
+	                        'link', 'reference-link', 'image', 'code', '|',
+	                        'submit', 'index'
+	                    ];
+	                },
+	                toolbarIconTexts    : {
+	                    submit  : '提交',
+	                    index   : '返回首页'
+	                },
+	                toolbarHandlers     : {
+	                    /**
+	                     * @param {Object}      cm         CodeMirror对象
+	                     * @param {Object}      icon       图标按钮jQuery元素对象
+	                     * @param {Object}      cursor     CodeMirror的光标对象，可获取光标所在行和位置
+	                     * @param {String}      selection  编辑器选中的文本
+	                     */
+	                    submit  : function(cm, icon, cursor, selection) {
+	                        $('form').submit();
+	                    },
+	                    index   : function(cm, icon, cursor, selection) {
+	                        window.location = '/';
+	                    }
+	                },
+	            });
+	        </script>
+		</div>
+	</body>
+</html>

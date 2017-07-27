@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class ArticleService {
         return "article-" + UUID.randomUUID().toString().replace("-", "");
     }
     
-    private static String get_path(String aid) {
+    private static String get_path_data(String aid) {
         return ConfigService.PATH_ARTICLES + "/" + aid + ".md";
     }
     
@@ -41,17 +42,32 @@ public class ArticleService {
         return "untitled";
     }
     
-    public void article_edit(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
-        article_edit(new_aid(), author, path_view, data);
+    public Object get(String aid) {
+        return config.mon_articles.config().get(aid);
     }
     
-    public void article_edit(String aid, String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
+    public Collection<Object> list() {
+        return config.mon_articles.config().values();
+    }
+    
+    public String get_data(String aid) throws IOException {
+        Map<String, Object> article = (Map<String, Object>) get(aid);
+        String path = (String) article.get("path_data");
+        byte[] buff = Files.readAllBytes(new File(path).toPath());
+        return new String(buff, "utf-8");
+    }
+    
+    public void update(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
+        update(new_aid(), author, path_view, data);
+    }
+    
+    public void update(String aid, String author, String path_view, String markdown) throws UnsupportedEncodingException, IOException {
         if (null == aid || 0 == aid.length()) aid = new_aid();
         
-        String name = get_name(data);
-        String path_data = get_path(aid);
+        String name = get_name(markdown);
+        String path_data = get_path_data(aid);
         
-        Files.write(new File(path_data).toPath(), data.getBytes("utf-8"),
+        Files.write(new File(path_data).toPath(), markdown.getBytes("utf-8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE);
@@ -60,15 +76,16 @@ public class ArticleService {
         article.put("aid",          aid);
         article.put("name",         name);
         article.put("author",       author);
-        article.put("path.view",    path_view);
-        article.put("path.data",    path_data.substring(ConfigService.PATH_DATA.length() + 1));
-        article.put("time.update", System.currentTimeMillis());
+        article.put("path_view",    path_view);
+        article.put("path_data",    path_data);
+        article.put("time_update", System.currentTimeMillis());
         if (config.mon_articles.config().containsKey(aid)) {
             Map<String, Object> article_old = (Map<String, Object>) config.mon_articles.config().get(aid);
             article_old.putAll(article);
         } else {
-            article.put("time.create", System.currentTimeMillis());
+            article.put("time_create", System.currentTimeMillis());
             config.mon_articles.config().put(aid, article);
         }
+        config.mon_articles.mod_mem();
     }
 }

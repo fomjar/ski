@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div th:fragment="index">
+	        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+	        <style>
+	            .jumbotron {
+	                background-image    : url(blog/jumbotron.jpg);
+	                background-size     : 100% 100%;
+	                color               : white;
+	            }
+	            .jumbotron > * {
+	                position    : absolute;
+	            }
+	            .jumbotron .mask {
+	                top                 : 0;
+	                left                : 0;
+	                width               : 100%;
+	                height              : 100%;
+	                background-color    : rgba(0, 0, 0, .3);
+	            }
+	            .jumbotron .container {
+	                top         : 30%;
+	                left        : 10%;
+	                width       : 80%;
+	                height      : 40%;
+	            }
+	            .jumbotron .container h2 small {
+	                color   : lightgray;
+	            }
+	            .jumbotron ul {
+	                position    : absolute;
+	                right       : 2em;
+	                bottom      : 1em;
+	            }
+	            .jumbotron ul li {
+	                display : inline;
+	                margin  : 0 .5em;
+	            }
+	            .jumbotron ui li a, .jumbotron ui li a:hover {
+	            	text-decoration	: none;
+	            }
+	        </style>
+	        <div class="jumbotron">
+	            <div class="mask"></div>
+	            <div class="container">
+	                <h2>欢迎光临逢佳的个人博客
+	                    <br>
+	                    <small>Welcome to fomjar's personal blog</small>
+	                    <br><br>
+	                    <p>如切如磋 如琢如磨</p>
+	                </h2>
+	            </div>
+	            <ul>
+	                <li><a th:href="@{http://projects.spring.io/spring-boot/}"><span class="label label-primary">spring-boot</span></a></li>
+	                <li><a th:href="@{http://jquery.com}"><span class="label label-success">jquery</span></a></li>
+	                <li><a th:href="@{http://pandao.github.io/editor.md/}"><span class="label label-info">editor.md</span></a></li>
+	                <li><a th:href="@{http://getbootstrap.com}"><span class="label label-danger">bootstrap</span></a></li>
+	            </ul>
+	        </div>
+	        <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
+	       	<script type="text/javascript">
+       			$('body').css('height', window.innerHeight * 2);
+	       		$('.jumbotron').css('height', window.innerHeight);
+	       	</script>
+		</div>
+	</body>
+</html>

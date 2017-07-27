@@ -1,8 +1,8 @@
-package com.fomjar.blog.authorize;
+package com.fomjar.blog.user;
 
 import java.io.IOException;
 
-import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -12,33 +12,37 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class AuthorizeController {
+@RequestMapping("/user")
+public class UserController {
     
-    private static final Log logger = LogFactory.getLog(AuthorizeController.class);
+    private static final Log logger = LogFactory.getLog(UserController.class);
     
     @Autowired
-    private AuthorizeService service;
+    private UserService service;
+    
+    @RequestMapping("/login")
+    public ModelAndView login(HttpServletRequest request) {
+        return new ModelAndView()
+                .addObject("user", service.get((String) request.getAttribute("user")));
+    }
     
     @RequestMapping(path = "/authorize", method = RequestMethod.POST)
-    public void post_auth(
+    public void authorize(
             @RequestParam   String user,
             @RequestParam   String pass,
+            HttpServletRequest request,
             HttpServletResponse response
     ) {
-        logger.info("[AUTHORIZE POST AUTH]");
-        
-        String token = null;
-        if (null != (token = service.auth_pass(user, pass))) {
-            response.addCookie(new Cookie("user",  user));
-            response.addCookie(new Cookie("token", token));
-            logger.info("authorize success: " + user);
+        if (null != service.auth_pass(user, pass, request, response)) {
+            logger.info("[USER AUTHORIZE] success: " + user);
             try {response.sendRedirect("/");}
             catch (IOException e) {logger.error("send redirect failed", e);}
         } else {
-            logger.error("authorize failed:" + user);
-            try {response.sendRedirect("login.html");}
+            logger.error("[USER AUTHORIZE] failed:" + user);
+            try {response.sendRedirect("/user/login");}
             catch (IOException e) {logger.error("send redirect failed", e);}
         }
     }

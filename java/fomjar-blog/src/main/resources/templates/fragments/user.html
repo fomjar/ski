@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<body>
+		<div th:fragment="login">
+        	<link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+	    	<div class='panel panel-primary'>
+	    		<div class="panel-heading">
+	    			<h3 class='text-center'>欢迎回来!</h3>
+	    		</div>
+	    		<div class='panel-body'>
+					<form th:action='@{/user/authorize}' method='post'>
+						<div class="form-group">
+							<label for="user">输入用户名</label>
+							<input type="text" 		class="form-control" id='user' name='user' required placeholder="用户名"	th:value="null != ${user} ? ${user.user} : ''">
+						</div>
+						<div class="form-group">
+							<label for="pass">输入密码</label>
+							<input type="password"  class="form-control" id='pass' name='pass' required placeholder="密码">
+						</div>
+						<button class='btn btn-block btn-primary' type='submit'>提交</button>
+					</form>
+	    		</div>
+	    	</div>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>查看文章</title>
+        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+        <style th:include="~{/fragments/common :: style}"></style>
+    </head>
+    <body>
+        <div class='container'>
+            <div th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
+            <hr>
+            <p>
+                <a th:href="@{/article/edit(aid=${article.aid})}">编辑</a><a th:href='@{/}' style='float : right'>返回首页</a>
+            </p>
+        </div>
+    </body>
+</html>

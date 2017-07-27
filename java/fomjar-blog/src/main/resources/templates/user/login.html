@@ -4,13 +4,13 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>逢佳的个人博客</title>
+        <title>登陆</title>
+        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
         <style th:include="~{/fragments/common :: style}"></style>
     </head>
     <body>
-    	<div th:include="~{/fragments/jumbotron :: index}"></div>
-        <div class="container" th:each="article : ${articles}">
-        	<div th:include="~{/fragments/article :: panel(${article})}"></div>
-        </div>
+    	<div class='container'>
+    		<div th:include="~{/fragments/user :: login}"></div>
+    	</div>
     </body>
 </html>

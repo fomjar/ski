@@ -1,10 +1,9 @@
-package com.fomjar.blog.authorize;
+package com.fomjar.blog.user;
 
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,23 +14,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-public class AuthorizeFilter extends OncePerRequestFilter  {
+public class UserAuthorizeFilter extends OncePerRequestFilter  {
     
-    private static final Log logger = LogFactory.getLog(AuthorizeFilter.class);
+    private static final Log logger = LogFactory.getLog(UserAuthorizeFilter.class);
     
     @Autowired
-    private AuthorizeService service;
+    private UserService service;
     private String[] list_black;
     
-    public AuthorizeFilter() {
+    public UserAuthorizeFilter() {
         list_black = new String[] {
-                "article-edit.html"
+                "/article/edit",
+                "/article/update"
         };
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        logger.info("[AUTHORIZE FILTER] " + request.getRequestURI());
+        logger.info("[USER AUTHORIZE FILTER] " + request.getRequestURI());
         
         // no need to authorize
         
@@ -51,19 +51,8 @@ public class AuthorizeFilter extends OncePerRequestFilter  {
         
         // need to authorize
         
-        if (null == request.getCookies()) {
-            response.sendRedirect("login.html");
-            return;
-        }
-  
-        String user = null;
-        String token = null;
-        for (Cookie cookie : request.getCookies()) {
-            if ("user".equals(cookie.getName()))    user = cookie.getValue();
-            if ("token".equals(cookie.getName()))   token = cookie.getValue();
-        }
-        if (!service.auth_token(user, token)) {
-            response.sendRedirect("login.html");
+        if (!service.auth_token(request)) {
+            response.sendRedirect("/user/login");
             return;
         }
         

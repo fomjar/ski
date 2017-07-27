@@ -31,7 +31,7 @@ public class ConfigService {
     
     public ConfigService() {
         try {
-            new Thread(mon_users    = new MonitorSave(PATH_USERS  + "/list.json"),  "monitor-users").start();
+            new Thread(mon_users    = new MonitorLoad(PATH_USERS  + "/list.json"),  "monitor-users").start();
             new Thread(mon_articles = new MonitorSave(PATH_ARTICLES + "/list.json"),  "monitor-articles").start();
         } catch (IOException e) {logger.error("start monitor thread failed", e);}
     }
@@ -69,6 +69,8 @@ public class ConfigService {
         }
         public abstract void monitor() throws IOException;
         
+        public void mod_mem() {mod_mem = true;}
+        
         public void save() throws IOException {
             if (0 == config.size()) return;
             
@@ -101,10 +103,7 @@ public class ConfigService {
             }
         }
         
-        public Map<String, Object> config() {
-            mod_mem = true;
-            return config;
-        }
+        public Map<String, Object> config() {return config;}
         
         public boolean isRun() {return isRun;}
         
@@ -113,7 +112,6 @@ public class ConfigService {
         public void close() {isRun = false;}
     }
     
-    @SuppressWarnings("unused")
     private static class MonitorLoad extends Monitor {
         
         public MonitorLoad(String path) throws IOException {

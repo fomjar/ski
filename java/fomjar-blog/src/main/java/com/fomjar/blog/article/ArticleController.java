@@ -1,19 +1,20 @@
 package com.fomjar.blog.article;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
-@RestController
-@RequestMapping(path = "/article",
-                method = RequestMethod.POST)
+@Controller
+@RequestMapping("/article")
 public class ArticleController {
     
     private static final Log logger = LogFactory.getLog(ArticleController.class);
@@ -21,28 +22,54 @@ public class ArticleController {
     @Autowired
     private ArticleService service;
     
-    @RequestMapping("/edit")
-    public Map<String, Object> post_edit(
-            @RequestParam(name = "article.aid",     required = false)   String aid,
-            @RequestParam(name = "article.author",  required = true)    String author,
-            @RequestParam(name = "article.path",    required = true)    String path,
-            @RequestParam(name = "article.data",    required = true)    String data
-    ) {
-        logger.info("[ARTICLE POST EDIT]");
-        
-        Map<String, Object> rsp = new HashMap<>();
+    @RequestMapping("/view")
+    public ModelAndView view(
+            @RequestParam String aid
+            ) {
         try {
-            service.article_edit(aid, author, path, data);
-            rsp.put("code", 0);
-            rsp.put("desc", "SUCCESS");
-            logger.info("edit file success");
-        } catch (Exception e) {
-            rsp.put("code", -1);
-            rsp.put("desc", e.getMessage());
-            logger.error("edit file failed", e);
+            return new ModelAndView("/article/view")
+                    .addObject("article", service.get(aid))
+                    .addObject("markdown", service.get_data(aid));
+        } catch (IOException e) {
+            logger.error("article not found: " + aid, e);
+            return new ModelAndView("/article/view")
+                    .addObject("article", service.get(aid))
+                    .addObject("markdown", "# article not found");
         }
-            
-        return rsp;
+    }
+    
+    @RequestMapping("/edit")
+    public ModelAndView edit(@RequestParam(required = false) String aid) {
+        try {
+            return new ModelAndView("/article/edit")
+                    .addObject("article", null == aid ? null : service.get(aid))
+                    .addObject("markdown", null == aid ? null : service.get_data(aid));
+        } catch (IOException e) {
+            logger.error("article not found: " + aid);
+            return new ModelAndView("/article/edit")
+                    .addObject("article", null == aid ? null : service.get(aid))
+                    .addObject("markdown", "# article not found");
+        }
+    }
+    
+    @RequestMapping(path = "/update", method = RequestMethod.POST)
+    public ModelAndView update(
+            @RequestParam(name = "aid",         required = false)   String aid,
+            @RequestParam(name = "author",      required = true)    String author,
+            @RequestParam(name = "path_view",   required = true)    String path_view,
+            @RequestParam(name = "markdown",    required = true)    String markdown,
+            HttpServletResponse response
+    ) {
+        try {
+            service.update(aid, author, path_view, markdown);
+            logger.info("[ARTICLE UPDATE] success: " + aid);
+            response.sendRedirect("/article/view?aid=" + aid);
+            return null;
+        } catch (IOException e) {
+            logger.error("[ARTICLE UPDATE] failed: " + aid, e);
+            return new ModelAndView("/article/edit")
+                    .addObject("markdown", markdown);
+        }
     }
 
 }
