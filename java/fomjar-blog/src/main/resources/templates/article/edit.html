@@ -11,20 +11,27 @@
     <body>
         <div class="container">
             <form th:action="@{/article/update}" method="post">
-                <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
-                <div class="form-group col-lg-6 col-md-6">
-                    <label for="user">分类</label>
-                    <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '/'">
+                <div class="row">
+                    <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
+                    <div class="col-lg-6 col-md-6 form-group">
+                        <label for="user">分类</label>
+                        <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '/'">
+                    </div>
+                    <div class="col-lg-6 col-md-6 form-group">
+                        <label for="user">作者</label>
+                        <input type="text" class="form-control" name="author" readonly placeholder="作者" th:value="${#session.getAttribute('user')}">
+                    </div>
                 </div>
-                <div class="form-group col-lg-6 col-md-6">
-                    <label for="user">作者</label>
-                    <input type="text" class="form-control" name="author" readonly placeholder="作者" th:value="${#session.getAttribute('user')}">
+                <div class="row">
+                    <div class="col-lg-12 col-md-12"
+                         th:include="~{/fragments/article :: edit(${article}, ${markdown})}"></div>
                 </div>
-                <div class="col-lg-12 col-md-12" th:include="~{/fragments/article :: edit(${article}, ${markdown})}"></div>
-                <p class="col-lg-12 col-md-12">
-                    <button class="btn btn-success" type="submit" th:text="提交"></button>
-                    <button class="btn btn-warning" onclick="javascript: window.location = '/'; return false;" th:text="取消"></button>
-                </p>
+                <div class="row">
+                    <div class="col-lg-12 col-md-12">
+                        <button class="btn btn-success" type="submit" th:text="提交"></button>
+                        <button class="btn btn-warning" onclick="window.location = '/'; return false;" th:text="取消"></button>
+                    </div>
+                </div>
             </form>
         </div>
     </body>

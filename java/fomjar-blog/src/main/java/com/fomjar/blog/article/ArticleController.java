@@ -115,7 +115,8 @@ public class ArticleController {
         }
     }
     
-    public void comment(
+    @RequestMapping("/comment/update")
+    public void comment_update(
             @RequestParam String aid,
             @RequestParam String markdown,
             @RequestParam String author,

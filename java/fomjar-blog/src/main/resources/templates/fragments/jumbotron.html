@@ -19,13 +19,14 @@
                     height              : 100%;
                     background-color    : rgba(0, 0, 0, .3);
                 }
-                .jumbotron .container {
+                .jumbotron h2 {
                     top         : 30%;
                     left        : 6%;
                     width       : 88%;
                     height      : 40%;
+                    color       : #eee;
                 }
-                .jumbotron .container h2 small {
+                .jumbotron h2 small {
                     color   : lightgray;
                 }
                 .jumbotron ul {
@@ -43,14 +44,12 @@
             </style>
             <div class="jumbotron">
                 <div class="mask"></div>
-                <div class="container">
-                    <h2>欢迎光临逢佳的个人博客
-                        <br>
-                        <small>Welcome to fomjar's personal blog</small>
-                        <br><br>
-                        <p>如切如磋 如琢如磨</p>
-                    </h2>
-                </div>
+                <h2>欢迎光临逢佳的个人博客
+                    <br>
+                    <small>Welcome to fomjar's personal blog</small>
+                    <br><br>
+                    <p>如切如磋 如琢如磨</p>
+                </h2>
                 <ul class="small">
                     <li><a th:href="@{http://projects.spring.io/spring-boot/}"><span class="label label-primary">spring-boot</span></a></li>
                     <li><a th:href="@{http://www.thymeleaf.org}"><span class="label label-success">thymeleaf</span></a></li>

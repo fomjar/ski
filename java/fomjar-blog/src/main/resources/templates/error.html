@@ -9,8 +9,10 @@
     </head>
     <body>
         <div class="container">
-            <div th:text="${'错误编号：' + code}"></div>
-            <div th:text="${'错误信息：' + desc}"></div>
+            <div class="row">
+                <div th:text="${'错误编号：' + code}"></div>
+                <div th:text="${'错误信息：' + desc}"></div>
+            </div>
         </div>
     </body>
 </html>
