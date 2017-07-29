@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title th:text="null != ${article} ? ${'查看文章 - ' + article.name} : '查看文章'">查看文章</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-        <style th:include="~{/fragments/common :: style}"></style>
+        <style th:replace="~{/fragments/common :: style}"></style>
         <style type="text/css">
             .container {
                 padding-left        : 0;
@@ -23,31 +23,10 @@
             }
         </style>
     </head>
-    <body class="container">
-        <div class="row">
-            <div class="col-lg-1 col-md-1"></div>
-            <div class="col-lg-10 col-md-10">
-                <br>
-                <div>
-                    <a th:href="@{/}">首页</a>
-                    <a th:href="@{/article/edit(aid=${article.aid})}"
-                        th:if="null != ${#session}
-                            and null != ${article}
-                            and ${article.author} == ${#session.getAttribute('user')}">
-                            编辑
-                    </a>
-                </div>
-                <hr>
-                <div th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
-                <hr>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12">
-                        <h4>写下你的评论</h4>
-                        <div th:include="~{/fragments/article :: edit(null, null)}"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-1 col-md-1"></div>
+    <body>
+        <div th:replace="~{/fragments/common :: navbar(${article})}"></div>
+        <div class="container">
+            <div class="row" th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
         </div>
     </body>
 </html>

@@ -1,12 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <body>
-        <div th:fragment="style">
-            <style type="text/css">
-                * {
-                    font-family : "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif !important;
+    
+        <style th:fragment="style" type="text/css">
+            * {
+                font-family : "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif !important;
+            }
+        </style>
+        
+        
+        <nav th:fragment="navbar(article)" class="navbar navbar-default navbar-fixed-top">
+            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+            <style>
+                .navbar +div {
+                    margin-top  : 70px;
                 }
             </style>
-        </div>
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" th:href="@{/}">首页<!-- span class="glyphicon glyphicon-home" aria-hidden="true"></span --></a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="active" th:if="
+                                '/article/view' == ${#request.requestURI}
+                            and null != ${article}
+                            and null != ${#session}
+                            and ${#session.getAttribute('user')} == ${article.author}
+                        "><a th:href="@{/article/edit?aid=} + ${article.aid}">编辑文章</a></li>
+                    </ul>
+                </div>
+            </div>
+            <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
+            <script th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+        </nav>
+        
     </body>
 </html>

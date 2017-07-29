@@ -1,7 +1,6 @@
 package com.fomjar.blog.article;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -113,19 +112,6 @@ public class ArticleController {
             return new ModelAndView("/article/edit")
                     .addObject("markdown", markdown);
         }
-    }
-    
-    @RequestMapping("/comment/update")
-    public void comment_update(
-            @RequestParam String aid,
-            @RequestParam String markdown,
-            @RequestParam String author,
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) {
-        String host = request.getRemoteAddr();
-        try {response.sendRedirect("/article/view?aid=" + aid);}
-        catch (IOException e) {logger.error("send redirect failed", e);}
     }
 
 }

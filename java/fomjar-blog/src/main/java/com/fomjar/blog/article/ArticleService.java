@@ -93,7 +93,4 @@ public class ArticleService {
         return aid;
     }
     
-    public void comment_update(String aid, String markdown, String author, String host) {
-        Map<String, Object> comment = new HashMap<>();
-    }
 }

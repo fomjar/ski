@@ -6,33 +6,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title th:text="null != ${article} ? ${'编辑文章 - ' + article.name} : '编辑文章'">编辑文章</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-        <style th:include="~{/fragments/common :: style}"></style>
+        <style th:replace="~{/fragments/common :: style}"></style>
     </head>
-    <body>
-        <div class="container">
-            <form th:action="@{/article/update}" method="post">
-                <div class="row">
-                    <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
-                    <div class="col-lg-6 col-md-6 form-group">
-                        <label for="user">分类</label>
-                        <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '/'">
-                    </div>
-                    <div class="col-lg-6 col-md-6 form-group">
-                        <label for="user">作者</label>
-                        <input type="text" class="form-control" name="author" readonly placeholder="作者" th:value="${#session.getAttribute('user')}">
-                    </div>
+    <body class="container">
+        <form th:action="@{/article/update}" method="post">
+            <div class="row">
+                <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
+                <div class="col-lg-6 col-md-6 form-group">
+                    <label>分类</label>
+                    <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '/'">
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12"
-                         th:include="~{/fragments/article :: edit(${article}, ${markdown})}"></div>
+                <div class="col-lg-6 col-md-6 form-group">
+                    <label>作者</label>
+                    <input type="text" class="form-control" name="author" readonly placeholder="作者" th:value="${#session.getAttribute('user')}">
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-md-12">
-                        <button class="btn btn-success" type="submit" th:text="提交"></button>
-                        <button class="btn btn-warning" onclick="window.location = '/'; return false;" th:text="取消"></button>
-                    </div>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="row">
+                <div th:replace="~{/fragments/article :: edit(${article}, ${markdown})}"></div>
+            </div>
+            <div class="row">
+                <button class="btn btn-success" type="submit" th:text="提交"></button>
+                <button class="btn btn-warning" onclick="window.location = '/'; return false;" th:text="取消"></button>
+            </div>
+        </form>
     </body>
 </html>

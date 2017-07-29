@@ -3,11 +3,11 @@
     <body>
         <div th:fragment="login">
             <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-                <div class="panel panel-primary">
-                    <div class="panel-heading">
-                        <h3 class="text-center">欢迎回来!</h3>
-                    </div>
-                    <div class="panel-body">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="text-center">欢迎回来!</h3>
+                </div>
+                <div class="panel-body">
                     <form th:action="@{/user/authorize}" method="post">
                         <div class="form-group">
                             <label for="user">输入用户名</label>
