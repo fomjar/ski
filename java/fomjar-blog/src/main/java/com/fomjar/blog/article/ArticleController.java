@@ -32,18 +32,18 @@ public class ArticleController {
             Map<String, Object> article = service.get(aid);
             if (null == article) {
                 logger.error("article not found: " + aid);
-                return new ModelAndView("/error")
+                return new ModelAndView("error")
                         .addObject("code", -1)
                         .addObject("desc", "article not found");
             }
         }
         try {
-            return new ModelAndView("/article/view")
+            return new ModelAndView("article/view")
                     .addObject("article", service.get(aid))
                     .addObject("markdown", service.get_data(aid));
         } catch (IOException e) {
             logger.error("article read failed: " + aid, e);
-            return new ModelAndView("/error")
+            return new ModelAndView("error")
                     .addObject("code", -1)
                     .addObject("desc", "article read failed: " + e.getMessage());
         }
@@ -58,25 +58,25 @@ public class ArticleController {
             Map<String, Object> article = service.get(aid);
             if (null == article) {
                 logger.error("article not found: " + aid);
-                return new ModelAndView("/error")
+                return new ModelAndView("error")
                         .addObject("code", -1)
                         .addObject("desc", "article not found");
             }
             if (!article.get("author").equals(request.getSession().getAttribute("user"))) {
                 logger.error("illegal access! user=" + article.get("author") + ", aid=" + aid);
-                return new ModelAndView("/error")
+                return new ModelAndView("error")
                         .addObject("code", -1)
                         .addObject("desc", "illegal access");
             }
         }
         
         try {
-            return new ModelAndView("/article/edit")
+            return new ModelAndView("article/edit")
                     .addObject("article", service.get(aid))
                     .addObject("markdown", service.get_data(aid));
         } catch (IOException e) {
             logger.error("article read failed: " + aid, e);
-            return new ModelAndView("/error")
+            return new ModelAndView("error")
                     .addObject("code", -1)
                     .addObject("desc", "article read failed: " + e.getMessage());
         }
@@ -96,7 +96,7 @@ public class ArticleController {
             if (null != article) {
                 if (!article.get("author").equals(request.getSession().getAttribute("user"))) {
                     logger.error("[ARTICLE UPDATE] illegal access! user=" + article.get("author") + ", aid=" + aid);
-                    return new ModelAndView("/error")
+                    return new ModelAndView("error")
                             .addObject("code", -1)
                             .addObject("desc", "illegal access");
                 }
@@ -109,7 +109,7 @@ public class ArticleController {
             return null;
         } catch (IOException e) {
             logger.error("[ARTICLE UPDATE] failed: " + aid, e);
-            return new ModelAndView("/article/edit")
+            return new ModelAndView("article/edit")
                     .addObject("markdown", markdown);
         }
     }

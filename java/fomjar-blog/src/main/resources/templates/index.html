@@ -5,13 +5,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>逢佳的个人博客</title>
-        <style th:replace="~{/fragments/common :: style}"></style>
+        <style th:replace="~{fragments/common :: style}"></style>
     </head>
     <body>
-        <div th:replace="~{/fragments/jumbotron :: index}"></div>
+        <div th:replace="~{fragments/jumbotron :: index}"></div>
         <div class="container">
             <div class="row" th:each="article : ${articles}">
-                 <div th:replace="~{/fragments/article :: panel(${article})}"></div>
+                 <div th:replace="~{fragments/article :: panel(${article})}"></div>
             </div>
         </div>
         <div class="container">

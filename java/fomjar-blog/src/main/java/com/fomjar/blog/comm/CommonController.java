@@ -18,13 +18,13 @@ public class CommonController {
     
     @RequestMapping(path = {"/", "/index"})
     public ModelAndView index() {
-        return new ModelAndView("/index")
+        return new ModelAndView("index")
                 .addObject("articles", service.list());
     }
     
     @ExceptionHandler(Exception.class)
     public ModelAndView exception(Exception e) {
-        return new ModelAndView("/error")
+        return new ModelAndView("error")
                 .addObject("code", -1)
                 .addObject("desc", e.getMessage());
     }

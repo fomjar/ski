@@ -60,6 +60,7 @@ public class ConfigService {
         @Override
         public void run() {
             isRun = true;
+            logger.info("[MONITOR START] " + Thread.currentThread().getName());
             while (isRun) {
                 try {Thread.sleep(interval);}
                 catch (InterruptedException e) {logger.error("monitor sleep interrupted", e);}

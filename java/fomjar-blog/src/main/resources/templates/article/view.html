@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title th:text="null != ${article} ? ${'查看文章 - ' + article.name} : '查看文章'">查看文章</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-        <style th:replace="~{/fragments/common :: style}"></style>
+        <style th:replace="~{fragments/common :: style}"></style>
         <style type="text/css">
             .container {
                 padding-left        : 0;
@@ -24,9 +24,9 @@
         </style>
     </head>
     <body>
-        <div th:replace="~{/fragments/common :: navbar(${article})}"></div>
+        <div th:replace="~{fragments/common :: navbar(${article})}"></div>
         <div class="container">
-            <div class="row" th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
+            <div class="row" th:include="~{fragments/article :: view(${article}, ${markdown})}"></div>
         </div>
     </body>
 </html>

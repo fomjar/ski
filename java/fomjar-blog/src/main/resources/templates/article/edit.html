@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title th:text="null != ${article} ? ${'编辑文章 - ' + article.name} : '编辑文章'">编辑文章</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-        <style th:replace="~{/fragments/common :: style}"></style>
+        <style th:replace="~{fragments/common :: style}"></style>
     </head>
     <body class="container">
         <form th:action="@{/article/update}" method="post">
@@ -22,7 +22,7 @@
                 </div>
             </div>
             <div class="row">
-                <div th:replace="~{/fragments/article :: edit(${article}, ${markdown})}"></div>
+                <div th:replace="~{fragments/article :: edit(${article}, ${markdown})}"></div>
             </div>
             <div class="row">
                 <button class="btn btn-success" type="submit" th:text="提交"></button>
