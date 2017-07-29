@@ -69,7 +69,16 @@ public class ArticleService {
         String name = get_name(markdown);
         String path_data = get_path_data(aid);
         
-        Files.write(new File(path_data).toPath(), markdown.getBytes("utf-8"),
+        File file = new File(path_data);
+        File parent = file.getParentFile();
+        
+        if (!parent.isDirectory()) {
+            if (!parent.mkdirs()) {
+                throw new IOException("article directory create failed: " + parent.getPath());
+            }
+        }
+        
+        Files.write(file.toPath(), markdown.getBytes("utf-8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE);
