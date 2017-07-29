@@ -7,21 +7,6 @@
         <title th:text="null != ${article} ? ${'查看文章 - ' + article.name} : '查看文章'">查看文章</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
         <style th:replace="~{fragments/common :: style}"></style>
-        <style type="text/css">
-            .container {
-                padding-left        : 0;
-                padding-right    : 0;
-            }
-            .container >div:nth-child(2) {
-                padding    : 0;
-            }
-            .container p {
-                padding    : 0 1em;
-            }
-            .container p a {
-                margin    : 0 .5em;
-            }
-        </style>
     </head>
     <body>
         <div th:replace="~{fragments/common :: navbar(${article})}"></div>

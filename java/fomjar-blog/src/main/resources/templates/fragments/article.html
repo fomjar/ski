@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <body>
-        <div th:fragment="panel(article)">
-            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+        <a th:fragment="panel(article)"
+           th:href="@{/article/view(aid=${article.aid})}"
+           th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
             <style>
                 a {
                     text-decoration : none;
@@ -10,39 +11,37 @@
                 a:hover {
                     text-decoration : none;
                 }
-                .article-panel .panel:hover {
+                .panel:hover {
                     background-color    : #eee;
                 }
-                .article-panel .panel .panel-body h4 {
+                .panel .panel-body h4 {
                     margin  : 0;
                 }
-                .article-panel .panel .panel-body h4 div {
+                .panel .panel-body h4 div {
                     display    : inline;
                 }
-                .article-panel .panel .panel-body h4 span {
+                .panel .panel-body h4 span {
                     position    : relative;
                     top         : -.2em;
                     margin-left : 1em;
                     font-size   : 60%;
                 }
-                .article-panel .panel .panel-body h4 small {
+                .panel .panel-body h4 small {
                     float       : right;
                     line-height : 1.5em;
                 }
             </style>
-            <a class="article-panel" th:href="@{article/view(aid=${article.aid})}"
-                th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <h4>
-                            <div th:text="${article.name}"></div>
-                            <span class="label label-danger" th:if="${day <= 30}">new</span>
-                            <small th:text="${#dates.format(article.time_create, 'yyyy/MM/dd HH:mm:ss')}"></small>
-                        </h4>
-                    </div>
+            <div class="panel panel-default">
+                <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+                <div class="panel-body">
+                    <h4>
+                        <div th:text="${article.name}"></div>
+                        <span class="label label-danger" th:if="${day <= 30}">new</span>
+                        <small th:text="${#dates.format(article.time_create, 'yyyy/MM/dd HH:mm:ss')}"></small>
+                    </h4>
                 </div>
-            </a>
-        </div>
+            </div>
+        </a>
         
         
         

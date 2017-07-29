@@ -10,20 +10,19 @@
     <body>
         <div th:replace="~{fragments/jumbotron :: index}"></div>
         <div class="container">
-            <div class="row" th:each="article : ${articles}">
-                 <div th:replace="~{fragments/article :: panel(${article})}"></div>
-            </div>
-        </div>
-        <div class="container">
             <div class="row">
-                <button class="btn btn-primary"
-                    onclick="window.location = '/article/edit';"
-                    th:text="发布"
-                    th:if="null != ${#session} and null != ${#session.getAttribute('user')}"></button>
-                <button class="btn btn-success"
-                    onclick="window.location = '/user/login';"
-                    th:text="登陆"
-                    th:if="null == ${#session} or null == ${#session.getAttribute('user')}"></button>
+                <div class="col-lg-12 col-md-12">
+                    <button class="btn btn-primary btn-block"
+                        onclick="window.location = '/article/edit';"
+                        th:text="发布"
+                        th:if="null != ${#session} and null != ${#session.getAttribute('user')}"></button>
+                </div>
+            </div>
+            <br>
+            <div class="row" th:each="article : ${articles}">
+                <div class="col-lg-12 col-md-12">
+                     <div th:replace="~{fragments/article :: panel(${article})}"></div>
+                </div>
             </div>
         </div>
     </body>

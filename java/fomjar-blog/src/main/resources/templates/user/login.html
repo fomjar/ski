@@ -7,16 +7,14 @@
         <title>登陆</title>
         <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
         <style th:replace="~{fragments/common :: style}"></style>
-        <style type="text/css">
-            .container {
-                margin-top    : 10%;
-            }
-        </style>
     </head>
     <body class="container">
+        <br>
         <div class="row">
             <div class="col-lg-4 col-md-4"></div>
-            <div class="col-lg-4 col-md-4" th:include="~{fragments/user :: login}"></div>
+            <div class="col-lg-4 col-md-4">
+                <div th:replace="~{fragments/user :: login}"></div>
+            </div>
             <div class="col-lg-4 col-md-4"></div>
         </div>
     </body>

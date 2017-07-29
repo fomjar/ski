@@ -10,6 +10,7 @@
     </head>
     <body class="container">
         <form th:action="@{/article/update}" method="post">
+            <br>
             <div class="row">
                 <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
                 <div class="col-lg-6 col-md-6 form-group">
@@ -22,11 +23,18 @@
                 </div>
             </div>
             <div class="row">
-                <div th:replace="~{fragments/article :: edit(${article}, ${markdown})}"></div>
+                <div class="col-lg-12 col-md-12">
+                    <label>正文</label>
+                    <div th:replace="~{fragments/article :: edit(${article}, ${markdown})}"></div>
+                </div>
             </div>
             <div class="row">
-                <button class="btn btn-success" type="submit" th:text="提交"></button>
-                <button class="btn btn-warning" onclick="window.location = '/'; return false;" th:text="取消"></button>
+                <div class="col-lg-6 col-md-6">
+                    <button class="btn btn-success btn-block" type="submit" th:text="提交"></button>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <button class="btn btn-warning btn-block" onclick="window.location = '/'; return false;" th:text="取消"></button>
+                </div>
             </div>
         </form>
     </body>
