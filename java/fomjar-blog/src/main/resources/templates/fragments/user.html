@@ -19,6 +19,8 @@
                         </div>
                         <input type="text" class="form-control" style="display:none;" name="redirect" placeholder="重定向" th:value="${#request.getParameter('redirect')}">
                         <button class="btn btn-block btn-primary" type="submit">提交</button>
+                        <br>
+                        <div class="small">暂不开放游客注册功能。返回<a th:href="@{/}">首页</a></div>
                     </form>
                 </div>
             </div>

@@ -27,8 +27,7 @@
         <div class='container'>
             <div class="col-lg-1 col-md-1"></div>
             <div class="col-lg-10 col-md-10">
-                <div th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
-                <hr>
+                <br>
                 <p>
                     <a th:href='@{/}'>首页</a>
                     <a th:href="@{/article/edit(aid=${article.aid})}"
@@ -38,6 +37,8 @@
                             编辑
                     </a>
                 </p>
+                <hr>
+                <div th:include="~{/fragments/article :: view(${article}, ${markdown})}"></div>
                 <hr>
                 <div class='col-lg-12 col-md-12'>
                     <h4>写下你的评论<h4>
