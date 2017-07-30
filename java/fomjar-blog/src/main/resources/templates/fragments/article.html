@@ -37,7 +37,7 @@
                     <h4>
                         <div th:text="${article.name}"></div>
                         <span class="label label-danger" th:if="${day <= 30}">new</span>
-                        <small th:text="${#dates.format(article.time_create, 'yyyy/MM/dd HH:mm:ss')}"></small>
+                        <small th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></small>
                     </h4>
                 </div>
             </div>
