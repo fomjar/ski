@@ -3,6 +3,8 @@ package com.ski.frs.ccu.cb;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.ski.frs.isis.ISIS;
@@ -53,12 +55,12 @@ public class SBPicture extends StoreBlock {
     public List<JSONObject> getPicture(JSONObject args) {
         return data().entrySet().parallelStream()
                 .map(e->(JSONObject) e.getValue())
-                .filter(p->p.getInt("size") == ISIS.FIELD_PIC_SIZE_SMALL)
+                .filter(p->ISIS.FIELD_PIC_SIZE_SMALL == p.getInt("size"))
                 .filter(p->{
                     if (!args.containsKey("type")) return true;
                     if (!p.has("type")) return false;
-                    if (p.getInt("type") == args.getInt("type")) return true;
-                    return false;
+                    
+                    return p.getInt("type") == args.getInt("type");
                 })
                 .filter(p->{
                     if (!args.has("dids")) return true;
@@ -74,43 +76,48 @@ public class SBPicture extends StoreBlock {
                 .filter(p->{
                     if (!args.has("time-from")) return true;
                     
-                    if (args.getLong("time-from") <= p.getLong("time")) return true;
-                    return false;
+                    return args.getLong("time-from") <= p.getLong("time");
                 })
-                .sorted((p1, p2)->{
-                    if (!args.has("time-from")) return 0;
+                .filter(p->{
+                    if (!args.has("time-to")) return true;
                     
-                    return (int) (p1.getLong("time") - p2.getLong("time"));
+                    return args.getLong("time-to") >= p.getLong("time");
                 })
                 .filter(p->{
                     if (!args.containsKey("gender")) return true;
                     if (!p.has("gender")) return false;
-                    if (p.getInt("gender") == args.getInt("gender")) return true;
-                    return false;
+                    
+                    return p.getInt("gender") == args.getInt("gender");
                 })
                 .filter(p->{
                     if (!args.containsKey("age")) return true;
                     if (!p.has("age")) return false;
-                    if (p.getInt("age") == args.getInt("age")) return true;
-                    return false;
+                    
+                    return p.getInt("age") == args.getInt("age");
                 })
                 .filter(p->{
                     if (!args.containsKey("hat")) return true;
                     if (!p.has("hat")) return false;
-                    if (p.getInt("hat") == args.getInt("hat")) return true;
-                    return false;
+                    
+                    return p.getInt("hat") == args.getInt("hat");
                 })
                 .filter(p->{
                     if (!args.containsKey("glass")) return true;
                     if (!p.has("glass")) return false;
-                    if (p.getInt("glass") == args.getInt("glass")) return true;
-                    return false;
+                    
+                    return p.getInt("glass") == args.getInt("glass");
                 })
                 .filter(p->{
                     if (!args.containsKey("mask")) return true;
                     if (!p.has("mask")) return false;
-                    if (p.getInt("mask") == args.getInt("mask")) return true;
-                    return false;
+                    
+                    return p.getInt("mask") == args.getInt("mask");
+                })
+                .filter(p->{
+                    if (!args.containsKey("nation")) return true;
+                    if (!p.has("nation")) return false;
+                    
+                    return p.getInt("nation") == args.getInt("nation");
                 })
                 .filter(p->{
                     if (!args.containsKey("color-up")) return true;
@@ -143,18 +150,48 @@ public class SBPicture extends StoreBlock {
                     return true;
                 })
                 .filter(p->{
+                    if (ISIS.FIELD_TYPE_CAR != p.getInt("type")) return true;
+                    if (!args.containsKey("color-car")) return true;
+                    if (!p.containsKey("color-car")) return false;
+                    
+                    int colora = args.getInt("color-car");
+                    int colorp = p.getInt("color-car");
+                    if (0 == colorp) return false;
+                    
+                    for (int i = 0; i < 32; i++) {
+                        int c = colora & (1 << i);
+                        if (0 == c) continue;
+                        if (0 == (colorp & c)) return false;
+                    }
+                    return true;
+                })
+                .filter(p->{
+                    if (ISIS.FIELD_TYPE_CAR_PLATE != p.getInt("type")) return true;
+                    if (!args.containsKey("platechar")) return true;
+                    if (!p.containsKey("platechar")) return false;
+                    
+                    String chara = args.getString("platechar");
+                    String charp = p.getString("platechar");
+                    chara = chara.replace("?", ".?");
+                    chara = chara.replace("*", ".*");
+                    Pattern pattern = Pattern.compile(chara);
+                    Matcher matcher = pattern.matcher(charp);
+                    return matcher.find();
+                })
+                .filter(p->{
+                    if (ISIS.FIELD_TYPE_MAN_SHAPE != p.getInt("type")) return true;
                     if (!args.containsKey("transport")) return true;
                     if (!p.has("transport")) return false;
-                    if (p.getInt("transport") == args.getInt("transport")) return true;
-                    return false;
+                    
+                    return p.getInt("transport") == args.getInt("transport");
+                })
+                .sorted((p1, p2)->{
+                    return - (int) (p1.getLong("time") - p2.getLong("time"));
                 })
                 .filter(p->{
-                    if (!args.containsKey("nation")) return true;
-                    if (!p.has("nation")) return false;
-                    if (p.getInt("nation") == args.getInt("nation")) return true;
-                    return false;
-                })
-                .filter(p->{
+                    if (ISIS.FIELD_TYPE_MAN_FACE != p.getInt("type")) return true;
+                    
+                    p.remove("tv");
                     if (!args.has("fv") || !args.has("min") || !args.has("max")) return true;
                     if (!p.containsKey("fv")) return false;
                     
@@ -169,8 +206,7 @@ public class SBPicture extends StoreBlock {
                     for (int i = 0; i < array.size(); i++) fvp[i] = array.getDouble(i);
                     double tv = transvection(fva, fvp);
                     p.put("tv", tv);
-                    if (min <= tv && tv <= max) return true;
-                    return false;
+                    return min <= tv && tv <= max;
                 })
                 .sorted((p1, p2)->{
                     if (!p2.has("tv") && !p1.has("tv")) return 0;

@@ -8,7 +8,8 @@ public class ISIS {
     
     public static final int FIELD_TYPE_MAN_FACE     = 0;
     public static final int FIELD_TYPE_MAN_SHAPE    = 1;
-    public static final int FIELD_TYPE_CAR          = 2;
+    public static final int FIELD_TYPE_CAR_PLATE    = 2;
+    public static final int FIELD_TYPE_CAR          = 3;
     
     public static final int FIELD_DEV_ONLINE        = 0;
     public static final int FIELD_DEV_OFFLINE       = 1;

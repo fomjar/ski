@@ -159,6 +159,13 @@ public class WebToolkit {
                     }
                 }, data);
                 if (FeatureService.SUCCESS != args.getInt("mark")) {
+                    String path = "document/pic/error/" + name + ".jpg";
+                    try {
+                        writeFileBase64Image(data, path);
+                        logger.error("fv image file failed, mark = " + args.getInt("mark") + ", write here: " + path);
+                    } catch (IOException e) {
+                        logger.error("write image file failed: " + path, e);
+                    }
                     String desc = "illegal picture, mark=" + args.getInt("mark");
                     logger.error(desc);
                     JSONObject json = new JSONObject();

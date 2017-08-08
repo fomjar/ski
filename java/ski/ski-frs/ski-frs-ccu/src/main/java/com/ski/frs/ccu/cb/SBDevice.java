@@ -1,7 +1,9 @@
 package com.ski.frs.ccu.cb;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -45,14 +47,20 @@ public class SBDevice extends StoreBlock {
         if (null != did && 0 < did.length) {
             return data().entrySet().parallelStream()
                     .filter(e->{for (String d : did) if (e.getKey().equals(d)) return true; return false;})
-                    .map(e->(JSONObject) e.getValue())
+                    .map(e->{
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> dev = new HashMap<>((JSONObject) e.getValue()); // shallow copy
+                        dev.put("pics", ((JSONArray) dev.get("pics")).size());
+                        return JSONObject.fromObject(dev);
+                    })
                     .collect(Collectors.toList());
         } else {
             return data().entrySet().parallelStream()
                     .map(e->{
-                        JSONObject dev = JSONObject.fromObject((JSONObject) e.getValue());
-                        dev.put("pics", dev.getJSONArray("pics").size());
-                        return dev;
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> dev = new HashMap<>((JSONObject) e.getValue()); // shallow copy
+                        dev.put("pics", ((JSONArray) dev.get("pics")).size());
+                        return JSONObject.fromObject(dev);
                     })
                     .collect(Collectors.toList());
         }
