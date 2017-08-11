@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -46,8 +48,24 @@ public class ArticleService {
         return (Map<String, Object>) config.mon_articles.config().get(aid);
     }
     
-    public Collection<Object> list() {
-        return config.mon_articles.config().values();
+    public Map<String, List<Object>> list() {
+        Collection<Object> articles = config.mon_articles.config().values();
+        Map<String, List<Object>> paths = new HashMap<>();
+        articles.stream()
+                .map(article->(Map<String, Object>) article)
+                .sorted((a1, a2)->{
+                    return - (int) ((long) a1.get("time_create") - (long) a2.get("time_create"));
+                })
+                .forEach(article->{
+                    String path_view = (String) article.get("path_view");
+                    List<Object> list = paths.get(path_view);
+                    if (null == list) {
+                        list = new LinkedList<>();
+                        paths.put(path_view, list);
+                    }
+                    list.add(article);
+                });
+        return paths;
     }
     
     public String get_data(String aid) throws IOException {

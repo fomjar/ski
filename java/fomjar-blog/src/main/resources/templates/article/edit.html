@@ -15,7 +15,7 @@
                 <input style="display:none;" type="text" name="aid" th:value="null != ${article} ? ${article.aid} : ''">
                 <div class="col-lg-6 col-md-6 form-group">
                     <label>分类</label>
-                    <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '/'">
+                    <input type="text" class="form-control" name="path_view" required placeholder="分类" th:value="null != ${article} ? ${article.path_view} : '默认分类'">
                 </div>
                 <div class="col-lg-6 col-md-6 form-group">
                     <label>作者</label>

@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <body>
-        <a th:fragment="panel(article)"
-           th:href="@{/article/view(aid=${article.aid})}"
-           th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
-            <style>
-                a {
-                    text-decoration : none;
-                }
-                a:hover {
-                    text-decoration : none;
-                }
-                .panel:hover {
-                    background-color    : #eee;
-                }
-                .panel .panel-body h4 {
-                    margin  : 0;
-                }
-                .panel .panel-body h4 div {
-                    display    : inline;
-                }
-                .panel .panel-body h4 span {
-                    position    : relative;
-                    top         : -.2em;
-                    margin-left : 1em;
-                    font-size   : 60%;
-                }
-                .panel .panel-body h4 small {
-                    float       : right;
-                    line-height : 1.5em;
-                }
-            </style>
-            <div class="panel panel-default">
-                <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-                <div class="panel-body">
-                    <h4>
-                        <div th:text="${article.name}"></div>
-                        <span class="label label-danger" th:if="${day <= 30}">new</span>
-                        <small th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></small>
-                    </h4>
-                </div>
+        
+        <div th:fragment="list(paths)">
+            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+            <div class="panel panel-default" th:each="path : ${paths}">
+                <div class="panel-heading" th:text="${path.key}"></div>
+                <table class="table table-hover">
+                    <tr th:each="article : ${path.value}"
+                        th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
+                        <td>
+                            <a th:href="@{/article/view(aid=${article.aid})}"
+                               th:text="${article.name}"></a>
+                            <small><span class="label label-danger" th:if="${day <= 7}">new</span></small>
+                        </td>
+                        <td class="text-right">
+                            <small th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></small>
+                        </td>
+                    </tr>
+                </table>
             </div>
-        </a>
+            <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
+            <script th:inline="javascript">
+                (function() {
+                    var main_path = '现代前端';
+                    
+                    $.each($('.panel-heading'), function(i, h) {
+                        var $h = $(h);
+                        if (main_path == $h.text()) {
+                            var $p = $h.parent();
+                            $p.removeClass('panel-default');
+                            $p.addClass('panel-info');
+                        }
+                    });
+                })();
+            </script>
+        </div>
         
         
         
@@ -69,20 +63,22 @@
             <script th:src="@{/editormd/lib/jquery.flowchart.min.js}"></script>
             <script th:src="@{/editormd/editormd.min.js}"></script>
             <script th:inline="javascript">
-                editormd.markdownToHTML([[${'editormd-' + id}]], {
-                        //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
-                        htmlDecode      : "style,script,iframe",  // you can filter tags decode
-                        //toc             : false,
-                        tocm            : true,    // Using [TOCM]
-                        //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
-                        //gfm             : false,
-                        //tocDropdown     : true,
-                        //markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
-                        taskList        : true,
-                        tex             : true,  // 默认不解析
-                        flowChart       : true,  // 默认不解析
-                        sequenceDiagram : true,  // 默认不解析
-                });
+                (function() {
+                    editormd.markdownToHTML([[${'editormd-' + id}]], {
+                            //htmlDecode      : true,       // 开启 HTML 标签解析，为了安全性，默认不开启
+                            htmlDecode      : "style,script,iframe",  // you can filter tags decode
+                            //toc             : false,
+                            tocm            : true,    // Using [TOCM]
+                            //tocContainer    : "#custom-toc-container", // 自定义 ToC 容器层
+                            //gfm             : false,
+                            //tocDropdown     : true,
+                            //markdownSourceCode : true, // 是否保留 Markdown 源码，即是否删除保存源码的 Textarea 标签
+                            taskList        : true,
+                            tex             : true,  // 默认不解析
+                            flowChart       : true,  // 默认不解析
+                            sequenceDiagram : true,  // 默认不解析
+                    });
+                })();
             </script>
         </div>
         
@@ -112,17 +108,19 @@
             <script th:src="@{/editormd/lib/jquery.flowchart.min.js}"></script>
             <script th:src="@{/editormd/editormd.min.js}"></script>
             <script th:inline="javascript">
-                editormd({
-                        id          : [[${'editormd-' + id}]],
-                        path        : [[@{/editormd/lib/}]],
-                        width       : "100%",
-                        autoHeight  : true,
-                        autoFocus   : false,
-                        watch       : false,
-                        toolbar     : false,
-                        lineNumbers : false,
-                        placeholder : '开始输入...'
-                });
+                (function() {
+                    editormd({
+                            id          : [[${'editormd-' + id}]],
+                            path        : [[@{/editormd/lib/}]],
+                            width       : "100%",
+                            autoHeight  : true,
+                            autoFocus   : false,
+                            watch       : false,
+                            toolbar     : false,
+                            lineNumbers : false,
+                            placeholder : '开始输入...'
+                    });
+                })();
             </script>
         </div>
     </body>
