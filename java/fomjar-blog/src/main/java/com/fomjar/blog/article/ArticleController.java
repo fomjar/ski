@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,9 +25,9 @@ public class ArticleController {
     @Autowired
     private ArticleService service;
     
-    @RequestMapping("/view")
+    @RequestMapping("/view/{aid}")
     public ModelAndView view(
-            @RequestParam String aid
+            @PathVariable String aid
     ) {
         if (null != aid && 0 < aid.length()) {
             Map<String, Object> article = service.get(aid);
@@ -105,7 +106,7 @@ public class ArticleController {
         try {
             aid = service.update(aid, author, path_view, markdown);
             logger.info("[ARTICLE UPDATE] success: " + aid);
-            response.sendRedirect("/article/view?aid=" + aid);
+            response.sendRedirect("/article/view/" + aid);
             return null;
         } catch (IOException e) {
             logger.error("[ARTICLE UPDATE] failed: " + aid, e);

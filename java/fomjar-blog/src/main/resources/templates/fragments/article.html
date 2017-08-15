@@ -8,14 +8,14 @@
                 <div class="panel-heading" th:text="${path.key}"></div>
                 <table class="table table-hover">
                     <tr th:each="article : ${path.value}"
-                        th:with="day=${(#dates.createNow().time - article.time_update) / 1000 / 60 / 60 / 24}">
+                        th:with="day=${(#dates.createNow().time - article.time_create) / 1000 / 60 / 60 / 24}">
                         <td>
-                            <a th:href="@{/article/view(aid=${article.aid})}"
+                            <a th:href="@{'/article/view/' + ${article.aid}}"
                                th:text="${article.name}"></a>
                             <small><span class="label label-danger" th:if="${day <= 7}">new</span></small>
                         </td>
                         <td class="text-right">
-                            <small th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></small>
+                            <small th:text="${#dates.format(article.time_create, 'MM/dd HH:mm')}"></small>
                         </td>
                     </tr>
                 </table>

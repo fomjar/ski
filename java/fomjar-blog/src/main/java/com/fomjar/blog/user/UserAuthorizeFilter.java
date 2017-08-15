@@ -1,14 +1,12 @@
 package com.fomjar.blog.user;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.catalina.util.URLEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +52,7 @@ public class UserAuthorizeFilter extends OncePerRequestFilter  {
         // need to authorize
         
         if (!service.auth_token(request)) {
-            String redirect = request.getRequestURI();
-            if (null != request.getQueryString()) redirect += "?" + request.getQueryString();
-            
-            response.sendRedirect("/user/login?redirect=" + new URLEncoder().encode(redirect, Charset.forName("utf-8")));
+            response.sendRedirect("/user/login");
             return;
         }
         

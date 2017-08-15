@@ -16,7 +16,6 @@
                         <label for="pass">输入密码</label>
                         <input type="password" class="form-control" name="pass" required placeholder="密码">
                     </div>
-                    <input type="text" class="form-control" style="display:none;" name="redirect" placeholder="重定向" th:value="${#request.getParameter('redirect')}">
                     <button class="btn btn-block btn-primary" type="submit">提交</button>
                     <br>
                     <div class="small">暂不开放游客注册功能，<a th:href="@{/}">回到首页</a>。</div>

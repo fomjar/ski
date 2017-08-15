@@ -32,11 +32,20 @@
                 <div class="collapse navbar-collapse" id="navbar-collapse-1">
                     <ul class="nav navbar-nav">
                         <li class="active" th:if="
-                                '/article/view' == ${#request.requestURI}
+                                ${#request.requestURI.startsWith('/article/view/')}
                             and null != ${article}
                             and null != ${#session}
                             and ${#session.getAttribute('user')} == ${article.author}
-                        "><a th:href="@{/article/edit?aid=} + ${article.aid}">编辑文章</a></li>
+                            "><a th:href="@{/article/edit?aid=} + ${article.aid}">编辑</a></li>
+                        <li th:if="
+                                ${#request.requestURI.startsWith('/article/view/')}
+                            and null != ${#session}
+                            and null != ${#session.getAttribute('user')}
+                            "><a th:href="@{/article/edit}">发布</a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li th:if="null != ${#session} and null != ${#session.getAttribute('user')}"><a th:href="@{/user/logout}">注销</a></li>
+                        <li th:if="null == ${#session} or  null == ${#session.getAttribute('user')}"><a th:href="@{/user/login}">登录</a></li>
                     </ul>
                 </div>
             </div>

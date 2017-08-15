@@ -1,10 +1,10 @@
 package com.fomjar.blog.user;
 
 import java.io.IOException;
-import java.net.URLDecoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,7 +25,7 @@ public class UserController {
     private UserService service;
     
     @RequestMapping("/login")
-    public ModelAndView login(HttpServletRequest request) {
+    public ModelAndView login() {
         return new ModelAndView();
     }
     
@@ -33,21 +33,24 @@ public class UserController {
     public void authorize(
             @RequestParam(required = true)  String user,
             @RequestParam(required = true)  String pass,
-            @RequestParam(required = false) String redirect,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
         if (null != service.auth_pass(user, pass, request, response)) {
             logger.info("[USER AUTHORIZE] success: " + user);
-            try {
-                if (null != redirect && 0 < redirect.length()) response.sendRedirect(URLDecoder.decode(redirect, "utf-8"));
-                else response.sendRedirect("/");
-            } catch (IOException e) {logger.error("send redirect failed", e);}
+            try {response.sendRedirect("/");}
+            catch (IOException e) {logger.error("send redirect failed", e);}
         } else {
             logger.error("[USER AUTHORIZE] failed:" + user);
             try {response.sendRedirect("/user/login");}
             catch (IOException e) {logger.error("send redirect failed", e);}
         }
+    }
+    
+    @RequestMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
     }
 
 }
