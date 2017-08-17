@@ -1,8 +1,6 @@
 package com.fomjar.blog.config;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -14,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 @Service
 public class ConfigService {
@@ -55,6 +54,8 @@ public class ConfigService {
             this.mapper     = new ObjectMapper();
             this.isRun      = false;
             this.interval   = 1000L * 10;
+            
+            this.mapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         }
         
         @Override
@@ -82,13 +83,12 @@ public class ConfigService {
                         throw new IOException("make directories failed: " + parent.getPath());
                     }
                 }
-                FileOutputStream fos = new FileOutputStream(file.getPath() + ".tmp", false);
-                try {mapper.writeValue(fos, this.config);}
-                catch (IOException e) {throw e;}
-                finally {fos.close();}
                 
-                Files.move(new File(file.getPath() + ".tmp").toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                File tmp = new File(file.getPath() + ".tmp");
+                mapper.writeValue(tmp, this.config);
+                Files.move(tmp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 mod_mem = false;
+                logger.info("[MONITOR SAVE] success: " + file.getPath());
             }
         }
         
@@ -96,11 +96,9 @@ public class ConfigService {
             if (!file.isFile()) return;
             
             if (file.lastModified() > mod_fs) {
-                FileInputStream fis = new FileInputStream(file);
-                try {this.config = mapper.readValue(fis, Map.class);}
-                catch (IOException e) {throw e;}
-                finally {fis.close();}
+                this.config = mapper.readValue(file, Map.class);
                 mod_fs = file.lastModified();
+                logger.info("[MONITOR LOAD] success: " + file.getPath());
             }
         }
         
