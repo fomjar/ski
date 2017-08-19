@@ -120,6 +120,8 @@ public class SBSubject extends StoreBlock {
         return item;
     }
     
+    public JSONObject getSubject0(String sid) {return (JSONObject) data().get(sid);}
+    
     public List<JSONObject> getSubject(String... sid) {
         if (null != sid && 0 < sid.length) {
             return data().entrySet().parallelStream()
@@ -127,7 +129,7 @@ public class SBSubject extends StoreBlock {
                     .map(e->{
                         @SuppressWarnings("unchecked")
                         Map<String, Object> sub = new HashMap<>((JSONObject) e.getValue()); // shallow copy
-                        sub.put("items", ((JSONArray) sub.get("items")).size());
+                        sub.put("items", ((JSONObject) sub.get("items")).size());
                         return JSONObject.fromObject(sub);
                     })
                     .collect(Collectors.toList());
@@ -136,7 +138,7 @@ public class SBSubject extends StoreBlock {
                     .map(e->{
                         @SuppressWarnings("unchecked")
                         Map<String, Object> sub = new HashMap<>((JSONObject) e.getValue()); // shallow copy
-                        sub.put("items", ((JSONArray) sub.get("items")).size());
+                        sub.put("items", ((JSONObject) sub.get("items")).size());
                         return JSONObject.fromObject(sub);
                     })
                     .collect(Collectors.toList());

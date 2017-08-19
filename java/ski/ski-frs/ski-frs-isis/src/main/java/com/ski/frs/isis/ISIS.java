@@ -49,6 +49,7 @@ public class ISIS {
     public static final int FIELD_NATION_UNKNOWN    = -2;
     
     
+    public static final int INST_PING       = 0x00000100;
     
     public static final int INST_SET_PIC        = 0x00001000;
     public static final int INST_DEL_PIC        = 0x00001001;

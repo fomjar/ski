@@ -43,6 +43,8 @@ public class SBDevice extends StoreBlock {
         return dev;
     }
     
+    public JSONObject getDevice0(String did) {return (JSONObject) data().get(did);}
+    
     public List<JSONObject> getDevice(String... did) {
         if (null != did && 0 < did.length) {
             return data().entrySet().parallelStream()

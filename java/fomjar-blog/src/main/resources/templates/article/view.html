@@ -5,22 +5,22 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title th:text="null != ${article} ? ${article.name} : '查看文章'"></title>
-        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
         <style th:replace="~{fragments/common :: style}"></style>
     </head>
     <body>
         <div th:replace="~{fragments/common :: navbar(${article})}"></div>
         <div class="container">
             <div class="row">
-                <div class="col-lg-2 col-md-2"></div>
-                <div class="col-lg-8 col-md-8">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
                     <div class="row">
-                        <div class="col-lg-6 col-md-6 col-xs-6 small" style="color : gray" th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></div>
-                        <div class="col-lg-6 col-md-6 col-xs-6" th:include="~{fragments/common :: share}"></div>
+                        <div class="col-lg-6 small" style="color : gray" th:text="${#dates.format(article.time_create, 'yyyy年MM月dd日 HH:mm')}"></div>
+                        <div class="col-lg-6" th:include="~{fragments/common :: share}"></div>
                     </div>
                     <div class="row" th:include="~{fragments/article :: view(${article}, ${markdown})}"></div>
                 </div>
-                <div class="col-lg-2 col-md-2"></div>
+                <div class="col-lg-2"></div>
             </div>
         </div>
     </body>

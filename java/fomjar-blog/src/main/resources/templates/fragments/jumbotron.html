@@ -1,60 +1,39 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <body>
-        <div th:fragment="index" class="jumbotron">
-            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+        <div th:fragment="index" class="jumbotron rounded-0">
+            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
             <style>
                 html {height  : 100%;}
                 body {height  : 200%;}
                 .jumbotron {
-                    height  : 50%;
+                    height              : 50%;
+                    color               : white;
                     background-image    : url(blog/jumbotron.jpg);
                     background-size     : 100% 100%;
-                    color               : white;
                 }
-                .jumbotron > * {
+                .jumbotron >* {
                     position    : absolute;
                 }
-                .jumbotron .mask {
-                    top                 : 0;
-                    left                : 0;
-                    width               : 100%;
-                    height              : 100%;
-                    background-color    : rgba(0, 0, 0, .3);
+                .jumbotron >.hero {
+                    top     : 30%;
                 }
-                .jumbotron h2 {
-                    top         : 30%;
-                    left        : 6%;
-                    width       : 88%;
-                    height      : 40%;
-                    color       : #eee;
-                }
-                .jumbotron h2 small {
-                    color   : lightgray;
-                }
-                .jumbotron ul {
-                    position    : absolute;
-                    right       : 1em;
-                    bottom      : .5em;
-                }
-                .jumbotron ul li {
-                    display : inline;
-                    margin  : 0 .5em;
+                .jumbotron >.foot {
+                    bottom  : 1rem;
+                    right   : 1rem;
                 }
             </style>
-            <div class="mask"></div>
-            <h2>欢迎光临逢佳的博客
-                <br>
-                <small>Welcome to fomjar's blog</small>
-                <br><br><br>
-                <p>如切如磋 如琢如磨</p>
-            </h2>
-            <ul class="small">
-                <li><a th:href="@{http://projects.spring.io/spring-boot/}"><span class="label label-primary">spring-boot</span></a></li>
-                <li><a th:href="@{http://www.thymeleaf.org}"><span class="label label-success">thymeleaf</span></a></li>
-                <li><a th:href="@{http://getbootstrap.com}"><span class="label label-danger">bootstrap</span></a></li>
-                <li><a th:href="@{http://pandao.github.io/editor.md/}"><span class="label label-info">editor.md</span></a></li>
-            </ul>
+            <div class="hero">
+                <h2>欢迎光临逢佳的博客</h2>
+                <p>Welcome to fomjar's blog</p>
+                <p class="lead mt-5">如切如磋 如琢如磨</p>
+            </div>
+            <div class="foot">
+                <a class="badge badge-primary" th:href="@{http://projects.spring.io/spring-boot/}">spring-boot</a>
+                <a class="badge badge-success" th:href="@{http://www.thymeleaf.org}">thymeleaf</a>
+                <a class="badge badge-danger"  th:href="@{http://getbootstrap.com}">bootstrap</a>
+                <a class="badge badge-warning" th:href="@{http://pandao.github.io/editor.md/}">editor.md</a>
+            </div>
         </div>
     </body>
 </html>

@@ -5,17 +5,17 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>登陆</title>
-        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
+        <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
         <style th:replace="~{fragments/common :: style}"></style>
+        <style>
+            html, body {
+                height  : 100%;
+            }
+        </style>
     </head>
-    <body class="container">
-        <br>
-        <div class="row">
-            <div class="col-lg-4 col-md-4"></div>
-            <div class="col-lg-4 col-md-4">
-                <div th:replace="~{fragments/user :: login}"></div>
-            </div>
-            <div class="col-lg-4 col-md-4"></div>
+    <body class="d-flex justify-content-center align-items-center">
+        <div class="w-50">
+            <div th:replace="~{fragments/user :: login}"></div>
         </div>
     </body>
 </html>

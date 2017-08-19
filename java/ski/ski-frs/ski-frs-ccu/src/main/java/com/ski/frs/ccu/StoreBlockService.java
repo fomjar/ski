@@ -298,8 +298,8 @@ public class StoreBlockService {
         
         if (args.has("did")) {
             String did = args.getString("did"); // 设备下图片
-            List<JSONObject> devs = sb_dev.getDevice(did);
-            if (devs.isEmpty()) {
+            JSONObject dev = sb_dev.getDevice0(did);
+            if (null == dev) {
                 String desc = "illegal arguments, invalid did: " + did;
                 logger.error(desc + ", " + args);
                 JSONObject json = new JSONObject();
@@ -307,14 +307,14 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            args.put("dpath", devs.get(0).getString("path"));
-            devs.get(0).getJSONArray("pics").add(args);
+            args.put("dpath", dev.getString("path"));
+            dev.getJSONArray("pics").add(args);
         }
         if (args.has("sid") && args.has("siid")) {   // 主体库下图片
             String sid = args.getString("sid");
             String siid = args.getString("siid");
-            List<JSONObject> subs = sb_sub.getSubject(sid);
-            if (subs.isEmpty()) {
+            JSONObject sub = sb_sub.getSubject0(sid);
+            if (null == sub) {
                 String desc = "illegal arguments, invalid sid: " + sid;
                 logger.error(desc + ", " + args);
                 JSONObject json = new JSONObject();
@@ -322,7 +322,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            JSONObject item = subs.get(0).getJSONObject("items").getJSONObject(siid);
+            JSONObject item = sub.getJSONObject("items").getJSONObject(siid);
             if (null == item) {
                 String desc = "illegal arguments, invalid siid: " + siid;
                 logger.error(desc + ", " + args);
@@ -331,7 +331,7 @@ public class StoreBlockService {
                 json.put("desc", desc);
                 return json;
             }
-            args.put("sname", subs.get(0).getString("name"));
+            args.put("sname", sub.getString("name"));
             item.getJSONArray("pics").add(args);
         }
         sb_pic.setPicture(args);

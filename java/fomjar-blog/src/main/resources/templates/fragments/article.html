@@ -3,38 +3,23 @@
     <body>
         
         <div th:fragment="list(paths)">
-            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.css}" />
-            <div class="panel panel-default" th:each="path : ${paths}">
-                <div class="panel-heading" th:text="${path.key}"></div>
-                <table class="table table-hover">
+            <link rel="stylesheet" th:href="@{/bootstrap/css/bootstrap.min.css}">
+            <div class="card my-4" th:each="path : ${paths}">
+                <div class="card-header" th:text="${path.key}"></div>
+                <table class="table table-hover mb-0">
                     <tr th:each="article : ${path.value}"
                         th:with="day=${(#dates.createNow().time - article.time_create) / 1000 / 60 / 60 / 24}">
                         <td>
                             <a th:href="@{'/article/view/' + ${article.aid}}"
                                th:text="${article.name}"></a>
-                            <small><span class="label label-danger" th:if="${day <= 7}">new</span></small>
+                            <span class="badge badge-danger" th:if="${day <= 7}">new</span>
                         </td>
                         <td class="text-right">
-                            <small th:text="${#dates.format(article.time_create, 'MM/dd HH:mm')}"></small>
+                            <small class="text-muted" th:text="${#dates.format(article.time_create, 'MM/dd HH:mm')}"></small>
                         </td>
                     </tr>
                 </table>
             </div>
-            <script th:src="@{/editormd/examples/js/jquery.min.js}"></script>
-            <script th:inline="javascript">
-                (function() {
-                    var main_path = '现代前端';
-                    
-                    $.each($('.panel-heading'), function(i, h) {
-                        var $h = $(h);
-                        if (main_path == $h.text()) {
-                            var $p = $h.parent();
-                            $p.removeClass('panel-default');
-                            $p.addClass('panel-info');
-                        }
-                    });
-                })();
-            </script>
         </div>
         
         
@@ -78,7 +63,7 @@
                             flowChart       : true,  // 默认不解析
                             sequenceDiagram : true,  // 默认不解析
                     });
-                })();
+                }());
             </script>
         </div>
         
@@ -120,7 +105,7 @@
                             lineNumbers : false,
                             placeholder : '开始输入...'
                     });
-                })();
+                }());
             </script>
         </div>
     </body>
