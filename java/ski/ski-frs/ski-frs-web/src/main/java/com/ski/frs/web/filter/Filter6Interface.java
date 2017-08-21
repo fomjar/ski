@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import com.ski.frs.isis.ISIS;
 import com.ski.frs.web.FeatureService;
+import com.ski.frs.web.FeatureService.FeatureServicePool;
 import com.ski.frs.web.WebToolkit;
 
 import fomjar.server.FjMessageWrapper;
@@ -137,7 +138,7 @@ public class Filter6Interface extends FjWebFilter {
         args.remove("data");
         
         JSONObject desc = new JSONObject();
-        FeatureService.getDefault().fv_base64(new FeatureService.FV() {
+        FeatureService.pool0().next().fv_base64(new FeatureService.FV() {
             @Override
             public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
                 desc.put("mark",    mark);
@@ -199,21 +200,12 @@ public class Filter6Interface extends FjWebFilter {
 
         new Thread(()->{
             try {
-                int size = Integer.parseInt(FjServerToolkit.getServerConfig("web.sub.import"));
-                
-                FeatureService[] service = new FeatureService[size];
-                for (int i = 0; i < size; i++) service[i] = new FeatureService();
-                ExecutorService pool = Executors.newFixedThreadPool(size, new FjThreadFactory("sub-import"));
-                FjReference<Integer> refi = new FjReference<>(0);
-                list_all.forEach(file->{
-                    final int i = refi.t;
-                    pool.submit(new SubImportTask(state, file, service[i % size]));
-                    refi.t++;
-                });
+                FeatureServicePool feat_pool = FeatureService.pool0();
+                ExecutorService pool = Executors.newFixedThreadPool(feat_pool.size(), new FjThreadFactory("sub-import"));
+                list_all.forEach(file->pool.submit(new SubImportTask(state, file, feat_pool.next())));
                 pool.shutdown();
                 try {pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MILLISECONDS);}
                 catch (InterruptedException e) {logger.error("wait for sub import done failed", e);}
-                for (int i = 0; i < size; i++) service[i].close();
                 state.time_end = System.currentTimeMillis();
             } catch (Exception e) {logger.error("submit sub import task failed", e);}
         }).start();

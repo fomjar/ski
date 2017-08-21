@@ -5,10 +5,14 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
+
+import fomjar.server.FjServerToolkit;
 
 public class FeatureService {
     
@@ -32,16 +36,52 @@ public class FeatureService {
     /** 没有人脸 */
     public static final int ERROR_NO_FACE       = 6;
     
-    private static FeatureService instance = null;
-    public static FeatureService getDefault() {
-        if (null == instance) {
-        	    instance = new FeatureService();
-        	    Runtime.getRuntime().addShutdownHook(new Thread() {
-        	    	    @Override
-        	    	    public void run() {instance.close();};
-        	    });
+    
+    public static class FeatureServicePool {
+        
+        private ArrayList<FeatureService> pool;
+        private int current;
+        
+        private FeatureServicePool(int size) {
+            pool = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) pool.add(new FeatureService());
+            current = 0;
         }
-        return instance;
+        
+        public int size() {
+            return pool.size();
+        }
+        
+        public FeatureService random() {
+            return pool.get(new Random().nextInt(size()));
+        }
+        
+        public FeatureService next() {
+            FeatureService fs = pool.get(current);
+            if (++current >= size()) current = 0;
+            return fs;
+        }
+        
+        public void close() {
+            for (FeatureService fs : pool) fs.close();
+            pool.clear();
+        }
+    }
+    
+    public static FeatureServicePool pool(int size) {
+        return new FeatureServicePool(size);
+    }
+    
+    private static FeatureServicePool pool = null;
+    public static FeatureServicePool pool0() {
+        if (null == pool) {
+            pool = pool(Integer.parseInt(FjServerToolkit.getServerConfig("web.feature.pool")));
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {pool.close();};
+            });
+        }
+        return pool;
     }
     
     private Process process;
@@ -54,8 +94,10 @@ public class FeatureService {
     }
     
     private void checkRespawn() {
-        if (null != process && process.isAlive()) return;
-        
+        if (null != process) {
+            if (process.isAlive()) return;
+            process.destroyForcibly();
+        }
         try {
             process = Runtime.getRuntime().exec("feature_extract.exe");
             reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -84,6 +126,9 @@ public class FeatureService {
             reader.close();
             writer.close();
         } catch (IOException e) {e.printStackTrace();}
+        try {Thread.sleep(200L);}
+        catch (InterruptedException e) {e.printStackTrace();}
+        process.destroyForcibly();
     }
 
     private void do_fv() {

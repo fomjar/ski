@@ -146,7 +146,7 @@ public class WebToolkit {
             args.remove("data");
             
             if (ISIS.FIELD_TYPE_MAN_FACE == type && ISIS.FIELD_PIC_SIZE_SMALL == size) {
-                FeatureService.getDefault().fv_base64(new FeatureService.FV() {
+                FeatureService.pool0().next().fv_base64(new FeatureService.FV() {
                     @Override
                     public void fv(int mark, double[] fv, int glass, int mask, int hat, int gender, int nation) {
                         args.put("mark",    mark);
