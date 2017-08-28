@@ -77,8 +77,8 @@ public class ArticleService {
         return new String(buff, "utf-8");
     }
     
-    public String update(String author, String path_view, String data) throws UnsupportedEncodingException, IOException {
-        return update(new_aid(), author, path_view, data);
+    public String update(String author, String path_view, String markdown) throws UnsupportedEncodingException, IOException {
+        return update(new_aid(), author, path_view, markdown);
     }
     
     public String update(String aid, String author, String path_view, String markdown) throws UnsupportedEncodingException, IOException {
