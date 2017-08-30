@@ -1,4 +1,4 @@
 #!/bin/sh
 
-java -server -jar fomjar-blog*.jar 1>output.log 2>&1 &
+java -server -jar fomjar-blog*.jar 2>&1 | tee output.log &
 
