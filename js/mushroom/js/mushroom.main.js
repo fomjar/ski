@@ -13,6 +13,11 @@
         document.app.ticker.add(function (delta) {
             document.mushroom.frame(document.app.stage);
         });
+        
+        var mr = new document.mushroom.MushRoom();
+        mr.position.x = 100;
+        mr.position.y = 100;
+        document.app.stage.addChild(mr);
     }());
 
 }());
