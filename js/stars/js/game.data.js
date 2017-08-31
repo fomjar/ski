@@ -4,57 +4,91 @@ define(['tween'], function (tween) {
     
     var data = {};
     
-    data.BaseData = function () {
-        this.x  = 0;
-        this.y  = 0;
-        this.is_tween = false;
-    };
-    data.BaseData.prototype.tick    = function () {};
-    data.BaseData.prototype.tween   = function (dp, to, tm, cb) {
-        if (this.is_tween) return;
-        
-        if (!cb) cb = tween.Linear;
-        if (!tm) tm = 6;
-        
-        var self = this;
-        var from = this[dp];
-        var time = 0;
-        
-        if (from == to) return;
-        
-        self.is_tween = true;
-        var tween_tick = function (delta) {
-            var curr = cb(time += delta, 0, to - from, tm);
-            self[dp] += curr;
-            if ((from < to && curr >= to - from) || (from > to && curr <= to - from)) {
-                self.is_tween = false;
-                self[dp] = to;
-                document.app.ticker.remove(tween_tick);
-            }
-        };
-        document.app.ticker.add(tween_tick);
+    
+    data.Meta = function (type) {
+        this.type   = type;
     };
     
-    data.Star = function () {
-        this.color_bd   = 0;
-        this.color_bg   = 0;
-        this.alpha  = 1;
-        this.radius = 0;
-        this.scale  = 1;
+    data.MStar = function (meta) {
+        this.__proto__ = new data.Meta(meta);
         
-        this.random_style();
+        this.weight = 0;
     };
-    data.Star.prototype = new data.BaseData();
-    data.Star.prototype.random_style = function () {
-        this.random_color();
-        this.random_size();
+    
+    
+    data.Data = function () {
+        this.x  = 0;
+        this.y  = 0;
+        this.scale  = 1;
+        this.meta   = new data.Meta();
+        this.tick   = function () {};
+        this.tween  = function (dp, to, fn, tm) {
+            if (!tm) tm = 160;
+            if (!fn) fn = tween.Circ.easeOut;
+
+            var self    = this;
+            var from    = self[dp];
+            var time    = 0;
+            var begin   = new Date().getTime();
+
+            if (self.tweener) {
+                document.app.ticker.remove(self.tweener);
+                delete self.tweener;
+            }
+            self.tweener = function (delta) {
+                time = new Date().getTime() - begin;
+                self[dp] = fn(time, from, to - from, tm);
+                if (time >= tm) {
+                    self[dp] = to;
+                    document.app.ticker.remove(self.tweener);
+                    delete self.tweener;
+                }
+            };
+            document.app.ticker.add(self.tweener);
+        };
     };
-    data.Star.prototype.random_color = function () {
-        this.color_bg   = Math.floor(Math.random() * 0x555555) + 0xAAAAAA;  // light
-        this.color_bd   = Math.floor(Math.random() * 0x222222) + 0x666666;  // dark
+    
+    
+    data.DPane = function () {
+        this.__proto__ = new data.Data();
+        
+        this.width  = 0;
+        this.height = 0;
     };
-    data.Star.prototype.random_size = function () {
-        this.radius = Math.random() * 40 + 100;
+    
+    data.DPaneAsset = function () {
+        this.__proto__ = new data.DPane();
+        
+        this.x      = 150;
+        this.y      = 20;
+        this.width  = this.x * 2;
+        this.height = this.y * 2;
+    };
+    
+    
+    
+    data.DButton = function (text) {
+        this.__proto__ = new data.Data();
+        
+        this.width  = 0;
+        this.height = 0;
+        this.text   = text || '';
+    }
+    
+    
+    
+    
+    data.DStar = function (meta) {
+        this.__proto__  = new data.Data();
+        
+        this.radius = Math.random() * 10 + 15;
+        this.meta   = new data['MStar_' + meta]();
+    };
+        
+    data.MStar_home = function () {
+        this.__proto__ = new data.MStar('home');
+        
+        this.weight = 30;
     };
     
     return data;

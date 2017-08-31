@@ -9,7 +9,8 @@ define(function () {
      * c: change in value（变化量）；
      * d: duration（持续时间）。
      * you can visit 'http://easings.net/zh-cn' to get effect
-    */
+     * demo: http://www.zhangxinxu.com/study/201612/how-to-use-tween-js.html
+     */
     var tween = {
         Linear: function (t, b, c, d) { return c * t / d + b; },
         Quad: {

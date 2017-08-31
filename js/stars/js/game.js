@@ -2,10 +2,8 @@ define(['game.view', 'game.world', 'pixi'], function (view, world, PIXI) {
     
     'use strict';
     
-    var game = {
-        view    : view,
-        world   : world
-    };
+    var game = view;
+    game.world = world;
     
     document.app = new PIXI.Application(window.innerWidth, window.innerHeight, {
         backgroundColor : 0x000000
@@ -13,15 +11,14 @@ define(['game.view', 'game.world', 'pixi'], function (view, world, PIXI) {
 
     document.body.appendChild(document.app.view);
     
-    var frame = function (root_view) {
-        if (root_view.data && root_view.data.tick) {root_view.data.tick(); }
-        if (root_view.clear) {root_view.clear(); }
-        if (root_view.draw) {root_view.draw(); }
+    var frame = function (view) {
+        if (view.data && view.data.tick) view.data.tick();
+        if (view.clear) view.clear();
+        if (view.draw)  view.draw();
 
-        if (root_view.children) {
-            var i = 0;
-            for (i = 0; i < root_view.children.length; i += 1) {
-                frame(root_view.children[i]);
+        if (view.children) {
+            for (var i = 0; i < view.children.length; i++) {
+                frame(view.children[i]);
             }
         }
     };
