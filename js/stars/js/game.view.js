@@ -173,12 +173,20 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
         }
         
         draw () {
+            switch (this.state) {
+                case 'over':
+                case 'down':
+                    this.lineStyle(this.data.border, this.data.color_bd, 1);
+                    break;
+                default:
+                    this.lineStyle(0);
+                    break;
+            }
+            this.beginFill(this.data.color_bg, 1);
+            this.drawCircle(0, 0, this.data.radius);
+            this.endFill();
             switch (this.data.type) {
                 case 'home':
-                    this.beginFill(this.data.color_bg, 1);
-                    this.lineStyle(this.data.border, this.data.color_bd, 1);
-                    this.drawCircle(0, 0, this.data.radius);
-                    this.endFill();
                     break;
             }
         }
