@@ -2,19 +2,20 @@ define(['tween'], function (tween) {
     
     'use strict';
     
-    var data = {};
+    let data = {};
     
     data.tween  = function (ta, pr, to, fn, tm) {
         if (!tm) tm = 160;
         if (!fn) fn = tween.Circ.easeOut;
 
-        var from    = ta[pr];
-        var time    = 0;
-        var begin   = new Date().getTime();
+        let from    = ta[pr];
+        let time    = 0;
+        let begin   = new Date().getTime();
 
+        let app = document.game.app;
         if (!ta.tweener) ta.tweener = {};
         if (ta.tweener[pr]) {
-            document.app.ticker.remove(ta.tweener[pr]);
+            app.ticker.remove(ta.tweener[pr]);
             delete ta.tweener[pr];
         }
         ta.tweener[pr] = function (delta) {
@@ -22,82 +23,120 @@ define(['tween'], function (tween) {
             ta[pr] = fn(time, from, to - from, tm);
             if (time >= tm) {
                 ta[pr] = to;
-                document.app.ticker.remove(ta.tweener[pr]);
+                app.ticker.remove(ta.tweener[pr]);
                 delete ta.tweener[pr];
             }
         };
-        document.app.ticker.add(ta.tweener[pr]);
+        app.ticker.add(ta.tweener[pr]);
+    };
+    
+    data.Data = class Data {
+        constructor () {
+            this.x      = 0;
+            this.y      = 0;
+            this.width  = 1;
+            this.height = 1;
+        }
+        xetter (pr, fs, fg) {
+            if (1 > arguments.length) throw new Error('illegal arguments count, at least 1');
+            
+            this['_' + pr] = this[pr];
+            this.__defineSetter__(pr, (v) => {
+                if (fs) fs(v);
+                this['_' + pr] = v;
+            });
+            this.__defineGetter__(pr, ( ) => {
+                let v = this['_' + pr];
+                if (fg) fg(v);
+                return v;
+            });
+            this[pr] = this['_' + pr];
+        }
+        assign (d) {
+            Object.assign(this, d);
+        }
+    };
+    data.DPane = class DPane extends data.Data {
+        constructor () {
+            super();
+            this.alpha  = 0.8;
+            this.round  = 6;
+            this.border = 2;
+            this.color_bg   = 0xcccccc;
+            this.color_bd   = 0xeeeeee;
+        }
+    };
+    data.DPaneResource = class DPaneResource extends data.DPane {
+        constructor () {
+            super();
+            this.x      = document.game.screen.width / 4 / 2;
+            this.y      = 16;
+            this.width  = this.x * 2;
+            this.height = this.y * 2;
+            this.alpha  = 0.4;
+            this.border = 2;
+            this.color_bg   = 0x9999ff;
+            this.color_bd   = 0x999999;
+        }
+    };
+    data.DButton = class DButton extends data.DPane {
+        constructor () {super();}
+        
+        style_icon_small () {
+            this.width      = 16;
+            this.height     = 16;
+            this.border     = 1;
+        }
+        
+        style_icon_middle () {
+            this.width      = 24;
+            this.height     = 24;
+            this.border     = 1;
+        }
+        
+        style_icon_large () {
+            this.width      = 32;
+            this.height     = 32;
+            this.border     = 1;
+        }
+        
+        style_primary () {
+            this.width      = 72;
+            this.height     = 24;
+            this.border     = 2;
+            this.color_bg   = 0xff9999;
+            this.color_bd   = 0xcccccc;
+        }
+    };
+    data.DStar = class DStar extends data.DPane {
+        constructor (type) {
+            super();
+            this.type   = type;
+            this.level  = 1;
+            this.radius = 1;
+            
+            this.xetter('radius', (radius) => {
+                this.width  = radius * 2;
+                this.height = radius * 2;
+            })
+            this.xetter('level', (level) => {
+                this.radius = 15 + level * 2;
+            });
+            this.xetter('type', (type) => this.style_type());
+            
+            this.style_type();
+        }
+        
+        style_type () {
+            switch (this.type) {
+                case 'home':
+                    this.border = 2;
+                    this.color_bg   = 0xffff99;
+                    this.color_bd   = 0x999999;
+                    break;
+            }
+        }
     };
 
-    
-    data.Meta = function (type) {
-        this.type   = type;
-    };
-    
-    data.MStar = function (meta) {
-        this.__proto__ = new data.Meta(meta);
-        
-        this.weight = 0;
-    };
-    
-    
-    data.Data = function (view) {
-        this.view   = view;
-        this.position   = {x : 0, y : 0};
-        this.__defineGetter__('x', function (x) {return this.position.x; });
-        this.__defineSetter__('x', function (x) {
-            this.position.x = x;
-            if (this.view) this.view.position.x = x;
-        });
-        this.__defineGetter__('y', function (y) {return this.position.y; });
-        this.__defineSetter__('y', function (y) {
-            this.position.y = y;
-            if (this.view) this.view.position.y = y;
-        });
-        this.meta   = new data.Meta();
-        this.tick   = function () {};        
-    };
-    
-    
-    data.DPane = function (view) {
-        this.__proto__ = new data.Data(view);
-        
-        this.width  = 0;
-        this.height = 0;
-    };
-    
-    data.DPaneAsset = function (view) {
-        this.__proto__ = new data.DPane(view);
-        
-        this.x      = 150;
-        this.y      = 20;
-        this.width  = this.x * 2;
-        this.height = this.y * 2;
-    };
-    
-    
-    
-    data.DButton = function (view) {
-        this.__proto__ = new data.Data(view);
-        
-        this.width  = 0;
-        this.height = 0;
-    }
-    
-    
-    
-    
-    data.DStar = function (view, meta) {
-        this.__proto__  = new data.Data(view);
-        
-        this.meta   = new data['MStar_' + meta](view);
-    };
-        
-    data.MStar_home = function () {
-        this.__proto__ = new data.MStar('home');
-        
-        this.weight = 30;
-    };
-    
     return data;
 });

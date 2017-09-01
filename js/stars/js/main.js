@@ -2,7 +2,8 @@ require(['game'], function (game) {
     
     'use strict';
 
-    game.world.init(game);
+    document.game = game;
+    document.game.init();
 
 });
 

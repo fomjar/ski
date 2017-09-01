@@ -2,150 +2,188 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
     
     'use strict';
     
-    var view = data;
+    let view = data;
     
-    view.View = function () {
-        this.__proto__  = new PIXI.Graphics();
-        
-        this.data   = new data.Data(this);
-        this.interactive    = true;
-        this.state  = 'default';
-        this.draw   = function () {};
-        
-        this.auto_scale = function (s) {
-            if (!s) s = 1.1;
+    view.View = class View extends PIXI.Graphics {
+        constructor () {
+            super();
             
-            this.on('pointerover', function () {
-                data.tween(this.scale, 'x', s);
-                data.tween(this.scale, 'y', s);
+            let find_data = (proto) => {
+                var name = 'D' + proto.constructor.name.substring(1);
+                if (data[name]) this.data = new data[name]();
+                else {
+                    if (proto.__proto__) find_data(proto.__proto__);
+                    else this.data = new data.Data();
+                }
+            };
+            find_data(this.__proto__);
+            
+            this.data.xetter('x', (x) => this.position.x = x);
+            this.data.xetter('y', (y) => this.position.y = y);
+
+            this.interactive    = true;
+            this.state  = 'default';
+        }
+        
+        draw () {}
+
+        auto_interactive (s) {
+            this.removeAllListeners('pointerover');
+            this.removeAllListeners('pointerout');
+            this.removeAllListeners('pointerdown');
+            this.removeAllListeners('pointerup');
+            this.removeAllListeners('pointerupoutside');
+            
+            this.on('pointerover', () => {
+                if (s) {
+                    data.tween(this.scale, 'x', s);
+                    data.tween(this.scale, 'y', s);
+                }
                 this.state = 'over';
             });
-            this.on('pointerout', function () {
-                data.tween(this.scale, 'x', 1);
-                data.tween(this.scale, 'y', 1);
+            this.on('pointerout', () => {
+                if (s) {
+                    data.tween(this.scale, 'x', 1);
+                    data.tween(this.scale, 'y', 1);
+                }
                 this.state = 'default';
             });
-            this.on('pointerdown', function () {
-                data.tween(this.scale, 'x', 1);
-                data.tween(this.scale, 'y', 1);
+            this.on('pointerdown', () => {
+                if (s) {
+                    data.tween(this.scale, 'x', 1);
+                    data.tween(this.scale, 'y', 1);
+                }
                 this.state = 'down';
             });
-            this.on('pointerup', function () {
-                data.tween(this.scale, 'x', s);
-                data.tween(this.scale, 'y', s);
+            this.on('pointerup', () => {
+                if (s) {
+                    data.tween(this.scale, 'x', s);
+                    data.tween(this.scale, 'y', s);
+                }
                 this.state = 'over';
             });
-            this.on('pointerupoutside', function () {
-                data.tween(this.scale, 'x', 1);
-                data.tween(this.scale, 'y', 1);
+            this.on('pointerupoutside', () => {
+                if (s) {
+                    data.tween(this.scale, 'x', 1);
+                    data.tween(this.scale, 'y', 1);
+                }
                 this.state = 'default'
             });
-        };
+        }
     };
     
-    
-    view.VPane = function () {
-        this.__proto__ = new view.View();
+    view.VPane = class VPane extends view.View {
+        constructor () {super();}
         
-        this.data   = new data.DPane(this);
-        this.draw   = function () {};
-    };
-    
-    
-    view.VPaneAsset = function () {
-        this.__proto__ = new view.VPane();
-        
-        this.data   = new data.DPaneAsset(this);
-        this.draw   = function () {
-            var bg  = 0x9999ff;
-            var bd  = 0x999999;
-            var alpha   = 0.6;
-
-            this.beginFill(bg, alpha);
-            this.lineStyle(2, bd, alpha);
-            this.drawRect(- this.data.width / 2,
-                          - this.data.height / 2,
-                          this.data.width,
-                          this.data.height);
-            this.endFill();
-        };
-    }
-    
-    
-    view.VButton = function (text, action) {
-        this.__proto__ = new view.View();
-        
-        this.data   = new data.DButton(this);
-        this.text   = new PIXI.Text(text);
-        this.text.pivot.x = this.text.width / 2;
-        this.text.pivot.y = this.text.height / 2;
-        this.addChild(this.text);
-        this.buttonMode = true;
-        
-        this.click  = function (action) {
-            this.on('pointerup', action);
-        };
-        this.click(action);
-        
-        this.auto_scale();
-    };
-    
-    
-    view.VButtonPrimary = function (text, action) {
-        this.__proto__ = new view.VButton(text, action);
-        
-        this.data.width     = 60;
-        this.data.height    = 24;
-        this.draw = function () {
-            var bg  = 0xff9999;
-            var bd  = 0xcccccc;
-            switch (this.state) {
-            case 'over':
-                bg  = 0xffaaaa;
-                bd  = 0xdddddd;
-                break;
-            case 'down':
-                bg  = 0xff8888;
-                bd  = 0xbbbbbb;
-                break;
-            }
-
-            this.beginFill(bg, this.data.alpha);
-            this.lineStyle(2, bd, this.data.alpha);
-            this.drawRoundedRect(- this.data.width / 2,
-                                 - this.data.height / 2,
-                                 this.data.width,
-                                 this.data.height, 6);
+        draw () {
+            this.beginFill(this.data.color_bg, this.data.alpha);
+            this.lineStyle(this.data.border, this.data.color_bd, this.data.alpha);
+            this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
             this.endFill();
         }
-    }
+    };
     
+    
+    view.VPaneResource = class VPaneResource extends view.VPane {
+        constructor () {
+            super();
+            
+            let icon_stone = new view.VButton('石').style_icon_small();
+            icon_stone.data.x = - this.data.width / 4;
+            icon_stone.data.y = 0;
+            
+            this.addChild(icon_stone);
+        }
+    };
+    
+    
+    view.VButton = class VButton extends view.VPane {
+        constructor (text) {
+            super();
+            
+            this.text   = new PIXI.Text(text, new PIXI.TextStyle({fontWeight : '100'}));
+            this.addChild(this.text);
+            
+            this.data.xetter('width', (width) => {
+                this.text.pivot.x = this.text.width / 2;
+                this.text.pivot.y = this.text.height / 2 - 1;
+            });
+            this.data.xetter('height', (height) => {
+                this.text.style.fontSize    = height * 2 / 3;
+                this.text.pivot.x = this.text.width / 2;
+                this.text.pivot.y = this.text.height / 2 - 1;
+            });
+        }
+        
+        style_icon_small () {
+            this.buttonMode = false;
+            this.data.style_icon_small();
+            this.auto_interactive();
+            return this;
+        }
+        style_icon_middle () {
+            this.buttonMode = false;
+            this.data.style_icon_middle();
+            this.auto_interactive();
+            return this;
+        }
+        style_icon_large () {
+            this.buttonMode = false;
+            this.data.style_icon_large();
+            this.auto_interactive();
+            return this;
+        }
+        style_primary () {
+            this.buttonMode = true;
+            this.data.style_primary();
+            this.auto_interactive(1.05);
+            return this;
+        }
 
-    
-    view.VStar = function (meta) {
-        this.__proto__  = new view.View();
+        click (action) {
+            this.on('pointerup', action);
+            return this;
+        }
         
-        this.data   = new data.DStar(this, meta);
-        this.radius = Math.random() * 10 + 15;
-        this.draw   = function () {view.draw.star[meta](this, this.data);};
-        
-        this.auto_scale();
+        draw () {
+            super.draw();
+            
+            switch (this.state) {
+                case 'over':
+                    this.beginFill(0xffffff, 0.2);
+                    this.lineStyle(this.data.border, 0xffffff, 0.2);
+                    this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
+                    this.endFill();
+                    break;
+                case 'down':
+                    this.beginFill(0x000000, 0.2);
+                    this.lineStyle(this.data.border, 0x000000, 0.2);
+                    this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
+                    this.endFill();
+                    break;
+            }
+        }
     };
     
-    
-    view.draw = {
-        star    : {
-            home    : function (g) {
-                var bg  = 0xffff99;
-                var bd  = 0x999999;
-                
-                g.beginFill(bg, 1);
-                g.lineStyle(2, bd, 1);
-                g.drawCircle(0, 0, g.radius);
-                g.endFill();
-            },
-        },
+    view.VStar = class VStar extends view.View {
+        constructor (type) {
+            super();
+            this.auto_interactive(1.1);
+            this.data.type = type;
+        }
+        
+        draw () {
+            switch (this.data.type) {
+                case 'home':
+                    this.beginFill(this.data.color_bg, 1);
+                    this.lineStyle(this.data.border, this.data.color_bd, 1);
+                    this.drawCircle(0, 0, this.data.radius);
+                    this.endFill();
+                    break;
+            }
+        }
     };
+    
     
     return view;
 });
