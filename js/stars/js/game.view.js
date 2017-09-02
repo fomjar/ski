@@ -22,13 +22,9 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             this.data.on_set('y',       (v) => this.position.y = v);
 //            this.data.on_set('width',   (v) => this.width  = v);
 //            this.data.on_set('height',  (v) => this.height = v);
-            this.data.on_set('scale0',   (v) => {
-                this.scale.x = this.data.scale0 * this.data.scale;
-                this.scale.y = this.data.scale0 * this.data.scale;
-            });
             this.data.on_set('scale',   (v) => {
-                this.scale.x = this.data.scale0 * this.data.scale;
-                this.scale.y = this.data.scale0 * this.data.scale;
+                this.scale.x = v;
+                this.scale.y = v;
             });
 
             this.state  = 'default';
@@ -46,23 +42,23 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             this.removeAllListeners('pointerupoutside');
             
             this.on('pointerover', () => {
-                if (s) this.data.tween('scale', s);
+                if (s) this.data.tween('scale_view', s);
                 this.state = 'over';
             });
             this.on('pointerout', () => {
-                if (s) this.data.tween('scale', 1);
+                if (s) this.data.tween('scale_view', 1);
                 this.state = 'default';
             });
             this.on('pointerdown', () => {
-                if (s) this.data.tween('scale', 1);
+                if (s) this.data.tween('scale_view', 1);
                 this.state = 'down';
             });
             this.on('pointerup', () => {
-                if (s) this.data.tween('scale', s);
+                if (s) this.data.tween('scale_view', s);
                 this.state = 'over';
             });
             this.on('pointerupoutside', () => {
-                if (s) this.data.tween('scale', 1);
+                if (s) this.data.tween('scale_view', 1);
                 this.state = 'default'
             });
         }
@@ -120,7 +116,11 @@ define(['game.data', 'pixi'], function (data, PIXI) {
         draw () {
             this.beginFill(this.data.color_bg, this.data.alpha);
             this.lineStyle(this.data.border, this.data.color_bd, this.data.alpha);
-            this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
+            this.drawRoundedRect(- this.data.width / 2 * this.data.scale_view,
+                                 - this.data.height / 2 * this.data.scale_view,
+                                 this.data.width * this.data.scale_view,
+                                 this.data.height * this.data.scale_view,
+                                 this.data.round);
             this.endFill();
         }
     };
@@ -135,10 +135,12 @@ define(['game.data', 'pixi'], function (data, PIXI) {
                 let icon = new view.VButton(name).style_icon_small();
                 let label = new view.VLabel('0').align_left();
                 label.view.style.fill = 'white';
-                label.view.style.fontSize *= 0.6;
+                label.view.style.fontSize *= 0.5;
                 label.update();
-                icon.data.x = grid.position.center - icon.data.width;
-                label.data.x = grid.position.center;
+                
+                let padding = (this.data.height - icon.data.height) / 2;
+                icon.data.x = grid.position.left + padding + icon.data.width / 2;
+                label.data.x = grid.position.left + padding * 1.5 + icon.data.width;
                 
                 this.addChild(icon);
                 this.addChild(label);
@@ -217,7 +219,11 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             if (undefined != color_mask) {
                 this.beginFill(color_mask, 0.2);
                 this.lineStyle(0);
-                this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
+                this.drawRoundedRect(- this.data.width / 2 * this.data.scale_view,
+                                     - this.data.height / 2 * this.data.scale_view,
+                                     this.data.width * this.data.scale_view,
+                                     this.data.height * this.data.scale_view,
+                                     this.data.round);
                 this.endFill();
             }
         }
@@ -226,12 +232,12 @@ define(['game.data', 'pixi'], function (data, PIXI) {
     view.VStar = class VStar extends view.View {
         constructor (type) {
             super();
-            this.auto_interactive(1.2);
+            this.auto_interactive(1.15);
             this.data.type = type;
             
             this.data.on_set('thumb', (v) => {
-                if (v)  this.data.tween('scale0', 0.12);
-                else    this.data.tween('scale0', 1);
+                if (v)  this.data.tween('scale', 0.12);
+                else    this.data.tween('scale', 1);
             })
             
             this.click(( ) => this.data.thumb = !this.data.thumb);
@@ -253,7 +259,7 @@ define(['game.data', 'pixi'], function (data, PIXI) {
                     break;
             }
             this.beginFill(this.data.color_bg, 1);
-            this.drawCircle(0, 0, this.data.radius);
+            this.drawCircle(0, 0, this.data.radius * this.data.scale_view);
             this.endFill();
             
             switch (this.data.type) {

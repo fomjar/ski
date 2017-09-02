@@ -10,8 +10,8 @@ define(['tween'], function (tween) {
             this.y      = 0;
             this.width  = 1;
             this.height = 1;
-            this.scale0 = 1;
             this.scale  = 1;
+            this.scale_view = 1;
         }
         tween   (pr, to, tm, dn)    {Data.tween (this, pr, to, tm, dn);}
         on_get  (pr, fn)            {Data.on_get(this, pr, fn);}
@@ -197,8 +197,6 @@ define(['tween'], function (tween) {
                 if ('home' == this.type) this.radius *= 1.2;
             });
             this.on_set('type', (type) => this.style_type());
-            
-            this.style_type();
         }
         
         style_type () {
