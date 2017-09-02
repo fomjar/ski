@@ -10,16 +10,27 @@ define(['tween'], function (tween) {
             this.y      = 0;
             this.width  = 1;
             this.height = 1;
+            this.scale0 = 1;
             this.scale  = 1;
         }
-        tween  (pr, to, fn, tm) {Data.tween (this, pr, to, fn, tm);}
+        tween  (pr, to, tm, dn) {Data.tween (this, pr, to, tm, dn);}
         getter (pr, fn)         {Data.getter(this, pr, fn);}
         setter (pr, fs, fg)     {Data.setter(this, pr, fs, fg);}
-        bind   (sr, pr)         {Data.bind  (this, sr, pr);}
-        static tween (ta, pr, to, fn, tm) {
+        bind   (sr, pr, fn)     {Data.bind  (this, sr, pr, fn);}
+        static tween (ta, pr, to, tm, dn) {
+            if (3 > arguments.length) throw new Error('illegal arguments count, at least 3');
+            
+            switch (arguments.length) {
+                case 4:
+                    if ('function' == typeof tm) {
+                        dn = tm;
+                        tm = null;
+                    }
+                    break;
+            }
             if (!tm) tm = 160;
-            if (!fn) fn = tween.Circ.easeOut;
-
+            
+            let fn      = tween.Circ.easeOut;
             let from    = ta[pr];
             let time    = 0;
             let begin   = new Date().getTime();
@@ -37,6 +48,7 @@ define(['tween'], function (tween) {
                     ta[pr] = to;
                     app.ticker.remove(ta._tweener[pr]);
                     delete ta._tweener[pr];
+                    if (dn) dn();
                 }
             };
             app.ticker.add(ta._tweener[pr]);
@@ -59,9 +71,30 @@ define(['tween'], function (tween) {
             });
             ta[pr] = ta[`_${pr}`];
         }
-        static bind (ta, sr, pr) {
-            if (pr) Data.setter(sr, pr, (v) => ta[pr] = v);
-            else for (pr in sr) Data.setter(sr, pr, (v) => ta[pr] = v);
+        static bind (ta, sr, pr, fn) {
+            if (2 > arguments.length) throw new Error('illegal arguments count, at least 2');
+            
+            switch (arguments.length) {
+                case 3:
+                    if ('function' == typeof pr) {
+                        fn = pr;
+                        pr = null;
+                    }
+                    break;
+            }
+            if (pr) {
+                Data.setter(sr, pr, (v) => {
+                    ta[pr] = v;
+                    if (fn) fn(pr, v);
+                });
+            } else {
+                for (pr in sr) {
+                    Data.setter(sr, pr, (v) => {
+                        ta[pr] = v
+                        if (fn) fn(pr, v);
+                    });
+                }
+            }
         }
     };
     data.DPane = class DPane extends data.Data {
@@ -122,14 +155,17 @@ define(['tween'], function (tween) {
             this.type   = type;
             this.level  = 1;
             this.radius = 1;
-            this.border = 2;
+            this.border = 4;
+            this.thumb  = false;
             
             this.setter('radius', (v) => {
                 this.width  = v * 2;
                 this.height = v * 2;
             })
             this.setter('level', (v) => {
-                this.radius = 15 + v * 2;
+                let screen = document.game.screen;
+                this.radius = screen.height / 5 + v * screen.height / 80;
+                if ('home' == this.type) this.radius *= 1.2;
             });
             this.setter('type', (type) => this.style_type());
             

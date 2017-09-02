@@ -20,9 +20,16 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             
             this.data.setter('x',       (v) => this.position.x = v);
             this.data.setter('y',       (v) => this.position.y = v);
-            this.data.setter('width',   (v) => this.width  = v);
-            this.data.setter('height',  (v) => this.height = v);
-            this.data.setter('scale',   (v) => {this.scale.x = v; this.scale.y = v;});
+//            this.data.setter('width',   (v) => this.width  = v);
+//            this.data.setter('height',  (v) => this.height = v);
+            this.data.setter('scale0',   (v) => {
+                this.scale.x = this.data.scale0 * this.data.scale;
+                this.scale.y = this.data.scale0 * this.data.scale;
+            });
+            this.data.setter('scale',   (v) => {
+                this.scale.x = this.data.scale0 * this.data.scale;
+                this.scale.y = this.data.scale0 * this.data.scale;
+            });
 
             this.state  = 'default';
         }
@@ -61,6 +68,23 @@ define(['game.data', 'pixi'], function (data, PIXI) {
         }
     };
     
+    view.VLabel = class VLabel extends view.View {
+        constructor (text) {
+            super();
+            
+            this.text = text || '';
+            this.view = new PIXI.Text(this.text, new PIXI.TextStyle({fontWeight : '100'}));
+            this.addChild(this.view);
+            
+            data.Data.bind(this.view, this, 'text', ( ) => this.update());
+        }
+        
+        update () {
+            this.view.pivot.x = this.view.width  / 2;
+            this.view.pivot.y = this.view.height / 2 - 1;
+        }
+    }
+    
     view.VPane = class VPane extends view.View {
         constructor () {super();}
         
@@ -81,15 +105,20 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             icon_c.data.x = - this.data.width / 5 * 1.5;
             icon_c.data.y = 0;
             
+            let icon_ti = new view.VButton('钛').style_icon_small();
+            icon_ti.data.x = - this.data.width / 5 * 0.5;
+            icon_ti.data.y = 0;
+            
             let icon_pu = new view.VButton('钚').style_icon_small(); // 238
-            icon_pu.data.x = - this.data.width / 5 * 0.5;
+            icon_pu.data.x = this.data.width / 5 * 0.5;
             icon_pu.data.y = 0;
             
             let icon_he = new view.VButton('氦').style_icon_small(); // 3
-            icon_he.data.x = this.data.width / 5 * 0.5;
+            icon_he.data.x = this.data.width / 5 * 1.5;
             icon_he.data.y = 0;
             
             this.addChild(icon_c);
+            this.addChild(icon_ti);
             this.addChild(icon_pu);
             this.addChild(icon_he);
         }
@@ -100,19 +129,19 @@ define(['game.data', 'pixi'], function (data, PIXI) {
         constructor (text) {
             super();
             
-            this.text   = new PIXI.Text(text, new PIXI.TextStyle({fontWeight : '100'}));
-            this.addChild(this.text);
+            this.text   = text;
+            this.label  = new view.VLabel();
+            this.addChild(this.label);
             
+            data.Data.bind(this.label, this, 'text');
             this.data.setter('width', (v) => {
 //                this.width  = v;
-                this.text.pivot.x = this.text.width / 2;
-                this.text.pivot.y = this.text.height / 2 - 1;
+                this.label.update();
             });
             this.data.setter('height', (v) => {
 //                this.height = v;
-                this.text.style.fontSize    = v * 2 / 3;
-                this.text.pivot.x = this.text.width / 2;
-                this.text.pivot.y = this.text.height / 2 - 1;
+                this.label.view.style.fontSize    = v * 2 / 3;
+                this.label.update();
             });
         }
         
@@ -160,7 +189,7 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             }
             if (undefined != color_mask) {
                 this.beginFill(color_mask, 0.2);
-                this.lineStyle(this.data.border, color_mask, 0.2);
+                this.lineStyle(0);
                 this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
                 this.endFill();
             }
@@ -172,6 +201,18 @@ define(['game.data', 'pixi'], function (data, PIXI) {
             super();
             this.auto_interactive(1.2);
             this.data.type = type;
+            
+            this.data.setter('thumb', (v) => {
+                if (v)  this.data.tween('scale0', 0.12);
+                else    this.data.tween('scale0', 1);
+            })
+            
+            this.click(( ) => this.data.thumb = !this.data.thumb);
+        }
+
+        click (action) {
+            this.on('pointerup', action);
+            return this;
         }
         
         draw () {
