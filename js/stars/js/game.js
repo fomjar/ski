@@ -56,7 +56,7 @@ define(['game.view', 'pixi'], function (view, PIXI) {
     
     let init_view = function () {
         var home = new game.VStar('home');
-        home.data.bind(game.asset.home);
+        home.data.bindi(game.asset.home);
         game.app.stage.addChild(home);
         
         game.app.stage.addChild(new game.VPaneResource());

@@ -13,10 +13,11 @@ define(['tween'], function (tween) {
             this.scale0 = 1;
             this.scale  = 1;
         }
-        tween  (pr, to, tm, dn) {Data.tween (this, pr, to, tm, dn);}
-        getter (pr, fn)         {Data.getter(this, pr, fn);}
-        setter (pr, fs, fg)     {Data.setter(this, pr, fs, fg);}
-        bind   (sr, pr, fn)     {Data.bind  (this, sr, pr, fn);}
+        tween   (pr, to, tm, dn)    {Data.tween (this, pr, to, tm, dn);}
+        on_get  (pr, fn)            {Data.on_get(this, pr, fn);}
+        on_set  (pr, fs, fg)        {Data.on_set(this, pr, fs, fg);}
+        bindi   (sr, pr, fn)        {Data.bind  (this, sr, pr, fn);}
+        bindo   (ta, pr, fn)        {Data.bind  (ta, this, pr, fn);}
         static tween (ta, pr, to, tm, dn) {
             if (3 > arguments.length) throw new Error('illegal arguments count, at least 3');
             
@@ -53,17 +54,17 @@ define(['tween'], function (tween) {
             };
             app.ticker.add(ta._tweener[pr]);
         }
-        static getter (ta, pr, fn) {
+        static on_get (ta, pr, fn) {
             if (2 > arguments.length) throw new Error('illegal arguments count, at least 2');
 
             ta[`_${pr}`] = ta[pr];
             if (!fn) fn = ( ) => ta[`_${pr}`];
             ta.__defineGetter__(pr, ( ) => fn());
         }
-        static setter (ta, pr, fs, fg) {
+        static on_set (ta, pr, fs, fg) {
             if (2 > arguments.length) throw new Error('illegal arguments count, at least 2');
 
-            Data.getter(ta, pr, fg);
+            Data.on_get(ta, pr, fg);
             
             ta.__defineSetter__(pr, (v) => {
                 ta[`_${pr}`] = v;
@@ -83,19 +84,29 @@ define(['tween'], function (tween) {
                     break;
             }
             if (pr) {
-                Data.setter(sr, pr, (v) => {
+                Data.on_set(sr, pr, (v) => {
                     ta[pr] = v;
                     if (fn) fn(pr, v);
                 });
             } else {
                 for (pr in sr) {
-                    Data.setter(sr, pr, (v) => {
+                    Data.on_set(sr, pr, (v) => {
                         ta[pr] = v
                         if (fn) fn(pr, v);
                     });
                 }
             }
         }
+    };
+    data.DLabel = class DLabel extends data.Data {
+        constructor () {
+            super();
+            this.text   = '';
+            this.align  = 'center';
+        }
+        align_left   () {this.align = 'left';}
+        align_center () {this.align = 'center';}
+        align_right  () {this.align = 'right';}
     };
     data.DPane = class DPane extends data.Data {
         constructor () {
@@ -118,10 +129,28 @@ define(['tween'], function (tween) {
             this.border = 2;
             this.color_bg   = 0x9999ff;
             this.color_bd   = 0x999999;
+            
+            this.grid   = [];
+            let n = 4;
+            for (let i = 0; i < n; i++) {
+                this.grid[i] = {
+                    index : i,
+                    name  : '',
+                    value : 0,
+                    position : {
+                        left   : - this.width / 2 + this.width / n * i,
+                        right  : - this.width / 2 + this.width / n * (i + 1),
+                        center : - this.width / 2 + this.width / n * (i + 0.5)
+                    }
+                };
+            }
         }
     };
     data.DButton = class DButton extends data.DPane {
-        constructor () {super();}
+        constructor () {
+            super();
+            this.text = '';
+        }
         
         style_icon_small () {
             this.width      = 16;
@@ -156,18 +185,18 @@ define(['tween'], function (tween) {
             this.level  = 1;
             this.radius = 1;
             this.border = 4;
-            this.thumb  = false;
+            this.thumb  = true;
             
-            this.setter('radius', (v) => {
+            this.on_set('radius', (v) => {
                 this.width  = v * 2;
                 this.height = v * 2;
             })
-            this.setter('level', (v) => {
+            this.on_set('level', (v) => {
                 let screen = document.game.screen;
                 this.radius = screen.height / 5 + v * screen.height / 80;
                 if ('home' == this.type) this.radius *= 1.2;
             });
-            this.setter('type', (type) => this.style_type());
+            this.on_set('type', (type) => this.style_type());
             
             this.style_type();
         }
