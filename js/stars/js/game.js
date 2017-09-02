@@ -50,17 +50,14 @@ define(['game.view', 'pixi'], function (view, PIXI) {
     
     let init_asset = function () {
         game.asset = {
-            stars   : [{type : 'home', x : game.screen.width / 2, y : game.screen.height / 2}],
+            home    : {x : game.screen.width / 2, y : game.screen.height / 2},
         };
     }
     
     let init_view = function () {
-        for (let i in game.asset.stars) {
-            let s = game.asset.stars[i];
-            let star = new game.VStar(s.type);
-            star.data.assign(s);
-            game.app.stage.addChild(star);
-        }
+        var home = new game.VStar('home');
+        home.data.bind(game.asset.home);
+        game.app.stage.addChild(home);
         
         game.app.stage.addChild(new game.VPaneResource());
     };

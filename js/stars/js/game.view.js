@@ -1,4 +1,4 @@
-define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
+define(['game.data', 'pixi'], function (data, PIXI) {
     
     'use strict';
     
@@ -9,7 +9,7 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
             super();
             
             let find_data = (proto) => {
-                var name = 'D' + proto.constructor.name.substring(1);
+                let name = `D${proto.constructor.name.substring(1)}`;
                 if (data[name]) this.data = new data[name]();
                 else {
                     if (proto.__proto__) find_data(proto.__proto__);
@@ -18,16 +18,20 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
             };
             find_data(this.__proto__);
             
-            this.data.xetter('x', (x) => this.position.x = x);
-            this.data.xetter('y', (y) => this.position.y = y);
+            this.data.setter('x',       (v) => this.position.x = v);
+            this.data.setter('y',       (v) => this.position.y = v);
+            this.data.setter('width',   (v) => this.width  = v);
+            this.data.setter('height',  (v) => this.height = v);
+            this.data.setter('scale',   (v) => {this.scale.x = v; this.scale.y = v;});
 
-            this.interactive    = true;
             this.state  = 'default';
         }
         
         draw () {}
 
         auto_interactive (s) {
+            this.interactive    = true;
+            
             this.removeAllListeners('pointerover');
             this.removeAllListeners('pointerout');
             this.removeAllListeners('pointerdown');
@@ -35,38 +39,23 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
             this.removeAllListeners('pointerupoutside');
             
             this.on('pointerover', () => {
-                if (s) {
-                    data.tween(this.scale, 'x', s);
-                    data.tween(this.scale, 'y', s);
-                }
+                if (s) this.data.tween('scale', s);
                 this.state = 'over';
             });
             this.on('pointerout', () => {
-                if (s) {
-                    data.tween(this.scale, 'x', 1);
-                    data.tween(this.scale, 'y', 1);
-                }
+                if (s) this.data.tween('scale', 1);
                 this.state = 'default';
             });
             this.on('pointerdown', () => {
-                if (s) {
-                    data.tween(this.scale, 'x', 1);
-                    data.tween(this.scale, 'y', 1);
-                }
+                if (s) this.data.tween('scale', 1);
                 this.state = 'down';
             });
             this.on('pointerup', () => {
-                if (s) {
-                    data.tween(this.scale, 'x', s);
-                    data.tween(this.scale, 'y', s);
-                }
+                if (s) this.data.tween('scale', s);
                 this.state = 'over';
             });
             this.on('pointerupoutside', () => {
-                if (s) {
-                    data.tween(this.scale, 'x', 1);
-                    data.tween(this.scale, 'y', 1);
-                }
+                if (s) this.data.tween('scale', 1);
                 this.state = 'default'
             });
         }
@@ -88,11 +77,21 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
         constructor () {
             super();
             
-            let icon_stone = new view.VButton('石').style_icon_small();
-            icon_stone.data.x = - this.data.width / 4;
-            icon_stone.data.y = 0;
+            let icon_c = new view.VButton('炭').style_icon_small(); // 14
+            icon_c.data.x = - this.data.width / 5 * 1.5;
+            icon_c.data.y = 0;
             
-            this.addChild(icon_stone);
+            let icon_pu = new view.VButton('钚').style_icon_small(); // 238
+            icon_pu.data.x = - this.data.width / 5 * 0.5;
+            icon_pu.data.y = 0;
+            
+            let icon_he = new view.VButton('氦').style_icon_small(); // 3
+            icon_he.data.x = this.data.width / 5 * 0.5;
+            icon_he.data.y = 0;
+            
+            this.addChild(icon_c);
+            this.addChild(icon_pu);
+            this.addChild(icon_he);
         }
     };
     
@@ -104,12 +103,14 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
             this.text   = new PIXI.Text(text, new PIXI.TextStyle({fontWeight : '100'}));
             this.addChild(this.text);
             
-            this.data.xetter('width', (width) => {
+            this.data.setter('width', (v) => {
+//                this.width  = v;
                 this.text.pivot.x = this.text.width / 2;
                 this.text.pivot.y = this.text.height / 2 - 1;
             });
-            this.data.xetter('height', (height) => {
-                this.text.style.fontSize    = height * 2 / 3;
+            this.data.setter('height', (v) => {
+//                this.height = v;
+                this.text.style.fontSize    = v * 2 / 3;
                 this.text.pivot.x = this.text.width / 2;
                 this.text.pivot.y = this.text.height / 2 - 1;
             });
@@ -148,19 +149,20 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
         draw () {
             super.draw();
             
+            let color_mask = undefined;
             switch (this.state) {
                 case 'over':
-                    this.beginFill(0xffffff, 0.2);
-                    this.lineStyle(this.data.border, 0xffffff, 0.2);
-                    this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
-                    this.endFill();
+                    color_mask = 0xffffff;
                     break;
                 case 'down':
-                    this.beginFill(0x000000, 0.2);
-                    this.lineStyle(this.data.border, 0x000000, 0.2);
-                    this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
-                    this.endFill();
+                    color_mask = 0x000000;
                     break;
+            }
+            if (undefined != color_mask) {
+                this.beginFill(color_mask, 0.2);
+                this.lineStyle(this.data.border, color_mask, 0.2);
+                this.drawRoundedRect(- this.data.width / 2, - this.data.height / 2, this.data.width, this.data.height, this.data.round);
+                this.endFill();
             }
         }
     };
@@ -168,7 +170,7 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
     view.VStar = class VStar extends view.View {
         constructor (type) {
             super();
-            this.auto_interactive(1.1);
+            this.auto_interactive(1.2);
             this.data.type = type;
         }
         
@@ -185,6 +187,7 @@ define(['game.data', 'tween', 'pixi'], function (data, tween, PIXI) {
             this.beginFill(this.data.color_bg, 1);
             this.drawCircle(0, 0, this.data.radius);
             this.endFill();
+            
             switch (this.data.type) {
                 case 'home':
                     break;

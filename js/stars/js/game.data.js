@@ -4,56 +4,64 @@ define(['tween'], function (tween) {
     
     let data = {};
     
-    data.tween  = function (ta, pr, to, fn, tm) {
-        if (!tm) tm = 160;
-        if (!fn) fn = tween.Circ.easeOut;
-
-        let from    = ta[pr];
-        let time    = 0;
-        let begin   = new Date().getTime();
-
-        let app = document.game.app;
-        if (!ta.tweener) ta.tweener = {};
-        if (ta.tweener[pr]) {
-            app.ticker.remove(ta.tweener[pr]);
-            delete ta.tweener[pr];
-        }
-        ta.tweener[pr] = function (delta) {
-            time = new Date().getTime() - begin;
-            ta[pr] = fn(time, from, to - from, tm);
-            if (time >= tm) {
-                ta[pr] = to;
-                app.ticker.remove(ta.tweener[pr]);
-                delete ta.tweener[pr];
-            }
-        };
-        app.ticker.add(ta.tweener[pr]);
-    };
-    
     data.Data = class Data {
         constructor () {
             this.x      = 0;
             this.y      = 0;
             this.width  = 1;
             this.height = 1;
+            this.scale  = 1;
         }
-        xetter (pr, fs, fg) {
-            if (1 > arguments.length) throw new Error('illegal arguments count, at least 1');
+        tween  (pr, to, fn, tm) {Data.tween (this, pr, to, fn, tm);}
+        getter (pr, fn)         {Data.getter(this, pr, fn);}
+        setter (pr, fs, fg)     {Data.setter(this, pr, fs, fg);}
+        bind   (sr, pr)         {Data.bind  (this, sr, pr);}
+        static tween (ta, pr, to, fn, tm) {
+            if (!tm) tm = 160;
+            if (!fn) fn = tween.Circ.easeOut;
+
+            let from    = ta[pr];
+            let time    = 0;
+            let begin   = new Date().getTime();
+
+            let app = document.game.app;
+            if (!ta._tweener) ta._tweener = {};
+            if (ta._tweener[pr]) {
+                app.ticker.remove(ta._tweener[pr]);
+                delete ta._tweener[pr];
+            }
+            ta._tweener[pr] = function (delta) {
+                time = new Date().getTime() - begin;
+                ta[pr] = fn(time, from, to - from, tm);
+                if (time >= tm) {
+                    ta[pr] = to;
+                    app.ticker.remove(ta._tweener[pr]);
+                    delete ta._tweener[pr];
+                }
+            };
+            app.ticker.add(ta._tweener[pr]);
+        }
+        static getter (ta, pr, fn) {
+            if (2 > arguments.length) throw new Error('illegal arguments count, at least 2');
+
+            ta[`_${pr}`] = ta[pr];
+            if (!fn) fn = ( ) => ta[`_${pr}`];
+            ta.__defineGetter__(pr, ( ) => fn());
+        }
+        static setter (ta, pr, fs, fg) {
+            if (2 > arguments.length) throw new Error('illegal arguments count, at least 2');
+
+            Data.getter(ta, pr, fg);
             
-            this['_' + pr] = this[pr];
-            this.__defineSetter__(pr, (v) => {
+            ta.__defineSetter__(pr, (v) => {
+                ta[`_${pr}`] = v;
                 if (fs) fs(v);
-                this['_' + pr] = v;
             });
-            this.__defineGetter__(pr, ( ) => {
-                let v = this['_' + pr];
-                if (fg) fg(v);
-                return v;
-            });
-            this[pr] = this['_' + pr];
+            ta[pr] = ta[`_${pr}`];
         }
-        assign (d) {
-            Object.assign(this, d);
+        static bind (ta, sr, pr) {
+            if (pr) Data.setter(sr, pr, (v) => ta[pr] = v);
+            else for (pr in sr) Data.setter(sr, pr, (v) => ta[pr] = v);
         }
     };
     data.DPane = class DPane extends data.Data {
@@ -114,15 +122,16 @@ define(['tween'], function (tween) {
             this.type   = type;
             this.level  = 1;
             this.radius = 1;
+            this.border = 2;
             
-            this.xetter('radius', (radius) => {
-                this.width  = radius * 2;
-                this.height = radius * 2;
+            this.setter('radius', (v) => {
+                this.width  = v * 2;
+                this.height = v * 2;
             })
-            this.xetter('level', (level) => {
-                this.radius = 15 + level * 2;
+            this.setter('level', (v) => {
+                this.radius = 15 + v * 2;
             });
-            this.xetter('type', (type) => this.style_type());
+            this.setter('type', (type) => this.style_type());
             
             this.style_type();
         }
@@ -130,7 +139,6 @@ define(['tween'], function (tween) {
         style_type () {
             switch (this.type) {
                 case 'home':
-                    this.border = 2;
                     this.color_bg   = 0xffff99;
                     this.color_bd   = 0x999999;
                     break;
